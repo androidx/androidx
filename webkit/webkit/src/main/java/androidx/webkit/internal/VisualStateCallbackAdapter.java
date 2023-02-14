@@ -16,6 +16,7 @@
 
 package androidx.webkit.internal;
 
+import androidx.annotation.NonNull;
 import androidx.webkit.WebViewCompat;
 
 import org.chromium.support_lib_boundary.VisualStateCallbackBoundaryInterface;
@@ -25,9 +26,10 @@ import org.chromium.support_lib_boundary.VisualStateCallbackBoundaryInterface;
  * corresponding interface shared with the support library glue in the WebView APK).
  */
 public class VisualStateCallbackAdapter implements VisualStateCallbackBoundaryInterface {
-    private WebViewCompat.VisualStateCallback mVisualStateCallback;
+    private final WebViewCompat.VisualStateCallback mVisualStateCallback;
 
-    public VisualStateCallbackAdapter(WebViewCompat.VisualStateCallback visualStateCallback) {
+    public VisualStateCallbackAdapter(
+            @NonNull WebViewCompat.VisualStateCallback visualStateCallback) {
         mVisualStateCallback = visualStateCallback;
     }
 

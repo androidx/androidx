@@ -16,54 +16,79 @@
 
 package androidx.camera.integration.view;
 
+import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
+
+import static java.util.Arrays.asList;
+
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.video.MediaStoreOutputOptions;
+import androidx.camera.video.Recording;
+import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.CameraController;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.camera.view.RotationProvider;
+import androidx.camera.view.video.AudioConfig;
 import androidx.camera.view.video.ExperimentalVideo;
-import androidx.camera.view.video.OnVideoSavedCallback;
-import androidx.camera.view.video.OutputFileOptions;
-import androidx.camera.view.video.OutputFileResults;
+import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -86,6 +111,7 @@ public class CameraControllerFragment extends Fragment {
     private FrameLayout mContainer;
     private Button mFlashMode;
     private ToggleButton mCameraToggle;
+    private ToggleButton mEffectToggle;
     private ExecutorService mExecutorService;
     private ToggleButton mCaptureEnabledToggle;
     private ToggleButton mAnalysisEnabledToggle;
@@ -96,15 +122,36 @@ public class CameraControllerFragment extends Fragment {
     private TextView mFocusResultText;
     private TextView mTorchStateText;
     private TextView mLuminance;
+    private CheckBox mOnDisk;
     private boolean mIsAnalyzerSet = true;
     // Listen to accelerometer rotation change and pass it to tests.
     private RotationProvider mRotationProvider;
     private int mRotation;
     private final RotationProvider.Listener mRotationListener = rotation -> mRotation = rotation;
+    @Nullable
+    private Recording mActiveRecording = null;
+    private final Consumer<VideoRecordEvent> mVideoRecordEventListener = videoRecordEvent -> {
+        if (videoRecordEvent instanceof VideoRecordEvent.Finalize) {
+            VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) videoRecordEvent;
+            Uri uri = finalize.getOutputResults().getOutputUri();
+
+            if (finalize.getError() == ERROR_NONE) {
+                toast("Video saved to: " + uri);
+            } else {
+                String msg = "Saved uri " + uri;
+                msg += " with code (" + finalize.getError() + ")";
+                toast("Failed to save video: " + msg);
+            }
+        }
+    };
 
     // Wrapped analyzer for tests to receive callbacks.
     @Nullable
     private ImageAnalysis.Analyzer mWrappedAnalyzer;
+
+    @VisibleForTesting
+    ToneMappingPreviewEffect mToneMappingPreviewEffect;
+    ToneMappingImageEffect mToneMappingImageEffect;
 
     private final ImageAnalysis.Analyzer mAnalyzer = image -> {
         byte[] bytes = new byte[image.getPlanes()[0].getBuffer().remaining()];
@@ -125,6 +172,21 @@ public class CameraControllerFragment extends Fragment {
     };
 
     @NonNull
+    private MediaStoreOutputOptions getNewVideoOutputMediaStoreOptions() {
+        String videoFileName = "video_" + System.currentTimeMillis();
+        ContentResolver resolver = requireContext().getContentResolver();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
+        contentValues.put(MediaStore.Video.Media.TITLE, videoFileName);
+        contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName);
+        return new MediaStoreOutputOptions
+                .Builder(resolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+                .setContentValues(contentValues)
+                .build();
+    }
+
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    @NonNull
     @Override
     @OptIn(markerClass = ExperimentalVideo.class)
     public View onCreateView(
@@ -134,7 +196,7 @@ public class CameraControllerFragment extends Fragment {
         mExecutorService = Executors.newSingleThreadExecutor();
         mRotationProvider = new RotationProvider(requireContext());
         boolean canDetectRotation = mRotationProvider.addListener(
-                CameraXExecutors.mainThreadExecutor(), mRotationListener);
+                mainThreadExecutor(), mRotationListener);
         if (!canDetectRotation) {
             Logger.e(TAG, "The device cannot detect rotation with motion sensor.");
         }
@@ -158,6 +220,13 @@ public class CameraControllerFragment extends Fragment {
                 mContainer.removeView(mPreviewView);
             }
         });
+
+        // Set up post-processing effects.
+        mToneMappingPreviewEffect = new ToneMappingPreviewEffect();
+        mToneMappingImageEffect = new ToneMappingImageEffect();
+        mEffectToggle = view.findViewById(R.id.effect_toggle);
+        mEffectToggle.setOnCheckedChangeListener((compoundButton, isChecked) -> onEffectsToggled());
+        onEffectsToggled();
 
         // Set up the button to change the PreviewView's size.
         view.findViewById(R.id.shrink).setOnClickListener(v -> {
@@ -199,26 +268,9 @@ public class CameraControllerFragment extends Fragment {
             updateUiText();
         });
 
+        mOnDisk = view.findViewById(R.id.on_disk);
         // Take picture button.
-        view.findViewById(R.id.capture).setOnClickListener(
-                v -> {
-                    try {
-                        takePicture(new ImageCapture.OnImageSavedCallback() {
-                            @Override
-                            public void onImageSaved(
-                                    @NonNull ImageCapture.OutputFileResults outputFileResults) {
-                                toast("Image saved to: " + outputFileResults.getSavedUri());
-                            }
-
-                            @Override
-                            public void onError(@NonNull ImageCaptureException exception) {
-                                toast("Failed to save picture: " + exception.getMessage());
-                            }
-                        });
-                    } catch (RuntimeException exception) {
-                        toast("Failed to take picture: " + exception.getMessage());
-                    }
-                });
+        view.findViewById(R.id.capture).setOnClickListener(v -> takePicture());
 
         // Set up analysis UI.
         mAnalysisEnabledToggle = view.findViewById(R.id.analysis_enabled);
@@ -247,30 +299,7 @@ public class CameraControllerFragment extends Fragment {
 
         view.findViewById(R.id.video_record).setOnClickListener(v -> {
             try {
-                String videoFileName = "video_" + System.currentTimeMillis();
-                ContentResolver resolver = requireContext().getContentResolver();
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
-                contentValues.put(MediaStore.Video.Media.TITLE, videoFileName);
-                contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName);
-                OutputFileOptions outputFileOptions = OutputFileOptions.builder(resolver,
-                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues).build();
-                mCameraController.startRecording(outputFileOptions, mExecutorService,
-                        new OnVideoSavedCallback() {
-                            @Override
-                            public void onVideoSaved(
-                                    @NonNull OutputFileResults outputFileResults) {
-                                toast("Video saved to: "
-                                        + outputFileResults.getSavedUri());
-                            }
-
-                            @Override
-                            public void onError(int videoCaptureError,
-                                    @NonNull String message,
-                                    @Nullable Throwable cause) {
-                                toast("Failed to save video: " + message);
-                            }
-                        });
+                startRecording(mVideoRecordEventListener);
             } catch (RuntimeException exception) {
                 toast("Failed to record video: " + exception.getMessage());
             }
@@ -278,7 +307,7 @@ public class CameraControllerFragment extends Fragment {
         });
         view.findViewById(R.id.video_stop_recording).setOnClickListener(
                 v -> {
-                    mCameraController.stopRecording();
+                    stopRecording();
                     updateUiText();
                 });
 
@@ -341,6 +370,16 @@ public class CameraControllerFragment extends Fragment {
             mExecutorService.shutdown();
         }
         mRotationProvider.removeListener(mRotationListener);
+        mToneMappingPreviewEffect.release();
+    }
+
+    private void onEffectsToggled() {
+        if (mEffectToggle.isChecked()) {
+            mCameraController.setEffects(
+                    new HashSet<>(asList(mToneMappingPreviewEffect, mToneMappingImageEffect)));
+        } else {
+            mCameraController.setEffects(null);
+        }
     }
 
     void checkFailedFuture(ListenableFuture<Void> voidFuture) {
@@ -352,10 +391,10 @@ public class CameraControllerFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 toast(t.getMessage());
             }
-        }, CameraXExecutors.mainThreadExecutor());
+        }, mainThreadExecutor());
     }
 
     // Synthetic access
@@ -485,6 +524,88 @@ public class CameraControllerFragment extends Fragment {
         runSafely(() -> mCameraController.setEnabledUseCases(finalUseCaseEnabledFlags));
     }
 
+    /**
+     * Take a picture based on the current configuration.
+     */
+    private void takePicture() {
+        try {
+            if (mOnDisk.isChecked()) {
+                takePicture(new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(
+                            @NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        toast("Image saved to: " + outputFileResults.getSavedUri());
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        toast("Failed to save picture: " + exception.getMessage());
+                    }
+                });
+            } else {
+                mCameraController.takePicture(mExecutorService,
+                        new ImageCapture.OnImageCapturedCallback() {
+                            @Override
+                            public void onCaptureSuccess(@NonNull ImageProxy image) {
+                                displayImage(image);
+                            }
+
+                            @Override
+                            public void onError(@NonNull ImageCaptureException exception) {
+                                toast("Failed to capture in-memory picture: "
+                                        + exception.getMessage());
+                            }
+                        });
+            }
+        } catch (RuntimeException exception) {
+            toast("Failed to take picture: " + exception.getMessage());
+        }
+    }
+
+    /**
+     * Displays a {@link ImageProxy} in a pop-up dialog.
+     */
+    private void displayImage(@NonNull ImageProxy image) {
+        int rotationDegrees = image.getImageInfo().getRotationDegrees();
+        Bitmap cropped = getCroppedBitmap(image);
+        image.close();
+
+        mainThreadExecutor().execute(() -> {
+            Dialog dialog = new Dialog(requireContext());
+            dialog.setContentView(R.layout.image_dialog);
+            ImageView imageView = (ImageView) dialog.findViewById(R.id.dialog_image);
+            imageView.setImageBitmap(cropped);
+            imageView.setRotation(rotationDegrees);
+            dialog.findViewById(R.id.dialog_button).setOnClickListener(view -> dialog.dismiss());
+            dialog.show();
+        });
+    }
+
+    /**
+     * Converts the {@link ImageProxy} to {@link Bitmap} with crop rect applied.
+     */
+    private Bitmap getCroppedBitmap(@NonNull ImageProxy image) {
+        ByteBuffer byteBuffer = image.getPlanes()[0].getBuffer();
+        byte[] bytes = new byte[byteBuffer.remaining()];
+        byteBuffer.get(bytes);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+        Rect cropRect = image.getCropRect();
+        Size newSize = new Size(cropRect.width(), cropRect.height());
+        Bitmap cropped = Bitmap.createBitmap(newSize.getWidth(), newSize.getHeight(),
+                Bitmap.Config.ARGB_8888);
+
+        Matrix croppingTransform = getRectToRect(new RectF(cropRect),
+                new RectF(0, 0, cropRect.width(), cropRect.height()), 0);
+
+        Canvas canvas = new Canvas(cropped);
+        canvas.drawBitmap(bitmap, croppingTransform, new Paint());
+        canvas.save();
+
+        bitmap.recycle();
+        return cropped;
+    }
+
     // -----------------
     // For testing
     // -----------------
@@ -532,6 +653,26 @@ public class CameraControllerFragment extends Fragment {
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                         contentValues).build();
         mCameraController.takePicture(outputFileOptions, mExecutorService, callback);
+    }
+
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    @VisibleForTesting
+    @MainThread
+    @OptIn(markerClass = ExperimentalVideo.class)
+    void startRecording(Consumer<VideoRecordEvent> listener) {
+        MediaStoreOutputOptions outputOptions = getNewVideoOutputMediaStoreOptions();
+        AudioConfig audioConfig = AudioConfig.create(true);
+        mActiveRecording = mCameraController.startRecording(outputOptions, audioConfig,
+                mExecutorService, listener);
+    }
+
+    @VisibleForTesting
+    @MainThread
+    @OptIn(markerClass = ExperimentalVideo.class)
+    void stopRecording() {
+        if (mActiveRecording != null) {
+            mActiveRecording.stop();
+        }
     }
 
 }

@@ -18,7 +18,9 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
 import android.os.Build
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -30,7 +32,9 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,7 +44,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -66,6 +69,7 @@ class UseCaseCameraTest {
     private val fakeUseCaseGraphConfig = UseCaseGraphConfig(
         graph = fakeCameraGraph,
         surfaceToStreamMap = surfaceToStreamMap,
+        cameraStateAdapter = CameraStateAdapter(),
     )
     private val fakeConfigAdapter = CaptureConfigAdapter(
         useCaseGraphConfig = fakeUseCaseGraphConfig,
@@ -96,11 +100,19 @@ class UseCaseCameraTest {
                 }
             )
         }
+        @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         val useCaseCamera = UseCaseCameraImpl(
-            fakeUseCaseGraphConfig, arrayListOf(fakeUseCase),
-            useCaseThreads, requestControl
+            controls = emptySet<UseCaseCameraControl>() as java.util.Set<UseCaseCameraControl>,
+            useCaseGraphConfig = fakeUseCaseGraphConfig,
+            useCases = arrayListOf(fakeUseCase),
+            useCaseSurfaceManager = UseCaseSurfaceManager(
+                useCaseThreads,
+                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext()))
+            ),
+            threads = useCaseThreads,
+            requestControl = requestControl
         ).also {
-            it.activeUseCases = setOf(fakeUseCase)
+            it.runningUseCases = setOf(fakeUseCase)
         }
         assumeTrue(
             fakeCameraGraph.fakeCameraGraphSession.repeatingRequestSemaphore.tryAcquire(
@@ -114,7 +126,8 @@ class UseCaseCameraTest {
                 addSurface(surface)
             }
         )
-        useCaseCamera.activeUseCases = setOf(fakeUseCase)
+
+        useCaseCamera.runningUseCases = setOf(fakeUseCase)
 
         // Assert. The stopRepeating() should be called.
         assertThat(

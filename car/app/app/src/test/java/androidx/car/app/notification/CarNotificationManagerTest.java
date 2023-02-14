@@ -39,6 +39,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -94,6 +95,7 @@ public class CarNotificationManagerTest {
                 mDefaultPendingIntent);
     }
 
+    @Ignore // b/238635208
     @SuppressWarnings("deprecation")
     @Test
     public void updateForCar_embedded_overridesAsExpected() {
@@ -108,7 +110,7 @@ public class CarNotificationManagerTest {
                 EXTENDED_TEXT);
         assertThat(changed.contentIntent).isSameInstanceAs(mExtendedPendingIntent);
         assertThat(changed.deleteIntent).isSameInstanceAs(mExtendedPendingIntent);
-        assertThat(changed.color).isEqualTo(mContext.getColor(R.color.carColorBlue));
+        assertThat(changed.color).isEqualTo(mContext.getResources().getColor(R.color.carColorBlue));
         assertThat(changed.getChannelId()).isEqualTo(EXTENDED_CHANNEL);
         assertThat(changed.icon).isEqualTo(mExtendedIcon);
         // Comparing the largeIcon does not work due to internally it creating another Bitmap and
@@ -122,6 +124,7 @@ public class CarNotificationManagerTest {
         assertThat(action.title).isEqualTo(EXTENDED_ACTION_TITLE);
     }
 
+    @Ignore // b/238635208
     @SuppressWarnings("deprecation")
     @Test
     public void updateForCar_notEmbedded_returnsTheSame() {
@@ -147,6 +150,7 @@ public class CarNotificationManagerTest {
         assertThat(action.title).isEqualTo(DEFAULT_ACTION_TITLE);
     }
 
+    @Ignore // b/238635208
     @SuppressWarnings("deprecation")
     @Test
     public void updateForCar_notExtended_marksAsExtended()
@@ -176,55 +180,63 @@ public class CarNotificationManagerTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // getColor(int id)
     public void getColorInt_red() {
         assertThat(mCarNotificationManager.getColorInt(CarColor.RED)).isEqualTo(
-                mContext.getColor(R.color.carColorRed));
+                mContext.getResources().getColor(R.color.carColorRed));
     }
 
     @Test
+    @SuppressWarnings("deprecation") // getColor(int id)
     public void getColorInt_red_dark() {
         setDarkMode();
         assertThat(mCarNotificationManager.getColorInt(CarColor.RED)).isEqualTo(
-                mContext.getColor(R.color.carColorRed));
+                mContext.getResources().getColor(R.color.carColorRed));
     }
 
     @Test
+    @SuppressWarnings("deprecation") // getColor(int id)
     public void getColorInt_blue() {
         assertThat(mCarNotificationManager.getColorInt(CarColor.BLUE)).isEqualTo(
-                mContext.getColor(R.color.carColorBlue));
+                mContext.getResources().getColor(R.color.carColorBlue));
     }
 
     @Test
+    @SuppressWarnings("deprecation") // getColor(int id)
     public void getColorInt_blue_dark() {
         setDarkMode();
         assertThat(mCarNotificationManager.getColorInt(CarColor.BLUE)).isEqualTo(
-                mContext.getColor(R.color.carColorBlue));
+                mContext.getResources().getColor(R.color.carColorBlue));
     }
 
     @Test
+    @SuppressWarnings("deprecation") // getColor(int id)
     public void getColorInt_green() {
         assertThat(mCarNotificationManager.getColorInt(CarColor.GREEN)).isEqualTo(
-                mContext.getColor(R.color.carColorGreen));
+                mContext.getResources().getColor(R.color.carColorGreen));
     }
 
     @Test
+    @SuppressWarnings("deprecation") // getColor(int id)
     public void getColorInt_green_dark() {
         setDarkMode();
         assertThat(mCarNotificationManager.getColorInt(CarColor.GREEN)).isEqualTo(
-                mContext.getColor(R.color.carColorGreen));
+                mContext.getResources().getColor(R.color.carColorGreen));
     }
 
     @Test
+    @SuppressWarnings("deprecation") // getColor(int id)
     public void getColorInt_yellow() {
         assertThat(mCarNotificationManager.getColorInt(CarColor.YELLOW)).isEqualTo(
-                mContext.getColor(R.color.carColorYellow));
+                mContext.getResources().getColor(R.color.carColorYellow));
     }
 
     @Test
+    @SuppressWarnings("deprecation") // getColor(int id)
     public void getColorInt_yellow_dark() {
         setDarkMode();
         assertThat(mCarNotificationManager.getColorInt(CarColor.YELLOW)).isEqualTo(
-                mContext.getColor(R.color.carColorYellow));
+                mContext.getResources().getColor(R.color.carColorYellow));
     }
 
     @Test

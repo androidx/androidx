@@ -38,18 +38,22 @@ import androidx.wear.compose.material.PageIndicatorState
 @Sampled
 @Composable
 fun HorizontalPageIndicatorSample() {
-    val maxPages = 6
+    val maxPages = 9
     var selectedPage by remember { mutableStateOf(0) }
+    var finalValue by remember { mutableStateOf(0) }
+
     val animatedSelectedPage by animateFloatAsState(
         targetValue = selectedPage.toFloat(),
-    )
+    ) {
+        finalValue = it.toInt()
+    }
 
     val pageIndicatorState: PageIndicatorState = remember {
         object : PageIndicatorState {
             override val pageOffset: Float
-                get() = animatedSelectedPage - selectedPage
+                get() = animatedSelectedPage - finalValue
             override val selectedPage: Int
-                get() = selectedPage
+                get() = finalValue
             override val pageCount: Int
                 get() = maxPages
         }

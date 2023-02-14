@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="Do not use `@java.lang.annotation.Target` here; it will cause the annotation to not be allowed on **any** element types from Java"
+        errorLine1="@java.lang.annotation.Target("
+        errorLine2="                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/annotation/OptIn.kt"/>
+    </issue>
+
+</issues>

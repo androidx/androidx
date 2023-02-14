@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.Publish
 import androidx.build.LibraryType
 
 plugins {
@@ -37,7 +38,17 @@ dependencies {
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":wear:tiles:tiles-renderer"))
     androidTestRuntimeOnly(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
-    androidTestImplementation("com.google.protobuf:protobuf-java:3.10.0")
+    androidTestImplementation(libs.protobuf)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.truth)
 
     annotationProcessor(libs.nullaway)
 }
@@ -61,7 +72,7 @@ android {
 androidx {
     name = "Android Wear Tiles Material"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_TILES
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2021"
     description = "Material components library for Android Wear Tiles."
 }

@@ -153,6 +153,8 @@ fun EdgeSwipeForSwipeToDismiss(
 ) {
     val state = rememberSwipeToDismissBoxState()
 
+    // When using Modifier.edgeSwipeToDismiss, it is required that the element on which the
+    // modifier applies exists within a SwipeToDismissBox which shares the same state.
     SwipeToDismissBox(
         state = state,
         onDismissed = navigateBack

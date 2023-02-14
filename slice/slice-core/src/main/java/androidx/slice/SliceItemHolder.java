@@ -25,11 +25,14 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Spanned;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.text.HtmlCompat;
@@ -51,28 +54,41 @@ import java.util.ArrayList;
 public class SliceItemHolder implements VersionedParcelable {
 
     public static final Object sSerializeLock = new Object();
+
+    @Nullable
     public static HolderHandler sHandler;
 
     // VersionedParcelable fields for custom serialization.
+    @Nullable
     @ParcelField(value = 1, defaultValue = "null")
     public VersionedParcelable mVersionedParcelable = null;
+
+    @Nullable
     @ParcelField(value = 2, defaultValue = "null")
     Parcelable mParcelable = null;
+
     @NonParcelField
     Object mCallback;
+
+    @Nullable
     @ParcelField(value = 3, defaultValue = "null")
     String mStr = null;
+
     @ParcelField(value = 4, defaultValue = "0")
     int mInt = 0;
+
     @ParcelField(value = 5, defaultValue = "0")
     long mLong = 0;
+
+    @Nullable
     @ParcelField(value = 6, defaultValue = "null")
     Bundle mBundle = null;
 
+    @Nullable
     @NonParcelField
     private SliceItemPool mPool;
 
-    SliceItemHolder(SliceItemPool pool) {
+    SliceItemHolder(@NonNull SliceItemPool pool) {
         mPool = pool;
     }
 
@@ -86,7 +102,8 @@ public class SliceItemHolder implements VersionedParcelable {
     }
 
     @SuppressWarnings("unchecked")
-    public SliceItemHolder(String format, Object mObj, boolean isStream) {
+    @SuppressLint("UnknownNullness") // mObj cannot be correctly annotated
+    public SliceItemHolder(@NonNull String format, Object mObj, boolean isStream) {
         switch (format) {
             case FORMAT_ACTION:
                 if (((Pair<Object, Slice>) mObj).first instanceof PendingIntent) {
@@ -125,7 +142,8 @@ public class SliceItemHolder implements VersionedParcelable {
     /**
      * Gets object that should be held by SliceItem.
      */
-    public Object getObj(String format) {
+    @Nullable
+    public Object getObj(@NonNull String format) {
         if (SliceItemHolder.sHandler != null) {
             SliceItemHolder.sHandler.handle(this, format);
         }
@@ -159,7 +177,10 @@ public class SliceItemHolder implements VersionedParcelable {
      * Callback that gets to participate in the serialization process for SliceItems.
      */
     public interface HolderHandler {
-        void handle(SliceItemHolder holder, String format);
+        /**
+         * Called during the serialization process for SliceItems.
+         */
+        void handle(@NonNull SliceItemHolder holder, @NonNull String format);
     }
 
     /**
@@ -172,6 +193,7 @@ public class SliceItemHolder implements VersionedParcelable {
         /**
          * Acquire an item from the pool.
          */
+        @NonNull
         public SliceItemHolder get() {
             if (mCached.size() > 0) {
                 return mCached.remove(mCached.size() - 1);
@@ -182,7 +204,7 @@ public class SliceItemHolder implements VersionedParcelable {
         /**
          * Send an object back to the pool.
          */
-        public void release(SliceItemHolder sliceItemHolder) {
+        public void release(@NonNull SliceItemHolder sliceItemHolder) {
             sliceItemHolder.mParcelable = null;
             sliceItemHolder.mCallback = null;
             sliceItemHolder.mVersionedParcelable = null;

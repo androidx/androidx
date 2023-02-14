@@ -19,8 +19,6 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
-import android.util.Rational
-import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.arch.core.util.Function
 import androidx.camera.camera2.pipe.CameraPipe
@@ -48,13 +46,10 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureChain
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.CoroutineStart
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.guava.asListenableFuture
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Adapt the [CameraControlInternal] interface to [CameraPipe].
@@ -69,21 +64,16 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
 class CameraControlAdapter @Inject constructor(
     private val cameraProperties: CameraProperties,
-    private val cameraStateAdapter: CameraStateAdapter,
+    private val cameraControlStateAdapter: CameraControlStateAdapter,
     private val evCompControl: EvCompControl,
     private val flashControl: FlashControl,
+    private val focusMeteringControl: FocusMeteringControl,
     private val torchControl: TorchControl,
     private val threads: UseCaseThreads,
     private val useCaseManager: UseCaseManager,
     private val zoomControl: ZoomControl,
     val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
-    private val focusMeteringControl = FocusMeteringControl(
-        cameraProperties,
-        useCaseManager,
-        threads
-    )
-
     override fun getSensorRect(): Rect {
         return cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
     }
@@ -113,35 +103,24 @@ class CameraControlAdapter @Inject constructor(
 
     override fun startFocusAndMetering(
         action: FocusMeteringAction
-    ): ListenableFuture<FocusMeteringResult> {
-        // TODO(sushilnath@): use preview aspect ratio instead of sensor active array aspect ratio.
-        val sensorAspectRatio = Rational(sensorRect.width(), sensorRect.height())
-        return focusMeteringControl.startFocusAndMetering(action, sensorAspectRatio)
-    }
+    ): ListenableFuture<FocusMeteringResult> =
+        Futures.nonCancellationPropagating(focusMeteringControl.startFocusAndMetering(action))
 
     override fun cancelFocusAndMetering(): ListenableFuture<Void> {
-        warn { "TODO: cancelFocusAndMetering is not yet supported" }
-        return Futures.immediateFuture(null)
+        return Futures.nonCancellationPropagating(
+            FutureChain.from(
+                focusMeteringControl.cancelFocusAndMeteringAsync().asListenableFuture()
+            ).transform(
+                Function { return@Function null }, CameraXExecutors.directExecutor()
+            )
+        )
     }
 
-    override fun setZoomRatio(ratio: Float): ListenableFuture<Void> {
-        return threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            useCaseManager.camera?.let {
-                zoomControl.zoomRatio = ratio
-                val zoomValue = ZoomValue(
-                    ratio,
-                    zoomControl.minZoom,
-                    zoomControl.maxZoom
-                )
-                cameraStateAdapter.setZoomState(zoomValue)
-            }
-        }.asListenableFuture()
-    }
+    override fun setZoomRatio(ratio: Float): ListenableFuture<Void> =
+        zoomControl.setZoomRatio(ratio)
 
-    override fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> {
-        val ratio = zoomControl.toZoomRatio(linearZoom)
-        return setZoomRatio(ratio)
-    }
+    override fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> =
+        zoomControl.setLinearZoom(linearZoom)
 
     override fun getFlashMode(): Int {
         return flashControl.flashMode
@@ -156,11 +135,16 @@ class CameraControlAdapter @Inject constructor(
             evCompControl.updateAsync(exposure).asListenableFuture()
         )
 
-    override fun setZslDisabled(disabled: Boolean) {
-        // Override if Zero-Shutter Lag needs to be disabled or not.
+    override fun setZslDisabledByUserCaseConfig(disabled: Boolean) {
+        // Override if Zero-Shutter Lag needs to be disabled by user case config.
     }
 
-    override fun addZslConfig(resolution: Size, sessionConfigBuilder: SessionConfig.Builder) {
+    override fun isZslDisabledByByUserCaseConfig(): Boolean {
+        // Override if Zero-Shutter Lag needs to be disabled by user case config.
+        return false
+    }
+
+    override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {
         // Override if Zero-Shutter Lag needs to add config to session config.
     }
 

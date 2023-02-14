@@ -29,6 +29,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.SessionProcessor;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -51,14 +52,17 @@ public interface VendorExtender {
      *                           physical camera ids and their CameraCharacteristics.
      * @return true if the extension is supported, otherwise false
      */
-    boolean isExtensionAvailable(@NonNull String cameraId,
-            @NonNull Map<String, CameraCharacteristics> characteristicsMap);
+    default boolean isExtensionAvailable(@NonNull String cameraId,
+            @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
+        return false;
+    }
 
 
     /**
      * Initializes the extender to be used with the specified camera.
      */
-    void init(@NonNull CameraInfo cameraInfo);
+    default void init(@NonNull CameraInfo cameraInfo) {
+    }
 
     /**
      * Gets the estimated latency range of image capture.
@@ -66,10 +70,12 @@ public interface VendorExtender {
      * <p>It must be called after init() is called.
      */
     @Nullable
-    Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size size);
+    default Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size size) {
+        return null;
+    }
 
     /**
-     * Gets the supported output resolutions for preview.
+     * Gets the supported output resolutions for preview. PRIVATE format must be supported.
      *
      * <p>Pair list composed with {@link ImageFormat} and {@link Size} array will be returned.
      *
@@ -81,10 +87,12 @@ public interface VendorExtender {
      * <p>It must be called after init() is called.
      */
     @NonNull
-    List<Pair<Integer, Size[]>> getSupportedPreviewOutputResolutions();
+    default List<Pair<Integer, Size[]>> getSupportedPreviewOutputResolutions() {
+        return Collections.emptyList();
+    }
 
     /**
-     * Gets the supported output resolutions for image capture.
+     * Gets the supported output resolutions for image capture. JPEG format must be supported.
      *
      * <p>Pair list composed with {@link ImageFormat} and {@link Size} array will be returned.
      *
@@ -96,7 +104,9 @@ public interface VendorExtender {
      * <p>It must be called after init() is called.
      */
     @NonNull
-    List<Pair<Integer, Size[]>> getSupportedCaptureOutputResolutions();
+    default List<Pair<Integer, Size[]>> getSupportedCaptureOutputResolutions() {
+        return Collections.emptyList();
+    }
 
     /**
      * Gets the supported output resolutions for image analysis (YUV_420_888).
@@ -109,7 +119,9 @@ public interface VendorExtender {
      * <p>It must be called after init() is called.
      */
     @NonNull
-    Size[] getSupportedYuvAnalysisResolutions();
+    default Size[] getSupportedYuvAnalysisResolutions() {
+        return new Size[0];
+    }
 
     /**
      * Creates a {@link SessionProcessor} that is responsible for (1) determining the stream
@@ -117,5 +129,7 @@ public interface VendorExtender {
      * repeating request and performing a still image capture.
      */
     @Nullable
-    SessionProcessor createSessionProcessor(@NonNull Context context);
+    default SessionProcessor createSessionProcessor(@NonNull Context context) {
+        return null;
+    }
 }

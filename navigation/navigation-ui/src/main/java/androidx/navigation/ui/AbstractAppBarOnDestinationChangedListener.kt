@@ -26,9 +26,7 @@ import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.navigation.ui.NavigationUI.matchDestinations
 import java.lang.ref.WeakReference
-import java.util.regex.Pattern
 
 /**
  * The abstract OnDestinationChangedListener for keeping any type of app bar updated.
@@ -37,9 +35,8 @@ import java.util.regex.Pattern
  */
 internal abstract class AbstractAppBarOnDestinationChangedListener(
     private val context: Context,
-    configuration: AppBarConfiguration
+    private val configuration: AppBarConfiguration
 ) : NavController.OnDestinationChangedListener {
-    private val topLevelDestinations: Set<Int> = configuration.topLevelDestinations
     private val openableLayoutWeakReference = configuration.openableLayout?.run {
         WeakReference(this)
     }
@@ -50,7 +47,6 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
 
     protected abstract fun setNavigationIcon(icon: Drawable?, @StringRes contentDescription: Int)
 
-    @Suppress("DEPRECATION")
     override fun onDestinationChanged(
         controller: NavController,
         destination: NavDestination,
@@ -64,27 +60,13 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
             controller.removeOnDestinationChangedListener(this)
             return
         }
-        val label = destination.label
+
+        val label = destination.fillInLabel(context, arguments)
         if (label != null) {
-            // Fill in the data pattern with the args to build a valid URI
-            val title = StringBuffer()
-            val fillInPattern = Pattern.compile("\\{(.+?)\\}")
-            val matcher = fillInPattern.matcher(label)
-            while (matcher.find()) {
-                val argName = matcher.group(1)
-                if (arguments != null && arguments.containsKey(argName)) {
-                    matcher.appendReplacement(title, "")
-                    title.append(arguments[argName].toString())
-                } else {
-                    throw IllegalArgumentException(
-                        "Could not find \"$argName\" in $arguments to fill label \"$label\""
-                    )
-                }
-            }
-            matcher.appendTail(title)
-            setTitle(title)
+            setTitle(label)
         }
-        val isTopLevelDestination = destination.matchDestinations(topLevelDestinations)
+
+        val isTopLevelDestination = configuration.isTopLevelDestination(destination)
         if (openableLayout == null && isTopLevelDestination) {
             setNavigationIcon(null, 0)
         } else {

@@ -19,9 +19,9 @@ package androidx.camera.camera2.pipe.graph
 import android.hardware.camera2.CaptureResult
 import android.os.Build
 import androidx.camera.camera2.pipe.compat.CorrectedFrameMetadata
-import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeMetadata
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,24 +30,26 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class CorrectedFrameMetadataTest {
-
     @Test
     fun canOverrideFrameMetadata() {
-        val metadata = FakeFrameMetadata(
-            mapOf(
-                CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
-                CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
-            ),
-            mapOf(FakeMetadata.TEST_KEY to 42)
-        )
-
-        val fixed = CorrectedFrameMetadata(
-            metadata,
-            mapOf(
-                CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF,
-                CaptureResult.LENS_STATE to CaptureResult.LENS_STATE_STATIONARY
+        val metadata =
+            FakeFrameMetadata(
+                mapOf(
+                    CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
+                    CaptureResult.CONTROL_AF_MODE to
+                        CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                ),
+                mapOf(FakeMetadata.TEST_KEY to 42)
             )
-        )
+
+        val fixed =
+            CorrectedFrameMetadata(
+                metadata,
+                mapOf(
+                    CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF,
+                    CaptureResult.LENS_STATE to CaptureResult.LENS_STATE_STATIONARY
+                )
+            )
 
         assertThat(fixed[CaptureResult.CONTROL_AE_MODE])
             .isEqualTo(CaptureResult.CONTROL_AE_MODE_OFF)

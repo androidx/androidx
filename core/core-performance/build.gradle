@@ -38,7 +38,6 @@ androidx {
     name = "Core Performance"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_PERFORMANCE
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "This library makes it easy for developers to make UI and feature choices based on Android Performance Class level for GMS devices."
 }

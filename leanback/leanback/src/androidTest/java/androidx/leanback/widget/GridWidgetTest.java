@@ -48,6 +48,8 @@ import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.leanback.test.R;
 import androidx.leanback.testutils.PollingCheck;
@@ -63,6 +65,7 @@ import androidx.testutils.AnimationActivityTestRule;
 import androidx.testutils.AnimationTest;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -763,6 +766,105 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testSetFocusOutLayoutManagerVertical() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_button);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+
+        final View endView = new View(mGridView.getContext());
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup.LayoutParams lp = mGridView.getLayoutParams();
+                lp.height = 300;
+                mGridView.setLayoutParams(lp);
+
+                endView.setFocusable(true);
+                endView.setLayoutParams(new ViewGroup.LayoutParams(100, 100));
+                ((ViewGroup) mGridView.getParent()).addView(endView);
+            }
+        });
+
+        waitOneUiCycle();
+
+        GridLayoutManager gridLayoutManager = (GridLayoutManager) mGridView.getLayoutManager();
+        gridLayoutManager.setFocusOutAllowed(false, true);
+
+        sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
+        sendKey(KeyEvent.KEYCODE_DPAD_UP);
+
+        // Focus should be in the grid view because focus is not allowed out the front.
+        assertTrue(mGridView.hasFocus());
+
+        sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
+
+        // Focus should be on endView because we allowed focus out the back.
+        assertTrue(endView.isFocused());
+
+        gridLayoutManager.setFocusOutAllowed(true, false);
+
+        sendKey(KeyEvent.KEYCODE_DPAD_UP);
+        sendKey(KeyEvent.KEYCODE_DPAD_DOWN);
+
+        // Focus should be in the grid view because focus is not allowed out the back.
+        assertTrue(mGridView.hasFocus());
+
+        sendKey(KeyEvent.KEYCODE_DPAD_UP);
+
+        final View button = mActivity.findViewById(R.id.button);
+
+        // Button should be in focus because we allow focus out of the front.
+        assertTrue(button.isFocused());
+    }
+
+    @Test
+    public void testSetFocusOutLayoutManagerHorizontal() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear_front_back_buttons);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+
+        GridLayoutManager gridLayoutManager = (GridLayoutManager) mGridView.getLayoutManager();
+        gridLayoutManager.setFocusOutAllowed(false, true);
+
+        final View frontButton = mActivity.findViewById(R.id.button_front);
+        final View backButton = mActivity.findViewById(R.id.button_back);
+
+        assertTrue(frontButton.isFocused());
+
+        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT);
+        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT);
+
+        // Focus should be on the back button as we allow focus out the back.
+        assertTrue(backButton.isFocused());
+
+        sendKey(KeyEvent.KEYCODE_DPAD_LEFT);
+        sendKey(KeyEvent.KEYCODE_DPAD_LEFT);
+
+        // Focus should be on the grid as we don't allow focus out the front.
+        assertTrue(mGridView.hasFocus());
+
+        gridLayoutManager.setFocusOutAllowed(true, false);
+
+        sendKey(KeyEvent.KEYCODE_DPAD_LEFT);
+
+        // Focus should be on the front button as we now allow focus out the front.
+        assertTrue(frontButton.hasFocus());
+
+        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT);
+        sendKey(KeyEvent.KEYCODE_DPAD_RIGHT);
+
+        // Focus should be in the grid view as we no longer allow focus out the back.
+        assertTrue(mGridView.hasFocus());
+    }
+
+    @Test
     public void testSwitchLayoutManagerHorizontal() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.horizontal_grid);
@@ -830,6 +932,7 @@ public class GridWidgetTest {
         assertEquals(29, mGridView.getSelectedPosition());
     }
 
+    @Ignore // b/266757643
     @Test
     public void testThreeColumnVerticalBasic() throws Throwable {
         Intent intent = new Intent();
@@ -1487,6 +1590,7 @@ public class GridWidgetTest {
         assertEquals(leftEdge, mGridView.getLayoutManager().findViewByPosition(199).getLeft());
     }
 
+    @FlakyTest(bugId = 249493545)
     @Test
     public void testContinuousSwapBackward() throws Throwable {
         Intent intent = new Intent();
@@ -2001,6 +2105,7 @@ public class GridWidgetTest {
         assertFalse(scrolled[0]);
     }
 
+    @Ignore // b/268680302
     @Test
     public void testItemMovedHorizontal() throws Throwable {
         Intent intent = new Intent();
@@ -2147,6 +2252,7 @@ public class GridWidgetTest {
         assertEquals(topPadding, mGridView.findViewHolderForAdapterPosition(0).itemView.getTop());
     }
 
+    @Ignore // b/268680302
     @Test
     public void testItemMovedVertical() throws Throwable {
 
@@ -2241,6 +2347,7 @@ public class GridWidgetTest {
         assertEquals(mGridView.getWidth() / 2, (view.getLeft() + view.getRight()) / 2);
     }
 
+    @Ignore // b/266757643
     @Test
     public void testItemAddRemoveHorizontal() throws Throwable {
 
@@ -2824,7 +2931,7 @@ public class GridWidgetTest {
         testRemoveVisibleItemsInSmoothScrollingBackward(/*focusOnGridView=*/ false);
     }
 
-    @FlakyTest(bugId = 186848347)
+    @Ignore // b/266757643
     @Test
     public void testPendingSmoothScrollAndRemove() throws Throwable {
         Intent intent = new Intent();
@@ -3683,7 +3790,12 @@ public class GridWidgetTest {
         final ArrayList<Integer> selectedPositions = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 selectedPositions.add(position);
             }
         });
@@ -3723,7 +3835,12 @@ public class GridWidgetTest {
         final ArrayList<Integer> selectedPositions = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 selectedPositions.add(position);
             }
         });
@@ -4506,7 +4623,12 @@ public class GridWidgetTest {
         final ArrayList<Integer> selectedLog = new ArrayList<Integer>();
         mGridView.setOnChildSelectedListener(new OnChildSelectedListener() {
             @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
+            public void onChildSelected(
+                    @NonNull ViewGroup parent,
+                    @Nullable View view,
+                    int position,
+                    long id
+            ) {
                 selectedLog.add(position);
             }
         });

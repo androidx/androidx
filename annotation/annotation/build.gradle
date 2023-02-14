@@ -1,17 +1,49 @@
+import androidx.build.KmpPlatformsKt
+import androidx.build.LibraryType
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("java-library")
-    id("kotlin")
 }
 
-dependencies {
-    api(libs.kotlinStdlib)
+androidXMultiplatform {
+    jvm()
+    mac()
+    linux()
+    ios()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+            }
+        }
+
+        if (KmpPlatformsKt.enableNative(project)) {
+            nonJvmMain {
+                dependsOn commonMain
+            }
+
+            targets.all { target ->
+                if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
+                    target.compilations["main"].defaultSourceSet {
+                        dependsOn(nonJvmMain)
+                    }
+                }
+            }
+        }
+
+        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
+        // Make sure commonization runs before any compilation task.
+        tasks.withType(KotlinNativeCompile).configureEach {
+            it.dependsOn(tasks.named("commonize"))
+        }
+    }
 }
 
-jar {
-    from sourceSets.main.output
+jvmJar {
     // Strip out typedef classes. For Android libraries, this is done
     // automatically by the Gradle plugin, but the Annotation library is a
     // plain jar, built by the regular Gradle java plugin. The typedefs
@@ -29,15 +61,15 @@ task annotationsZip(type: Zip) {
 
 // add annotations jar task as artifacts
 artifacts {
-    archives jar
+    archives jvmJar
     archives annotationsZip
 }
 
 androidx {
     name = "Android Support Library Annotations"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION
-    mavenGroup = LibraryGroups.ANNOTATION
+    mavenMultiplatformVersion = LibraryVersions.ANNOTATION_KMP
     inceptionYear = "2013"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
 }

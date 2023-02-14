@@ -109,7 +109,7 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(@NonNull Throwable t) {
                     // Close the image if we didn't post it to user.
                     newPostedImage.close();
                 }

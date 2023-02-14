@@ -18,6 +18,7 @@ package androidx.appsearch.builtintypes;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.utils.DateTimeFormatValidator;
@@ -25,6 +26,7 @@ import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 /**
  * AppSearch document representing an {@link AlarmInstance} entity.
@@ -39,7 +41,7 @@ import java.lang.annotation.RetentionPolicy;
  * the timezone is changed to PST.
  */
 @Document(name = "builtin:AlarmInstance")
-public final class AlarmInstance {
+public class AlarmInstance extends Thing {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({STATUS_UNKNOWN, STATUS_SCHEDULED, STATUS_FIRING, STATUS_DISMISSED, STATUS_SNOOZED,
@@ -60,21 +62,6 @@ public final class AlarmInstance {
     /** The {@link AlarmInstance} has been missed. */
     public static final int STATUS_MISSED = 5;
 
-    @Document.Namespace
-    private final String mNamespace;
-
-    @Document.Id
-    private final String mId;
-
-    @Document.Score
-    private final int mDocumentScore;
-
-    @Document.CreationTimestampMillis
-    private final long mCreationTimestampMillis;
-
-    @Document.TtlMillis
-    private final long mDocumentTtlMillis;
-
     @Document.StringProperty
     private final String mScheduledTime;
 
@@ -85,67 +72,15 @@ public final class AlarmInstance {
     private final long mSnoozeDurationMillis;
 
     AlarmInstance(@NonNull String namespace, @NonNull String id, int documentScore,
-            long creationTimestampMillis, long documentTtlMillis, @NonNull String scheduledTime,
+            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
+            @Nullable List<String> alternateNames, @Nullable String description,
+            @Nullable String image, @Nullable String url, @NonNull String scheduledTime,
             int status, long snoozeDurationMillis) {
-        mNamespace = Preconditions.checkNotNull(namespace);
-        mId = Preconditions.checkNotNull(id);
-        mDocumentScore = documentScore;
-        mCreationTimestampMillis = creationTimestampMillis;
-        mDocumentTtlMillis = documentTtlMillis;
+        super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
+                alternateNames, description, image, url);
         mScheduledTime = Preconditions.checkNotNull(scheduledTime);
         mStatus = status;
         mSnoozeDurationMillis = snoozeDurationMillis;
-    }
-
-    /** Returns the namespace. */
-    @NonNull
-    public String getNamespace() {
-        return mNamespace;
-    }
-
-    /** Returns the unique identifier. */
-    @NonNull
-    public String getId() {
-        return mId;
-    }
-
-    /**
-     * Returns the user-provided opaque document score of the current AppSearch document, which can
-     * be used for ranking using
-     * {@link androidx.appsearch.app.SearchSpec.RankingStrategy#RANKING_STRATEGY_DOCUMENT_SCORE}.
-     *
-     * <p>See {@link Document.Score} for more information on score.
-     */
-    public int getDocumentScore() {
-        return mDocumentScore;
-    }
-
-    /**
-     * Returns the creation timestamp for the current AppSearch entity, in milliseconds using the
-     * {@link System#currentTimeMillis()} time base.
-     *
-     * <p>This timestamp refers to the creation time of the AppSearch entity, not when the
-     * document is written into AppSearch.
-     *
-     * <p>If not set, then the current timestamp will be used.
-     *
-     * <p>See {@link androidx.appsearch.annotation.Document.CreationTimestampMillis} for more
-     * information on creation timestamp.
-     */
-    public long getCreationTimestampMillis() {
-        return mCreationTimestampMillis;
-    }
-
-    /**
-     * Returns the time-to-live (TTL) for the current AppSearch document as a duration in
-     * milliseconds.
-     *
-     * <p>The document will be automatically deleted when the TTL expires.
-     *
-     * <p>See {@link Document.TtlMillis} for more information on TTL.
-     */
-    public long getDocumentTtlMillis() {
-        return mDocumentTtlMillis;
     }
 
     /**
@@ -181,11 +116,7 @@ public final class AlarmInstance {
     }
 
     /** Builder for {@link AlarmInstance}. */
-    public static final class Builder extends BaseBuiltinTypeBuilder<Builder> {
-        private final String mScheduledTime;
-        private int mStatus;
-        private long mSnoozeDurationMillis;
-
+    public static final class Builder extends BuilderImpl<Builder> {
         /**
          * Constructor for {@link AlarmInstance.Builder}.
          *
@@ -196,6 +127,25 @@ public final class AlarmInstance {
          *                      be timezone independent.
          */
         public Builder(@NonNull String namespace, @NonNull String id,
+                @NonNull String scheduledTime) {
+            super(namespace, id, scheduledTime);
+        }
+
+        /**
+         * Constructor for {@link AlarmInstance.Builder} with all the existing values.
+         */
+        public Builder(@NonNull AlarmInstance alarmInstance) {
+            super(alarmInstance);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static class BuilderImpl<T extends AlarmInstance.BuilderImpl<T>> extends Thing.BuilderImpl<T> {
+        protected final String mScheduledTime;
+        protected int mStatus;
+        protected long mSnoozeDurationMillis;
+
+        BuilderImpl(@NonNull String namespace, @NonNull String id,
                 @NonNull String scheduledTime) {
             super(namespace, id);
             Preconditions.checkNotNull(scheduledTime);
@@ -209,15 +159,9 @@ public final class AlarmInstance {
             mSnoozeDurationMillis = -1;
         }
 
-        /**
-         * Constructor for {@link AlarmInstance.Builder} with all the existing values.
-         */
-        public Builder(@NonNull AlarmInstance alarmInstance) {
-            this(alarmInstance.getNamespace(), alarmInstance.getId(),
-                    alarmInstance.getScheduledTime());
-            mDocumentScore = alarmInstance.getDocumentScore();
-            mCreationTimestampMillis = alarmInstance.getCreationTimestampMillis();
-            mDocumentTtlMillis = alarmInstance.getDocumentTtlMillis();
+        BuilderImpl(@NonNull AlarmInstance alarmInstance) {
+            super(new Thing.Builder(alarmInstance).build());
+            mScheduledTime = alarmInstance.getScheduledTime();
             mStatus = alarmInstance.getStatus();
             mSnoozeDurationMillis = alarmInstance.getSnoozeDurationMillis();
         }
@@ -230,9 +174,9 @@ public final class AlarmInstance {
          * {@link #STATUS_MISSED}.
          */
         @NonNull
-        public Builder setStatus(@Status int status) {
+        public T setStatus(@Status int status) {
             mStatus = status;
-            return this;
+            return (T) this;
         }
 
         /**
@@ -242,17 +186,18 @@ public final class AlarmInstance {
          * <p>If not set, or set to -1, then it does not support snoozing.
          */
         @NonNull
-        public Builder setSnoozeDurationMillis(long snoozeDurationMillis) {
+        public T setSnoozeDurationMillis(long snoozeDurationMillis) {
             mSnoozeDurationMillis = snoozeDurationMillis;
-            return this;
+            return (T) this;
         }
 
         /** Builds the {@link AlarmInstance}. */
         @NonNull
+        @Override
         public AlarmInstance build() {
-            return new AlarmInstance(mNamespace, mId, mDocumentScore,
-                    mCreationTimestampMillis, mDocumentTtlMillis, mScheduledTime, mStatus,
-                    mSnoozeDurationMillis);
+            return new AlarmInstance(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
+                    mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mScheduledTime, mStatus, mSnoozeDurationMillis);
         }
     }
 }

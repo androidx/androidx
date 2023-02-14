@@ -36,11 +36,11 @@ internal class QueryInterceptorProgram : SupportSQLiteProgram {
         saveArgsToCache(index, value)
     }
 
-    override fun bindString(index: Int, value: String?) {
+    override fun bindString(index: Int, value: String) {
         saveArgsToCache(index, value)
     }
 
-    override fun bindBlob(index: Int, value: ByteArray?) {
+    override fun bindBlob(index: Int, value: ByteArray) {
         saveArgsToCache(index, value)
     }
 

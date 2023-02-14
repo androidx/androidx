@@ -13,6 +13,9 @@
  */
 package androidx.leanback.widget;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * A {@link PresenterSelector} that always returns the same {@link Presenter}.
  * Useful for rows of items of the same type that are all rendered the same way.
@@ -24,15 +27,17 @@ public final class SinglePresenterSelector extends PresenterSelector {
     /**
      * @param presenter The Presenter to return for every item.
      */
-    public SinglePresenterSelector(Presenter presenter) {
+    public SinglePresenterSelector(@NonNull Presenter presenter) {
         mPresenter = presenter;
     }
 
+    @Nullable
     @Override
-    public Presenter getPresenter(Object item) {
+    public Presenter getPresenter(@Nullable Object item) {
         return mPresenter;
     }
 
+    @NonNull
     @Override
     public Presenter[] getPresenters() {
         return new Presenter[]{mPresenter};

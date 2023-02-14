@@ -19,7 +19,6 @@ package androidx.camera.integration.extensions.validation
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.ImageFormat
 import android.os.Bundle
 import android.util.Log
 import android.view.GestureDetector
@@ -30,11 +29,13 @@ import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.DisplayOrientedMeteringPointFactory
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.ImageCapture
@@ -48,35 +49,43 @@ import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.integration.extensions.INVALID_EXTENSION_MODE
+import androidx.camera.integration.extensions.INVALID_LENS_FACING
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_ERROR_CODE
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_IMAGE_URI
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_LENS_FACING
+import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_REQUEST_CODE
 import androidx.camera.integration.extensions.R
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_BIND_TO_LIFECYCLE_FAILED
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_NONE
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_SAVE_IMAGE_FAILED
+import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_TAKE_PICTURE_FAILED
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil.createCameraSelectorById
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeStringFromId
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_CAMERA_ID
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_ERROR_CODE
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_EXTENSION_MODE
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_IMAGE_URI
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_LENS_FACING
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_REQUEST_CODE
-import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INVALID_LENS_FACING
+import androidx.camera.integration.extensions.utils.FileUtil
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
-import androidx.camera.integration.extensions.validation.TestResults.Companion.INVALID_EXTENSION_MODE
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.concurrent.futures.await
 import androidx.core.content.ContextCompat
 import androidx.core.math.MathUtils
-import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
 
 private const val TAG = "ImageCaptureActivity"
 
+/**
+ * Activity to capture a image in CameraX extension modes.
+ *
+ * This activity will return the saved image URI to the caller activity.
+ */
 class ImageCaptureActivity : AppCompatActivity() {
 
     private var extensionMode = INVALID_EXTENSION_MODE
@@ -117,7 +126,7 @@ class ImageCaptureActivity : AppCompatActivity() {
         val requestCode = intent.getIntExtra(INTENT_EXTRA_KEY_REQUEST_CODE, -1)
         setResult(requestCode, result)
 
-        supportActionBar?.title = "${resources.getString(R.string.extensions_validator)}"
+        supportActionBar?.title = resources.getString(R.string.camerax_extensions_validator)
         supportActionBar!!.subtitle =
             "Camera $cameraId [${getLensFacingStringFromInt(lensFacing)}]" +
                 "[${getExtensionModeStringFromId(extensionMode)}]"
@@ -186,7 +195,7 @@ class ImageCaptureActivity : AppCompatActivity() {
 
             Log.d(TAG, "Extension mode is $extensionMode (enabled: $extensionEnabled)")
         } catch (e: IllegalArgumentException) {
-            result.putExtra(INTENT_EXTRA_KEY_ERROR_CODE, ERROR_CODE_BIND_FAIL)
+            result.putExtra(INTENT_EXTRA_KEY_ERROR_CODE, ERROR_CODE_BIND_TO_LIFECYCLE_FAILED)
             Log.e(
                 TAG,
                 "Failed to bind use cases with ${getExtensionModeStringFromId(extensionMode)}"
@@ -196,6 +205,7 @@ class ImageCaptureActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(markerClass = [ExperimentalGetImage::class])
     private fun setupUiControls() {
         // Sets up the flash toggle button
         setUpFlashButton()
@@ -219,29 +229,30 @@ class ImageCaptureActivity : AppCompatActivity() {
                 ContextCompat.getMainExecutor(this),
                 object : ImageCapture.OnImageCapturedCallback() {
                     override fun onCaptureSuccess(image: ImageProxy) {
-                        val filenamePrefix =
-                            "[Camera-$cameraId][${getLensFacingStringFromInt(lensFacing)}]" +
-                                "[${getExtensionModeStringFromId(extensionMode)}]"
+                        val filenamePrefix = "[CameraXExtension][Camera-$cameraId][${
+                            getLensFacingStringFromInt(lensFacing)
+                        }][${getExtensionModeStringFromId(extensionMode)}]"
                         val filename = if (extensionEnabled) {
                             "$filenamePrefix[Enabled]"
                         } else {
                             "$filenamePrefix[Disabled]"
                         }
-                        val tempFile = File.createTempFile(
-                            filename,
-                            "",
-                            codeCacheDir
-                        )
-                        val outputStream = FileOutputStream(tempFile)
-                        val byteArray = jpegImageToJpegByteArray(image)
-                        outputStream.write(byteArray)
-                        outputStream.close()
 
-                        result.putExtra(INTENT_EXTRA_KEY_IMAGE_URI, tempFile.toUri())
-                        result.putExtra(
-                            INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES,
-                            image.imageInfo.rotationDegrees
-                        )
+                        val uri =
+                            FileUtil.saveImageToTempFile(image.image!!, filename, "", cacheDir)
+
+                        if (uri == null) {
+                            result.putExtra(
+                                INTENT_EXTRA_KEY_ERROR_CODE,
+                                ERROR_CODE_SAVE_IMAGE_FAILED
+                            )
+                        } else {
+                            result.putExtra(INTENT_EXTRA_KEY_IMAGE_URI, uri)
+                            result.putExtra(
+                                INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES,
+                                image.imageInfo.rotationDegrees
+                            )
+                        }
                         finish()
                     }
 
@@ -454,27 +465,5 @@ class ImageCaptureActivity : AppCompatActivity() {
         }
 
         extensionToggleButton.setImageResource(resourceId)
-    }
-
-    /**
-     * Converts JPEG [ImageProxy] to JPEG byte array.
-     */
-    internal fun jpegImageToJpegByteArray(image: ImageProxy): ByteArray {
-        require(image.format == ImageFormat.JPEG) {
-            "Incorrect image format of the input image proxy: ${image.format}"
-        }
-        val planes = image.planes
-        val buffer = planes[0].buffer
-        val data = ByteArray(buffer.capacity())
-        buffer.rewind()
-        buffer[data]
-        return data
-    }
-
-    companion object {
-        const val ERROR_CODE_NONE = 0
-        const val ERROR_CODE_BIND_FAIL = 1
-        const val ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT = 2
-        const val ERROR_CODE_TAKE_PICTURE_FAILED = 3
     }
 }

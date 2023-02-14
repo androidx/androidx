@@ -17,11 +17,12 @@
 package androidx.navigation.safeargs.gradle
 
 import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.DynamicFeatureVariant
+import com.android.build.api.variant.LibraryVariant
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
-import groovy.xml.XmlSlurper
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -30,7 +31,6 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
-import java.io.FileNotFoundException
 import java.util.Locale
 import javax.inject.Inject
 
@@ -71,20 +71,36 @@ abstract class SafeArgsPlugin protected constructor(
                 "androidx.navigation.safeargs.kotlin plugin must be used with kotlin plugin"
             )
         }
+        // applicationId determines the location of the generated class
         val applicationIds = mutableMapOf<String, Provider<String>>()
+        // namespace determines the package of the R file
+        val namespaces = mutableMapOf<String, Provider<String>>()
         val variantExtension =
             project.extensions.findByType(AndroidComponentsExtension::class.java)
                 ?: throw GradleException("safeargs plugin must be used with android plugin")
         variantExtension.onVariants { variant ->
-            @Suppress("DEPRECATION") // For ApplicationVariant
             when (variant) {
-                is com.android.build.gradle.api.ApplicationVariant ->
-                    applicationIds.getOrPut(variant.name) {
-                        variant.namespace
-                    }
-                is DynamicFeatureVariant ->
+                is ApplicationVariant -> {
                     applicationIds.getOrPut(variant.name) {
                         variant.applicationId
+                    }
+                    namespaces.getOrPut(variant.name) {
+                        variant.namespace
+                    }
+                }
+                is DynamicFeatureVariant -> {
+                    applicationIds.getOrPut(variant.name) {
+                        variant.applicationId
+                    }
+                    namespaces.getOrPut(variant.name) {
+                        variant.namespace
+                    }
+                }
+                is LibraryVariant ->
+                    // we are putting the library names space in applicationId because
+                    // we want the generated class to use the namespace to determine its package
+                    applicationIds.getOrPut(variant.name) {
+                        variant.namespace
                     }
             }
         }
@@ -97,24 +113,14 @@ abstract class SafeArgsPlugin protected constructor(
                 ArgumentsGenerationTask::class.java
             ) { task ->
                 task.applicationId.set(
-                    // this will only put in the case where the extension is a Library module
-                    // and should be superseded by `getNamespace()` in agp 7.0+
                     applicationIds.getOrPut(variant.name) {
                         providerFactory.provider { variant.applicationId }
                     }
                 )
-                val rPackage = variant.rFilePackage(project)
-                task.rFilePackage.set(
-                    // If a package name is available we use that by default to ensure we
-                    // continue to support different productFlavors
-                    if (rPackage.get().isNotEmpty()) {
-                        rPackage
-                    } else {
-                        // otherwise, we fall back to the applicationId set on the task to ensure
-                        // we support namespaces as well.
-                        task.applicationId
-                    }
-                )
+                // If there is a namespace available, we should always use that to reference the
+                // package of the R file, otherwise we assume the R file is in the same location as
+                // the class
+                task.rFilePackage.set(namespaces[variant.name] ?: task.applicationId)
                 task.navigationFiles.setFrom(navigationFiles(variant, project))
                 task.outputDir.set(File(project.buildDir, "$GENERATED_PATH/${variant.dirName}"))
                 task.incrementalFolder.set(File(project.buildDir, "$INCREMENTAL_PATH/${task.name}"))
@@ -133,24 +139,6 @@ abstract class SafeArgsPlugin protected constructor(
             @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
             variant.registerJavaGeneratingTask(task, task.outputDir.asFile.get())
         }
-    }
-
-    @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
-    private fun com.android.build.gradle.api.BaseVariant.rFilePackage(
-        project: Project
-    ): Provider<String> = project.objects.property(String::class.java).apply {
-        val mainSourceSet = sourceSets.find { it.name == "main" }
-        val sourceSet = mainSourceSet ?: sourceSets[0]
-        val manifest = sourceSet.manifestFile
-        try {
-            val parsed = XmlSlurper(false, false).parse(manifest)
-            set(parsed.getProperty("@package").toString())
-        } catch (e: FileNotFoundException) {
-            // If manifest does not exist we should fall back to namespace
-            set("")
-        }
-        disallowChanges()
-        finalizeValueOnRead()
     }
 
     @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions

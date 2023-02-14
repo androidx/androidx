@@ -16,6 +16,8 @@
 
 package androidx.lifecycle;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -77,6 +79,12 @@ public class MediatorLiveDataTest {
     @Before
     public void swapExecutorDelegate() {
         ArchTaskExecutor.getInstance().setDelegate(new InstantTaskExecutor());
+    }
+
+    @Test
+    public void testHasInitialValue() {
+        MediatorLiveData<String> mediator = new MediatorLiveData<>("value");
+        assertThat(mediator.getValue()).isEqualTo("value");
     }
 
     @Test

@@ -19,14 +19,15 @@ package androidx.compose.ui.text.input
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
-import com.nhaarman.mockitokotlin2.reset
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -297,5 +298,38 @@ class EditProcessorTest {
         assertThat(processor.mBufferState.text).isEqualTo(newValue.text)
         assertThat(processor.mBufferState.composition).isEqualTo(composition)
         assertThat(processor.mBufferState.selection).isEqualTo(newSelection)
+    }
+
+    @Test
+    fun throwsDescriptiveMessage_whenCommandFailsInBatch() {
+        class InvalidCommand : EditCommand {
+            override fun applyTo(buffer: EditingBuffer) {
+                throw RuntimeException("Better luck next time")
+            }
+        }
+
+        val processor = EditProcessor().apply {
+            mBuffer.replace(0, 0, "hello world")
+            mBuffer.setSelection(0, 5)
+            mBuffer.setComposition(5, 7)
+        }
+        val batch = listOf(
+            CommitTextCommand("ab", 0),
+            InvalidCommand(),
+            SetSelectionCommand(0, 2),
+        )
+
+        val error = assertFailsWith<RuntimeException> {
+            processor.apply(batch)
+        }
+
+        assertThat(error).hasMessageThat().isEqualTo(
+            "Error while applying EditCommand batch to buffer " +
+                "(length=11, composition=null, selection=TextRange(5, 5)):\n" +
+                "   CommitTextCommand(text.length=2, newCursorPosition=0)\n" +
+                " > Unknown EditCommand: InvalidCommand\n" +
+                "   SetSelectionCommand(start=0, end=2)"
+        )
+        assertThat(error).hasCauseThat().hasMessageThat().isEqualTo("Better luck next time")
     }
 }

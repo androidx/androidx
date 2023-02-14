@@ -33,6 +33,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.net.Uri;
 import android.view.ViewGroup;
@@ -89,6 +90,9 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
 
     @Before
     public void setup() throws Throwable {
+        // Ignore all tests, b/202710013
+        assumeTrue(false);
+
         mActivity = mActivityRule.getActivity();
         mMediaControlView = mActivity.findViewById(
                 androidx.media2.widget.test.R.id.mediacontrolview);

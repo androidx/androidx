@@ -16,10 +16,12 @@
 
 package androidx.webkit.internal;
 
+import android.webkit.TracingController;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 
+import org.chromium.support_lib_boundary.DropDataContentProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
@@ -39,23 +41,27 @@ public interface WebViewProviderFactory {
     /**
      * Create a support library version of {@link android.webkit.WebViewProvider}.
      */
-    WebViewProviderBoundaryInterface createWebView(WebView webview);
+    @NonNull
+    WebViewProviderBoundaryInterface createWebView(@NonNull WebView webview);
 
     /**
-     * Create the boundary interface for {@link androidx.webkit.internal.WebkitToCompatConverter}
+     * Create the boundary interface for {@link WebkitToCompatConverter}
      * which converts android.webkit classes into their corresponding support library classes.
      */
+    @NonNull
     WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter();
 
     /**
      * Fetch the boundary interface representing
      * {@link android.webkit.WebViewFactoryProvider#Statics}.
      */
+    @NonNull
     StaticsBoundaryInterface getStatics();
 
     /**
      * Fetch the features supported by the current WebView APK.
      */
+    @NonNull
     String[] getWebViewFeatures();
 
     /**
@@ -65,12 +71,20 @@ public interface WebViewProviderFactory {
     ServiceWorkerControllerBoundaryInterface getServiceWorkerController();
 
     /**
-     * Fetch the boundary interface representing {@link android.webkit.TracingController}.
+     * Fetch the boundary interface representing {@link TracingController}.
      */
+    @NonNull
     TracingControllerBoundaryInterface getTracingController();
 
     /**
      * Fetch the boundary interface representing {@link android.webkit.ProxyController}.
      */
+    @NonNull
     ProxyControllerBoundaryInterface getProxyController();
+
+    /**
+     * Fetch the boundary interface representing image drag drop implementation.
+     */
+    @NonNull
+    DropDataContentProviderBoundaryInterface getDropDataProvider();
 }

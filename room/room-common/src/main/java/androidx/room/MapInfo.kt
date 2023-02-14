@@ -55,9 +55,35 @@ public annotation class MapInfo(
     val keyColumn: String = "",
 
     /**
+     * The name of the table or alias to be used for the map's keys.
+     *
+     * Providing this value is optional. Useful for disambiguating between duplicate column names.
+     * For example, consider the following query:
+     * `SELECT * FROM Artist AS a JOIN Song AS s ON a.id == s.artistId`, then the `@MapInfo`
+     * for a return type `Map<String, List<Song>>` would be
+     * `@MapInfo(keyColumn = "id", keyTable ="a")`.
+     *
+     * @return The key table name.
+     */
+    val keyTable: String = "",
+
+    /**
      * The name of the column to be used for the map's values.
      *
      * @return The value column name.
      */
-    val valueColumn: String = ""
+    val valueColumn: String = "",
+
+    /**
+     * The name of the table or alias to be used for the map's values.
+     *
+     * Providing this value is optional. Useful for disambiguating between duplicate column names.
+     * For example, consider the following query:
+     * `SELECT * FROM Song AS s JOIN Artist AS a ON s.artistId == a.id`, then the `@MapInfo`
+     * for a return type `Map<Song, String>` would be
+     * `@MapInfo(valueColumn = "id", valueTable ="a")`.
+     *
+     * @return The key table name.
+     */
+    val valueTable: String = "",
 )

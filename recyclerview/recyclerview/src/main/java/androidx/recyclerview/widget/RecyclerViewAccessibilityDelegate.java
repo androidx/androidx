@@ -16,6 +16,7 @@
 
 package androidx.recyclerview.widget;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +41,6 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
     final RecyclerView mRecyclerView;
     private final ItemDelegate mItemDelegate;
 
-
     public RecyclerViewAccessibilityDelegate(@NonNull RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
         AccessibilityDelegateCompat itemDelegate = getItemDelegate();
@@ -56,7 +56,11 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
     }
 
     @Override
-    public boolean performAccessibilityAction(View host, int action, Bundle args) {
+    public boolean performAccessibilityAction(
+            @SuppressLint("InvalidNullabilityOverride") @NonNull View host,
+            int action,
+            @SuppressLint("InvalidNullabilityOverride") @Nullable Bundle args
+    ) {
         if (super.performAccessibilityAction(host, action, args)) {
             return true;
         }
@@ -68,7 +72,10 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
     }
 
     @Override
-    public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+    public void onInitializeAccessibilityNodeInfo(
+            @SuppressLint("InvalidNullabilityOverride") @NonNull View host,
+            @SuppressLint("InvalidNullabilityOverride") @NonNull AccessibilityNodeInfoCompat info
+    ) {
         super.onInitializeAccessibilityNodeInfo(host, info);
         if (!shouldIgnore() && mRecyclerView.getLayoutManager() != null) {
             mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(info);
@@ -76,7 +83,10 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
     }
 
     @Override
-    public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
+    public void onInitializeAccessibilityEvent(
+            @SuppressLint("InvalidNullabilityOverride") @NonNull View host,
+            @SuppressLint("InvalidNullabilityOverride") @NonNull AccessibilityEvent event
+    ) {
         super.onInitializeAccessibilityEvent(host, event);
         if (host instanceof RecyclerView && !shouldIgnore()) {
             RecyclerView rv = (RecyclerView) host;
@@ -139,7 +149,11 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
         }
 
         @Override
-        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+        public void onInitializeAccessibilityNodeInfo(
+                @SuppressLint("InvalidNullabilityOverride") @NonNull View host,
+                @SuppressLint("InvalidNullabilityOverride") @NonNull
+                        AccessibilityNodeInfoCompat info
+        ) {
             if (!mRecyclerViewDelegate.shouldIgnore()
                     && mRecyclerViewDelegate.mRecyclerView.getLayoutManager() != null) {
                 mRecyclerViewDelegate.mRecyclerView.getLayoutManager()
@@ -156,7 +170,11 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
         }
 
         @Override
-        public boolean performAccessibilityAction(View host, int action, Bundle args) {
+        public boolean performAccessibilityAction(
+                @SuppressLint("InvalidNullabilityOverride") @NonNull View host,
+                int action,
+                @SuppressLint("InvalidNullabilityOverride") @Nullable Bundle args
+        ) {
             if (!mRecyclerViewDelegate.shouldIgnore()
                     && mRecyclerViewDelegate.mRecyclerView.getLayoutManager() != null) {
                 AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);

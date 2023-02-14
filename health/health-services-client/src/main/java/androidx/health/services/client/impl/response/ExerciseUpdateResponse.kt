@@ -31,11 +31,10 @@ import androidx.health.services.client.proto.ResponsesProto
 public class ExerciseUpdateResponse(public val exerciseUpdate: ExerciseUpdate) :
     ProtoParcelable<ResponsesProto.ExerciseUpdateResponse>() {
 
-    override val proto: ResponsesProto.ExerciseUpdateResponse by lazy {
+    override val proto: ResponsesProto.ExerciseUpdateResponse =
         ResponsesProto.ExerciseUpdateResponse.newBuilder()
             .setExerciseUpdate(exerciseUpdate.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

@@ -51,6 +51,7 @@ import static androidx.slice.core.SliceHints.HINT_RAW;
 import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION;
 import static androidx.slice.core.SliceHints.HINT_SHOW_LABEL;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.app.slice.SliceManager;
@@ -61,6 +62,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -186,7 +188,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      */
     @RestrictTo(Scope.LIBRARY)
     @SuppressWarnings("deprecation")
-    public Slice(Bundle in) {
+    public Slice(@NonNull Bundle in) {
         mHints = in.getStringArray(HINTS);
         Parcelable[] items = in.getParcelableArray(ITEMS);
         mItems = new SliceItem[items.length];
@@ -205,7 +207,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    public Bundle toBundle() {
+    public @NonNull Bundle toBundle() {
         Bundle b = new Bundle();
         b.putStringArray(HINTS, mHints);
         Parcelable[] p = new Parcelable[mItems.length];
@@ -233,14 +235,14 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     /**
      * @return The Uri that this Slice represents.
      */
-    public Uri getUri() {
+    public @NonNull Uri getUri() {
         return Uri.parse(mUri);
     }
 
     /**
      * @return All child {@link SliceItem}s that this Slice contains.
      */
-    public List<SliceItem> getItems() {
+    public @NonNull List<SliceItem> getItems() {
         return Arrays.asList(mItems);
     }
 
@@ -249,14 +251,14 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      * @return
      */
     @RestrictTo(LIBRARY)
-    public SliceItem[] getItemArray() {
+    public @NonNull SliceItem[] getItemArray() {
         return mItems;
     }
 
     /**
      * @return All hints associated with this Slice.
      */
-    public @SliceHint List<String> getHints() {
+    public @NonNull @SliceHint List<String> getHints() {
         return Arrays.asList(mHints);
     }
 
@@ -264,7 +266,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public @SliceHint String[] getHintArray() {
+    public @NonNull @SliceHint String[] getHintArray() {
         return mHints;
     }
 
@@ -272,7 +274,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
-    public boolean hasHint(@SliceHint String hint) {
+    public boolean hasHint(@NonNull @SliceHint String hint) {
         return ArrayUtils.contains(mHints, hint);
     }
 
@@ -326,7 +328,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * being constructed by the provided builder.
          * @param parent The builder constructing the parent slice
          */
-        public Builder(@NonNull Slice.Builder parent) {
+        public Builder(@NonNull Builder parent) {
             mUri = parent.getChildUri();
         }
 
@@ -340,7 +342,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public Builder setSpec(SliceSpec spec) {
+        public @NonNull Builder setSpec(@Nullable SliceSpec spec) {
             mSpec = spec;
             return this;
         }
@@ -348,7 +350,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
         /**
          * Add hints to the Slice being constructed
          */
-        public Builder addHints(@SliceHint String... hints) {
+        public @NonNull Builder addHints(@NonNull @SliceHint String... hints) {
             mHints.addAll(Arrays.asList(hints));
             return this;
         }
@@ -356,14 +358,14 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
         /**
          * Add hints to the Slice being constructed
          */
-        public Builder addHints(@SliceHint List<String> hints) {
+        public @NonNull Builder addHints(@NonNull @SliceHint List<String> hints) {
             return addHints(hints.toArray(new String[hints.size()]));
         }
 
         /**
          * Add a sub-slice to the slice being constructed
          */
-        public Builder addSubSlice(@NonNull Slice slice) {
+        public @NonNull Builder addSubSlice(@NonNull Slice slice) {
             Preconditions.checkNotNull(slice);
             return addSubSlice(slice, null);
         }
@@ -373,7 +375,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
-        public Builder addSubSlice(@NonNull Slice slice, String subType) {
+        public @NonNull Builder addSubSlice(@NonNull Slice slice, @Nullable String subType) {
             Preconditions.checkNotNull(slice);
             mItems.add(new SliceItem(slice, FORMAT_SLICE, subType, slice.getHintArray()));
             return this;
@@ -384,7 +386,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
-        public Slice.Builder addAction(@NonNull PendingIntent action,
+        public @NonNull Builder addAction(@NonNull PendingIntent action,
                 @NonNull Slice s, @Nullable String subType) {
             Preconditions.checkNotNull(action);
             Preconditions.checkNotNull(s);
@@ -399,8 +401,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param action Callback to be triggered when a pending intent would normally be fired.
          * @see SliceItem#getSubType()
          */
-        public Slice.Builder addAction(@NonNull SliceItem.ActionHandler action,
-                @NonNull Slice s, @Nullable String subType) {
+        public @NonNull Builder addAction(@NonNull Slice s, @Nullable String subType,
+                @NonNull SliceItem.ActionHandler action) {
             Preconditions.checkNotNull(s);
             @SliceHint String[] hints = s.getHintArray();
             mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, hints));
@@ -412,8 +414,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
-        public Builder addText(CharSequence text, @Nullable String subType,
-                @SliceHint String... hints) {
+        public @NonNull Builder addText(@Nullable CharSequence text, @Nullable String subType,
+                @NonNull @SliceHint String... hints) {
             mItems.add(new SliceItem(text, FORMAT_TEXT, subType, hints));
             return this;
         }
@@ -423,8 +425,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
-        public Builder addText(CharSequence text, @Nullable String subType,
-                @SliceHint List<String> hints) {
+        public @NonNull Builder addText(@Nullable CharSequence text, @Nullable String subType,
+                @NonNull @SliceHint List<String> hints) {
             return addText(text, subType, hints.toArray(new String[hints.size()]));
         }
 
@@ -433,8 +435,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
-        public Builder addIcon(IconCompat icon, @Nullable String subType,
-                @SliceHint String... hints) {
+        public @NonNull Builder addIcon(@NonNull IconCompat icon, @Nullable String subType,
+                @NonNull @SliceHint String... hints) {
             Preconditions.checkNotNull(icon);
             if (isValidIcon(icon)) {
                 mItems.add(new SliceItem(icon, FORMAT_IMAGE, subType, hints));
@@ -447,8 +449,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
-        public Builder addIcon(IconCompat icon, @Nullable String subType,
-                @SliceHint List<String> hints) {
+        public @NonNull Builder addIcon(@NonNull IconCompat icon, @Nullable String subType,
+                @NonNull @SliceHint List<String> hints) {
             Preconditions.checkNotNull(icon);
             if (isValidIcon(icon)) {
                 return addIcon(icon, subType, hints.toArray(new String[hints.size()]));
@@ -463,8 +465,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,
-                @SliceHint List<String> hints) {
+        public @NonNull Builder addRemoteInput(@NonNull RemoteInput remoteInput,
+                @Nullable String subType, @NonNull @SliceHint List<String> hints) {
             Preconditions.checkNotNull(remoteInput);
             return addRemoteInput(remoteInput, subType, hints.toArray(new String[hints.size()]));
         }
@@ -476,8 +478,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public Slice.Builder addRemoteInput(RemoteInput remoteInput, @Nullable String subType,
-                @SliceHint String... hints) {
+        public @NonNull Builder addRemoteInput(@NonNull RemoteInput remoteInput,
+                @Nullable String subType, @NonNull @SliceHint String... hints) {
             Preconditions.checkNotNull(remoteInput);
             mItems.add(new SliceItem(remoteInput, FORMAT_REMOTE_INPUT, subType, hints));
             return this;
@@ -488,8 +490,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
-        public Builder addInt(int value, @Nullable String subType,
-                @SliceHint String... hints) {
+        public @NonNull Builder addInt(int value, @Nullable String subType,
+                @NonNull @SliceHint String... hints) {
             mItems.add(new SliceItem(value, FORMAT_INT, subType, hints));
             return this;
         }
@@ -500,8 +502,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
-        public Builder addInt(int value, @Nullable String subType,
-                @SliceHint List<String> hints) {
+        public @NonNull Builder addInt(int value, @Nullable String subType,
+                @NonNull @SliceHint List<String> hints) {
             return addInt(value, subType, hints.toArray(new String[hints.size()]));
         }
 
@@ -510,8 +512,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
-        public Slice.Builder addLong(long time, @Nullable String subType,
-                @SliceHint String... hints) {
+        public @NonNull Builder addLong(long time, @Nullable String subType,
+                @NonNull @SliceHint String... hints) {
             mItems.add(new SliceItem(time, FORMAT_LONG, subType, hints));
             return this;
         }
@@ -521,8 +523,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
-        public Slice.Builder addLong(long time, @Nullable String subType,
-                @SliceHint List<String> hints) {
+        public @NonNull Builder addLong(long time, @Nullable String subType,
+                @NonNull @SliceHint List<String> hints) {
             return addLong(time, subType, hints.toArray(new String[hints.size()]));
         }
 
@@ -533,7 +535,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @deprecated TO BE REMOVED
          */
         @Deprecated
-        public Slice.Builder addTimestamp(long time, @Nullable String subType,
+        public Builder addTimestamp(long time, @Nullable String subType,
                 @SliceHint String... hints) {
             mItems.add(new SliceItem(time, FORMAT_LONG, subType, hints));
             return this;
@@ -544,8 +546,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
          */
-        public Slice.Builder addTimestamp(long time, @Nullable String subType,
-                @SliceHint List<String> hints) {
+        public @NonNull Builder addTimestamp(long time, @Nullable String subType,
+                @NonNull @SliceHint List<String> hints) {
             return addTimestamp(time, subType, hints.toArray(new String[hints.size()]));
         }
 
@@ -554,7 +556,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        public Slice.Builder addItem(SliceItem item) {
+        public @NonNull Builder addItem(@NonNull SliceItem item) {
             mItems.add(item);
             return this;
         }
@@ -562,7 +564,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
         /**
          * Construct the slice.
          */
-        public Slice build() {
+        public @NonNull Slice build() {
             return new Slice(mItems, mHints.toArray(new String[mHints.size()]), mUri, mSpec);
         }
     }
@@ -570,6 +572,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     /**
      * @return A string representation of this slice.
      */
+    @NonNull
     @Override
     public String toString() {
         return toString("");
@@ -579,8 +582,9 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      * @return A string representation of this slice.
      * @hide
      */
+    @NonNull
     @RestrictTo(Scope.LIBRARY)
-    public String toString(String indent) {
+    public String toString(@NonNull String indent) {
         StringBuilder sb = new StringBuilder();
         sb.append(indent);
         sb.append("Slice ");
@@ -605,7 +609,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    public static void appendHints(StringBuilder sb, String[] hints) {
+    public static void appendHints(@NonNull StringBuilder sb, @Nullable String[] hints) {
         if (hints == null || hints.length == 0) return;
 
         sb.append('(');
@@ -629,8 +633,8 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
-    public static Slice bindSlice(Context context, @NonNull Uri uri,
-            Set<SliceSpec> supportedSpecs) {
+    public static Slice bindSlice(@NonNull Context context, @NonNull Uri uri,
+            @Nullable Set<SliceSpec> supportedSpecs) {
         if (Build.VERSION.SDK_INT >= 28) {
             return callBindSlice(context, uri, supportedSpecs);
         } else {
@@ -641,8 +645,9 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     @RequiresApi(28)
     private static Slice callBindSlice(Context context, Uri uri,
             Set<SliceSpec> supportedSpecs) {
-        return SliceConvert.wrap(context.getSystemService(SliceManager.class)
-                .bindSlice(uri, unwrap(supportedSpecs)), context);
+        SliceManager sliceManager = Api23Impl.getSystemService(context, SliceManager.class);
+        return SliceConvert.wrap(Api28Impl.bindSlice(sliceManager, uri, unwrap(supportedSpecs)),
+                context);
     }
 
     /**
@@ -658,5 +663,31 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
                     + icon.getResId());
         }
         return true;
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static <T> T getSystemService(Context context, Class<T> serviceClass) {
+            return context.getSystemService(serviceClass);
+        }
+
+    }
+
+    @RequiresApi(28)
+    static class Api28Impl {
+        private Api28Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static android.app.slice.Slice bindSlice(SliceManager sliceManager, Uri uri,
+                Set<android.app.slice.SliceSpec> supportedSpecs) {
+            return sliceManager.bindSlice(uri, supportedSpecs);
+        }
     }
 }

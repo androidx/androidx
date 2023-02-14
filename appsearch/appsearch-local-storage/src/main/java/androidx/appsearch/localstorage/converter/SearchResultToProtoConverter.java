@@ -24,10 +24,12 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
@@ -88,7 +90,8 @@ public class SearchResultToProtoConverter {
 
         DocumentProto.Builder documentBuilder = proto.getDocument().toBuilder();
         String prefix = removePrefixesFromDocument(documentBuilder);
-        Map<String, SchemaTypeConfigProto> schemaTypeMap = schemaMap.get(prefix);
+        Map<String, SchemaTypeConfigProto> schemaTypeMap =
+                Preconditions.checkNotNull(schemaMap.get(prefix));
         GenericDocument document =
                 GenericDocumentToProtoConverter.toGenericDocument(documentBuilder, prefix,
                         schemaTypeMap);
@@ -104,6 +107,16 @@ public class SearchResultToProtoConverter {
                     builder.addMatchInfo(matchInfo);
                 }
             }
+        }
+        for (int i = 0; i < proto.getJoinedResultsCount(); i++) {
+            SearchResultProto.ResultProto joinedResultProto = proto.getJoinedResults(i);
+
+            if (joinedResultProto.getJoinedResultsCount() != 0) {
+                throw new AppSearchException(AppSearchResult.RESULT_INTERNAL_ERROR,
+                        "Nesting joined results within joined results not allowed.");
+            }
+
+            builder.addJoinedResult(toUnprefixedSearchResult(joinedResultProto, schemaMap));
         }
         return builder.build();
     }

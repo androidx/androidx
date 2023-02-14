@@ -26,14 +26,17 @@ import android.os.SystemClock
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.SurfaceTextureProvider
@@ -42,10 +45,10 @@ import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -61,9 +64,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.atLeastOnce
+import org.mockito.Mockito.atLeast
 import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.inOrder
@@ -78,15 +82,34 @@ private const val FRAME_RATE = 30
 private const val I_FRAME_INTERVAL = 1
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @Suppress("DEPRECATION")
 @SdkSuppress(minSdkVersion = 21)
-class VideoEncoderTest {
+class VideoEncoderTest(
+    private val implName: String,
+    private val cameraConfig: CameraXConfig,
+) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() = listOf(
+            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+        )
+
+        private val INPUT_TIMEBASE = Timebase.UPTIME
+    }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -109,16 +132,20 @@ class VideoEncoderTest {
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
-        // Same issue happened in new video encoder in pre-submit test. Bypass this test on
-        // CuttleFish API 29.
-        // TODO(b/168175357): Fix VideoCaptureTest problems on CuttleFish API 29
+        // Skip for b/168175357, b/233661493
         assumeFalse(
-            "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
+            "Skip tests for Cuttlefish MediaCodec issues",
+            Build.MODEL.contains("Cuttlefish") &&
+                (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
+        )
+        // Skip for b/241876294
+        assumeFalse(
+            "Skip test for devices with ExtraSupportedResolutionQuirk, since the extra" +
+                " resolutions cannot be used when the provided surface is an encoder surface.",
+            DeviceQuirks.get(ExtraSupportedResolutionQuirk::class.java) != null
         )
 
-        val cameraXConfig: CameraXConfig = Camera2Config.defaultConfig()
-        CameraXUtil.initialize(context, cameraXConfig).get()
+        CameraXUtil.initialize(context, cameraConfig).get()
 
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
 
@@ -163,6 +190,11 @@ class VideoEncoderTest {
 
         // Ensure all cameras are released for the next test
         CameraXUtil.shutdown()[10, TimeUnit.SECONDS]
+    }
+
+    @Test
+    fun canGetEncoderInfo() {
+        assertThat(videoEncoder.encoderInfo).isNotNull()
     }
 
     @Test
@@ -243,29 +275,23 @@ class VideoEncoderTest {
 
     @Test
     fun pauseResumeVideoEncoder_getChronologicalData() {
-        val dataList = ArrayList<EncodedData>()
+        val inOrder = inOrder(videoEncoderCallback)
 
         videoEncoder.start()
-        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+        inOrder.verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
         videoEncoder.pause()
-        verify(videoEncoderCallback, timeout(5000L)).onEncodePaused()
-
-        // Save all values before clear invocations
-        val startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
-        verify(videoEncoderCallback, atLeastOnce()).onEncodedData(startCaptor.capture())
-        dataList.addAll(startCaptor.allValues)
-        clearInvocations(videoEncoderCallback)
+        inOrder.verify(videoEncoderCallback, timeout(5000L)).onEncodePaused()
 
         videoEncoder.start()
-        val resumeCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
+        inOrder.verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+
+        val captor = ArgumentCaptor.forClass(EncodedData::class.java)
         verify(
             videoEncoderCallback,
-            timeout(15000L).atLeast(5)
-        ).onEncodedData(resumeCaptor.capture())
-        dataList.addAll(resumeCaptor.allValues)
-
-        verifyDataInChronologicalOrder(dataList)
+            atLeast(/*start*/5 + /*resume*/5)
+        ).onEncodedData(captor.capture())
+        verifyDataInChronologicalOrder(captor.allValues)
     }
 
     @Test
@@ -344,6 +370,7 @@ class VideoEncoderTest {
         assumeTrue(resolution != null)
 
         videoEncoderConfig = VideoEncoderConfig.builder()
+            .setInputTimebase(INPUT_TIMEBASE)
             .setBitrate(BIT_RATE)
             .setColorFormat(MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
             .setFrameRate(FRAME_RATE)

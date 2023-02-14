@@ -36,9 +36,12 @@ dependencies {
     androidTestImplementation(libs.testRunner)
 }
 
-def installReleaseTarget = tasks.getByPath(
-    ":emoji2:integration-tests:init-disabled-macrobenchmark-target:installRelease"
-)
 // Define a task dependency so the app is installed before we run macro benchmarks.
-tasks.getByPath(":emoji2:integration-tests:init-disabled-macrobenchmark:connectedCheck")
-    .dependsOn(installReleaseTarget)
+afterEvaluate {
+    tasks.getByPath(":emoji2:integration-tests:init-disabled-macrobenchmark:connectedDebugAndroidTest")
+            .dependsOn(
+                    tasks.getByPath(
+                            ":emoji2:integration-tests:init-disabled-macrobenchmark-target:installRelease"
+                    )
+            )
+}

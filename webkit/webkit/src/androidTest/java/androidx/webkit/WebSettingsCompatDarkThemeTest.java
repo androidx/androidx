@@ -20,11 +20,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import android.os.Build.VERSION_CODES;
+import android.os.Build;
 
 import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,12 +33,15 @@ import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebSettingsCompatDarkThemeTest extends
         WebSettingsCompatDarkModeTestBase<WebViewDarkThemeTestActivity> {
     public WebSettingsCompatDarkThemeTest() {
         // targetSdkVersion to T, it is min version the algorithmic darkening works.
-        // TODO(http://b/214741472): Use VERSION_CODES.TIRAMISU once available.
-        super(WebViewDarkThemeTestActivity.class, VERSION_CODES.CUR_DEVELOPMENT);
+        // VERSION_CODES.TIRAMISU can't be compiled, follows the pattern in
+        // core/core/src/main/java/androidx/core/os/BuildCompat.java,
+        // uses 33 instead of VERSION_CODES.TIRAMISU
+        super(WebViewDarkThemeTestActivity.class, 33);
     }
 
     /**
@@ -58,7 +62,7 @@ public class WebSettingsCompatDarkThemeTest extends
     public void testSimplifiedDarkMode_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
         // Loading about:blank which doesn't support dark style result in a light background.
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be light",
@@ -80,7 +84,7 @@ public class WebSettingsCompatDarkThemeTest extends
     public void testSimplifiedDarkMode_pageSupportDarkTheme() {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        setWebViewSize(64, 64);
+        setWebViewSize();
 
         // Loading about:blank which doesn't support dark style result in a light background.
         getWebViewOnUiThread().loadUrlAndWaitForCompletion("about:blank");

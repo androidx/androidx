@@ -35,11 +35,10 @@ public class PassiveMonitoringUpdateResponse(
         proto: ResponsesProto.PassiveMonitoringUpdateResponse
     ) : this(PassiveMonitoringUpdate(proto.update))
 
-    override val proto: ResponsesProto.PassiveMonitoringUpdateResponse by lazy {
+    override val proto: ResponsesProto.PassiveMonitoringUpdateResponse =
         ResponsesProto.PassiveMonitoringUpdateResponse.newBuilder()
             .setUpdate(passiveMonitoringUpdate.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

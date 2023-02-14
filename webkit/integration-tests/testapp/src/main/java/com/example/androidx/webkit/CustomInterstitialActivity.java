@@ -68,6 +68,7 @@ public class CustomInterstitialActivity extends AppCompatActivity {
         mWebViewClient.handleInterstitialResponse(requestCode, resultCode, data);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         if (mWebView.canGoBack()) {

@@ -76,17 +76,26 @@ public abstract class AudioStats {
     /**
      * The recording is muted because the audio encoder encountered errors.
      *
-     * <p>When the audio encoder encountered errors, the recording will keep being recorded
-     * without audio for the rest of the recording. The audio stats generated after the audio
-     * encoder failed will contain this audio state.
+     * <p>If the audio source encounters errors during recording, audio stats generated after the
+     * error will contain this audio state, and the recording will proceed without audio.
      *
      * <p>Use {@link #getErrorCause()} to get the error cause.
      */
     public static final int AUDIO_STATE_ENCODER_ERROR = 3;
 
+    /**
+     *  The recording is muted because the audio source encountered errors.
+     *
+     * <p>If the audio source encounters errors during recording, audio stats generated after the
+     * error will contain this audio state, and the recording will proceed without audio.
+     *
+     * <p>Use {@link #getErrorCause()} to get the error cause.
+     */
+    public static final int AUDIO_STATE_SOURCE_ERROR = 4;
+
     /** @hide */
     @IntDef({AUDIO_STATE_ACTIVE, AUDIO_STATE_DISABLED, AUDIO_STATE_SOURCE_SILENCED,
-            AUDIO_STATE_ENCODER_ERROR})
+            AUDIO_STATE_ENCODER_ERROR, AUDIO_STATE_SOURCE_ERROR})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public @interface AudioState {
@@ -99,7 +108,7 @@ public abstract class AudioStats {
      */
     private static final Set<Integer> ERROR_STATES =
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList(AUDIO_STATE_SOURCE_SILENCED,
-                    AUDIO_STATE_ENCODER_ERROR)));
+                    AUDIO_STATE_ENCODER_ERROR, AUDIO_STATE_SOURCE_ERROR)));
 
     /**
      * Indicates whether the recording is being recorded with audio.

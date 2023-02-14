@@ -21,6 +21,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,9 +49,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -57,7 +59,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -71,7 +72,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun DemoApp(
     currentDemo: Demo,
@@ -88,7 +89,7 @@ fun DemoApp(
 
     var filterText by rememberSaveable { mutableStateOf("") }
 
-    val scrollBehavior = remember { TopAppBarDefaults.pinnedScrollBehavior() }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
         topBar = {
@@ -104,10 +105,21 @@ fun DemoApp(
                 onEndFiltering = onEndFiltering
             )
         },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
-        val modifier = Modifier.padding(innerPadding)
-        DemoContent(modifier, currentDemo, isFiltering, filterText, onNavigateToDemo, onNavigateUp)
+        val modifier = Modifier
+            // as scaffold currently doesn't consume - consume what's needed
+            .consumeWindowInsets(innerPadding)
+            .padding(innerPadding)
+        DemoContent(
+            modifier,
+            currentDemo,
+            isFiltering,
+            filterText,
+            onNavigateToDemo,
+            onNavigateUp
+        )
     }
 }
 
@@ -199,7 +211,9 @@ private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Un
         category.demos.forEach { demo ->
             ListItem(onClick = { onNavigate(demo) }) {
                 Text(
-                    modifier = Modifier.height(56.dp).wrapContentSize(Alignment.Center),
+                    modifier = Modifier
+                        .height(56.dp)
+                        .wrapContentSize(Alignment.Center),
                     text = demo.title
                 )
             }
@@ -207,6 +221,7 @@ private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Un
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
 @Composable
 private fun DemoAppBar(
@@ -228,7 +243,7 @@ private fun DemoAppBar(
             scrollBehavior = scrollBehavior
         )
     } else {
-        SmallTopAppBar(
+        TopAppBar(
             title = {
                 Text(title, Modifier.testTag(Tags.AppBarTitle))
             },

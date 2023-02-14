@@ -18,6 +18,7 @@ package androidx.health.services.client.impl.internal
 
 import android.os.RemoteException
 import androidx.annotation.RestrictTo
+import androidx.health.services.client.HealthServicesException
 import androidx.health.services.client.data.ExerciseInfo
 import androidx.health.services.client.impl.response.ExerciseInfoResponse
 import com.google.common.util.concurrent.SettableFuture
@@ -38,6 +39,6 @@ public class ExerciseInfoCallback(private val resultFuture: SettableFuture<Exerc
 
     @Throws(RemoteException::class)
     override fun onFailure(message: String) {
-        resultFuture.setException(Exception(message))
+        resultFuture.setException(HealthServicesException(message))
     }
 }

@@ -17,12 +17,19 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.text.platform.ActualParagraph
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
@@ -37,7 +44,8 @@ internal const val DefaultMaxLines = Int.MAX_VALUE
  *
  * Paragraphs can be displayed on a [Canvas] using the [paint] method.
  */
-interface Paragraph {
+@JvmDefaultWithCompatibility
+expect sealed interface Paragraph {
     /**
      * The amount of horizontal space this paragraph occupies.
      */
@@ -137,10 +145,10 @@ interface Paragraph {
     fun getLineEnd(lineIndex: Int, visibleEnd: Boolean = false): Int
 
     /**
-     * Returns true if ellipsis happens on the given line, otherwise returns false
+     * Returns true if the given line is ellipsized, otherwise returns false.
      *
      * @param lineIndex a 0 based line index
-     * @return true if ellipsis happens on the given line, otherwise false
+     * @return true if the given line is ellipsized, otherwise false
      */
     fun isLineEllipsized(lineIndex: Int): Boolean
 
@@ -231,13 +239,92 @@ interface Paragraph {
     fun getWordBoundary(offset: Int): TextRange
 
     /**
-     * Paint the paragraph to canvas, and also overrides some paint settings.
+     * Draws this paragraph onto given [canvas] while modifying supported draw properties. Any
+     * change caused by overriding parameters are permanent, meaning that they affect the
+     * subsequent paint calls.
+     *
+     * @param canvas Canvas to draw this paragraph on.
+     * @param color Applies to the default text paint color that's used by this paragraph. Text
+     * color spans are not affected. [Color.Unspecified] is treated as no-op.
+     * @param shadow Applies to the default text paint shadow that's used by this paragraph. Text
+     * shadow spans are not affected. [Shadow.None] removes any existing shadow on this paragraph,
+     * `null` does not change the currently set [Shadow] configuration.
+     * @param textDecoration Applies to the default text paint that's used by this paragraph. Spans
+     * that specify a TextDecoration are not affected. [TextDecoration.None] removes any existing
+     * TextDecoration on this paragraph, `null` does not change the currently set [TextDecoration]
+     * configuration.
      */
     fun paint(
         canvas: Canvas,
         color: Color = Color.Unspecified,
         shadow: Shadow? = null,
         textDecoration: TextDecoration? = null
+    )
+
+    /**
+     * Draws this paragraph onto given [canvas] while modifying supported draw properties. Any
+     * change caused by overriding parameters are permanent, meaning that they affect the
+     * subsequent paint calls.
+     *
+     * @param canvas Canvas to draw this paragraph on.
+     * @param color Applies to the default text paint color that's used by this paragraph. Text
+     * color spans are not affected. [Color.Unspecified] is treated as no-op.
+     * @param shadow Applies to the default text paint shadow that's used by this paragraph. Text
+     * shadow spans are not affected. [Shadow.None] removes any existing shadow on this paragraph,
+     * `null` does not change the currently set [Shadow] configuration.
+     * @param textDecoration Applies to the default text paint that's used by this paragraph. Spans
+     * that specify a TextDecoration are not affected. [TextDecoration.None] removes any existing
+     * TextDecoration on this paragraph, `null` does not change the currently set [TextDecoration]
+     * configuration.
+     * @param drawStyle Applies to the default text paint style that's used by this paragraph. Spans
+     * that specify a DrawStyle are not affected. Passing this value as `null` does not change the
+     * currently set DrawStyle.
+     * @param blendMode Blending algorithm to be applied to the Paragraph while painting.
+     */
+    @ExperimentalTextApi
+    fun paint(
+        canvas: Canvas,
+        color: Color = Color.Unspecified,
+        shadow: Shadow? = null,
+        textDecoration: TextDecoration? = null,
+        drawStyle: DrawStyle? = null,
+        blendMode: BlendMode = DrawScope.DefaultBlendMode
+    )
+
+    /**
+     * Draws this paragraph onto given [canvas] while modifying supported draw properties. Any
+     * change caused by overriding parameters are permanent, meaning that they affect the
+     * subsequent paint calls.
+     *
+     * @param canvas Canvas to draw this paragraph on.
+     * @param brush Applies to the default text paint shader that's used by this paragraph. Text
+     * brush spans are not affected. If brush is type of [SolidColor], color's alpha value is
+     * modulated by [alpha] parameter and gets applied as a color. If brush is type of
+     * [ShaderBrush], its internal shader is created using this paragraph's layout size.
+     * @param alpha Applies to the default text paint alpha that's used by this paragraph. Text
+     * alpha spans are not affected. [Float.NaN] is treated as no-op. All other values are coerced
+     * into [0f, 1f] range.
+     * @param shadow Applies to the default text paint shadow that's used by this paragraph. Text
+     * shadow spans are not affected. [Shadow.None] removes any existing shadow on this paragraph,
+     * `null` does not change the currently set [Shadow] configuration.
+     * @param textDecoration Applies to the default text paint that's used by this paragraph. Spans
+     * that specify a TextDecoration are not affected. [TextDecoration.None] removes any existing
+     * TextDecoration on this paragraph, `null` does not change the currently set [TextDecoration]
+     * configuration.
+     * @param drawStyle Applies to the default text paint style that's used by this paragraph. Spans
+     * that specify a DrawStyle are not affected. Passing this value as `null` does not change the
+     * currently set DrawStyle.
+     * @param blendMode Blending algorithm to be applied to the Paragraph while painting.
+     */
+    @ExperimentalTextApi
+    fun paint(
+        canvas: Canvas,
+        brush: Brush,
+        alpha: Float = Float.NaN,
+        shadow: Shadow? = null,
+        textDecoration: TextDecoration? = null,
+        drawStyle: DrawStyle? = null,
+        blendMode: BlendMode = DrawScope.DefaultBlendMode
     )
 }
 
@@ -352,9 +439,8 @@ fun Paragraph(
  * @param text the text to be laid out
  * @param style the [TextStyle] to be applied to the whole text
  * @param constraints how wide and tall the text is allowed to be. [Constraints.maxWidth]
- * will define the width of the Paragraph. Other components of the [Constraints] object are no-op
- * but will allow additional functionality in the future, e.g. ellipsis based on the limited
- * [Constraints.maxHeight].
+ * will define the width of the Paragraph. [Constraints.maxHeight] helps defining the number of
+ * lines that fit with ellipsis is true. Minimum components of the [Constraints] object are no-op.
  * @param density density of the device
  * @param fontFamilyResolver [FontFamily.Resolver] to be used to load the font given in [SpanStyle]s
  * @param spanStyles [SpanStyle]s to be applied to parts of text
@@ -423,9 +509,8 @@ fun Paragraph(
  *
  * @param paragraphIntrinsics [ParagraphIntrinsics] instance
  * @param constraints how wide and tall the text is allowed to be. [Constraints.maxWidth]
- * will define the width of the Paragraph. Other components of the [Constraints] object are no-op
- * but will allow additional functionality in the future, e.g. ellipsis based on the limited
- * [Constraints.maxHeight]
+ * will define the width of the Paragraph. [Constraints.maxHeight] helps defining the number of
+ * lines that fit with ellipsis is true. Minimum components of the [Constraints] object are no-op.
  * @param maxLines the maximum number of lines that the text can have
  * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
  */

@@ -18,17 +18,23 @@ package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.animation.core.snap
 import androidx.compose.foundation.AutoTestFrameClock
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.list.setContentWithTestViewConfiguration
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -38,6 +44,7 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -404,6 +411,41 @@ class LazyGridsContentPaddingTest {
 
         // Scroll to the top.
         state.scrollBy(itemSize * 2.5f)
+
+        rule.onNodeWithTag("2").assertTopPositionInRootIsEqualTo(topPadding)
+        // Shouldn't be visible
+        rule.onNodeWithTag("1").assertIsNotDisplayed()
+        rule.onNodeWithTag("0").assertIsNotDisplayed()
+    }
+
+    @Test
+    fun verticalGrid_largeContentPaddingAndReverseLayout() {
+        val topPadding = itemSize * 2
+        val bottomPadding = itemSize * 2
+        val listSize = itemSize * 3
+        lateinit var state: LazyGridState
+        rule.setContentWithTestViewConfiguration {
+            LazyVerticalGrid(
+                GridCells.Fixed(1),
+                reverseLayout = true,
+                state = rememberLazyGridState().also { state = it },
+                modifier = Modifier.size(listSize),
+                contentPadding = PaddingValues(top = topPadding, bottom = bottomPadding),
+            ) {
+                items(3) { index ->
+                    Box(Modifier.size(itemSize).testTag("$index"))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertTopPositionInRootIsEqualTo(0.dp)
+        // Not visible.
+        rule.onNodeWithTag("1")
+            .assertDoesNotExist()
+
+        // Scroll to the top.
+        state.scrollBy(itemSize * 5f)
 
         rule.onNodeWithTag("2").assertTopPositionInRootIsEqualTo(topPadding)
         // Shouldn't be visible
@@ -797,6 +839,50 @@ class LazyGridsContentPaddingTest {
             state.assertScrollPosition(3, itemSize * 3.5f)
             state.assertVisibleItems(3 to -itemSize * 3.5f)
         }
+    }
+
+    @Test
+    fun verticalGrid_unevenPaddingWithRtl() {
+        val padding = PaddingValues(start = 20.dp, end = 8.dp)
+        lateinit var state: LazyGridState
+        rule.setContent {
+            state = rememberLazyGridState()
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(1),
+                    modifier = Modifier
+                        .testTag("list")
+                        .requiredHeight(itemSize * 2),
+                    state = state,
+                    contentPadding = padding
+                ) {
+                    items(4) {
+                        Box(
+                            Modifier
+                                .testTag("$it")
+                                .background(Color.Red)
+                                .size(itemSize)
+                        ) {
+                            BasicText("$it")
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertTopPositionInRootIsEqualTo(0.dp)
+            .assertLeftPositionInRootIsEqualTo(
+                padding.calculateLeftPadding(LayoutDirection.Rtl)
+            )
+
+        state.scrollBy(itemSize * 4)
+
+        rule.onNodeWithTag("3")
+            .assertTopPositionInRootIsEqualTo(itemSize)
+            .assertLeftPositionInRootIsEqualTo(
+                padding.calculateLeftPadding(LayoutDirection.Rtl)
+            )
     }
 
     // @Test

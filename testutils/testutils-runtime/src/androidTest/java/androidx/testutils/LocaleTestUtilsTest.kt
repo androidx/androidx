@@ -26,8 +26,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.hamcrest.CoreMatchers
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -85,7 +85,7 @@ class LocaleTestUtilsTest {
         val getReason: (String, String) -> String = { name, code ->
             "$name test language '$code' does not exist on test device"
         }
-        Assert.assertThat(
+        assertThat(
             getReason(
                 "Default",
                 LocaleTestUtils.DEFAULT_TEST_LANGUAGE
@@ -93,12 +93,12 @@ class LocaleTestUtilsTest {
             availableLanguages,
             CoreMatchers.hasItem(LocaleTestUtils.DEFAULT_TEST_LANGUAGE)
         )
-        Assert.assertThat(
+        assertThat(
             getReason("LTR", LocaleTestUtils.LTR_LANGUAGE),
             availableLanguages,
             CoreMatchers.hasItem(LocaleTestUtils.LTR_LANGUAGE)
         )
-        Assert.assertThat(
+        assertThat(
             getReason("RTL", LocaleTestUtils.RTL_LANGUAGE),
             availableLanguages,
             CoreMatchers.hasItem(LocaleTestUtils.RTL_LANGUAGE)
@@ -110,13 +110,13 @@ class LocaleTestUtilsTest {
     }
 
     private fun assertLocaleIs(lang: String, expectRtl: Boolean) {
-        Assert.assertThat(
+        assertThat(
             "Locale should be $lang",
             configuration.language,
             CoreMatchers.equalTo(lang)
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            Assert.assertThat(
+            assertThat(
                 "Layout direction should be ${if (expectRtl) "RTL" else "LTR"}",
                 configuration.layoutDirection,
                 CoreMatchers.equalTo(if (expectRtl) LAYOUT_DIRECTION_RTL else LAYOUT_DIRECTION_LTR)
@@ -125,7 +125,7 @@ class LocaleTestUtilsTest {
     }
 
     private fun determineDefaultLayoutDirection() {
-        Assert.assertThat(
+        assertThat(
             "Locale must still be the default when determining the default layout direction",
             configuration.language,
             CoreMatchers.equalTo(DEFAULT_LANGUAGE)

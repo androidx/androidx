@@ -25,8 +25,9 @@ import androidx.work.WorkManager;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.trackers.Trackers;
-import androidx.work.impl.utils.SerialExecutor;
+import androidx.work.impl.utils.taskexecutor.SerialExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +47,17 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
 
     TestWorkManagerImpl(
             @NonNull final Context context,
-            @NonNull final Configuration configuration) {
+            @NonNull final Configuration configuration
+    ) {
+        super(context, configuration,
+                new WorkManagerTaskExecutor(configuration.getTaskExecutor()), true);
+    }
+
+    TestWorkManagerImpl(
+            @NonNull final Context context,
+            @NonNull final Configuration configuration,
+            @NonNull final SerialExecutor serialExecutor
+    ) {
 
         // Note: This implies that the call to ForceStopRunnable() actually does nothing.
         // This is okay when testing.
@@ -63,30 +74,27 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
                 configuration,
                 new TaskExecutor() {
                     Executor mSynchronousExecutor = new SynchronousExecutor();
-                    SerialExecutor mSerialExecutor =
-                            new SerialExecutor(configuration.getTaskExecutor());
 
+                    @NonNull
                     @Override
                     public Executor getMainThreadExecutor() {
                         return mSynchronousExecutor;
                     }
 
+                    @NonNull
                     @Override
                     public SerialExecutor getSerialTaskExecutor() {
-                        return mSerialExecutor;
+                        return serialExecutor;
                     }
                 },
                 true);
-
-        // mScheduler is initialized in createSchedulers() called by super()
-        getProcessor().addExecutionListener(mScheduler);
     }
 
     @Override
     @NonNull
     public List<Scheduler> createSchedulers(@NonNull Context context,
             @NonNull Configuration configuration, @NonNull Trackers trackers) {
-        mScheduler = new TestScheduler(context);
+        mScheduler = new TestScheduler(this);
         return Collections.singletonList((Scheduler) mScheduler);
     }
 

@@ -76,9 +76,17 @@ public class MainActivity extends AppCompatActivity {
                         getResources().getString(R.string.variations_header_activity_title),
                         new Intent(activityContext, GetVariationsHeaderActivity.class)),
                 new MenuListView.MenuItem(
+                        getResources().getString(R.string.process_global_config_activity_title),
+                        new Intent(activityContext, ProcessGlobalConfigActivity.class)),
+                new MenuListView.MenuItem(
                         getResources().getString(R.string.requested_with_activity_title),
                         new Intent(activityContext, RequestedWithHeaderActivity.class)),
-
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.cookie_manager_activity_title),
+                        new Intent(activityContext, CookieManagerActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.image_drag_drop_activity_title),
+                        new Intent(activityContext, ImageDragActivity.class)),
         };
         listView.setItems(menuItems);
     }

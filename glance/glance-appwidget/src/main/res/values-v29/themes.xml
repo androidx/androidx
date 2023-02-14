@@ -15,12 +15,24 @@
   -->
 
 <resources>
-    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault.DayNight">
+    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault.DayNight"/>
+    <style name="Glance.AppWidget.Theme.ListChildren" parent="">
         <!--
-            The following line has the effect of displaying ripples for all clickable views.
-            This is reset in the widget styles for buttons since they display ripple backgrounds
-            by default.
+            AbsListView sets a list item to be clickable if the focusable is not explicitly set.
+            This has effect of list items showing up as numbered when Voice access is activated
+            (even if they don't have any click listeners). See ListItemAccessibilityDelegate. In
+            order to prevent this, we explicitly set focusable as true here.
         -->
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:focusable">true</item>
+    </style>
+    <style name="Glance.AppWidget.Theme.GridChildren" parent="">
+        <!--
+            AbsListView (extended by GridView) sets a list item to be clickable if the focusable is
+            not explicitly set. This has effect of list items showing up as numbered when Voice
+            access is activated (even if they don't have any click listeners). See
+            ListItemAccessibilityDelegate. In order to prevent this, we explicitly set focusable as
+            true here.
+        -->
+        <item name="android:focusable">true</item>
     </style>
 </resources>

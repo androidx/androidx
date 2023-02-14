@@ -18,7 +18,6 @@ package androidx.appcompat.widget;
 import android.app.Instrumentation;
 import android.os.Build;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -50,7 +49,6 @@ public class AppCompatSpinnerRtlTest
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
     }
 
-    @FlakyTest
     @Test
     public void testHorizontalOffsetRtl() {
         AppCompatSpinnerTest.checkOffsetIsCorrect(mInstrumentation, mContainer, 200, false, true);

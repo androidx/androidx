@@ -21,8 +21,6 @@ import android.graphics.Bitmap
 import android.hardware.camera2.CameraManager
 import android.util.Size
 import android.view.Surface
-import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode.COMPATIBLE
-import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode.PERFORMANCE
 import androidx.camera.viewfinder.CameraViewfinder.ScaleType.FILL_CENTER
 import androidx.camera.viewfinder.internal.utils.futures.FutureCallback
 import androidx.camera.viewfinder.internal.utils.futures.Futures
@@ -79,7 +77,9 @@ class CameraViewfinderBitmapTest {
         Assume.assumeTrue("No cameras found on device.", cameraIds.isNotEmpty())
         val cameraId = cameraIds[0]
         val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-        mSurfaceRequest = ViewfinderSurfaceRequest(ANY_SIZE, characteristics)
+        mSurfaceRequest = ViewfinderSurfaceRequest.Builder(ANY_SIZE)
+            .populateFromCharacteristics(characteristics)
+            .build()
     }
 
     @After
@@ -90,7 +90,7 @@ class CameraViewfinderBitmapTest {
     @Throws(Throwable::class)
     fun bitmapNotNull_whenViewfinderIsDisplaying_surfaceView() {
         // Arrange
-        val viewfinder: CameraViewfinder = setUpViewfinder(PERFORMANCE, FILL_CENTER)
+        val viewfinder: CameraViewfinder = setUpViewfinder(FILL_CENTER)
 
         // assert
         runOnMainThread(Runnable {
@@ -119,7 +119,7 @@ class CameraViewfinderBitmapTest {
     @Throws(Throwable::class)
     fun bitmapNotNull_whenViewfinderIsDisplaying_textureView() {
         // Arrange
-        val viewfinder: CameraViewfinder = setUpViewfinder(COMPATIBLE, FILL_CENTER)
+        val viewfinder: CameraViewfinder = setUpViewfinder(FILL_CENTER)
 
         // assert
         runOnMainThread(Runnable {
@@ -145,7 +145,6 @@ class CameraViewfinderBitmapTest {
     }
 
     private fun setUpViewfinder(
-        mode: CameraViewfinder.ImplementationMode,
         scaleType: CameraViewfinder.ScaleType
     ): CameraViewfinder {
         val viewfinderAtomicReference: AtomicReference<CameraViewfinder> =
@@ -153,7 +152,6 @@ class CameraViewfinderBitmapTest {
         runOnMainThread {
             val viewfiner =
                 CameraViewfinder(ApplicationProvider.getApplicationContext<Context>())
-            viewfiner.setImplementationMode(mode)
             viewfiner.setScaleType(scaleType)
             mActivityRule.getScenario().onActivity(
                 ActivityAction<FakeActivity> { activity: FakeActivity ->

@@ -1,0 +1,29 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:lb="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+  <Button android:focusable="true"
+      android:id="@+id/button_front"
+      android:text="Front"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content">
+      <requestFocus />
+  </Button>
+  <androidx.leanback.widget.HorizontalGridViewEx
+      android:id="@+id/gridview"
+      android:layout_width="100dip"
+      android:layout_height="100dip"
+      android:focusable="true"
+      android:focusableInTouchMode="true"
+      android:background="#00ffff"
+      lb:numberOfColumns="1"
+      lb:columnWidth="150dip" />
+  <Button android:focusable="true"
+      android:id="@+id/button_back"
+      android:text="Back"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" />
+</LinearLayout>

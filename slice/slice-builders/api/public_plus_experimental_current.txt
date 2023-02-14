@@ -178,7 +178,7 @@ package androidx.slice.builders {
     method public boolean isDefaultToggle();
     method public boolean isToggle();
     method public androidx.slice.builders.SliceAction setChecked(boolean);
-    method public androidx.slice.builders.SliceAction setContentDescription(CharSequence);
+    method public androidx.slice.core.SliceAction setContentDescription(CharSequence);
     method public androidx.slice.builders.SliceAction setKey(String);
     method public androidx.slice.builders.SliceAction setPriority(@IntRange(from=0) int);
   }

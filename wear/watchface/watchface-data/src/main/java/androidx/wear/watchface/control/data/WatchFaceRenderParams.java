@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class WatchFaceRenderParams implements VersionedParcelable, Parcelable {
@@ -60,8 +60,7 @@ public class WatchFaceRenderParams implements VersionedParcelable, Parcelable {
     UserStyleWireFormat mUserStyle;
 
     /**
-     * The complications to render with. If null then the current complication data is used
-     * instead.
+     * The complications to render with. If null then the current complication data is used instead.
      */
     @ParcelField(100)
     @Nullable

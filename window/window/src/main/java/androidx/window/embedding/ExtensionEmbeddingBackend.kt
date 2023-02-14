@@ -17,21 +17,21 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.content.Context
 import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
+import androidx.collection.ArraySet
 import androidx.core.util.Consumer
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-@ExperimentalWindowApi
 internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     @field:VisibleForTesting @field:GuardedBy(
         "globalLock"
@@ -53,11 +53,11 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         private val globalLock = ReentrantLock()
         private const val TAG = "EmbeddingBackend"
 
-        fun getInstance(): ExtensionEmbeddingBackend {
+        fun getInstance(applicationContext: Context): ExtensionEmbeddingBackend {
             if (globalInstance == null) {
                 globalLock.withLock {
                     if (globalInstance == null) {
-                        val embeddingExtension = initAndVerifyEmbeddingExtension()
+                        val embeddingExtension = initAndVerifyEmbeddingExtension(applicationContext)
                         globalInstance = ExtensionEmbeddingBackend(embeddingExtension)
                     }
                 }
@@ -70,17 +70,20 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
          * implemented by OEM if available on this device. This also verifies if the loaded
          * implementation conforms to the declared API version.
          */
-        private fun initAndVerifyEmbeddingExtension(): EmbeddingInterfaceCompat? {
+        private fun initAndVerifyEmbeddingExtension(
+            applicationContext: Context
+        ): EmbeddingInterfaceCompat? {
             var impl: EmbeddingInterfaceCompat? = null
             try {
-                if (isExtensionVersionSupported(EmbeddingCompat.getExtensionApiLevel()) &&
+                if (isExtensionVersionSupported(ExtensionsUtil.safeVendorApiLevel) &&
                     EmbeddingCompat.isEmbeddingAvailable()
                 ) {
                     impl = EmbeddingBackend::class.java.classLoader?.let { loader ->
                         EmbeddingCompat(
                             EmbeddingCompat.embeddingComponent(),
                             EmbeddingAdapter(PredicateAdapter(loader)),
-                            ConsumerAdapter(loader)
+                            ConsumerAdapter(loader),
+                            applicationContext
                         )
                     }
                     // TODO(b/190433400): Check API conformance
@@ -113,30 +116,111 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    private val splitRules: CopyOnWriteArraySet<EmbeddingRule> =
-        CopyOnWriteArraySet<EmbeddingRule>()
+    @GuardedBy("globalLock")
+    private val ruleTracker = RuleTracker()
 
-    override fun getSplitRules(): Set<EmbeddingRule> {
-        return splitRules
+    @GuardedBy("globalLock")
+    override fun getRules(): Set<EmbeddingRule> {
+        globalLock.withLock { return ruleTracker.splitRules }
     }
 
-    override fun setSplitRules(rules: Set<EmbeddingRule>) {
-        splitRules.clear()
-        splitRules.addAll(rules)
-        embeddingExtension?.setSplitRules(splitRules)
-    }
-
-    override fun registerRule(rule: EmbeddingRule) {
-        if (!splitRules.contains(rule)) {
-            splitRules.add(rule)
-            embeddingExtension?.setSplitRules(splitRules)
+    @GuardedBy("globalLock")
+    override fun setRules(rules: Set<EmbeddingRule>) {
+        globalLock.withLock {
+            ruleTracker.setRules(rules)
+            embeddingExtension?.setRules(getRules())
         }
     }
 
-    override fun unregisterRule(rule: EmbeddingRule) {
-        if (splitRules.contains(rule)) {
+    @GuardedBy("globalLock")
+    override fun addRule(rule: EmbeddingRule) {
+        globalLock.withLock {
+            if (rule !in ruleTracker) {
+                ruleTracker.addOrUpdateRule(rule)
+                embeddingExtension?.setRules(getRules())
+            }
+        }
+    }
+
+    @GuardedBy("globalLock")
+    override fun removeRule(rule: EmbeddingRule) {
+        globalLock.withLock {
+            if (rule in ruleTracker) {
+                ruleTracker.removeRule(rule)
+                embeddingExtension?.setRules(getRules())
+            }
+        }
+    }
+
+    /**
+     * A helper class to manage the registered [tags][EmbeddingRule.tag] and [rules][EmbeddingRule]
+     * It supports:
+     *   - Add a set of [rules][EmbeddingRule] and verify if there's duplicated [EmbeddingRule.tag]
+     *     if needed.
+     *   - Clears all registered [rules][EmbeddingRule]
+     *   - Add a runtime [rule][EmbeddingRule] or update an existing [rule][EmbeddingRule] by
+     *   [tag][EmbeddingRule.tag] if the tag has been registered.
+     *   - Remove a runtime [rule][EmbeddingRule]
+     */
+    private class RuleTracker {
+        val splitRules = ArraySet<EmbeddingRule>()
+        private val tagRuleMap = HashMap<String, EmbeddingRule>()
+
+        fun setRules(rules: Set<EmbeddingRule>) {
+            clearRules()
+            rules.forEach { rule -> addOrUpdateRule(rule, throwOnDuplicateTag = true) }
+        }
+
+        fun clearRules() {
+            splitRules.clear()
+            tagRuleMap.clear()
+        }
+
+        /**
+         * Adds a rule to [RuleTracker] or update an existing rule if the [tag][EmbeddingRule.tag]
+         * has been registered and `throwOnDuplicateTag` is `false`
+         * @throws IllegalArgumentException if `throwOnDuplicateTag` is `true` and the
+         * [tag][EmbeddingRule.tag] has been registered.
+         */
+        fun addOrUpdateRule(rule: EmbeddingRule, throwOnDuplicateTag: Boolean = false) {
+            if (rule in splitRules) {
+                return
+            }
+            val tag = rule.tag
+            if (tag == null) {
+                splitRules.add(rule)
+            } else if (tagRuleMap.containsKey(tag)) {
+                if (throwOnDuplicateTag) {
+                    throw IllegalArgumentException(
+                        "Duplicated tag: $tag. Tag must be unique " +
+                            "among all registered rules"
+                    )
+                } else {
+                    // Update the rule if throwOnDuplicateTag = false
+                    val oldRule = tagRuleMap[tag]
+                    splitRules.remove(oldRule)
+                    tagRuleMap[tag] = rule
+                    splitRules.add(rule)
+                }
+            } else {
+                tagRuleMap[tag] = rule
+                splitRules.add(rule)
+            }
+        }
+
+        fun removeRule(rule: EmbeddingRule) {
+            if (rule !in splitRules) {
+                return
+            }
             splitRules.remove(rule)
-            embeddingExtension?.setSplitRules(splitRules)
+            val tag = rule.tag
+            if (tag != null) {
+                tagRuleMap.remove(rule.tag)
+            }
+        }
+
+        operator fun contains(rule: EmbeddingRule): Boolean {
+            return splitRules.contains(rule)
         }
     }
 
@@ -162,7 +246,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun registerSplitListenerForActivity(
+    override fun addSplitListenerForActivity(
         activity: Activity,
         executor: Executor,
         callback: Consumer<List<SplitInfo>>
@@ -186,7 +270,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun unregisterSplitListenerForActivity(
+    override fun removeSplitListenerForActivity(
         consumer: Consumer<List<SplitInfo>>
     ) {
         globalLock.withLock {
@@ -220,4 +304,21 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     override fun isActivityEmbedded(activity: Activity): Boolean {
         return embeddingExtension?.isActivityEmbedded(activity) ?: false
     }
+
+    override fun setSplitAttributesCalculator(
+        calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
+    ) {
+        globalLock.withLock {
+            embeddingExtension?.setSplitAttributesCalculator(calculator)
+        }
+    }
+
+    override fun clearSplitAttributesCalculator() {
+        globalLock.withLock {
+            embeddingExtension?.clearSplitAttributesCalculator()
+        }
+    }
+
+    override fun isSplitAttributesCalculatorSupported(): Boolean =
+        embeddingExtension?.isSplitAttributesCalculatorSupported() ?: false
 }

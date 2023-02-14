@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.UseCase;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -128,6 +129,13 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
      * becomes available.
      */
     default void setActiveResumingMode(boolean enabled) {
+    }
+
+    /**
+     * Whether the camera is front facing.
+     */
+    default boolean isFrontFacing() {
+        return getCameraInfo().getLensFacing() == CameraSelector.LENS_FACING_FRONT;
     }
 
     /**

@@ -17,10 +17,10 @@
 package androidx.health.services.client.impl.response
 
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.DataTypeAvailability
+import androidx.health.services.client.data.DeltaDataType
 import androidx.health.services.client.data.LocationAvailability
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.DataProto.Availability.AvailabilityCase.AVAILABILITY_NOT_SET
@@ -31,23 +31,19 @@ import androidx.health.services.client.proto.ResponsesProto
 /**
  * Response sent on MeasureCallback and ExerciseUpdateListener with a [DataType] and its associated
  * [Availability] status.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class AvailabilityResponse(
+internal class AvailabilityResponse(
     /** [DataType] of the [AvailabilityResponse]. */
-    public val dataType: DataType,
+    public val dataType: DeltaDataType<*, *>,
     /** [Availability] of the [AvailabilityResponse]. */
     public val availability: Availability,
 ) : ProtoParcelable<ResponsesProto.AvailabilityResponse>() {
 
-    override val proto: ResponsesProto.AvailabilityResponse by lazy {
+    override val proto: ResponsesProto.AvailabilityResponse =
         ResponsesProto.AvailabilityResponse.newBuilder()
             .setDataType(dataType.proto)
             .setAvailability(availability.toProto())
             .build()
-    }
 
     public companion object {
         @JvmField
@@ -61,7 +57,8 @@ public class AvailabilityResponse(
                         LocationAvailability.fromProto(proto.availability.locationAvailability)
                     null, AVAILABILITY_NOT_SET -> DataTypeAvailability.UNKNOWN
                 }
-            AvailabilityResponse(DataType(proto.dataType), availability)
+
+            AvailabilityResponse(DataType.deltaFromProto(proto.dataType), availability)
         }
     }
 }

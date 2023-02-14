@@ -27,6 +27,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.RenderEffect
@@ -83,14 +85,14 @@ internal class ViewLayer(
      */
     private var mTransformOrigin: TransformOrigin = TransformOrigin.Center
 
+    private var mHasOverlappingRendering = true
+
     init {
         setWillNotDraw(false) // we WILL draw
-        id = generateViewId()
         container.addView(this)
     }
 
-    override val layerId: Long
-        get() = id.toLong()
+    override val layerId: Long = generateViewId().toLong()
 
     override val ownerViewId: Long
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -139,6 +141,7 @@ internal class ViewLayer(
         renderEffect: RenderEffect?,
         ambientShadowColor: Color,
         spotShadowColor: Color,
+        compositingStrategy: CompositingStrategy,
         layoutDirection: LayoutDirection,
         density: Density
     ) {
@@ -186,6 +189,26 @@ internal class ViewLayer(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ViewLayerVerificationHelper31.setRenderEffect(this, renderEffect)
         }
+
+        mHasOverlappingRendering = when (compositingStrategy) {
+            CompositingStrategy.Offscreen -> {
+                setLayerType(LAYER_TYPE_HARDWARE, null)
+                true
+            }
+
+            CompositingStrategy.ModulateAlpha -> {
+                setLayerType(LAYER_TYPE_NONE, null)
+                false
+            }
+            else -> { // CompositingStrategy.Auto
+                setLayerType(LAYER_TYPE_NONE, null)
+                true
+            }
+        }
+    }
+
+    override fun hasOverlappingRendering(): Boolean {
+        return mHasOverlappingRendering
     }
 
     override fun isInLayer(position: Offset): Boolean {
@@ -354,6 +377,17 @@ internal class ViewLayer(
         mTransformOrigin = TransformOrigin.Center
         this.drawBlock = drawBlock
         this.invalidateParentLayer = invalidateParentLayer
+    }
+
+    override fun transform(matrix: Matrix) {
+        matrix.timesAssign(matrixCache.calculateMatrix(this))
+    }
+
+    override fun inverseTransform(matrix: Matrix) {
+        val inverse = matrixCache.calculateInverseMatrix(this)
+        if (inverse != null) {
+            matrix.timesAssign(inverse)
+        }
     }
 
     companion object {

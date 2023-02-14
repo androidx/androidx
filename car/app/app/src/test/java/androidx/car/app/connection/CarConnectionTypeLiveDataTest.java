@@ -31,20 +31,28 @@ import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowLooper;
@@ -53,6 +61,9 @@ import org.robolectric.shadows.ShadowLooper;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CarConnectionTypeLiveDataTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     @Mock
     private Observer<Integer> mMockObserver;
 
@@ -61,28 +72,60 @@ public class CarConnectionTypeLiveDataTest {
     private CarConnectionTypeLiveData mCarConnectionTypeLiveData;
     private TestContentProvider mContentProvider;
 
+    /**
+     * Filters receivers to only ones created by the androidx.car group, filtering out for
+     * example the ProfileInstallReceiver which *may* be present, based on inclusion of
+     * profileinstaller (for example, in CI when tested against TOT dependencies).
+     * <p>
+     * To force its presence for local testing, add the following to car:app:app's build.gradle:
+     * <pre>implementation("androidx.profileinstaller:profileinstaller:1.2.1")</pre>
+     */
+    private ImmutableList<ShadowApplication.Wrapper> getFilteredRegisteredReceivers() {
+        return ImmutableList.copyOf(
+                Iterables.filter(shadowOf(mApplication).getRegisteredReceivers(),
+                        wrapper -> wrapper.broadcastReceiver.getClass().getName().startsWith(
+                                "androidx.car.app.")
+                ));
+    }
+
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
         ProviderInfo info = new ProviderInfo();
         info.authority = CarConnectionTypeLiveData.CAR_CONNECTION_AUTHORITY;
         mContentProvider =
                 Robolectric.buildContentProvider(TestContentProvider.class).create(info).get();
 
         // Starts with 1 broadcast receiver (for CarPendingIntent)
-        assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(1);
+        assertThat(getFilteredRegisteredReceivers()).hasSize(1);
 
         mCarConnectionTypeLiveData = new CarConnectionTypeLiveData(mContext);
     }
 
     @Test
-    public void observe_registersBroadcastReceiver() {
-        assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(1);
+    @Config(sdk = Build.VERSION_CODES.S_V2)
+    public void observe_belowT_registersBroadcastReceiverWithNoFlags() {
+        shadowOf(mApplication).clearRegisteredReceivers();
 
         mCarConnectionTypeLiveData.observeForever(mMockObserver);
 
-        assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(2);
+        ShadowApplication.Wrapper registeredReceiver =
+                getFilteredRegisteredReceivers().get(0);
+        assertThat(registeredReceiver.broadcastReceiver).isNotNull();
+        assertThat(registeredReceiver.flags).isEqualTo(0);
+    }
+
+    @Test
+    @Config(sdk = Build.VERSION_CODES.TIRAMISU)
+    @Ignore // TODO(b/240591692): Remove @Ignore once Robolectric supports SDK 33
+    public void observe_tAndAbove_registersBroadcastReceiverWithFlags() {
+        shadowOf(mApplication).clearRegisteredReceivers();
+
+        mCarConnectionTypeLiveData.observeForever(mMockObserver);
+
+        ShadowApplication.Wrapper registeredReceiver =
+                getFilteredRegisteredReceivers().get(0);
+        assertThat(registeredReceiver.broadcastReceiver).isNotNull();
+        assertThat(registeredReceiver.flags).isEqualTo(Context.RECEIVER_EXPORTED);
     }
 
     @Test
@@ -138,8 +181,7 @@ public class CarConnectionTypeLiveDataTest {
         mCarConnectionTypeLiveData.observeForever(mMockObserver);
         ShadowLooper.runUiThreadTasks();
 
-        ShadowApplication.Wrapper receiverWrapper = shadowOf(
-                mApplication).getRegisteredReceivers().get(1);
+        ShadowApplication.Wrapper receiverWrapper = getFilteredRegisteredReceivers().get(1);
 
         mContentProvider.mIsProjecting = true;
         receiverWrapper.broadcastReceiver.onReceive(mContext,
@@ -153,15 +195,15 @@ public class CarConnectionTypeLiveDataTest {
 
     @Test
     public void stopObserving_removedBroadcastReceiver() {
-        assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(1);
+        assertThat(getFilteredRegisteredReceivers()).hasSize(1);
 
         mCarConnectionTypeLiveData.observeForever(mMockObserver);
 
-        assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(2);
+        assertThat(getFilteredRegisteredReceivers()).hasSize(2);
 
         mCarConnectionTypeLiveData.removeObserver(mMockObserver);
 
-        assertThat(shadowOf(mApplication).getRegisteredReceivers()).hasSize(1);
+        assertThat(getFilteredRegisteredReceivers()).hasSize(1);
     }
 
     private static class TestContentProvider extends ContentProvider {

@@ -30,7 +30,6 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 import android.util.ArrayMap;
 import android.util.Rational;
-import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -139,7 +138,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     // Workarounds
     private final AeFpsRange mAeFpsRange;
-    private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler();
+    private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler;
 
     static final String TAG_SESSION_UPDATE_ID = "CameraControlSessionUpdateId";
     private final AtomicLong mNextSessionUpdateId = new AtomicLong(0);
@@ -206,6 +205,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
         // Workarounds
         mAeFpsRange = new AeFpsRange(cameraQuirks);
+        mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler(cameraQuirks);
         mCamera2CameraControl = new Camera2CameraControl(this, mExecutor);
         mCamera2CapturePipeline = new Camera2CapturePipeline(this, mCameraCharacteristics,
                 cameraQuirks, mExecutor);
@@ -378,6 +378,10 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
         mFlashMode = flashMode;
 
+        // Disable ZSL when flash mode is ON or AUTO.
+        mZslControl.setZslDisabledByFlashMode(mFlashMode == FLASH_MODE_ON
+                || mFlashMode == FLASH_MODE_AUTO);
+
         // On some devices, AE precapture may not work properly if the repeating request to change
         // the flash mode is not completed. We need to store the future so that AE precapture can
         // wait for it.
@@ -385,14 +389,18 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     }
 
     @Override
-    public void addZslConfig(@NonNull Size resolution,
-            @NonNull SessionConfig.Builder sessionConfigBuilder) {
-        mZslControl.addZslConfig(resolution, sessionConfigBuilder);
+    public void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder) {
+        mZslControl.addZslConfig(sessionConfigBuilder);
     }
 
     @Override
-    public void setZslDisabled(boolean disabled) {
-        mZslControl.setZslDisabled(disabled);
+    public void setZslDisabledByUserCaseConfig(boolean disabled) {
+        mZslControl.setZslDisabledByUserCaseConfig(disabled);
+    }
+
+    @Override
+    public boolean isZslDisabledByByUserCaseConfig() {
+        return mZslControl.isZslDisabledByUserCaseConfig();
     }
 
     /** {@inheritDoc} */
@@ -473,9 +481,10 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         // completed. On some devices, AE precapture triggered in submitStillCaptures may not
         // work properly if the repeating request to change the flash mode is not completed.
         int flashMode = getFlashMode();
-        return FutureChain.from(mFlashModeChangeSessionUpdateFuture).transformAsync(
-                v -> mCamera2CapturePipeline.submitStillCaptures(
-                        captureConfigs, captureMode, flashMode, flashType), mExecutor);
+        return FutureChain.from(Futures.nonCancellationPropagating(
+                mFlashModeChangeSessionUpdateFuture)).transformAsync(
+                    v -> mCamera2CapturePipeline.submitStillCaptures(captureConfigs, captureMode,
+                        flashMode, flashType), mExecutor);
     }
 
     /** {@inheritDoc} */

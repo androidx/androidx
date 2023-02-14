@@ -17,6 +17,8 @@
 package androidx.wear.watchface.complications
 
 import android.content.ComponentName
+import android.content.res.Resources
+import android.content.res.XmlResourceParser
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.complications.data.ComplicationType
@@ -24,11 +26,11 @@ import androidx.wear.watchface.complications.data.DefaultComplicationDataSourceP
 import java.util.ArrayList
 
 /**
- * A watch face may wish to try and set one or more non-system data sources as the default
- * data source for a complication. If a complication data source can't be used for some reason (e.g.
- * it isn't installed or it doesn't support the requested type, or the watch face lacks the
- * necessary permission) then the next one will be tried. A system complication data source acts
- * as a final fallback in case no non-system data sources can be used.
+ * A watch face may wish to try and set one or more non-system data sources as the default data
+ * source for a complication. If a complication data source can't be used for some reason (e.g. it
+ * isn't installed or it doesn't support the requested type, or the watch face lacks the necessary
+ * permission) then the next one will be tried. A system complication data source acts as a final
+ * fallback in case no non-system data sources can be used.
  *
  * If the DefaultComplicationDataSourcePolicy is empty then no default is set.
  */
@@ -52,8 +54,7 @@ public class DefaultComplicationDataSourcePolicy {
     public val secondaryDataSourceDefaultType: ComplicationType?
 
     /** Fallback in case none of the non-system data sources could be used. */
-    @DataSourceId
-    public val systemDataSourceFallback: Int
+    @DataSourceId public val systemDataSourceFallback: Int
 
     /** The default [ComplicationType] for [systemDataSourceFallback]. */
     public val systemDataSourceFallbackDefaultType: ComplicationType
@@ -84,8 +85,7 @@ public class DefaultComplicationDataSourcePolicy {
         }
 
         this.systemDataSourceFallback = systemDataSourceFallback
-        this.systemDataSourceFallbackDefaultType =
-            systemDataSourceFallbackDefaultType
+        this.systemDataSourceFallbackDefaultType = systemDataSourceFallbackDefaultType
     }
 
     /** No default complication data source. */
@@ -98,9 +98,7 @@ public class DefaultComplicationDataSourcePolicy {
         systemDataSourceFallbackDefaultType = ComplicationType.NOT_CONFIGURED
     }
 
-    /**
-     * Uses [systemProvider] as the default complication data source.
-     */
+    /** Uses [systemProvider] as the default complication data source. */
     @Deprecated(
         "Use a constructor that sets the DefaultTypes",
         ReplaceWith("DefaultComplicationDataSourcePolicy(Int, ComplicationType)")
@@ -143,10 +141,7 @@ public class DefaultComplicationDataSourcePolicy {
                 " ComplicationType)"
         )
     )
-    public constructor(
-        dataSource: ComponentName,
-        @DataSourceId systemDataSourceFallback: Int
-    ) {
+    public constructor(dataSource: ComponentName, @DataSourceId systemDataSourceFallback: Int) {
         primaryDataSource = dataSource
         primaryDataSourceDefaultType = null
         secondaryDataSource = null
@@ -160,14 +155,14 @@ public class DefaultComplicationDataSourcePolicy {
      * not present then [systemDataSourceFallback] will be used instead.
      *
      * @param primaryDataSource The data source to try.
-     * @param primaryDataSourceDefaultType The default [ComplicationType] if
-     * primaryDataSource is selected. Note Pre-R this will be ignored in favour of
-     * [systemDataSourceFallbackDefaultType].
+     * @param primaryDataSourceDefaultType The default [ComplicationType] if primaryDataSource is
+     *   selected. Note Pre-R this will be ignored in favour of
+     *   [systemDataSourceFallbackDefaultType].
      * @param systemDataSourceFallback The system data source to fall back on if neither provider is
-     * available.
+     *   available.
      * @param systemDataSourceFallbackDefaultType The default [ComplicationType] if
-     * systemDataSourceFallback is selected.
-    */
+     *   systemDataSourceFallback is selected.
+     */
     public constructor(
         primaryDataSource: ComponentName,
         primaryDataSourceDefaultType: ComplicationType,
@@ -213,17 +208,17 @@ public class DefaultComplicationDataSourcePolicy {
      * [systemDataSourceFallback] will be used instead.
      *
      * @param primaryDataSource The first data source to try.
-     * @param primaryDataSourceDefaultType The default [ComplicationType] if
-     * primaryDataSource is selected. Note Pre-R this will be ignored in favour of
-     * [systemDataSourceFallbackDefaultType].
+     * @param primaryDataSourceDefaultType The default [ComplicationType] if primaryDataSource is
+     *   selected. Note Pre-R this will be ignored in favour of
+     *   [systemDataSourceFallbackDefaultType].
      * @param secondaryDataSource The second data source to try.
-     * @param secondaryDataSourceDefaultType The default [ComplicationType] if
-     * secondaryDataSource is selected. Note Pre-R this will be ignored in favour of
-     * [systemDataSourceFallbackDefaultType].
+     * @param secondaryDataSourceDefaultType The default [ComplicationType] if secondaryDataSource
+     *   is selected. Note Pre-R this will be ignored in favour of
+     *   [systemDataSourceFallbackDefaultType].
      * @param systemDataSourceFallback The system data source to fall back on if neither provider is
-     * available.
+     *   available.
      * @param systemDataSourceFallbackDefaultType The default [ComplicationType] if
-     * systemDataSourceFallback is selected.
+     *   systemDataSourceFallback is selected.
      */
     public constructor(
         primaryDataSource: ComponentName,
@@ -247,36 +242,38 @@ public class DefaultComplicationDataSourcePolicy {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun dataSourcesAsList(): ArrayList<ComponentName> = ArrayList<ComponentName>().apply {
-        primaryDataSource?.let { add(it) }
-        secondaryDataSource?.let { add(it) }
-    }
+    public fun dataSourcesAsList(): ArrayList<ComponentName> =
+        ArrayList<ComponentName>().apply {
+            primaryDataSource?.let { add(it) }
+            secondaryDataSource?.let { add(it) }
+        }
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public constructor(wireFormat: DefaultComplicationDataSourcePolicyWireFormat) : this(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
+        wireFormat: DefaultComplicationDataSourcePolicyWireFormat
+    ) : this(
         wireFormat.mDefaultDataSourcesToTry,
         wireFormat.mFallbackSystemDataSource,
         ComplicationType.fromWireType(wireFormat.mPrimaryDataSourceDefaultType),
         ComplicationType.fromWireType(wireFormat.mSecondaryDataSourceDefaultType),
         ComplicationType.fromWireType(wireFormat.mDefaultType)
-    ) {
-    }
+    ) {}
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): DefaultComplicationDataSourcePolicyWireFormat {
-        val systemDataSourceFallbackDefaultType = systemDataSourceFallbackDefaultType
-            .toWireComplicationType()
+        val systemDataSourceFallbackDefaultType =
+            systemDataSourceFallbackDefaultType.toWireComplicationType()
 
         return DefaultComplicationDataSourcePolicyWireFormat(
             dataSourcesAsList(),
             systemDataSourceFallback,
             systemDataSourceFallbackDefaultType,
-            primaryDataSourceDefaultType
-                ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
-            secondaryDataSourceDefaultType
-                ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType
+            primaryDataSourceDefaultType?.toWireComplicationType()
+                ?: systemDataSourceFallbackDefaultType,
+            secondaryDataSourceDefaultType?.toWireComplicationType()
+                ?: systemDataSourceFallbackDefaultType
         )
     }
 
@@ -314,7 +311,107 @@ public class DefaultComplicationDataSourcePolicy {
         return result
     }
 
-    internal companion object {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemDataSources.NO_DATA_SOURCE
+
+        fun inflate(
+            resources: Resources,
+            parser: XmlResourceParser,
+            nodeName: String,
+        ): DefaultComplicationDataSourcePolicy {
+            val primaryDataSource =
+                getStringRefAttribute(resources, parser, "primaryDataSource")?.let {
+                    ComponentName.unflattenFromString(it)
+                }
+            val primaryDataSourceDefaultType =
+                if (parser.hasValue("primaryDataSourceDefaultType")) {
+                    ComplicationType.fromWireType(
+                        parser.getAttributeIntValue(
+                            NAMESPACE_APP,
+                            "primaryDataSourceDefaultType",
+                            0
+                        )
+                    )
+                } else {
+                    null
+                }
+            val secondaryDataSource =
+                getStringRefAttribute(resources, parser, "secondaryDataSource")?.let {
+                    ComponentName.unflattenFromString(it)
+                }
+
+            val secondaryDataSourceDefaultType =
+                if (parser.hasValue("secondaryDataSourceDefaultType")) {
+                    ComplicationType.fromWireType(
+                        parser.getAttributeIntValue(
+                            NAMESPACE_APP,
+                            "secondaryDataSourceDefaultType",
+                            0
+                        )
+                    )
+                } else {
+                    null
+                }
+
+            require(parser.hasValue("systemDataSourceFallback")) {
+                "A $nodeName must have a systemDataSourceFallback attribute"
+            }
+            val systemDataSourceFallback =
+                parser.getAttributeIntValue(NAMESPACE_APP, "systemDataSourceFallback", 0)
+            require(parser.hasValue("systemDataSourceFallbackDefaultType")) {
+                "A $nodeName must have a systemDataSourceFallbackDefaultType attribute"
+            }
+            val systemDataSourceFallbackDefaultType =
+                ComplicationType.fromWireType(
+                    parser.getAttributeIntValue(
+                        NAMESPACE_APP,
+                        "systemDataSourceFallbackDefaultType",
+                        0
+                    )
+                )
+            return when {
+                secondaryDataSource != null -> {
+                    require(primaryDataSource != null) {
+                        "If a secondaryDataSource is specified, a primaryDataSource must be too"
+                    }
+                    require(primaryDataSourceDefaultType != null) {
+                        "If a secondaryDataSource is specified, a " +
+                            "primaryDataSourceDefaultType must be too"
+                    }
+                    require(secondaryDataSourceDefaultType != null) {
+                        "If a secondaryDataSource is specified, a " +
+                            "secondaryDataSourceDefaultType must be too"
+                    }
+                    DefaultComplicationDataSourcePolicy(
+                        primaryDataSource,
+                        primaryDataSourceDefaultType,
+                        secondaryDataSource,
+                        secondaryDataSourceDefaultType,
+                        systemDataSourceFallback,
+                        systemDataSourceFallbackDefaultType
+                    )
+                }
+                primaryDataSource != null -> {
+                    require(primaryDataSourceDefaultType != null) {
+                        "If a primaryDataSource is specified, a " +
+                            "primaryDataSourceDefaultType must be too"
+                    }
+                    DefaultComplicationDataSourcePolicy(
+                        primaryDataSource,
+                        primaryDataSourceDefaultType,
+                        systemDataSourceFallback,
+                        systemDataSourceFallbackDefaultType
+                    )
+                }
+                else -> {
+                    DefaultComplicationDataSourcePolicy(
+                        systemDataSourceFallback,
+                        systemDataSourceFallbackDefaultType
+                    )
+                }
+            }
+        }
     }
 }

@@ -31,6 +31,11 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.appcompat:appcompat-resources:1.2.0")
 
+    testImplementation(libs.junit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -41,15 +46,6 @@ dependencies {
 }
 
 android {
-    sourceSets {
-        main.java.srcDirs += [
-                "jellybean",
-                "jellybean-mr1",
-                "jellybean-mr2",
-                "api24"
-        ]
-    }
-
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
@@ -59,7 +55,6 @@ android {
 androidx {
     name = "Android MediaRouter Support Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.MEDIAROUTER
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"
     failOnDeprecationWarnings = false

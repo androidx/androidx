@@ -42,7 +42,9 @@ class TooltipCompatTest {
      */
     @Test
     fun testDoubleShow() {
-        ActivityScenario.launch(TooltipCompatTestActivity::class.java).use { scenario ->
+        ActivityScenario.launchActivityForResult(
+            TooltipCompatTestActivity::class.java
+        ).use { scenario ->
             scenario.onActivity { activity ->
                 val button = activity.findViewById<Button>(R.id.button)
                 button.setOnClickListener {

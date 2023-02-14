@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.relocation
 
-import androidx.compose.foundation.AtomicReference
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -42,9 +41,6 @@ import kotlinx.coroutines.launch
  *    [calculateRectForParent].
  * 2. Performing any scroll or other layout adjustments needed to ensure the requested rectangle is
  *    brought into view in [bringChildIntoView].
- *
- * Here is a sample defining a custom [BringIntoViewResponder]:
- * @sample androidx.compose.foundation.samples.BringIntoViewResponderSample
  *
  * Here is a sample where a composable is brought into view:
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
@@ -77,11 +73,18 @@ interface BringIntoViewResponder {
      * Bring this specified rectangle into bounds by making this scrollable parent scroll
      * appropriately.
      *
-     * @param localRect The rectangle that should be brought into view, relative to this node. This
-     * is the same rectangle that will have been passed to [calculateRectForParent].
+     * This method should ensure that only one call is being handled at a time. If you use Compose's
+     * `Animatable` you get this for free, since it will cancel the previous animation when a new
+     * one is started while preserving velocity.
+     *
+     * @param localRect A function returning the rectangle that should be brought into view,
+     * relative to this node. This is the same rectangle that will have been passed to
+     * [calculateRectForParent]. The function may return a different value over time, if the bounds
+     * of the request change while the request is being processed. If the rectangle cannot be
+     * calculated, e.g. because the [LayoutCoordinates] are not attached, return null.
      */
     @ExperimentalFoundationApi
-    suspend fun bringChildIntoView(localRect: Rect)
+    suspend fun bringChildIntoView(localRect: () -> Rect?)
 }
 
 /**
@@ -89,7 +92,6 @@ interface BringIntoViewResponder {
  * that the item is visible on screen. See [BringIntoViewResponder] for more details about how
  * this mechanism works.
  *
- * @sample androidx.compose.foundation.samples.BringIntoViewResponderSample
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
  *
  * @see BringIntoViewRequester
@@ -130,68 +132,45 @@ private class BringIntoViewResponderModifier(
         get() = this
 
     /**
-     * While a [bringChildIntoView] is executing, this stores the [Rect], in local coordinates, of
-     * the request. It's used to determine how to handle new requests that come in before the
-     * current request has finished. If the existing request will also satisfy the new request, e.g.
-     * by being for a rectangle that completely contains the new request, then the new request is
-     * ignored.
-     */
-    // TODO(b/216790855) This is a temporary fix, there are additional edge cases that this can't
-    //  handle. See the comments on aosp/2065910 for more information.
-    private val requestInProgress = AtomicReference<Rect?>(null)
-
-    /**
-     * Responds to a child's request by first converting [rect] into this node's [LayoutCoordinates]
+     * Responds to a child's request by first converting [boundsProvider] into this node's [LayoutCoordinates]
      * and then, concurrently, calling the [responder] and the [parent] to handle the request.
      */
-    override suspend fun bringChildIntoView(rect: Rect, childCoordinates: LayoutCoordinates) {
-        val layoutCoordinates = layoutCoordinates ?: return
-        if (!childCoordinates.isAttached) return
-        val localRect = layoutCoordinates.localRectOf(childCoordinates, rect)
-
-        val requestToInterrupt = requestInProgress.get()?.also {
-            if (it.completelyOverlaps(localRect)) {
-                // There is already a request in progress that will satisfy this request, so we
-                // don't need to do anything.
-                return
-            }
+    override suspend fun bringChildIntoView(
+        childCoordinates: LayoutCoordinates,
+        boundsProvider: () -> Rect?
+    ) {
+        @Suppress("NAME_SHADOWING")
+        fun localRect(): Rect? {
+            // Either coordinates can become detached at any time, so we have to check before every
+            // calculation.
+            val layoutCoordinates = layoutCoordinates ?: return null
+            val childCoordinates = childCoordinates.takeIf { it.isAttached } ?: return null
+            val rect = boundsProvider() ?: return null
+            return layoutCoordinates.localRectOf(childCoordinates, rect)
         }
 
-        if (!tryInterruptingRequest(requestToInterrupt, localRect)) {
-            // We're racing with another request, and that request won the race. Let it finish.
-            return
-        }
+        val parentRect = { localRect()?.let(responder::calculateRectForParent) }
 
-        try {
-            val parentRect = responder.calculateRectForParent(localRect)
-
-            // For the item to be visible, if needs to be in the viewport of all its ancestors.
-            // Note: For now we run both of these concurrently, but in the future we could make this
-            // configurable. (The child relocation could be executed before the parent, or parent
-            // before the child).
-            coroutineScope {
+        coroutineScope {
+            // For the item to be visible, if needs to be in the viewport of all its
+            // ancestors.
+            // Note: For now we run both of these concurrently, but in the future we could
+            // make this configurable. (The child relocation could be executed before the
+            // parent, or parent before the child).
+            launch {
                 // Bring the requested Child into this parent's view.
-                launch {
-                    responder.bringChildIntoView(localRect)
-                }
-
-                parent.bringChildIntoView(parentRect, layoutCoordinates)
+                responder.bringChildIntoView(::localRect)
             }
-        } finally {
-            // Clear out the local request only if we weren't interruptedø by a newer request.
-            requestInProgress.compareAndSet(localRect, null)
-        }
-    }
 
-    /**
-     * Tries to interrupt an in-progress request by atomically setting the [requestInProgress]
-     * to [newRequest] if it is equal to [requestToInterrupt] or null. Returns true if successful.
-     */
-    private fun tryInterruptingRequest(requestToInterrupt: Rect?, newRequest: Rect): Boolean {
-        // Check if we lost a race against another request about to start…
-        return requestInProgress.compareAndSet(requestToInterrupt, newRequest) ||
-            // …or against a request that just finished.
-            requestInProgress.compareAndSet(null, newRequest)
+            // Launch this as well so that if the parent is cancelled (this throws a CE) due to
+            // animation interruption, the child continues animating. If we just call
+            // bringChildIntoView directly without launching, if that function throws a
+            // CancellationException, it will cancel this coroutineScope, which will also cancel the
+            // responder's coroutine.
+            launch {
+                parent.bringChildIntoView(layoutCoordinates ?: return@launch, parentRect)
+            }
+        }
     }
 }
 

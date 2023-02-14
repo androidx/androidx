@@ -45,6 +45,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.RangeDefaults.calculateCurrentStepValue
@@ -425,9 +426,14 @@ private fun InlineSliderButton(
     content: @Composable () -> Unit
 ) {
     Box(
-        modifier = Modifier.width(InlineSliderDefaults.ControlSize)
+        modifier = Modifier
+            .width(InlineSliderDefaults.ControlSize)
             .fillMaxHeight()
-            .clickable(enabled = enabled, onClick = onClick)
+            .clickable(
+                enabled = enabled,
+                onClick = onClick,
+                role = Role.Button
+            )
             .then(modifier),
         contentAlignment = contentAlignment
     ) {

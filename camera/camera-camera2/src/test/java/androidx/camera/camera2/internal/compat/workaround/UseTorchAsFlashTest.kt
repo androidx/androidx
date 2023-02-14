@@ -49,7 +49,6 @@ class UseTorchAsFlashTest {
     @Test
     fun shouldUseTorchAsFlash_withCameraNoResponseWhenEnablingFlashQuirk_isTrue() {
         CameraNoResponseWhenEnablingFlashQuirk.AFFECTED_MODELS.forEach { model ->
-            ShadowBuild.setBrand(ImageCaptureWashedOutImageQuirk.BUILD_BRAND)
             ShadowBuild.setModel(model)
             val useTorchAsFlash = createUseTorchAsFlash()
 
@@ -60,7 +59,6 @@ class UseTorchAsFlashTest {
     @Test
     fun shouldUseTorchAsFlash_withImageCaptureWashedOutImageQuirk_isTrue() {
         ImageCaptureWashedOutImageQuirk.BUILD_MODELS.forEach { model ->
-            ShadowBuild.setBrand(ImageCaptureWashedOutImageQuirk.BUILD_BRAND)
             ShadowBuild.setModel(model)
             val useTorchAsFlash = createUseTorchAsFlash()
 
@@ -71,7 +69,6 @@ class UseTorchAsFlashTest {
     @Test
     fun shouldUseTorchAsFlash_lensFacingFront_isFalse() {
         CameraNoResponseWhenEnablingFlashQuirk.AFFECTED_MODELS.forEach { model ->
-            ShadowBuild.setBrand(ImageCaptureWashedOutImageQuirk.BUILD_BRAND)
             ShadowBuild.setModel(model)
             val useTorchAsFlash =
                 createUseTorchAsFlash(lensFacing = CameraCharacteristics.LENS_FACING_FRONT)

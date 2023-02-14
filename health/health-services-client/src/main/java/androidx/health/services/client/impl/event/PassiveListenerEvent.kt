@@ -17,13 +17,14 @@
 package androidx.health.services.client.impl.event
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.PassiveListenerCallback
 import androidx.health.services.client.PassiveListenerService
 import androidx.health.services.client.data.ProtoParcelable
+import androidx.health.services.client.impl.response.HealthEventResponse
 import androidx.health.services.client.impl.response.PassiveMonitoringGoalResponse
 import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResponse
 import androidx.health.services.client.proto.EventsProto.PassiveListenerEvent as EventProto
-import androidx.annotation.RestrictTo
 import androidx.health.services.client.proto.ResponsesProto.PermissionLostResponse
 
 /**
@@ -32,7 +33,7 @@ import androidx.health.services.client.proto.ResponsesProto.PermissionLostRespon
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class PassiveListenerEvent(public override val proto: EventProto) :
+internal class PassiveListenerEvent(public override val proto: EventProto) :
     ProtoParcelable<EventProto>() {
 
     public companion object {
@@ -63,6 +64,12 @@ public class PassiveListenerEvent(public override val proto: EventProto) :
         ): PassiveListenerEvent =
             PassiveListenerEvent(
                 EventProto.newBuilder().setPassiveGoalResponse(response.proto).build()
+            )
+
+        @JvmStatic
+        public fun createHealthEventResponse(response: HealthEventResponse): PassiveListenerEvent =
+            PassiveListenerEvent(
+                EventProto.newBuilder().setHealthEventResponse(response.proto).build()
             )
     }
 }

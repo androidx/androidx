@@ -33,11 +33,13 @@ class TestPagingSource(
     override val jumpingSupported: Boolean = true,
     val items: List<Int> = ITEMS,
     private val loadDelay: Long = 1000,
-    private val loadDispatcher: CoroutineDispatcher = DirectDispatcher
+    private val loadDispatcher: CoroutineDispatcher = DirectDispatcher,
+    private val placeholdersEnabled: Boolean = true,
 ) : PagingSource<Int, Int>() {
     var errorNextLoad = false
     var nextLoadResult: LoadResult<Int, Int>? = null
 
+    var getRefreshKeyResult: Int? = null
     val getRefreshKeyCalls = mutableListOf<PagingState<Int, Int>>()
     val loadedPages = mutableListOf<LoadResult.Page<Int, Int>>()
 
@@ -85,8 +87,8 @@ class TestPagingSource(
             items.subList(start, end),
             if (start > 0) start - 1 else null,
             if (end < items.size) end else null,
-            start,
-            items.size - end
+            if (placeholdersEnabled) start else Int.MIN_VALUE,
+            if (placeholdersEnabled) (items.size - end) else Int.MIN_VALUE
         ).also {
             loadedPages.add(it)
         }
@@ -94,7 +96,7 @@ class TestPagingSource(
 
     override fun getRefreshKey(state: PagingState<Int, Int>): Int? {
         getRefreshKeyCalls.add(state)
-        return state.anchorPosition
+        return getRefreshKeyResult ?: state.anchorPosition
     }
 
     companion object {

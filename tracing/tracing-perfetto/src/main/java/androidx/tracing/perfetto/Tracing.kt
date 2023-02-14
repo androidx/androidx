@@ -15,30 +15,32 @@
  */
 package androidx.tracing.perfetto
 
-import android.util.JsonWriter
-import androidx.tracing.perfetto.TracingReceiver.Companion.KEY_ERROR_MESSAGE
-import androidx.tracing.perfetto.TracingReceiver.Companion.KEY_EXIT_CODE
-import androidx.tracing.perfetto.TracingReceiver.Companion.KEY_REQUIRED_VERSION
-import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ALREADY_ENABLED
-import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ERROR_BINARY_MISSING
-import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
-import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ERROR_OTHER
-import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_SUCCESS
-import androidx.tracing.perfetto.TracingReceiver.EnableTracingResultCode
+import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.tracing.perfetto.PerfettoHandshake.EnableTracingResponse
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ALREADY_ENABLED
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_MISSING
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_ERROR_OTHER
+import androidx.tracing.perfetto.PerfettoHandshake.ResponseExitCodes.RESULT_CODE_SUCCESS
 import androidx.tracing.perfetto.jni.PerfettoNative
-import java.io.StringWriter
+import androidx.tracing.perfetto.security.IncorrectChecksumException
+import androidx.tracing.perfetto.security.SafeLibLoader
+import androidx.tracing.perfetto.security.UnapprovedLocationException
+import java.io.File
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.withLock
 
 object Tracing {
     /**
-     * Indicates that the tracing library has been loaded and that the app was registered with
-     * Perfetto as a data source.
-     *
-     * Note: some of class' code relies on the field ever changing from true -> false and not in
-     * the other direction, which is realistic (we cannot unload the library or unregister with
-     * Perfetto at the time of writing).
+     * Indicates whether the tracing library has been loaded and the app registered with
+     * Perfetto SDK.
      */
+    // Note: some of class' code relies on the field never changing from true -> false,
+    // which is realistic (at the time of writing this, we are unable to unload the library and
+    // unregister the app with Perfetto).
     var isEnabled: Boolean = false
         private set
 
@@ -50,31 +52,46 @@ object Tracing {
      */
     private val enableTracingLock = ReentrantReadWriteLock()
 
-    fun enable(path: String? = null): EnableTracingResponse {
+    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+    internal fun enable() = enable(null)
+
+    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+    internal fun enable(file: File, context: Context) = enable(file to context)
+
+    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+    private fun enable(descriptor: Pair<File, Context>?): EnableTracingResponse {
         enableTracingLock.readLock().withLock {
             if (isEnabled) return EnableTracingResponse(RESULT_CODE_ALREADY_ENABLED)
         }
 
         enableTracingLock.writeLock().withLock {
-            return enableImpl(path)
+            return enableImpl(descriptor)
         }
     }
 
     /** Calling thread must obtain a write lock on [enableTracingLock] before calling this method */
-    private fun enableImpl(path: String?): EnableTracingResponse {
+    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+    private fun enableImpl(descriptor: Pair<File, Context>?): EnableTracingResponse {
         if (!enableTracingLock.isWriteLockedByCurrentThread) throw RuntimeException()
 
         if (isEnabled) return EnableTracingResponse(RESULT_CODE_ALREADY_ENABLED)
 
         // Load library
         try {
-            PerfettoNative.loadLib(path)
+            when (descriptor) {
+                null -> PerfettoNative.loadLib()
+                else -> descriptor.let { (file, context) ->
+                    PerfettoNative.loadLib(file, SafeLibLoader(context))
+                }
+            }
         } catch (t: Throwable) {
-            when (t) {
-                is UnsatisfiedLinkError, is Exception -> return EnableTracingResponse(
-                    exitCode = RESULT_CODE_ERROR_BINARY_MISSING,
-                    errorMessage = t.toErrorMessage()
-                )
+            return when (t) {
+                is IncorrectChecksumException, is UnapprovedLocationException ->
+                    EnableTracingResponse(RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR, t)
+                is UnsatisfiedLinkError ->
+                    EnableTracingResponse(RESULT_CODE_ERROR_BINARY_MISSING, t)
+                is Exception ->
+                    EnableTracingResponse(RESULT_CODE_ERROR_OTHER, t)
                 else -> throw t
             }
         }
@@ -84,11 +101,8 @@ object Tracing {
         val javaVersion = PerfettoNative.Metadata.version
         if (nativeVersion != javaVersion) {
             return EnableTracingResponse(
-                exitCode = RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH,
-                errorMessage =
-                "Binary and Java version mismatch. " +
-                    "Binary: $nativeVersion. " +
-                    "Java: $javaVersion",
+                RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH,
+                "Binary and Java version mismatch. Binary: $nativeVersion. Java: $javaVersion"
             )
         }
 
@@ -96,58 +110,32 @@ object Tracing {
         try {
             PerfettoNative.nativeRegisterWithPerfetto()
         } catch (e: Exception) {
-            return EnableTracingResponse(RESULT_CODE_ERROR_OTHER, errorMessage = e.toErrorMessage())
+            return EnableTracingResponse(RESULT_CODE_ERROR_OTHER, e)
         }
 
         isEnabled = true
         return EnableTracingResponse(RESULT_CODE_SUCCESS)
     }
 
-    // TODO: remove and replace with an observer wired into Perfetto
-    fun flushEvents() {
-        if (isEnabled) {
-            PerfettoNative.nativeFlushEvents()
-        }
-    }
-
+    /** Writes a trace message to indicate that a given section of code has begun. */
     fun traceEventStart(key: Int, traceInfo: String) {
         if (isEnabled) {
             PerfettoNative.nativeTraceEventBegin(key, traceInfo)
         }
     }
 
+    /** Writes a trace message to indicate that a given section of code has ended. */
     fun traceEventEnd() {
         if (isEnabled) PerfettoNative.nativeTraceEventEnd()
     }
 
-    data class EnableTracingResponse(
-        @EnableTracingResultCode val exitCode: Int,
-        val errorMessage: String? = null
-    ) {
-        fun toJsonString(): String {
-            val output = StringWriter()
-
-            JsonWriter(output).use {
-                it.beginObject()
-
-                it.name(KEY_EXIT_CODE)
-                it.value(exitCode)
-
-                it.name(KEY_REQUIRED_VERSION)
-                it.value(PerfettoNative.Metadata.version)
-
-                errorMessage?.let { msg ->
-                    it.name(KEY_ERROR_MESSAGE)
-                    it.value(msg)
-                }
-
-                it.endObject()
-            }
-
-            return output.toString()
-        }
+    private fun errorMessage(t: Throwable): String = t.run {
+        javaClass.name + if (message != null) ": $message" else ""
     }
-}
 
-internal fun Throwable.toErrorMessage(): String =
-    javaClass.name + if (message != null) ": $message" else ""
+    internal fun EnableTracingResponse(exitCode: Int, message: String? = null) =
+        EnableTracingResponse(exitCode, PerfettoNative.Metadata.version, message)
+
+    internal fun EnableTracingResponse(exitCode: Int, exception: Throwable) =
+        EnableTracingResponse(exitCode, errorMessage(exception))
+}

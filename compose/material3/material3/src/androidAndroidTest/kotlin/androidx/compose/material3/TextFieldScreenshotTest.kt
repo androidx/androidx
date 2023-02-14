@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Clear
@@ -52,6 +53,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalMaterial3Api::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -183,11 +185,33 @@ class TextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
                 modifier = Modifier.requiredWidth(280.dp).testTag(TextFieldTag),
-                colors = TextFieldDefaults.textFieldColors(textColor = Color.Green)
+                colors = TextFieldDefaults.textFieldColors(unfocusedTextColor = Color.Green)
             )
         }
 
         assertAgainstGolden("filled_textField_textColor_customTextColor")
+    }
+
+    @Test
+    fun textField_textSelectionColor_customColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val text = "Hello, world!"
+            TextField(
+                value = TextFieldValue(text = text, selection = TextRange(0, text.length)),
+                onValueChange = {},
+                modifier = Modifier.requiredWidth(280.dp).testTag(TextFieldTag),
+                colors = TextFieldDefaults.textFieldColors(
+                    // We can only test the background color because popups, which includes the
+                    // selection handles, do not appear in screenshots
+                    selectionColors = TextSelectionColors(
+                        handleColor = Color.Black,
+                        backgroundColor = Color.Green,
+                    )
+                )
+            )
+        }
+
+        assertAgainstGolden("filled_textField_textSelectionColor_customColors")
     }
 
     @Test
@@ -501,6 +525,37 @@ class TextFieldScreenshotTest {
     }
 
     @Test
+    fun textField_supportingText() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                value = "",
+                onValueChange = {},
+                modifier = Modifier.testTag(TextFieldTag).fillMaxWidth(),
+                singleLine = true,
+                supportingText = { Text("Supporting text") }
+            )
+        }
+
+        assertAgainstGolden("textField_supportingText")
+    }
+
+    @Test
+    fun textField_errorSupportingText() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                value = "",
+                onValueChange = {},
+                isError = true,
+                modifier = Modifier.testTag(TextFieldTag).fillMaxWidth(),
+                singleLine = true,
+                supportingText = { Text("Error supporting text") }
+            )
+        }
+
+        assertAgainstGolden("textField_errorSupportingText")
+    }
+
+    @Test
     fun textField_leadingTrailingIcons() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
@@ -531,6 +586,90 @@ class TextFieldScreenshotTest {
         }
 
         assertAgainstGolden("textField_leadingTrailingIcons_error")
+    }
+
+    @Test
+    fun textField_prefixSuffix_withLabelAndInput() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                value = "Text",
+                onValueChange = {},
+                label = { Text("Label") },
+                modifier = Modifier.width(300.dp).testTag(TextFieldTag),
+                prefix = { Text("P:") },
+                suffix = { Text(":S") },
+            )
+        }
+
+        assertAgainstGolden("textField_prefixSuffix_withLabelAndInput")
+    }
+
+    @Test
+    fun textField_prefixSuffix_withLabelAndInput_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            TextField(
+                value = "Text",
+                onValueChange = {},
+                label = { Text("Label") },
+                modifier = Modifier.width(300.dp).testTag(TextFieldTag),
+                prefix = { Text("P:") },
+                suffix = { Text(":S") },
+            )
+        }
+
+        assertAgainstGolden("textField_prefixSuffix_withLabelAndInput_darkTheme")
+    }
+
+    @Test
+    fun textField_prefixSuffix_withLabelAndInput_focused() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                value = "Text",
+                onValueChange = {},
+                label = { Text("Label") },
+                modifier = Modifier.width(300.dp).testTag(TextFieldTag),
+                prefix = { Text("P:") },
+                suffix = { Text(":S") },
+            )
+        }
+
+        rule.onNodeWithTag(TextFieldTag).focus()
+
+        assertAgainstGolden("textField_prefixSuffix_withLabelAndInput_focused")
+    }
+
+    @Test
+    fun textField_prefixSuffix_withPlaceholder() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                value = "",
+                onValueChange = {},
+                placeholder = { Text("Placeholder") },
+                modifier = Modifier.width(300.dp).testTag(TextFieldTag),
+                prefix = { Text("P:") },
+                suffix = { Text(":S") },
+            )
+        }
+
+        assertAgainstGolden("textField_prefixSuffix_withPlaceholder")
+    }
+
+    @Test
+    fun textField_prefixSuffix_withLeadingTrailingIcons() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                value = "Text",
+                onValueChange = {},
+                label = { Text("Label") },
+                modifier = Modifier.width(300.dp).testTag(TextFieldTag),
+                prefix = { Text("P:") },
+                suffix = { Text(":S") },
+                leadingIcon = { Icon(Icons.Default.Call, null) },
+                trailingIcon = { Icon(Icons.Default.Clear, null) },
+            )
+        }
+
+        assertAgainstGolden("textField_prefixSuffix_withLeadingTrailingIcons")
     }
 
     @Test

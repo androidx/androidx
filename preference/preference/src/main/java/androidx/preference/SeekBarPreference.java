@@ -200,7 +200,7 @@ public class SeekBarPreference extends Preference {
     }
 
     @Override
-    protected void onSetInitialValue(Object defaultValue) {
+    protected void onSetInitialValue(@Nullable Object defaultValue) {
         if (defaultValue == null) {
             defaultValue = 0;
         }

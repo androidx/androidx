@@ -25,6 +25,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.actionStartActivity
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.size
+import androidx.glance.semantics.contentDescription
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
@@ -34,6 +35,7 @@ import androidx.glance.wear.tiles.curved.CurvedRow
 import androidx.glance.wear.tiles.curved.CurvedTextStyle
 import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
 import androidx.glance.wear.tiles.curved.clickable
+import androidx.glance.wear.tiles.curved.semantics
 import androidx.glance.wear.tiles.curved.sweepAngleDegrees
 import androidx.glance.wear.tiles.curved.thickness
 
@@ -71,6 +73,7 @@ class CurvedLayoutTileService : GlanceTileService() {
                 ),
                 curvedModifier = GlanceCurvedModifier
                     .clickable(actionStartActivity(CalendarActivity::class.java))
+                    .semantics({ contentDescription = "click to open activity" })
             )
             curvedComposable(false) {
                 Image(

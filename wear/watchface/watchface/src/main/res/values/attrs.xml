@@ -17,10 +17,18 @@
 <resources>
     <!-- A XmlWatchFace must have a child UserStyleSchema node and optionally ComplicationSlot and
     UserStyleFlavors nodes. -->
-    <declare-styleable name="XmlWatchFace" />
+    <declare-styleable name="XmlWatchFace">
+        <!-- Optional. ComplicationSlotBounds are defined in space of
+        [complicationScaleX x complicationScaleY]. Default is [1.0 x 1.0]. -->
+        <attr name="complicationScaleX" format="float"/>
+        <attr name="complicationScaleY" format="float"/>
+    </declare-styleable>
+
+    <!-- A StyleOption or UserStyleFlavor id. Required. -->
+    <attr name="id" format="reference|string" />
 
     <!-- A slotId is required. -->
-    <attr name="slotId" format="integer" />
+    <attr name="slotId" format="reference|integer" />
 
     <!-- Optional. First of two non-system data source ComponentNames to be tried in turn. -->
     <attr name="primaryDataSource" format="string" />
@@ -35,6 +43,8 @@
         <enum name="MONOCHROMATIC_IMAGE" value="6" />
         <enum name="SMALL_IMAGE" value="7" />
         <enum name="PHOTO_IMAGE" value="8" />
+        <enum name="GOAL_PROGRESS" value="13" />
+        <enum name="WEIGHTED_ELEMENTS" value="14" />
     </attr>
 
     <!-- Optional. Second of two non-system data source ComponentNames to be tried in turn. -->
@@ -50,6 +60,8 @@
         <enum name="MONOCHROMATIC_IMAGE" value="6" />
         <enum name="SMALL_IMAGE" value="7" />
         <enum name="PHOTO_IMAGE" value="8" />
+        <enum name="GOAL_PROGRESS" value="13" />
+        <enum name="WEIGHTED_ELEMENTS" value="14" />
     </attr>
 
     <!-- Required. Fallback in case none of the non-system data sources could be used.
@@ -80,6 +92,8 @@
         <enum name="MONOCHROMATIC_IMAGE" value="6" />
         <enum name="SMALL_IMAGE" value="7" />
         <enum name="PHOTO_IMAGE" value="8" />
+        <enum name="GOAL_PROGRESS" value="13" />
+        <enum name="WEIGHTED_ELEMENTS" value="14" />
     </attr>
 
     <!-- A ComplicationSlot may have a single ComplicationSlotBounds child node without a
@@ -98,15 +112,10 @@
             <enum name="EDGE" value="2" />
         </attr>
 
-        <!-- Required. The ComplicationTypes accepted by this complication slot. -->
-        <attr name="supportedTypes">
-            <flag name="SHORT_TEXT" value="0x1" />
-            <flag name="LONG_TEXT" value="0x2" />
-            <flag name="RANGED_VALUE" value="0x4" />
-            <flag name="MONOCHROMATIC_IMAGE" value="0x8" />
-            <flag name="SMALL_IMAGE" value="0x10" />
-            <flag name="PHOTO_IMAGE" value="0x20" />
-        </attr>
+        <!-- Required. The ComplicationTypes accepted by this complication slot.
+        Can be list of SHORT_TEXT, LONG_TEXT, RANGED_VALUE, MONOCHROMATIC_IMAGE,
+        SMALL_IMAGE and PHOTO_IMAGE with | delimiter. -->
+        <attr name="supportedTypes" format="string"/>
 
         <attr name="primaryDataSource"/>
         <attr name="primaryDataSourceDefaultType"/>
@@ -130,6 +139,18 @@
         <!-- Optional. A reference to a string resource containing the name of the ComplicationSlot,
         to be used by a screen reader. -->
         <attr name="screenReaderName" format="reference" />
+
+        <!-- Optional for edge complications. The staring angle of the bounding arc in degrees (0
+        degrees = 12 o'clock position), used for hit detection. -->
+        <attr name="startArcAngle" format="float" />
+
+        <!-- Optional for edge complications. The total angle of the bounding arc in degrees,
+        used for hit detection. -->
+        <attr name="totalArcAngle" format="float" />
+
+        <!-- Optional for edge complications. The thickness of the arc as a fraction of
+        min(boundingRect.width, boundingRect.height). -->
+        <attr name="arcThickness" format="float" />
     </declare-styleable>
 
     <!-- A UserStyleFlavors element may have UserStyleFlavor child nodes. -->
@@ -143,10 +164,10 @@
 
     <!-- Defines style option to the appropriate setting. -->
     <declare-styleable name="StyleOption">
-        <!-- And id of UserStyleSetting. -->
+        <!-- An id of UserStyleSetting. -->
         <attr name="id"/>
-        <!-- Boolean/Double/Long value or string id of an option. -->
-        <attr name="value" format="string"/>
+        <!-- Boolean/Double/Long/String value or reference to a string. -->
+        <attr name="value" format="string|reference"/>
     </declare-styleable>
 
     <declare-styleable name="ComplicationPolicy">

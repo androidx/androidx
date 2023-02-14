@@ -43,17 +43,6 @@ public class SignInTemplateTest {
                     })).build();
 
     @Test
-    public void createInstance_noHeaderTitleOrAction_throws() {
-        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
-        assertThrows(IllegalStateException.class,
-                () -> new SignInTemplate.Builder(signInMethod).build());
-
-        // Positive cases.
-        new SignInTemplate.Builder(signInMethod).setTitle("Title").build();
-        new SignInTemplate.Builder(signInMethod).setHeaderAction(Action.BACK).build();
-    }
-
-    @Test
     public void createInstance_addPrimaryAction_throws() {
         PinSignInMethod signInMethod = new PinSignInMethod("ABC");
 
@@ -169,6 +158,16 @@ public class SignInTemplateTest {
                                         new Action.Builder().setTitle("Action").setOnClickListener(
                                                 () -> {
                                                 }).build()));
+    }
+
+    @Test
+    public void createInstance_emptyHeader() {
+        PinSignInMethod signInMethod = new PinSignInMethod("ABC");
+        SignInTemplate template = new SignInTemplate.Builder(signInMethod).build();
+
+        assertThat(template.getTitle()).isNull();
+        assertThat(template.getHeaderAction()).isNull();
+        assertThat(template.getActionStrip()).isNull();
     }
 
     @Test

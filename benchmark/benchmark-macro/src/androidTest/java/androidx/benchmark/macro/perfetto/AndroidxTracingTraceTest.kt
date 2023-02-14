@@ -94,11 +94,11 @@ class AndroidxTracingTraceTest {
 
         perfettoCapture.stop(traceFilePath)
 
-        val queryResult = PerfettoTraceProcessor.rawQuery(
-            absoluteTracePath = traceFilePath,
-            query = QUERY
-        )
-        val matchingSlices = Slice.parseListFromQueryResult(queryResult)
+        val queryResult = PerfettoTraceProcessor.runServer(traceFilePath) {
+            rawQuery(query = QUERY)
+        }
+
+        val matchingSlices = queryResult.toSlices()
         assertEquals(
             List(10) { "$PREFIX$it" } +
                 listOf(

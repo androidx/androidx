@@ -18,14 +18,14 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="7449553026175453403">"系统"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"设备"</string>
-    <string name="mr_button_content_description" msgid="2939063992730535343">"投射"</string>
-    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"投射。已断开连接"</string>
-    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"投射。正在连接"</string>
-    <string name="mr_cast_button_connected" msgid="6073720094880410356">"投射。已连接"</string>
-    <string name="mr_chooser_title" msgid="1419936397646839840">"投射到"</string>
+    <string name="mr_button_content_description" msgid="2939063992730535343">"投放"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"投放。已断开连接"</string>
+    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"投放。正在连接"</string>
+    <string name="mr_cast_button_connected" msgid="6073720094880410356">"投放。已连接"</string>
+    <string name="mr_chooser_title" msgid="1419936397646839840">"投放到"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"正在查找设备"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"断开连接"</string>
-    <string name="mr_controller_stop_casting" msgid="804210341192624074">"停止投射"</string>
+    <string name="mr_controller_stop_casting" msgid="804210341192624074">"停止投放"</string>
     <string name="mr_controller_close_description" msgid="5684434439232634509">"关闭"</string>
     <string name="mr_controller_play" msgid="1253345086594430054">"播放"</string>
     <string name="mr_controller_pause" msgid="747801650871398383">"暂停"</string>
@@ -36,7 +36,7 @@
     <string name="mr_controller_volume_slider" msgid="2955862765169128170">"音量滑块"</string>
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"未选择任何媒体内容"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"没有任何相关信息"</string>
-    <string name="mr_controller_casting_screen" msgid="9171231064758955152">"正在投射屏幕"</string>
+    <string name="mr_controller_casting_screen" msgid="9171231064758955152">"正在投放屏幕"</string>
     <string name="mr_dialog_default_group_name" msgid="4115858704575247342">"群组"</string>
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"添加设备"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"在一组设备上播放"</string>

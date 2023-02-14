@@ -32,7 +32,7 @@ import java.util.List;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class LensFacingCameraFilter implements CameraFilter {
     @CameraSelector.LensFacing
-    private int mLensFacing;
+    private final int mLensFacing;
 
     public LensFacingCameraFilter(@CameraSelector.LensFacing int lensFacing) {
         mLensFacing = lensFacing;
@@ -45,8 +45,8 @@ public class LensFacingCameraFilter implements CameraFilter {
         for (CameraInfo cameraInfo : cameraInfos) {
             Preconditions.checkArgument(cameraInfo instanceof CameraInfoInternal,
                     "The camera info doesn't contain internal implementation.");
-            Integer lensFacing = ((CameraInfoInternal) cameraInfo).getLensFacing();
-            if (lensFacing != null && lensFacing == mLensFacing) {
+            int lensFacing = cameraInfo.getLensFacing();
+            if (lensFacing == mLensFacing) {
                 result.add(cameraInfo);
             }
         }

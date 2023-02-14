@@ -19,11 +19,11 @@ package androidx.wear.compose.material
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -31,14 +31,13 @@ import androidx.compose.ui.unit.dp
 /**
  * A slot based composable for creating a list header item. List header items are typically expected
  * to be text. The contents provided will have text and colors effects applied based on the
- * MaterialTheme. The contents will be start and end padded by default and will fill the max width
- * of the parent.
+ * MaterialTheme. The contents will be start and end padded.
  *
  * Example usage:
  * @sample androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 
  * @param modifier The modifier for the list header
- * @param backgroundColor The background color to apply - typically Color.Tranparent
+ * @param backgroundColor The background color to apply - typically Color.Transparent
  * @param contentColor The color to apply to content
  */
 @Composable
@@ -50,7 +49,6 @@ public fun ListHeader(
 ) {
     Row(
         modifier = modifier.height(48.dp)
-            .fillMaxWidth()
             .wrapContentSize()
             .background(backgroundColor)
             .padding(horizontal = 14.dp)
@@ -58,7 +56,8 @@ public fun ListHeader(
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
             LocalTextStyle provides MaterialTheme.typography.button,
-            content = content
-        )
+        ) {
+            content()
+        }
     }
 }

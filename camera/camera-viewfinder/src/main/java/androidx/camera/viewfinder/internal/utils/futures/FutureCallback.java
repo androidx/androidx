@@ -16,6 +16,7 @@
 
 package androidx.camera.viewfinder.internal.utils.futures;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -48,5 +49,5 @@ public interface FutureCallback<V> {
      * <p>If the future's {@link Future#get() get} method throws an {@link ExecutionException}, then
      * the cause is passed to this method. Any other thrown object is passed unaltered.
      */
-    void onFailure(Throwable t);
+    void onFailure(@NonNull Throwable t);
 }

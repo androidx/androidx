@@ -50,6 +50,7 @@ import androidx.car.app.managers.ManagerCache;
 import androidx.car.app.managers.ResultManager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.notification.CarPendingIntent;
+import androidx.car.app.suggestion.SuggestionManager;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.car.app.versioning.CarAppApiLevel;
@@ -99,7 +100,7 @@ public class CarContext extends ContextWrapper {
      * @hide
      */
     @StringDef({APP_SERVICE, CAR_SERVICE, NAVIGATION_SERVICE, SCREEN_SERVICE, CONSTRAINT_SERVICE,
-            HARDWARE_SERVICE})
+            HARDWARE_SERVICE, SUGGESTION_SERVICE})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY)
     public @interface CarServiceType {
@@ -129,6 +130,11 @@ public class CarContext extends ContextWrapper {
     /** Manages access to androidx.car.app.hardware properties, sensors and actions. */
     @RequiresCarApi(3)
     public static final String HARDWARE_SERVICE = "hardware";
+
+    /**
+     * Manages posting suggestion events
+     */
+    public static final String SUGGESTION_SERVICE = "suggestion";
 
     /**
      * Key for including a IStartCarApp in the notification {@link Intent}, for starting the app
@@ -198,6 +204,9 @@ public class CarContext extends ContextWrapper {
      *   <dd>A {@link ConstraintManager} for management of content limits.
      *   <dt>{@link #HARDWARE_SERVICE}
      *   <dd>A {@link CarHardwareManager} for interacting with car hardware (e.g. sensors) data.
+     *   <dt>{@link #SUGGESTION_SERVICE}
+     *   <dd>A {@link SuggestionManager} for posting
+     *   {@link androidx.car.app.suggestion.model.Suggestion}s.
      * </dl>
      *
      * <p><b>This method should not be called until the {@link Lifecycle.State} of the context's
@@ -727,6 +736,8 @@ public class CarContext extends ContextWrapper {
                 () -> CarHardwareManager.create(this, hostDispatcher));
         mManagers.addFactory(ResultManager.class, null,
                 () -> ResultManager.create(this));
+        mManagers.addFactory(SuggestionManager.class, SUGGESTION_SERVICE,
+                () -> SuggestionManager.create(this, hostDispatcher, lifecycle));
 
         mOnBackPressedDispatcher =
                 new OnBackPressedDispatcher(() -> getCarService(ScreenManager.class).pop());

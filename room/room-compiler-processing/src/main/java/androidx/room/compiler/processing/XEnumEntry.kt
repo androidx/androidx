@@ -23,11 +23,6 @@ import kotlin.contracts.contract
  */
 interface XEnumEntry : XElement {
     /**
-     * The name of this enum object.
-     */
-    val name: String
-
-    /**
      * The parent enum type declaration that holds all entries for this enum type..
      */
     override val enclosingElement: XEnumTypeElement

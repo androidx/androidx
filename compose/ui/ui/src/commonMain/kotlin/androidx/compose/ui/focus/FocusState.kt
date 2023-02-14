@@ -17,8 +17,8 @@
 package androidx.compose.ui.focus
 
 /**
- * The focus state of a [FocusModifier]. Use [onFocusChanged] or [onFocusEvent] modifiers to
- * access [FocusState].
+ * The focus state of a [FocusTargetModifierNode]. Use [onFocusChanged] or [onFocusEvent] modifiers
+ * to access [FocusState].
  *
  * @sample androidx.compose.ui.samples.FocusableSample
  */
@@ -55,55 +55,41 @@ interface FocusState {
     val isCaptured: Boolean
 }
 
-// Different states of the focus system. These are the states used by the Focus Nodes.
+/** Different states of the focus system. These are the states used by the Focus Nodes. */
 internal enum class FocusStateImpl : FocusState {
-    // The focusable component is currently active (i.e. it receives key events).
+    /** The focusable component is currently active (i.e. it receives key events). */
     Active,
 
-    // One of the descendants of the focusable component is Active.
+    /** One of the descendants of the focusable component is Active. */
     ActiveParent,
 
-    // The focusable component is currently active (has focus), and is in a state where
-    // it does not want to give up focus. (Eg. a text field with an invalid phone number).
+    /**
+     * The focusable component is currently active (has focus), and is in a state where
+     * it does not want to give up focus. (Eg. a text field with an invalid phone number).
+     */
     Captured,
 
-    // The focusable component is not currently focusable. (eg. A disabled button).
-    Deactivated,
-
-    // One of the descendants of this deactivated component is Active.
-    DeactivatedParent,
-
-    // The focusable component does not receive any key events. (ie it is not active, nor are any
-    // of its descendants active).
+    /**
+     * The focusable component does not receive any key events. (ie it is not active, nor are any
+     * of its descendants active).
+     */
     Inactive;
 
     override val isFocused: Boolean
         get() = when (this) {
             Captured, Active -> true
-            ActiveParent, Deactivated, DeactivatedParent, Inactive -> false
+            ActiveParent, Inactive -> false
         }
 
     override val hasFocus: Boolean
         get() = when (this) {
-            Active, ActiveParent, Captured, DeactivatedParent -> true
-            Deactivated, Inactive -> false
+            Active, ActiveParent, Captured -> true
+            Inactive -> false
         }
 
     override val isCaptured: Boolean
         get() = when (this) {
             Captured -> true
-            Active, ActiveParent, Deactivated, DeactivatedParent, Inactive -> false
-        }
-
-    /**
-     * Whether the focusable component is deactivated.
-     *
-     * TODO(ralu): Consider making this public when we can add methods to interfaces without
-     * breaking compatibility.
-     */
-     val isDeactivated: Boolean
-        get() = when (this) {
-            Active, ActiveParent, Captured, Inactive -> false
-            Deactivated, DeactivatedParent -> true
+            Active, ActiveParent, Inactive -> false
         }
 }

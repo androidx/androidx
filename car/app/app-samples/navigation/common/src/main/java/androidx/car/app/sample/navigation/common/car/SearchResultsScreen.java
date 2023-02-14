@@ -29,6 +29,7 @@ import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarLocation;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Metadata;
 import androidx.car.app.model.Place;
@@ -37,6 +38,8 @@ import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.PlaceListNavigationTemplate;
 import androidx.car.app.sample.navigation.common.model.DemoScripts;
 import androidx.car.app.sample.navigation.common.model.PlaceInfo;
+
+import java.util.Locale;
 
 /** Screen for showing a list of places from a search. */
 public final class SearchResultsScreen extends Screen {
@@ -70,8 +73,8 @@ public final class SearchResultsScreen extends Screen {
         for (int i = 0; i < numItems; i++) {
             PlaceInfo place =
                     new PlaceInfo(
-                            String.format("Result %d", i + 1),
-                            String.format("%d Main Street.", (i + 1) * 10));
+                            String.format(Locale.US, "Result %d", i + 1),
+                            String.format(Locale.US, "%d Main Street.", (i + 1) * 10));
 
             SpannableString address = new SpannableString("  \u00b7 " + place.getDisplayAddress());
             DistanceSpan distanceSpan =
@@ -93,11 +96,15 @@ public final class SearchResultsScreen extends Screen {
                             .build());
         }
 
+        Header header = new Header.Builder()
+                .setStartHeaderAction(Action.BACK)
+                .setTitle("Search: " + mSearchText)
+                .build();
+
         return new PlaceListNavigationTemplate.Builder()
                 .setItemList(listBuilder.build())
-                .setTitle("Search: " + mSearchText)
+                .setHeader(header)
                 .setActionStrip(new ActionStrip.Builder().addAction(mSettingsAction).build())
-                .setHeaderAction(Action.BACK)
                 .build();
     }
 

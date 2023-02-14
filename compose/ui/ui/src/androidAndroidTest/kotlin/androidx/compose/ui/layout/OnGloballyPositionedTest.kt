@@ -40,6 +40,7 @@ import androidx.compose.ui.background
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.padding
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.ComposeView
@@ -52,7 +53,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -335,6 +335,48 @@ class OnGloballyPositionedTest {
         }
     }
 
+    @Test
+    fun onPositionedCalledWhenLayerChanged() {
+        var positionedLatch = CountDownLatch(1)
+        var coordinates: LayoutCoordinates? = null
+        var offsetX by mutableStateOf(0f)
+
+        rule.setContent {
+            Layout(
+                {},
+                modifier = Modifier
+                    .graphicsLayer {
+                        translationX = offsetX
+                    }
+                    .onGloballyPositioned {
+                        coordinates = it
+                        positionedLatch.countDown()
+                    }
+            ) { _, _ ->
+                layout(100, 200) {}
+            }
+        }
+
+        rule.waitForIdle()
+
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+        positionedLatch = CountDownLatch(1)
+
+        rule.runOnIdle {
+            coordinates = null
+            offsetX = 5f
+        }
+
+        assertTrue(
+            "OnPositioned is not called when the container scrolled",
+            positionedLatch.await(1, TimeUnit.SECONDS)
+        )
+
+        rule.runOnIdle {
+            assertEquals(5f, coordinates!!.positionInRoot().x)
+        }
+    }
+
     private fun View.getYInWindow(): Float {
         var offset = 0f
         val parentView = parent
@@ -507,7 +549,6 @@ class OnGloballyPositionedTest {
         assertThat(childCoordinates!!.positionInParent().x).isEqualTo(thirdPaddingPx)
     }
 
-    @FlakyTest(bugId = 213889751)
     @Test
     fun globalCoordinatesAreInActivityCoordinates() {
         val padding = 30
@@ -825,6 +866,63 @@ class OnGloballyPositionedTest {
             remeasurementObj!!.forceRemeasure()
 
             assertNotNull(coords)
+        }
+    }
+
+    @Test
+    fun coordinatesAreNotAttachedWhenNodeIsRemovedFromHierarchy() {
+        var nodeIsNeeded by mutableStateOf(true)
+        lateinit var coordindates: LayoutCoordinates
+        rule.setContent {
+            if (nodeIsNeeded) {
+                Box(
+                    Modifier
+                        .onGloballyPositioned {
+                            // onGloballyPositioned is "attached" to the layout node itself
+                            // as there are no layout modifiers added after it
+                            coordindates = it
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertTrue(coordindates.isAttached)
+            nodeIsNeeded = false
+        }
+
+        rule.runOnIdle {
+            assertFalse(coordindates.isAttached)
+        }
+    }
+
+    @Test
+    fun coordinatesAreNotAttachedWhenModifierIsNotUsedAnymore() {
+        lateinit var coordindates: LayoutCoordinates
+        var modifier by mutableStateOf(
+            Modifier
+                .onGloballyPositioned {
+                    // onGloballyPositioned is "attached" to the next layout modifier
+                    coordindates = it
+                }
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
+                    }
+                }
+        )
+        rule.setContent {
+            Box(modifier)
+        }
+
+        rule.runOnIdle {
+            assertTrue(coordindates.isAttached)
+            modifier = Modifier
+        }
+
+        rule.runOnIdle {
+            assertFalse(coordindates.isAttached)
         }
     }
 }

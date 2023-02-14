@@ -35,19 +35,26 @@ package androidx.camera.video
 import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.processing.DefaultSurfaceProcessor
+import androidx.camera.core.processing.SurfaceProcessorInternal
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -63,13 +70,21 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class SupportedQualitiesVerificationTest(
+    private val lensFacing: Int,
     private var cameraSelector: CameraSelector,
     private var quality: Quality,
+    private val cameraConfig: CameraXConfig,
+    private val implName: String,
 ) {
 
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
+    @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     companion object {
@@ -90,11 +105,28 @@ class SupportedQualitiesVerificationTest(
         )
 
         @JvmStatic
-        @Parameterized.Parameters(name = "cameraSelector={0}, quality={1}")
+        @Parameterized.Parameters(name = "lensFacing={0}, quality={2}, config={4}")
         fun data() = mutableListOf<Array<Any?>>().apply {
             cameraSelectors.forEach { cameraSelector ->
                 quality.forEach { quality ->
-                    add(arrayOf(cameraSelector, quality))
+                    add(
+                        arrayOf(
+                            cameraSelector.lensFacing,
+                            cameraSelector,
+                            quality,
+                            Camera2Config.defaultConfig(),
+                            Camera2Config::class.simpleName
+                        )
+                    )
+                    add(
+                        arrayOf(
+                            cameraSelector.lensFacing,
+                            cameraSelector,
+                            quality,
+                            CameraPipeConfig.defaultConfig(),
+                            CameraPipeConfig::class.simpleName
+                        )
+                    )
                 }
             }
         }
@@ -102,6 +134,7 @@ class SupportedQualitiesVerificationTest(
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
+    private val surfaceProcessorsToRelease = mutableListOf<SurfaceProcessorInternal>()
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var lifecycleOwner: FakeLifecycleOwner
     private lateinit var cameraInfo: CameraInfo
@@ -117,6 +150,7 @@ class SupportedQualitiesVerificationTest(
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
         )
 
+        ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context).get()
         lifecycleOwner = FakeLifecycleOwner()
         lifecycleOwner.startAndResume()
@@ -138,26 +172,47 @@ class SupportedQualitiesVerificationTest(
     @After
     fun tearDown() {
         if (this::cameraProvider.isInitialized) {
-            instrumentation.runOnMainSync {
-                cameraProvider.unbindAll()
-            }
             cameraProvider.shutdown()[10, TimeUnit.SECONDS]
         }
+        for (surfaceProcessor in surfaceProcessorsToRelease) {
+            surfaceProcessor.release()
+        }
+        surfaceProcessorsToRelease.clear()
     }
 
     @Test
     fun qualityOptionCanRecordVideo() {
+        testQualityOptionRecordVideo()
+    }
+
+    @Test
+    fun qualityOptionCanRecordVideo_enableSurfaceProcessor() {
+        assumeSuccessfulSurfaceProcessing()
+
+        testQualityOptionRecordVideo(effect = createEffect())
+    }
+
+    private fun testQualityOptionRecordVideo(effect: CameraEffect? = null) {
         // Arrange.
         val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build()
         val videoCapture = VideoCapture.withOutput(recorder)
+        videoCapture.effect = effect
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        val latchForVideoRecording = CountDownLatch(5)
-        val eventListener = Consumer<VideoRecordEvent> {
-            when (it) {
+        val latchForRecordingStatus = CountDownLatch(5)
+        val latchForRecordingFinalized = CountDownLatch(1)
+        var finalizedEvent: VideoRecordEvent.Finalize? = null
+        val eventListener = Consumer<VideoRecordEvent> { event ->
+            when (event) {
                 is VideoRecordEvent.Status -> {
                     // Make sure the recording proceed for a while.
-                    latchForVideoRecording.countDown()
+                    latchForRecordingStatus.countDown()
                 }
+
+                is VideoRecordEvent.Finalize -> {
+                    finalizedEvent = event
+                    latchForRecordingFinalized.countDown()
+                }
+
                 else -> {
                     // Ignore other events.
                 }
@@ -174,18 +229,33 @@ class SupportedQualitiesVerificationTest(
 
         // Act.
         videoCapture.startVideoRecording(file, eventListener).use {
-
             // Verify the recording proceed for a while.
-            Truth.assertThat(
-                latchForVideoRecording.await(
-                    VIDEO_TIMEOUT_SEC,
-                    TimeUnit.SECONDS
-                )
-            ).isTrue()
+            assertThat(latchForRecordingStatus.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
         }
+
+        // Verify the recording is finalized without error.
+        assertThat(latchForRecordingFinalized.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
+        assertThat(finalizedEvent!!.error).isEqualTo(VideoRecordEvent.Finalize.ERROR_NONE)
 
         // Clean up
         file.delete()
+    }
+
+    private fun createEffect(): CameraEffect {
+        val fakeSurfaceProcessor = DefaultSurfaceProcessor.Factory.newInstance()
+        surfaceProcessorsToRelease.add(fakeSurfaceProcessor)
+        return FakeSurfaceEffect(
+            fakeSurfaceProcessor
+        )
+    }
+
+    /** Skips tests which will enable surface processing and encounter device specific issues. */
+    private fun assumeSuccessfulSurfaceProcessing() {
+        // Skip for b/253211491
+        Assume.assumeFalse(
+            "Skip tests for Cuttlefish API 30 eglCreateWindowSurface issue",
+            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30
+        )
     }
 
     private fun VideoCapture<Recorder>.startVideoRecording(

@@ -26,13 +26,20 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class SpecialEffectsControllerTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun factoryCreateController() {
         val map = mutableMapOf<ViewGroup, TestSpecialEffectsController>()
@@ -112,7 +119,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueAddAndExecute() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
@@ -160,7 +167,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueRemoveAndExecute() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
@@ -212,7 +219,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueAddAndCancel() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
@@ -281,7 +288,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueAddAndForceCompleteAllPending() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
@@ -327,7 +334,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueAddAndForceCompleteAllExecuting() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
@@ -390,7 +397,7 @@ class SpecialEffectsControllerTest {
     @MediumTest
     @Test
     fun enqueueAddAndPostpone() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             fm.specialEffectsControllerFactory = SpecialEffectsControllerFactory {
@@ -461,7 +468,7 @@ internal class TestSpecialEffectsController(
 ) : SpecialEffectsController(container) {
     val operationsToExecute = mutableListOf<Operation>()
 
-    override fun executeOperations(operations: MutableList<Operation>, isPop: Boolean) {
+    override fun executeOperations(operations: List<Operation>, isPop: Boolean) {
         operationsToExecute.addAll(operations)
         operations.forEach { operation ->
             operation.addCompletionListener {
@@ -481,7 +488,7 @@ internal class InstantSpecialEffectsController(
 ) : SpecialEffectsController(container) {
     var executeOperationsCallCount = 0
 
-    override fun executeOperations(operations: MutableList<Operation>, isPop: Boolean) {
+    override fun executeOperations(operations: List<Operation>, isPop: Boolean) {
         executeOperationsCallCount++
         operations.forEach(Operation::complete)
     }

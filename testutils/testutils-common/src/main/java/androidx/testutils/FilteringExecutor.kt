@@ -87,10 +87,10 @@ class FilteringExecutor(
     }
 }
 
-suspend fun <T> withTestTimeout(block: suspend () -> T): T {
+suspend fun <T> withTestTimeout(duration: Long = 3, block: suspend () -> T): T {
     try {
         return withTimeout(
-            timeMillis = TimeUnit.SECONDS.toMillis(3)
+            timeMillis = TimeUnit.SECONDS.toMillis(duration)
         ) {
             block()
         }

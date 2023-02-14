@@ -18,12 +18,12 @@ package androidx.camera.video
 
 import android.os.Build
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument

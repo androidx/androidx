@@ -16,9 +16,10 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XClassName
 import com.squareup.javapoet.ClassName
 
-interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
+interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberContainer {
     /**
      * The qualified name of the Class/Interface.
      */
@@ -28,13 +29,6 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
      * The qualified name of the package that contains this element.
      */
     val packageName: String
-
-    /**
-     * SimpleName of the type converted to String.
-     *
-     * @see [javax.lang.model.element.Element.getSimpleName]
-     */
-    val name: String
 
     /**
      * The type represented by this [XTypeElement].
@@ -52,13 +46,6 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
         get() = superClass
 
     /**
-     * The direct super types of this element.
-     *
-     * See [JLS 4.10.2](https://docs.oracle.com/javase/specs/jls/se18/html/jls-4.html#jls-4.10.2)
-     */
-    val superTypes: List<XType>
-
-    /**
      * The super class of this element if it represents a class.
      */
     val superClass: XType?
@@ -71,7 +58,19 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
     /**
      * Javapoet [ClassName] of the type.
      */
+     @Deprecated(
+         message = "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+         replaceWith = ReplaceWith(
+             expression = "asClassName().toJavaPoet()",
+             imports = ["androidx.room.compiler.codegen.toJavaPoet"]
+         )
+     )
     override val className: ClassName
+
+    /**
+     * Gets the [XClassName] of the type element.
+     */
+    override fun asClassName(): XClassName
 
     /**
      * The [XTypeElement] that contains this [XTypeElement] if it is an inner class/interface.

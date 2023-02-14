@@ -25,6 +25,7 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.messaging.model.ConversationItem;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.Item;
 import androidx.car.app.model.ItemList;
@@ -67,13 +68,32 @@ public final class RowListConstraints {
                     .setRowConstraints(ROW_CONSTRAINTS_SIMPLE)
                     .build();
 
-    /** Default constraints for the route preview card. */
+    /**
+     * Default constraints for the route preview card.
+     *
+     * @deprecated This is deprecated. Use
+     * {@link #MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE} instead.
+     *
+     * As more half sheet template lists allow selectable lists, this constraints is
+     * too narrow for the only use case at route preview template. Use
+     * {@link #MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE} for more general half sheet lists.
+     */
     @NonNull
+    @Deprecated
     public static final RowListConstraints ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW =
             new RowListConstraints.Builder(ROW_LIST_CONSTRAINTS_CONSERVATIVE)
                     .setRowConstraints(ROW_CONSTRAINTS_SIMPLE)
                     .setAllowSelectableLists(true)
                     .build();
+
+    /** Default constraints for half sheet template lists that allow selectable lists. */
+    @NonNull
+    public static final RowListConstraints MAP_ROW_LIST_CONSTRAINTS_ALLOW_SELECTABLE =
+            new RowListConstraints.Builder(ROW_LIST_CONSTRAINTS_CONSERVATIVE)
+                    .setRowConstraints(ROW_CONSTRAINTS_SIMPLE)
+                    .setAllowSelectableLists(true)
+                    .build();
+
 
     /** Default constraints for uniform lists of items, full width (simple + toggle support). */
     @NonNull
@@ -157,10 +177,16 @@ public final class RowListConstraints {
 
     private void validateRows(List<? extends Item> rows) {
         for (Item rowObj : rows) {
-            if (!(rowObj instanceof Row)) {
-                throw new IllegalArgumentException("Only Row instances are supported in the list");
+            if (rowObj instanceof Row) {
+                mRowConstraints.validateOrThrow((Row) rowObj);
+            } else if (rowObj instanceof ConversationItem) {
+                // ExperimentalCarApi -- unrestricted for now
+            } else {
+                throw new IllegalArgumentException(String.format(
+                        "Unsupported item type: %s",
+                        rowObj.getClass().getSimpleName()
+                ));
             }
-            mRowConstraints.validateOrThrow((Row) rowObj);
         }
     }
 

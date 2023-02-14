@@ -21,11 +21,11 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.DoNotInline;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 
 import java.time.Duration;
 
@@ -55,8 +55,8 @@ import java.time.Duration;
  * }</pre>
  */
 @CarProtocol
+@KeepFields
 public final class DurationSpan extends CarSpan {
-    @Keep
     private final long mDurationSeconds;
 
     /** Creates a {@link DurationSpan} with the given duration. */

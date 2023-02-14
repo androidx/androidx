@@ -18,9 +18,10 @@ package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.XProcessingEnvConfig
-import androidx.room.compiler.processing.XProcessingStep
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XProcessingEnvironmentTestConfigProvider
+import androidx.room.compiler.processing.XProcessingStep
+import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
+import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import androidx.room.compiler.processing.util.runner.CompilationTestRunner
@@ -36,6 +37,7 @@ import java.io.File
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import javax.annotation.processing.Processor
+import javax.lang.model.SourceVersion
 
 private fun defaultTestConfig(
     options: Map<String, String>
@@ -74,7 +76,7 @@ private fun runTests(
     // ignore the check
     val minTestCount = when {
         CompilationTestCapabilities.canTestWithKsp ||
-            (runners.toList() - KspCompilationTestRunner).isNotEmpty() -> {
+            (runners.count { it !is KspCompilationTestRunner } > 0) -> {
             1
         }
         else -> {
@@ -105,8 +107,8 @@ fun runProcessorTestWithoutKsp(
             config = config,
             handlers = listOf(handler),
         ),
-        JavacCompilationTestRunner,
-        KaptCompilationTestRunner
+        JavacCompilationTestRunner(),
+        KaptCompilationTestRunner()
     )
 }
 
@@ -145,10 +147,12 @@ fun runProcessorTest(
 )
 
 /**
- * Runs the step created by [createProcessingStep] with ksp and one of javac or kapt, depending
- * on whether input has kotlin sources.
+ * Runs the steps created by [createProcessingSteps] with ksp and one of javac or kapt (depending on
+ * whether input has kotlin sources).
  *
- * The step created by [createProcessingStep] will be invoked only for the first round.
+ * The steps will be contained in implementations of
+ * [androidx.room.compiler.processing.XBasicAnnotationProcessor] and are subject to its validation
+ * and element deferring behaviour.
  *
  * [onCompilationResult] will be called with a [CompilationResultSubject] after each compilation to
  * assert the compilation result.
@@ -156,7 +160,6 @@ fun runProcessorTest(
  * By default, the compilation is expected to succeed. If it should fail, there must be an
  * assertion on [onCompilationResult] which expects a failure (e.g. checking errors).
  */
-@Suppress("VisibleForTests") // this is a test library
 @ExperimentalProcessingApi
 fun runProcessorTest(
     sources: List<Source> = emptyList(),
@@ -165,9 +168,24 @@ fun runProcessorTest(
     javacArguments: List<String> = emptyList(),
     kotlincArguments: List<String> = emptyList(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
-    createProcessingStep: () -> XProcessingStep,
+    createProcessingSteps: () -> Iterable<XProcessingStep>,
     onCompilationResult: (CompilationResultSubject) -> Unit
 ) {
+    val javacProcessor = object : JavacBasicAnnotationProcessor(
+        configureEnv = { config }
+    ) {
+        override fun getSupportedSourceVersion() = SourceVersion.latestSupported()
+
+        override fun processingSteps() = createProcessingSteps()
+    }
+    val ksProvider = SymbolProcessorProvider { environment ->
+        object : KspBasicAnnotationProcessor(
+            symbolProcessorEnvironment = environment,
+            config = config
+        ) {
+            override fun processingSteps() = createProcessingSteps()
+        }
+    }
     runProcessorTest(
         sources = sources,
         classpath = classpath,
@@ -175,22 +193,55 @@ fun runProcessorTest(
         javacArguments = javacArguments,
         kotlincArguments = kotlincArguments,
         config = config,
-    ) { invocation ->
-        val step = createProcessingStep()
-        val elements =
-            step.annotations()
-                .associateWith { annotation ->
-                    invocation.roundEnv.getElementsAnnotatedWith(annotation)
-                        .filterIsInstance<XTypeElement>()
-                        .toSet()
-                }
-        step.process(
-            env = invocation.processingEnv,
-            elementsByAnnotation = elements,
-            isLastRound = false
-        )
-        invocation.assertCompilationResult(onCompilationResult)
+        javacProcessors = listOf(javacProcessor),
+        symbolProcessorProviders = listOf(ksProvider),
+        onCompilationResult = onCompilationResult
+    )
+}
+
+/**
+ * Runs the [javacProcessors] with one of javac or kapt (depending on whether input has kotlin
+ * sources) and the [symbolProcessorProviders] with ksp.
+ *
+ * [onCompilationResult] will be called with a [CompilationResultSubject] after each compilation to
+ * assert the compilation result.
+ *
+ * By default, the compilation is expected to succeed. If it should fail, there must be an
+ * assertion on [onCompilationResult] which expects a failure (e.g. checking errors).
+ */
+@ExperimentalProcessingApi
+fun runProcessorTest(
+    sources: List<Source> = emptyList(),
+    classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
+    javacProcessors: List<Processor>,
+    symbolProcessorProviders: List<SymbolProcessorProvider>,
+    onCompilationResult: (CompilationResultSubject) -> Unit
+) {
+    val javaApRunner = if (sources.any { it is Source.KotlinSource }) {
+        KaptCompilationTestRunner(javacProcessors)
+    } else {
+        JavacCompilationTestRunner(javacProcessors)
     }
+    val handler: (XTestInvocation) -> Unit = {
+        it.assertCompilationResult(onCompilationResult)
+    }
+    runTests(
+        params = TestCompilationParameters(
+            sources = sources,
+            classpath = classpath.distinct(),
+            options = options,
+            handlers = listOf(handler),
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments,
+            config = config
+        ),
+        javaApRunner,
+        KspCompilationTestRunner(symbolProcessorProviders)
+    )
 }
 
 /**
@@ -207,9 +258,9 @@ fun runProcessorTest(
     handlers: List<(XTestInvocation) -> Unit>
 ) {
     val javaApRunner = if (sources.any { it is Source.KotlinSource }) {
-        KaptCompilationTestRunner
+        KaptCompilationTestRunner()
     } else {
-        JavacCompilationTestRunner
+        JavacCompilationTestRunner()
     }
     runTests(
         params = TestCompilationParameters(
@@ -222,7 +273,7 @@ fun runProcessorTest(
             config = config
         ),
         javaApRunner,
-        KspCompilationTestRunner
+        KspCompilationTestRunner()
     )
 }
 
@@ -265,7 +316,7 @@ fun runJavaProcessorTest(
             handlers = handlers,
             config = config,
         ),
-        JavacCompilationTestRunner
+        JavacCompilationTestRunner()
     )
 }
 
@@ -314,7 +365,7 @@ fun runKaptTest(
             kotlincArguments = kotlincArguments,
             config = config,
         ),
-        KaptCompilationTestRunner
+        KaptCompilationTestRunner()
     )
 }
 
@@ -363,7 +414,7 @@ fun runKspTest(
             kotlincArguments = kotlincArguments,
             config = config,
         ),
-        KspCompilationTestRunner
+        KspCompilationTestRunner()
     )
 }
 

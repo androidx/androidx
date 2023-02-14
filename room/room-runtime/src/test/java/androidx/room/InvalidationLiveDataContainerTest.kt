@@ -40,9 +40,9 @@ class InvalidationLiveDataContainerTest {
     @Test
     fun add() {
         val liveData = createLiveData()
-        assertThat(container.mLiveDataSet, `is`(emptySet()))
+        assertThat(container.liveDataSet, `is`(emptySet()))
         container.onActive(liveData)
-        assertThat(container.mLiveDataSet, `is`(setOf(liveData)))
+        assertThat(container.liveDataSet, `is`(setOf(liveData)))
     }
 
     @Test
@@ -50,7 +50,7 @@ class InvalidationLiveDataContainerTest {
         val liveData = createLiveData()
         container.onActive(liveData)
         container.onActive(liveData)
-        assertThat(container.mLiveDataSet, `is`(setOf(liveData)))
+        assertThat(container.liveDataSet, `is`(setOf(liveData)))
     }
 
     @Test
@@ -58,7 +58,7 @@ class InvalidationLiveDataContainerTest {
         val liveData = createLiveData()
         container.onActive(liveData)
         container.onInactive(liveData)
-        assertThat(container.mLiveDataSet, `is`(emptySet()))
+        assertThat(container.liveDataSet, `is`(emptySet()))
     }
 
     @Test
@@ -67,33 +67,33 @@ class InvalidationLiveDataContainerTest {
         container.onActive(liveData)
         container.onInactive(liveData)
         container.onInactive(liveData)
-        assertThat(container.mLiveDataSet, `is`(emptySet()))
+        assertThat(container.liveDataSet, `is`(emptySet()))
     }
 
     @Test
     fun addRemoveMultiple() {
         val ld1 = createLiveData()
         val ld2 = createLiveData()
-        assertThat(container.mLiveDataSet, `is`(emptySet()))
+        assertThat(container.liveDataSet, `is`(emptySet()))
         container.onActive(ld1)
         container.onActive(ld2)
-        assertThat(container.mLiveDataSet, `is`(setOf(ld1, ld2)))
+        assertThat(container.liveDataSet, `is`(setOf(ld1, ld2)))
         container.onInactive(ld1)
-        assertThat(container.mLiveDataSet, `is`(setOf(ld2)))
+        assertThat(container.liveDataSet, `is`(setOf(ld2)))
         container.onInactive(ld1) // intentional
-        assertThat(container.mLiveDataSet, `is`(setOf(ld2)))
+        assertThat(container.liveDataSet, `is`(setOf(ld2)))
         container.onActive(ld1)
-        assertThat(container.mLiveDataSet, `is`(setOf(ld1, ld2)))
+        assertThat(container.liveDataSet, `is`(setOf(ld1, ld2)))
         container.onActive(ld1) // intentional
-        assertThat(container.mLiveDataSet, `is`(setOf(ld1, ld2)))
+        assertThat(container.liveDataSet, `is`(setOf(ld1, ld2)))
         container.onInactive(ld2)
-        assertThat(container.mLiveDataSet, `is`(setOf(ld1)))
+        assertThat(container.liveDataSet, `is`(setOf(ld1)))
         container.onInactive(ld1)
-        assertThat(container.mLiveDataSet, `is`(emptySet()))
+        assertThat(container.liveDataSet, `is`(emptySet()))
         container.onActive(ld1)
-        assertThat(container.mLiveDataSet, `is`(setOf(ld1)))
+        assertThat(container.liveDataSet, `is`(setOf(ld1)))
         container.onActive(ld2)
-        assertThat(container.mLiveDataSet, `is`(setOf(ld1, ld2)))
+        assertThat(container.liveDataSet, `is`(setOf(ld1, ld2)))
     }
 
     private fun createLiveData(): LiveData<Any> {
@@ -101,7 +101,7 @@ class InvalidationLiveDataContainerTest {
             arrayOf("a", "b"),
             false,
             createComputeFunction<Any>()
-        ) as LiveData
+        )
     }
 
     private fun <T> createComputeFunction(): Callable<T> {

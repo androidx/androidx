@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 import androidx.leanback.widget.Action;
@@ -240,7 +241,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
     }
 
     @Override
-    protected void onAttachedToHost(PlaybackGlueHost host) {
+    protected void onAttachedToHost(@NonNull PlaybackGlueHost host) {
         super.onAttachedToHost(host);
         host.setOnKeyInterceptListener(this);
         host.setOnActionClickedListener(this);
@@ -280,8 +281,8 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
             final AbstractDetailsDescriptionPresenter detailsPresenter =
                     new AbstractDetailsDescriptionPresenter() {
                         @Override
-                        protected void onBindDescription(ViewHolder
-                                viewHolder, Object object) {
+                        protected void onBindDescription(@NonNull ViewHolder
+                                viewHolder, @NonNull Object object) {
                             PlaybackControlGlue glue = (PlaybackControlGlue) object;
                             if (glue.hasValidMedia()) {
                                 viewHolder.getTitle().setText(glue.getMediaTitle());
@@ -295,12 +296,15 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
             setPlaybackRowPresenter(new PlaybackControlsRowPresenter(detailsPresenter) {
                 @Override
-                protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
+                protected void onBindRowViewHolder(
+                        @NonNull RowPresenter.ViewHolder vh,
+                        @NonNull Object item
+                ) {
                     super.onBindRowViewHolder(vh, item);
                     vh.setOnKeyListener(PlaybackControlGlue.this);
                 }
                 @Override
-                protected void onUnbindRowViewHolder(RowPresenter.ViewHolder vh) {
+                protected void onUnbindRowViewHolder(@NonNull RowPresenter.ViewHolder vh) {
                     super.onUnbindRowViewHolder(vh);
                     vh.setOnKeyListener(null);
                 }
@@ -397,7 +401,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
     /**
      * Sets the controls row Presenter to be passed to {@link PlaybackGlueHost} in
-     * {@link #onAttachedToHost(PlaybackGlueHost)}.
+     * {@link PlaybackGlue#onAttachedToHost(PlaybackGlueHost)}.
      */
     public void setPlaybackRowPresenter(PlaybackRowPresenter presenter) {
         mControlsRowPresenter = presenter;
@@ -405,7 +409,7 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
 
     /**
      * Returns the playback row Presenter to be passed to {@link PlaybackGlueHost} in
-     * {@link #onAttachedToHost(PlaybackGlueHost)}.
+     * {@link PlaybackGlue#onAttachedToHost(PlaybackGlueHost)}.
      */
     public PlaybackRowPresenter getPlaybackRowPresenter() {
         return mControlsRowPresenter;

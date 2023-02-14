@@ -16,6 +16,7 @@
 
 package androidx.cardview.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -130,6 +131,7 @@ public class CardView extends FrameLayout {
             backgroundColor = a.getColorStateList(R.styleable.CardView_cardBackgroundColor);
         } else {
             // There isn't one set, so we'll compute one based on the theme
+            @SuppressLint("ResourceType")
             final TypedArray aa = getContext().obtainStyledAttributes(COLOR_BACKGROUND_ATTR);
             final int themeColorBackground = aa.getColor(0, 0);
             aa.recycle();

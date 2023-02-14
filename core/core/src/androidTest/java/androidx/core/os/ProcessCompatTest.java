@@ -21,11 +21,13 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Process;
 
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 
 @SmallTest
+@SdkSuppress(minSdkVersion = 16)
 public class ProcessCompatTest {
 
     @Test

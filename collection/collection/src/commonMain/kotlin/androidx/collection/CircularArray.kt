@@ -23,15 +23,12 @@ import kotlin.jvm.JvmOverloads
  * CircularArray is a generic circular array data structure that provides O(1) random read, O(1)
  * prepend and O(1) append. The CircularArray automatically grows its capacity when number of added
  * items is over its capacity.
- */
-public class CircularArray<E>
-
-/**
- * Creates a circular array with capacity for at least [minCapacity] elements.
+ *
+ * @constructor Creates a circular array with capacity for at least [minCapacity] elements.
  *
  * @param minCapacity the minimum capacity, between 1 and 2^30 inclusive
  */
-@JvmOverloads public constructor(minCapacity: Int = 8) {
+public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int = 8) {
     private var elements: Array<E?>
     private var head = 0
     private var tail = 0

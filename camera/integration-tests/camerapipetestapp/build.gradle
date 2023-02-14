@@ -63,12 +63,6 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testUiautomator)
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.truth)
+
     debugImplementation(libs.testCore)
 }

@@ -21,7 +21,7 @@ package androidx.room.compiler.processing
  *
  * @see [javax.lang.model.element.ExecutableElement]
  */
-interface XExecutableElement : XHasModifiers, XElement {
+interface XExecutableElement : XHasModifiers, XParameterizable, XElement {
     /**
      * The element that declared this executable.
      *
@@ -31,7 +31,7 @@ interface XExecutableElement : XHasModifiers, XElement {
      *   be an [XTypeElement].
      *   * When running with KSP, if this function is in source, the value will **NOT** be an
      *   [XTypeElement]. If you need the generated synthetic java class name, you can use
-     *   [XMemberContainer.className] property.
+     *   [XMemberContainer.asClassName] property.
      */
     override val enclosingElement: XMemberContainer
 
@@ -46,6 +46,7 @@ interface XExecutableElement : XHasModifiers, XElement {
      * The list of `Throwable`s that are declared in this executable's signature.
      */
     val thrownTypes: List<XType>
+
     /**
      * Returns true if this method receives a vararg parameter.
      */

@@ -45,13 +45,10 @@ jobs:
           echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
       - name: "Compute actions/checkout arguments"
         id: checkout-args
+        env:
+          REF: ${{ github.event.pull_request.head.ref || github.event.ref}}
         run: |
           set -x
-
-          REF=${{ github.event.pull_request.head.ref }}
-          if [ -z "$REF" ]; then
-            REF=${{ github.event.ref }}
-          fi
           echo "::set-output name=ref::$REF"
 
           REPOSITORY=${{ github.event.pull_request.head.repo.full_name }}

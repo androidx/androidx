@@ -20,12 +20,11 @@ import android.content.Context;
 import android.view.KeyEvent;
 import android.view.animation.Animation;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.wear.utils.ActivityAnimationUtil;
-
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Controller that handles the back button click for dismiss the frame layout
@@ -49,7 +48,7 @@ class BackButtonDismissController extends DismissController {
                         && dismiss());
     }
 
-    void disable(@NotNull DismissibleFrameLayout layout) {
+    void disable(@NonNull DismissibleFrameLayout layout) {
         setOnDismissListener(null);
         layout.setOnKeyListener(null);
         // setting this to false will also ensure that this view is not focusable in touch mode

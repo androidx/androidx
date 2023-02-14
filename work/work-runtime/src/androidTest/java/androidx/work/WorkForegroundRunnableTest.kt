@@ -149,7 +149,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
     }
 
     private fun getWorkerSpy(work: OneTimeWorkRequest) = spy(
-        configuration.mWorkerFactory.createWorkerWithDefaultFallback(
+        configuration.workerFactory.createWorkerWithDefaultFallback(
             context,
             work.workSpec.workerClassName,
             newWorkerParams(work)
@@ -173,9 +173,10 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
         listOf<String>(),
         WorkerParameters.RuntimeExtras(),
         1,
+        0,
         executor,
         taskExecutor,
-        configuration.mWorkerFactory,
+        configuration.workerFactory,
         progressUpdater,
         foregroundUpdater
     )

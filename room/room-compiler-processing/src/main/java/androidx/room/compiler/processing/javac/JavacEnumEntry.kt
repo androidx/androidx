@@ -25,13 +25,10 @@ internal class JavacEnumEntry(
     entryElement: Element,
     override val enclosingElement: XEnumTypeElement
 ) : JavacElement(env, entryElement), XEnumEntry {
+    override val kotlinMetadata = null
 
     override val name: String
         get() = element.simpleName.toString()
-
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(name, enclosingElement)
-    }
 
     override val fallbackLocationText: String
         get() = "$name enum entry in ${enclosingElement.fallbackLocationText}"

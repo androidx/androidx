@@ -17,6 +17,8 @@
 package androidx.compose.ui.viewinterop
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -33,6 +35,7 @@ import android.widget.TextView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -45,8 +48,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
@@ -56,19 +61,19 @@ import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.findViewTreeCompositionContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.R
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.tests.R
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
@@ -272,7 +277,10 @@ class AndroidViewTest {
             }
         }
         rule.setContent {
-            AndroidView({ frameLayout }, Modifier.testTag("view").background(color = Color.Blue))
+            AndroidView({ frameLayout },
+                Modifier
+                    .testTag("view")
+                    .background(color = Color.Blue))
         }
 
         rule.onNodeWithTag("view").captureToImage().assertPixels(IntSize(size, size)) {
@@ -356,9 +364,11 @@ class AndroidViewTest {
             CompositionLocalProvider(LocalDensity provides density) {
                 AndroidView(
                     { FrameLayout(it) },
-                    Modifier.requiredSize(size).onGloballyPositioned {
-                        assertThat(it.size).isEqualTo(IntSize(sizeIpx, sizeIpx))
-                    }
+                    Modifier
+                        .requiredSize(size)
+                        .onGloballyPositioned {
+                            assertThat(it.size).isEqualTo(IntSize(sizeIpx, sizeIpx))
+                        }
                 )
             }
         }
@@ -448,8 +458,7 @@ class AndroidViewTest {
     @Test
     fun androidView_propagatesLocalLifecycleOwnerAsViewTreeOwner() {
         lateinit var parentLifecycleOwner: LifecycleOwner
-        // We don't actually need to ever get the actual lifecycle.
-        val compositionLifecycleOwner = LifecycleOwner { throw UnsupportedOperationException() }
+        val compositionLifecycleOwner = TestLifecycleOwner()
         var childViewTreeLifecycleOwner: LifecycleOwner? = null
 
         rule.setContent {
@@ -465,7 +474,7 @@ class AndroidViewTest {
                         object : FrameLayout(it) {
                             override fun onAttachedToWindow() {
                                 super.onAttachedToWindow()
-                                childViewTreeLifecycleOwner = ViewTreeLifecycleOwner.get(this)
+                                childViewTreeLifecycleOwner = findViewTreeLifecycleOwner()
                             }
                         }
                     }
@@ -482,13 +491,12 @@ class AndroidViewTest {
     @Test
     fun androidView_propagatesLocalSavedStateRegistryOwnerAsViewTreeOwner() {
         lateinit var parentSavedStateRegistryOwner: SavedStateRegistryOwner
-        val compositionSavedStateRegistryOwner = object : SavedStateRegistryOwner {
-            // We don't actually need to ever get actual instances.
-            override fun getLifecycle(): Lifecycle = throw UnsupportedOperationException()
-
-            override val savedStateRegistry: SavedStateRegistry
-                get() = throw UnsupportedOperationException()
-        }
+        val compositionSavedStateRegistryOwner =
+            object : SavedStateRegistryOwner, LifecycleOwner by TestLifecycleOwner() {
+                // We don't actually need to ever get actual instance.
+                override val savedStateRegistry: SavedStateRegistry
+                    get() = throw UnsupportedOperationException()
+            }
         var childViewTreeSavedStateRegistryOwner: SavedStateRegistryOwner? = null
 
         rule.setContent {
@@ -566,7 +574,11 @@ class AndroidViewTest {
         val sizeDp = with(rule.density) { size.toDp() }
         rule.setContent {
             Column {
-                Box(Modifier.size(sizeDp).background(Color.Blue).testTag("box"))
+                Box(
+                    Modifier
+                        .size(sizeDp)
+                        .background(Color.Blue)
+                        .testTag("box"))
                 AndroidView(factory = { SurfaceView(it) })
             }
         }
@@ -616,6 +628,40 @@ class AndroidViewTest {
         rule.runOnIdle { screen = "screen1" }
         rule.runOnIdle {
             assertThat(result).isEqualTo("testValue")
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun androidView_noClip() {
+        rule.setContent {
+            Box(Modifier.fillMaxSize().background(Color.White)) {
+                with(LocalDensity.current) {
+                    Box(Modifier.requiredSize(150.toDp()).testTag("box")) {
+                        Box(
+                            Modifier.size(100.toDp(), 100.toDp()).align(AbsoluteAlignment.TopLeft)
+                        ) {
+                            AndroidView(factory = { context ->
+                                object : View(context) {
+                                    init {
+                                        clipToOutline = false
+                                    }
+
+                                    override fun onDraw(canvas: Canvas) {
+                                        val paint = Paint()
+                                        paint.color = Color.Blue.toArgb()
+                                        paint.style = Paint.Style.FILL
+                                        canvas.drawRect(0f, 0f, 150f, 150f, paint)
+                                    }
+                                }
+                            })
+                        }
+                    }
+                }
+            }
+        }
+        rule.onNodeWithTag("box").captureToImage().assertPixels(IntSize(150, 150)) {
+            Color.Blue
         }
     }
 

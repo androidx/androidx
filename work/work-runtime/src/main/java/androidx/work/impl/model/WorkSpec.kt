@@ -29,6 +29,7 @@ import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.Logger
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.OverwritingInputMerger
 import androidx.work.PeriodicWorkRequest.Companion.MIN_PERIODIC_FLEX_MILLIS
 import androidx.work.PeriodicWorkRequest.Companion.MIN_PERIODIC_INTERVAL_MILLIS
 import androidx.work.WorkInfo
@@ -59,7 +60,7 @@ data class WorkSpec(
 
     @JvmField
     @ColumnInfo(name = "input_merger_class_name")
-    var inputMergerClassName: String? = null,
+    var inputMergerClassName: String = OverwritingInputMerger::class.java.name,
 
     @JvmField
     @ColumnInfo(name = "input")
@@ -143,6 +144,9 @@ data class WorkSpec(
      */
     @ColumnInfo(name = "period_count", defaultValue = "0")
     var periodCount: Int = 0,
+
+    @ColumnInfo(defaultValue = "0")
+    val generation: Int = 0,
 ) {
     constructor(
         id: String,
@@ -337,16 +341,22 @@ data class WorkSpec(
      */
     data class WorkInfoPojo(
         @ColumnInfo(name = "id")
-        var id: String,
+        val id: String,
 
         @ColumnInfo(name = "state")
-        var state: WorkInfo.State,
+        val state: WorkInfo.State,
 
         @ColumnInfo(name = "output")
-        var output: Data,
+        val output: Data,
 
         @ColumnInfo(name = "run_attempt_count")
-        var runAttemptCount: Int,
+        val runAttemptCount: Int,
+
+        @ColumnInfo(name = "generation")
+        val generation: Int,
+
+        @Embedded
+        val constraints: Constraints,
 
         @Relation(
             parentColumn = "id",
@@ -354,7 +364,7 @@ data class WorkSpec(
             entity = WorkTag::class,
             projection = ["tag"]
         )
-        var tags: List<String>,
+        val tags: List<String>,
 
         // This is actually a 1-1 relationship. However Room 2.1 models the type as a List.
         // This will change in Room 2.2
@@ -364,7 +374,7 @@ data class WorkSpec(
             entity = WorkProgress::class,
             projection = ["progress"]
         )
-        var progress: List<Data>,
+        val progress: List<Data>,
     ) {
         /**
          * Converts this POJO to a [WorkInfo].
@@ -376,10 +386,12 @@ data class WorkSpec(
             return WorkInfo(
                 UUID.fromString(id),
                 state,
+                HashSet(tags),
                 output,
-                tags,
                 progress,
-                runAttemptCount
+                runAttemptCount,
+                generation,
+                constraints
             )
         }
     }
@@ -394,3 +406,7 @@ data class WorkSpec(
         }
     }
 }
+
+data class WorkGenerationalId(val workSpecId: String, val generation: Int)
+
+fun WorkSpec.generationalId() = WorkGenerationalId(id, generation)

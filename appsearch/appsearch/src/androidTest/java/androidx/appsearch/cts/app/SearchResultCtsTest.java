@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.testutil.AppSearchEmail;
 
@@ -54,6 +55,7 @@ public class SearchResultCtsTest {
         assertThat(searchResult.getMatchInfos()).hasSize(1);
         SearchResult.MatchInfo actualMatchInfo = searchResult.getMatchInfos().get(0);
         assertThat(actualMatchInfo.getPropertyPath()).isEqualTo("body");
+        assertThat(actualMatchInfo.getPropertyPathObject()).isEqualTo(new PropertyPath("body"));
         assertThat(actualMatchInfo.getExactMatchRange()).isEqualTo(exactMatchRange);
         assertThat(actualMatchInfo.getSubmatchRange()).isEqualTo(submatchRange);
         assertThat(actualMatchInfo.getSnippetRange()).isEqualTo(snippetMatchRange);
@@ -102,5 +104,72 @@ public class SearchResultCtsTest {
         final SearchResult.MatchInfo actualMatchInfo = searchResult.getMatchInfos().get(0);
         assertThat(actualMatchInfo.getSubmatch()).isEqualTo("lo");
         assertThat(actualMatchInfo.getSubmatchRange()).isEqualTo(submatchRange);
+    }
+
+    @Test
+    public void testJoinedDocument() {
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace1", "id1")
+                .setBody("Hello World.")
+                .build();
+        AppSearchEmail joinDoc = new AppSearchEmail.Builder("namespace1", "id2")
+                .setBody("Joined document.")
+                .build();
+        SearchResult joinSearchResult = new SearchResult.Builder("packageName", "databaseName")
+                .setGenericDocument(joinDoc)
+                .build();
+
+        SearchResult withoutJoin = new SearchResult.Builder("packageName", "databaseName")
+                .setGenericDocument(email)
+                .build();
+        SearchResult withJoin = new SearchResult.Builder("packageName", "databaseName")
+                .addJoinedResult(joinSearchResult)
+                .setGenericDocument(email)
+                .build();
+
+        assertThat(withoutJoin.getJoinedResults()).hasSize(0);
+
+        assertThat(withJoin.getJoinedResults()).hasSize(1);
+        SearchResult actualJoined = withJoin.getJoinedResults().get(0);
+        assertThat(actualJoined.getGenericDocument()).isEqualTo(joinDoc);
+    }
+
+    @Test
+    public void testRebuild() {
+        AppSearchEmail doc1 = new AppSearchEmail.Builder("namespace1", "id1")
+                .setBody("Parent document.")
+                .build();
+
+        AppSearchEmail joinDoc1 = new AppSearchEmail.Builder("namespace1", "id2")
+                .setBody("Joined document.")
+                .build();
+        AppSearchEmail joinDoc2 = new AppSearchEmail.Builder("namespace1", "id3")
+                .setBody("Joined document.")
+                .build();
+
+        SearchResult joinSearchResult1 = new SearchResult.Builder("packageName", "databaseName")
+                .setGenericDocument(joinDoc1)
+                .build();
+        SearchResult joinSearchResult2 = new SearchResult.Builder("packageName", "databaseName")
+                .setGenericDocument(joinDoc2)
+                .build();
+
+        SearchResult.Builder searchResultBuilder =
+                new SearchResult.Builder("packageName", "databaseName")
+                        .setGenericDocument(doc1)
+                        .addJoinedResult(joinSearchResult1);
+
+        SearchResult original = searchResultBuilder.build();
+        SearchResult rebuild = searchResultBuilder.addJoinedResult(joinSearchResult2).build();
+
+        // Rebuild won't effect the original object
+        assertThat(original.getJoinedResults()).hasSize(1);
+        SearchResult originalJoinedResult = original.getJoinedResults().get(0);
+        assertThat(originalJoinedResult.getGenericDocument().getId()).isEqualTo("id2");
+
+        assertThat(rebuild.getJoinedResults()).hasSize(2);
+        SearchResult rebuildJoinedResult1 = rebuild.getJoinedResults().get(0);
+        assertThat(rebuildJoinedResult1.getGenericDocument().getId()).isEqualTo("id2");
+        SearchResult rebuildJoinedResult2 = rebuild.getJoinedResults().get(1);
+        assertThat(rebuildJoinedResult2.getGenericDocument().getId()).isEqualTo("id3");
     }
 }

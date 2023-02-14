@@ -87,7 +87,7 @@ class ComposeErrorMessages : DefaultErrorMessages.Extension {
         )
         MAP.put(
             ComposeErrors.COMPOSABLE_SUSPEND_FUN,
-            "Composable properties are not able to have backing fields"
+            "Composable function cannot be annotated as suspend"
         )
         MAP.put(
             ComposeErrors.ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE,
@@ -119,6 +119,10 @@ class ComposeErrorMessages : DefaultErrorMessages.Extension {
             "A {0} composable parameter was provided where a {1} composable was expected",
             Renderers.TO_STRING,
             Renderers.TO_STRING
+        )
+        MAP.put(
+            ComposeErrors.COMPOSE_APPLIER_DECLARATION_MISMATCH,
+            "The composition target of an override must match the ancestor target"
         )
     }
 }

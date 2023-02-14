@@ -19,6 +19,11 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
+}
+
+android {
+    namespace "androidx.room.testing"
 }
 
 dependencies {
@@ -34,11 +39,6 @@ dependencies {
 androidx {
     name = "Android Room Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room Testing"
-}
-
-android {
-    namespace "androidx.room.testing"
 }

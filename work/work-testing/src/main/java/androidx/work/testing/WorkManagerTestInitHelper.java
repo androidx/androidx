@@ -22,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.work.Configuration;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.SerialExecutorImpl;
+import androidx.work.impl.utils.taskexecutor.SerialExecutor;
 
 
 /**
@@ -44,7 +46,8 @@ public final class WorkManagerTestInitHelper {
 
     /**
      * Initializes a test {@link androidx.work.WorkManager} with a user-specified
-     * {@link androidx.work.Configuration}.
+     * {@link androidx.work.Configuration}, but using
+     * {@link SynchronousExecutor} instead of main thread.
      *
      * @param context The application {@link Context}
      * @param configuration The {@link androidx.work.Configuration}
@@ -55,12 +58,44 @@ public final class WorkManagerTestInitHelper {
 
         // Check if the configuration being used has overridden the task executor. If not,
         // swap to SynchronousExecutor. This is to preserve existing behavior.
+        SerialExecutor serialExecutor;
         if (configuration.isUsingDefaultTaskExecutor()) {
             Configuration.Builder builder = new Configuration.Builder(configuration)
                     .setTaskExecutor(new SynchronousExecutor());
             configuration = builder.build();
+            serialExecutor = new SynchronousSerialExecutor();
+        } else {
+            serialExecutor = new SerialExecutorImpl(configuration.getTaskExecutor());
         }
 
+        WorkManagerImpl.setDelegate(
+                new TestWorkManagerImpl(context, configuration, serialExecutor)
+        );
+    }
+
+    /**
+     * Initializes a test {@link androidx.work.WorkManager} with a default configuration and
+     * real threading unlike {@link #initializeTestWorkManager(Context)} that uses a
+     * {@link SynchronousExecutor} as main thread and both executors
+     * (see {@link Configuration#getTaskExecutor()} and {@link Configuration#getExecutor()}).
+     *
+     * @param context The application {@link Context}
+     */
+    public static void initializeTestWorkManagerWithRealExecutors(@NonNull Context context) {
+        Configuration configuration = new Configuration.Builder().build();
+        WorkManagerImpl.setDelegate(new TestWorkManagerImpl(context, configuration));
+    }
+
+    /**
+     * Initializes a test {@link androidx.work.WorkManager} with a default configuration and
+     * real threading unlike {@link #initializeTestWorkManager(Context, Configuration)} that uses a
+     * {@link SynchronousExecutor} as main thread.
+     *
+     * @param context The application {@link Context}
+     * @param configuration The {@link androidx.work.Configuration}
+     */
+    public static void initializeTestWorkManagerWithRealExecutors(
+            @NonNull Context context, @NonNull Configuration configuration) {
         WorkManagerImpl.setDelegate(new TestWorkManagerImpl(context, configuration));
     }
 

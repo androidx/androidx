@@ -28,14 +28,20 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityViewModelTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @Test(expected = IllegalStateException::class)
     @UiThreadTest
@@ -46,7 +52,7 @@ class ComponentActivityViewModelTest {
 
     @Test
     fun testSameViewModelStorePrePostOnCreate() {
-        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+       withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
             val originalStore = withActivity { preOnCreateViewModelStore }
             assertWithMessage(
                 "Pre-onCreate() ViewModelStore should equal the post-onCreate() ViewModelStore"
@@ -65,7 +71,7 @@ class ComponentActivityViewModelTest {
 
     @Test
     fun testSameActivityViewModels() {
-        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+       withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
             val activityModel = withActivity { activityModel }
             val defaultActivityModel = withActivity { defaultActivityModel }
             assertThat(defaultActivityModel).isNotSameInstanceAs(activityModel)

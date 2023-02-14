@@ -1,0 +1,35 @@
+import androidx.build.AndroidXComposePlugin
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXComposePlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+// Disable multi-platform; this will only be used on Android.
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
+
+dependencies {
+    implementation(libs.kotlinStdlib)
+    api("androidx.annotation:annotation:1.4.0")
+    api("androidx.compose.runtime:runtime:1.1.1")
+    api(project(":glance:glance"))
+    implementation 'androidx.compose.material:material:1.3.0'
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+    namespace "androidx.glance.material"
+}
+
+androidx {
+    name = "Android Glance Material"
+    type = LibraryType.PUBLISHED_LIBRARY
+    inceptionYear = "2022"
+    description = "Glance Material 2 integration library." +
+            " This library provides interop APIs with Material 2."
+}
+

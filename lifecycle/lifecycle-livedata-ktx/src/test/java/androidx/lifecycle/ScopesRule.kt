@@ -104,8 +104,8 @@ class CollectingObserver<T>(
     private val scopes: ScopesRule
 ) : Observer<T> {
     private var items = mutableListOf<T>()
-    override fun onChanged(t: T) {
-        items.add(t)
+    override fun onChanged(value: T) {
+        items.add(value)
     }
 
     fun assertItems(vararg expected: T) {

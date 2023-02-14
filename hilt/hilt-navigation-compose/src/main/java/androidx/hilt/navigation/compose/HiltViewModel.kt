@@ -42,10 +42,11 @@ import androidx.navigation.NavBackStackEntry
 inline fun <reified VM : ViewModel> hiltViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    }
+    },
+    key: String? = null
 ): VM {
     val factory = createHiltViewModelFactory(viewModelStoreOwner)
-    return viewModel(viewModelStoreOwner, factory = factory)
+    return viewModel(viewModelStoreOwner, key, factory = factory)
 }
 
 @Composable

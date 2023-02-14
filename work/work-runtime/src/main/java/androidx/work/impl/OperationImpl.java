@@ -40,7 +40,7 @@ public class OperationImpl implements Operation {
         mOperationState = new MutableLiveData<>();
         mOperationFuture = SettableFuture.create();
         // Mark the operation as in progress.
-        setState(Operation.IN_PROGRESS);
+        markState(Operation.IN_PROGRESS);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class OperationImpl implements Operation {
      *
      * @param state The current {@link Operation.State}
      */
-    public void setState(@NonNull State state) {
+    public void markState(@NonNull State state) {
         mOperationState.postValue(state);
 
         // Only terminal state get updates to the future.

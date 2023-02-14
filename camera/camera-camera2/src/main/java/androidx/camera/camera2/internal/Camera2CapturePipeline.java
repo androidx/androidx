@@ -43,6 +43,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityChecker;
 import androidx.camera.camera2.internal.compat.workaround.OverrideAeModeForStillCapture;
 import androidx.camera.camera2.internal.compat.workaround.UseTorchAsFlash;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -66,7 +67,10 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -78,11 +82,53 @@ class Camera2CapturePipeline {
 
     private static final String TAG = "Camera2CapturePipeline";
 
+    private static final Set<AfState> AF_CONVERGED_STATE_SET =
+            Collections.unmodifiableSet(EnumSet.of(
+                    AfState.PASSIVE_FOCUSED,
+                    AfState.PASSIVE_NOT_FOCUSED,
+                    AfState.LOCKED_FOCUSED,
+                    AfState.LOCKED_NOT_FOCUSED
+            ));
+
+    private static final Set<AwbState> AWB_CONVERGED_STATE_SET =
+            Collections.unmodifiableSet(EnumSet.of(
+                    AwbState.CONVERGED,
+                    // Unknown means cannot get valid state from CaptureResult
+                    AwbState.UNKNOWN
+            ));
+
+    private static final Set<AeState> AE_CONVERGED_STATE_SET =
+            Collections.unmodifiableSet(EnumSet.of(
+                    AeState.CONVERGED,
+                    AeState.FLASH_REQUIRED,
+                    // Unknown means cannot get valid state from CaptureResult
+                    AeState.UNKNOWN
+            ));
+
+    private static final Set<AeState> AE_TORCH_AS_FLASH_CONVERGED_STATE_SET;
+
+    static {
+        EnumSet<AeState> aeStateSet = EnumSet.copyOf(AE_CONVERGED_STATE_SET);
+
+        // Some devices always show FLASH_REQUIRED when the torch is opened, so it cannot be
+        // treated as the AE converge signal.
+        aeStateSet.remove(AeState.FLASH_REQUIRED);
+
+        // AeState.UNKNOWN means it doesn't have valid AE info. For this kind of device, we tend
+        // to wait for a few more seconds for the auto exposure update. So the UNKNOWN state
+        // should not be treated as the AE converge signal.
+        aeStateSet.remove(AeState.UNKNOWN);
+
+        AE_TORCH_AS_FLASH_CONVERGED_STATE_SET = Collections.unmodifiableSet(aeStateSet);
+    }
+
     @NonNull
     private final Camera2CameraControlImpl mCameraControl;
 
     @NonNull
     private final UseTorchAsFlash mUseTorchAsFlash;
+
+    private final boolean mHasFlashUnit;
 
     @NonNull
     private final Quirks mCameraQuirk;
@@ -110,6 +156,7 @@ class Camera2CapturePipeline {
         mExecutor = executor;
         mCameraQuirk = cameraQuirks;
         mUseTorchAsFlash = new UseTorchAsFlash(cameraQuirks);
+        mHasFlashUnit = FlashAvailabilityChecker.isFlashAvailable(cameraCharacteristics::get);
     }
 
     @ExecutedBy("mExecutor")
@@ -140,11 +187,13 @@ class Camera2CapturePipeline {
             pipeline.addTask(new AfTask(mCameraControl));
         }
 
-        if (isTorchAsFlash(flashType)) {
-            pipeline.addTask(new TorchTask(mCameraControl, flashMode));
-        } else {
-            pipeline.addTask(new AePreCaptureTask(mCameraControl, flashMode, aeQuirk));
-        }
+        if (mHasFlashUnit) {
+            if (isTorchAsFlash(flashType)) {
+                pipeline.addTask(new TorchTask(mCameraControl, flashMode, mExecutor));
+            } else {
+                pipeline.addTask(new AePreCaptureTask(mCameraControl, flashMode, aeQuirk));
+            }
+        } // If there is no flash unit, skip the flash related task instead of failing the pipeline.
 
         return Futures.nonCancellationPropagating(
                 pipeline.executeCapture(captureConfigs, flashMode));
@@ -223,6 +272,7 @@ class Camera2CapturePipeline {
          *
          * @param timeout3A in nano seconds
          */
+        @SuppressWarnings("SameParameterValue")
         private void setTimeout3A(long timeout3A) {
             mTimeout3A = timeout3A;
         }
@@ -236,7 +286,8 @@ class Camera2CapturePipeline {
             if (!mTasks.isEmpty()) {
                 ListenableFuture<TotalCaptureResult> getResult =
                         mPipelineSubTask.isCaptureResultNeeded() ? waitForResult(
-                                ResultListener.NO_TIMEOUT, null) : Futures.immediateFuture(null);
+                                ResultListener.NO_TIMEOUT, mCameraControl, null) :
+                                Futures.immediateFuture(null);
 
                 preCapture = FutureChain.from(getResult).transformAsync(captureResult -> {
                     if (isFlashRequired(flashMode, captureResult)) {
@@ -244,8 +295,9 @@ class Camera2CapturePipeline {
                     }
                     return mPipelineSubTask.preCapture(captureResult);
                 }, mExecutor).transformAsync(is3aConvergeRequired -> {
-                    if (is3aConvergeRequired) {
-                        return waitForResult(mTimeout3A, this::is3AConverged);
+                    if (Boolean.TRUE.equals(is3aConvergeRequired)) {
+                        return waitForResult(mTimeout3A, mCameraControl,
+                                (result) -> is3AConverged(result, false));
                     }
                     return Futures.immediateFuture(null);
                 }, mExecutor);
@@ -256,9 +308,7 @@ class Camera2CapturePipeline {
 
 
             /* Always call postCapture(), it will unlock3A if it was locked in preCapture.*/
-            future.addListener(() -> {
-                mPipelineSubTask.postCapture();
-            }, mExecutor);
+            future.addListener(mPipelineSubTask::postCapture, mExecutor);
 
             return future;
         }
@@ -275,7 +325,9 @@ class Camera2CapturePipeline {
                 // Dequeue image from buffer and enqueue into image writer for reprocessing. If
                 // succeeded, retrieve capture result and set into capture config.
                 CameraCaptureResult cameraCaptureResult = null;
-                if (captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG) {
+                if (captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                        && !mCameraControl.getZslControl().isZslDisabledByFlashMode()
+                        && !mCameraControl.getZslControl().isZslDisabledByUserCaseConfig()) {
                     ImageProxy imageProxy =
                             mCameraControl.getZslControl().dequeueImageFromBuffer();
                     boolean isSuccess = imageProxy != null
@@ -357,47 +409,52 @@ class Camera2CapturePipeline {
                     CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH);
             configBuilder.addImplementationOptions(impBuilder.build());
         }
+    }
 
-        @ExecutedBy("mExecutor")
-        @NonNull
-        private ListenableFuture<TotalCaptureResult> waitForResult(long waitTimeout,
-                @Nullable ResultListener.Checker checker) {
-            ResultListener resultListener = new ResultListener(waitTimeout, checker);
-            mCameraControl.addCaptureResultListener(resultListener);
-            return resultListener.getFuture();
+    @ExecutedBy("mExecutor")
+    @NonNull
+    static ListenableFuture<TotalCaptureResult> waitForResult(long waitTimeout,
+            @NonNull Camera2CameraControlImpl cameraControl,
+            @Nullable ResultListener.Checker checker) {
+        ResultListener resultListener = new ResultListener(waitTimeout, checker);
+        cameraControl.addCaptureResultListener(resultListener);
+        return resultListener.getFuture();
+    }
+
+    static boolean is3AConverged(@Nullable TotalCaptureResult totalCaptureResult,
+            boolean isTorchAsFlash) {
+        if (totalCaptureResult == null) {
+            return false;
         }
 
-        private boolean is3AConverged(@Nullable TotalCaptureResult totalCaptureResult) {
-            if (totalCaptureResult == null) {
-                return false;
-            }
+        Camera2CameraCaptureResult captureResult = new Camera2CameraCaptureResult(
+                totalCaptureResult);
 
-            Camera2CameraCaptureResult captureResult = new Camera2CameraCaptureResult(
-                    totalCaptureResult);
+        // If afMode is OFF or UNKNOWN , no need for waiting.
+        // otherwise wait until af is locked or focused.
+        boolean isAfReady = captureResult.getAfMode() == AfMode.OFF
+                || captureResult.getAfMode() == AfMode.UNKNOWN
+                || AF_CONVERGED_STATE_SET.contains(captureResult.getAfState());
 
-            // If afMode is OFF or UNKNOWN , no need for waiting.
-            // otherwise wait until af is locked or focused.
-            boolean isAfReady = captureResult.getAfMode() == AfMode.OFF
-                    || captureResult.getAfMode() == AfMode.UNKNOWN
-                    || captureResult.getAfState() == AfState.PASSIVE_FOCUSED
-                    || captureResult.getAfState() == AfState.PASSIVE_NOT_FOCUSED
-                    || captureResult.getAfState() == AfState.LOCKED_FOCUSED
-                    || captureResult.getAfState() == AfState.LOCKED_NOT_FOCUSED;
-
-            // Unknown means cannot get valid state from CaptureResult
-            boolean isAeReady = captureResult.getAeState() == AeState.CONVERGED
-                    || captureResult.getAeState() == AeState.FLASH_REQUIRED
-                    || captureResult.getAeState() == AeState.UNKNOWN;
-
-            // Unknown means cannot get valid state from CaptureResult
-            boolean isAwbReady = captureResult.getAwbState() == AwbState.CONVERGED
-                    || captureResult.getAwbState() == AwbState.UNKNOWN;
-
-            Logger.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
-                    + " AF =" + captureResult.getAfState()
-                    + " AWB=" + captureResult.getAwbState());
-            return isAfReady && isAeReady && isAwbReady;
+        boolean isAeReady;
+        boolean isAeModeOff = totalCaptureResult.get(CaptureResult.CONTROL_AE_MODE)
+                == CaptureResult.CONTROL_AE_MODE_OFF;
+        if (isTorchAsFlash) {
+            isAeReady = isAeModeOff
+                    || AE_TORCH_AS_FLASH_CONVERGED_STATE_SET.contains(captureResult.getAeState());
+        } else {
+            isAeReady = isAeModeOff || AE_CONVERGED_STATE_SET.contains(captureResult.getAeState());
         }
+
+        boolean isAwbModeOff = totalCaptureResult.get(CaptureResult.CONTROL_AWB_MODE)
+                == CaptureResult.CONTROL_AWB_MODE_OFF;
+        boolean isAwbReady = isAwbModeOff
+                || AWB_CONVERGED_STATE_SET.contains(captureResult.getAwbState());
+
+        Logger.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
+                + " AF =" + captureResult.getAfState()
+                + " AWB=" + captureResult.getAwbState());
+        return isAfReady && isAeReady && isAwbReady;
     }
 
     interface PipelineTask {
@@ -490,14 +547,19 @@ class Camera2CapturePipeline {
      * Task to open the Torch if flash is required.
      */
     static class TorchTask implements PipelineTask {
+        private static final long CHECK_3A_WITH_TORCH_TIMEOUT_IN_NS = TimeUnit.SECONDS.toNanos(2);
 
         private final Camera2CameraControlImpl mCameraControl;
         private final @FlashMode int mFlashMode;
         private boolean mIsExecuted = false;
+        @CameraExecutor
+        private final Executor mExecutor;
 
-        TorchTask(@NonNull Camera2CameraControlImpl cameraControl, @FlashMode int flashMode) {
+        TorchTask(@NonNull Camera2CameraControlImpl cameraControl, @FlashMode int flashMode,
+                @NonNull Executor executor) {
             mCameraControl = cameraControl;
             mFlashMode = flashMode;
+            mExecutor = executor;
         }
 
         @ExecutedBy("mExecutor")
@@ -515,8 +577,10 @@ class Camera2CapturePipeline {
                         mCameraControl.getTorchControl().enableTorchInternal(completer, true);
                         return "TorchOn";
                     });
-                    return FutureChain.from(future).transform(input -> true,
-                            CameraXExecutors.directExecutor());
+                    return FutureChain.from(future).transformAsync(
+                            input -> waitForResult(CHECK_3A_WITH_TORCH_TIMEOUT_IN_NS,
+                                    mCameraControl, (result) -> is3AConverged(result, true)),
+                            mExecutor).transform(input -> false, CameraXExecutors.directExecutor());
                 }
             }
 

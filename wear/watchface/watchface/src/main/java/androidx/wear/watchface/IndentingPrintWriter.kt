@@ -21,22 +21,20 @@ import java.io.PrintWriter
 import java.io.Writer
 
 /**
- * Lightweight wrapper around [java.io.PrintWriter] that automatically indents newlines based
- * on internal state.
+ * Lightweight wrapper around [java.io.PrintWriter] that automatically indents newlines based on
+ * internal state.
  *
  * Delays writing indent until first actual write on a newline, enabling indent modification after
  * newline.
  */
-internal class IndentingPrintWriter(
-    writer: Writer,
-    private val singleIndent: String = "\t"
-) : Printer {
+internal class IndentingPrintWriter(writer: Writer, private val singleIndent: String = "\t") :
+    Printer {
     internal val writer: PrintWriter = PrintWriter(writer)
 
-    /** Mutable version of current indent  */
+    /** Mutable version of current indent */
     private val indentBuilder = StringBuilder()
 
-    /** Cache of current [indentBuilder] value  */
+    /** Cache of current [indentBuilder] value */
     private var currentIndent: CharArray? = null
 
     /**
@@ -45,32 +43,32 @@ internal class IndentingPrintWriter(
      */
     private var emptyLine = true
 
-    /** Increases the indentation level for future lines.  */
+    /** Increases the indentation level for future lines. */
     fun increaseIndent() {
         indentBuilder.append(singleIndent)
         currentIndent = null
     }
 
-    /** Decreases the indentation level for future lines.  */
+    /** Decreases the indentation level for future lines. */
     fun decreaseIndent() {
         indentBuilder.delete(0, singleIndent.length)
         currentIndent = null
     }
 
-    /** Prints `string`, followed by a newline.  */
+    /** Prints `string`, followed by a newline. */
     // Printer
     override fun println(string: String) {
         print(string)
         print("\n")
     }
 
-    /** Prints `string`, or `"null"`  */
+    /** Prints `string`, or `"null"` */
     fun print(string: String?) {
         val str = string ?: "null"
         write(str, 0, str.length)
     }
 
-    /** Ensures that all pending data is sent out to the target  */
+    /** Ensures that all pending data is sent out to the target */
     fun flush() {
         writer.flush()
     }

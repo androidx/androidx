@@ -17,10 +17,12 @@
 package androidx.compose.ui.draw
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -30,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -40,6 +43,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutModifier
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
@@ -49,6 +56,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -91,26 +99,29 @@ class DrawModifierTest {
             var rectColor by remember { mutableStateOf(Color.Blue) }
             AtLeastSize(
                 size = size,
-                modifier = Modifier.testTag(testTag).drawWithCache {
-                    val drawSize = this.size
-                    val path = Path().apply {
-                        lineTo(drawSize.width / 2f, 0f)
-                        lineTo(drawSize.width / 2f, drawSize.height)
-                        lineTo(0f, drawSize.height)
-                        close()
+                modifier = Modifier
+                    .testTag(testTag)
+                    .drawWithCache {
+                        val drawSize = this.size
+                        val path = Path().apply {
+                            lineTo(drawSize.width / 2f, 0f)
+                            lineTo(drawSize.width / 2f, drawSize.height)
+                            lineTo(0f, drawSize.height)
+                            close()
+                        }
+                        cacheBuildCount++
+                        onDrawBehind {
+                            drawRect(rectColor)
+                            drawPath(path, Color.Red)
+                        }
                     }
-                    cacheBuildCount++
-                    onDrawBehind {
-                        drawRect(rectColor)
-                        drawPath(path, Color.Red)
+                    .clickable {
+                        if (rectColor == Color.Blue) {
+                            rectColor = Color.Green
+                        } else {
+                            rectColor = Color.Blue
+                        }
                     }
-                }.clickable {
-                    if (rectColor == Color.Blue) {
-                        rectColor = Color.Green
-                    } else {
-                        rectColor = Color.Blue
-                    }
-                }
             ) { }
         }
 
@@ -150,6 +161,34 @@ class DrawModifierTest {
         }
     }
 
+    @Test
+    fun invalidationForDrawWithCache() {
+        var size by mutableStateOf(10f)
+        var drawCount = 0
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                Box(Modifier
+                    .graphicsLayer { }
+                    .size(50.dp)
+                    .drawWithCache {
+                        val rectSize = Size(size, size)
+                        onDrawBehind {
+                            drawRect(Color.Blue, Offset.Zero, rectSize)
+                            drawCount++
+                        }
+                    }
+                    .graphicsLayer { }
+                )
+            }
+        }
+        rule.waitForIdle()
+        assertThat(drawCount).isEqualTo(1)
+
+        size = 15f
+        rule.waitForIdle()
+        assertThat(drawCount).isEqualTo(2)
+    }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testCacheInvalidatedAfterStateChange() {
@@ -163,22 +202,25 @@ class DrawModifierTest {
             var pathFillBounds by remember { mutableStateOf(false) }
             AtLeastSize(
                 size = size,
-                modifier = Modifier.testTag(testTag).drawWithCache {
-                    val pathSize = if (pathFillBounds) this.size else this.size / 2f
-                    val path = Path().apply {
-                        lineTo(pathSize.width, 0f)
-                        lineTo(pathSize.width, pathSize.height)
-                        lineTo(0f, pathSize.height)
-                        close()
+                modifier = Modifier
+                    .testTag(testTag)
+                    .drawWithCache {
+                        val pathSize = if (pathFillBounds) this.size else this.size / 2f
+                        val path = Path().apply {
+                            lineTo(pathSize.width, 0f)
+                            lineTo(pathSize.width, pathSize.height)
+                            lineTo(0f, pathSize.height)
+                            close()
+                        }
+                        cacheBuildCount++
+                        onDrawBehind {
+                            drawRect(Color.Red)
+                            drawPath(path, Color.Blue)
+                        }
                     }
-                    cacheBuildCount++
-                    onDrawBehind {
-                        drawRect(Color.Red)
-                        drawPath(path, Color.Blue)
+                    .clickable {
+                        pathFillBounds = !pathFillBounds
                     }
-                }.clickable {
-                    pathFillBounds = !pathFillBounds
-                }
             ) { }
         }
 
@@ -217,6 +259,40 @@ class DrawModifierTest {
         }
     }
 
+    @Test
+    fun combinedModifiers_drawingSizesAreUsingTheSizeDefinedByLayoutModifier() {
+        var drawingSize: Size = Size.Unspecified
+        var drawingCacheSize: Size = Size.Unspecified
+        val modifier = object : LayoutModifier, DrawCacheModifier {
+            override fun onBuildCache(params: BuildDrawCacheParams) {
+                drawingCacheSize = params.size
+            }
+
+            override fun ContentDrawScope.draw() {
+                drawingSize = size
+            }
+
+            override fun MeasureScope.measure(
+                measurable: Measurable,
+                constraints: Constraints
+            ): MeasureResult {
+                val placeable = measurable.measure(Constraints.fixed(10, 10))
+                return layout(20, 20) {
+                    placeable.place(0, 0)
+                }
+            }
+        }
+        rule.setContent {
+            Box(modifier)
+        }
+
+        rule.runOnIdle {
+            val expectedSize = Size(10f, 10f)
+            assertThat(drawingSize).isEqualTo(expectedSize)
+            assertThat(drawingCacheSize).isEqualTo(expectedSize)
+        }
+    }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testCacheInvalidatedAfterSizeChange() {
@@ -229,25 +305,28 @@ class DrawModifierTest {
             var size by remember { mutableStateOf(startSize) }
             AtLeastSize(
                 size = size,
-                modifier = Modifier.testTag(testTag).drawWithCache {
-                    val drawSize = this.size
-                    val path = Path().apply {
-                        lineTo(drawSize.width, 0f)
-                        lineTo(drawSize.height, drawSize.height)
-                        lineTo(0f, drawSize.height)
-                        close()
+                modifier = Modifier
+                    .testTag(testTag)
+                    .drawWithCache {
+                        val drawSize = this.size
+                        val path = Path().apply {
+                            lineTo(drawSize.width, 0f)
+                            lineTo(drawSize.height, drawSize.height)
+                            lineTo(0f, drawSize.height)
+                            close()
+                        }
+                        cacheBuildCount++
+                        onDrawBehind {
+                            drawPath(path, Color.Red)
+                        }
                     }
-                    cacheBuildCount++
-                    onDrawBehind {
-                        drawPath(path, Color.Red)
+                    .clickable {
+                        if (size == startSize) {
+                            size = endSize
+                        } else {
+                            size = startSize
+                        }
                     }
-                }.clickable {
-                    if (size == startSize) {
-                        size = endSize
-                    } else {
-                        size = startSize
-                    }
-                }
             ) { }
         }
 
@@ -316,7 +395,9 @@ class DrawModifierTest {
             val color = remember { mutableStateOf(Color.Red) }
             AtLeastSize(
                 size = startSize,
-                modifier = Modifier.testTag(testTag).drawPathHelperModifier(color.value)
+                modifier = Modifier
+                    .testTag(testTag)
+                    .drawPathHelperModifier(color.value)
                     .clickable {
                         if (color.value == Color.Red) {
                             color.value = Color.Blue
@@ -363,7 +444,8 @@ class DrawModifierTest {
             Column {
                 AtLeastSize(
                     size = 50,
-                    modifier = Modifier.testTag(boxTag)
+                    modifier = Modifier
+                        .testTag(boxTag)
                         .graphicsLayer()
                         .drawWithCache {
                             // State read of flag
@@ -377,7 +459,8 @@ class DrawModifierTest {
                 )
 
                 Box(
-                    Modifier.testTag(clickTag)
+                    Modifier
+                        .testTag(clickTag)
                         .size(20.dp)
                         .clickable {
                             flag.value = !flag.value
@@ -433,11 +516,14 @@ class DrawModifierTest {
         rule.setContent {
             AtLeastSize(
                 size = testSize,
-                modifier = Modifier.testTag(testTag).drawWithCache {
-                    onDrawBehind {
-                        drawRect(Color.Red, size = Size(size.width / 2, size.height))
+                modifier = Modifier
+                    .testTag(testTag)
+                    .drawWithCache {
+                        onDrawBehind {
+                            drawRect(Color.Red, size = Size(size.width / 2, size.height))
+                        }
                     }
-                }.background(Color.Blue)
+                    .background(Color.Blue)
             )
         }
 
@@ -462,12 +548,15 @@ class DrawModifierTest {
         rule.setContent {
             AtLeastSize(
                 size = testSize,
-                modifier = Modifier.testTag(testTag).drawWithCache {
-                    onDrawWithContent {
-                        drawContent()
-                        drawRect(Color.Red, size = Size(size.width / 2, size.height))
+                modifier = Modifier
+                    .testTag(testTag)
+                    .drawWithCache {
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(Color.Red, size = Size(size.width / 2, size.height))
+                        }
                     }
-                }.background(Color.Blue)
+                    .background(Color.Blue)
             )
         }
 
@@ -496,12 +585,15 @@ class DrawModifierTest {
         rule.setContent {
             AtLeastSize(
                 size = testSize,
-                modifier = Modifier.testTag(testTag).drawWithCache {
-                    onDrawWithContent {
-                        drawContent()
-                        drawRect(Color.Green, blendMode = BlendMode.Plus)
+                modifier = Modifier
+                    .testTag(testTag)
+                    .drawWithCache {
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(Color.Green, blendMode = BlendMode.Plus)
+                        }
                     }
-                }.background(Color.Blue)
+                    .background(Color.Blue)
             )
         }
 
@@ -629,5 +721,7 @@ class DrawModifierTest {
         }
     }
 
-    fun SemanticsNodeInteraction.captureToBitmap() = captureToImage().asAndroidBitmap()
+    // captureToImage() requires API level 26
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun SemanticsNodeInteraction.captureToBitmap() = captureToImage().asAndroidBitmap()
 }

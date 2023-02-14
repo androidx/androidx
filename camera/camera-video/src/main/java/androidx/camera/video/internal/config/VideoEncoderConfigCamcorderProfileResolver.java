@@ -20,9 +20,11 @@ import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.core.util.Supplier;
@@ -38,34 +40,49 @@ public class VideoEncoderConfigCamcorderProfileResolver implements Supplier<Vide
     private static final String TAG = "VidEncCmcrdrPrflRslvr";
 
     private final String mMimeType;
+    private final Timebase mInputTimebase;
     private final VideoSpec mVideoSpec;
     private final Size mSurfaceSize;
     private final CamcorderProfileProxy mCamcorderProfile;
+    @Nullable
+    private final Range<Integer> mExpectedFrameRateRange;
 
     /**
      * Constructor for a VideoEncoderConfigCamcorderProfileResolver.
      *
      * @param mimeType         The mime type for the video encoder
+     * @param inputTimebase    The timebase of the input frame
      * @param videoSpec        The {@link VideoSpec} which defines the settings that should be
      *                         used with the video encoder.
      * @param surfaceSize      The size of the surface required by the camera for the video encoder.
      * @param camcorderProfile The {@link CamcorderProfileProxy} used to resolve automatic and
      *                         range settings.
+     * @param expectedFrameRateRange The expected source frame rate range. This should act as an
+     *                               envelope for any frame rate calculated from {@code videoSpec
+     *                               } and {@code camcorderProfile} since the source should not
+     *                               produce frames at a frame rate outside this range. If {@code
+     *                               null}, then no information about the source frame rate is
+     *                               available and it does not need to be used in calculations.
      */
     public VideoEncoderConfigCamcorderProfileResolver(@NonNull String mimeType,
+            @NonNull Timebase inputTimebase,
             @NonNull VideoSpec videoSpec,
             @NonNull Size surfaceSize,
-            @NonNull CamcorderProfileProxy camcorderProfile) {
+            @NonNull CamcorderProfileProxy camcorderProfile,
+            @Nullable Range<Integer> expectedFrameRateRange) {
         mMimeType = mimeType;
+        mInputTimebase = inputTimebase;
         mVideoSpec = videoSpec;
         mSurfaceSize = surfaceSize;
         mCamcorderProfile = camcorderProfile;
+        mExpectedFrameRateRange = expectedFrameRateRange;
     }
 
     @Override
     @NonNull
     public VideoEncoderConfig get() {
-        int resolvedFrameRate = VideoConfigUtil.resolveFrameRate(mVideoSpec);
+        int resolvedFrameRate = resolveFrameRate();
+        Logger.d(TAG, "Resolved VIDEO frame rate: " + resolvedFrameRate + "fps");
 
         Range<Integer> videoSpecBitrateRange = mVideoSpec.getBitrate();
         Logger.d(TAG, "Using resolved VIDEO bitrate from CamcorderProfile");
@@ -78,9 +95,24 @@ public class VideoEncoderConfigCamcorderProfileResolver implements Supplier<Vide
 
         return VideoEncoderConfig.builder()
                 .setMimeType(mMimeType)
+                .setInputTimebase(mInputTimebase)
                 .setResolution(mSurfaceSize)
                 .setBitrate(resolvedBitrate)
                 .setFrameRate(resolvedFrameRate)
                 .build();
+    }
+
+    private int resolveFrameRate() {
+        Range<Integer> videoSpecFrameRateRange = mVideoSpec.getFrameRate();
+        int camcorderProfileVideoFrameRate = mCamcorderProfile.getVideoFrameRate();
+        Logger.d(TAG,
+                String.format("Frame rate from camcorder profile: %dfps. [Requested range: %s, "
+                        + "Expected operating range: %s]", camcorderProfileVideoFrameRate,
+                        videoSpecFrameRateRange, mExpectedFrameRateRange));
+
+        return VideoConfigUtil.resolveFrameRate(
+                /*preferredRange=*/ videoSpecFrameRateRange,
+                /*exactFrameRateHint=*/ camcorderProfileVideoFrameRate,
+                /*strictOperatingFpsRange=*/mExpectedFrameRateRange);
     }
 }

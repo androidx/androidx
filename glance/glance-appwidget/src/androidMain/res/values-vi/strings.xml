@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_layout_title" msgid="7937809248738392417"><b>"Lỗi với tiện ích xem nhanh ứng dụng"</b></string>
-    <string name="error_layout_text" msgid="6543889412094559379">"Xem đúng lỗi bằng "<b><tt>"adb logcat"</tt></b>" để tìm "<b><tt>"GlanceAppWidget"</tt></b></string>
+    <string name="glance_error_layout_title" msgid="2896109737634971880"><b>"Lỗi với tiện ích xem nhanh ứng dụng"</b></string>
+    <string name="glance_error_layout_text" msgid="8513923302775602854">"Xem đúng lỗi bằng cách dùng "<b><tt>"adb logcat"</tt></b>" để tìm "<b><tt>"GlanceAppWidget"</tt></b></string>
 </resources>

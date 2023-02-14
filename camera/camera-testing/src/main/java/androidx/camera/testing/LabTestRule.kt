@@ -18,37 +18,52 @@ package androidx.camera.testing
 
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.camera.testing.LabTestRule.LabTestFrontCamera
+import androidx.camera.testing.LabTestRule.LabTestOnly
+import androidx.camera.testing.LabTestRule.LabTestRearCamera
 import org.junit.Assume.assumeTrue
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * A [TestRule] which can be used to limit the test only run on CameraX lab environment. It
+ * A [TestRule] which can be used to limit the test only run in the CameraX lab environment. It
  * throws the AssumptionViolatedException to ignore the test if the test environment is not in the
  * lab. Useful for the tests not needed to run on the PostSubmit.
  *
- * To use this [TestRule], do the following. <br></br><br></br>
- *
- * Add the Rule to your JUnit test. <br></br><br></br>
- * `LabTestRule mLabTestRule = new LabTestRule();
-` *
- * <br></br><br></br>
- *
+ * To use this [TestRule], do the following.
+ * Add the Rule to your JUnit test:
+ * ```
+ * @get:Rule
+ * val labTestRule = LabTestRule()
+ * ```
  * Add only one of [LabTestOnly], [LabTestFrontCamera] or, [LabTestRearCamera] annotation to your
- * test case.
- * <br></br><br></br>
- * `public void yourTestCase() {
+ * test case like:
+ * ```
+ *  @LabTestOnly
+ *  fun yourTestCase() {
  *
- * }
-` *
- * <br></br><br></br>
+ *  }
+ * ```
+ * To local run the test with the [LabTestOnly] annotation, please run the following command on the
+ * DUT:
+ * ```
+ * adb shell setprop log.tag.MH DEBUG
+ * ```
+ * [LabTestFrontCamera] and [LabTestRearCamera] can be tested on local DUT with the following debug
+ * options:
+ * ```
+ * adb shell setprop log.tag.frontCameraE2E DEBUG
+ * adb shell setprop log.tag.rearCameraE2E DEBUG
+ * ```
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class LabTestRule : TestRule {
 
     /**
-     * The annotation for tests that only want to run on the CameraX lab environment
+     * The annotation for tests that only want to run on the CameraX lab environment.
+     * Local device testing will ignore the tests with this annotation. Please reference the
+     * doc of [LabTestRule] to test on local devices.
      */
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
@@ -56,7 +71,8 @@ class LabTestRule : TestRule {
 
     /**
      * The annotation for tests that only want to run on the CameraX lab environment with
-     * enabling front camera.
+     * enabling front camera. Local device testing will ignore the tests with this annotation.
+     * Please reference the doc of [LabTestRule] to test on local devices.
      */
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
@@ -64,7 +80,8 @@ class LabTestRule : TestRule {
 
     /**
      * The annotation for tests that only want to run on the CameraX lab environment with
-     * enabling rear camera.
+     * enabling rear camera. Local device testing will ignore the tests with this annotation.
+     * Please reference the doc of [LabTestRule] to test on local devices.
      */
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
@@ -78,7 +95,7 @@ class LabTestRule : TestRule {
             // Only test in CameraX lab environment and throw AssumptionViolatedException if not
             // in the lab environment. The loggable tag will be set when running the CameraX
             // daily testing.
-            assumeTrue(Log.isLoggable("MH", Log.DEBUG))
+            assumeTrue(isInLabTest())
             statement.evaluate()
         }
     }
@@ -117,6 +134,13 @@ class LabTestRule : TestRule {
             LabTestRearCameraStatement(base)
         } else {
             base
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun isInLabTest(): Boolean {
+            return Log.isLoggable("MH", Log.DEBUG)
         }
     }
 }

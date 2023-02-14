@@ -22,20 +22,34 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    api('androidx.paging:paging-rxjava2:3.1.1')
+    implementation(project(":room:room-paging"))
+    implementation(project(":room:room-rxjava2"))
+
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testExtJunitKtx)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.kotlinTestJunit) //
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.kotlinCoroutinesRx2)
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation(project(":internal-testutils-common"))
+    kspAndroidTest(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
 }
 
 androidx {
     name = "Room Paging RxJava2"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2022"
     description = "RxJava2 integration in Room Paging"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE
 }
 
 android {

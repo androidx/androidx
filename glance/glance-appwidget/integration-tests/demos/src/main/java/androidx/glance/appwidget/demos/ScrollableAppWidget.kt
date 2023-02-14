@@ -25,34 +25,30 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
-import androidx.glance.action.ActionParameters
-import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.ToggleableStateKey
-import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
-import androidx.glance.appwidget.demos.ScrollableAppWidget.Companion.CheckboxKey
 import androidx.glance.appwidget.lazy.GridCells
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
-import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.appwidget.provideContent
 import androidx.glance.background
-import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
@@ -75,18 +71,19 @@ class ScrollableAppWidget : GlanceAppWidget() {
         private val singleColumn = DpSize(100.dp, 48.dp)
         private val doubleColumn = DpSize(200.dp, 48.dp)
         private val tripleColumn = DpSize(300.dp, 48.dp)
-
-        val CheckboxKey = booleanPreferencesKey("checkbox")
     }
 
     override val sizeMode: SizeMode = SizeMode.Responsive(
         setOf(singleColumn, doubleColumn, tripleColumn)
     )
 
-    @Composable
-    override fun Content() {
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId
+    ) = provideContent {
         Column(
-            modifier = GlanceModifier.fillMaxSize().background(R.color.default_widget_background)
+            modifier = GlanceModifier.fillMaxSize()
+                .background(R.color.default_widget_background)
         ) {
             Text(
                 text = "Fix header",
@@ -111,6 +108,7 @@ class ScrollableAppWidget : GlanceAppWidget() {
 
 @Composable
 private fun ScrollColumn(modifier: GlanceModifier) {
+    val context = LocalContext.current
     LazyColumn(modifier) {
         item {
             SectionHeading(
@@ -160,11 +158,15 @@ private fun ScrollColumn(modifier: GlanceModifier) {
                 modifier = GlanceModifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .clickable(
-                        actionRunCallback<LogItemClickAction>(
-                            actionParametersOf(ClickedItemKey to index)
-                        )
-                    )
+                    .clickable {
+                        Handler(context.mainLooper).post {
+                            Toast.makeText(
+                                context,
+                                "Click from list item $index",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
             )
         }
         item {
@@ -174,9 +176,10 @@ private fun ScrollColumn(modifier: GlanceModifier) {
             )
         }
         item {
+            var checked by remember { mutableStateOf(false) }
             CheckBox(
-                checked = currentState(CheckboxKey) ?: false,
-                onCheckedChange = actionRunCallback<ListToggleAction>(),
+                checked = checked,
+                onCheckedChange = { checked = !checked },
                 text = "Checkbox"
             )
         }
@@ -213,38 +216,6 @@ class ListClickDestinationActivity : ComponentActivity() {
         }
     }
 }
-
-/** Work executed when [ScrollableAppWidget] list's item is clicked. */
-class LogItemClickAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters
-    ) {
-        Handler(context.mainLooper).post {
-            Toast.makeText(
-                context,
-                "Click from list item ${parameters[ClickedItemKey]}",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-}
-
-class ListToggleAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters
-    ) {
-        updateAppWidgetState(context, glanceId) { state ->
-            state[CheckboxKey] = parameters[ToggleableStateKey] ?: false
-        }
-        ScrollableAppWidget().update(context, glanceId)
-    }
-}
-
-private val ClickedItemKey = ActionParameters.Key<Int>("ClickedItemKey")
 
 class ScrollableAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = ScrollableAppWidget()

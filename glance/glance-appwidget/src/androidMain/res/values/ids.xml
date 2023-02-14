@@ -14,7 +14,9 @@
   limitations under the License.
   -->
 
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="ResourceName">
     <id name="checkBoxIcon" />
     <id name="checkBoxText" />
     <id name="glanceView" />

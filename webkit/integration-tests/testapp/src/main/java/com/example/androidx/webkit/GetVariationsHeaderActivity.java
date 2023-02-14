@@ -18,6 +18,7 @@ package com.example.androidx.webkit;
 
 import android.os.Bundle;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -41,6 +42,7 @@ public class GetVariationsHeaderActivity extends AppCompatActivity {
             WebView webView = findViewById(R.id.webview);
             String headerValue = WebViewCompat.getVariationsHeader();
             textView.setText(getString(R.string.variations_header_message, headerValue));
+            webView.setWebViewClient(new WebViewClient());
             webView.loadUrl(
                     "https://www.google.com", ImmutableMap.of("X-Client-Data", headerValue));
         } else {

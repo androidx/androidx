@@ -1,7 +1,31 @@
 // Baseline format: 1.0
-ParameterNameChange: androidx.wear.watchface.client.WatchFaceControlClient#createWatchFaceControlClient(android.content.Context, String, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient>) parameter #2:
-    Attempted to remove parameter name from parameter arg3 in androidx.wear.watchface.client.WatchFaceControlClient.createWatchFaceControlClient
-ParameterNameChange: androidx.wear.watchface.client.WatchFaceControlClient#getOrCreateInteractiveWatchFaceClient(String, androidx.wear.watchface.client.DeviceConfig, androidx.wear.watchface.client.WatchUiState, androidx.wear.watchface.style.UserStyleData, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.InteractiveWatchFaceClient>) parameter #5:
-    Attempted to remove parameter name from parameter arg6 in androidx.wear.watchface.client.WatchFaceControlClient.getOrCreateInteractiveWatchFaceClient
-ParameterNameChange: androidx.wear.watchface.client.WatchFaceControlClient.Companion#createWatchFaceControlClient(android.content.Context, String, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.WatchFaceControlClient>) parameter #2:
-    Attempted to remove parameter name from parameter arg3 in androidx.wear.watchface.client.WatchFaceControlClient.Companion.createWatchFaceControlClient
+AddedAbstractMethod: androidx.wear.watchface.client.WatchFaceMetadataClient#getUserStyleFlavors():
+    Added method androidx.wear.watchface.client.WatchFaceMetadataClient.getUserStyleFlavors()
+
+
+ChangedThrows: androidx.wear.watchface.client.HeadlessWatchFaceClient#getComplicationSlotsState():
+    Method androidx.wear.watchface.client.HeadlessWatchFaceClient.getComplicationSlotsState added thrown exception android.os.RemoteException
+ChangedThrows: androidx.wear.watchface.client.HeadlessWatchFaceClient#getPreviewReferenceInstant():
+    Method androidx.wear.watchface.client.HeadlessWatchFaceClient.getPreviewReferenceInstant added thrown exception android.os.RemoteException
+ChangedThrows: androidx.wear.watchface.client.HeadlessWatchFaceClient#getUserStyleSchema():
+    Method androidx.wear.watchface.client.HeadlessWatchFaceClient.getUserStyleSchema added thrown exception android.os.RemoteException
+ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getComplicationSlotsState():
+    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getComplicationSlotsState added thrown exception android.os.RemoteException
+ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getContentDescriptionLabels():
+    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getContentDescriptionLabels added thrown exception android.os.RemoteException
+ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getInstanceId():
+    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getInstanceId added thrown exception android.os.RemoteException
+ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getOverlayStyle():
+    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getOverlayStyle added thrown exception android.os.RemoteException
+ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getPreviewReferenceInstant():
+    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getPreviewReferenceInstant added thrown exception android.os.RemoteException
+ChangedThrows: androidx.wear.watchface.client.InteractiveWatchFaceClient#getUserStyleSchema():
+    Method androidx.wear.watchface.client.InteractiveWatchFaceClient.getUserStyleSchema added thrown exception android.os.RemoteException
+
+
+RemovedClass: androidx.wear.watchface.client.DeviceConfigKt:
+    Removed class androidx.wear.watchface.client.DeviceConfigKt
+RemovedClass: androidx.wear.watchface.client.EditorStateKt:
+    Removed class androidx.wear.watchface.client.EditorStateKt
+RemovedClass: androidx.wear.watchface.client.WatchFaceExceptionKt:
+    Removed class androidx.wear.watchface.client.WatchFaceExceptionKt

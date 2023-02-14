@@ -64,6 +64,7 @@ fun AnnotatedString.toAccessibilitySpannableString(
     return toAccessibilitySpannableString(density, createFontFamilyResolver(resourceLoader))
 }
 
+@OptIn(ExperimentalTextApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @InternalTextApi // used in ui:ui
 fun AnnotatedString.toAccessibilitySpannableString(
@@ -71,13 +72,25 @@ fun AnnotatedString.toAccessibilitySpannableString(
     fontFamilyResolver: FontFamily.Resolver
 ): SpannableString {
     val spannableString = SpannableString(text)
-    spanStyles.fastForEach { (style, start, end) ->
-        spannableString.setSpanStyle(style, start, end, density, fontFamilyResolver)
+    spanStylesOrNull?.fastForEach { (style, start, end) ->
+        // b/232238615 looking up fonts inside of accessibility does not honor overwritten
+        // FontFamilyResolver. This is not safe until Font.ResourceLoader is fully removed.
+        val noFontStyle = style.copy(fontFamily = null)
+        spannableString.setSpanStyle(noFontStyle, start, end, density, fontFamilyResolver)
     }
 
     getTtsAnnotations(0, length).fastForEach { (ttsAnnotation, start, end) ->
         spannableString.setSpan(
             ttsAnnotation.toSpan(),
+            start,
+            end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+    }
+
+    getUrlAnnotations(0, length).fastForEach { (urlAnnotation, start, end) ->
+        spannableString.setSpan(
+            urlAnnotation.toSpan(),
             start,
             end,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

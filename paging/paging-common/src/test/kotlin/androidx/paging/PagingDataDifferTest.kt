@@ -36,13 +36,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.TestScope
@@ -141,7 +144,6 @@ class PagingDataDifferTest(
         }
 
         differ.retry()
-
         assertEquals(1, receiver.retryEvents.size)
 
         job.cancel()
@@ -161,6 +163,342 @@ class PagingDataDifferTest(
         assertEquals(1, receiver.refreshEvents.size)
 
         job.cancel()
+    }
+
+    @Test
+    fun uiReceiverSetImmediately() = testScope.runTest {
+        val differ = SimpleDiffer(differCallback = dummyDifferCallback)
+        val receiver = UiReceiverFake()
+        val pagingData1 = infinitelySuspendingPagingData(uiReceiver = receiver)
+
+        val job1 = launch {
+            differ.collectFrom(pagingData1)
+        }
+        assertTrue(job1.isActive) // ensure job started
+
+        assertThat(receiver.refreshEvents).hasSize(0)
+
+        differ.refresh()
+        // double check that the pagingdata's receiver was registered and had received refresh call
+        // before any PageEvent is collected/presented
+        assertThat(receiver.refreshEvents).hasSize(1)
+
+        job1.cancel()
+    }
+
+    @Test
+    fun hintReceiverSetAfterNewListPresented() = testScope.runTest {
+        val differ = SimpleDiffer(differCallback = dummyDifferCallback)
+
+        // first generation, load something so next gen can access index to trigger hint
+        val hintReceiver1 = HintReceiverFake()
+        val flow = flowOf(
+            localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))),
+        )
+
+        val job1 = launch {
+            differ.collectFrom(PagingData(flow, dummyUiReceiver, hintReceiver1))
+        }
+        assertThat(hintReceiver1.hints).hasSize(1) // initial hint
+
+        // trigger second generation
+        differ.refresh()
+
+        // second generation
+        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        val hintReceiver2 = HintReceiverFake()
+        val job2 = launch {
+            differ.collectFrom(
+                PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver2)
+            )
+        }
+
+        // we send the initial load state. this should NOT cause second gen hint receiver
+        // to register
+        pageEventCh.trySend(
+            localLoadStateUpdate(refreshLocal = Loading)
+        )
+        assertThat(differ.nonNullLoadStateFlow.first()).isEqualTo(
+            localLoadStatesOf(refreshLocal = Loading)
+        )
+
+        // ensure both hint receivers are idle before sending a hint
+        assertThat(hintReceiver1.hints).isEmpty()
+        assertThat(hintReceiver2.hints).isEmpty()
+
+        // try sending a hint, should be sent to first receiver
+        differ[4]
+        assertThat(hintReceiver1.hints).hasSize(1)
+        assertThat(hintReceiver2.hints).isEmpty()
+
+        // now we send actual refresh load and make sure its presented
+        pageEventCh.trySend(
+            localRefresh(
+                pages = listOf(TransformablePage(listOf(20, 21, 22, 23, 24))),
+                placeholdersBefore = 20,
+                placeholdersAfter = 75
+            ),
+        )
+        assertThat(differ.snapshot().items).containsExactlyElementsIn(20 until 25)
+
+        // second receiver was registered and received the initial viewport hint
+        assertThat(hintReceiver1.hints).isEmpty()
+        assertThat(hintReceiver2.hints).isEqualTo(
+            listOf(
+                ViewportHint.Initial(
+                    presentedItemsBefore = 2,
+                    presentedItemsAfter = 2,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                )
+            )
+        )
+
+        job2.cancel()
+        job1.cancel()
+    }
+
+    @Test
+    fun refreshOnLatestGenerationReceiver() = runTest { differ, loadDispatcher, _,
+        uiReceivers, hintReceivers ->
+        // first gen
+        loadDispatcher.executeAll()
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
+
+        // append a page so we can cache an anchorPosition of [8]
+        differ[8]
+        loadDispatcher.executeAll()
+
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 12)
+
+        // trigger gen 2, the refresh signal should to sent to gen 1
+        differ.refresh()
+        assertThat(uiReceivers[0].refreshEvents).hasSize(1)
+        assertThat(uiReceivers[1].refreshEvents).hasSize(0)
+
+        // trigger gen 3, refresh signal should be sent to gen 2
+        differ.refresh()
+        assertThat(uiReceivers[0].refreshEvents).hasSize(1)
+        assertThat(uiReceivers[1].refreshEvents).hasSize(1)
+        loadDispatcher.executeAll()
+
+        assertThat(differ.snapshot()).containsExactlyElementsIn(8 until 17)
+
+        // gen 3 receiver should be recipient of the initial hint
+        assertThat(hintReceivers[2].hints).containsExactlyElementsIn(
+            listOf(
+                ViewportHint.Initial(
+                    presentedItemsBefore = 4,
+                    presentedItemsAfter = 4,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                )
+            )
+        )
+    }
+
+    @Test
+    fun retryOnLatestGenerationReceiver() = runTest { differ, loadDispatcher, pagingSources,
+        uiReceivers, hintReceivers ->
+
+        // first gen
+        loadDispatcher.executeAll()
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
+
+        // append a page so we can cache an anchorPosition of [8]
+        differ[8]
+        loadDispatcher.executeAll()
+
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 12)
+
+        // trigger gen 2, the refresh signal should be sent to gen 1
+        differ.refresh()
+        assertThat(uiReceivers[0].refreshEvents).hasSize(1)
+        assertThat(uiReceivers[1].refreshEvents).hasSize(0)
+
+        // to recreate a real use-case of retry based on load error
+        pagingSources[1].errorNextLoad = true
+        loadDispatcher.executeAll()
+        // differ should still have first gen presenter
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 12)
+
+        // retry should be sent to gen 2 even though it wasn't presented
+        differ.retry()
+        assertThat(uiReceivers[0].retryEvents).hasSize(0)
+        assertThat(uiReceivers[1].retryEvents).hasSize(1)
+        loadDispatcher.executeAll()
+
+        // will retry with the correct cached hint
+        assertThat(differ.snapshot()).containsExactlyElementsIn(8 until 17)
+
+        // gen 2 receiver was recipient of the initial hint
+        assertThat(hintReceivers[1].hints).containsExactlyElementsIn(
+            listOf(
+                ViewportHint.Initial(
+                    presentedItemsBefore = 4,
+                    presentedItemsAfter = 4,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                )
+            )
+        )
+    }
+
+    @Test
+    fun refreshAfterStaticList() = testScope.runTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+
+        val pagingData1 = PagingData.from(listOf(1, 2, 3))
+        val job1 = launch { differ.collectFrom(pagingData1) }
+        assertTrue(job1.isCompleted)
+        assertThat(differ.snapshot()).containsAtLeastElementsIn(listOf(1, 2, 3))
+
+        val uiReceiver = UiReceiverFake()
+        val pagingData2 = infinitelySuspendingPagingData(uiReceiver = uiReceiver)
+        val job2 = launch { differ.collectFrom(pagingData2) }
+        assertTrue(job2.isActive)
+
+        // even though the second paging data never presented, it should be receiver of the refresh
+        differ.refresh()
+        assertThat(uiReceiver.refreshEvents).hasSize(1)
+
+        job2.cancel()
+    }
+
+    @Test
+    fun retryAfterStaticList() = testScope.runTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+
+        val pagingData1 = PagingData.from(listOf(1, 2, 3))
+        val job1 = launch { differ.collectFrom(pagingData1) }
+        assertTrue(job1.isCompleted)
+        assertThat(differ.snapshot()).containsAtLeastElementsIn(listOf(1, 2, 3))
+
+        val uiReceiver = UiReceiverFake()
+        val pagingData2 = infinitelySuspendingPagingData(uiReceiver = uiReceiver)
+        val job2 = launch { differ.collectFrom(pagingData2) }
+        assertTrue(job2.isActive)
+
+        // even though the second paging data never presented, it should be receiver of the retry
+        differ.retry()
+        assertThat(uiReceiver.retryEvents).hasSize(1)
+
+        job2.cancel()
+    }
+
+    @Test
+    fun hintCalculationBasedOnCurrentGeneration() = testScope.runTest {
+        val differ = SimpleDiffer(differCallback = dummyDifferCallback)
+
+        // first generation
+        val hintReceiver1 = HintReceiverFake()
+        val uiReceiver1 = UiReceiverFake()
+        val flow = flowOf(
+            localRefresh(
+                pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4))),
+                placeholdersBefore = 0,
+                placeholdersAfter = 95
+            )
+        )
+
+        val job1 = launch {
+            differ.collectFrom(PagingData(flow, uiReceiver1, hintReceiver1))
+        }
+        assertThat(hintReceiver1.hints).isEqualTo(
+            listOf(
+                ViewportHint.Initial(
+                    presentedItemsBefore = 2,
+                    presentedItemsAfter = 2,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                ),
+            )
+        )
+
+        // jump to another position, triggers invalidation
+        differ[20]
+        assertThat(hintReceiver1.hints).isEqualTo(
+            listOf(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = 20,
+                    presentedItemsBefore = 20,
+                    presentedItemsAfter = -16,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                ),
+            )
+        )
+
+        // jump invalidation happens
+        differ.refresh()
+        assertThat(uiReceiver1.refreshEvents).hasSize(1)
+
+        // second generation
+        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        val hintReceiver2 = HintReceiverFake()
+        val job2 = launch {
+            differ.collectFrom(
+                PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver2)
+            )
+        }
+
+        // jump to another position while second gen is loading. It should be sent to first gen.
+        differ[40]
+        assertThat(hintReceiver1.hints).isEqualTo(
+            listOf(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = 40,
+                    presentedItemsBefore = 40,
+                    presentedItemsAfter = -36,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                ),
+            )
+        )
+        assertThat(hintReceiver2.hints).isEmpty()
+
+        // gen 2 initial load
+        pageEventCh.trySend(
+            localRefresh(
+                pages = listOf(TransformablePage(listOf(20, 21, 22, 23, 24))),
+                placeholdersBefore = 20,
+                placeholdersAfter = 75
+            ),
+        )
+
+        assertThat(hintReceiver2.hints).isEqualTo(
+            listOf(
+                ViewportHint.Initial(
+                    presentedItemsBefore = 2,
+                    presentedItemsAfter = 2,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                )
+            )
+        )
+
+        // jumping to index 50. Hint.indexInPage should be adjusted accordingly based on
+        // the placeholdersBefore of new presenter. It should be
+        // (index - placeholdersBefore) = 50 - 20 = 30
+        differ[50]
+        assertThat(hintReceiver2.hints).isEqualTo(
+            listOf(
+
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = 30,
+                    presentedItemsBefore = 30,
+                    presentedItemsAfter = -26,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                ),
+            )
+        )
+
+        job2.cancel()
+        job1.cancel()
     }
 
     @Test
@@ -188,18 +526,19 @@ class PagingDataDifferTest(
             )
         )
 
-        val receiver = UiReceiverFake()
+        val hintReceiver = HintReceiverFake()
         val job = launch {
             differ.collectFrom(
                 // Filter the original list of 10 items to 5, removing even numbers.
-                PagingData(pageEventCh.consumeAsFlow(), receiver).filter { it % 2 != 0 }
+                PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver)
+                    .filter { it % 2 != 0 }
             )
         }
 
         // Initial state:
         // [null, null, [-1], [1], [3], null, null]
         assertNull(differ[0])
-        assertThat(receiver.hints).isEqualTo(
+        assertThat(hintReceiver.hints).isEqualTo(
             listOf(
                 ViewportHint.Initial(
                     presentedItemsBefore = 0,
@@ -227,7 +566,7 @@ class PagingDataDifferTest(
                 placeholdersBefore = 2,
             )
         )
-        assertThat(receiver.hints).isEqualTo(
+        assertThat(hintReceiver.hints).isEqualTo(
             listOf(
                 ViewportHint.Access(
                     pageOffset = -2,
@@ -249,11 +588,11 @@ class PagingDataDifferTest(
                 source = loadStates(prepend = NotLoading.Complete)
             )
         )
-        assertThat(receiver.hints).isEmpty()
+        assertThat(hintReceiver.hints).isEmpty()
 
         // This index points to a valid placeholder that ends up removed by filter().
         assertNull(differ[5])
-        assertThat(receiver.hints).isEqualTo(
+        assertThat(hintReceiver.hints).isEqualTo(
             listOf(
                 ViewportHint.Access(
                     pageOffset = 1,
@@ -275,7 +614,7 @@ class PagingDataDifferTest(
                 source = loadStates(prepend = NotLoading.Complete)
             )
         )
-        assertThat(receiver.hints).isEqualTo(
+        assertThat(hintReceiver.hints).isEqualTo(
             listOf(
                 ViewportHint.Access(
                     pageOffset = 2,
@@ -297,7 +636,7 @@ class PagingDataDifferTest(
                 source = loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete)
             )
         )
-        assertThat(receiver.hints).isEmpty()
+        assertThat(hintReceiver.hints).isEmpty()
 
         job.cancel()
     }
@@ -327,18 +666,19 @@ class PagingDataDifferTest(
             )
         )
 
-        val receiver = UiReceiverFake()
+        val hintReceiver = HintReceiverFake()
         val job = launch {
             differ.collectFrom(
                 // Filter the original list of 10 items to 5, removing even numbers.
-                PagingData(pageEventCh.consumeAsFlow(), receiver).filter { it % 2 != 0 }
+                PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver)
+                    .filter { it % 2 != 0 }
             )
         }
 
         // Initial state:
         // [null, null, [-1], [1], [3], null, null]
         assertNull(differ[0])
-        assertThat(receiver.hints).isEqualTo(
+        assertThat(hintReceiver.hints).isEqualTo(
             listOf(
                 ViewportHint.Initial(
                     presentedItemsBefore = 0,
@@ -366,7 +706,7 @@ class PagingDataDifferTest(
                 placeholdersBefore = 2,
             )
         )
-        assertThat(receiver.hints).isEqualTo(
+        assertThat(hintReceiver.hints).isEqualTo(
             listOf(
                 ViewportHint.Access(
                     pageOffset = -2,
@@ -427,11 +767,11 @@ class PagingDataDifferTest(
             )
         )
 
-        val receiver = UiReceiverFake()
+        val hintReceiver = HintReceiverFake()
         val job = launch {
             differ.collectFrom(
                 // Filter the original list of 10 items to 5, removing even numbers.
-                PagingData(pageEventCh.consumeAsFlow(), receiver)
+                PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver)
             )
         }
 
@@ -442,7 +782,7 @@ class PagingDataDifferTest(
         assertNull(differ.peek(0))
 
         // Check that peek does not trigger page fetch.
-        assertThat(receiver.hints).isEqualTo(
+        assertThat(hintReceiver.hints).isEqualTo(
             listOf<ViewportHint>(
                 ViewportHint.Initial(
                     presentedItemsBefore = 1,
@@ -460,16 +800,22 @@ class PagingDataDifferTest(
     fun initialHint_emptyRefresh() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-        val uiReceiver = UiReceiverFake()
+        val hintReceiver = HintReceiverFake()
         val job = launch {
-            differ.collectFrom(PagingData(pageEventCh.consumeAsFlow(), uiReceiver))
+            differ.collectFrom(
+                PagingData(
+                    pageEventCh.consumeAsFlow(),
+                    dummyUiReceiver,
+                    hintReceiver
+                )
+            )
         }
 
         pageEventCh.trySend(
             localRefresh(pages = listOf(TransformablePage(emptyList())))
         )
 
-        assertThat(uiReceiver.hints).isEqualTo(
+        assertThat(hintReceiver.hints).isEqualTo(
             listOf(ViewportHint.Initial(0, 0, 0, 0))
         )
 
@@ -654,7 +1000,7 @@ class PagingDataDifferTest(
         var combinedLoadStates: CombinedLoadStates? = null
         var itemCount = -1
         val loadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 combinedLoadStates = it
                 itemCount = differ.size
             }
@@ -704,7 +1050,7 @@ class PagingDataDifferTest(
         // Should not immediately emit without a real value to a new collector.
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
         val loadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 combinedLoadStates.add(it)
             }
         }
@@ -729,7 +1075,7 @@ class PagingDataDifferTest(
         // Should emit real values to new collectors immediately
         val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
         val newLoadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 newCombinedLoadStates.add(it)
             }
         }
@@ -751,7 +1097,7 @@ class PagingDataDifferTest(
         // Should not immediately emit without a real value to a new collector.
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
         val loadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 combinedLoadStates.add(it)
             }
         }
@@ -774,7 +1120,8 @@ class PagingDataDifferTest(
                         appendRemote = Loading,
                     )
                 ),
-                receiver = PagingData.NOOP_RECEIVER,
+                uiReceiver = PagingData.NOOP_UI_RECEIVER,
+                hintReceiver = PagingData.NOOP_HINT_RECEIVER
             )
         )
         assertThat(combinedLoadStates.getAllAndClear()).containsExactly(
@@ -798,7 +1145,7 @@ class PagingDataDifferTest(
         // New observers should receive the previous state.
         val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
         val newLoadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 newCombinedLoadStates.add(it)
             }
         }
@@ -827,7 +1174,7 @@ class PagingDataDifferTest(
         // Should not immediately emit without a real value to a new collector.
         val combinedLoadStates = mutableListOf<CombinedLoadStates>()
         val loadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 combinedLoadStates.add(it)
             }
         }
@@ -850,7 +1197,8 @@ class PagingDataDifferTest(
                         appendRemote = Loading,
                     )
                 ),
-                receiver = PagingData.NOOP_RECEIVER,
+                uiReceiver = PagingData.NOOP_UI_RECEIVER,
+                hintReceiver = PagingData.NOOP_HINT_RECEIVER
             )
         )
         assertThat(combinedLoadStates.getAllAndClear()).containsExactly(
@@ -874,7 +1222,7 @@ class PagingDataDifferTest(
         // New observers should receive the previous state.
         val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
         val newLoadStateJob = launch {
-            differ.loadStateFlow.collect {
+            differ.nonNullLoadStateFlow.collect {
                 newCombinedLoadStates.add(it)
             }
         }
@@ -894,6 +1242,88 @@ class PagingDataDifferTest(
 
         loadStateJob.cancel()
         newLoadStateJob.cancel()
+    }
+
+    @Test
+    fun loadStateFlow_deduplicate() = testScope.runTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+
+        val combinedLoadStates = mutableListOf<CombinedLoadStates>()
+        backgroundScope.launch {
+            differ.nonNullLoadStateFlow.collect {
+                combinedLoadStates.add(it)
+            }
+        }
+
+        differ.collectFrom(
+            PagingData(
+                flow = flowOf(
+                    remoteLoadStateUpdate(
+                        prependLocal = Loading,
+                        appendLocal = Loading,
+                    ),
+                    remoteLoadStateUpdate(
+                        appendLocal = Loading,
+                    ),
+                    // duplicate update
+                    remoteLoadStateUpdate(
+                        appendLocal = Loading,
+                    ),
+                ),
+                uiReceiver = PagingData.NOOP_UI_RECEIVER,
+                hintReceiver = PagingData.NOOP_HINT_RECEIVER
+            )
+        )
+        advanceUntilIdle()
+        assertThat(combinedLoadStates).containsExactly(
+            remoteLoadStatesOf(
+                prependLocal = Loading,
+                appendLocal = Loading,
+            ),
+            remoteLoadStatesOf(
+                appendLocal = Loading,
+            )
+        )
+    }
+
+    @Test
+    fun loadStateFlowListeners_deduplicate() = testScope.runTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val combinedLoadStates = mutableListOf<CombinedLoadStates>()
+
+        differ.addLoadStateListener {
+            combinedLoadStates.add(it)
+        }
+
+        differ.collectFrom(
+            PagingData(
+                flow = flowOf(
+                    remoteLoadStateUpdate(
+                        prependLocal = Loading,
+                        appendLocal = Loading,
+                    ),
+                    remoteLoadStateUpdate(
+                        appendLocal = Loading,
+                    ),
+                    // duplicate update
+                    remoteLoadStateUpdate(
+                        appendLocal = Loading,
+                    ),
+                ),
+                uiReceiver = PagingData.NOOP_UI_RECEIVER,
+                hintReceiver = PagingData.NOOP_HINT_RECEIVER
+            )
+        )
+        advanceUntilIdle()
+        assertThat(combinedLoadStates).containsExactly(
+            remoteLoadStatesOf(
+                prependLocal = Loading,
+                appendLocal = Loading,
+            ),
+            remoteLoadStatesOf(
+                appendLocal = Loading,
+            )
+        )
     }
 
     @Test
@@ -1032,7 +1462,8 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun refresh_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher, pagingSources ->
+    fun refresh_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
+        pagingSources, _, _ ->
         val collectLoadStates = differ.collectLoadStates()
 
         // execute queued initial REFRESH
@@ -1051,18 +1482,17 @@ class PagingDataDifferTest(
 
         // second refresh still loads from initialKey = 50 because anchorPosition/refreshKey is null
         assertThat(pagingSources.size).isEqualTo(2)
-        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(refreshLocal = Loading),
-            localLoadStatesOf()
+            localLoadStatesOf(prependLocal = NotLoading.Complete)
         )
 
         collectLoadStates.cancel()
     }
 
     @Test
-    fun refresh_loadStates_afterEndOfPagination() = runTest {
-            differ, loadDispatcher, _ ->
+    fun refresh_loadStates_afterEndOfPagination() = runTest { differ, loadDispatcher, _, _, _ ->
         val loadStateCallbacks = mutableListOf<CombinedLoadStates>()
         differ.addLoadStateListener {
             loadStateCallbacks.add(it)
@@ -1113,7 +1543,7 @@ class PagingDataDifferTest(
     //  LoadStateUpdate event
 
     @Test
-    fun appendInvalid_loadStates() = runTest { differ, loadDispatcher, pagingSources ->
+    fun appendInvalid_loadStates() = runTest { differ, loadDispatcher, pagingSources, _, _ ->
         val collectLoadStates = differ.collectLoadStates()
 
         // initial REFRESH
@@ -1175,7 +1605,7 @@ class PagingDataDifferTest(
 
     @Test
     fun prependInvalid_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
-        pagingSources ->
+        pagingSources, _, _ ->
         val collectLoadStates = differ.collectLoadStates()
 
         // initial REFRESH
@@ -1229,7 +1659,7 @@ class PagingDataDifferTest(
 
     @Test
     fun refreshInvalid_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
-        pagingSources ->
+        pagingSources, _, _ ->
         val collectLoadStates = differ.collectLoadStates()
 
         // execute queued initial REFRESH load which will return LoadResult.Invalid()
@@ -1248,17 +1678,18 @@ class PagingDataDifferTest(
 
         // second refresh still loads from initialKey = 50 because anchorPosition/refreshKey is null
         assertThat(pagingSources.size).isEqualTo(2)
-        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
-            // all local states NotLoading.Incomplete
-            localLoadStatesOf()
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+            )
         )
 
         collectLoadStates.cancel()
     }
 
     @Test
-    fun appendError_retryLoadStates() = runTest { differ, loadDispatcher, pagingSources ->
+    fun appendError_retryLoadStates() = runTest { differ, loadDispatcher, pagingSources, _, _ ->
         val collectLoadStates = differ.collectLoadStates()
 
         // initial REFRESH
@@ -1309,7 +1740,7 @@ class PagingDataDifferTest(
 
     @Test
     fun prependError_retryLoadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
-        pagingSources ->
+        pagingSources, _, _ ->
         val collectLoadStates = differ.collectLoadStates()
 
         // initial REFRESH
@@ -1351,7 +1782,7 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun refreshError_retryLoadStates() = runTest() { differ, loadDispatcher, pagingSources ->
+    fun refreshError_retryLoadStates() = runTest() { differ, loadDispatcher, pagingSources, _, _ ->
         val collectLoadStates = differ.collectLoadStates()
 
         // initial load returns LoadResult.Error
@@ -1384,7 +1815,7 @@ class PagingDataDifferTest(
 
     @Test
     fun prependError_refreshLoadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
-        pagingSources ->
+        pagingSources, _, _ ->
         val collectLoadStates = differ.collectLoadStates()
 
         // initial REFRESH
@@ -1427,7 +1858,8 @@ class PagingDataDifferTest(
     }
 
     @Test
-    fun refreshError_refreshLoadStates() = runTest() { differ, loadDispatcher, pagingSources ->
+    fun refreshError_refreshLoadStates() = runTest() { differ, loadDispatcher, pagingSources,
+        _, _ ->
         val collectLoadStates = differ.collectLoadStates()
 
         // the initial load will return LoadResult.Error
@@ -1557,6 +1989,55 @@ class PagingDataDifferTest(
         collectLoadStates.cancel()
     }
 
+    @Test
+    fun recollectOnNewDiffer_initialLoadStates() = testScope.runTest {
+        val pager = Pager(
+            config = PagingConfig(pageSize = 3, enablePlaceholders = false),
+            initialKey = 50,
+            pagingSourceFactory = { TestPagingSource() }
+        ).flow.cachedIn(this)
+
+        val differ = SimpleDiffer(
+            differCallback = dummyDifferCallback,
+            coroutineScope = backgroundScope,
+        )
+        differ.collectLoadStates()
+
+        val job = launch {
+            pager.collectLatest {
+                differ.collectFrom(it)
+            }
+        }
+        advanceUntilIdle()
+
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(refreshLocal = Loading),
+            localLoadStatesOf()
+        )
+
+        // we start a separate differ to recollect on cached Pager.flow
+        val differ2 = SimpleDiffer(
+            differCallback = dummyDifferCallback,
+            coroutineScope = backgroundScope,
+        )
+        differ2.collectLoadStates()
+
+        val job2 = launch {
+            pager.collectLatest {
+                differ2.collectFrom(it)
+            }
+        }
+        advanceUntilIdle()
+
+        assertThat(differ2.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf()
+        )
+
+        job.cancel()
+        job2.cancel()
+        testScope.coroutineContext.cancelChildren()
+    }
+
     private fun runTest(
         scope: CoroutineScope = CoroutineScope(DirectDispatcher),
         differ: SimpleDiffer = SimpleDiffer(
@@ -1577,10 +2058,28 @@ class PagingDataDifferTest(
                     ).also { pagingSources.add(it) }
                 }
             ),
-        block: (SimpleDiffer, TestDispatcher, MutableList<TestPagingSource>) -> Unit
+        block: (
+            differ: SimpleDiffer,
+            loadDispatcher: TestDispatcher,
+            pagingSources: List<TestPagingSource>,
+            uiReceivers: List<TrackableUiReceiverWrapper>,
+            hintReceivers: List<TrackableHintReceiverWrapper>
+        ) -> Unit
     ) {
+        val uiReceivers = mutableListOf<TrackableUiReceiverWrapper>()
+        val hintReceivers = mutableListOf<TrackableHintReceiverWrapper>()
+
         val collection = scope.launch {
-            pager.flow.let {
+            pager.flow
+            .map { pagingData ->
+                PagingData(
+                    flow = pagingData.flow,
+                    uiReceiver = TrackableUiReceiverWrapper(pagingData.uiReceiver)
+                        .also { uiReceivers.add(it) },
+                    hintReceiver = TrackableHintReceiverWrapper(pagingData.hintReceiver)
+                        .also { hintReceivers.add(it) }
+                )
+            }.let {
                 if (collectWithCachedIn) {
                     it.cachedIn(this)
                 } else {
@@ -1590,9 +2089,10 @@ class PagingDataDifferTest(
                 differ.collectFrom(it)
             }
         }
+
         scope.run {
             try {
-                block(differ, loadDispatcher, pagingSources)
+                block(differ, loadDispatcher, pagingSources, uiReceivers, hintReceivers)
             } finally {
                 collection.cancel()
             }
@@ -1606,12 +2106,29 @@ class PagingDataDifferTest(
     }
 }
 
-private fun infinitelySuspendingPagingData(receiver: UiReceiver = dummyReceiver) = PagingData(
+private fun infinitelySuspendingPagingData(
+    uiReceiver: UiReceiver = dummyUiReceiver,
+    hintReceiver: HintReceiver = dummyHintReceiver
+) = PagingData(
     flow { emit(suspendCancellableCoroutine<PageEvent<Int>> { }) },
-    receiver
+    uiReceiver,
+    hintReceiver
 )
 
 private class UiReceiverFake : UiReceiver {
+    val retryEvents = mutableListOf<Unit>()
+    val refreshEvents = mutableListOf<Unit>()
+
+    override fun retry() {
+        retryEvents.add(Unit)
+    }
+
+    override fun refresh() {
+        refreshEvents.add(Unit)
+    }
+}
+
+private class HintReceiverFake : HintReceiver {
     private val _hints = mutableListOf<ViewportHint>()
     val hints: List<ViewportHint>
         get() {
@@ -1621,19 +2138,43 @@ private class UiReceiverFake : UiReceiver {
             return result
         }
 
-    val retryEvents = mutableListOf<Unit>()
-    val refreshEvents = mutableListOf<Unit>()
-
     override fun accessHint(viewportHint: ViewportHint) {
         _hints.add(viewportHint)
     }
+}
+
+private class TrackableUiReceiverWrapper(
+    private val receiver: UiReceiver? = null,
+) : UiReceiver {
+    val retryEvents = mutableListOf<Unit>()
+    val refreshEvents = mutableListOf<Unit>()
 
     override fun retry() {
         retryEvents.add(Unit)
+        receiver?.retry()
     }
 
     override fun refresh() {
         refreshEvents.add(Unit)
+        receiver?.refresh()
+    }
+}
+
+private class TrackableHintReceiverWrapper(
+    private val receiver: HintReceiver? = null,
+) : HintReceiver {
+    private val _hints = mutableListOf<ViewportHint>()
+    val hints: List<ViewportHint>
+        get() {
+            val result = _hints.toList()
+            @OptIn(ExperimentalStdlibApi::class)
+            repeat(result.size) { _hints.removeFirst() }
+            return result
+        }
+
+    override fun accessHint(viewportHint: ViewportHint) {
+        _hints.add(viewportHint)
+        receiver?.accessHint(viewportHint)
     }
 }
 
@@ -1654,6 +2195,8 @@ private class SimpleDiffer(
 
     private val _localLoadStates = mutableListOf<CombinedLoadStates>()
 
+    val nonNullLoadStateFlow = loadStateFlow.filterNotNull()
+
     fun newCombinedLoadStates(): List<CombinedLoadStates?> {
         val newCombinedLoadStates = _localLoadStates.toList()
         _localLoadStates.clear()
@@ -1662,17 +2205,20 @@ private class SimpleDiffer(
 
     fun collectLoadStates(): Job {
         return coroutineScope.launch {
-            loadStateFlow.collect { combinedLoadStates ->
+            nonNullLoadStateFlow.collect { combinedLoadStates ->
                 _localLoadStates.add(combinedLoadStates)
             }
         }
     }
 }
 
-internal val dummyReceiver = object : UiReceiver {
-    override fun accessHint(viewportHint: ViewportHint) {}
+internal val dummyUiReceiver = object : UiReceiver {
     override fun retry() {}
     override fun refresh() {}
+}
+
+internal val dummyHintReceiver = object : HintReceiver {
+    override fun accessHint(viewportHint: ViewportHint) {}
 }
 
 private val dummyDifferCallback = object : DifferCallback {

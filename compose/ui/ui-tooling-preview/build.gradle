@@ -17,6 +17,7 @@
 
 import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -31,7 +32,7 @@ dependencies {
     if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         implementation(libs.kotlinStdlib)
         api("androidx.annotation:annotation:1.2.0")
-        api("androidx.compose.runtime:runtime:1.1.1")
+        api("androidx.compose.runtime:runtime:1.2.1")
         testImplementation(libs.junit)
     }
 }
@@ -68,7 +69,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 androidx {
     name = "Compose Tooling API"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.COMPOSE_UI
     inceptionYear = "2021"
     description = "Compose tooling library API. This library provides the API required to declare" +
             " @Preview composables in user apps."

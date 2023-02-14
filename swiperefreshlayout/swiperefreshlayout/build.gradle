@@ -16,7 +16,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-espresso"))
@@ -26,16 +26,19 @@ dependencies {
     androidTestImplementation(project(":recyclerview:recyclerview"), {
         exclude group: "androidx.swiperefreshlayout", module: "swiperefreshlayout"
     })
+    androidTestImplementation(libs.multidex)
 }
 
 androidx {
     name = "Android Support Library Custom View"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.SWIPEREFRESHLAYOUT
     inceptionYear = "2018"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
     namespace "androidx.swiperefreshlayout"
 }

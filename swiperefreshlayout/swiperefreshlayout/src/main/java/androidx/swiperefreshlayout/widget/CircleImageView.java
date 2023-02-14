@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.swiperefreshlayout.R;
 
@@ -154,7 +155,7 @@ class CircleImageView extends ImageView {
         }
 
         @Override
-        public void draw(Canvas canvas, Paint paint) {
+        public void draw(@NonNull Canvas canvas, Paint paint) {
             final int x = mCircleImageView.getWidth() / 2;
             final int y = mCircleImageView.getHeight() / 2;
             canvas.drawCircle(x, y, x, mShadowPaint);

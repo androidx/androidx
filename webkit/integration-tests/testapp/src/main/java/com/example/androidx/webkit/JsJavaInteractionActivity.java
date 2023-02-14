@@ -50,6 +50,9 @@ public class JsJavaInteractionActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.document_start_javascript_activity_title),
                         new Intent(activityContext, DocumentStartJavaScriptActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.web_message_compat_activity_title),
+                        new Intent(activityContext, WebMessageCompatActivity.class)),
         };
         listView.setItems(menuItems);
     }

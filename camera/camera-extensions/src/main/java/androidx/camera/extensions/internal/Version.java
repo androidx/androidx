@@ -38,6 +38,7 @@ public abstract class Version implements Comparable<Version> {
     public static final Version VERSION_1_0 = Version.create(1, 0, 0, "");
     public static final Version VERSION_1_1 = Version.create(1, 1, 0, "");
     public static final Version VERSION_1_2 = Version.create(1, 2, 0, "");
+    public static final Version VERSION_1_3 = Version.create(1, 3, 0, "");
 
     private static final Pattern VERSION_STRING_PATTERN =
             Pattern.compile("(\\d+)(?:\\.(\\d+))(?:\\.(\\d+))(?:\\-(.+))?");

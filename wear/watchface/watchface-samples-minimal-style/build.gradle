@@ -34,13 +34,13 @@ dependencies {
 androidx {
     name = "AndroidX Wear Watchface Minimal Style Sample"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2021"
     description = "Contains the sample code for the Androidx Wear Watchface library"
 }
 
 android {
     defaultConfig {
+        applicationId "androidx.wear.watchface.samples.minimal.style"
         minSdkVersion 26
     }
 

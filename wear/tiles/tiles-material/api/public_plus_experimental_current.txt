@@ -2,19 +2,23 @@
 package androidx.wear.tiles.material {
 
   public class Button implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.Button? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.ButtonColors getButtonColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public CharSequence getContentDescription();
+    method public CharSequence? getContentDescription();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getCustomContent();
+    method public String? getIconContent();
+    method public String? getImageContent();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getSize();
+    method public String? getTextContent();
   }
 
   public static final class Button.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
     ctor public Button.Builder(android.content.Context, androidx.wear.tiles.ModifiersBuilders.Clickable);
     method public androidx.wear.tiles.material.Button build();
     method public androidx.wear.tiles.material.Button.Builder setButtonColors(androidx.wear.tiles.material.ButtonColors);
-    method public androidx.wear.tiles.material.Button.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.Button.Builder setContentDescription(CharSequence);
+    method public androidx.wear.tiles.material.Button.Builder setCustomContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.Button.Builder setIconContent(String, androidx.wear.tiles.DimensionBuilders.DpProp);
     method public androidx.wear.tiles.material.Button.Builder setIconContent(String);
     method public androidx.wear.tiles.material.Button.Builder setImageContent(String);
@@ -36,20 +40,24 @@ package androidx.wear.tiles.material {
   public class ButtonDefaults {
     method public static androidx.wear.tiles.DimensionBuilders.DpProp recommendedIconSize(androidx.wear.tiles.DimensionBuilders.DpProp);
     method public static androidx.wear.tiles.DimensionBuilders.DpProp recommendedIconSize(@Dimension(unit=androidx.annotation.Dimension.DP) float);
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_BUTTON_SIZE;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp EXTRA_LARGE_BUTTON_SIZE;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp LARGE_BUTTON_SIZE;
-    field public static final androidx.wear.tiles.material.ButtonColors PRIMARY_BUTTON_COLORS;
-    field public static final androidx.wear.tiles.material.ButtonColors SECONDARY_BUTTON_COLORS;
+    field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_SIZE;
+    field public static final androidx.wear.tiles.DimensionBuilders.DpProp EXTRA_LARGE_SIZE;
+    field public static final androidx.wear.tiles.DimensionBuilders.DpProp LARGE_SIZE;
+    field public static final androidx.wear.tiles.material.ButtonColors PRIMARY_COLORS;
+    field public static final androidx.wear.tiles.material.ButtonColors SECONDARY_COLORS;
   }
 
   public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.Chip? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.ChipColors getChipColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-    method public CharSequence getContentDescription();
+    method public CharSequence? getContentDescription();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getCustomContent();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight();
     method public int getHorizontalAlignment();
+    method public String? getIconContent();
+    method public String? getPrimaryLabelContent();
+    method public String? getSecondaryLabelContent();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
   }
 
@@ -57,13 +65,12 @@ package androidx.wear.tiles.material {
     ctor public Chip.Builder(android.content.Context, androidx.wear.tiles.ModifiersBuilders.Clickable, androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.material.Chip build();
     method public androidx.wear.tiles.material.Chip.Builder setChipColors(androidx.wear.tiles.material.ChipColors);
-    method public androidx.wear.tiles.material.Chip.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.Chip.Builder setContentDescription(CharSequence);
+    method public androidx.wear.tiles.material.Chip.Builder setCustomContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.Chip.Builder setHorizontalAlignment(int);
-    method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextContent(String);
-    method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextIconContent(String, String);
-    method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextLabelContent(String, String);
-    method public androidx.wear.tiles.material.Chip.Builder setPrimaryTextLabelIconContent(String, String, String);
+    method public androidx.wear.tiles.material.Chip.Builder setIconContent(String);
+    method public androidx.wear.tiles.material.Chip.Builder setPrimaryLabelContent(String);
+    method public androidx.wear.tiles.material.Chip.Builder setSecondaryLabelContent(String);
     method public androidx.wear.tiles.material.Chip.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
     method public androidx.wear.tiles.material.Chip.Builder setWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }
@@ -75,7 +82,7 @@ package androidx.wear.tiles.material {
     ctor public ChipColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
     method public androidx.wear.tiles.ColorBuilders.ColorProp getBackgroundColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getContentColor();
-    method public androidx.wear.tiles.ColorBuilders.ColorProp getIconTintColor();
+    method public androidx.wear.tiles.ColorBuilders.ColorProp getIconColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getSecondaryContentColor();
     method public static androidx.wear.tiles.material.ChipColors primaryChipColors(androidx.wear.tiles.material.Colors);
     method public static androidx.wear.tiles.material.ChipColors secondaryChipColors(androidx.wear.tiles.material.Colors);
@@ -91,8 +98,9 @@ package androidx.wear.tiles.material {
   }
 
   public class CircularProgressIndicator implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.CircularProgressIndicator? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.ProgressIndicatorColors getCircularProgressIndicatorColors();
-    method public String getContentDescription();
+    method public CharSequence? getContentDescription();
     method public androidx.wear.tiles.DimensionBuilders.DegreesProp getEndAngle();
     method public androidx.wear.tiles.DimensionBuilders.DegreesProp getProgress();
     method public androidx.wear.tiles.DimensionBuilders.DegreesProp getStartAngle();
@@ -121,9 +129,10 @@ package androidx.wear.tiles.material {
   }
 
   public class CompactChip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.CompactChip? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.ChipColors getChipColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
+    method public String getText();
   }
 
   public static final class CompactChip.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
@@ -137,8 +146,7 @@ package androidx.wear.tiles.material {
     ctor public ProgressIndicatorColors(@ColorInt int, @ColorInt int);
     method public androidx.wear.tiles.ColorBuilders.ColorProp getIndicatorColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getTrackColor();
-    method public static androidx.wear.tiles.material.ProgressIndicatorColors primaryProgressIndicatorColors(androidx.wear.tiles.material.Colors);
-    method public static androidx.wear.tiles.material.ProgressIndicatorColors secondaryProgressIndicatorColors(androidx.wear.tiles.material.Colors);
+    method public static androidx.wear.tiles.material.ProgressIndicatorColors progressIndicatorColors(androidx.wear.tiles.material.Colors);
   }
 
   public class ProgressIndicatorDefaults {
@@ -149,6 +157,7 @@ package androidx.wear.tiles.material {
   }
 
   public class Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.Text? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.ColorBuilders.ColorProp getColor();
     method public androidx.wear.tiles.LayoutElementBuilders.FontStyle getFontStyle();
     method public float getLineHeight();
@@ -177,10 +186,11 @@ package androidx.wear.tiles.material {
   }
 
   public class TitleChip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.TitleChip? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.ChipColors getChipColors();
     method public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
     method public int getHorizontalAlignment();
+    method public String getText();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
   }
 
@@ -212,14 +222,49 @@ package androidx.wear.tiles.material {
 
 package androidx.wear.tiles.material.layouts {
 
+  public class EdgeContentLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.layouts.EdgeContentLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getEdgeContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
+  }
+
+  public static final class EdgeContentLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor public EdgeContentLayout.Builder(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method public androidx.wear.tiles.material.layouts.EdgeContentLayout build();
+    method public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setEdgeContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setPrimaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setSecondaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+  }
+
   public class LayoutDefaults {
     field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_VERTICAL_SPACER_HEIGHT;
+    field public static final float EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6.0f;
+    field public static final float EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8.0f;
+    field public static final int MULTI_BUTTON_MAX_NUMBER = 7; // 0x7
     field public static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH;
-    field public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6.0f;
-    field public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8.0f;
+  }
+
+  public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.layouts.MultiButtonLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getButtonContents();
+    method public int getFiveButtonDistribution();
+    field public static final int FIVE_BUTTON_DISTRIBUTION_BOTTOM_HEAVY = 2; // 0x2
+    field public static final int FIVE_BUTTON_DISTRIBUTION_TOP_HEAVY = 1; // 0x1
+  }
+
+  public static final class MultiButtonLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor public MultiButtonLayout.Builder();
+    method public androidx.wear.tiles.material.layouts.MultiButtonLayout.Builder addButtonContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.MultiButtonLayout build();
+    method public androidx.wear.tiles.material.layouts.MultiButtonLayout.Builder setFiveButtonDistribution(int);
   }
 
   public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.layouts.MultiSlotLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public float getHorizontalSpacerWidth();
     method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getSlotContents();
   }
 
@@ -231,6 +276,12 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class PrimaryLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.layouts.PrimaryLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryChipContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public float getVerticalSpacerHeight();
   }
 
   public static final class PrimaryLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
@@ -241,17 +292,6 @@ package androidx.wear.tiles.material.layouts {
     method public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setPrimaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setSecondaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setVerticalSpacerHeight(@Dimension(unit=androidx.annotation.Dimension.DP) float);
-  }
-
-  public class ProgressIndicatorLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getContent();
-  }
-
-  public static final class ProgressIndicatorLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
-    ctor public ProgressIndicatorLayout.Builder(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout build();
-    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setProgressIndicatorContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
   }
 
 }

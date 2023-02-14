@@ -19,6 +19,7 @@ package androidx.camera.extensions.impl;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 /**
@@ -26,6 +27,7 @@ import androidx.annotation.RequiresApi;
  *
  * @since 1.0
  */
+@SuppressWarnings("unused")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ProcessorImpl {
     /**
@@ -34,23 +36,23 @@ public interface ProcessorImpl {
      * @param surface     The {@link Surface} that the ProcessorImpl should write data into.
      * @param imageFormat The format of that the surface expects.
      */
-    void onOutputSurface(Surface surface, int imageFormat);
+    void onOutputSurface(@NonNull Surface surface, int imageFormat);
 
     /**
      * Invoked when CameraX changes the configured output resolution.
      *
-     * <p>After this call, {@link CaptureProcessorImpl} should expect any {@link Image} received as
-     * input to be at the specified resolution.
+     * <p>After this call, {@link CaptureProcessorImpl} should expect any
+     * {@link android.media.Image} received as input to be at the specified resolution.
      *
      * @param size for the surface.
      */
-    void onResolutionUpdate(Size size);
+    void onResolutionUpdate(@NonNull Size size);
 
     /**
      * Invoked when CameraX changes the configured input image format.
      *
-     * <p>After this call, {@link CaptureProcessorImpl} should expect any {@link Image} received as
-     * input to have the specified image format.
+     * <p>After this call, {@link CaptureProcessorImpl} should expect any
+     * {@link android.media.Image} received as input to have the specified image format.
      *
      * @param imageFormat for the surface.
      */

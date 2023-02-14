@@ -16,6 +16,10 @@
 
 package androidx.camera.lifecycle;
 
+import static androidx.camera.core.impl.utils.Threads.runOnMainSync;
+
+import static java.util.Collections.emptyList;
+
 import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
@@ -28,6 +32,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraEffect;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -41,6 +46,9 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.concurrent.ConcurrentCamera;
+import androidx.camera.core.concurrent.ConcurrentCameraConfig;
+import androidx.camera.core.concurrent.SingleCameraConfig;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
@@ -194,7 +202,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {
+                        public void onFailure(@NonNull Throwable t) {
                             completer.setException(t);
                         }
                     }, CameraXExecutors.directExecutor());
@@ -271,6 +279,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @RestrictTo(Scope.TESTS)
     @NonNull
     public ListenableFuture<Void> shutdown() {
+        runOnMainSync(this::unbindAll);
         mLifecycleCameraRepository.clear();
 
         ListenableFuture<Void> shutdownFuture = mCameraX != null ? mCameraX.shutdown() :
@@ -357,7 +366,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCase... useCases) {
-        return bindToLifecycle(lifecycleOwner, cameraSelector, null, useCases);
+        return bindToLifecycle(lifecycleOwner, cameraSelector, null, emptyList(), useCases);
     }
 
     /**
@@ -379,7 +388,53 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCaseGroup useCaseGroup) {
         return bindToLifecycle(lifecycleOwner, cameraSelector,
-                useCaseGroup.getViewPort(), useCaseGroup.getUseCases().toArray(new UseCase[0]));
+                useCaseGroup.getViewPort(), useCaseGroup.getEffects(),
+                useCaseGroup.getUseCases().toArray(new UseCase[0]));
+    }
+
+    /**
+     * Binds a {@link ConcurrentCameraConfig} to {@link LifecycleOwner}.
+     *
+     * <p>The concurrent camera is only supporting two cameras currently. If the input
+     * {@link ConcurrentCameraConfig} has less or more than two {@link SingleCameraConfig},
+     * {@link IllegalArgumentException} will be thrown.
+     *
+     * @param concurrentCameraConfig input configuration for concurrent camera.
+     * @return output concurrent camera instance.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @SuppressWarnings({"lambdaLast"})
+    @MainThread
+    @NonNull
+    public ConcurrentCamera bindToLifecycle(
+            @NonNull ConcurrentCameraConfig concurrentCameraConfig) {
+        // TODO(b/268347532): enable concurrent mode in camera coordinator
+        if (concurrentCameraConfig.getSingleCameraConfigs().size() < 2) {
+            throw new IllegalArgumentException("Concurrent camera needs two camera configs");
+        }
+
+        if (concurrentCameraConfig.getSingleCameraConfigs().size() > 2) {
+            throw new UnsupportedOperationException("Concurrent camera is only supporting two  "
+                    + "cameras at maximum.");
+        }
+
+        List<Camera> cameras = new ArrayList<>();
+        for (SingleCameraConfig config : concurrentCameraConfig.getSingleCameraConfigs()) {
+            Camera camera = bindToLifecycle(
+                    config.getLifecycleOwner(),
+                    config.getCameraSelector(),
+                    config.getUseCaseGroup().getViewPort(),
+                    config.getUseCaseGroup().getEffects(),
+                    config.getUseCaseGroup().getUseCases().toArray(new UseCase[0]));
+
+            cameras.add(camera);
+        }
+
+        return new ConcurrentCamera.Builder()
+                .setCameras(cameras)
+                .builder();
     }
 
     /**
@@ -431,6 +486,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * @param cameraSelector The camera selector which determines the camera to use for set of
      *                       use cases.
      * @param viewPort       The viewPort which represents the visible camera sensor rect.
+     * @param effects        The effects applied to the camera outputs.
      * @param useCases       The use cases to bind to a lifecycle.
      * @return The {@link Camera} instance which is determined by the camera selector and
      * internal requirements.
@@ -445,6 +501,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
             @NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @Nullable ViewPort viewPort,
+            @NonNull List<CameraEffect> effects,
             @NonNull UseCase... useCases) {
         Threads.checkMainThread();
         // TODO(b/153096869): override UseCase's target rotation.
@@ -530,7 +587,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         }
 
         mLifecycleCameraRepository.bindToLifecycleCamera(lifecycleCameraToBind, viewPort,
-                Arrays.asList(useCases));
+                effects, Arrays.asList(useCases));
 
         return lifecycleCameraToBind;
     }

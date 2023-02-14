@@ -22,6 +22,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
 import androidx.work.RunnableScheduler;
 import androidx.work.WorkRequest;
+import androidx.work.impl.model.WorkGenerationalId;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,8 +40,8 @@ public class WorkTimer {
     private static final String TAG = Logger.tagWithPrefix("WorkTimer");
 
     final RunnableScheduler mRunnableScheduler;
-    final Map<String, WorkTimerRunnable> mTimerMap;
-    final Map<String, TimeLimitExceededListener> mListeners;
+    final Map<WorkGenerationalId, WorkTimerRunnable> mTimerMap;
+    final Map<WorkGenerationalId, TimeLimitExceededListener> mListeners;
     final Object mLock;
 
     public WorkTimer(@NonNull RunnableScheduler scheduler) {
@@ -55,23 +56,23 @@ public class WorkTimer {
      * The {@link TimeLimitExceededListener} is notified when the execution time exceeds {@code
      * processingTimeMillis}.
      *
-     * @param workSpecId           The {@link androidx.work.impl.model.WorkSpec} id
+     * @param id           The {@link androidx.work.impl.model.WorkSpec} id
      * @param processingTimeMillis The allocated time for execution in milliseconds
      * @param listener             The listener which is notified when the execution time exceeds
      *                             {@code processingTimeMillis}
      */
     @SuppressWarnings("FutureReturnValueIgnored")
-    public void startTimer(@NonNull final String workSpecId,
+    public void startTimer(@NonNull final WorkGenerationalId id,
             long processingTimeMillis,
             @NonNull TimeLimitExceededListener listener) {
 
         synchronized (mLock) {
-            Logger.get().debug(TAG, "Starting timer for " + workSpecId);
+            Logger.get().debug(TAG, "Starting timer for " + id);
             // clear existing timer's first
-            stopTimer(workSpecId);
-            WorkTimerRunnable runnable = new WorkTimerRunnable(this, workSpecId);
-            mTimerMap.put(workSpecId, runnable);
-            mListeners.put(workSpecId, listener);
+            stopTimer(id);
+            WorkTimerRunnable runnable = new WorkTimerRunnable(this, id);
+            mTimerMap.put(id, runnable);
+            mListeners.put(id, listener);
             mRunnableScheduler.scheduleWithDelay(processingTimeMillis, runnable);
         }
     }
@@ -79,28 +80,32 @@ public class WorkTimer {
     /**
      * Stops tracking the execution time for a given {@link androidx.work.impl.model.WorkSpec}.
      *
-     * @param workSpecId The {@link androidx.work.impl.model.WorkSpec} id
+     * @param id The {@link androidx.work.impl.model.WorkSpec} id
      */
-    public void stopTimer(@NonNull final String workSpecId) {
+    public void stopTimer(@NonNull final WorkGenerationalId id) {
         synchronized (mLock) {
-            WorkTimerRunnable removed = mTimerMap.remove(workSpecId);
+            WorkTimerRunnable removed = mTimerMap.remove(id);
             if (removed != null) {
-                Logger.get().debug(TAG, "Stopping timer for " + workSpecId);
-                mListeners.remove(workSpecId);
+                Logger.get().debug(TAG, "Stopping timer for " + id);
+                mListeners.remove(id);
             }
         }
     }
 
     @VisibleForTesting
     @NonNull
-    public synchronized Map<String, WorkTimerRunnable> getTimerMap() {
-        return mTimerMap;
+    public Map<WorkGenerationalId, WorkTimerRunnable> getTimerMap() {
+        synchronized (mLock) {
+            return mTimerMap;
+        }
     }
 
     @VisibleForTesting
     @NonNull
-    public synchronized Map<String, TimeLimitExceededListener> getListeners() {
-        return mListeners;
+    public Map<WorkGenerationalId, TimeLimitExceededListener> getListeners() {
+        synchronized (mLock) {
+            return mListeners;
+        }
     }
 
     /**
@@ -113,26 +118,27 @@ public class WorkTimer {
         static final String TAG = "WrkTimerRunnable";
 
         private final WorkTimer mWorkTimer;
-        private final String mWorkSpecId;
+        private final WorkGenerationalId mWorkGenerationalId;
 
-        WorkTimerRunnable(@NonNull WorkTimer workTimer, @NonNull String workSpecId) {
+        WorkTimerRunnable(@NonNull WorkTimer workTimer, @NonNull WorkGenerationalId id) {
             mWorkTimer = workTimer;
-            mWorkSpecId = workSpecId;
+            mWorkGenerationalId = id;
         }
 
         @Override
         public void run() {
             synchronized (mWorkTimer.mLock) {
-                WorkTimerRunnable removed = mWorkTimer.mTimerMap.remove(mWorkSpecId);
+                WorkTimerRunnable removed = mWorkTimer.mTimerMap.remove(mWorkGenerationalId);
                 if (removed != null) {
                     // notify time limit exceeded.
-                    TimeLimitExceededListener listener = mWorkTimer.mListeners.remove(mWorkSpecId);
+                    TimeLimitExceededListener listener = mWorkTimer.mListeners
+                            .remove(mWorkGenerationalId);
                     if (listener != null) {
-                        listener.onTimeLimitExceeded(mWorkSpecId);
+                        listener.onTimeLimitExceeded(mWorkGenerationalId);
                     }
                 } else {
                     Logger.get().debug(TAG, String.format(
-                            "Timer with %s is already marked as complete.", mWorkSpecId));
+                            "Timer with %s is already marked as complete.", mWorkGenerationalId));
                 }
             }
         }
@@ -146,9 +152,9 @@ public class WorkTimer {
         /**
          * The time limit exceeded listener.
          *
-         * @param workSpecId The {@link androidx.work.impl.model.WorkSpec} id for which time limit
+         * @param id The {@link androidx.work.impl.model.WorkSpec} id for which time limit
          *                   has exceeded.
          */
-        void onTimeLimitExceeded(@NonNull String workSpecId);
+        void onTimeLimitExceeded(@NonNull WorkGenerationalId id);
     }
 }

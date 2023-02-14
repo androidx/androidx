@@ -45,7 +45,7 @@ import java.io.OutputStream
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class KotlinSerializationActivity : AppCompatActivity() {
-    private val TAG = "KotlinSerializationActivity"
+    private val TAG = "SerializationActivity"
 
     private val PROTO_STORE_FILE_NAME = "kotlin_serialization_test_file.json"
 

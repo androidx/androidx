@@ -270,7 +270,7 @@ public class LocalStorage {
      *                {@link AppSearchSession}
      */
     @NonNull
-    public static ListenableFuture<AppSearchSession> createSearchSession(
+    public static ListenableFuture<AppSearchSession> createSearchSessionAsync(
             @NonNull SearchContext context) {
         Preconditions.checkNotNull(context);
         return FutureUtil.execute(context.mExecutor, () -> {
@@ -290,7 +290,7 @@ public class LocalStorage {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSession(
+    public static ListenableFuture<GlobalSearchSession> createGlobalSearchSessionAsync(
             @NonNull GlobalSearchContext context) {
         Preconditions.checkNotNull(context);
         return FutureUtil.execute(context.mExecutor, () -> {
@@ -338,11 +338,15 @@ public class LocalStorage {
             initStatsBuilder = new InitializeStats.Builder();
         }
 
+        // Syncing the current logging level to Icing before creating the AppSearch object, so that
+        // the correct logging level will cover the period of Icing initialization.
+        AppSearchImpl.syncLoggingLevelToIcing();
         mAppSearchImpl = AppSearchImpl.create(
                 icingDir,
                 new UnlimitedLimitConfig(),
                 initStatsBuilder,
-                new JetpackOptimizeStrategy());
+                new JetpackOptimizeStrategy(),
+                /*visibilityChecker=*/null);
 
         if (logger != null) {
             initStatsBuilder.setTotalLatencyMillis(
@@ -382,7 +386,7 @@ public class LocalStorage {
                 mAppSearchImpl,
                 context.mExecutor,
                 new AlwaysSupportedFeatures(),
-                context.mContext.getPackageName(),
+                context.mContext,
                 context.mDatabaseName,
                 context.mLogger);
     }

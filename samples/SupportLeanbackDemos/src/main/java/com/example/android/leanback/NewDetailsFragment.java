@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.app.DetailsFragmentBackgroundController;
@@ -101,7 +102,7 @@ public class NewDetailsFragment extends androidx.leanback.app.DetailsFragment {
                         + "2013/Explore Treasure Mode with Google Maps.mp4"));
         mediaPlayerGlue.addPlayerCallback(new PlaybackGlue.PlayerCallback() {
             @Override
-            public void onPreparedStateChanged(PlaybackGlue glue) {
+            public void onPreparedStateChanged(@NonNull PlaybackGlue glue) {
                 super.onPreparedStateChanged(glue);
                 PlaybackTransportControlGlue controlGlue = (PlaybackTransportControlGlue) glue;
                 controlGlue.setSeekProvider(new PlaybackSeekDiskDataProvider(

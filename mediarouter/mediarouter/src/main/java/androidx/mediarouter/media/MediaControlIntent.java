@@ -441,7 +441,7 @@ public final class MediaControlIntent {
      * MediaRouter.RouteInfo route = mediaRouter.getSelectedRoute();
      * Intent intent = new Intent(MediaControlIntent.ACTION_PLAY);
      * intent.addCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK);
-     * intent.setDataAndType("http://example.com/videos/movie.mp4", "video/mp4");
+     * intent.setDataAndType(Uri.parse("http://example.com/videos/movie.mp4"), "video/mp4");
      * if (route.supportsControlRequest(intent)) {
      *     MediaRouter.ControlRequestCallback callback = new MediaRouter.ControlRequestCallback() {
      *         public void onResult(Bundle data) {

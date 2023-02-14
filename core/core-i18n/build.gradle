@@ -25,17 +25,30 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     // Add dependencies here
+    api("androidx.annotation:annotation:1.2.0")
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(project(":core:core"))
 }
 
 androidx {
     name = "Core Internationalization"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_I18N
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2022"
     description = "This library provides functionality for good internationalization (messages, plurals, date / time formatting)."
 }
 
 android {
     namespace "androidx.core.i18n"
+    defaultConfig {
+        minSdkVersion 19
+    }
+    lintOptions {
+        lintConfig = file("lint.xml")
+    }
 }

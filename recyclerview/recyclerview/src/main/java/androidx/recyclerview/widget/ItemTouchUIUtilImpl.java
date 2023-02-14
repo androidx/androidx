@@ -20,6 +20,7 @@ import android.graphics.Canvas;
 import android.os.Build;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.R;
 
@@ -31,8 +32,15 @@ class ItemTouchUIUtilImpl implements ItemTouchUIUtil {
     static final ItemTouchUIUtil INSTANCE =  new ItemTouchUIUtilImpl();
 
     @Override
-    public void onDraw(Canvas c, RecyclerView recyclerView, View view, float dX, float dY,
-            int actionState, boolean isCurrentlyActive) {
+    public void onDraw(
+            @NonNull Canvas c,
+            @NonNull RecyclerView recyclerView,
+            @NonNull View view,
+            float dX,
+            float dY,
+            int actionState,
+            boolean isCurrentlyActive
+    ) {
         if (Build.VERSION.SDK_INT >= 21) {
             if (isCurrentlyActive) {
                 Object originalElevation = view.getTag(R.id.item_touch_helper_previous_elevation);
@@ -66,12 +74,19 @@ class ItemTouchUIUtilImpl implements ItemTouchUIUtil {
     }
 
     @Override
-    public void onDrawOver(Canvas c, RecyclerView recyclerView, View view, float dX, float dY,
-            int actionState, boolean isCurrentlyActive) {
+    public void onDrawOver(
+            @NonNull Canvas c,
+            @NonNull RecyclerView recyclerView,
+            @NonNull View view,
+            float dX,
+            float dY,
+            int actionState,
+            boolean isCurrentlyActive
+    ) {
     }
 
     @Override
-    public void clearView(View view) {
+    public void clearView(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 21) {
             final Object tag = view.getTag(R.id.item_touch_helper_previous_elevation);
             if (tag instanceof Float) {
@@ -85,6 +100,6 @@ class ItemTouchUIUtilImpl implements ItemTouchUIUtil {
     }
 
     @Override
-    public void onSelected(View view) {
+    public void onSelected(@NonNull View view) {
     }
 }

@@ -26,15 +26,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
 fun CardSample() {
@@ -44,21 +41,21 @@ fun CardSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
 fun ClickableCardSample() {
-    var count by remember { mutableStateOf(0) }
     Card(
-        onClick = { count++ },
+        onClick = { /* Do something */ },
         modifier = Modifier.size(width = 180.dp, height = 100.dp)
     ) {
         Box(Modifier.fillMaxSize()) {
-            Text("Count: $count", Modifier.align(Alignment.Center))
+            Text("Clickable", Modifier.align(Alignment.Center))
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
 fun ElevatedCardSample() {
@@ -68,21 +65,21 @@ fun ElevatedCardSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
 fun ClickableElevatedCardSample() {
-    var count by remember { mutableStateOf(0) }
     ElevatedCard(
-        onClick = { count++ },
+        onClick = { /* Do something */ },
         modifier = Modifier.size(width = 180.dp, height = 100.dp)
     ) {
         Box(Modifier.fillMaxSize()) {
-            Text("Count: $count", Modifier.align(Alignment.Center))
+            Text("Clickable", Modifier.align(Alignment.Center))
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
 fun OutlinedCardSample() {
@@ -92,16 +89,16 @@ fun OutlinedCardSample() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Sampled
 @Composable
 fun ClickableOutlinedCardSample() {
-    var count by remember { mutableStateOf(0) }
     OutlinedCard(
-        onClick = { count++ },
+        onClick = { /* Do something */ },
         modifier = Modifier.size(width = 180.dp, height = 100.dp)
     ) {
         Box(Modifier.fillMaxSize()) {
-            Text("Count: $count", Modifier.align(Alignment.Center))
+            Text("Clickable", Modifier.align(Alignment.Center))
         }
     }
 }

@@ -25,6 +25,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.DurationSpan;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
@@ -82,11 +83,16 @@ public final class RoutePreviewScreen extends Screen {
         for (Row row : mRouteRows) {
             listBuilder.addItem(row);
         }
+
+        Header header = new Header.Builder()
+                .setStartHeaderAction(Action.BACK)
+                .setTitle(getCarContext().getString(R.string.route_preview))
+                .build();
+
         return new RoutePreviewNavigationTemplate.Builder()
                 .setItemList(listBuilder.build())
-                .setTitle(getCarContext().getString(R.string.route_preview))
                 .setActionStrip(new ActionStrip.Builder().addAction(mSettingsAction).build())
-                .setHeaderAction(Action.BACK)
+                .setHeader(header)
                 .setNavigateAction(
                         new Action.Builder()
                                 .setTitle("Continue to route")

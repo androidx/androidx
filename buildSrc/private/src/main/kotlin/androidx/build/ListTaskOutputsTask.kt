@@ -22,6 +22,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -29,6 +30,7 @@ import org.gradle.api.tasks.TaskAction
 /**
  * Finds the outputs of every task and saves this mapping into a file
  */
+@CacheableTask
 abstract class ListTaskOutputsTask : DefaultTask() {
     @OutputFile
     val outputFile: Property<File> = project.objects.property(File::class.java)
@@ -37,9 +39,14 @@ abstract class ListTaskOutputsTask : DefaultTask() {
     @Input
     val tasks: MutableList<Task> = mutableListOf()
 
+    @get:Input
+    val outputText by lazy { computeOutputText() }
+
     init {
         group = "Help"
-        outputs.upToDateWhen { false }
+        // compute the output text when the taskgraph is ready so that the output text can be
+        // saved in the configuration cache and not generate a configuration cache violation
+        project.gradle.taskGraph.whenReady({ outputText.toString() })
     }
 
     fun setOutput(f: File) {
@@ -89,14 +96,15 @@ abstract class ListTaskOutputsTask : DefaultTask() {
         return components.joinToString("")
     }
 
+    fun computeOutputText(): String {
+        val tasksByOutput = project.rootProject.findAllTasksByOutput()
+        return formatTasks(tasksByOutput)
+    }
+
     @TaskAction
     fun exec() {
-        val tasksByOutput = project.rootProject.findAllTasksByOutput()
-        val text = formatTasks(tasksByOutput)
-
         val outputFile = outputFile.get()
-        outputFile.writeText(text)
-        logger.lifecycle("Wrote ${outputFile.path}")
+        outputFile.writeText(outputText)
     }
 }
 
@@ -120,37 +128,9 @@ val taskNamesKnownToDuplicateOutputs = setOf(
     "generateReleaseProtos",
     // Release APKs
     "copyReleaseApk",
-    // b/223733695
-    "pixel2api31DebugAndroidTest",
-    "pixel2api31ReleaseAndroidTest",
-    "pixel2api31WithExpandProjectionDebugAndroidTest",
-    "pixel2api31WithNullAwareTypeConverterDebugAndroidTest",
-    "pixel2api31WithoutExpandProjectionDebugAndroidTest",
-    "pixel2api31WithKaptDebugAndroidTest",
-    "pixel2api31WithKspDebugAndroidTest",
-    "pixel2api31TargetSdk29DebugAndroidTest",
-    "pixel2api31TargetSdk30DebugAndroidTest",
-    "pixel2api31TargetSdkLatestDebugAndroidTest",
-    "pixel2api30DebugAndroidTest",
-    "pixel2api30ReleaseAndroidTest",
-    "pixel2api30WithExpandProjectionDebugAndroidTest",
-    "pixel2api30WithNullAwareTypeConverterDebugAndroidTest",
-    "pixel2api30WithoutExpandProjectionDebugAndroidTest",
-    "pixel2api30WithKaptDebugAndroidTest",
-    "pixel2api30WithKspDebugAndroidTest",
-    "pixel2api30TargetSdk29DebugAndroidTest",
-    "pixel2api30TargetSdk30DebugAndroidTest",
-    "pixel2api30TargetSdkLatestDebugAndroidTest",
-    "pixel2api29DebugAndroidTest",
-    "pixel2api29ReleaseAndroidTest",
-    "pixel2api29WithExpandProjectionDebugAndroidTest",
-    "pixel2api29WithNullAwareTypeConverterDebugAndroidTest",
-    "pixel2api29WithoutExpandProjectionDebugAndroidTest",
-    "pixel2api29WithKaptDebugAndroidTest",
-    "pixel2api29WithKspDebugAndroidTest",
-    "pixel2api29TargetSdk29DebugAndroidTest",
-    "pixel2api29TargetSdk30DebugAndroidTest",
-    "pixel2api29TargetSdkLatestDebugAndroidTest",
+    // The following tests intentionally have the same output of golden images
+    "updateGoldenDesktopTest",
+    "updateGoldenDebugUnitTest"
 )
 
 val taskTypesKnownToDuplicateOutputs = setOf(
@@ -188,6 +168,9 @@ fun Project.findAllTasksByOutput(): Map<File, Task> {
                             "multiple tasks: " + otherTask + " and " + existingTask
                     )
                 }
+                // if there is an exempt conflict, keep the alphabetically earlier task to ensure consistency
+                if (existingTask.path > otherTask.path)
+                  continue
             }
             tasksByOutput[otherTaskOutput] = otherTask
         }

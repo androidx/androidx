@@ -44,3 +44,9 @@ internal actual fun is24HourFormat(): Boolean {
 internal actual fun currentTimeMillis(): Long = System.currentTimeMillis()
 
 internal actual fun isLeftyModeEnabled() = false
+
+@Composable
+internal actual fun screenHeightDp() = -1
+
+@Composable
+internal actual fun screenWidthDp() = -1

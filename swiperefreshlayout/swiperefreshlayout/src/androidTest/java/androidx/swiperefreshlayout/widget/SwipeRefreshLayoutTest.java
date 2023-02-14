@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.view.ContextThemeWrapper;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.swiperefreshlayout.test.R;
@@ -37,6 +38,7 @@ import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.PollingCheck;
 
 import org.junit.Before;
@@ -127,6 +129,36 @@ public class SwipeRefreshLayoutTest {
         assertFalse(mSwipeRefresh.isRefreshing());
 
         swipeToRefreshVerifyThenStopRefreshing(true);
+    }
+
+    @Test
+    @LargeTest
+    public void testPressKeycodeRefreshToRefresh() throws Throwable {
+        SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                assertTrue(mSwipeRefresh.isRefreshing());
+                mSwipeRefresh.setRefreshing(false);
+            }
+        };
+        mSwipeRefresh.setOnRefreshListener(listener);
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefresh.dispatchKeyEvent(
+                        new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_REFRESH));
+            }
+        });
+        assertTrue(mSwipeRefresh.isRefreshing());
+        PollingCheck.waitFor(TIMEOUT, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return !mSwipeRefresh.isRefreshing();
+            }
+        });
+
+        assertFalse(mSwipeRefresh.isRefreshing());
     }
 
     @Test

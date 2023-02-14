@@ -23,6 +23,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.test.R;
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 import androidx.leanback.widget.Action;
@@ -46,7 +48,7 @@ public class DetailsTestFragment extends androidx.leanback.app.DetailsFragment {
     private PhotoItem mPhotoItem;
     private final Presenter mCardPresenter = new Presenter() {
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent) {
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent) {
             ImageCardView cardView = new ImageCardView(getActivity());
             cardView.setFocusable(true);
             cardView.setFocusableInTouchMode(true);
@@ -54,7 +56,7 @@ public class DetailsTestFragment extends androidx.leanback.app.DetailsFragment {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder viewHolder, Object item) {
+        public void onBindViewHolder(@NonNull ViewHolder viewHolder, @Nullable Object item) {
             ImageCardView imageCardView = (ImageCardView) viewHolder.view;
             imageCardView.setTitleText("Android Tv");
             imageCardView.setContentText("Android Tv Production Inc.");
@@ -62,7 +64,7 @@ public class DetailsTestFragment extends androidx.leanback.app.DetailsFragment {
         }
 
         @Override
-        public void onUnbindViewHolder(ViewHolder viewHolder) {
+        public void onUnbindViewHolder(@NonNull ViewHolder viewHolder) {
         }
     };
 
@@ -91,7 +93,9 @@ public class DetailsTestFragment extends androidx.leanback.app.DetailsFragment {
                 new FullWidthDetailsOverviewRowPresenter(new AbstractDetailsDescriptionPresenter() {
                     @Override
                     protected void onBindDescription(
-                            AbstractDetailsDescriptionPresenter.ViewHolder vh, Object item) {
+                            @NonNull AbstractDetailsDescriptionPresenter.ViewHolder vh,
+                            @Nullable Object item
+                    ) {
                         vh.getTitle().setText("Funny Movie");
                         vh.getSubtitle().setText("Android TV Production Inc.");
                         vh.getBody().setText("What a great movie!");

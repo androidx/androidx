@@ -22,16 +22,14 @@ public class MeasureCallbackEvent(public override val proto: ListenerProto) :
             MeasureCallbackEvent(ListenerProto.parseFrom(it))
         }
 
-        @JvmStatic
-        public fun createDataPointsUpdateEvent(
+        internal fun createDataPointsUpdateEvent(
             dataPointsResponse: DataPointsResponse
         ): MeasureCallbackEvent =
             MeasureCallbackEvent(
                 ListenerProto.newBuilder().setDataPointResponse(dataPointsResponse.proto).build()
             )
 
-        @JvmStatic
-        public fun createAvailabilityUpdateEvent(
+        internal fun createAvailabilityUpdateEvent(
             availability: AvailabilityResponse
         ): MeasureCallbackEvent =
             MeasureCallbackEvent(

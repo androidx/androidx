@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_layout_title" msgid="7937809248738392417"><b>"Glance ilova vidjeti xatosi"</b></string>
-    <string name="error_layout_text" msgid="6543889412094559379">"Muayyan xatoni "<b><tt>"adb logcat"</tt></b>" yordamida tekshiring va "<b><tt>"GlanceAppWidget"</tt>" qatorini qidiring"</b></string>
+    <string name="glance_error_layout_title" msgid="2896109737634971880"><b>"Glance ilova vidjeti xatosi"</b></string>
+    <string name="glance_error_layout_text" msgid="8513923302775602854">"Muayyan xatoni "<b><tt>"adb logcat"</tt></b>" yordamida tekshiring va "<b><tt>"GlanceAppWidget"</tt>" qatorini qidiring"</b></string>
 </resources>

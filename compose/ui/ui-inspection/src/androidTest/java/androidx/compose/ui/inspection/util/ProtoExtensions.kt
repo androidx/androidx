@@ -30,11 +30,36 @@ fun List<LayoutInspectorComposeProtocol.StringEntry>.toMap() = associate { it.id
 
 fun GetParametersCommand(
     rootViewId: Long,
+    node: ComposableNode,
+    useDelayedParameterExtraction: Boolean,
+    skipSystemComposables: Boolean = true
+): Command = if (useDelayedParameterExtraction) {
+    GetParametersByAnchorIdCommand(rootViewId, node.anchorHash, node.id, skipSystemComposables)
+} else {
+    GetParametersByIdCommand(rootViewId, node.id, skipSystemComposables)
+}
+
+fun GetParametersByIdCommand(
+    rootViewId: Long,
     composableId: Long,
     skipSystemComposables: Boolean = true
 ): Command = Command.newBuilder().apply {
     getParametersCommand = GetParametersCommand.newBuilder().apply {
         this.rootViewId = rootViewId
+        this.composableId = composableId
+        this.skipSystemComposables = skipSystemComposables
+    }.build()
+}.build()
+
+fun GetParametersByAnchorIdCommand(
+    rootViewId: Long,
+    anchorId: Int,
+    composableId: Long,
+    skipSystemComposables: Boolean = true
+): Command = Command.newBuilder().apply {
+    getParametersCommand = GetParametersCommand.newBuilder().apply {
+        this.rootViewId = rootViewId
+        this.anchorHash = anchorId
         this.composableId = composableId
         this.skipSystemComposables = skipSystemComposables
     }.build()
@@ -73,10 +98,16 @@ fun GetParameterDetailsCommand(
 fun GetComposablesCommand(
     rootViewId: Long,
     skipSystemComposables: Boolean = true,
-    generation: Int = 1
+    generation: Int = 1,
+    extractAllParameters: Boolean = false
 ): Command =
     Command.newBuilder().apply {
-        getComposablesCommand = GetComposablesCommand.newBuilder()
+        getComposablesCommand = GetComposablesCommand.newBuilder().apply {
+            this.rootViewId = rootViewId
+            this.skipSystemComposables = skipSystemComposables
+            this.generation = generation
+            this.extractAllParameters = extractAllParameters
+        }
             .setRootViewId(rootViewId)
             .setSkipSystemComposables(skipSystemComposables)
             .setGeneration(generation)
@@ -84,14 +115,16 @@ fun GetComposablesCommand(
     }.build()
 
 fun GetUpdateSettingsCommand(
-    includeRecomposeCounts: Boolean,
-    keepRecomposeCounts: Boolean = false
+    includeRecomposeCounts: Boolean = false,
+    keepRecomposeCounts: Boolean = false,
+    delayParameterExtractions: Boolean = false
 ): Command =
     Command.newBuilder().apply {
-        updateSettingsCommand = UpdateSettingsCommand.newBuilder()
-            .setIncludeRecomposeCounts(includeRecomposeCounts)
-            .setKeepRecomposeCounts(keepRecomposeCounts)
-            .build()
+        updateSettingsCommand = UpdateSettingsCommand.newBuilder().apply {
+            this.includeRecomposeCounts = includeRecomposeCounts
+            this.keepRecomposeCounts = keepRecomposeCounts
+            this.delayParameterExtractions = delayParameterExtractions
+        }.build()
     }.build()
 
 fun ComposableNode.flatten(): List<ComposableNode> =

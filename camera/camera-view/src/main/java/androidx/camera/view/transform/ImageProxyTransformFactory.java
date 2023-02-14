@@ -16,10 +16,10 @@
 
 package androidx.camera.view.transform;
 
-import static androidx.camera.view.TransformUtils.getNormalizedToBuffer;
-import static androidx.camera.view.TransformUtils.getRectToRect;
-import static androidx.camera.view.TransformUtils.is90or270;
-import static androidx.camera.view.TransformUtils.rectToSize;
+import static androidx.camera.core.impl.utils.TransformUtils.getNormalizedToBuffer;
+import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
+import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
+import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 
 import android.graphics.Matrix;
 import android.graphics.RectF;

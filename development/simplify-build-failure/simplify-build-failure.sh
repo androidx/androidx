@@ -108,9 +108,6 @@ while [ "$1" != "" ]; do
     fi
     shift
     gradleExtraArguments="$1"
-    if [ "$gradleExtraArguments" == "" ]; then
-      usage
-    fi
     shift
     errorMessage="$1"
     if [ "$errorMessage" == "" ]; then

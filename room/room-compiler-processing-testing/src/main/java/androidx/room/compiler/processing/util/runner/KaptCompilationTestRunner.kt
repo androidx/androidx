@@ -24,9 +24,12 @@ import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import androidx.room.compiler.processing.util.compiler.withAtLeastOneKotlinSource
 import java.io.File
+import javax.annotation.processing.Processor
 
 @ExperimentalProcessingApi
-internal object KaptCompilationTestRunner : CompilationTestRunner {
+internal class KaptCompilationTestRunner(
+    private val testProcessors: List<Processor> = emptyList()
+) : CompilationTestRunner {
     override val name: String = "kapt"
 
     override fun canRun(params: TestCompilationParameters): Boolean {
@@ -38,7 +41,7 @@ internal object KaptCompilationTestRunner : CompilationTestRunner {
         val args = TestCompilationArguments(
             sources = params.sources,
             classpath = params.classpath,
-            kaptProcessors = listOf(syntheticJavacProcessor),
+            kaptProcessors = testProcessors + syntheticJavacProcessor,
             processorOptions = params.options,
             javacArguments = params.javacArguments,
             kotlincArguments = params.kotlincArguments,

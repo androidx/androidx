@@ -3,11 +3,22 @@ package androidx.wear.watchface {
 
   public final class BackgroundComplicationTapFilter implements androidx.wear.watchface.ComplicationTapFilter {
     ctor public BackgroundComplicationTapFilter();
-    method public boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
   }
 
-  public interface CanvasComplication {
+  @androidx.wear.watchface.complications.data.ComplicationExperimental public final class BoundingArc {
+    ctor public BoundingArc(float startAngle, float totalAngle, @Px float thickness);
+    method public float getStartAngle();
+    method public float getThickness();
+    method public float getTotalAngle();
+    method public boolean hitTest(android.graphics.Rect rect, @Px float x, @Px float y);
+    property public final float startAngle;
+    property public final float thickness;
+    property public final float totalAngle;
+  }
+
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface CanvasComplication {
     method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, java.time.ZonedDateTime zonedDateTime, @ColorInt int color);
+    method @androidx.wear.watchface.complications.data.ComplicationExperimental public default void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, java.time.ZonedDateTime zonedDateTime, @ColorInt int color, androidx.wear.watchface.BoundingArc? boundingArc);
     method public androidx.wear.watchface.complications.data.ComplicationData getData();
     method public void loadData(androidx.wear.watchface.complications.data.ComplicationData complicationData, boolean loadDrawablesAsynchronous);
     method @WorkerThread public default void onRendererCreated(androidx.wear.watchface.Renderer renderer);
@@ -23,9 +34,12 @@ package androidx.wear.watchface {
   }
 
   public final class ComplicationSlot {
+    method public android.graphics.Rect computeBounds(android.graphics.Rect screen, optional boolean applyMargins);
     method public android.graphics.Rect computeBounds(android.graphics.Rect screen);
     method public static androidx.wear.watchface.ComplicationSlot.Builder createBackgroundComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy);
     method public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
+    method @androidx.wear.watchface.complications.data.ComplicationExperimental public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc, optional androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
+    method @androidx.wear.watchface.complications.data.ComplicationExperimental public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc);
     method public static androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds);
     method @UiThread public int getAccessibilityTraversalIndex();
     method public int getBoundsType();
@@ -38,10 +52,10 @@ package androidx.wear.watchface {
     method public boolean getFixedComplicationDataSource();
     method public int getId();
     method public boolean getInitiallyEnabled();
-    method public Integer? getNameResourceId();
+    method @UiThread public Integer? getNameResourceId();
     method public androidx.wear.watchface.CanvasComplication getRenderer();
-    method public Integer? getScreenReaderNameResourceId();
-    method @UiThread public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> getSupportedTypes();
+    method @UiThread public Integer? getScreenReaderNameResourceId();
+    method public java.util.List<androidx.wear.watchface.complications.data.ComplicationType> getSupportedTypes();
     method public androidx.wear.watchface.ComplicationTapFilter getTapFilter();
     method public boolean isActiveAt(java.time.Instant instant);
     method @UiThread public boolean isEnabled();
@@ -60,10 +74,10 @@ package androidx.wear.watchface {
     property public final boolean fixedComplicationDataSource;
     property public final int id;
     property public final boolean initiallyEnabled;
-    property public final Integer? nameResourceId;
+    property @UiThread public final Integer? nameResourceId;
     property public final androidx.wear.watchface.CanvasComplication renderer;
-    property public final Integer? screenReaderNameResourceId;
-    property @UiThread public final java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
+    property @UiThread public final Integer? screenReaderNameResourceId;
+    property public final java.util.List<androidx.wear.watchface.complications.data.ComplicationType> supportedTypes;
     property public final androidx.wear.watchface.ComplicationTapFilter tapFilter;
     field public static final androidx.wear.watchface.ComplicationSlot.Companion Companion;
   }
@@ -82,6 +96,8 @@ package androidx.wear.watchface {
   public static final class ComplicationSlot.Companion {
     method public androidx.wear.watchface.ComplicationSlot.Builder createBackgroundComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy);
     method public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
+    method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc, optional androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
+    method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.BoundingArc boundingArc);
     method public androidx.wear.watchface.ComplicationSlot.Builder createRoundRectComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds);
   }
 
@@ -108,11 +124,9 @@ package androidx.wear.watchface {
     method public default void onComplicationSlotTapped(int complicationSlotId);
   }
 
-  public final class ComplicationSlotsManagerKt {
-  }
-
-  public interface ComplicationTapFilter {
-    method public boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface ComplicationTapFilter {
+    method public default boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y, boolean includeMargins);
+    method @Deprecated public default boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
   }
 
   public final class ContentDescriptionLabel {
@@ -127,13 +141,12 @@ package androidx.wear.watchface {
   }
 
   public enum DrawMode {
+    method public static androidx.wear.watchface.DrawMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.wear.watchface.DrawMode[] values();
     enum_constant public static final androidx.wear.watchface.DrawMode AMBIENT;
     enum_constant public static final androidx.wear.watchface.DrawMode INTERACTIVE;
     enum_constant public static final androidx.wear.watchface.DrawMode LOW_BATTERY_INTERACTIVE;
     enum_constant public static final androidx.wear.watchface.DrawMode MUTE;
-  }
-
-  public final class RenderBufferTextureKt {
   }
 
   public final class RenderParameters {
@@ -195,13 +208,16 @@ package androidx.wear.watchface {
     method public final androidx.wear.watchface.RenderParameters getRenderParameters();
     method public final android.graphics.Rect getScreenBounds();
     method public final android.view.SurfaceHolder getSurfaceHolder();
+    method @androidx.wear.watchface.WatchFaceExperimental public final androidx.wear.watchface.WatchFaceColors? getWatchfaceColors();
     method @UiThread public final void invalidate();
     method @UiThread public void onDestroy();
     method @UiThread public abstract void onDump(java.io.PrintWriter writer);
     method @UiThread protected void onRenderParametersChanged(androidx.wear.watchface.RenderParameters renderParameters);
     method public final void postInvalidate();
+    method public final void sendPreviewImageNeedsUpdateRequest();
     method public final void setAdditionalContentDescriptionLabels(java.util.Collection<kotlin.Pair<java.lang.Integer,androidx.wear.watchface.ContentDescriptionLabel>>);
     method public final void setInteractiveDrawModeUpdateDelayMillis(long);
+    method @androidx.wear.watchface.WatchFaceExperimental public final void setWatchfaceColors(androidx.wear.watchface.WatchFaceColors?);
     method @UiThread public boolean shouldAnimate();
     property public final java.util.Collection<kotlin.Pair<java.lang.Integer,androidx.wear.watchface.ContentDescriptionLabel>> additionalContentDescriptionLabels;
     property public final float centerX;
@@ -210,6 +226,7 @@ package androidx.wear.watchface {
     property public final androidx.wear.watchface.RenderParameters renderParameters;
     property public final android.graphics.Rect screenBounds;
     property public final android.view.SurfaceHolder surfaceHolder;
+    property @androidx.wear.watchface.WatchFaceExperimental public final androidx.wear.watchface.WatchFaceColors? watchfaceColors;
   }
 
   @Deprecated public abstract static class Renderer.CanvasRenderer extends androidx.wear.watchface.Renderer {
@@ -233,6 +250,7 @@ package androidx.wear.watchface {
   }
 
   @Deprecated public abstract static class Renderer.GlesRenderer extends androidx.wear.watchface.Renderer {
+    ctor @Deprecated @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList, optional int[] eglContextAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     ctor @Deprecated @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     ctor @Deprecated @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     ctor @Deprecated @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
@@ -260,6 +278,7 @@ package androidx.wear.watchface {
   }
 
   public abstract static class Renderer.GlesRenderer2<SharedAssetsT extends androidx.wear.watchface.Renderer.SharedAssets> extends androidx.wear.watchface.Renderer.GlesRenderer {
+    ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList, optional int[] eglContextAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
@@ -274,12 +293,8 @@ package androidx.wear.watchface {
     method @UiThread public void onDestroy();
   }
 
-  public final class RendererKt {
-  }
-
   public final class RoundRectComplicationTapFilter implements androidx.wear.watchface.ComplicationTapFilter {
     ctor public RoundRectComplicationTapFilter();
-    method public boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
   }
 
   public final class TapEvent {
@@ -290,24 +305,6 @@ package androidx.wear.watchface {
     property public final java.time.Instant tapTime;
     property public final int xPos;
     property public final int yPos;
-  }
-
-  @androidx.wear.watchface.WatchFaceFlavorsExperimental public final class UserStyleFlavor {
-    ctor public UserStyleFlavor(String id, androidx.wear.watchface.style.UserStyleData style, java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications);
-    ctor public UserStyleFlavor(String id, androidx.wear.watchface.style.UserStyle style, java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications);
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> getComplications();
-    method public String getId();
-    method public androidx.wear.watchface.style.UserStyleData getStyle();
-    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications;
-    property public final String id;
-    property public final androidx.wear.watchface.style.UserStyleData style;
-  }
-
-  @androidx.wear.watchface.WatchFaceFlavorsExperimental public final class UserStyleFlavors {
-    ctor public UserStyleFlavors(java.util.List<androidx.wear.watchface.UserStyleFlavor> flavors);
-    ctor public UserStyleFlavors();
-    method public java.util.List<androidx.wear.watchface.UserStyleFlavor> getFlavors();
-    property public final java.util.List<androidx.wear.watchface.UserStyleFlavor> flavors;
   }
 
   public final class WatchFace {
@@ -363,20 +360,28 @@ package androidx.wear.watchface {
     method @UiThread public void onTapEvent(int tapType, androidx.wear.watchface.TapEvent tapEvent, androidx.wear.watchface.ComplicationSlot? complicationSlot);
   }
 
-  @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface WatchFaceFlavorsExperimental {
+  @androidx.wear.watchface.WatchFaceExperimental public final class WatchFaceColors {
+    ctor public WatchFaceColors(android.graphics.Color primaryColor, android.graphics.Color secondaryColor, android.graphics.Color tertiaryColor);
+    method public android.graphics.Color getPrimaryColor();
+    method public android.graphics.Color getSecondaryColor();
+    method public android.graphics.Color getTertiaryColor();
+    property public final android.graphics.Color primaryColor;
+    property public final android.graphics.Color secondaryColor;
+    property public final android.graphics.Color tertiaryColor;
   }
 
-  public final class WatchFaceKt {
+  @kotlin.RequiresOptIn(message="This is an experimental API that may change or be removed without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface WatchFaceExperimental {
   }
 
   public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
     ctor public WatchFaceService();
     method @WorkerThread protected androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
-    method @WorkerThread @androidx.wear.watchface.WatchFaceFlavorsExperimental protected androidx.wear.watchface.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager);
+    method @WorkerThread protected androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager);
     method @WorkerThread protected androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema();
     method @WorkerThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
     method public final android.os.Handler getBackgroundThreadHandler();
-    method @WorkerThread protected androidx.wear.watchface.ComplicationSlotInflationFactory? getComplicationSlotInflationFactory();
+    method @Deprecated @WorkerThread protected androidx.wear.watchface.ComplicationSlotInflationFactory? getComplicationSlotInflationFactory();
+    method @WorkerThread protected androidx.wear.watchface.ComplicationSlotInflationFactory getComplicationSlotInflationFactory(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
     method public final android.os.Handler getUiThreadHandler();
     method public final android.service.wallpaper.WallpaperService.Engine onCreateEngine();
     field public static final androidx.wear.watchface.WatchFaceService.Companion Companion;
@@ -384,9 +389,6 @@ package androidx.wear.watchface {
   }
 
   public static final class WatchFaceService.Companion {
-  }
-
-  public final class WatchFaceServiceKt {
   }
 
   public final class WatchState {

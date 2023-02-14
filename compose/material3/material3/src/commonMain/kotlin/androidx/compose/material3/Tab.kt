@@ -55,12 +55,13 @@ import androidx.compose.ui.unit.sp
 
 import kotlin.math.max
 
-// TODO: Provide M3 tab image when asset is available.
 /**
- * <a href="https://material.io/components/tabs" class="external" target="_blank">Material Design tab</a>.
+ * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design tab.</a>
  *
  * A default Tab, also known as a Primary Navigation Tab. Tabs organize content across different
  * screens, data sets, and other interactions.
+ *
+ * ![Tabs image](https://developer.android.com/images/reference/androidx/compose/material3/secondary-tabs.png)
  *
  * A Tab represents a single page of content using a text label and/or icon. It represents its
  * selected state by tinting the text label and/or image with [selectedContentColor].
@@ -72,19 +73,19 @@ import kotlin.math.max
  * that is not opinionated about its content.
  *
  * @param selected whether this tab is selected or not
- * @param onClick the callback to be invoked when this tab is selected
- * @param modifier optional [Modifier] for this tab
- * @param enabled controls the enabled state of this tab. When `false`, this tab will not
- * be clickable and will appear disabled to accessibility services.
+ * @param onClick called when this tab is clicked
+ * @param modifier the [Modifier] to be applied to this tab
+ * @param enabled controls the enabled state of this tab. When `false`, this component will not
+ * respond to user input, and it will appear visually disabled and disabled to accessibility
+ * services.
  * @param text the text label displayed in this tab
  * @param icon the icon displayed in this tab
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Tab. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Tab in different [Interaction]s.
  * @param selectedContentColor the color for the content of this tab when selected, and the color
  * of the ripple.
  * @param unselectedContentColor the color for the content of this tab when not selected
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this tab. You can create and pass in your own `remember`ed instance to observe [Interaction]s
+ * and customize the appearance / behavior of this tab in different states.
  *
  * @see LeadingIconTab
  */
@@ -96,9 +97,9 @@ fun Tab(
     enabled: Boolean = true,
     text: @Composable (() -> Unit)? = null,
     icon: @Composable (() -> Unit)? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     selectedContentColor: Color = LocalContentColor.current,
-    unselectedContentColor: Color = selectedContentColor
+    unselectedContentColor: Color = selectedContentColor,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     val styledText: @Composable (() -> Unit)? = text?.let {
         @Composable {
@@ -113,17 +114,16 @@ fun Tab(
         onClick,
         modifier,
         enabled,
-        interactionSource,
         selectedContentColor,
-        unselectedContentColor
+        unselectedContentColor,
+        interactionSource
     ) {
         TabBaselineLayout(icon = icon, text = styledText)
     }
 }
 
-// TODO: Provide M3 tab image when asset is available.
 /**
- * <a href="https://material.io/components/tabs" class="external" target="_blank">Material Design tab</a>.
+ * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design tab.</a>
  *
  * Tabs organize content across different screens, data sets, and other interactions.
  *
@@ -135,19 +135,19 @@ fun Tab(
  * example usage.
  *
  * @param selected whether this tab is selected or not
- * @param onClick the callback to be invoked when this tab is selected
+ * @param onClick called when this tab is clicked
  * @param text the text label displayed in this tab
  * @param icon the icon displayed in this tab
- * @param modifier optional [Modifier] for this tab
- * @param enabled controls the enabled state of this tab. When `false`, this tab will not
- * be clickable and will appear disabled to accessibility services.
- * @param interactionSource the [MutableInteractionSource] representing the different [Interaction]s
- * present on this tab. You can create and pass in your own remembered [MutableInteractionSource] if
- * you want to read the [Interaction] and customize the appearance / behavior of this tab
- * in different [Interaction]s.
+ * @param modifier the [Modifier] to be applied to this tab
+ * @param enabled controls the enabled state of this tab. When `false`, this component will not
+ * respond to user input, and it will appear visually disabled and disabled to accessibility
+ * services.
  * @param selectedContentColor the color for the content of this tab when selected, and the color
  * of the ripple.
  * @param unselectedContentColor the color for the content of this tab when not selected
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this tab. You can create and pass in your own `remember`ed instance to observe [Interaction]s
+ * and customize the appearance / behavior of this tab in different states.
  *
  * @see Tab
  */
@@ -155,13 +155,13 @@ fun Tab(
 fun LeadingIconTab(
     selected: Boolean,
     onClick: () -> Unit,
-    text: @Composable (() -> Unit),
-    icon: @Composable (() -> Unit),
+    text: @Composable () -> Unit,
+    icon: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     selectedContentColor: Color = LocalContentColor.current,
-    unselectedContentColor: Color = selectedContentColor
+    unselectedContentColor: Color = selectedContentColor,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     // The color of the Ripple should always the be selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
@@ -194,11 +194,12 @@ fun LeadingIconTab(
     }
 }
 
-// TODO: Provide M3 tab image when asset is available.
 /**
- * <a href="https://material.io/components/tabs" class="external" target="_blank">Material Design tab</a>.
+ * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design tab.</a>
  *
  * Tabs organize content across different screens, data sets, and other interactions.
+ *
+ * ![Tabs image](https://developer.android.com/images/reference/androidx/compose/material3/secondary-tabs.png)
  *
  * Generic [Tab] overload that is not opinionated about content / color. See the other overload
  * for a Tab that has specific slots for text and / or an icon, as well as providing the correct
@@ -209,17 +210,17 @@ fun LeadingIconTab(
  * @sample androidx.compose.material3.samples.FancyTab
  *
  * @param selected whether this tab is selected or not
- * @param onClick the callback to be invoked when this tab is selected
- * @param modifier optional [Modifier] for this tab
- * @param enabled controls the enabled state of this tab. When `false`, this tab will not
- * be clickable and will appear disabled to accessibility services.
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this Tab. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Tab in different [Interaction]s.
+ * @param onClick called when this tab is clicked
+ * @param modifier the [Modifier] to be applied to this tab
+ * @param enabled controls the enabled state of this tab. When `false`, this component will not
+ * respond to user input, and it will appear visually disabled and disabled to accessibility
+ * services.
  * @param selectedContentColor the color for the content of this tab when selected, and the color
  * of the ripple.
  * @param unselectedContentColor the color for the content of this tab when not selected
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this tab. You can create and pass in your own `remember`ed instance to observe [Interaction]s
+ * and customize the appearance / behavior of this tab in different states.
  * @param content the content of this tab
  */
 @Composable
@@ -228,9 +229,9 @@ fun Tab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     selectedContentColor: Color = LocalContentColor.current,
     unselectedContentColor: Color = selectedContentColor,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable ColumnScope.() -> Unit
 ) {
     // The color of the Ripple should always the selected color, as we want to show the color
@@ -308,7 +309,9 @@ private fun TabBaselineLayout(
         {
             if (text != null) {
                 Box(
-                    Modifier.layoutId("text").padding(horizontal = HorizontalTextPadding)
+                    Modifier
+                        .layoutId("text")
+                        .padding(horizontal = HorizontalTextPadding)
                 ) { text() }
             }
             if (icon != null) {
@@ -330,11 +333,17 @@ private fun TabBaselineLayout(
 
         val tabWidth = max(textPlaceable?.width ?: 0, iconPlaceable?.width ?: 0)
 
-        val tabHeight = if (textPlaceable != null && iconPlaceable != null) {
+        val specHeight = if (textPlaceable != null && iconPlaceable != null) {
             LargeTabHeight
         } else {
             SmallTabHeight
         }.roundToPx()
+
+        val tabHeight = max(
+            specHeight,
+            (iconPlaceable?.height ?: 0) + (textPlaceable?.height ?: 0) +
+                IconDistanceFromBaseline.roundToPx()
+        )
 
         val firstBaseline = textPlaceable?.get(FirstBaseline)
         val lastBaseline = textPlaceable?.get(LastBaseline)

@@ -152,7 +152,6 @@ class TwilightManager {
         // calculate yesterday's twilight
         calculator.calculateTwilight(now - DateUtils.DAY_IN_MILLIS,
                 location.getLatitude(), location.getLongitude());
-        final long yesterdaySunset = calculator.sunset;
 
         // calculate today's twilight
         calculator.calculateTwilight(now, location.getLatitude(), location.getLongitude());
@@ -184,10 +183,6 @@ class TwilightManager {
 
         // Update the twilight state
         state.isNight = isNight;
-        state.yesterdaySunset = yesterdaySunset;
-        state.todaySunrise = todaySunrise;
-        state.todaySunset = todaySunset;
-        state.tomorrowSunrise = tomorrowSunrise;
         state.nextUpdate = nextUpdate;
     }
 
@@ -196,10 +191,6 @@ class TwilightManager {
      */
     private static class TwilightState {
         boolean isNight;
-        long yesterdaySunset;
-        long todaySunrise;
-        long todaySunset;
-        long tomorrowSunrise;
         long nextUpdate;
 
         TwilightState() {

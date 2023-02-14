@@ -17,7 +17,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application android:requestLegacyExternalStorage="true">
         <service android:name="androidx.wear.watchface.client.test.WatchFaceControlTestService"/>
+        <service android:name="androidx.wear.watchface.client.test.TestLifeCycleWatchFaceService"/>
         <service android:name="androidx.wear.watchface.client.test.TestNopCanvasWatchFaceService"/>
+        <service android:name="androidx.wear.watchface.client.test.ObservableServiceA"/>
+        <service android:name="androidx.wear.watchface.client.test.ObservableServiceB"/>
+        <service android:name="androidx.wear.watchface.client.test.ObservableServiceC"/>
         <service
             android:name="androidx.wear.watchface.client.test.OutdatedWatchFaceControlTestService">
             <meta-data android:name="androidx.wear.watchface.xml_version" android:value="99999" />

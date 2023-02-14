@@ -47,7 +47,7 @@ interface Camera2OutputConfig {
     String getPhysicalCameraId();
 
     /**
-     * If non-null, enable surface sharing and add the surfaces constructed by the returned
+     * If non-empty, enable surface sharing and add the surfaces constructed by the returned
      * Camera2OutputConfigs.
      */
     @NonNull

@@ -16,6 +16,7 @@
 
 package androidx.browser.trusted;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -37,6 +38,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.browser.trusted.TrustedWebActivityServiceConnection.ActiveNotificationsArgs;
 import androidx.browser.trusted.TrustedWebActivityServiceConnection.CancelNotificationArgs;
@@ -137,6 +139,7 @@ public abstract class TrustedWebActivityService extends Service {
             return new ResultArgs(result).toBundle();
         }
 
+        @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
         @Override
         public Bundle notifyNotificationWithChannel(Bundle bundle) {
             checkCaller();
@@ -259,6 +262,7 @@ public abstract class TrustedWebActivityService extends Service {
      * @return Whether the notification was successfully displayed (the channel/app may be blocked
      *         by the user).
      */
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     @BinderThread
     public boolean onNotifyNotificationWithChannel(@NonNull String platformTag, int platformId,
             @NonNull Notification notification, @NonNull String channelName) {

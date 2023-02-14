@@ -209,7 +209,12 @@ internal object Errors {
 
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         val batteryPercent = context.registerReceiver(null, filter)?.run {
-            val level = getIntExtra(BatteryManager.EXTRA_LEVEL, 100)
+            val level = if (getBooleanExtra(BatteryManager.EXTRA_PRESENT, true)) {
+                getIntExtra(BatteryManager.EXTRA_LEVEL, 100)
+            } else {
+                // If the device has no battery consider it full for this check.
+                100
+            }
             val scale = getIntExtra(BatteryManager.EXTRA_SCALE, 100)
             level * 100 / scale
         } ?: 100
@@ -281,8 +286,6 @@ internal object Errors {
             throw AssertionError(UNSUPPRESSED_WARNING_MESSAGE)
         }
 
-        if (Arguments.error != null) {
-            throw AssertionError(Arguments.error)
-        }
+        Arguments.throwIfError()
     }
 }

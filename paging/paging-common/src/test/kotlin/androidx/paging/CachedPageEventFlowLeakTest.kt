@@ -21,7 +21,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
@@ -123,7 +122,7 @@ public class CachedPageEventFlowLeakTest {
                                 // invalidate only once per generation to avoid
                                 // delayed invalidates
                                 invalidated = true
-                                pagingData.receiver.refresh()
+                                pagingData.uiReceiver.refresh()
                             }
                         } else {
                             doneInvalidating?.complete(Unit)

@@ -17,14 +17,18 @@
 package androidx.health.services.client.impl
 
 import android.content.Context
+import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.ExerciseClient
 import androidx.health.services.client.ExerciseUpdateCallback
+import androidx.health.services.client.data.BatchingMode
+import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseGoal
 import androidx.health.services.client.data.ExerciseInfo
+import androidx.health.services.client.data.ExerciseTypeConfig
 import androidx.health.services.client.data.WarmUpConfig
 import androidx.health.services.client.impl.IpcConstants.EXERCISE_API_BIND_ACTION
 import androidx.health.services.client.impl.IpcConstants.SERVICE_PACKAGE_NAME
@@ -35,11 +39,13 @@ import androidx.health.services.client.impl.ipc.Client
 import androidx.health.services.client.impl.ipc.ClientConfiguration
 import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.AutoPauseAndResumeConfigRequest
+import androidx.health.services.client.impl.request.BatchingModeConfigRequest
 import androidx.health.services.client.impl.request.CapabilitiesRequest
 import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.FlushRequest
 import androidx.health.services.client.impl.request.PrepareExerciseRequest
 import androidx.health.services.client.impl.request.StartExerciseRequest
+import androidx.health.services.client.impl.request.UpdateExerciseTypeConfigRequest
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -64,13 +70,24 @@ internal class ServiceBackedExerciseClient(
         { service -> service.apiVersion }
     ) {
 
+    private val requestedDataTypesLock = Any()
+    @GuardedBy("requestedDataTypesLock")
+    private val requestedDataTypes: MutableSet<DataType<*, *>> = mutableSetOf()
     private val packageName = context.packageName
 
     override fun prepareExerciseAsync(configuration: WarmUpConfig): ListenableFuture<Void> =
         execute { service, resultFuture ->
             service.prepareExercise(
                 PrepareExerciseRequest(packageName, configuration),
-                StatusCallback(resultFuture)
+                object : StatusCallback(resultFuture) {
+                    override fun onSuccess() {
+                        synchronized(requestedDataTypesLock) {
+                            requestedDataTypes.clear()
+                            requestedDataTypes.addAll(configuration.dataTypes)
+                        }
+                        super.onSuccess()
+                    }
+                }
             )
         }
 
@@ -78,7 +95,15 @@ internal class ServiceBackedExerciseClient(
         execute { service, resultFuture ->
             service.startExercise(
                 StartExerciseRequest(packageName, configuration),
-                StatusCallback(resultFuture)
+                object : StatusCallback(resultFuture) {
+                    override fun onSuccess() {
+                        synchronized(requestedDataTypesLock) {
+                            requestedDataTypes.clear()
+                            requestedDataTypes.addAll(configuration.dataTypes)
+                        }
+                        super.onSuccess()
+                    }
+                }
             )
         }
 
@@ -94,7 +119,7 @@ internal class ServiceBackedExerciseClient(
         service.endExercise(packageName, StatusCallback(resultFuture))
     }
 
-    override fun flushExerciseAsync(): ListenableFuture<Void> {
+    override fun flushAsync(): ListenableFuture<Void> {
         val request = FlushRequest(packageName)
         return execute { service, resultFuture ->
             service.flushExercise(request, StatusCallback(resultFuture))
@@ -122,7 +147,12 @@ internal class ServiceBackedExerciseClient(
         val listenerStub =
             ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.getOrCreate(
                 callback,
-                executor
+                executor,
+                requestedDataTypesProvider = {
+                    synchronized(requestedDataTypesLock) {
+                        requestedDataTypes
+                    }
+                }
             )
         val future =
             registerListener(listenerStub.listenerKey) { service, result: SettableFuture<Void?> ->
@@ -155,7 +185,9 @@ internal class ServiceBackedExerciseClient(
         }
     }
 
-    override fun addGoalToActiveExerciseAsync(exerciseGoal: ExerciseGoal): ListenableFuture<Void> =
+    override fun addGoalToActiveExerciseAsync(
+        exerciseGoal: ExerciseGoal<*>
+    ): ListenableFuture<Void> =
         execute { service, resultFuture ->
             service.addGoalToActiveExercise(
                 ExerciseGoalRequest(packageName, exerciseGoal),
@@ -164,7 +196,7 @@ internal class ServiceBackedExerciseClient(
         }
 
     override fun removeGoalFromActiveExerciseAsync(
-        exerciseGoal: ExerciseGoal
+        exerciseGoal: ExerciseGoal<*>
     ): ListenableFuture<Void> = execute { service, resultFuture ->
         service.removeGoalFromActiveExercise(
             ExerciseGoalRequest(packageName, exerciseGoal),
@@ -181,17 +213,44 @@ internal class ServiceBackedExerciseClient(
         )
     }
 
-    override val capabilities: ListenableFuture<ExerciseCapabilities>
-        get() =
-            Futures.transform(
-                execute { service -> service.getCapabilities(CapabilitiesRequest(packageName)) },
-                { response -> response!!.exerciseCapabilities },
-                ContextCompat.getMainExecutor(context)
-            )
+    override fun overrideBatchingModesForActiveExerciseAsync(
+        batchingModes: Set<BatchingMode>
+    ): ListenableFuture<Void> {
+        return executeWithVersionCheck(
+            { service, resultFuture ->
+                service.overrideBatchingModesForActiveExercise(
+                    BatchingModeConfigRequest(packageName, batchingModes),
+                    StatusCallback(resultFuture)
+                )
+            },
+            /* minApiVersion= */ 4
+        )
+    }
+
+    override fun getCapabilitiesAsync(): ListenableFuture<ExerciseCapabilities> =
+        Futures.transform(
+            execute { service -> service.getCapabilities(CapabilitiesRequest(packageName)) },
+            { response -> response!!.exerciseCapabilities },
+            ContextCompat.getMainExecutor(context)
+        )
+
+    override fun updateExerciseTypeConfigAsync(
+        exerciseTypeConfig: ExerciseTypeConfig
+    ): ListenableFuture<Void> {
+        return executeWithVersionCheck(
+            { service, resultFuture ->
+                service.updateExerciseTypeConfigForActiveExercise(
+                    UpdateExerciseTypeConfigRequest(packageName, exerciseTypeConfig),
+                    StatusCallback(resultFuture)
+                )
+            },
+            3
+        )
+    }
 
     internal companion object {
-        private const val CLIENT = "HealthServicesExerciseClient"
-        private val CLIENT_CONFIGURATION =
+        internal const val CLIENT = "HealthServicesExerciseClient"
+        internal val CLIENT_CONFIGURATION =
             ClientConfiguration(CLIENT, SERVICE_PACKAGE_NAME, EXERCISE_API_BIND_ACTION)
     }
 }

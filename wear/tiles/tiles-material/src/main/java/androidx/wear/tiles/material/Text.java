@@ -20,6 +20,9 @@ import static androidx.wear.tiles.ColorBuilders.argb;
 import static androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER;
 import static androidx.wear.tiles.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getMetadataTagName;
+import static androidx.wear.tiles.material.Helper.getTagBytes;
 import static androidx.wear.tiles.material.Typography.TYPOGRAPHY_DISPLAY1;
 import static androidx.wear.tiles.material.Typography.getFontStyleBuilder;
 import static androidx.wear.tiles.material.Typography.getLineHeightForTypography;
@@ -38,17 +41,41 @@ import androidx.wear.tiles.LayoutElementBuilders.FontWeight;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.LayoutElementBuilders.TextAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.TextOverflow;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.material.Typography.TypographyName;
-import androidx.wear.tiles.proto.LayoutElementProto;
+import androidx.wear.protolayout.proto.LayoutElementProto;
+import androidx.wear.protolayout.proto.ModifiersProto;
 
 /**
  * Tiles component {@link Text} that represents text object holding any information.
  *
  * <p>There are pre-built typography styles that can be obtained from constants in {@link
  * FontStyle}.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * Text text = new Text...
+ * Box box = new Box.Builder().addContent(text).build();
+ *
+ * Text myText = (Text) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link Text} object from any layout element, {@link #fromLayoutElement}
+ * method should be used, i.e.:
+ *
+ * <pre>{@code
+ * Text myText = Text.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class Text implements LayoutElement {
+    /** Tool tag for Metadata in Modifiers, so we know that Text is actually a Material Text. */
+    static final String METADATA_TAG = "TXT";
+
     @NonNull private final LayoutElementBuilders.Text mText;
 
     Text(@NonNull LayoutElementBuilders.Text mText) {
@@ -88,8 +115,8 @@ public class Text implements LayoutElement {
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // There is getFontStyle matching getter for this setter as the serialized format of the
-        // ProtoLayouts do not allow for a direct reconstruction of the all arguments, but it has
-        // FontStyle object of that text.
+        // Tiles do not allow for a direct reconstruction of the all arguments, but it has FontStyle
+        // object of that text.
         public Builder setTypography(@TypographyName int typography) {
             this.mTypographyName = typography;
             return this;
@@ -194,9 +221,21 @@ public class Text implements LayoutElement {
                             .setLineHeight(getLineHeightForTypography(mTypographyName))
                             .setMaxLines(mMaxLines)
                             .setMultilineAlignment(mMultilineAlignment)
-                            .setModifiers(mModifiers)
+                            .setModifiers(addTagToModifiers(mModifiers))
                             .setOverflow(mOverflow);
             return new Text(text.build());
+        }
+
+        @NonNull
+        static Modifiers addTagToModifiers(Modifiers modifiers) {
+            return Modifiers.fromProto(
+                    ModifiersProto.Modifiers.newBuilder(modifiers.toProto())
+                            .setMetadata(
+                                    new ElementMetadata.Builder()
+                                            .setTagData(getTagBytes(METADATA_TAG))
+                                            .build()
+                                            .toProto())
+                            .build());
         }
     }
 
@@ -260,6 +299,33 @@ public class Text implements LayoutElement {
     /** Returns whether the Text is underlined. */
     public boolean isUnderline() {
         return checkNotNull(checkNotNull(mText.getFontStyle()).getUnderline()).getValue();
+    }
+
+    /** Returns metadata tag set to this Text, which should be {@link #METADATA_TAG}. */
+    @NonNull
+    String getMetadataTag() {
+        return getMetadataTagName(checkNotNull(checkNotNull(getModifiers()).getMetadata()));
+    }
+
+    /**
+     * Returns Material Text object from the given LayoutElement (e.g. one retrieved from a
+     * container's content with {@code container.getContents().get(index)}) if that element can be
+     * converted to Material Text. Otherwise, it will return null.
+     */
+    @Nullable
+    public static Text fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof Text) {
+            return (Text) element;
+        }
+        if (!(element instanceof LayoutElementBuilders.Text)) {
+            return null;
+        }
+        LayoutElementBuilders.Text textElement = (LayoutElementBuilders.Text) element;
+        if (!checkTag(textElement.getModifiers(), METADATA_TAG)) {
+            return null;
+        }
+        // Now we are sure that this element is a Material Text.
+        return new Text(textElement);
     }
 
     /** @hide */

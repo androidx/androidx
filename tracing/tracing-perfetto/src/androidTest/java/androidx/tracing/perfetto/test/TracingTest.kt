@@ -16,15 +16,20 @@
 
 package androidx.tracing.perfetto.test
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.tracing.perfetto.Tracing
+import androidx.tracing.perfetto.TracingReceiver
+import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.RECEIVER_CLASS_NAME
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
 class TracingTest {
     @Test
     fun test_endToEnd_binaryDependenciesPresent() {
@@ -43,8 +48,12 @@ class TracingTest {
         Tracing.traceEventEnd()
         Tracing.traceEventEnd()
 
-        Tracing.flushEvents()
+        // Note: content of the trace is verified by another test: TrivialTracingBenchmark
+    }
 
-        // TODO(214562374): verify the content by getting it back from Perfetto
+    @Test
+    fun tracing_receiver_class_name() {
+        /** Verifies that [RECEIVER_CLASS_NAME] is matching [TracingReceiver] class name. */
+        assertThat(TracingReceiver::class.java.name).isEqualTo(RECEIVER_CLASS_NAME)
     }
 }

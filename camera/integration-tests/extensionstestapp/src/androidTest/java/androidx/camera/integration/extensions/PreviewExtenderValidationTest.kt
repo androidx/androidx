@@ -28,7 +28,8 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil
+import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -53,10 +54,7 @@ import org.junit.runners.Parameterized
 @SmallTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class PreviewExtenderValidationTest(
-    private val cameraId: String,
-    private val extensionMode: Int
-) {
+class PreviewExtenderValidationTest(private val config: CameraIdExtensionModePair) {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
@@ -72,13 +70,14 @@ class PreviewExtenderValidationTest(
 
     @Before
     fun setUp(): Unit = runBlocking {
-        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
             cameraProvider
         )[10000, TimeUnit.MILLISECONDS]
 
+        val (cameraId, extensionMode) = config
         baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
@@ -98,7 +97,6 @@ class PreviewExtenderValidationTest(
     fun cleanUp(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
             }
         }
@@ -110,9 +108,9 @@ class PreviewExtenderValidationTest(
 
     companion object {
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
-        val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
+        @get:Parameterized.Parameters(name = "config = {0}")
+        val parameters: Collection<CameraIdExtensionModePair>
+            get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
     @Test
@@ -123,9 +121,9 @@ class PreviewExtenderValidationTest(
 
         // Creates the ImageCaptureExtenderImpl to retrieve the target format/resolutions pair list
         // from vendor library for the target effect mode.
-        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(
-            extensionMode,
-            cameraId,
+        val impl = CameraXExtensionsTestUtil.createPreviewExtenderImpl(
+            config.extensionMode,
+            config.cameraId,
             cameraCharacteristics
         )
 
@@ -139,9 +137,9 @@ class PreviewExtenderValidationTest(
     fun returnsNullFromOnPresetSession_whenAPILevelOlderThan28() {
         // Creates the ImageCaptureExtenderImpl to check that onPresetSession() returns null when
         // API level is older than 28.
-        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(
-            extensionMode,
-            cameraId,
+        val impl = CameraXExtensionsTestUtil.createPreviewExtenderImpl(
+            config.extensionMode,
+            config.cameraId,
             cameraCharacteristics
         )
         assertThat(impl.onPresetSession()).isNull()
@@ -149,9 +147,9 @@ class PreviewExtenderValidationTest(
 
     @Test
     fun returnCorrectProcessor() {
-        val impl = ExtensionsTestUtil.createPreviewExtenderImpl(
-            extensionMode,
-            cameraId,
+        val impl = CameraXExtensionsTestUtil.createPreviewExtenderImpl(
+            config.extensionMode,
+            config.cameraId,
             cameraCharacteristics
         )
 

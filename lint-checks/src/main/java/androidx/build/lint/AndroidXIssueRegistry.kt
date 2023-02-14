@@ -25,7 +25,7 @@ import com.android.tools.lint.detector.api.Issue
 
 class AndroidXIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
-    override val api = 13
+    override val api = 14
     override val issues get(): List<Issue> {
         return Issues
     }
@@ -42,6 +42,8 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 BanParcelableUsage.ISSUE,
                 BanConcurrentHashMap.ISSUE,
                 BanInappropriateExperimentalUsage.ISSUE,
+                BanInappropriateExperimentalUsage.NULL_ANNOTATION_GROUP_ISSUE,
+                BanInlineOptIn.ISSUE,
                 BanKeepAnnotation.ISSUE,
                 TargetApiAnnotationUsageDetector.ISSUE,
                 // If you add more SampledAnnotationDetector issues here, you
@@ -61,7 +63,12 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 PrivateConstructorForUtilityClassDetector.ISSUE,
                 ClassVerificationFailureDetector.ISSUE,
                 IdeaSuppressionDetector.ISSUE,
-                CameraXQuirksClassDetector.ISSUE
+                CameraXQuirksClassDetector.ISSUE,
+                NullabilityAnnotationsDetector.ISSUE,
+                IgnoreClassLevelDetector.ISSUE,
+                ExperimentalPropertyAnnotationDetector.ISSUE,
+                // MissingJvmDefaultWithCompatibilityDetector is intentionally left out of the
+                // registry, see comments on the class for more details.
             )
         }
     }

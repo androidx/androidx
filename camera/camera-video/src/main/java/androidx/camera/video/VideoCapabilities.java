@@ -30,15 +30,11 @@ import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.video.internal.compat.quirk.ExcludeStretchedVideoQualityQuirk;
-import androidx.camera.video.internal.compat.quirk.ReportedVideoQualityNotSupportedQuirk;
-import androidx.camera.video.internal.compat.quirk.VideoEncoderCrashQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -87,7 +83,7 @@ public final class VideoCapabilities {
 
             // Get CamcorderProfile
             if (!camcorderProfileProvider.hasProfile(qualityValue) || !isDeviceValidQuality(
-                    quality)) {
+                    cameraInfoInternal, quality)) {
                 continue;
             }
             CamcorderProfileProxy profile =
@@ -134,8 +130,8 @@ public final class VideoCapabilities {
      * Checks if the quality is supported.
      *
      * @param quality one of the quality constants. Possible values include
-     * {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link {@link Quality#SD},
-     * {@link Quality#HD}, {@link {@link Quality#FHD}, or {@link Quality#UHD}.
+     * {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD},
+     * {@link Quality#HD}, {@link Quality#FHD}, or {@link Quality#UHD}.
      * @return {@code true} if the quality is supported; {@code false} otherwise.
      * @throws IllegalArgumentException if not a quality constant.
      */
@@ -162,6 +158,35 @@ public final class VideoCapabilities {
             return mLowestProfile;
         }
         return mSupportedProfileMap.get(quality);
+    }
+
+    /**
+     * Finds the supported CamcorderProfileProxy with the resolution nearest to the given
+     * {@link Size}.
+     *
+     * <p>The supported CamcorderProfileProxy means the corresponding {@link Quality} is also
+     * supported. If the size aligns exactly with the pixel count of a CamcorderProfileProxy, that
+     * CamcorderProfileProxy will be selected. If the size falls between two
+     * CamcorderProfileProxy, the higher resolution will always be selected. Otherwise, the
+     * nearest CamcorderProfileProxy will be selected, whether that CamcorderProfileProxy's
+     * resolution is above or below the given size.
+     *
+     * @see #findHighestSupportedQualityFor(Size)
+     */
+    @Nullable
+    public CamcorderProfileProxy findHighestSupportedCamcorderProfileFor(@NonNull Size size) {
+        CamcorderProfileProxy camcorderProfile = null;
+        Quality highestSupportedQuality = findHighestSupportedQualityFor(size);
+        Logger.d(TAG,
+                "Using supported quality of " + highestSupportedQuality + " for size " + size);
+        if (highestSupportedQuality != Quality.NONE) {
+            camcorderProfile = getProfile(highestSupportedQuality);
+            if (camcorderProfile == null) {
+                throw new AssertionError("Camera advertised available quality but did not "
+                        + "produce CamcorderProfile for advertised quality.");
+            }
+        }
+        return camcorderProfile;
     }
 
     /**
@@ -201,17 +226,11 @@ public final class VideoCapabilities {
                 "Unknown quality: " + quality);
     }
 
-    private boolean isDeviceValidQuality(@NonNull Quality quality) {
-        List<Class<? extends VideoQualityQuirk>> quirkList = Arrays.asList(
-                ExcludeStretchedVideoQualityQuirk.class,
-                ReportedVideoQualityNotSupportedQuirk.class,
-                VideoEncoderCrashQuirk.class
-        );
-
-        for (Class<? extends VideoQualityQuirk> quirkClass : quirkList) {
-            VideoQualityQuirk quirk = DeviceQuirks.get(quirkClass);
-
-            if (quirk != null && quirk.isProblematicVideoQuality(quality)) {
+    private boolean isDeviceValidQuality(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull Quality quality) {
+        for (VideoQualityQuirk quirk : DeviceQuirks.getAll(VideoQualityQuirk.class)) {
+            if (quirk != null && quirk.isProblematicVideoQuality(cameraInfo, quality)
+                    && !quirk.workaroundBySurfaceProcessing()) {
                 return false;
             }
         }

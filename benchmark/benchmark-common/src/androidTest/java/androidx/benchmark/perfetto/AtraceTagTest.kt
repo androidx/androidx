@@ -35,12 +35,12 @@ class AtraceTagTest {
 
     @Test
     fun atraceListCategories_readable() {
-        val results = Shell.executeCommand("atrace --list_categories")
+        val results = Shell.executeScriptCaptureStdout("atrace --list_categories")
         assertNotEquals("", results)
     }
 
     private fun getActualSupportedTags(): Set<String> {
-        val results = Shell.executeCommand("atrace --list_categories")
+        val results = Shell.executeScriptCaptureStdout("atrace --list_categories")
 
         assertNotEquals("", results)
         val actualSupportedTags = results

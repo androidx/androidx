@@ -29,18 +29,23 @@ import org.junit.runners.Parameterized
 class ImageCaptureLockedOrientationTest(
     private val lensFacing: Int,
     private val rotationDegrees: Int,
-    private val captureMode: Int
-) : ImageCaptureBaseTest<LockedOrientationActivity>() {
+    private val captureMode: Int,
+    private val cameraXConfig: String
+) : ImageCaptureBaseTest<LockedOrientationActivity>(cameraXConfig) {
 
     companion object {
         private val rotationDegrees = arrayOf(0, 90, 180, 270)
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, rotationDegrees={1}, captureMode={2}")
+        @Parameterized.Parameters(
+            name = "lensFacing={0}, rotationDegrees={1}, captureMode={2}, cameraXConfig={3}"
+        )
         fun data() = mutableListOf<Array<Any?>>().apply {
-            lensFacing.forEach { lens ->
+            lensFacingList.forEach { lens ->
                 rotationDegrees.forEach { rotation ->
                     captureModes.forEach { mode ->
-                        add(arrayOf(lens, rotation, mode))
+                        cameraXConfigList.forEach { cameraXConfig ->
+                            add(arrayOf(lens, rotation, mode, cameraXConfig))
+                        }
                     }
                 }
             }
@@ -59,7 +64,7 @@ class ImageCaptureLockedOrientationTest(
 
     @Test
     fun verifyRotation() {
-        verifyRotation<LockedOrientationActivity>(lensFacing, captureMode) {
+        verifyRotation<LockedOrientationActivity>(lensFacing, captureMode, cameraXConfig) {
             rotate(rotationDegrees)
         }
     }

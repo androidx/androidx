@@ -40,7 +40,10 @@ public final class FakeImageProxy implements ImageProxy {
     private int mFormat = 0;
     private int mHeight = 0;
     private int mWidth = 0;
+
+    @NonNull
     private PlaneProxy[] mPlaneProxy = new PlaneProxy[0];
+
     private boolean mClosed = false;
 
     @NonNull
@@ -162,7 +165,7 @@ public final class FakeImageProxy implements ImageProxy {
         mWidth = width;
     }
 
-    public void setPlanes(PlaneProxy[] planeProxy) {
+    public void setPlanes(@NonNull PlaneProxy[] planeProxy) {
         mPlaneProxy = planeProxy;
     }
 
@@ -183,16 +186,12 @@ public final class FakeImageProxy implements ImageProxy {
         synchronized (mReleaseLock) {
             if (mReleaseFuture == null) {
                 mReleaseFuture = CallbackToFutureAdapter.getFuture(
-                        new CallbackToFutureAdapter.Resolver<Void>() {
-                            @Override
-                            public Object attachCompleter(@NonNull
-                                    CallbackToFutureAdapter.Completer<Void> completer) {
-                                synchronized (mReleaseLock) {
-                                    Preconditions.checkState(mReleaseCompleter == null,
-                                            "Release completer expected to be null");
-                                    mReleaseCompleter = completer;
-                                    return "Release[imageProxy=" + FakeImageProxy.this + "]";
-                                }
+                        completer -> {
+                            synchronized (mReleaseLock) {
+                                Preconditions.checkState(mReleaseCompleter == null,
+                                        "Release completer expected to be null");
+                                mReleaseCompleter = completer;
+                                return "Release[imageProxy=" + FakeImageProxy.this + "]";
                             }
                         });
             }

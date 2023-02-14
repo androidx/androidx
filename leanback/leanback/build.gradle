@@ -12,7 +12,7 @@ android {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.2.0")
     api("androidx.interpolator:interpolator:1.0.0")
     api("androidx.core:core:1.1.0")
     api(project(":leanback:leanback-grid"))
@@ -57,7 +57,6 @@ android {
 androidx {
     name = "Android Support Leanback v17"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.LEANBACK
     mavenVersion = LibraryVersions.LEANBACK
     inceptionYear = "2014"
     description = "Android Support Leanback v17"

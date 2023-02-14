@@ -16,17 +16,14 @@
 
 package androidx.compose.compiler.plugins.kotlin.lower
 
-import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.ComposeCallableIds
+import androidx.compose.compiler.plugins.kotlin.ComposeClassIds
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.backend.common.ir.addChild
-import org.jetbrains.kotlin.backend.common.ir.copyTo
-import org.jetbrains.kotlin.backend.common.ir.createParameterDeclarations
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.builders.declarations.IrFunctionBuilder
 import org.jetbrains.kotlin.ir.builders.declarations.addConstructor
@@ -89,6 +86,7 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrExpressionBodyImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetObjectValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrStringConcatenationImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
+import org.jetbrains.kotlin.ir.expressions.impl.copyWithOffsets
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.impl.IrSimpleFunctionSymbolImpl
 import org.jetbrains.kotlin.ir.types.IrType
@@ -97,7 +95,10 @@ import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
+import org.jetbrains.kotlin.ir.util.addChild
 import org.jetbrains.kotlin.ir.util.constructors
+import org.jetbrains.kotlin.ir.util.copyTo
+import org.jetbrains.kotlin.ir.util.createParameterDeclarations
 import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
 import org.jetbrains.kotlin.ir.util.isAnnotationClass
@@ -106,7 +107,6 @@ import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.load.kotlin.PackagePartClassUtils
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.BindingTrace
 
 /**
  * This transformer transforms constant literal expressions into expressions which read a
@@ -161,10 +161,9 @@ open class LiveLiteralTransformer(
     private val keyVisitor: DurableKeyVisitor,
     context: IrPluginContext,
     symbolRemapper: DeepCopySymbolRemapper,
-    bindingTrace: BindingTrace,
     metrics: ModuleMetrics,
 ) :
-    AbstractComposeLowering(context, symbolRemapper, bindingTrace, metrics),
+    AbstractComposeLowering(context, symbolRemapper, metrics),
     ModuleLoweringPass {
 
     override fun lower(module: IrModuleFragment) {
@@ -172,19 +171,17 @@ open class LiveLiteralTransformer(
     }
 
     private val liveLiteral =
-        getInternalFunction("liveLiteral")
-    private val derivedStateOf =
-        getTopLevelFunction(ComposeFqNames.fqNameFor("derivedStateOf"))
+        getTopLevelFunction(ComposeCallableIds.liveLiteral)
     private val isLiveLiteralsEnabled =
-        getInternalProperty("isLiveLiteralsEnabled")
+        getTopLevelPropertyGetter(ComposeCallableIds.isLiveLiteralsEnabled)
     private val liveLiteralInfoAnnotation =
-        getInternalClass("LiveLiteralInfo")
+        getTopLevelClass(ComposeClassIds.LiveLiteralInfo)
     private val liveLiteralFileInfoAnnotation =
-        getInternalClass("LiveLiteralFileInfo")
+        getTopLevelClass(ComposeClassIds.LiveLiteralFileInfo)
     private val stateInterface =
-        getTopLevelClass(ComposeFqNames.fqNameFor("State"))
+        getTopLevelClass(ComposeClassIds.State)
     private val NoLiveLiteralsAnnotation =
-        getTopLevelClass(ComposeFqNames.fqNameFor("NoLiveLiterals"))
+        getTopLevelClass(ComposeClassIds.NoLiveLiterals)
 
     private fun IrAnnotationContainer.hasNoLiveLiteralsAnnotation(): Boolean = annotations.any {
         it.symbol.owner == NoLiveLiteralsAnnotation.owner.primaryConstructor
@@ -241,7 +238,6 @@ open class LiveLiteralTransformer(
         putValueArgument(0, irConst(file))
     }
 
-    @OptIn(ObsoleteDescriptorBasedAPI::class)
     private fun irLiveLiteralGetter(
         key: String,
         literalValue: IrExpression,
@@ -274,6 +270,7 @@ open class LiveLiteralTransformer(
                 visibility = DescriptorVisibilities.PRIVATE
                 origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
             }.also { fn ->
+                fn.correspondingPropertySymbol = p.symbol
                 val thisParam = clazz.thisReceiver!!.copyTo(fn)
                 fn.dispatchReceiverParameter = thisParam
                 fn.body = DeclarationIrBuilder(context, fn.symbol).irBlockBody {
@@ -300,6 +297,7 @@ open class LiveLiteralTransformer(
                 visibility = DescriptorVisibilities.PRIVATE
                 origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
             }.also { fn ->
+                fn.correspondingPropertySymbol = p.symbol
                 val thisParam = clazz.thisReceiver!!.copyTo(fn)
                 fn.dispatchReceiverParameter = thisParam
                 fn.body = DeclarationIrBuilder(context, fn.symbol).irBlockBody {
@@ -311,6 +309,7 @@ open class LiveLiteralTransformer(
                 visibility = DescriptorVisibilities.PRIVATE
                 origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
             }.also { fn ->
+                fn.correspondingPropertySymbol = p.symbol
                 val thisParam = clazz.thisReceiver!!.copyTo(fn)
                 fn.dispatchReceiverParameter = thisParam
                 val valueParam = fn.addValueParameter("value", stateType)
@@ -395,8 +394,7 @@ open class LiveLiteralTransformer(
         }
     }
 
-    @OptIn(ObsoleteDescriptorBasedAPI::class)
-    override fun <T> visitConst(expression: IrConst<T>): IrExpression {
+    override fun visitConst(expression: IrConst<*>): IrExpression {
         when (expression.kind) {
             IrConstKind.Null -> return expression
             else -> {

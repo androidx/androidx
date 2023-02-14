@@ -18,12 +18,14 @@ package androidx.mediarouter.media;
 
 import static androidx.mediarouter.media.MediaRouterActiveScanThrottlingHelper.MAX_ACTIVE_SCAN_DURATION_MS;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -33,6 +35,7 @@ import android.os.Messenger;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.rule.ServiceTestRule;
 
 import org.junit.After;
@@ -41,14 +44,24 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test {@link MediaRouteProviderService} and its related classes.
+ * Test for {@link MediaRouteProviderService}.
  */
 @RunWith(AndroidJUnit4.class)
 public class MediaRouteProviderServiceTest {
+
+    private static final String FAKE_MEDIA_ROUTE_ID_1 = "fakeMediaRouteId1";
+    private static final String FAKE_MEDIA_ROUTE_ID_2 = "fakeMediaRouteId2";
+    private static final String FAKE_MEDIA_ROUTE_ID_3 = "fakeMediaRouteId3";
+    private static final String FAKE_MEDIA_ROUTE_ID_4 = "fakeMediaRouteId4";
+    private static final String FAKE_MEDIA_ROUTE_NAME_1 = "fakeMediaRouteName1";
+    private static final String FAKE_MEDIA_ROUTE_NAME_2 = "fakeMediaRouteName2";
+    private static final String FAKE_MEDIA_ROUTE_NAME_3 = "fakeMediaRouteName3";
+    private static final String FAKE_MEDIA_ROUTE_NAME_4 = "fakeMediaRouteName4";
     private static final long TIME_OUT_MS = 3000;
 
     @Rule
@@ -87,6 +100,83 @@ public class MediaRouteProviderServiceTest {
         unregisterClient(mReceiveMessenger2);
         mServiceRule.unbindService();
         sLastDiscoveryRequest = null;
+    }
+
+    @Test
+    @SmallTest
+    public void testCreateDescriptorBundleForClientVersion() {
+        MediaRouteProviderDescriptor.Builder builder = new MediaRouteProviderDescriptor.Builder();
+        builder.addRoute(new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_1,
+                FAKE_MEDIA_ROUTE_NAME_1).setMaxClientVersion(15).setMinClientVersion(10).build());
+        builder.addRoute(new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_2,
+                FAKE_MEDIA_ROUTE_NAME_2).setMaxClientVersion(18).setMinClientVersion(11).build());
+        builder.addRoute(new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_3,
+                FAKE_MEDIA_ROUTE_NAME_3).setMaxClientVersion(25).setMinClientVersion(16).build());
+        builder.addRoute(new MediaRouteDescriptor.Builder(FAKE_MEDIA_ROUTE_ID_4,
+                FAKE_MEDIA_ROUTE_NAME_4).setMaxClientVersion(12).setMinClientVersion(4).build());
+        MediaRouteProviderDescriptor descriptor = builder.build();
+
+        Bundle bundle = MediaRouteProviderService
+                .createDescriptorBundleForClientVersion(descriptor, 3);
+        MediaRouteProviderDescriptor resultDescriptor =
+                MediaRouteProviderDescriptor.fromBundle(bundle);
+        assertTrue(resultDescriptor.getRoutes().isEmpty());
+
+        bundle = MediaRouteProviderService.createDescriptorBundleForClientVersion(descriptor, 4);
+        resultDescriptor = MediaRouteProviderDescriptor.fromBundle(bundle);
+        List<MediaRouteDescriptor> routes = resultDescriptor.getRoutes();
+        assertEquals(1, routes.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_4, routes.get(0).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_4, routes.get(0).getName());
+
+        bundle = MediaRouteProviderService.createDescriptorBundleForClientVersion(descriptor, 10);
+        resultDescriptor = MediaRouteProviderDescriptor.fromBundle(bundle);
+        routes = resultDescriptor.getRoutes();
+        assertEquals(2, routes.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_1, routes.get(0).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_1, routes.get(0).getName());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_4, routes.get(1).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_4, routes.get(1).getName());
+
+        bundle = MediaRouteProviderService.createDescriptorBundleForClientVersion(descriptor, 12);
+        resultDescriptor = MediaRouteProviderDescriptor.fromBundle(bundle);
+        routes = resultDescriptor.getRoutes();
+        assertEquals(3, routes.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_1, routes.get(0).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_1, routes.get(0).getName());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_2, routes.get(1).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_2, routes.get(1).getName());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_4, routes.get(2).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_4, routes.get(2).getName());
+
+        bundle = MediaRouteProviderService.createDescriptorBundleForClientVersion(descriptor, 15);
+        resultDescriptor = MediaRouteProviderDescriptor.fromBundle(bundle);
+        routes = resultDescriptor.getRoutes();
+        assertEquals(2, routes.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_1, routes.get(0).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_1, routes.get(0).getName());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_2, routes.get(1).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_2, routes.get(1).getName());
+
+        bundle = MediaRouteProviderService.createDescriptorBundleForClientVersion(descriptor, 16);
+        resultDescriptor = MediaRouteProviderDescriptor.fromBundle(bundle);
+        routes = resultDescriptor.getRoutes();
+        assertEquals(2, routes.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_2, routes.get(0).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_2, routes.get(0).getName());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_3, routes.get(1).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_3, routes.get(1).getName());
+
+        bundle = MediaRouteProviderService.createDescriptorBundleForClientVersion(descriptor, 19);
+        resultDescriptor = MediaRouteProviderDescriptor.fromBundle(bundle);
+        routes = resultDescriptor.getRoutes();
+        assertEquals(1, routes.size());
+        assertEquals(FAKE_MEDIA_ROUTE_ID_3, routes.get(0).getId());
+        assertEquals(FAKE_MEDIA_ROUTE_NAME_3, routes.get(0).getName());
+
+        bundle = MediaRouteProviderService.createDescriptorBundleForClientVersion(descriptor, 26);
+        resultDescriptor = MediaRouteProviderDescriptor.fromBundle(bundle);
+        assertTrue(resultDescriptor.getRoutes().isEmpty());
     }
 
     @LargeTest

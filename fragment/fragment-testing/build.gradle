@@ -27,6 +27,7 @@ dependencies {
     api(project(":fragment:fragment-ktx"))
     api(libs.testCore)
     api(libs.kotlinStdlib)
+    api(project(":fragment:fragment-testing-manifest"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testExtJunit)
@@ -36,6 +37,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.multidex)
 
     lintPublish(project(":fragment:fragment-testing-lint"))
 }
@@ -43,11 +45,13 @@ dependencies {
 androidx {
     name = "Fragment Test Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.FRAGMENT
     inceptionYear = "2018"
     description = "Extensions for testing 'fragment' artifact"
 }
 
 android {
     namespace "androidx.fragment.testing"
+    defaultConfig {
+        multiDexEnabled true
+    }
 }

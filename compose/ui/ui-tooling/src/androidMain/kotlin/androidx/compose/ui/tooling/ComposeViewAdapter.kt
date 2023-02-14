@@ -33,7 +33,6 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.VisibleForTesting
-import androidx.compose.animation.core.Transition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
@@ -41,16 +40,19 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalFontLoader
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.tooling.CommonPreviewUtils.invokeComposableViaReflection
+import androidx.compose.ui.tooling.animation.AnimationSearch
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
 import androidx.compose.ui.tooling.data.Group
+import androidx.compose.ui.tooling.data.NodeGroup
 import androidx.compose.ui.tooling.data.SourceLocation
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.data.asTree
@@ -62,8 +64,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -72,7 +74,8 @@ import java.lang.reflect.Method
 
 private const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 private const val DESIGN_INFO_METHOD = "getDesignInfo"
-private const val UPDATE_TRANSITION_FUNCTION_NAME = "updateTransition"
+
+private const val REMEMBER = "remember"
 
 private val emptyContent: @Composable () -> Unit = @Composable {}
 
@@ -88,7 +91,8 @@ data class ViewInfo(
     val lineNumber: Int,
     val bounds: IntRect,
     val location: SourceLocation?,
-    val children: List<ViewInfo>
+    val children: List<ViewInfo>,
+    val layoutInfo: Any?
 ) {
     fun hasBounds(): Boolean = bounds.bottom != 0 && bounds.right != 0
 
@@ -159,12 +163,7 @@ internal class ComposeViewAdapter : FrameLayout {
      * composition, we save it and throw it during onLayout, this allows Studio to catch it and
      * display it to the user.
      */
-    private var delayedException: Throwable? = null
-
-    /**
-     * A lock to take to access delayedException.
-     */
-    private val delayExceptionLock = Any()
+    private val delayedException = ThreadSafeException()
 
     /**
      * The [Composable] to be rendered in the preview. It is initialized when this adapter
@@ -205,6 +204,8 @@ internal class ComposeViewAdapter : FrameLayout {
      */
     private var onDraw = {}
 
+    internal var stitchTrees = true
+
     private val debugBoundsPaint = Paint().apply {
         pathEffect = DashPathEffect(floatArrayOf(5f, 10f, 15f, 20f), 0f)
         style = Paint.Style.STROKE
@@ -225,11 +226,6 @@ internal class ComposeViewAdapter : FrameLayout {
         init(attrs)
     }
 
-    private fun walkTable(viewInfo: ViewInfo, indent: Int = 0) {
-        Log.d(TAG, ("|  ".repeat(indent)) + "|-$viewInfo")
-        viewInfo.children.forEach { walkTable(it, indent + 1) }
-    }
-
     private val Group.fileName: String
         get() = location?.sourceFile ?: ""
 
@@ -246,10 +242,16 @@ internal class ComposeViewAdapter : FrameLayout {
      * Returns true if this [Group] has no source position information and no children
      */
     private fun Group.isNullGroup(): Boolean =
-        hasNullSourcePosition() && children.isEmpty()
+        hasNullSourcePosition() &&
+            children.isEmpty() &&
+            ((this as? NodeGroup)?.node as? LayoutInfo) == null
 
     private fun Group.toViewInfo(): ViewInfo {
-        if (children.size == 1 && hasNullSourcePosition()) {
+        val layoutInfo = ((this as? NodeGroup)?.node as? LayoutInfo)
+
+        if (children.size == 1 &&
+            hasNullSourcePosition() &&
+            layoutInfo == null) {
             // There is no useful information in this intermediate node, remove.
             return children.single().toViewInfo()
         }
@@ -264,7 +266,8 @@ internal class ComposeViewAdapter : FrameLayout {
             location?.lineNumber ?: -1,
             box,
             location,
-            childrenViewInfo
+            childrenViewInfo,
+            layoutInfo
         )
     }
 
@@ -272,30 +275,31 @@ internal class ComposeViewAdapter : FrameLayout {
      * Processes the recorded slot table and re-generates the [viewInfos] attribute.
      */
     private fun processViewInfos() {
-        viewInfos = slotTableRecord.store.map { it.asTree() }.map { it.toViewInfo() }.toList()
+        val newViewInfos = slotTableRecord
+            .store
+            .map { it.asTree().toViewInfo() }
+            .toList()
+
+        viewInfos = if (stitchTrees)
+            stitchTrees(newViewInfos)
+        else newViewInfos
 
         if (debugViewInfos) {
-            viewInfos.forEach {
-                walkTable(it)
-            }
+            val debugString = viewInfos.toDebugString()
+            Log.d(TAG, debugString)
         }
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
-        synchronized(delayExceptionLock) {
-            delayedException?.let { exception ->
-                // There was a pending exception. Throw it here since Studio will catch it and show
-                // it to the user.
-                throw exception
-            }
-        }
+        // If there was a pending exception then throw it here since Studio will catch it and show
+        // it to the user.
+        delayedException.throwIfPresent()
 
         processViewInfos()
         if (composableName.isNotEmpty()) {
-            // TODO(b/160126628): support other APIs, e.g. animate
-            findAndTrackTransitions()
+            findAndTrackAnimations()
             if (lookForDesignInfoProviders) {
                 findDesignInfoProviders()
             }
@@ -303,79 +307,21 @@ internal class ComposeViewAdapter : FrameLayout {
     }
 
     override fun onAttachedToWindow() {
-        ViewTreeLifecycleOwner.set(composeView.rootView, FakeSavedStateRegistryOwner)
+        composeView.rootView.setViewTreeLifecycleOwner(FakeSavedStateRegistryOwner)
         super.onAttachedToWindow()
     }
 
     /**
-     * Finds all the transition animations defined in the Compose tree where the root is the
-     * `@Composable` being previewed. We only return animations defined in the user code, i.e.
-     * the ones we've got source information for.
+     * Finds all animations defined in the Compose tree where the root is the
+     * `@Composable` being previewed.
      */
-    @Suppress("UNCHECKED_CAST")
-    private fun findAndTrackTransitions() {
-        @Suppress("UNCHECKED_CAST")
-        fun List<Group>.findTransitionObjects(): List<Transition<Any>> {
-            val rememberCalls = mapNotNull { it.firstOrNull { call -> call.name == "remember" } }
-            return rememberCalls.mapNotNull {
-                it.data.firstOrNull { data ->
-                    data is Transition<*>
-                } as? Transition<Any>
-            }
-        }
-
+    private fun findAndTrackAnimations() {
         val slotTrees = slotTableRecord.store.map { it.asTree() }
-        val transitions = mutableSetOf<Transition<Any>>()
-        val animatedVisibilityParentTransitions = mutableSetOf<Transition<Any>>()
-        val animatedContentParentTransitions = mutableSetOf<Transition<Any>>()
-        // Check all the slot tables, since some animations might not be present in the same
-        // table as the one containing the `@Composable` being previewed, e.g. when they're
-        // defined using sub-composition.
-        slotTrees.forEach { tree ->
-            transitions.addAll(
-                // Find `updateTransition` calls in the user code, i.e. when source location is
-                // known.
-                tree.findAll { it.name == UPDATE_TRANSITION_FUNCTION_NAME && it.location != null }
-                    .findTransitionObjects()
-            )
-            // Find `AnimatedVisibility` calls in the user code, i.e. when source location is
-            // known. Then, find the underlying `updateTransition` it uses.
-            animatedVisibilityParentTransitions.addAll(
-                tree.findAll {
-                    it.name == "AnimatedVisibility" && it.location != null
-                }.mapNotNull {
-                    it.children.firstOrNull { updateTransitionCall ->
-                        updateTransitionCall.name == UPDATE_TRANSITION_FUNCTION_NAME
-                    }
-                }.findTransitionObjects()
-            )
-
-            animatedContentParentTransitions.addAll(
-                tree.findAll {
-                    it.name == "AnimatedContent" && it.location != null
-                }.mapNotNull {
-                    it.children.firstOrNull { updateTransitionCall ->
-                        updateTransitionCall.name == UPDATE_TRANSITION_FUNCTION_NAME
-                    }
-                }.findTransitionObjects()
-            )
-
-            // Remove all AnimatedVisibility parent transitions from the transitions list,
-            // otherwise we'd duplicate them in the Android Studio Animation Preview because we
-            // will track them separately.
-            transitions.removeAll(animatedVisibilityParentTransitions)
-
-            // Remove all AnimatedContent parent transitions from the transitions list, so we can
-            // ignore these animations while support is not added to Animation Preview.
-            transitions.removeAll(animatedContentParentTransitions)
-        }
-
-        hasAnimations = transitions.isNotEmpty() || animatedVisibilityParentTransitions.isNotEmpty()
-        // Make the `PreviewAnimationClock` track all the transitions found.
-        if (::clock.isInitialized) {
-            transitions.forEach { clock.trackTransition(it) }
-            animatedVisibilityParentTransitions.forEach {
-                clock.trackAnimatedVisibility(it, ::requestLayout)
+        AnimationSearch(::clock, ::requestLayout).let {
+            it.findAll(slotTrees)
+            hasAnimations = it.hasAnimations
+            if (::clock.isInitialized) {
+                it.trackAll()
             }
         }
     }
@@ -389,25 +335,22 @@ internal class ComposeViewAdapter : FrameLayout {
 
         designInfoList = slotTrees.flatMap { rootGroup ->
             rootGroup.findAll { group ->
-                group.children.any { child ->
-                    child.name == "remember" && child.data.any {
-                        it?.getDesignInfoMethodOrNull() != null
-                    }
+                (group.name != REMEMBER && group.hasDesignInfo()) || group.children.any { child ->
+                    child.name == REMEMBER && child.hasDesignInfo()
                 }
             }.mapNotNull { group ->
-                // Get the DesignInfoProviders from the children, the parent group is needed to
-                // know the location on screen of the layout
-                group.children.forEach { child ->
-                    child.data.forEach {
-                        if (it?.getDesignInfoMethodOrNull() != null) {
-                            return@mapNotNull it.invokeGetDesignInfo(group.box.left, group.box.top)
-                        }
-                    }
-                }
-                return@mapNotNull null
+                // Get the DesignInfoProviders from the group or one of its children
+                group.getDesignInfoOrNull(group.box)
+                    ?: group.children.firstNotNullOfOrNull { it.getDesignInfoOrNull(group.box) }
             }
         }
     }
+
+    private fun Group.hasDesignInfo(): Boolean =
+        data.any { it?.getDesignInfoMethodOrNull() != null }
+
+    private fun Group.getDesignInfoOrNull(box: IntRect): String? =
+        data.firstNotNullOfOrNull { it?.invokeGetDesignInfo(box.left, box.right) }
 
     /**
      * Check if the object supports the method call for [DESIGN_INFO_METHOD], which is expected
@@ -445,39 +388,6 @@ internal class ComposeViewAdapter : FrameLayout {
         }
     }
 
-    private fun Group.firstOrNull(predicate: (Group) -> Boolean): Group? {
-        return findGroupsThatMatchPredicate(this, predicate, true).firstOrNull()
-    }
-
-    private fun Group.findAll(predicate: (Group) -> Boolean): List<Group> {
-        return findGroupsThatMatchPredicate(this, predicate)
-    }
-
-    /**
-     * Search [Group]s that match a given [predicate], starting from a given [root]. An optional
-     * boolean parameter can be set if we're interested in a single occurrence. If it's set, we
-     * return early after finding the first matching [Group].
-     */
-    private fun findGroupsThatMatchPredicate(
-        root: Group,
-        predicate: (Group) -> Boolean,
-        findOnlyFirst: Boolean = false
-    ): List<Group> {
-        val result = mutableListOf<Group>()
-        val stack = mutableListOf(root)
-        while (stack.isNotEmpty()) {
-            val current = stack.removeLast()
-            if (predicate(current)) {
-                if (findOnlyFirst) {
-                    return listOf(current)
-                }
-                result.add(current)
-            }
-            stack.addAll(current.children)
-        }
-        return result
-    }
-
     private fun invalidateComposition() {
         // Invalidate the full composition by setting it to empty and back to the actual value
         content.value = {}
@@ -486,7 +396,7 @@ internal class ComposeViewAdapter : FrameLayout {
         invalidate()
     }
 
-    override fun dispatchDraw(canvas: Canvas?) {
+    override fun dispatchDraw(canvas: Canvas) {
         super.dispatchDraw(canvas)
 
         if (forceCompositionInvalidation) invalidateComposition()
@@ -500,7 +410,7 @@ internal class ComposeViewAdapter : FrameLayout {
             .flatMap { listOf(it) + it.allChildren() }
             .forEach {
                 if (it.hasBounds()) {
-                    canvas?.apply {
+                    canvas.apply {
                         val pxBounds = android.graphics.Rect(
                             it.bounds.left,
                             it.bounds.top,
@@ -561,6 +471,8 @@ internal class ComposeViewAdapter : FrameLayout {
      * @param onCommit callback invoked after every commit of the preview composable.
      * @param onDraw callback invoked after every draw of the adapter. Only for test use.
      */
+    @Suppress("DEPRECATION")
+    @OptIn(ExperimentalComposeUiApi::class)
     @VisibleForTesting
     internal fun init(
         className: String,
@@ -594,7 +506,7 @@ internal class ComposeViewAdapter : FrameLayout {
                 // class loads correctly.
                 val composable = {
                     try {
-                        invokeComposableViaReflection(
+                        ComposableInvoker.invokeComposable(
                             className,
                             methodName,
                             composer,
@@ -608,9 +520,7 @@ internal class ComposeViewAdapter : FrameLayout {
                         while (exception is ReflectiveOperationException) {
                             exception = exception.cause ?: break
                         }
-                        synchronized(delayExceptionLock) {
-                            delayedException = exception
-                        }
+                        delayedException.set(exception)
                         throw t
                     }
                 }
@@ -646,6 +556,7 @@ internal class ComposeViewAdapter : FrameLayout {
         if (::clock.isInitialized) {
             clock.dispose()
         }
+        FakeSavedStateRegistryOwner.lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         FakeViewModelStoreOwner.viewModelStore.clear()
     }
 
@@ -662,9 +573,9 @@ internal class ComposeViewAdapter : FrameLayout {
 
     private fun init(attrs: AttributeSet) {
         // ComposeView and lifecycle initialization
-        ViewTreeLifecycleOwner.set(this, FakeSavedStateRegistryOwner)
+        setViewTreeLifecycleOwner(FakeSavedStateRegistryOwner)
         setViewTreeSavedStateRegistryOwner(FakeSavedStateRegistryOwner)
-        ViewTreeViewModelStoreOwner.set(this, FakeViewModelStoreOwner)
+        setViewTreeViewModelStoreOwner(FakeViewModelStoreOwner)
         addView(composeView)
 
         val composableName = attrs.getAttributeValue(TOOLS_NS_URI, "composableName") ?: return
@@ -719,36 +630,37 @@ internal class ComposeViewAdapter : FrameLayout {
 
     @SuppressLint("VisibleForTests")
     private val FakeSavedStateRegistryOwner = object : SavedStateRegistryOwner {
-        private val lifecycle = LifecycleRegistry.createUnsafe(this)
+        val lifecycleRegistry = LifecycleRegistry.createUnsafe(this)
         private val controller = SavedStateRegistryController.create(this).apply {
             performRestore(Bundle())
         }
 
         init {
-            lifecycle.currentState = Lifecycle.State.RESUMED
+            lifecycleRegistry.currentState = Lifecycle.State.RESUMED
         }
 
         override val savedStateRegistry: SavedStateRegistry
             get() = controller.savedStateRegistry
 
-        override fun getLifecycle(): Lifecycle = lifecycle
+        override val lifecycle: LifecycleRegistry
+            get() = lifecycleRegistry
     }
 
     private val FakeViewModelStoreOwner = object : ViewModelStoreOwner {
-        private val viewModelStore = ViewModelStore()
+        private val vmStore = ViewModelStore()
 
-        override fun getViewModelStore() = viewModelStore
+        override val viewModelStore = vmStore
     }
 
     private val FakeOnBackPressedDispatcherOwner = object : OnBackPressedDispatcherOwner {
-        private val onBackPressedDispatcher = OnBackPressedDispatcher()
+        override val onBackPressedDispatcher = OnBackPressedDispatcher()
 
-        override fun getOnBackPressedDispatcher() = onBackPressedDispatcher
-        override fun getLifecycle() = FakeSavedStateRegistryOwner.lifecycle
+        override val lifecycle: LifecycleRegistry
+            get() = FakeSavedStateRegistryOwner.lifecycleRegistry
     }
 
     private val FakeActivityResultRegistryOwner = object : ActivityResultRegistryOwner {
-        private val activityResultRegistry = object : ActivityResultRegistry() {
+        override val activityResultRegistry = object : ActivityResultRegistry() {
             override fun <I : Any?, O : Any?> onLaunch(
                 requestCode: Int,
                 contract: ActivityResultContract<I, O>,
@@ -758,7 +670,5 @@ internal class ComposeViewAdapter : FrameLayout {
                 throw IllegalStateException("Calling launch() is not supported in Preview")
             }
         }
-
-        override fun getActivityResultRegistry(): ActivityResultRegistry = activityResultRegistry
     }
 }

@@ -22,9 +22,12 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFiles
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
 import org.gradle.workers.WorkAction
@@ -40,12 +43,13 @@ internal val architectures = listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
  * Task which generates native APIs files for each library built by the 'buildCmakeDebug' task using
  * `abidw` and stores them in the /native-api in the project build directory.
  */
+@CacheableTask
 abstract class GenerateNativeApiTask : DefaultTask() {
 
     @get:Inject
     abstract val workerExecutor: WorkerExecutor
 
-    @get:InputDirectory
+    @get:[InputDirectory PathSensitive(PathSensitivity.RELATIVE)]
     abstract val prefabDirectory: Property<File>
 
     @get:Internal
@@ -137,6 +141,9 @@ abstract class AbiDwWorkAction @Inject constructor(private val execOperations: E
             it.args = listOf(
                 "--drop-private-types",
                 "--no-show-locs",
+                "--short-locs",
+                "--no-comp-dir-path",
+                "--no-corpus-path",
                 "--out-file",
                 tempFile.toString(),
                 parameters.pathToLib

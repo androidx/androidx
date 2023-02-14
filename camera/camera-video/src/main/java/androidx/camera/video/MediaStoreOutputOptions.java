@@ -70,8 +70,7 @@ public final class MediaStoreOutputOptions extends OutputOptions {
 
     MediaStoreOutputOptions(
             @NonNull MediaStoreOutputOptionsInternal mediaStoreOutputOptionsInternal) {
-        Preconditions.checkNotNull(mediaStoreOutputOptionsInternal,
-                "MediaStoreOutputOptionsInternal can't be null.");
+        super(mediaStoreOutputOptionsInternal);
         mMediaStoreOutputOptionsInternal = mediaStoreOutputOptionsInternal;
     }
 
@@ -105,16 +104,6 @@ public final class MediaStoreOutputOptions extends OutputOptions {
         return mMediaStoreOutputOptionsInternal.getContentValues();
     }
 
-    /**
-     * Gets the limit for the file length in bytes.
-     *
-     * @see Builder#setFileSizeLimit(long)
-     */
-    @Override
-    public long getFileSizeLimit() {
-        return mMediaStoreOutputOptionsInternal.getFileSizeLimit();
-    }
-
     @Override
     @NonNull
     public String toString() {
@@ -141,12 +130,10 @@ public final class MediaStoreOutputOptions extends OutputOptions {
     }
 
     /** The builder of the {@link MediaStoreOutputOptions} object. */
-    public static final class Builder implements
+    public static final class Builder extends
             OutputOptions.Builder<MediaStoreOutputOptions, Builder> {
-        private final MediaStoreOutputOptionsInternal.Builder mInternalBuilder =
-                new AutoValue_MediaStoreOutputOptions_MediaStoreOutputOptionsInternal.Builder()
-                        .setContentValues(EMPTY_CONTENT_VALUES)
-                        .setFileSizeLimit(FILE_SIZE_UNLIMITED);
+
+        private final MediaStoreOutputOptionsInternal.Builder mInternalBuilder;
 
         /**
          * Creates a builder of the {@link MediaStoreOutputOptions} with media store options.
@@ -171,9 +158,13 @@ public final class MediaStoreOutputOptions extends OutputOptions {
          * @param collectionUri the URI of the collection to insert into.
          */
         public Builder(@NonNull ContentResolver contentResolver, @NonNull Uri collectionUri) {
+            super(new AutoValue_MediaStoreOutputOptions_MediaStoreOutputOptionsInternal.Builder());
             Preconditions.checkNotNull(contentResolver, "Content resolver can't be null.");
             Preconditions.checkNotNull(collectionUri, "Collection Uri can't be null.");
-            mInternalBuilder.setContentResolver(contentResolver).setCollectionUri(collectionUri);
+            mInternalBuilder = (MediaStoreOutputOptionsInternal.Builder) mRootInternalBuilder;
+            mInternalBuilder.setContentResolver(contentResolver)
+                    .setCollectionUri(collectionUri)
+                    .setContentValues(EMPTY_CONTENT_VALUES);
         }
 
         /**
@@ -197,24 +188,6 @@ public final class MediaStoreOutputOptions extends OutputOptions {
             return this;
         }
 
-        /**
-         * Sets the limit for the file length in bytes.
-         *
-         * <p>When used to
-         * {@link Recorder#prepareRecording(android.content.Context, MediaStoreOutputOptions)
-         * generate} recording, if the specified file size limit is reached while the recording
-         * is being recorded, the recording will be finalized with
-         * {@link VideoRecordEvent.Finalize#ERROR_FILE_SIZE_LIMIT_REACHED}.
-         *
-         * <p>If not set, defaults to {@link #FILE_SIZE_UNLIMITED}.
-         */
-        @Override
-        @NonNull
-        public Builder setFileSizeLimit(long fileSizeLimitBytes) {
-            mInternalBuilder.setFileSizeLimit(fileSizeLimitBytes);
-            return this;
-        }
-
         /** Builds the {@link MediaStoreOutputOptions} instance. */
         @Override
         @NonNull
@@ -224,25 +197,24 @@ public final class MediaStoreOutputOptions extends OutputOptions {
     }
 
     @AutoValue
-    abstract static class MediaStoreOutputOptionsInternal {
+    abstract static class MediaStoreOutputOptionsInternal extends OutputOptionsInternal {
         @NonNull
         abstract ContentResolver getContentResolver();
         @NonNull
         abstract Uri getCollectionUri();
         @NonNull
         abstract ContentValues getContentValues();
-        abstract long getFileSizeLimit();
 
+        @SuppressWarnings("NullableProblems") // Nullable problem in AutoValue generated class
         @AutoValue.Builder
-        abstract static class Builder {
+        abstract static class Builder extends OutputOptionsInternal.Builder<Builder> {
             @NonNull
             abstract Builder setContentResolver(@NonNull ContentResolver contentResolver);
             @NonNull
             abstract Builder setCollectionUri(@NonNull Uri collectionUri);
             @NonNull
             abstract Builder setContentValues(@NonNull ContentValues contentValues);
-            @NonNull
-            abstract Builder setFileSizeLimit(long fileSizeLimitBytes);
+            @Override
             @NonNull
             abstract MediaStoreOutputOptionsInternal build();
         }

@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl.utils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
@@ -43,25 +44,28 @@ final class Absent<T> extends Optional<T> {
         return false;
     }
 
+    @NonNull
     @Override
     public T get() {
         throw new IllegalStateException("Optional.get() cannot be called on an absent value");
     }
 
+    @NonNull
     @Override
-    public T or(T defaultValue) {
+    public T or(@NonNull T defaultValue) {
         return Preconditions.checkNotNull(defaultValue,
                 "use Optional.orNull() instead of Optional.or(null)");
     }
 
     @SuppressWarnings("unchecked") // safe covariant cast
     @Override
-    public Optional<T> or(Optional<? extends T> secondChoice) {
+    public @NonNull Optional<T> or(@NonNull Optional<? extends T> secondChoice) {
         return (Optional<T>) Preconditions.checkNotNull(secondChoice);
     }
 
+    @NonNull
     @Override
-    public T or(Supplier<? extends T> supplier) {
+    public T or(@NonNull Supplier<? extends T> supplier) {
         return Preconditions.checkNotNull(
                 supplier.get(), "use Optional.orNull() instead of a Supplier that returns null");
     }
@@ -82,6 +86,7 @@ final class Absent<T> extends Optional<T> {
         return 0x79a31aac;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Optional.absent()";

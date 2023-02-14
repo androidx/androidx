@@ -18,46 +18,39 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
-import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.VariableElement
 
 internal abstract class JavacVariableElement(
     env: JavacProcessingEnv,
-    val containing: JavacTypeElement,
     override val element: VariableElement
 ) : JavacElement(env, element), XVariableElement {
 
-    abstract val kotlinType: KmType?
+    abstract val kotlinType: KmTypeContainer?
 
     override val name: String
         get() = element.simpleName.toString()
 
     override val type: JavacType by lazy {
-        MoreTypes.asMemberOf(env.typeUtils, containing.type.typeMirror, element).let {
-            env.wrap<JavacType>(
-                typeMirror = it,
-                kotlinType = kotlinType,
-                elementNullability = element.nullability
-            )
-        }
+        env.wrap(
+            typeMirror = element.asType(),
+            kotlinType = kotlinType,
+            elementNullability = element.nullability
+        )
     }
 
     override fun asMemberOf(other: XType): JavacType {
-        return if (containing.type.isSameType(other)) {
+        return if (closestMemberContainer.type?.isSameType(other) == true) {
             type
         } else {
             check(other is JavacDeclaredType)
             val asMember = MoreTypes.asMemberOf(env.typeUtils, other.typeMirror, element)
-            env.wrap<JavacType>(
+            env.wrap(
                 typeMirror = asMember,
                 kotlinType = kotlinType,
                 elementNullability = element.nullability
             )
         }
-    }
-
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(element, containing)
     }
 }

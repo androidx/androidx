@@ -48,7 +48,7 @@ class Camera2CaptureRequestBuilder {
     private Camera2CaptureRequestBuilder() {
     }
 
-    private static final String TAG = "CaptureRequestBuilder";
+    private static final String TAG = "Camera2CaptureRequestBuilder";
 
     /**
      * Get the configured Surface from DeferrableSurface list using the Surface map which should be
@@ -125,9 +125,11 @@ class Camera2CaptureRequestBuilder {
                 && captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
                 && cameraCaptureResult != null
                 && cameraCaptureResult.getCaptureResult() instanceof TotalCaptureResult) {
+            Logger.d(TAG, "createReprocessCaptureRequest");
             builder = Api23Impl.createReprocessCaptureRequest(
                     device, (TotalCaptureResult) cameraCaptureResult.getCaptureResult());
         } else {
+            Logger.d(TAG, "createCaptureRequest");
             builder = device.createCaptureRequest(captureConfig.getTemplateType());
         }
 

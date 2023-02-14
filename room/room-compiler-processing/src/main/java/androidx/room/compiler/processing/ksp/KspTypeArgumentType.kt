@@ -21,7 +21,8 @@ import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
-import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.KTypeName
 
 /**
  * The typeName for type arguments requires the type parameter, hence we have a special type
@@ -29,7 +30,6 @@ import com.squareup.javapoet.TypeName
  */
 internal class KspTypeArgumentType(
     env: KspProcessingEnv,
-    val typeParam: KSTypeParameter,
     val typeArg: KSTypeArgument,
     jvmTypeResolver: KspJvmTypeResolver?
 ) : KspType(
@@ -39,31 +39,40 @@ internal class KspTypeArgumentType(
 ) {
     /**
      * When KSP resolves classes, it always resolves to the upper bound. Hence, the ksType we
-     * pass to super is actually our extendsBound.
+     * pass to super is actually our extendsBound. Note that an unbound type argument will resolve
+     * to itself thus we need to check if the extendBound is not the same as this type arg.
      */
     private val _extendsBound by lazy {
-        env.wrap(
+        val extendBound = env.wrap(
             ksType = ksType,
             allowPrimitives = false
         )
+        if (this.ksType.declaration is KSTypeParameter && this == extendBound) {
+            null
+        } else {
+            extendBound
+        }
     }
 
-    override fun resolveTypeName(): TypeName {
-        return typeArg.typeName(env.resolver)
+    override fun resolveJTypeName(): JTypeName {
+        return typeArg.asJTypeName(env.resolver)
+    }
+
+    override fun resolveKTypeName(): KTypeName {
+        return typeArg.asKTypeName(env.resolver)
     }
 
     override fun boxed(): KspTypeArgumentType {
         return this
     }
 
-    override fun extendsBound(): XType {
+    override fun extendsBound(): XType? {
         return _extendsBound
     }
 
     override fun copyWithNullability(nullability: XNullability): KspTypeArgumentType {
         return KspTypeArgumentType(
             env = env,
-            typeParam = typeParam,
             typeArg = DelegatingTypeArg(
                 original = typeArg,
                 type = ksType.withNullability(nullability).createTypeReference()
@@ -75,7 +84,6 @@ internal class KspTypeArgumentType(
     override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
         return KspTypeArgumentType(
             env = env,
-            typeParam = typeParam,
             typeArg = typeArg,
             jvmTypeResolver = jvmTypeResolver
         )

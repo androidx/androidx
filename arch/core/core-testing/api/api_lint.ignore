@@ -1,6 +1,4 @@
 // Baseline format: 1.0
-MissingNullability: androidx.arch.core.executor.testing.CountingTaskExecutorRule#drainTasks(int, java.util.concurrent.TimeUnit) parameter #1:
-    Missing nullability on parameter `timeUnit` in method `drainTasks`
 MissingNullability: androidx.arch.core.executor.testing.CountingTaskExecutorRule#finished(org.junit.runner.Description) parameter #0:
     Missing nullability on parameter `description` in method `finished`
 MissingNullability: androidx.arch.core.executor.testing.CountingTaskExecutorRule#starting(org.junit.runner.Description) parameter #0:

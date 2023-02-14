@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.Publish
 import androidx.build.LibraryType
 
 plugins {
@@ -61,7 +62,7 @@ android {
 androidx {
     name = "Android Wear Tiles Testing Utilities"
     type = LibraryType.PUBLISHED_TEST_LIBRARY
-    mavenGroup = LibraryGroups.WEAR_TILES
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2021"
     description = "Testing utilities for Android Wear Tiles."
 }

@@ -32,7 +32,7 @@ import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.WorkerWrapper
 import androidx.work.impl.foreground.ForegroundProcessor
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -72,7 +72,7 @@ public class RemoteCoroutineWorkerTest {
             .setTaskExecutor(mExecutor)
             .build()
         mTaskExecutor = mock(TaskExecutor::class.java)
-        `when`(mTaskExecutor.serialTaskExecutor).thenReturn(SerialExecutor(mExecutor))
+        `when`(mTaskExecutor.serialTaskExecutor).thenReturn(SerialExecutorImpl(mExecutor))
         `when`(mTaskExecutor.mainThreadExecutor).thenReturn(mExecutor)
         mScheduler = mock(Scheduler::class.java)
         mForegroundProcessor = mock(ForegroundProcessor::class.java)
@@ -80,7 +80,7 @@ public class RemoteCoroutineWorkerTest {
         mDatabase = WorkDatabase.create(mContext, mExecutor, true)
         val schedulers = listOf(mScheduler)
         // Processor
-        mProcessor = Processor(mContext, mConfiguration, mTaskExecutor, mDatabase, schedulers)
+        mProcessor = Processor(mContext, mConfiguration, mTaskExecutor, mDatabase)
         // WorkManagerImpl
         `when`(mWorkManager.configuration).thenReturn(mConfiguration)
         `when`(mWorkManager.workTaskExecutor).thenReturn(mTaskExecutor)
@@ -163,7 +163,8 @@ public class RemoteCoroutineWorkerTest {
             mTaskExecutor,
             mForegroundProcessor,
             mDatabase,
-            request.stringId
+            mDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
+            emptyList()
         ).build()
     }
 }

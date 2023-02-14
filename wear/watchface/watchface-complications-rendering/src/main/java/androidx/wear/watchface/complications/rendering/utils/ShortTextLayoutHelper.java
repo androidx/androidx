@@ -44,7 +44,25 @@ public class ShortTextLayoutHelper extends LayoutHelper {
 
     @Override
     public void getIconBounds(@NonNull Rect outRect) {
-        if (!hasIcon()) {
+        if (!hasIcon() || hasSmallImage()) {
+            outRect.setEmpty();
+        } else {
+            getBounds(outRect);
+            if (isWideRectangle(outRect)) {
+                // Left square part of the inner bounds
+                getLeftPart(outRect, outRect);
+            } else {
+                // Use top half of the central square
+                getCentralSquare(outRect, outRect);
+                getTopHalf(outRect, outRect);
+                getCentralSquare(outRect, outRect);
+            }
+        }
+    }
+
+    @Override
+    public void getSmallImageBounds(@NonNull Rect outRect) {
+        if (!hasSmallImage()) {
             outRect.setEmpty();
         } else {
             getBounds(outRect);

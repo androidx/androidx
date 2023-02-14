@@ -21,13 +21,19 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.utils.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -46,21 +52,19 @@ import java.util.Objects;
  * </ul>
  */
 @CarProtocol
+@KeepFields
 public final class GridTemplate implements Template {
-    @Keep
     private final boolean mIsLoading;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final Action mHeaderAction;
-    @Keep
     @Nullable
     private final ItemList mSingleList;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
+
+    private final List<Action> mActions;
 
     /**
      * Returns the title of the template or {@code null} if not set.
@@ -113,6 +117,18 @@ public final class GridTemplate implements Template {
         return mSingleList;
     }
 
+    /**
+     * Returns the list of additional actions.
+     *
+     * @see GridTemplate.Builder#addAction(Action)
+     */
+    @ExperimentalCarApi
+    @NonNull
+    @RequiresCarApi(6)
+    public List<Action> getActions() {
+        return mActions;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -138,7 +154,8 @@ public final class GridTemplate implements Template {
                 && Objects.equals(mTitle, otherTemplate.mTitle)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mSingleList, otherTemplate.mSingleList)
-                && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
+                && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
+                && Objects.equals(mActions, otherTemplate.mActions);
     }
 
     GridTemplate(Builder builder) {
@@ -147,6 +164,7 @@ public final class GridTemplate implements Template {
         mHeaderAction = builder.mHeaderAction;
         mSingleList = builder.mSingleList;
         mActionStrip = builder.mActionStrip;
+        mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -156,6 +174,7 @@ public final class GridTemplate implements Template {
         mHeaderAction = null;
         mSingleList = null;
         mActionStrip = null;
+        mActions = Collections.emptyList();
     }
 
     /** A builder of {@link GridTemplate}. */
@@ -169,6 +188,7 @@ public final class GridTemplate implements Template {
         Action mHeaderAction;
         @Nullable
         ActionStrip mActionStrip;
+        final List<Action> mActions = new ArrayList<>();
 
         /**
          * Sets whether the template is in a loading state.
@@ -257,6 +277,26 @@ public final class GridTemplate implements Template {
         }
 
         /**
+         * Adds a template scoped action outside of the grid items. This action will be displayed
+         * as a floating action button.
+         *
+         * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
+         *                                  exceeds the maximum number of allowed actions or does
+         *                                  not contain a valid {@link CarIcon} and background
+         *                                  {@link CarColor}.
+         */
+        @ExperimentalCarApi
+        @NonNull
+        @RequiresCarApi(6)
+        public Builder addAction(@NonNull Action action) {
+            List<Action> mActionsCopy = new ArrayList<>(mActions);
+            mActionsCopy.add(requireNonNull(action));
+            ActionsConstraints.ACTIONS_CONSTRAINTS_FAB.validateOrThrow(mActionsCopy);
+            mActions.add(action);
+            return this;
+        }
+
+        /**
          * Constructs the template defined by this builder.
          *
          * <h4>Requirements</h4>
@@ -266,11 +306,11 @@ public final class GridTemplate implements Template {
          * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_GRID}. The
          * host will ignore any items over that limit.
          *
-         * <p>Either a header {@link Action} or title must be set on the template.
+         * <p>If none of the header {@link Action}, the header title or the action strip have been
+         * set on the template, the header is hidden.
          *
          * @throws IllegalStateException    if the template is in a loading state but there are
-         *                                  lists added, or vice versa, or if the template does not
-         *                                  have either a title or header {@link Action} set.
+         *                                  lists added, or vice versa.
          * @throws IllegalArgumentException if the added {@link ItemList} does not meet the
          *                                  template's requirements.
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
@@ -290,10 +330,6 @@ public final class GridTemplate implements Template {
                                 "All the items in grid template's item list must be grid items");
                     }
                 }
-            }
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
             }
 
             return new GridTemplate(this);

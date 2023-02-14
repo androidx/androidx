@@ -19,12 +19,12 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 import androidx.compose.runtime.collection.IdentityScopeMap
 import androidx.compose.runtime.snapshots.fastAll
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * A composition object is usually constructed for you, and returned from an API that
@@ -382,6 +382,11 @@ internal class CompositionImpl(
     private val observations = IdentityScopeMap<RecomposeScopeImpl>()
 
     /**
+     * Used for testing. Returns the objects that are observed
+     */
+    internal val observedObjects get() = observations.values.filterNotNull()
+
+    /**
      * A set of scopes that were invalidated conditionally (that is they were invalidated by a
      * [derivedStateOf] object) by a call from [recordModificationsOf]. They need to be held in the
      * [observations] map until invalidations are drained for composition as a later call to
@@ -393,6 +398,17 @@ internal class CompositionImpl(
      * A map of object read during derived states to the corresponding derived state.
      */
     private val derivedStates = IdentityScopeMap<DerivedState<*>>()
+
+    /**
+     * Used for testing. Returns dependencies of derived states that are currently observed.
+     */
+    internal val derivedStateDependencies get() = derivedStates.values.filterNotNull()
+
+    /**
+     * Used for testing. Returns the conditional scopes being tracked by the composer
+     */
+    internal val conditionalScopes: List<RecomposeScopeImpl> get() =
+        conditionallyInvalidatedScopes.toList()
 
     /**
      * A list of changes calculated by [Composer] to be applied to the [Applier] and the
@@ -527,14 +543,16 @@ internal class CompositionImpl(
             null -> {
                 // Do nothing, just start composing.
             }
-            PendingApplyNoModifications -> error("pending composition has not been applied")
+            PendingApplyNoModifications -> {
+                composeRuntimeError("pending composition has not been applied")
+            }
             is Set<*> -> {
                 addPendingInvalidationsLocked(toRecord as Set<Any>, forgetConditionalScopes = true)
             }
             is Array<*> -> for (changed in toRecord as Array<Set<Any>>) {
                 addPendingInvalidationsLocked(changed, forgetConditionalScopes = true)
             }
-            else -> error("corrupt pendingModifications drain: $pendingModifications")
+            else -> composeRuntimeError("corrupt pendingModifications drain: $pendingModifications")
         }
     }
 
@@ -550,10 +568,10 @@ internal class CompositionImpl(
             is Array<*> -> for (changed in toRecord as Array<Set<Any>>) {
                 addPendingInvalidationsLocked(changed, forgetConditionalScopes = false)
             }
-            null -> error(
+            null -> composeRuntimeError(
                 "calling recordModificationsOf and applyChanges concurrently is not supported"
             )
-            else -> error(
+            else -> composeRuntimeError(
                 "corrupt pendingModifications drain: $pendingModifications"
             )
         }
@@ -562,10 +580,12 @@ internal class CompositionImpl(
     override fun composeContent(content: @Composable () -> Unit) {
         // TODO: This should raise a signal to any currently running recompose calls
         // to halt and return
-        trackAbandonedValues {
+        guardChanges {
             synchronized(lock) {
                 drainPendingModificationsForCompositionLocked()
-                composer.composeContent(takeInvalidations(), content)
+                guardInvalidationsLocked { invalidations ->
+                    composer.composeContent(invalidations, content)
+                }
             }
         }
     }
@@ -575,6 +595,24 @@ internal class CompositionImpl(
             if (!disposed) {
                 disposed = true
                 composable = {}
+
+                // Changes are deferred if the composition contains movable content that needs
+                // to be released. NOTE: Applying these changes leaves the slot table in
+                // potentially invalid state. The routine use to produce this change list reuses
+                // code that extracts movable content from groups that are being deleted. This code
+                // does not bother to correctly maintain the node counts of a group nested groups
+                // that are going to be removed anyway so the node counts of the groups affected
+                // are might be incorrect after the changes have been applied.
+                val deferredChanges = composer.deferredChanges
+                if (deferredChanges != null) {
+                    applyChangesInLocked(deferredChanges)
+                }
+
+                // Dispatch all the `onForgotten` events for object that are no longer part of a
+                // composition because this composition is being discarded. It is important that
+                // this is done after applying deferred changes above to avoid sending `
+                // onForgotten` notification to objects that are still part of movable content that
+                // will be moved to a new location.
                 val nonEmptySlotTable = slotTable.groupsSize > 0
                 if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
                     val manager = RememberEventDispatcher(abandonSet)
@@ -584,6 +622,7 @@ internal class CompositionImpl(
                         }
                         applier.clear()
                         manager.dispatchRememberObservers()
+                        manager.dispatchNodeCallbacks()
                     }
                     manager.dispatchAbandons()
                 }
@@ -669,12 +708,19 @@ internal class CompositionImpl(
             observations.removeValueIf { scope ->
                 scope in conditionallyInvalidatedScopes || invalidated?.let { scope in it } == true
             }
+            cleanUpDerivedStateObservations()
             conditionallyInvalidatedScopes.clear()
         } else {
             invalidated?.let {
                 observations.removeValueIf { scope -> scope in it }
+                cleanUpDerivedStateObservations()
             }
         }
+    }
+
+    private fun cleanUpDerivedStateObservations() {
+        derivedStates.removeValueIf { derivedValue -> derivedValue !in observations }
+        conditionallyInvalidatedScopes.removeValueIf { scope -> !scope.isConditional }
     }
 
     override fun recordReadOf(value: Any) {
@@ -686,7 +732,10 @@ internal class CompositionImpl(
 
                 // Record derived state dependency mapping
                 if (value is DerivedState<*>) {
-                    value.dependencies.forEach { dependency ->
+                    derivedStates.removeScope(value)
+                    for (dependency in value.dependencies) {
+                        // skip over empty objects from dependency array
+                        if (dependency == null) break
                         derivedStates.add(dependency, value)
                     }
                 }
@@ -718,10 +767,12 @@ internal class CompositionImpl(
 
     override fun recompose(): Boolean = synchronized(lock) {
         drainPendingModificationsForCompositionLocked()
-        trackAbandonedValues {
-            composer.recompose(takeInvalidations()).also { shouldDrain ->
-                // Apply would normally do this for us; do it now if apply shouldn't happen.
-                if (!shouldDrain) drainPendingModificationsLocked()
+        guardChanges {
+            guardInvalidationsLocked { invalidations ->
+                composer.recompose(invalidations).also { shouldDrain ->
+                    // Apply would normally do this for us; do it now if apply shouldn't happen.
+                    if (!shouldDrain) drainPendingModificationsLocked()
+                }
             }
         }
     }
@@ -730,7 +781,7 @@ internal class CompositionImpl(
         references: List<Pair<MovableContentStateReference, MovableContentStateReference?>>
     ) {
         runtimeCheck(references.fastAll { it.first.composition == this })
-        trackAbandonedValues {
+        guardChanges {
             composer.insertMovableContentReferences(references)
         }
     }
@@ -742,35 +793,40 @@ internal class CompositionImpl(
             writer.removeCurrentGroup(manager)
         }
         manager.dispatchRememberObservers()
+        manager.dispatchNodeCallbacks()
     }
 
     private fun applyChangesInLocked(changes: MutableList<Change>) {
         val manager = RememberEventDispatcher(abandonSet)
         try {
             if (changes.isEmpty()) return
-            applier.onBeginChanges()
+            trace("Compose:applyChanges") {
+                applier.onBeginChanges()
 
-            // Apply all changes
-            slotTable.write { slots ->
-                val applier = applier
-                changes.fastForEach { change ->
-                    change(applier, slots, manager)
+                // Apply all changes
+                slotTable.write { slots ->
+                    val applier = applier
+                    changes.fastForEach { change ->
+                        change(applier, slots, manager)
+                    }
+                    changes.clear()
                 }
-                changes.clear()
+                applier.onEndChanges()
             }
-
-            applier.onEndChanges()
 
             // Side effects run after lifecycle observers so that any remembered objects
             // that implement RememberObserver receive onRemembered before a side effect
             // that captured it and operates on it can run.
             manager.dispatchRememberObservers()
+            manager.dispatchNodeCallbacks()
             manager.dispatchSideEffects()
 
             if (pendingInvalidScopes) {
-                pendingInvalidScopes = false
-                observations.removeValueIf { scope -> !scope.valid }
-                derivedStates.removeValueIf { derivedValue -> derivedValue !in observations }
+                trace("Compose:unobserve") {
+                    pendingInvalidScopes = false
+                    observations.removeValueIf { scope -> !scope.valid }
+                    cleanUpDerivedStateObservations()
+                }
             }
         } finally {
             // Only dispatch abandons if we do not have any late changes. The instances in the
@@ -782,28 +838,61 @@ internal class CompositionImpl(
 
     override fun applyChanges() {
         synchronized(lock) {
-            applyChangesInLocked(changes)
-            drainPendingModificationsLocked()
+            guardChanges {
+                applyChangesInLocked(changes)
+                drainPendingModificationsLocked()
+            }
         }
     }
 
     override fun applyLateChanges() {
         synchronized(lock) {
-            if (lateChanges.isNotEmpty()) {
-                applyChangesInLocked(lateChanges)
+            guardChanges {
+                if (lateChanges.isNotEmpty()) {
+                    applyChangesInLocked(lateChanges)
+                }
             }
         }
     }
 
     override fun changesApplied() {
         synchronized(lock) {
-            composer.changesApplied()
+            guardChanges {
+                composer.changesApplied()
 
-            // By this time all abandon objects should be notified that they have been abandoned.
-            if (this.abandonSet.isNotEmpty()) {
-                RememberEventDispatcher(abandonSet).dispatchAbandons()
+                // By this time all abandon objects should be notified that they have been abandoned.
+                if (this.abandonSet.isNotEmpty()) {
+                    RememberEventDispatcher(abandonSet).dispatchAbandons()
+                }
             }
         }
+    }
+
+    private inline fun <T> guardInvalidationsLocked(
+        block: (changes: IdentityArrayMap<RecomposeScopeImpl, IdentityArraySet<Any>?>) -> T
+    ): T {
+        val invalidations = takeInvalidations()
+        return try {
+            block(invalidations)
+        } catch (e: Exception) {
+            this.invalidations = invalidations
+            throw e
+        }
+    }
+
+    private inline fun <T> guardChanges(block: () -> T): T =
+        try {
+            trackAbandonedValues(block)
+        } catch (e: Exception) {
+            abandonChanges()
+            throw e
+        }
+
+    private fun abandonChanges() {
+        pendingModifications.set(null)
+        changes.clear()
+        lateChanges.clear()
+        abandonSet.clear()
     }
 
     override fun invalidateAll() {
@@ -815,6 +904,7 @@ internal class CompositionImpl(
     override fun verifyConsistent() {
         synchronized(lock) {
             if (!isComposing) {
+                composer.verifyConsistent()
                 slotTable.verifyWellFormed()
                 validateRecomposeScopeAnchors(slotTable)
             }
@@ -897,6 +987,13 @@ internal class CompositionImpl(
         observations.remove(instance, scope)
     }
 
+    internal fun removeDerivedStateObservation(state: DerivedState<*>) {
+        // remove derived state if it is not observed in other scopes
+        if (state !in observations) {
+            derivedStates.removeScope(state)
+        }
+    }
+
     /**
      * This takes ownership of the current invalidations and sets up a new array map to hold the
      * new invalidations.
@@ -939,9 +1036,6 @@ internal class CompositionImpl(
 
     /**
      * Helper for collecting remember observers for later strictly ordered dispatch.
-     *
-     * This includes support for the deprecated [RememberObserver] which should be
-     * removed with it.
      */
     private class RememberEventDispatcher(
         private val abandoning: MutableSet<RememberObserver>
@@ -949,6 +1043,8 @@ internal class CompositionImpl(
         private val remembering = mutableListOf<RememberObserver>()
         private val forgetting = mutableListOf<RememberObserver>()
         private val sideEffects = mutableListOf<() -> Unit>()
+        private var deactivating: MutableList<ComposeNodeLifecycleCallback>? = null
+        private var releasing: MutableList<ComposeNodeLifecycleCallback>? = null
 
         override fun remembering(instance: RememberObserver) {
             forgetting.lastIndexOf(instance).let { index ->
@@ -976,43 +1072,89 @@ internal class CompositionImpl(
             sideEffects += effect
         }
 
+        override fun deactivating(instance: ComposeNodeLifecycleCallback) {
+            (deactivating ?: mutableListOf<ComposeNodeLifecycleCallback>().also {
+                deactivating = it
+            }) += instance
+        }
+
+        override fun releasing(instance: ComposeNodeLifecycleCallback) {
+            (releasing ?: mutableListOf<ComposeNodeLifecycleCallback>().also {
+                releasing = it
+            }) += instance
+        }
+
         fun dispatchRememberObservers() {
             // Send forgets
             if (forgetting.isNotEmpty()) {
-                for (i in forgetting.size - 1 downTo 0) {
-                    val instance = forgetting[i]
-                    if (instance !in abandoning) {
-                        instance.onForgotten()
+                trace("Compose:onForgotten") {
+                    for (i in forgetting.size - 1 downTo 0) {
+                        val instance = forgetting[i]
+                        if (instance !in abandoning) {
+                            instance.onForgotten()
+                        }
                     }
                 }
             }
 
             // Send remembers
             if (remembering.isNotEmpty()) {
-                remembering.fastForEach { instance ->
-                    abandoning.remove(instance)
-                    instance.onRemembered()
+                trace("Compose:onRemembered") {
+                    remembering.fastForEach { instance ->
+                        abandoning.remove(instance)
+                        instance.onRemembered()
+                    }
                 }
             }
         }
 
         fun dispatchSideEffects() {
             if (sideEffects.isNotEmpty()) {
-                sideEffects.fastForEach { sideEffect ->
-                    sideEffect()
+                trace("Compose:sideeffects") {
+                    sideEffects.fastForEach { sideEffect ->
+                        sideEffect()
+                    }
+                    sideEffects.clear()
                 }
-                sideEffects.clear()
             }
         }
 
         fun dispatchAbandons() {
             if (abandoning.isNotEmpty()) {
-                val iterator = abandoning.iterator()
-                while (iterator.hasNext()) {
-                    val instance = iterator.next()
-                    iterator.remove()
-                    instance.onAbandoned()
+                trace("Compose:abandons") {
+                    val iterator = abandoning.iterator()
+                    while (iterator.hasNext()) {
+                        val instance = iterator.next()
+                        iterator.remove()
+                        instance.onAbandoned()
+                    }
                 }
+            }
+        }
+
+        fun dispatchNodeCallbacks() {
+            val deactivating = deactivating
+            if (!deactivating.isNullOrEmpty()) {
+                trace("Compose:deactivations") {
+                    for (i in deactivating.size - 1 downTo 0) {
+                        val instance = deactivating[i]
+                        instance.onDeactivate()
+                    }
+                }
+                deactivating.clear()
+            }
+
+            val releasing = releasing
+            if (!releasing.isNullOrEmpty()) {
+                // note that in contrast with objects from `forgetting` we will invoke the callback
+                // even for objects being abandoned.
+                trace("Compose:releases") {
+                    for (i in releasing.size - 1 downTo 0) {
+                        val instance = releasing[i]
+                        instance.onRelease()
+                    }
+                }
+                releasing.clear()
             }
         }
     }
@@ -1049,6 +1191,16 @@ private class HotReloader {
         internal fun invalidateGroupsWithKey(key: Int) {
             return Recomposer.invalidateGroupsWithKey(key)
         }
+
+        @TestOnly
+        internal fun getCurrentErrors(): List<RecomposerErrorInfo> {
+            return Recomposer.getCurrentErrors()
+        }
+
+        @TestOnly
+        internal fun clearErrors() {
+            return Recomposer.clearErrors()
+        }
     }
 }
 
@@ -1064,6 +1216,22 @@ fun simulateHotReload(context: Any) = HotReloader.simulateHotReload(context)
 @TestOnly
 fun invalidateGroupsWithKey(key: Int) = HotReloader.invalidateGroupsWithKey(key)
 
+/**
+ * @suppress
+ */
+// suppressing for test-only api
+@Suppress("ListIterator")
+@TestOnly
+fun currentCompositionErrors(): List<Pair<Exception, Boolean>> =
+    HotReloader.getCurrentErrors()
+        .map { it.cause to it.recoverable }
+
+/**
+ * @suppress
+ */
+@TestOnly
+fun clearCompositionErrors() = HotReloader.clearErrors()
+
 private fun <K : Any, V : Any> IdentityArrayMap<K, IdentityArraySet<V>?>.addValue(
     key: K,
     value: V
@@ -1072,5 +1240,18 @@ private fun <K : Any, V : Any> IdentityArrayMap<K, IdentityArraySet<V>?>.addValu
         this[key]?.add(value)
     } else {
         this[key] = IdentityArraySet<V>().also { it.add(value) }
+    }
+}
+
+/**
+ * This is provided natively in API 26 and this should be removed if 26 is made the lowest API
+ * level supported
+ */
+private inline fun <E> HashSet<E>.removeValueIf(predicate: (E) -> Boolean) {
+    val iter = iterator()
+    while (iter.hasNext()) {
+        if (predicate(iter.next())) {
+            iter.remove()
+        }
     }
 }

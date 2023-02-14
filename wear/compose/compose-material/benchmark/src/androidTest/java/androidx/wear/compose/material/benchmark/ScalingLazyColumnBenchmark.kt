@@ -88,6 +88,7 @@ class ScalingLazyColumnBenchmark {
     }
 }
 
+@Suppress("DEPRECATION")
 internal class ScalingLazyColumnTestCase : LayeredComposeTestCase() {
     private var itemSizeDp: Dp = 10.dp
     private var defaultItemSpacingDp: Dp = 4.dp

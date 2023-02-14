@@ -16,10 +16,11 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XAnnotationValue
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.processing.InternalXAnnotationValue
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import com.google.devtools.ksp.getClassDeclarationByName
-import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -29,9 +30,10 @@ import com.google.devtools.ksp.symbol.KSValueArgument
 internal class KspAnnotationValue(
     val env: KspProcessingEnv,
     private val owner: KspAnnotation,
+    override val valueType: XType,
     val valueArgument: KSValueArgument,
-    private val valueProvider: () -> Any? = { owner.unwrap(valueArgument) },
-) : XAnnotationValue {
+    private val valueProvider: () -> Any? = { owner.unwrap(valueType, valueArgument) },
+) : InternalXAnnotationValue() {
 
     override val name: String
         get() = valueArgument.name?.asString()
@@ -40,7 +42,7 @@ internal class KspAnnotationValue(
     override val value: Any? by lazy { valueProvider.invoke() }
 }
 
-internal fun KspAnnotation.unwrap(valueArgument: KSValueArgument): Any? {
+internal fun KspAnnotation.unwrap(valueType: XType, valueArgument: KSValueArgument): Any? {
     fun unwrap(value: Any?): Any? {
         return when (value) {
             is KSType -> {
@@ -80,28 +82,38 @@ internal fun KspAnnotation.unwrap(valueArgument: KSValueArgument): Any? {
     }
     return unwrap(valueArgument.value).let { result ->
         when {
-            result is List<*> -> {
-                // For lists, wrap each item in a KSPAnnotationValue. This models things similar to
-                // javac, and allows us to report errors on each individual item rather than just
-                // the list itself.
-                result.map { KspAnnotationValue(env, this, valueArgument) { it } }
+            // For array values, wrap each item in a KSPAnnotationValue. This models things similar
+            // to javac, and allows us to report errors on each individual item rather than
+            // just the list itself.
+            valueType.isArray() -> {
+                when (result) {
+                    // TODO: 5/24/21 KSP does not wrap a single item in a list, even though the
+                    // return type should be Class<?>[] (only in sources).
+                    // https://github.com/google/ksp/issues/172
+                    // https://github.com/google/ksp/issues/214
+                    !is List<*> -> listOf(result)
+                    else -> result
+                }.map {
+                    KspAnnotationValue(env, this, valueType.componentType, valueArgument) {
+                        convertValueToType(it, valueType.componentType)
+                    }
+                }
             }
-            isArrayType(valueArgument) -> {
-                // TODO: 5/24/21 KSP does not wrap a single item in a list, even though the
-                // return type should be Class<?>[] (only in sources).
-                // https://github.com/google/ksp/issues/172
-                // https://github.com/google/ksp/issues/214
-                listOf(KspAnnotationValue(env, this, valueArgument) { result })
-            }
-            else -> result
+            else -> convertValueToType(result, valueType)
         }
     }
 }
 
-private fun KspAnnotation.isArrayType(arg: KSValueArgument): Boolean {
-    return (ksType.declaration as KSClassDeclaration).getConstructors()
-        .singleOrNull()
-        ?.parameters
-        ?.firstOrNull { it.name == arg.name }
-        ?.let { env.wrap(it.type).isArray() } == true
+private fun convertValueToType(value: Any?, valueType: XType): Any? {
+    // Unlike Javac, KSP does not convert the value to the type declared on the annotation class's
+    // annotation value automatically so we have to do that conversion manually here.
+    return when (valueType.asTypeName()) {
+        XTypeName.PRIMITIVE_BYTE -> (value as Number).toByte()
+        XTypeName.PRIMITIVE_SHORT -> (value as Number).toShort()
+        XTypeName.PRIMITIVE_INT -> (value as Number).toInt()
+        XTypeName.PRIMITIVE_LONG -> (value as Number).toLong()
+        XTypeName.PRIMITIVE_FLOAT -> (value as Number).toFloat()
+        XTypeName.PRIMITIVE_DOUBLE -> (value as Number).toDouble()
+        else -> value
+    }
 }

@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RunWith(Parameterized.class)
@@ -51,7 +51,7 @@ public class MaterialGoldenTest {
     public AndroidXScreenshotTestRule mScreenshotRule =
             new AndroidXScreenshotTestRule("wear/wear-tiles-material");
 
-    public MaterialGoldenTest(LayoutElement layoutElement, String expected) {
+    public MaterialGoldenTest(String expected, LayoutElement layoutElement) {
         mLayoutElement = layoutElement;
         mExpected = expected;
     }
@@ -61,7 +61,7 @@ public class MaterialGoldenTest {
         return (int) ((px - 0.5f) / scale);
     }
 
-    @Parameterized.Parameters(name = "{1}")
+    @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
         Context context = InstrumentationRegistry.getInstrumentation().getContext();
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
@@ -78,7 +78,6 @@ public class MaterialGoldenTest {
                 .getDisplayMetrics()
                 .setTo(displayMetrics);
 
-
         DeviceParameters deviceParameters =
                 new DeviceParameters.Builder()
                         .setScreenWidthDp(pxToDp(SCREEN_WIDTH, scale))
@@ -88,12 +87,10 @@ public class MaterialGoldenTest {
                         .setScreenShape(DeviceParametersBuilders.SCREEN_SHAPE_RECT)
                         .build();
 
-        HashMap<LayoutElement, String> testCases =
-                generateTestCases(context, deviceParameters, "");
+        Map<String, LayoutElement> testCases = generateTestCases(context, deviceParameters, "");
 
-        return testCases.entrySet()
-                .stream()
-                .map(test -> new Object[]{test.getKey(), test.getValue()})
+        return testCases.entrySet().stream()
+                .map(test -> new Object[] {test.getKey(), test.getValue()})
                 .collect(Collectors.toList());
     }
 

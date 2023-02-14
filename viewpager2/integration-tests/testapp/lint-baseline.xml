@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="NewApi"
@@ -7,9 +7,7 @@
         errorLine1="                throw AssertionError(&quot;Block hit bad state $n times&quot;, e)"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/viewpager2/integration/testapp/test/util/RetryBlock.kt"
-            line="50"
-            column="23"/>
+            file="src/androidTest/java/androidx/viewpager2/integration/testapp/test/util/RetryBlock.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                        textDirection = View.TEXT_DIRECTION_LOCALE"
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionBaseActivity.kt"
-            line="65"
-            column="25"/>
+            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionBaseActivity.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                        textDirection = View.TEXT_DIRECTION_LOCALE"
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionBaseActivity.kt"
-            line="65"
-            column="25"/>
+            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionBaseActivity.kt"/>
     </issue>
 
 </issues>

@@ -19,11 +19,11 @@ package androidx.car.app.navigation.model;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -39,7 +39,8 @@ import java.util.Objects;
  * @see Lane
  */
 @CarProtocol
-public final class LaneDirection {
+@KeepFields
+public final class LaneDirection{
     /**
      * Turn amount and direction.
      *
@@ -108,10 +109,8 @@ public final class LaneDirection {
     @Shape
     public static final int SHAPE_U_TURN_RIGHT = 10;
 
-    @Keep
     @Shape
     private final int mShape;
-    @Keep
     private final boolean mIsRecommended;
 
     /**

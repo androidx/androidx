@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_layout_title" msgid="7937809248738392417"><b>"Грешка у вези са виџетом апликације Glance"</b></string>
-    <string name="error_layout_text" msgid="6543889412094559379">"Проверите у чему је тачно грешка помоћу ставке"<b><tt>"adb logcat"</tt></b>", тражећи ставку "<b><tt>"GlanceAppWidget"</tt></b></string>
+    <string name="glance_error_layout_title" msgid="2896109737634971880"><b>"Грешка у вези са виџетом апликације Glance"</b></string>
+    <string name="glance_error_layout_text" msgid="8513923302775602854">"Проверите у чему је тачно грешка користећи "<b><tt>"adb logcat"</tt></b>" док тражите "<b><tt>"GlanceAppWidget"</tt></b></string>
 </resources>

@@ -42,6 +42,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.graphics.FitWidthBitmapDrawable;
 import androidx.leanback.media.MediaPlayerGlue;
@@ -426,13 +427,23 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void navigateBetweenRowsAndVideoUsingDPAD1() throws Throwable {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo1.class);
     }
 
     @FlakyTest(bugId = 228336699)
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void navigateBetweenRowsAndVideoUsingDPAD2() throws Throwable {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo2.class);
     }
 
@@ -1091,7 +1102,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
 
         @Override
-        public void onViewCreated(View view, Bundle savedInstanceState) {
+        public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
         }
 

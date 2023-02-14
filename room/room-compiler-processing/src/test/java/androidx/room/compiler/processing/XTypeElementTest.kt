@@ -16,25 +16,73 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.processing.ksp.jvmDescriptor
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.asKClassName
+import androidx.room.compiler.processing.util.asMutableKClassName
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.createXTypeVariableName
 import androidx.room.compiler.processing.util.getAllFieldNames
+import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeVariableName
+import com.squareup.kotlinpoet.INT
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.JParameterizedTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeVariableName
+import com.squareup.kotlinpoet.javapoet.KClassName
+import com.squareup.kotlinpoet.javapoet.KTypeVariableName
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
-@RunWith(JUnit4::class)
-class XTypeElementTest {
+@RunWith(Parameterized::class)
+class XTypeElementTest(
+    private val isPreCompiled: Boolean,
+) {
+    private fun runTest(
+        sources: List<Source>,
+        handler: (XTestInvocation) -> Unit
+    ) {
+        if (isPreCompiled) {
+            val compiled = compileFiles(sources)
+            val hasKotlinSources = sources.any {
+                it is Source.KotlinSource
+            }
+            val kotlinSources = if (hasKotlinSources) {
+                listOf(
+                    Source.kotlin("placeholder.kt", "class PlaceholderKotlin")
+                )
+            } else {
+                emptyList()
+            }
+            val newSources = kotlinSources + Source.java(
+                "PlaceholderJava",
+                "public class " +
+                    "PlaceholderJava {}"
+            )
+            runProcessorTest(
+                sources = newSources,
+                handler = handler,
+                classpath = compiled
+            )
+        } else {
+            runProcessorTest(
+                sources = sources,
+                handler = handler
+            )
+        }
+    }
+
     @Test
     fun qualifiedNames() {
         val src1 = Source.kotlin(
@@ -60,36 +108,42 @@ class XTypeElementTest {
             }
             """
         )
-        runProcessorTest(
+        runTest(
             sources = listOf(src1, src2, src3)
         ) { invocation ->
             invocation.processingEnv.requireTypeElement("TopLevel").let {
                 assertThat(it.packageName).isEqualTo("")
                 assertThat(it.name).isEqualTo("TopLevel")
                 assertThat(it.qualifiedName).isEqualTo("TopLevel")
-                assertThat(it.className).isEqualTo(ClassName.get("", "TopLevel"))
+                assertThat(it.asClassName().java)
+                    .isEqualTo(JClassName.get("", "TopLevel"))
+                if (invocation.isKsp) {
+                    assertThat(it.asClassName().kotlin)
+                        .isEqualTo(KClassName("", "TopLevel"))
+                } else {
+                    // In javac / kapt we don't have KotlinPoet names
+                    assertThat(it.asClassName().kotlin)
+                        .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
+                }
             }
             invocation.processingEnv.requireTypeElement("foo.bar.InFooBar").let {
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("InFooBar")
                 assertThat(it.qualifiedName).isEqualTo("foo.bar.InFooBar")
-                assertThat(it.className).isEqualTo(ClassName.get("foo.bar", "InFooBar"))
+                assertThat(it.asClassName()).isEqualTo(XClassName.get("foo.bar", "InFooBar"))
             }
             invocation.processingEnv.requireTypeElement("foo.bar.Outer").let {
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("Outer")
                 assertThat(it.qualifiedName).isEqualTo("foo.bar.Outer")
-                assertThat(it.className).isEqualTo(
-                    ClassName.get("foo.bar", "Outer")
-                )
+                assertThat(it.asClassName()).isEqualTo(XClassName.get("foo.bar", "Outer"))
             }
             invocation.processingEnv.requireTypeElement("foo.bar.Outer.Nested").let {
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("Nested")
                 assertThat(it.qualifiedName).isEqualTo("foo.bar.Outer.Nested")
-                assertThat(it.className).isEqualTo(
-                    ClassName.get("foo.bar", "Outer", "Nested")
-                )
+                assertThat(it.asClassName())
+                    .isEqualTo(XClassName.get("foo.bar", "Outer", "Nested"))
             }
             if (invocation.isKsp) {
                 // these are KSP specific tests, typenames are tested elsewhere
@@ -98,11 +152,15 @@ class XTypeElementTest {
                     assertThat(it.packageName).isEqualTo("kotlin")
                     assertThat(it.name).isEqualTo("Int")
                     assertThat(it.qualifiedName).isEqualTo("kotlin.Int")
+                    assertThat(it.asClassName().java).isEqualTo(JTypeName.INT.box())
+                    assertThat(it.asClassName().kotlin).isEqualTo(INT)
                 }
                 invocation.processingEnv.requireTypeElement("kotlin.Int").let {
                     assertThat(it.packageName).isEqualTo("kotlin")
                     assertThat(it.name).isEqualTo("Int")
                     assertThat(it.qualifiedName).isEqualTo("kotlin.Int")
+                    assertThat(it.asClassName().java).isEqualTo(JTypeName.INT.box())
+                    assertThat(it.asClassName().kotlin).isEqualTo(INT)
                 }
             }
         }
@@ -113,61 +171,61 @@ class XTypeElementTest {
         val src = Source.kotlin(
             "foo.kt",
             """
-            package foo.bar;
-            class Baz : MyInterface, AbstractClass() {
-            }
-            abstract class AbstractClass {}
-            interface MyInterface {}
-            interface AnotherInterface : MyInterface {}
+            package foo.bar
+            class Baz : MyInterface, AbstractClass()
+            abstract class AbstractClass
+            interface MyInterface
+            interface AnotherInterface : MyInterface
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Baz").let {
-                assertThat(it.superClass).isEqualTo(
-                    invocation.processingEnv.requireType("foo.bar.AbstractClass")
+                assertThat(it.superClass!!.asTypeName()).isEqualTo(
+                    invocation.processingEnv.requireType("foo.bar.AbstractClass").asTypeName()
                 )
-                assertThat(it.superTypes).containsExactly(
-                    invocation.processingEnv.requireType("foo.bar.AbstractClass"),
-                    invocation.processingEnv.requireType("foo.bar.MyInterface")
+                assertThat(it.type.superTypes.map(XType::asTypeName)).containsExactly(
+                    invocation.processingEnv.requireType("foo.bar.AbstractClass").asTypeName(),
+                    invocation.processingEnv.requireType("foo.bar.MyInterface").asTypeName()
                 )
-                assertThat(it.type).isEqualTo(
-                    invocation.processingEnv.requireType("foo.bar.Baz")
+                assertThat(it.type.asTypeName()).isEqualTo(
+                    invocation.processingEnv.requireType("foo.bar.Baz").asTypeName()
                 )
                 assertThat(it.isInterface()).isFalse()
                 assertThat(it.isKotlinObject()).isFalse()
                 assertThat(it.isAbstract()).isFalse()
             }
             invocation.processingEnv.requireTypeElement("foo.bar.AbstractClass").let {
-                assertThat(it.superClass).isEqualTo(
-                    invocation.processingEnv.requireType(TypeName.OBJECT)
+                assertThat(it.superClass!!.asTypeName()).isEqualTo(
+                    invocation.processingEnv.requireType(JTypeName.OBJECT).asTypeName()
                 )
-                assertThat(it.superTypes).containsExactly(
-                    invocation.processingEnv.requireType(TypeName.OBJECT)
+                assertThat(it.type.superTypes.map(XType::asTypeName)).containsExactly(
+                    invocation.processingEnv.requireType(JTypeName.OBJECT).asTypeName()
                 )
                 assertThat(it.isAbstract()).isTrue()
                 assertThat(it.isInterface()).isFalse()
-                assertThat(it.type).isEqualTo(
-                    invocation.processingEnv.requireType("foo.bar.AbstractClass")
+                assertThat(it.type.asTypeName()).isEqualTo(
+                    invocation.processingEnv.requireType("foo.bar.AbstractClass").asTypeName()
                 )
             }
             invocation.processingEnv.requireTypeElement("foo.bar.MyInterface").let {
                 assertThat(it.superClass).isNull()
-                assertThat(it.superTypes).containsExactly(
-                    invocation.processingEnv.requireType(TypeName.OBJECT)
+                assertThat(it.type.superTypes.map(XType::asTypeName)).containsExactly(
+                    invocation.processingEnv.requireType(JTypeName.OBJECT).asTypeName()
                 )
                 assertThat(it.isInterface()).isTrue()
-                assertThat(it.type).isEqualTo(
-                    invocation.processingEnv.requireType("foo.bar.MyInterface")
+                assertThat(it.type.asTypeName()).isEqualTo(
+                    invocation.processingEnv.requireType("foo.bar.MyInterface").asTypeName()
                 )
             }
             invocation.processingEnv.requireTypeElement("foo.bar.AnotherInterface").let {
                 assertThat(it.superClass).isNull()
-                assertThat(it.superTypes).containsExactly(
-                    invocation.processingEnv.requireType("foo.bar.MyInterface")
+                assertThat(it.type.superTypes.map(XType::asTypeName)).containsExactly(
+                    invocation.processingEnv.requireType("java.lang.Object").asTypeName(),
+                    invocation.processingEnv.requireType("foo.bar.MyInterface").asTypeName()
                 )
                 assertThat(it.isInterface()).isTrue()
-                assertThat(it.type).isEqualTo(
-                    invocation.processingEnv.requireType("foo.bar.AnotherInterface")
+                assertThat(it.type.asTypeName()).isEqualTo(
+                    invocation.processingEnv.requireType("foo.bar.AnotherInterface").asTypeName()
                 )
             }
         }
@@ -178,22 +236,25 @@ class XTypeElementTest {
         val src = Source.kotlin(
             "foo.kt",
             """
-            package foo.bar;
-            class Baz : MyInterface<String>, AbstractClass() {
-            }
-            abstract class AbstractClass {}
-            interface MyInterface<E> {}
+            package foo.bar
+            class Baz : MyInterface<String>, AbstractClass()
+            abstract class AbstractClass
+            interface MyInterface<E>
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Baz").let {
                 assertThat(it.superInterfaces).hasSize(1)
                 val superInterface = it.superInterfaces.first { type ->
                     type.rawType.toString() == "foo.bar.MyInterface"
                 }
                 assertThat(superInterface.typeArguments).hasSize(1)
-                assertThat(superInterface.typeArguments[0].typeName)
-                    .isEqualTo(ClassName.get("java.lang", "String"))
+                assertThat(superInterface.typeArguments[0].asTypeName().java)
+                    .isEqualTo(JClassName.get("java.lang", "String"))
+                if (invocation.isKsp) {
+                    assertThat(superInterface.typeArguments[0].asTypeName().kotlin)
+                        .isEqualTo(KClassName("kotlin", "String"))
+                }
             }
         }
     }
@@ -203,20 +264,22 @@ class XTypeElementTest {
         val src = Source.kotlin(
             "Foo.kt",
             """
-            package foo.bar;
+            package foo.bar
             class Outer {
                 class Inner
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Outer").let {
-                assertThat(it.className).isEqualTo(ClassName.get("foo.bar", "Outer"))
+                assertThat(it.asClassName())
+                    .isEqualTo(XClassName.get("foo.bar", "Outer"))
                 assertThat(it.isNested()).isFalse()
                 assertThat(it.enclosingTypeElement).isNull()
             }
             invocation.processingEnv.requireTypeElement("foo.bar.Outer.Inner").let {
-                assertThat(it.className).isEqualTo(ClassName.get("foo.bar", "Outer", "Inner"))
+                assertThat(it.asClassName())
+                    .isEqualTo(XClassName.get("foo.bar", "Outer", "Inner"))
                 assertThat(it.packageName).isEqualTo("foo.bar")
                 assertThat(it.name).isEqualTo("Inner")
                 assertThat(it.isNested()).isTrue()
@@ -266,7 +329,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(
+        runTest(
             sources = listOf(kotlinSrc, javaSrc, javaAnnotationSrc)
         ) { invocation ->
             fun getModifiers(element: XTypeElement): Set<String> {
@@ -321,8 +384,15 @@ class XTypeElementTest {
                 .containsExactly("public", "class")
             assertThat(getModifiers("OuterJavaClass.NestedJavaClass"))
                 .containsExactly("public", "static", "class")
-            assertThat(getModifiers("JavaAnnotation"))
-                .containsExactly("abstract", "public", "annotation")
+            assertThat(getModifiers("JavaAnnotation")).apply {
+                // KSP vs KAPT metadata have a difference in final vs abstract modifiers
+                // for annotation types.
+                if (isPreCompiled && invocation.isKsp) {
+                    containsExactly("final", "public", "annotation")
+                } else {
+                    containsExactly("abstract", "public", "annotation")
+                }
+            }
             assertThat(getModifiers("KotlinAnnotation")).apply {
                 // KSP vs KAPT metadata have a difference in final vs abstract modifiers
                 // for annotation types.
@@ -334,8 +404,13 @@ class XTypeElementTest {
             }
             assertThat(getModifiers("DataClass"))
                 .containsExactly("public", "final", "class", "data")
-            assertThat(getModifiers("InlineClass"))
-                .containsExactly("public", "final", "class", "value")
+            assertThat(getModifiers("InlineClass")).apply {
+                if (isPreCompiled && invocation.isKsp) {
+                    containsExactly("public", "final", "class")
+                } else {
+                    containsExactly("public", "final", "class", "value")
+                }
+            }
             assertThat(getModifiers("FunInterface"))
                 .containsExactly("public", "abstract", "interface", "fun")
         }
@@ -350,7 +425,7 @@ class XTypeElementTest {
             interface MyInterface
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("MyClass").let {
                 assertThat(it.kindName()).isEqualTo("class")
             }
@@ -373,7 +448,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val baseClass = invocation.processingEnv.requireTypeElement("BaseClass")
             assertThat(baseClass.getAllFieldNames()).containsExactly("genericProp")
             assertThat(baseClass.getDeclaredFields().map { it.name })
@@ -386,16 +461,17 @@ class XTypeElementTest {
             val baseMethod = baseClass.getMethodByJvmName("baseMethod")
             baseMethod.asMemberOf(subClass.type).let { methodType ->
                 val genericArg = methodType.parameterTypes.first()
-                assertThat(genericArg.typeName).isEqualTo(TypeName.INT.box())
+                assertThat(genericArg.asTypeName()).isEqualTo(Int::class.asClassName())
             }
 
             baseClass.getField("genericProp").let { field ->
-                assertThat(field.type.typeName).isEqualTo(TypeVariableName.get("T"))
+                assertThat(field.type.asTypeName()).isEqualTo(createXTypeVariableName("T"))
             }
 
             subClass.getField("genericProp").let { field ->
                 // this is tricky because even though it is non-null it, it should still be boxed
-                assertThat(field.type.typeName).isEqualTo(TypeName.INT.box())
+                assertThat(field.asMemberOf(subClass.type).asTypeName())
+                    .isEqualTo(Int::class.asClassName())
             }
         }
     }
@@ -413,30 +489,37 @@ class XTypeElementTest {
             ) : BaseClass(value)
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val baseClass = invocation.processingEnv.requireTypeElement("BaseClass")
             assertThat(baseClass.getAllFieldNames()).containsExactly("value")
             val subClass = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(subClass.getAllFieldNames()).containsExactly("value")
-            assertThat(
-                baseClass.getField("value").type.typeName
-            ).isEqualTo(
-                ParameterizedTypeName.get(List::class.java, Integer::class.java)
+            val baseFieldType = baseClass.getField("value").type
+            val subFieldType = subClass.getField("value").type
+            assertThat(baseFieldType.asTypeName().java).isEqualTo(
+                JParameterizedTypeName.get(List::class.java, Integer::class.java)
             )
-            assertThat(
-                subClass.getField("value").type.typeName
-            ).isEqualTo(
-                ParameterizedTypeName.get(List::class.java, Integer::class.java)
+            assertThat(subFieldType.asTypeName().java).isEqualTo(
+                JParameterizedTypeName.get(List::class.java, Integer::class.java)
             )
+            if (invocation.isKsp) {
+                assertThat(baseFieldType.asTypeName().kotlin).isEqualTo(
+                    List::class.asKClassName().parameterizedBy(INT)
+                )
+                assertThat(subFieldType.asTypeName().kotlin).isEqualTo(
+                    List::class.asMutableKClassName().parameterizedBy(INT)
+                )
+            }
         }
     }
 
     @Test
     fun fieldsMethodsWithoutBacking() {
-        fun buildSrc(pkg: String) = Source.kotlin(
-            "Foo.kt",
-            """
-            package $pkg;
+        runTest(
+            sources = listOf(Source.kotlin(
+                "Foo.kt",
+                """
+            package test
             class Subject {
                 val realField: String = ""
                     get() = field
@@ -460,42 +543,37 @@ class XTypeElementTest {
                 }
             }
             """.trimIndent()
-        )
-        val lib = compileFiles(listOf(buildSrc("lib")))
-        runProcessorTest(
-            sources = listOf(buildSrc("main")),
-            classpath = lib
+            )),
         ) { invocation ->
-            listOf("lib", "main").forEach { pkg ->
-                val subject = invocation.processingEnv.requireTypeElement("$pkg.Subject")
-                val declaredFields = subject.getDeclaredFields().map { it.name } -
-                    listOf("Companion") // skip Companion, KAPT generates it
-                val expectedFields = listOf("realField", "staticRealField")
-                assertWithMessage(subject.qualifiedName)
-                    .that(declaredFields)
-                    .containsExactlyElementsIn(expectedFields)
-                val allFields = subject.getAllFieldsIncludingPrivateSupers().map { it.name } -
-                    listOf("Companion") // skip Companion, KAPT generates it
-                assertWithMessage(subject.qualifiedName)
-                    .that(allFields.toList())
-                    .containsExactlyElementsIn(expectedFields)
-                val methodNames = subject.getDeclaredMethods().map { it.jvmName }
-                assertWithMessage(subject.qualifiedName)
-                    .that(methodNames)
-                    .containsAtLeast("getNoBackingVal", "getNoBackingVar", "setNoBackingVar")
-                assertWithMessage(subject.qualifiedName)
-                    .that(methodNames)
-                    .doesNotContain("setNoBackingVal")
-            }
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            val declaredFields = subject.getDeclaredFields().map { it.name } -
+                listOf("Companion") // skip Companion, KAPT generates it
+            val expectedFields = listOf("realField", "staticRealField")
+            assertWithMessage(subject.qualifiedName)
+                .that(declaredFields)
+                .containsExactlyElementsIn(expectedFields)
+            val allFields = subject.getAllFieldsIncludingPrivateSupers().map { it.name } -
+                listOf("Companion") // skip Companion, KAPT generates it
+            assertWithMessage(subject.qualifiedName)
+                .that(allFields.toList())
+                .containsExactlyElementsIn(expectedFields)
+            val methodNames = subject.getDeclaredMethods().map { it.jvmName }
+            assertWithMessage(subject.qualifiedName)
+                .that(methodNames)
+                .containsAtLeast("getNoBackingVal", "getNoBackingVar", "setNoBackingVar")
+            assertWithMessage(subject.qualifiedName)
+                .that(methodNames)
+                .doesNotContain("setNoBackingVal")
         }
     }
 
     @Test
     fun abstractFields() {
-        fun buildSource(pkg: String) = Source.kotlin(
-            "Foo.kt",
-            """
-            package $pkg;
+        runTest(
+            sources = listOf(Source.kotlin(
+                "Foo.kt",
+                """
+            package test
             abstract class Subject {
                 val value: String = ""
                 abstract val abstractValue: String
@@ -506,53 +584,46 @@ class XTypeElementTest {
                 }
             }
             """.trimIndent()
-        )
-
-        val lib = compileFiles(listOf(buildSource("lib")))
-        runProcessorTest(
-            sources = listOf(buildSource("main")),
-            classpath = lib
+            )),
         ) { invocation ->
-            listOf("lib", "main").forEach { pkg ->
-                val subject = invocation.processingEnv.requireTypeElement("$pkg.Subject")
-                val declaredFields = subject.getDeclaredFields().map { it.name } -
-                    listOf("Companion")
-                val expectedFields = listOf("value", "realCompanion", "jvmStatic")
-                assertWithMessage(subject.qualifiedName)
-                    .that(declaredFields)
-                    .containsExactlyElementsIn(expectedFields)
-            }
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            val declaredFields = subject.getDeclaredFields().map { it.name } -
+                listOf("Companion")
+            val expectedFields = listOf("value", "realCompanion", "jvmStatic")
+            assertWithMessage(subject.qualifiedName)
+                .that(declaredFields)
+                .containsExactlyElementsIn(expectedFields)
         }
     }
 
     @Test
     fun lateinitFields() {
-        fun buildSource(pkg: String) = Source.kotlin(
-            "Foo.kt",
-            """
-            package $pkg
+        runTest(
+            sources = listOf(Source.kotlin(
+                "Foo.kt",
+                """
+            package test
             class Subject {
                 lateinit var x:String
                 var y:String = "abc"
             }
             """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(buildSource("app")),
-            classpath = compileFiles(listOf(buildSource("lib")))
+            )),
         ) { invocation ->
-            listOf("app", "lib").forEach { pkg ->
-                val subject = invocation.processingEnv.requireTypeElement("$pkg.Subject")
-                assertWithMessage(subject.fallbackLocationText)
-                    .that(subject.getDeclaredFields().map { it.name })
-                    .containsExactly(
-                        "x", "y"
-                    )
-                assertWithMessage(subject.fallbackLocationText)
-                    .that(subject.getDeclaredMethods().map { it.jvmName })
-                    .containsExactly(
-                        "getX", "setX", "getY", "setY"
-                    )
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            assertWithMessage(subject.fallbackLocationText)
+                .that(subject.getDeclaredFields().map { it.name })
+                .containsExactly(
+                    "x", "y"
+                )
+            assertWithMessage(subject.fallbackLocationText)
+                .that(subject.getDeclaredMethods().map { it.jvmName })
+                .containsExactly(
+                    "getX", "setX", "getY", "setY"
+                )
+            subject.getField("x").let { field ->
+                assertThat(field.isFinal()).isFalse()
+                assertThat(field.isPrivate()).isFalse()
             }
         }
     }
@@ -567,7 +638,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("MyInterface")
             assertThat(element.getAllFieldsIncludingPrivateSupers().toList()).isEmpty()
             element.getMethodByJvmName("getX").let {
@@ -592,7 +663,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("MyAbstractClass")
             assertThat(
                 element.getAllFieldNames()
@@ -623,71 +694,56 @@ class XTypeElementTest {
 
     @Test
     fun propertyGettersSetters() {
-        val dependencyJavaSource = Source.java(
-            "DependencyJavaSubject.java",
-            """
-            class DependencyJavaSubject {
-                int myField;
-                private int mutable;
-                int immutable;
-                int getMutable() {return 3;}
-                void setMutable(int x) {}
-                int getImmutable() {return 3;}
-            }
-            """.trimIndent()
-        )
-        val dependencyKotlinSource = Source.kotlin(
-            "DependencyKotlinSubject.kt",
-            """
-            class DependencyKotlinSubject {
-                private val myField = 0
-                var mutable: Int = 0
-                val immutable:Int = 0
-            }
-            """.trimIndent()
-        )
-        val dependency = compileFiles(listOf(dependencyJavaSource, dependencyKotlinSource))
-        val javaSource = Source.java(
-            "JavaSubject.java",
-            """
-            class JavaSubject {
-                int myField;
-                private int mutable;
-                int immutable;
-                int getMutable() {return 3;}
-                void setMutable(int x) {}
-                int getImmutable() {return 3;}
-            }
-            """.trimIndent()
-        )
-        val kotlinSource = Source.kotlin(
-            "KotlinSubject.kt",
-            """
-            class KotlinSubject {
-                private val myField = 0
-                var mutable: Int = 0
-                val immutable:Int = 0
-            }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            listOf(javaSource, kotlinSource),
-            classpath = dependency
-        ) { invocation ->
+        runTest(
             listOf(
-                "JavaSubject", "DependencyJavaSubject",
-                "KotlinSubject", "DependencyKotlinSubject"
-            ).map {
+                Source.java(
+                    "JavaSubject.java",
+                    """
+                    class JavaSubject {
+                        int myField;
+                        private int mutable;
+                        int immutable;
+                        int getMutable() {return 3;}
+                        void setMutable(int x) {}
+                        int getImmutable() {return 3;}
+                    }
+                    """.trimIndent()
+                ),
+                Source.kotlin(
+                    "KotlinSubject.kt",
+                    """
+                    class KotlinSubject {
+                        private val myField = 0
+                        var mutable: Int = 0
+                        val immutable:Int = 0
+                    }
+                    """.trimIndent()
+                )
+            ),
+        ) { invocation ->
+            listOf("JavaSubject", "KotlinSubject",).map {
                 invocation.processingEnv.requireTypeElement(it)
             }.forEach { subject ->
+                val methods = subject.getDeclaredMethods()
                 assertWithMessage(subject.qualifiedName)
                     .that(
-                        subject.getDeclaredMethods().map {
+                        methods.map {
                             it.jvmName
                         }
                     ).containsExactly(
                         "getMutable", "setMutable", "getImmutable"
                     )
+                methods.forEach {
+                    assertWithMessage("${subject.qualifiedName}.${it.jvmName}()")
+                        .that(it.isKotlinPropertyMethod())
+                        .apply {
+                            if (subject.name.contains("Kotlin")) {
+                                isTrue()
+                            } else {
+                                isFalse()
+                            }
+                        }
+                }
             }
         }
     }
@@ -722,7 +778,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
             val objectMethodNames = invocation.objectMethodNames()
             assertThat(base.getDeclaredMethods().jvmNames()).containsExactly(
@@ -743,10 +799,11 @@ class XTypeElementTest {
 
     @Test
     fun diamondOverride() {
-        fun buildSrc(pkg: String) = Source.kotlin(
-            "Foo.kt",
-            """
-            package $pkg;
+        runTest(
+            sources = listOf(Source.kotlin(
+                "Foo.kt",
+                """
+            package test
             interface Parent<T> {
                 fun parent(t: T)
             }
@@ -765,38 +822,32 @@ class XTypeElementTest {
                 abstract override fun parent(t: String)
             }
             """.trimIndent()
-        )
-
-        runProcessorTest(
-            sources = listOf(buildSrc("app")),
-            classpath = compileFiles(listOf(buildSrc("lib")))
+            )),
         ) { invocation ->
-            listOf("lib", "app").forEach { pkg ->
-                invocation.processingEnv.requireTypeElement("$pkg.Subject1").let { subject ->
-                    assertWithMessage(subject.qualifiedName).that(
-                        invocation.nonObjectMethodSignatures(subject)
-                    ).containsExactly(
-                        "child1(java.lang.String):void",
-                        "child2(java.lang.String):void",
-                        "parent(java.lang.String):void",
-                    )
-                }
-                invocation.processingEnv.requireTypeElement("$pkg.Subject2").let { subject ->
-                    assertWithMessage(subject.qualifiedName).that(
-                        invocation.nonObjectMethodSignatures(subject)
-                    ).containsExactly(
-                        "child1(java.lang.String):void",
-                        "parent(java.lang.String):void",
-                    )
-                }
-                invocation.processingEnv.requireTypeElement("$pkg.Subject3").let { subject ->
-                    assertWithMessage(subject.qualifiedName).that(
-                        invocation.nonObjectMethodSignatures(subject)
-                    ).containsExactly(
-                        "child1(java.lang.String):void",
-                        "parent(java.lang.String):void",
-                    )
-                }
+            invocation.processingEnv.requireTypeElement("test.Subject1").let { subject ->
+                assertWithMessage(subject.qualifiedName).that(
+                    invocation.nonObjectMethodSignatures(subject)
+                ).containsExactly(
+                    "child1(java.lang.String):void",
+                    "child2(java.lang.String):void",
+                    "parent(java.lang.String):void",
+                )
+            }
+            invocation.processingEnv.requireTypeElement("test.Subject2").let { subject ->
+                assertWithMessage(subject.qualifiedName).that(
+                    invocation.nonObjectMethodSignatures(subject)
+                ).containsExactly(
+                    "child1(java.lang.String):void",
+                    "parent(java.lang.String):void",
+                )
+            }
+            invocation.processingEnv.requireTypeElement("test.Subject3").let { subject ->
+                assertWithMessage(subject.qualifiedName).that(
+                    invocation.nonObjectMethodSignatures(subject)
+                ).containsExactly(
+                    "child1(java.lang.String):void",
+                    "parent(java.lang.String):void",
+                )
             }
         }
     }
@@ -823,7 +874,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("DerivedInterface")
             val methodNames = base.getAllMethods().toList().jvmNames()
             assertThat(methodNames).containsExactly(
@@ -851,7 +902,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("DerivedClass")
             val methodNamesCount =
                 base.getAllMethods().toList().jvmNames().groupingBy { it }.eachCount()
@@ -882,7 +933,7 @@ class XTypeElementTest {
             """.trimIndent()
         )
 
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement(
                 "ParentWithExplicitOverride"
             ).let { parent ->
@@ -942,7 +993,7 @@ class XTypeElementTest {
                 """.trimIndent()
             ),
         )
-        runProcessorTest(sources = srcs) { invocation ->
+        runTest(sources = srcs) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.child.FooChild")
                 .let { fooChild ->
                     assertWithMessage(fooChild.qualifiedName).that(
@@ -998,7 +1049,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val objectMethodNames = invocation.objectMethodNames()
             val klass = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(
@@ -1025,11 +1076,12 @@ class XTypeElementTest {
      */
     @Test
     fun allMethods_withJvmNames() {
-        fun buildSource(pkg: String) = listOf(
-            Source.kotlin(
-                "Foo.kt",
-                """
-                package $pkg
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "Foo.kt",
+                    """
+                package test
                 interface Interface {
                     fun f1()
                     @JvmName("notF2")
@@ -1043,33 +1095,27 @@ class XTypeElementTest {
                     }
                 }
             """.trimIndent()
-            )
-        )
-
-        runProcessorTest(
-            sources = buildSource("app"),
-            classpath = compileFiles(buildSource("lib"))
+                )
+            ),
         ) { invocation ->
-            listOf("app", "lib").forEach {
-                val appSubject = invocation.processingEnv.requireTypeElement("$it.Subject")
-                val methodNames = appSubject.getAllMethods().map { it.name }.toList()
-                val methodJvmNames = appSubject.getAllMethods().map { it.jvmName }.toList()
-                val objectMethodNames = invocation.objectMethodNames()
-                if (invocation.isKsp) {
-                    assertThat(methodNames - objectMethodNames).containsExactly(
-                        "f1", "f2"
-                    )
-                    assertThat(methodJvmNames - objectMethodNames).containsExactly(
-                        "notF1", "notF2"
-                    )
-                } else {
-                    assertThat(methodNames - objectMethodNames).containsExactly(
-                        "f1", "f1", "f2"
-                    )
-                    assertThat(methodJvmNames - objectMethodNames).containsExactly(
-                        "f1", "notF1", "notF2"
-                    )
-                }
+            val appSubject = invocation.processingEnv.requireTypeElement("test.Subject")
+            val methodNames = appSubject.getAllMethods().map { it.name }.toList()
+            val methodJvmNames = appSubject.getAllMethods().map { it.jvmName }.toList()
+            val objectMethodNames = invocation.objectMethodNames()
+            if (invocation.isKsp) {
+                assertThat(methodNames - objectMethodNames).containsExactly(
+                    "f1", "f2"
+                )
+                assertThat(methodJvmNames - objectMethodNames).containsExactly(
+                    "notF1", "notF2"
+                )
+            } else {
+                assertThat(methodNames - objectMethodNames).containsExactly(
+                    "f1", "f1", "f2"
+                )
+                assertThat(methodJvmNames - objectMethodNames).containsExactly(
+                    "f1", "notF1", "notF2"
+                )
             }
         }
     }
@@ -1089,7 +1135,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val objectMethodNames = invocation.objectMethodNames()
             invocation.processingEnv.requireTypeElement("JustGetter").let { base ->
                 assertThat(base.getDeclaredMethods().jvmNames()).containsExactly(
@@ -1147,7 +1193,7 @@ class XTypeElementTest {
             class SubClass : CompanionSubject()
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val objectMethodNames = invocation.processingEnv.requireTypeElement(
                 Any::class
             ).getAllMethods().jvmNames()
@@ -1222,7 +1268,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("JustGetter").let { base ->
                 assertThat(base.getDeclaredMethods().jvmNames()).containsExactly(
                     "getX"
@@ -1271,7 +1317,7 @@ class XTypeElementTest {
             abstract class AbstractExplicit(x:Int)
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val subjects = listOf(
                 "MyInterface", "NoExplicitConstructor", "Base", "ExplicitConstructor",
                 "BaseWithSecondary", "Sub", "SubWith3Constructors",
@@ -1327,7 +1373,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("MyInterface")
             assertThat(subject.getMethodByJvmName("notJvmDefault").isJavaDefault()).isFalse()
             assertThat(subject.getMethodByJvmName("jvmDefault").isJavaDefault()).isTrue()
@@ -1374,7 +1420,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val subjects = listOf(
                 "MyInterface", "NoExplicitConstructor", "Base", "ExplicitConstructor",
                 "BaseWithSecondary", "Sub", "SubWith3Constructors",
@@ -1406,48 +1452,41 @@ class XTypeElementTest {
 
     @Test
     fun enumTypeElement() {
-        fun createSources(packageName: String) = listOf(
-            Source.kotlin(
-                "$packageName/KotlinEnum.kt",
-                """
-                package $packageName
-                enum class KotlinEnum(private val x:Int) {
-                    VAL1(1),
-                    VAL2(2);
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test/KotlinEnum.kt",
+                    """
+                    package test
+                    enum class KotlinEnum(private val x:Int) {
+                        VAL1(1),
+                        VAL2(2);
 
-                    fun enumMethod():Unit {}
-                }
-                """.trimIndent()
-            ),
-            Source.java(
-                "$packageName.JavaEnum",
-                """
-                package $packageName;
-                public enum JavaEnum {
-                    VAL1(1),
-                    VAL2(2);
-
-                    private int x;
-
-                    JavaEnum(int x) {
-                        this.x = x;
+                        fun enumMethod(): Unit {}
                     }
-                    void enumMethod() {}
-                }
-                """.trimIndent()
-            )
-        )
+                    """.trimIndent()
+                ),
+                Source.java(
+                    "test.JavaEnum",
+                    """
+                    package test;
+                    public enum JavaEnum {
+                        VAL1(1),
+                        VAL2(2);
 
-        val classpath = compileFiles(
-            createSources("lib")
-        )
-        runProcessorTest(
-            sources = createSources("app"),
-            classpath = classpath
+                        private int x;
+
+                        JavaEnum(int x) {
+                            this.x = x;
+                        }
+                        void enumMethod() {}
+                    }
+                    """.trimIndent()
+                )
+            ),
         ) { invocation ->
             listOf(
-                "lib.KotlinEnum", "lib.JavaEnum",
-                "app.KotlinEnum", "app.JavaEnum"
+                "test.KotlinEnum", "test.JavaEnum",
             ).forEach { qName ->
                 val typeElement = invocation.processingEnv.requireTypeElement(qName)
                 assertWithMessage("$qName is enum")
@@ -1471,6 +1510,12 @@ class XTypeElementTest {
                 assertWithMessage("$qName  does not report enum constants in declared fields")
                     .that(typeElement.getDeclaredFields().map { it.name })
                     .containsExactly("x")
+                typeElement.getEnclosedElements().let { elements ->
+                    assertThat(elements.filter { it.name == "VAL1" }.all { it is XEnumEntry })
+                        .isTrue()
+                    assertThat(elements.filter { it.name == "VAL2" }.all { it is XEnumEntry })
+                        .isTrue()
+                }
             }
         }
     }
@@ -1493,7 +1538,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val topLevelClass = invocation.processingEnv.requireTypeElement("TopLevelClass")
             val enclosedTypeElements = topLevelClass.getEnclosedTypeElements()
 
@@ -1523,7 +1568,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val topLevelClass = invocation.processingEnv.requireTypeElement("TopLevelClass")
             val enclosedTypeElements = topLevelClass.getEnclosedTypeElements()
 
@@ -1549,7 +1594,7 @@ class XTypeElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(listOf(kotlinSrc)) { invocation ->
+        runTest(listOf(kotlinSrc)) { invocation ->
             val kotlinClass = invocation.processingEnv.requireTypeElement(
                 "foo.bar.KotlinClass")
             val companionObjects = kotlinClass.getEnclosedTypeElements().filter {
@@ -1558,6 +1603,366 @@ class XTypeElementTest {
             assertThat(companionObjects.size).isEqualTo(1)
             val companionObj = companionObjects.first()
             assertThat(companionObj.isKotlinObject()).isTrue()
+        }
+    }
+
+    @Test
+    fun inheritedGenericMethod() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.ConcreteClass.kt",
+                    """
+                    package test
+                    class ConcreteClass: AbstractClass<Foo, Bar>() {}
+                    abstract class AbstractClass<T1, T2> {
+                        fun method(t1: T1, t2: T2): T2 {
+                          return t2
+                        }
+                    }
+                    class Foo
+                    class Bar
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val concreteClass = invocation.processingEnv.requireTypeElement("test.ConcreteClass")
+            val abstractClass = invocation.processingEnv.requireTypeElement("test.AbstractClass")
+            val concreteClassMethod = concreteClass.getMethodByJvmName("method")
+            val abstractClassMethod = abstractClass.getMethodByJvmName("method")
+            val fooType = invocation.processingEnv.requireType("test.Foo")
+            val barType = invocation.processingEnv.requireType("test.Bar")
+
+            fun checkMethodElement(method: XMethodElement) {
+                checkMethodElement(
+                    method = method,
+                    name = "method",
+                    enclosingElement = abstractClass,
+                    returnType = createXTypeVariableName("T2"),
+                    parameterTypes = arrayOf(
+                        createXTypeVariableName("T1"),
+                        createXTypeVariableName("T2")
+                    )
+                )
+                checkMethodType(
+                    methodType = method.executableType,
+                    returnType = createXTypeVariableName("T2"),
+                    parameterTypes = arrayOf(
+                        createXTypeVariableName("T1"),
+                        createXTypeVariableName("T2")
+                    )
+                )
+                checkMethodType(
+                    methodType = method.asMemberOf(abstractClass.type),
+                    returnType = createXTypeVariableName("T2"),
+                    parameterTypes = arrayOf(
+                        createXTypeVariableName("T1"),
+                        createXTypeVariableName("T2")
+                    )
+                )
+                checkMethodType(
+                    methodType = method.asMemberOf(concreteClass.type),
+                    returnType = barType.asTypeName(),
+                    parameterTypes = arrayOf(fooType.asTypeName(), barType.asTypeName())
+                )
+            }
+
+            assertThat(concreteClassMethod).isEqualTo(abstractClassMethod)
+            checkMethodElement(concreteClassMethod)
+            checkMethodElement(abstractClassMethod)
+        }
+    }
+
+    @Test
+    fun overriddenGenericMethod() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.ConcreteClass.kt",
+                    """
+                    package test
+                    class ConcreteClass: AbstractClass<Foo, Bar>() {
+                        override fun method(t1: Foo, t2: Bar): Bar {
+                          return t2
+                        }
+                    }
+                    abstract class AbstractClass<T1, T2> {
+                        abstract fun method(t1: T1, t2: T2): T2
+                    }
+                    class Foo
+                    class Bar
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val concreteClass = invocation.processingEnv.requireTypeElement("test.ConcreteClass")
+            val abstractClass = invocation.processingEnv.requireTypeElement("test.AbstractClass")
+            val concreteClassMethod = concreteClass.getMethodByJvmName("method")
+            val abstractClassMethod = abstractClass.getMethodByJvmName("method")
+            val fooType = invocation.processingEnv.requireType("test.Foo")
+            val barType = invocation.processingEnv.requireType("test.Bar")
+
+            assertThat(concreteClassMethod).isNotEqualTo(abstractClassMethod)
+            assertThat(concreteClassMethod.overrides(abstractClassMethod, concreteClass)).isTrue()
+
+            // Check the abstract method and method type
+            checkMethodElement(
+                method = abstractClassMethod,
+                name = "method",
+                enclosingElement = abstractClass,
+                returnType = createXTypeVariableName("T2"),
+                parameterTypes = arrayOf(
+                    createXTypeVariableName("T1"),
+                    createXTypeVariableName("T2")
+                )
+            )
+            checkMethodType(
+                methodType = abstractClassMethod.executableType,
+                returnType = createXTypeVariableName("T2"),
+                parameterTypes = arrayOf(
+                    createXTypeVariableName("T1"),
+                    createXTypeVariableName("T2")
+                )
+            )
+            checkMethodType(
+                methodType = abstractClassMethod.asMemberOf(abstractClass.type),
+                returnType = createXTypeVariableName("T2"),
+                parameterTypes = arrayOf(
+                    createXTypeVariableName("T1"),
+                    createXTypeVariableName("T2"),
+                )
+            )
+            checkMethodType(
+                methodType = abstractClassMethod.asMemberOf(concreteClass.type),
+                returnType = barType.asTypeName(),
+                parameterTypes = arrayOf(fooType.asTypeName(), barType.asTypeName())
+            )
+
+            // Check the concrete method and method type
+            checkMethodElement(
+                method = concreteClassMethod,
+                name = "method",
+                enclosingElement = concreteClass,
+                returnType = barType.asTypeName(),
+                parameterTypes = arrayOf(fooType.asTypeName(), barType.asTypeName())
+            )
+            checkMethodType(
+                methodType = concreteClassMethod.executableType,
+                returnType = barType.asTypeName(),
+                parameterTypes = arrayOf(fooType.asTypeName(), barType.asTypeName())
+            )
+            checkMethodType(
+                methodType = concreteClassMethod.asMemberOf(concreteClass.type),
+                returnType = barType.asTypeName(),
+                parameterTypes = arrayOf(fooType.asTypeName(), barType.asTypeName())
+            )
+        }
+    }
+
+    private fun checkMethodElement(
+        method: XMethodElement,
+        name: String,
+        enclosingElement: XTypeElement,
+        returnType: XTypeName,
+        parameterTypes: Array<XTypeName>
+    ) {
+        assertThat(method.name).isEqualTo(name)
+        assertThat(method.enclosingElement).isEqualTo(enclosingElement)
+        assertThat(method.returnType.asTypeName()).isEqualTo(returnType)
+        assertThat(method.parameters.map { it.type.asTypeName() })
+            .containsExactly(*parameterTypes)
+            .inOrder()
+    }
+    private fun checkMethodType(
+        methodType: XMethodType,
+        returnType: XTypeName,
+        parameterTypes: Array<XTypeName>
+    ) {
+        assertThat(methodType.returnType.asTypeName()).isEqualTo(returnType)
+        assertThat(methodType.parameterTypes.map { it.asTypeName() })
+            .containsExactly(*parameterTypes)
+            .inOrder()
+    }
+
+    @Test
+    fun overriddenGenericConstructor() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.ConcreteClass.kt",
+                    """
+                    package test
+                    class ConcreteClass(foo: Foo): AbstractClass<Foo>(foo) {}
+                    abstract class AbstractClass<T>(t: T)
+                    class Foo
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val concreteClass = invocation.processingEnv.requireTypeElement("test.ConcreteClass")
+            val abstractClass = invocation.processingEnv.requireTypeElement("test.AbstractClass")
+            val fooType = invocation.processingEnv.requireType("test.Foo")
+
+            fun checkConstructorParameters(
+                typeElement: XTypeElement,
+                expectedParameters: Array<XTypeName>
+            ) {
+                assertThat(typeElement.getConstructors()).hasSize(1)
+                val constructor = typeElement.getConstructors()[0]
+                assertThat(constructor.parameters.map { it.type.asTypeName() })
+                    .containsExactly(*expectedParameters)
+                    .inOrder()
+            }
+
+            checkConstructorParameters(
+                typeElement = abstractClass,
+                expectedParameters = arrayOf(
+                    createXTypeVariableName("T")
+                )
+            )
+            checkConstructorParameters(
+                typeElement = concreteClass,
+                expectedParameters = arrayOf(fooType.asTypeName())
+            )
+        }
+    }
+
+    @Test
+    fun inheritedGenericField() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.ConcreteClass.kt",
+                    """
+                    package test
+                    class ConcreteClass: AbstractClass<Foo>()
+                    abstract class AbstractClass<T> {
+                        val field: T = TODO()
+                    }
+                    class Foo
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val concreteClass = invocation.processingEnv.requireTypeElement("test.ConcreteClass")
+            val abstractClass = invocation.processingEnv.requireTypeElement("test.AbstractClass")
+            val concreteClassField = concreteClass.getField("field")
+            val abstractClassField = abstractClass.getField("field")
+            val fooType = invocation.processingEnv.requireType("test.Foo")
+
+            fun checkFieldElement(field: XFieldElement) {
+                assertThat(field.name).isEqualTo("field")
+                assertThat(field.type.asTypeName().java).isEqualTo(JTypeVariableName.get("T"))
+                assertThat(field.asMemberOf(abstractClass.type).asTypeName().java)
+                    .isEqualTo(JTypeVariableName.get("T"))
+                assertThat(field.asMemberOf(concreteClass.type).asTypeName().java)
+                    .isEqualTo(fooType.asTypeName().java)
+                if (invocation.isKsp) {
+                    assertThat(field.type.asTypeName().kotlin).isEqualTo(KTypeVariableName("T"))
+                    assertThat(field.asMemberOf(abstractClass.type).asTypeName().kotlin)
+                        .isEqualTo(KTypeVariableName("T"))
+                    assertThat(field.asMemberOf(concreteClass.type).asTypeName().kotlin)
+                        .isEqualTo(fooType.asTypeName().kotlin)
+                }
+            }
+
+            assertThat(concreteClassField).isEqualTo(abstractClassField)
+            checkFieldElement(abstractClassField)
+            checkFieldElement(concreteClassField)
+        }
+    }
+
+    @Test
+    fun internalModifier() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.Foo.kt",
+                    """
+                    package test
+                    internal class InternalClass internal constructor() {
+                      internal val valField: String = TODO()
+                      internal var varField: String = TODO()
+                      internal fun method(): String = TODO()
+                      internal lateinit var lateinitVarField: String
+                    }
+                    class PublicClass constructor() {
+                      val valField: String = TODO()
+                      var varField: String = TODO()
+                      fun method(): String = TODO()
+                      lateinit var lateinitVarField: String
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            // Matches by name rather than jvmName to avoid dealing with name mangling.
+            fun XTypeElement.getDeclaredMethod(name: String): XMethodElement {
+                return getDeclaredMethods().filter { it.name == name }.single()
+            }
+
+            val internalClass = invocation.processingEnv.requireTypeElement("test.InternalClass")
+            assertThat(internalClass.isInternal()).isTrue()
+            assertThat(internalClass.getConstructors().single().isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredField("valField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredField("varField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredField("lateinitVarField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("method").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("getValField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("getVarField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("getLateinitVarField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("setVarField").isInternal()).isTrue()
+            assertThat(internalClass.getDeclaredMethod("setLateinitVarField").isInternal()).isTrue()
+
+            val publicClass = invocation.processingEnv.requireTypeElement("test.PublicClass")
+            assertThat(publicClass.isInternal()).isFalse()
+            assertThat(publicClass.getConstructors().single().isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredField("valField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredField("varField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredField("lateinitVarField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("method").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("getValField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("getVarField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("getLateinitVarField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("setVarField").isInternal()).isFalse()
+            assertThat(publicClass.getDeclaredMethod("setLateinitVarField").isInternal()).isFalse()
+        }
+    }
+
+    @Test
+    fun sameMethodNameOrder() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.Foo.kt",
+                    """
+                    package test
+                    class Foo<T1: Bar, T2: Baz> {
+                        fun method(): String = TODO()
+                        fun method(param: String): String = TODO()
+                        fun method(param: Any): String = TODO()
+                        fun method(param: T1): T2 = TODO()
+                        fun method(param: T2): T1 = TODO()
+                        fun <U1: Baz, U2> method(param1: U1, param2: U2) {}
+                        fun <U1: Baz, U2: U1> method(param1: U1, param2: U2): T1 = TODO()
+                    }
+                    interface Bar
+                    interface Baz
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("test.Foo")
+            assertThat(foo.getDeclaredMethods().map { it.jvmDescriptor() }.toList())
+                .containsExactly(
+                    "method()Ljava/lang/String;",
+                    "method(Ljava/lang/String;)Ljava/lang/String;",
+                    "method(Ljava/lang/Object;)Ljava/lang/String;",
+                    "method(Ltest/Bar;)Ltest/Baz;",
+                    "method(Ltest/Baz;)Ltest/Bar;",
+                    "method(Ltest/Baz;Ljava/lang/Object;)V",
+                    "method(Ltest/Baz;Ltest/Baz;)Ltest/Bar;"
+                ).inOrder()
         }
     }
 
@@ -1581,13 +1986,21 @@ class XTypeElementTest {
     private fun XMethodElement.signature(owner: XType): String {
         val methodType = this.asMemberOf(owner)
         val params = methodType.parameterTypes.joinToString(",") {
-            it.typeName.toString()
+            it.asTypeName().java.toString()
         }
-        return "$jvmName($params):${returnType.typeName}"
+        return "$jvmName($params):${returnType.asTypeName().java}"
     }
 
     private fun XTestInvocation.nonObjectMethodSignatures(typeElement: XTypeElement): List<String> =
         typeElement.getAllMethods()
             .filterNot { it.jvmName in objectMethodNames() }
             .map { it.signature(typeElement.type) }.toList()
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "isPreCompiled_{0}")
+        fun params(): List<Array<Any>> {
+            return listOf(arrayOf(false), arrayOf(true))
+        }
+    }
 }

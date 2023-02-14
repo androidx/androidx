@@ -17,6 +17,7 @@
 package androidx.benchmark.macro
 
 import androidx.annotation.RequiresApi
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -29,10 +30,19 @@ import org.junit.runner.RunWith
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import org.junit.Assume.assumeFalse
+import org.junit.Before
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@OptIn(ExperimentalMacrobenchmarkApi::class)
 class MacrobenchmarkTest {
+
+    @Before
+    fun setUp() {
+        assumeFalse(DeviceInfo.isEmulator)
+    }
+
     @Test
     fun macrobenchmarkWithStartupMode_emptyMetricList() {
         val exception = assertFailsWith<IllegalArgumentException> {
@@ -42,7 +52,7 @@ class MacrobenchmarkTest {
                 testName = "testName",
                 packageName = "com.ignored",
                 metrics = emptyList(), // invalid
-                compilationMode = CompilationMode.noop,
+                compilationMode = CompilationMode.Ignore(),
                 iterations = 1,
                 startupMode = null,
                 setupBlock = {},
@@ -61,7 +71,7 @@ class MacrobenchmarkTest {
                 testName = "testName",
                 packageName = "com.ignored",
                 metrics = listOf(FrameTimingMetric()),
-                compilationMode = CompilationMode.noop,
+                compilationMode = CompilationMode.Ignore(),
                 iterations = 0, // invalid
                 startupMode = null,
                 setupBlock = {},

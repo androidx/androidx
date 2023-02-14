@@ -67,12 +67,15 @@ public class LoadingView extends FrameLayout {
     }
 
     @SuppressWarnings("deprecation")
+    @Nullable
     private Drawable getActivityIcon() {
         PackageManager packageManager = getContext().getPackageManager();
 
         Intent intent = new Intent(getContext(), CarAppActivity.class);
         ResolveInfo resolveInfo = packageManager.resolveActivity(intent, 0);
-
+        if (resolveInfo == null) {
+            return null;
+        }
         return resolveInfo.loadIcon(packageManager);
     }
 }

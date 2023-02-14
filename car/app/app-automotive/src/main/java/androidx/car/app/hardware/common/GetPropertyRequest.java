@@ -19,9 +19,15 @@ package androidx.car.app.hardware.common;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Container class for information about getting property values.
@@ -34,14 +40,44 @@ import com.google.auto.value.AutoValue;
 @RestrictTo(LIBRARY)
 public abstract class GetPropertyRequest {
     /**
+     * Creates a request with {@link CarZone#CAR_ZONE_GLOBAL}.
+     *
      * @param propertyId    one of the values in {@link android.car.VehiclePropertyIds}
      */
     @NonNull
     public static GetPropertyRequest create(int propertyId) {
-        return new AutoValue_GetPropertyRequest(propertyId);
+        return builder().setPropertyId(propertyId).build();
     }
 
     /** Returns one of the values in {@link android.car.VehiclePropertyIds}. */
     public abstract int getPropertyId();
+
+    /** Returns a list of {@link CarZone}s associated with this request.  */
+    @NonNull
+    public abstract ImmutableList<CarZone> getCarZones();
+
+    /** Get a {@link Builder} for creating the {@link GetPropertyRequest}. */
+    @NonNull
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    public static Builder builder() {
+        return new AutoValue_GetPropertyRequest.Builder()
+                .setCarZones(Collections.singletonList(CarZone.CAR_ZONE_GLOBAL));
+    }
+
+    /** A builder for the {@link GetPropertyRequest}. */
+    @AutoValue.Builder
+    public abstract static class Builder {
+        /** Sets a property ID for the {@link GetPropertyRequest}. */
+        @NonNull
+        public abstract Builder setPropertyId(int propertyId);
+
+        /** Sets a list of {@link CarZone}s for the {@link GetPropertyRequest}. */
+        @NonNull
+        public abstract Builder setCarZones(@NonNull List<CarZone> carZones);
+
+        /** Creates an instance of {@link GetPropertyRequest}. */
+        @NonNull
+        public abstract GetPropertyRequest build();
+    }
 
 }

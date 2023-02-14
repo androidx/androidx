@@ -28,38 +28,40 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
+import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
-import androidx.glance.action.toParametersKey
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionSendBroadcast
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.action.actionStartService
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
-import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.appwidget.unit.ColorProvider
-import androidx.glance.currentState
+import androidx.glance.appwidget.provideContent
+import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
+import androidx.glance.layout.ColumnScope
 import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
+import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
@@ -67,36 +69,46 @@ import androidx.glance.text.TextStyle
 
 class ActionAppWidget : GlanceAppWidget() {
 
-    @Composable
-    override fun Content() {
+    override suspend fun provideGlance(
+        context: Context,
+        id: GlanceId,
+    ) = provideContent {
         Column(
             modifier = GlanceModifier.padding(R.dimen.external_padding).fillMaxSize()
                 .appWidgetBackground().cornerRadius(R.dimen.corner_radius),
             verticalAlignment = Alignment.Vertical.CenterVertically,
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally
         ) {
-            Row(GlanceModifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                SelectableActionItem(label = "Activities", index = 0)
-                SelectableActionItem(label = "Services", index = 1)
-                SelectableActionItem(label = "Broadcasts", index = 2)
+            val pages = listOf("Activities", "Services", "Broadcasts")
+            var currentPage by remember { mutableStateOf(pages.first()) }
+            Row(
+                modifier = GlanceModifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                for (page in pages) {
+                    SelectableActionItem(
+                        label = page,
+                        active = page == currentPage,
+                        onClick = { currentPage = page },
+                    )
+                }
             }
 
-            when (currentState(SelectedItemKey) ?: 0) {
-                0 -> StartActivityActions()
-                1 -> StartServiceActions()
-                2 -> SendBroadcastActions()
-                else -> throw IllegalArgumentException("Wrong index selected")
+            when (currentPage) {
+                "Activities" -> StartActivityActions()
+                "Services" -> StartServiceActions()
+                "Broadcasts" -> SendBroadcastActions()
+                else -> throw IllegalArgumentException("Unknown page")
             }
         }
     }
 }
 
-private val SelectedItemKey = intPreferencesKey("selectedItemKey")
 private val StartMessageKey = ActionParameters.Key<String>("launchMessageKey")
 
 @Composable
-private fun SelectableActionItem(label: String, index: Int) {
-    val style = if (index == (currentState(SelectedItemKey) ?: 0)) {
+private fun SelectableActionItem(label: String, active: Boolean, onClick: () -> Unit) {
+    val style = if (active) {
         TextStyle(
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
@@ -116,20 +128,12 @@ private fun SelectableActionItem(label: String, index: Int) {
     Text(
         text = label,
         style = style,
-        modifier = GlanceModifier
-            .padding(8.dp)
-            .clickable(
-                actionRunCallback<UpdateAction>(
-                    actionParametersOf(
-                        SelectedItemKey.toParametersKey() to index
-                    )
-                )
-            )
+        modifier = GlanceModifier.padding(8.dp).clickable(onClick)
     )
 }
 
 @Composable
-private fun StartActivityActions() {
+private fun ColumnScope.StartActivityActions() {
     Button(
         text = "Intent",
         onClick = actionStartActivity(
@@ -161,12 +165,13 @@ private fun StartActivityActions() {
             actionParametersOf(
                 StartMessageKey to "Start activity by component name"
             )
-        )
+        ),
+        withSpace = false
     )
 }
 
 @Composable
-private fun StartServiceActions() {
+private fun ColumnScope.StartServiceActions() {
     Button(
         text = "Intent",
         onClick = actionStartService(
@@ -185,12 +190,13 @@ private fun StartServiceActions() {
         text = "Component name",
         onClick = actionStartService(
             ComponentName(LocalContext.current, ActionDemoService::class.java)
-        )
+        ),
+        withSpace = false
     )
 }
 
 @Composable
-private fun SendBroadcastActions() {
+private fun ColumnScope.SendBroadcastActions() {
     Button(
         text = "Intent",
         onClick = actionSendBroadcast(
@@ -211,23 +217,20 @@ private fun SendBroadcastActions() {
         text = "Component name",
         onClick = actionSendBroadcast(
             ComponentName(LocalContext.current, ActionAppWidgetReceiver::class.java)
-        )
+        ),
+        withSpace = false
     )
 }
 
 /**
- * Action to update the [SelectedItemKey] value whenever users clicks on text
+ * Reimplementation of the [androidx.glance.Button] that adds a spacer after it.
  */
-class UpdateAction : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters
-    ) {
-        updateAppWidgetState(context, glanceId) { state ->
-            state[SelectedItemKey] = parameters[SelectedItemKey.toParametersKey()] ?: 0
-        }
-        ActionAppWidget().update(context, glanceId)
+@Suppress("unused")
+@Composable
+private fun ColumnScope.Button(text: String, onClick: Action, withSpace: Boolean = true) {
+    androidx.glance.Button(text, onClick)
+    if (withSpace) {
+        Spacer(GlanceModifier.size(4.dp))
     }
 }
 

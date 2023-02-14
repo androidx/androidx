@@ -20,14 +20,15 @@ import androidx.room.InvalidationTracker
 import androidx.room.RoomDatabase
 import java.util.concurrent.atomic.AtomicBoolean
 
+@Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ThreadSafeInvalidationObserver(
     tables: Array<out String>,
     val onInvalidated: () -> Unit,
-) : InvalidationTracker.Observer(tables) {
+) : InvalidationTracker.Observer(tables = tables as Array<String>) {
     private val registered: AtomicBoolean = AtomicBoolean(false)
 
-    override fun onInvalidated(tables: MutableSet<String>) {
+    override fun onInvalidated(tables: Set<String>) {
         onInvalidated()
     }
 

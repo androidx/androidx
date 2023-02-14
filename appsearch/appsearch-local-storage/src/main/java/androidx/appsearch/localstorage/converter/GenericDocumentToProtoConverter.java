@@ -184,8 +184,9 @@ public final class GenericDocumentToProtoConverter {
                 documentBuilder.setPropertyDocument(name, values);
             } else {
                 // TODO(b/184966497): Optimize by caching PropertyConfigProto
-                setEmptyProperty(name, documentBuilder,
-                        schemaTypeMap.get(prefixedSchemaType));
+                SchemaTypeConfigProto schema =
+                        Preconditions.checkNotNull(schemaTypeMap.get(prefixedSchemaType));
+                setEmptyProperty(name, documentBuilder, schema);
             }
         }
         return documentBuilder.build();

@@ -16,6 +16,7 @@
 
 package androidx.webkit.internal;
 
+import android.webkit.CookieManager;
 import android.webkit.SafeBrowsingResponse;
 import android.webkit.ServiceWorkerWebSettings;
 import android.webkit.WebMessagePort;
@@ -31,6 +32,7 @@ import androidx.webkit.WebResourceErrorCompat;
 import org.chromium.support_lib_boundary.ServiceWorkerWebSettingsBoundaryInterface;
 import org.chromium.support_lib_boundary.WebResourceRequestBoundaryInterface;
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
+import org.chromium.support_lib_boundary.WebViewCookieManagerBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
@@ -43,7 +45,7 @@ import java.lang.reflect.InvocationHandler;
 public class WebkitToCompatConverter {
     private final WebkitToCompatConverterBoundaryInterface mImpl;
 
-    public WebkitToCompatConverter(WebkitToCompatConverterBoundaryInterface impl) {
+    public WebkitToCompatConverter(@NonNull WebkitToCompatConverterBoundaryInterface impl) {
         mImpl = impl;
     }
 
@@ -53,7 +55,7 @@ public class WebkitToCompatConverter {
      * {@link androidx.webkit.WebSettingsCompat}.
      */
     @NonNull
-    public WebSettingsAdapter convertSettings(WebSettings webSettings) {
+    public WebSettingsAdapter convertSettings(@NonNull WebSettings webSettings) {
         return new WebSettingsAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebSettingsBoundaryInterface.class, mImpl.convertSettings(webSettings)));
     }
@@ -63,7 +65,8 @@ public class WebkitToCompatConverter {
      * that calls on either of those objects affect the other object.
      */
     @NonNull
-    public WebResourceRequestAdapter convertWebResourceRequest(WebResourceRequest request) {
+    public WebResourceRequestAdapter convertWebResourceRequest(
+            @NonNull WebResourceRequest request) {
         return new WebResourceRequestAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebResourceRequestBoundaryInterface.class,
                 mImpl.convertWebResourceRequest(request)));
@@ -158,5 +161,17 @@ public class WebkitToCompatConverter {
     public WebMessagePort convertWebMessagePort(
             @NonNull /* SupportLibWebMessagePort */ InvocationHandler webMessagePort) {
         return (WebMessagePort) mImpl.convertWebMessagePort(webMessagePort);
+    }
+
+    /**
+     * Return a CookieManagerAdapter linked to cookieManager such that calls on either of those
+     * objects affect the other object. That CookieManagerAdapter can be used to implement
+     * {@link androidx.webkit.CookieManagerCompat}.
+     */
+    @NonNull
+    public CookieManagerAdapter convertCookieManager(@NonNull CookieManager cookieManager) {
+        return new CookieManagerAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                WebViewCookieManagerBoundaryInterface.class,
+                mImpl.convertCookieManager(cookieManager)));
     }
 }

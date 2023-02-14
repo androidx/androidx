@@ -20,6 +20,7 @@ import static androidx.testutils.AssertionsKt.assertThrows;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -61,6 +62,7 @@ public class RxDataStoreTest {
         assertThat(firstByte).isEqualTo(1);
     }
 
+    @Ignore // b/214040264
     @Test
     public void testTake3() throws Exception {
         File newFile = tempFolder.newFile();

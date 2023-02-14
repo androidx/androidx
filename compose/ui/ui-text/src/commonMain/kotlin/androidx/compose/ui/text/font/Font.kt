@@ -66,10 +66,8 @@ interface Font {
     /**
      * Loading strategy for this font.
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi
-    @ExperimentalTextApi
     val loadingStrategy: FontLoadingStrategy
+        get() = FontLoadingStrategy.Blocking
 
     companion object {
         /**
@@ -97,8 +95,7 @@ interface Font {
          *
          * This timeout is not configurable, and timers are maintained globally.
          */
-        @ExperimentalTextApi
-        internal const val MaximumAsyncTimeout = 15_000L
+        const val MaximumAsyncTimeoutMillis = 15_000L
     }
 }
 
@@ -172,6 +169,10 @@ class ResourceFont internal constructor(
     val resId: Int,
     override val weight: FontWeight = FontWeight.Normal,
     override val style: FontStyle = FontStyle.Normal,
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @ExperimentalTextApi
+    @get:ExperimentalTextApi
+    val variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style),
     loadingStrategy: FontLoadingStrategy = FontLoadingStrategy.Async
 ) : Font {
 
@@ -191,12 +192,14 @@ class ResourceFont internal constructor(
         resId: Int = this.resId,
         weight: FontWeight = this.weight,
         style: FontStyle = this.style,
-        loadingStrategy: FontLoadingStrategy = this.loadingStrategy
+        loadingStrategy: FontLoadingStrategy = this.loadingStrategy,
+        variationSettings: FontVariation.Settings = this.variationSettings
     ): ResourceFont {
         return ResourceFont(
             resId = resId,
             weight = weight,
             style = style,
+            variationSettings = variationSettings,
             loadingStrategy = loadingStrategy
         )
     }
@@ -207,6 +210,7 @@ class ResourceFont internal constructor(
         if (resId != other.resId) return false
         if (weight != other.weight) return false
         if (style != other.style) return false
+        if (variationSettings != other.variationSettings) return false
         if (loadingStrategy != other.loadingStrategy) return false
         return true
     }
@@ -216,6 +220,7 @@ class ResourceFont internal constructor(
         result = 31 * result + weight.hashCode()
         result = 31 * result + style.hashCode()
         result = 31 * result + loadingStrategy.hashCode()
+        result = 31 * result + variationSettings.hashCode()
         return result
     }
 
@@ -278,13 +283,23 @@ fun Font(
  *
  * @see FontFamily
  */
+@OptIn(ExperimentalTextApi::class)
 @Stable
 fun Font(
     resId: Int,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
     loadingStrategy: FontLoadingStrategy = FontLoadingStrategy.Blocking
-): Font = ResourceFont(resId, weight, style, loadingStrategy)
+): Font = ResourceFont(resId, weight, style, FontVariation.Settings(), loadingStrategy)
+
+@ExperimentalTextApi
+fun Font(
+    resId: Int,
+    weight: FontWeight = FontWeight.Normal,
+    style: FontStyle = FontStyle.Normal,
+    loadingStrategy: FontLoadingStrategy = FontLoadingStrategy.Blocking,
+    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style)
+): Font = ResourceFont(resId, weight, style, variationSettings, loadingStrategy)
 
 /**
  * Create a [FontFamily] from this single [Font].

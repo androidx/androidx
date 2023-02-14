@@ -19,9 +19,12 @@ package androidx.glance.text
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.glance.Emittable
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
+import androidx.glance.text.TextDefaults.defaultTextStyle
+import androidx.glance.unit.ColorProvider
 
 /**
  * Adds a text view to the glance view.
@@ -33,10 +36,10 @@ import androidx.glance.GlanceNode
  * necessary. If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
-public fun Text(
+fun Text(
     text: String,
     modifier: GlanceModifier = GlanceModifier,
-    style: TextStyle? = null,
+    style: TextStyle = defaultTextStyle(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
     GlanceNode(
@@ -50,13 +53,25 @@ public fun Text(
     )
 }
 
+object TextDefaults {
+    val defaultTextColor = ColorProvider(Color.Black)
+    fun defaultTextStyle(): TextStyle = TextStyle(color = defaultTextColor)
+}
+
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableText : Emittable {
+class EmittableText : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
-    public var text: String = ""
-    public var style: TextStyle? = null
-    public var maxLines: Int = Int.MAX_VALUE
+    var text: String = ""
+    var style: TextStyle? = null
+    var maxLines: Int = Int.MAX_VALUE
+
+    override fun copy(): Emittable = EmittableText().also {
+        it.modifier = modifier
+        it.text = text
+        it.style = style
+        it.maxLines = it.maxLines
+    }
 
     override fun toString(): String =
         "EmittableText($text, style=$style, modifier=$modifier, maxLines=$maxLines)"

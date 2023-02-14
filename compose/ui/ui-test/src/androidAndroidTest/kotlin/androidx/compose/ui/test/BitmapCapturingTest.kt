@@ -17,6 +17,7 @@
 package androidx.compose.ui.test
 
 import android.os.Build
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -28,18 +29,25 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertPixels
-import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -118,40 +126,6 @@ class BitmapCapturingTest(val config: TestConfig) {
             }
     }
 
-    // TODO(b/207491761): Move test to test-utils. It tests assertPixels(), not captureToImage()
-    @Test
-    fun assertWrongColor_expectException() {
-        composeCheckerboard()
-
-        expectError<AssertionError>(
-            expectedMessage = "Pixel\\(0, 0\\) expected to be " +
-                "Color\\(1.0, 1.0, 0.0, 1.0, .*\\), but was " +
-                "Color\\(1.0, 0.0, 0.0, 1.0, .*\\).*"
-        ) {
-            rule.onNodeWithTag(tagTopLeft)
-                .captureToImage()
-                .assertPixels(expectedSize = IntSize(100, 50)) {
-                    colorBottomRight // Assuming wrong color
-                }
-        }
-    }
-
-    // TODO(b/207491761): Move test to test-utils. It tests assertPixels(), not captureToImage()
-    @Test
-    fun assertWrongSize_expectException() {
-        composeCheckerboard()
-
-        expectError<AssertionError>(
-            expectedMessage = "Bitmap size is wrong! Expected '10 x 10' but got '100 x 50'.*"
-        ) {
-            rule.onNodeWithTag(tagTopLeft)
-                .captureToImage()
-                .assertPixels(expectedSize = IntSize(10, 10)) {
-                    colorBottomLeft
-                }
-        }
-    }
-
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // b/163023027
     fun captureDialog_verifyBackground() {
@@ -165,24 +139,94 @@ class BitmapCapturingTest(val config: TestConfig) {
             .assertContainsColor(Color.Red)
     }
 
+    @Ignore // b/266737024
     @Test
-    fun capturePopup_shouldFail() {
-        // Test that we throw an error when trying to capture a popup.
+    fun capturePopup_verifyBackground() {
         setContent {
             Box {
                 Popup {
-                    Text("Hello")
+                    Box(Modifier.background(Color.Red)) {
+                        Text("Hello")
+                    }
                 }
             }
         }
 
-        expectError<IllegalArgumentException>(
-            expectedMessage = ".*Popups currently cannot be captured to bitmap.*"
-        ) {
-            rule.onNode(isPopup())
-                .captureToImage()
-        }
+        rule.onNode(isPopup())
+            .captureToImage()
+            .assertContainsColor(Color.Red)
     }
+
+    @Test
+    fun captureComposable_withPopUp_verifyBackground() {
+        setContent {
+            Box(
+                Modifier
+                    .testTag(rootTag)
+                    .size(300.dp)
+                    .background(Color.Yellow)
+            ) {
+                Popup {
+                    Box(Modifier.background(Color.Red)) {
+                        Text("Hello")
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(rootTag)
+            .captureToImage()
+            .assertContainsColor(Color.Yellow)
+            .assertDoesNotContainColor(Color.Red)
+    }
+
+    @Test
+    fun captureComposable_withDialog_verifyBackground() {
+        setContent {
+            Box(
+                Modifier
+                    .testTag(rootTag)
+                    .size(300.dp)
+                    .background(Color.Yellow)
+            ) {
+                Dialog({}) {
+                    Box(
+                        Modifier
+                            .size(300.dp)
+                            .background(Color.Red)) {
+                        Text("Hello")
+                    }
+                }
+            }
+        }
+        rule.onNodeWithTag(rootTag)
+            .captureToImage()
+            .assertContainsColor(Color.Yellow)
+            .assertDoesNotContainColor(Color.Red)
+    }
+
+    @Test
+    fun capturePopup_verifySize() {
+        val boxSize = 200.dp
+        val boxSizePx = boxSize.toPixel(rule.density).roundToInt()
+        setContent {
+            Box {
+                Popup {
+                    Box(Modifier.size(boxSize)) {
+                        Text("Hello")
+                    }
+                }
+            }
+        }
+
+        rule.onNode(isPopup())
+            .captureToImage()
+            .let {
+                assertThat(IntSize(it.width, it.height)).isEqualTo(IntSize(boxSizePx, boxSizePx))
+            }
+    }
+
+    private fun Dp.toPixel(density: Density) = this.value * density.density
 
     private fun expectedColorProvider(pos: IntOffset): Color {
         if (pos.y < 50) {
@@ -205,7 +249,10 @@ class BitmapCapturingTest(val config: TestConfig) {
         with(rule.density) {
             setContent {
                 Box(Modifier.background(colorBg)) {
-                    Box(Modifier.padding(top = 20.toDp()).background(colorBg)) {
+                    Box(
+                        Modifier
+                            .padding(top = 20.toDp())
+                            .background(colorBg)) {
                         Column(Modifier.testTag(rootTag)) {
                             Row {
                                 Box(
@@ -248,4 +295,17 @@ class BitmapCapturingTest(val config: TestConfig) {
             else -> rule.setContent(content)
         }
     }
+
+    private fun fetchNodeRootView(nodeTag: String): View {
+        return fetchNodeInteraction(nodeTag).fetchRootView()
+    }
+
+    private fun fetchNodeInteraction(nodeTag: String): SemanticsNodeInteraction {
+        return rule.onNodeWithTag(nodeTag)
+    }
+}
+
+private fun SemanticsNodeInteraction.fetchRootView(): View {
+    val node = fetchSemanticsNode()
+    return (node.root as ViewRootForTest).view
 }

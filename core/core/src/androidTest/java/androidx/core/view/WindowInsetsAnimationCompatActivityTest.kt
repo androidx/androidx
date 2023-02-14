@@ -307,6 +307,7 @@ public class WindowInsetsAnimationCompatActivityTest {
         )
     }
 
+    @FlakyTest(bugId = 249124990)
     @Test
     public fun add_animation_listener_first() {
         assumeNotCuttlefish()

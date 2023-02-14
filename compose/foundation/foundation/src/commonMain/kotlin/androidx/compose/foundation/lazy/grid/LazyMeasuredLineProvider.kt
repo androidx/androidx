@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.Constraints
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyMeasuredLineProvider(
     private val isVertical: Boolean,
-    slotSizesSums: List<Int>,
-    crossAxisSpacing: Int,
+    private val slotSizesSums: List<Int>,
+    private val crossAxisSpacing: Int,
     private val gridItemsCount: Int,
     private val spaceBetweenLines: Int,
     private val measuredItemProvider: LazyMeasuredItemProvider,
@@ -34,23 +34,31 @@ internal class LazyMeasuredLineProvider(
     private val measuredLineFactory: MeasuredLineFactory
 ) {
     // The constraints for cross axis size. The main axis is not restricted.
-    internal val childConstraints: (startSlot: Int, span: Int) -> Constraints = { startSlot, span ->
+    internal fun childConstraints(startSlot: Int, span: Int): Constraints {
         val lastSlotSum = slotSizesSums[startSlot + span - 1]
         val prevSlotSum = if (startSlot == 0) 0 else slotSizesSums[startSlot - 1]
         val slotsSize = lastSlotSum - prevSlotSum
-        val crossAxisSize = slotsSize + crossAxisSpacing * (span - 1)
-        if (isVertical) {
+        val crossAxisSize = (slotsSize + crossAxisSpacing * (span - 1)).coerceAtLeast(0)
+        return if (isVertical) {
             Constraints.fixedWidth(crossAxisSize)
         } else {
             Constraints.fixedHeight(crossAxisSize)
         }
     }
 
+    fun itemConstraints(itemIndex: ItemIndex): Constraints {
+        val span = spanLayoutProvider.spanOf(
+            itemIndex.value,
+            spanLayoutProvider.slotsPerLine
+        )
+        return childConstraints(0, span)
+    }
+
     /**
      * Used to subcompose items on lines of lazy grids. Composed placeables will be measured
-     * with the correct constraints and wrapped into [LazyMeasuredLine].
+     * with the correct constraints and wrapped into [LazyGridMeasuredLine].
      */
-    fun getAndMeasure(lineIndex: LineIndex): LazyMeasuredLine {
+    fun getAndMeasure(lineIndex: LineIndex): LazyGridMeasuredLine {
         val lineConfiguration = spanLayoutProvider.getLineConfiguration(lineIndex.value)
         val lineItemsCount = lineConfiguration.spans.size
 
@@ -93,8 +101,8 @@ internal class LazyMeasuredLineProvider(
 internal fun interface MeasuredLineFactory {
     fun createLine(
         index: LineIndex,
-        items: Array<LazyMeasuredItem>,
+        items: Array<LazyGridMeasuredItem>,
         spans: List<GridItemSpan>,
         mainAxisSpacing: Int
-    ): LazyMeasuredLine
+    ): LazyGridMeasuredLine
 }

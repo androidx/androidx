@@ -18,10 +18,13 @@ package androidx.compose.ui.text
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.text.style.LineHeightBehavior
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.lerp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
@@ -45,10 +48,13 @@ private val DefaultLineHeight = TextUnit.Unspecified
  * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
  * @param textIndent The indentation of the paragraph.
  * @param platformStyle Platform specific [ParagraphStyle] parameters.
- * @param lineHeightBehavior the configuration for line height such as vertical alignment of the
+ * @param lineHeightStyle the configuration for line height such as vertical alignment of the
  * line, whether to apply additional space as a result of line height to top of first line top and
  * bottom of last line. The configuration is applied only when a [lineHeight] is defined.
- * When null, [LineHeightBehavior.Default] is used.
+ * When null, [LineHeightStyle.Default] is used.
+ * @param lineBreak The line breaking configuration for the text.
+ * @param hyphens The configuration of hyphenation.
+ * @param textMotion Text character placement, whether to optimize for animated or static text.
  *
  * @see Paragraph
  * @see AnnotatedString
@@ -61,11 +67,65 @@ class ParagraphStyle @ExperimentalTextApi constructor(
     val textDirection: TextDirection? = null,
     val lineHeight: TextUnit = TextUnit.Unspecified,
     val textIndent: TextIndent? = null,
+    val platformStyle: PlatformParagraphStyle? = null,
+    val lineHeightStyle: LineHeightStyle? = null,
+    val lineBreak: LineBreak? = null,
+    val hyphens: Hyphens? = null,
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi val platformStyle: PlatformParagraphStyle? = null,
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalTextApi val lineHeightBehavior: LineHeightBehavior? = null
+    @get:ExperimentalTextApi
+    @property:ExperimentalTextApi
+    val textMotion: TextMotion? = null
 ) {
+
+    @Deprecated(
+        "ParagraphStyle constructors that do not take new stable parameters " +
+            "like LineHeightStyle, LineBreak, Hyphens are deprecated. Please use the new stable " +
+            "constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
+    @OptIn(ExperimentalTextApi::class)
+    constructor(
+        textAlign: TextAlign? = null,
+        textDirection: TextDirection? = null,
+        lineHeight: TextUnit = TextUnit.Unspecified,
+        textIndent: TextIndent? = null
+    ) : this(
+        textAlign = textAlign,
+        textDirection = textDirection,
+        lineHeight = lineHeight,
+        textIndent = textIndent,
+        platformStyle = null,
+        lineHeightStyle = null,
+        lineBreak = null,
+        hyphens = null,
+        textMotion = null
+    )
+
+    @Deprecated(
+        "ParagraphStyle constructors that do not take new stable parameters " +
+            "like LineHeightStyle, LineBreak, Hyphens are deprecated. Please use the new stable " +
+            "constructors.",
+        level = DeprecationLevel.HIDDEN
+    )
+    @OptIn(ExperimentalTextApi::class)
+    constructor(
+        textAlign: TextAlign? = null,
+        textDirection: TextDirection? = null,
+        lineHeight: TextUnit = TextUnit.Unspecified,
+        textIndent: TextIndent? = null,
+        platformStyle: PlatformParagraphStyle? = null,
+        lineHeightStyle: LineHeightStyle? = null
+    ) : this(
+        textAlign = textAlign,
+        textDirection = textDirection,
+        lineHeight = lineHeight,
+        textIndent = textIndent,
+        platformStyle = platformStyle,
+        lineHeightStyle = lineHeightStyle,
+        lineBreak = null,
+        hyphens = null,
+        textMotion = null
+    )
 
     /**
      * Paragraph styling configuration for a paragraph. The difference between [SpanStyle] and
@@ -82,6 +142,13 @@ class ParagraphStyle @ExperimentalTextApi constructor(
      * Left To Right or Right To Left.
      * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
      * @param textIndent The indentation of the paragraph.
+     * @param platformStyle Platform specific [ParagraphStyle] parameters.
+     * @param lineHeightStyle the configuration for line height such as vertical alignment of the
+     * line, whether to apply additional space as a result of line height to top of first line top and
+     * bottom of last line. The configuration is applied only when a [lineHeight] is defined.
+     * When null, [LineHeightStyle.Default] is used.
+     * @param lineBreak The line breaking configuration for the text.
+     * @param hyphens The configuration of hyphenation.
      *
      * @see Paragraph
      * @see AnnotatedString
@@ -93,14 +160,21 @@ class ParagraphStyle @ExperimentalTextApi constructor(
         textAlign: TextAlign? = null,
         textDirection: TextDirection? = null,
         lineHeight: TextUnit = TextUnit.Unspecified,
-        textIndent: TextIndent? = null
+        textIndent: TextIndent? = null,
+        platformStyle: PlatformParagraphStyle? = null,
+        lineHeightStyle: LineHeightStyle? = null,
+        lineBreak: LineBreak? = null,
+        hyphens: Hyphens? = null
     ) : this(
         textAlign = textAlign,
         textDirection = textDirection,
         lineHeight = lineHeight,
         textIndent = textIndent,
-        platformStyle = null,
-        lineHeightBehavior = null
+        platformStyle = platformStyle,
+        lineHeightStyle = lineHeightStyle,
+        lineBreak = lineBreak,
+        hyphens = hyphens,
+        textMotion = null
     )
 
     init {
@@ -133,11 +207,13 @@ class ParagraphStyle @ExperimentalTextApi constructor(
             textAlign = other.textAlign ?: this.textAlign,
             textDirection = other.textDirection ?: this.textDirection,
             platformStyle = mergePlatformStyle(other.platformStyle),
-            lineHeightBehavior = other.lineHeightBehavior ?: this.lineHeightBehavior
+            lineHeightStyle = other.lineHeightStyle ?: this.lineHeightStyle,
+            lineBreak = other.lineBreak ?: this.lineBreak,
+            hyphens = other.hyphens ?: this.hyphens,
+            textMotion = other.textMotion ?: this.textMotion
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     private fun mergePlatformStyle(other: PlatformParagraphStyle?): PlatformParagraphStyle? {
         if (platformStyle == null) return other
         if (other == null) return platformStyle
@@ -150,6 +226,12 @@ class ParagraphStyle @ExperimentalTextApi constructor(
     @Stable
     operator fun plus(other: ParagraphStyle): ParagraphStyle = this.merge(other)
 
+    @Deprecated(
+        "ParagraphStyle copy constructors that do not take new stable parameters " +
+            "like LineHeightStyle, LineBreak, Hyphens are deprecated. Please use the new stable " +
+            "copy constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
     @OptIn(ExperimentalTextApi::class)
     fun copy(
         textAlign: TextAlign? = this.textAlign,
@@ -163,7 +245,62 @@ class ParagraphStyle @ExperimentalTextApi constructor(
             lineHeight = lineHeight,
             textIndent = textIndent,
             platformStyle = this.platformStyle,
-            lineHeightBehavior = this.lineHeightBehavior
+            lineHeightStyle = this.lineHeightStyle,
+            lineBreak = this.lineBreak,
+            hyphens = this.hyphens,
+            textMotion = this.textMotion
+        )
+    }
+
+    @Deprecated(
+        "ParagraphStyle copy constructors that do not take new stable parameters " +
+            "like LineHeightStyle, LineBreak, Hyphens are deprecated. Please use the new stable " +
+            "copy constructor.",
+        level = DeprecationLevel.HIDDEN
+    )
+    @OptIn(ExperimentalTextApi::class)
+    fun copy(
+        textAlign: TextAlign? = this.textAlign,
+        textDirection: TextDirection? = this.textDirection,
+        lineHeight: TextUnit = this.lineHeight,
+        textIndent: TextIndent? = this.textIndent,
+        platformStyle: PlatformParagraphStyle? = this.platformStyle,
+        lineHeightStyle: LineHeightStyle? = this.lineHeightStyle
+    ): ParagraphStyle {
+        return ParagraphStyle(
+            textAlign = textAlign,
+            textDirection = textDirection,
+            lineHeight = lineHeight,
+            textIndent = textIndent,
+            platformStyle = platformStyle,
+            lineHeightStyle = lineHeightStyle,
+            lineBreak = this.lineBreak,
+            hyphens = this.hyphens,
+            textMotion = this.textMotion
+        )
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    fun copy(
+        textAlign: TextAlign? = this.textAlign,
+        textDirection: TextDirection? = this.textDirection,
+        lineHeight: TextUnit = this.lineHeight,
+        textIndent: TextIndent? = this.textIndent,
+        platformStyle: PlatformParagraphStyle? = this.platformStyle,
+        lineHeightStyle: LineHeightStyle? = this.lineHeightStyle,
+        lineBreak: LineBreak? = this.lineBreak,
+        hyphens: Hyphens? = this.hyphens
+    ): ParagraphStyle {
+        return ParagraphStyle(
+            textAlign = textAlign,
+            textDirection = textDirection,
+            lineHeight = lineHeight,
+            textIndent = textIndent,
+            platformStyle = platformStyle,
+            lineHeightStyle = lineHeightStyle,
+            lineBreak = lineBreak,
+            hyphens = hyphens,
+            textMotion = this.textMotion
         )
     }
 
@@ -174,7 +311,10 @@ class ParagraphStyle @ExperimentalTextApi constructor(
         lineHeight: TextUnit = this.lineHeight,
         textIndent: TextIndent? = this.textIndent,
         platformStyle: PlatformParagraphStyle? = this.platformStyle,
-        lineHeightBehavior: LineHeightBehavior? = this.lineHeightBehavior
+        lineHeightStyle: LineHeightStyle? = this.lineHeightStyle,
+        lineBreak: LineBreak? = this.lineBreak,
+        hyphens: Hyphens? = this.hyphens,
+        textMotion: TextMotion? = this.textMotion
     ): ParagraphStyle {
         return ParagraphStyle(
             textAlign = textAlign,
@@ -182,12 +322,15 @@ class ParagraphStyle @ExperimentalTextApi constructor(
             lineHeight = lineHeight,
             textIndent = textIndent,
             platformStyle = platformStyle,
-            lineHeightBehavior = lineHeightBehavior
+            lineHeightStyle = lineHeightStyle,
+            lineBreak = lineBreak,
+            hyphens = hyphens,
+            textMotion = textMotion
         )
     }
 
     @OptIn(ExperimentalTextApi::class)
-    override operator fun equals(other: Any?): Boolean {
+    override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ParagraphStyle) return false
 
@@ -196,7 +339,10 @@ class ParagraphStyle @ExperimentalTextApi constructor(
         if (lineHeight != other.lineHeight) return false
         if (textIndent != other.textIndent) return false
         if (platformStyle != other.platformStyle) return false
-        if (lineHeightBehavior != other.lineHeightBehavior) return false
+        if (lineHeightStyle != other.lineHeightStyle) return false
+        if (lineBreak != other.lineBreak) return false
+        if (hyphens != other.hyphens) return false
+        if (textMotion != other.textMotion) return false
 
         return true
     }
@@ -208,7 +354,10 @@ class ParagraphStyle @ExperimentalTextApi constructor(
         result = 31 * result + lineHeight.hashCode()
         result = 31 * result + (textIndent?.hashCode() ?: 0)
         result = 31 * result + (platformStyle?.hashCode() ?: 0)
-        result = 31 * result + (lineHeightBehavior?.hashCode() ?: 0)
+        result = 31 * result + (lineHeightStyle?.hashCode() ?: 0)
+        result = 31 * result + (lineBreak?.hashCode() ?: 0)
+        result = 31 * result + (hyphens?.hashCode() ?: 0)
+        result = 31 * result + (textMotion?.hashCode() ?: 0)
         return result
     }
 
@@ -220,7 +369,10 @@ class ParagraphStyle @ExperimentalTextApi constructor(
             "lineHeight=$lineHeight, " +
             "textIndent=$textIndent, " +
             "platformStyle=$platformStyle, " +
-            "lineHeightBehavior=$lineHeightBehavior" +
+            "lineHeightStyle=$lineHeightStyle, " +
+            "lineBreak=$lineBreak, " +
+            "hyphens=$hyphens, " +
+            "textMotion=$textMotion" +
             ")"
     }
 }
@@ -255,15 +407,17 @@ fun lerp(start: ParagraphStyle, stop: ParagraphStyle, fraction: Float): Paragrap
             fraction
         ),
         platformStyle = lerpPlatformStyle(start.platformStyle, stop.platformStyle, fraction),
-        lineHeightBehavior = lerpDiscrete(
-            start.lineHeightBehavior,
-            stop.lineHeightBehavior,
+        lineHeightStyle = lerpDiscrete(
+            start.lineHeightStyle,
+            stop.lineHeightStyle,
             fraction
-        )
+        ),
+        lineBreak = lerpDiscrete(start.lineBreak, stop.lineBreak, fraction),
+        hyphens = lerpDiscrete(start.hyphens, stop.hyphens, fraction),
+        textMotion = lerpDiscrete(start.textMotion, stop.textMotion, fraction)
     )
 }
 
-@OptIn(ExperimentalTextApi::class)
 private fun lerpPlatformStyle(
     start: PlatformParagraphStyle?,
     stop: PlatformParagraphStyle?,
@@ -285,5 +439,8 @@ internal fun resolveParagraphStyleDefaults(
     lineHeight = if (style.lineHeight.isUnspecified) DefaultLineHeight else style.lineHeight,
     textIndent = style.textIndent ?: TextIndent.None,
     platformStyle = style.platformStyle,
-    lineHeightBehavior = style.lineHeightBehavior
+    lineHeightStyle = style.lineHeightStyle,
+    lineBreak = style.lineBreak ?: LineBreak.Simple,
+    hyphens = style.hyphens ?: Hyphens.None,
+    textMotion = style.textMotion ?: TextMotion.Static
 )

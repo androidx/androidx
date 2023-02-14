@@ -27,8 +27,9 @@ rootProject.name = "collections-playground"
 playground {
     setupPlayground("..")
     selectProjectsFromAndroidX({ name ->
-        if (name.startsWith(":collection2")) return false
         if (name.startsWith(":collection")) return true
+        if (name == ":benchmark:benchmark-darwin") return true
+        if (name == ":benchmark:benchmark-darwin-core") return true
         if (name == ":internal-testutils-truth") return true
         return false
     })

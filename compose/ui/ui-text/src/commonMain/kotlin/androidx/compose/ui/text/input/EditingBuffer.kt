@@ -50,13 +50,19 @@ class EditingBuffer(
      * The inclusive selection start offset
      */
     internal var selectionStart = selection.min
-        private set
+        private set(value) {
+            require(value >= 0) { "Cannot set selectionStart to a negative value: $value" }
+            field = value
+        }
 
     /**
      * The exclusive selection end offset
      */
     internal var selectionEnd = selection.max
-        private set
+        private set(value) {
+            require(value >= 0) { "Cannot set selectionEnd to a negative value: $value" }
+            field = value
+        }
 
     /**
      * The inclusive composition start offset
@@ -242,7 +248,7 @@ class EditingBuffer(
                 "start ($start) offset is outside of text region ${gapBuffer.length}"
             )
         }
-        if (end < 0 || end> gapBuffer.length) {
+        if (end < 0 || end > gapBuffer.length) {
             throw IndexOutOfBoundsException(
                 "end ($end) offset is outside of text region ${gapBuffer.length}"
             )
@@ -274,7 +280,7 @@ class EditingBuffer(
                 "start ($start) offset is outside of text region ${gapBuffer.length}"
             )
         }
-        if (end < 0 || end> gapBuffer.length) {
+        if (end < 0 || end > gapBuffer.length) {
             throw IndexOutOfBoundsException(
                 "end ($end) offset is outside of text region ${gapBuffer.length}"
             )

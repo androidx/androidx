@@ -1,0 +1,1845 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Use a constraintSet XML. -->
+    <attr name="constraintSet" format="reference" />
+    <!-- Use a constraintResize XML or MotionScene XML. -->
+    <attr name="layoutDescription" format="reference" />
+    <!-- The space from the beginning edge of the parent to this guideline. -->
+    <attr name="layout_constraintGuide_begin" format="dimension" />
+    <!-- The space from the ending edge of the parent to this  guideline. -->
+    <attr name="layout_constraintGuide_end" format="dimension" />
+    <!-- The percent of total space from the beginning of the parent to this guideline.
+        (e.g. 0.50 = middle)-->
+    <attr name="layout_constraintGuide_percent" format="float" />
+    <!-- Let a chain helper be rtl or not default is true -->
+    <attr name="guidelineUseRtl" format="boolean" />
+
+    <!-- Indicate the type of barrier -->
+    <attr name="barrierDirection" format="enum">
+        <enum name="left" value="0" />
+        <enum name="right" value="1" />
+        <enum name="top" value="2" />
+        <enum name="bottom" value="3" />
+        <enum name="start" value="5" />
+        <enum name="end" value="6" />
+    </attr>
+    <!-- Tell ConstraintSet and MotionLayout to ignore the visibility of a view   -->
+    <attr name="visibilityMode" format="enum">
+        <enum name="normal" value="0" />
+        <enum name="ignore" value="1" />
+    </attr>
+
+    <attr name="barrierAllowsGoneWidgets" format="boolean" />
+    <attr name="barrierMargin" format="dimension" />
+
+    <!-- Let a chain helper be rtl or not -->
+    <attr name="chainUseRtl" format="boolean" />
+
+    <!-- the ides used in helpers -->
+    <attr name="constraint_referenced_ids" format="string" />
+
+    <!-- the to match tags set using layout_constraintTag used in helpers -->
+    <attr name="constraint_referenced_tags" format="string" />
+
+    <attr name="layout_constraintLeft_toLeftOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the left edge of this view to the right edge of the given view ID. -->
+    <attr name="layout_constraintLeft_toRightOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the right edge of this view to the left edge of the given view ID. -->
+    <attr name="layout_constraintRight_toLeftOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the right edge of this view to the right edge of the given view ID. -->
+    <attr name="layout_constraintRight_toRightOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the top edge of this view to the top edge of the given view ID. -->
+    <attr name="layout_constraintTop_toTopOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the top edge of this view to the bottom edge of the given view ID. -->
+    <attr name="layout_constraintTop_toBottomOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the bottom edge of this view to the top edge of the given view ID. -->
+    <attr name="layout_constraintBottom_toTopOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the bottom edge of this view to the bottom edge of the given view ID. -->
+    <attr name="layout_constraintBottom_toBottomOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the baseline of this view to the baseline of the given view ID. -->
+    <attr name="layout_constraintBaseline_toBaselineOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the baseline of this view to the top of the given view ID. -->
+    <attr name="layout_constraintBaseline_toTopOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the baseline of this view to the bottom of the given view ID. -->
+    <attr name="layout_constraintBaseline_toBottomOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the start edge of this view to the end edge of the given view ID. -->
+    <attr name="layout_constraintStart_toEndOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the start edge of this view to the start edge of the given view ID. -->
+    <attr name="layout_constraintStart_toStartOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the end edge of this view to the start edge of the given view ID. -->
+    <attr name="layout_constraintEnd_toStartOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <!-- Constrains the end edge of this view to the end edge of the given view ID. -->
+    <attr name="layout_constraintEnd_toEndOf" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+    <attr name="transformPivotTarget" format="reference" />
+
+    <!-- the left margin value to be used when connected to an object that is GONE -->
+    <attr name="layout_goneMarginLeft" format="dimension" />
+    <!-- the top margin value to be used when connected to an object that is GONE -->
+    <attr name="layout_goneMarginTop" format="dimension" />
+    <!-- the right margin value to be used when connected to an object that is GONE -->
+    <attr name="layout_goneMarginRight" format="dimension" />
+    <!-- the bottom margin value to be used when connected to an object that is GONE -->
+    <attr name="layout_goneMarginBottom" format="dimension" />
+    <!-- the start margin value to be used when connected to an object that is GONE -->
+    <attr name="layout_goneMarginStart" format="dimension" />
+    <!-- the end margin value to be used when connected to an object that is GONE -->
+    <attr name="layout_goneMarginEnd" format="dimension" />
+
+    <!-- the baseline margin to a target -->
+    <attr name="layout_marginBaseline" format="dimension" />
+
+    <!-- the gone baseline margin to a target -->
+    <attr name="layout_goneMarginBaseline" format="dimension" />
+
+    <!-- allows to specify horizontal dimension constraints in a more expressive way -->
+    <attr name="layout_constraintWidth" format="dimension|enum|string">
+        <enum name="match_parent" value="-1" />
+        <enum name="wrap_content" value="-2" />
+        <enum name="match_constraint" value="-3" />
+        <enum name="wrap_content_constrained" value="-4" />
+    </attr>
+
+    <!-- allows to specify vertical dimension constraints in a more expressive way -->
+    <attr name="layout_constraintHeight" format="dimension|enum|string">
+        <enum name="match_parent" value="-1" />
+        <enum name="wrap_content" value="-2" />
+        <enum name="match_constraint" value="-3" />
+        <enum name="wrap_content_constrained" value="-4" />
+    </attr>
+
+    <!-- controls how a widget is taken in account for the wrap computation of the layout -->
+    <!-- default is included -->
+    <attr name="layout_wrapBehaviorInParent" format="enum">
+        <enum name="included" value="0" />
+        <enum name="horizontal_only" value="1" />
+        <enum name="vertical_only" value="2" />
+        <enum name="skipped" value="3" />
+    </attr>
+
+    <!-- Fraction of excess space to distribute on the left when constrained on left & right edges
+        (e.g. .5 = middle)-->
+    <attr name="layout_constraintHorizontal_bias" format="float" />
+    <!-- Fraction of excess space to distribute on the top when constrained on top & bottom edges
+        (e.g. .5 = middle)-->
+    <attr name="layout_constraintVertical_bias" format="float" />
+
+    <!-- Used at design time to define who created the constraint -->
+    <attr name="layout_constraintLeft_creator" format="integer" />
+    <!-- Used at design time to define who created the constraint -->
+    <attr name="layout_constraintTop_creator" format="integer" />
+    <!-- Used at design time to define who created the constraint -->
+    <attr name="layout_constraintRight_creator" format="integer" />
+    <!-- Used at design time to define who created the constraint -->
+    <attr name="layout_constraintBottom_creator" format="integer" />
+    <!-- Used at design time to define who created the constraint -->
+    <attr name="layout_constraintBaseline_creator" format="integer" />
+    <!-- The ratio between the width and height of the view.
+    Note it only works if one of the dimensions is set to 0dp.-->
+    <attr name="layout_constraintDimensionRatio" format="string" />
+
+    <!-- In a Chain, the amount of weight used to spread available horizontal space
+        if the widget is set to MATCH_CONSTRAINT -->
+    <attr name="layout_constraintHorizontal_weight" format="float" />
+    <!-- In a Chain, the amount of weight used to spread available vertical space
+        if the widget is set to MATCH_CONSTRAINT -->
+    <attr name="layout_constraintVertical_weight" format="float" />
+
+    <!-- Set a chain to be packed or not. If true and the widget is the first element of a chain,
+        the chain will not spread, and the bias will affect the position of the chain elements.
+        It will only work if all elements have a set size (i.e. not MATCH_CONSTRAINT) -->
+    <attr name="layout_constraintHorizontal_chainStyle" format="enum">
+        <enum name="spread" value="0" />
+        <enum name="spread_inside" value="1" />
+        <enum name="packed" value="2" />
+    </attr>
+
+    <!-- Set a chain to be packed or not. If true and the widget is the first element of a chain,
+        the chain will not spread, and the bias will affect the position of the chain elements.
+        It will only work if all elements have a set size (i.e. not MATCH_CONSTRAINT) -->
+    <attr name="layout_constraintVertical_chainStyle" format="enum">
+        <enum name="spread" value="0" />
+        <enum name="spread_inside" value="1" />
+        <enum name="packed" value="2" />
+    </attr>
+
+    <!-- =============================== Start Flow =============================== -->
+
+    <!-- set the style for how Flow layout its elements -->
+    <attr name="flow_horizontalStyle" format="enum">
+        <enum name="spread" value="0" />
+        <enum name="spread_inside" value="1" />
+        <enum name="packed" value="2" />
+    </attr>
+    <attr name="flow_firstHorizontalStyle" format="enum">
+        <enum name="spread" value="0" />
+        <enum name="spread_inside" value="1" />
+        <enum name="packed" value="2" />
+    </attr>
+    <attr name="flow_verticalStyle" format="enum">
+        <enum name="spread" value="0" />
+        <enum name="spread_inside" value="1" />
+        <enum name="packed" value="2" />
+    </attr>
+    <attr name="flow_firstVerticalStyle" format="enum">
+        <enum name="spread" value="0" />
+        <enum name="spread_inside" value="1" />
+        <enum name="packed" value="2" />
+    </attr>
+
+    <attr name="flow_lastHorizontalStyle" format="enum">
+        <enum name="spread" value="0" />
+        <enum name="spread_inside" value="1" />
+        <enum name="packed" value="2" />
+    </attr>
+
+    <attr name="flow_lastVerticalStyle" format="enum">
+        <enum name="spread" value="0" />
+        <enum name="spread_inside" value="1" />
+        <enum name="packed" value="2" />
+    </attr>
+
+    <!-- gap between elements -->
+    <attr name="flow_horizontalGap" format="dimension" />
+    <attr name="flow_verticalGap" format="dimension" />
+
+    <attr name="flow_padding" format="dimension" />
+
+    <attr name="flow_verticalAlign" format="enum">
+        <enum name="top" value="0" />
+        <enum name="bottom" value="1" />
+        <enum name="center" value="2" />
+        <enum name="baseline" value="3" />
+    </attr>
+
+    <attr name="flow_horizontalAlign" format="enum">
+        <enum name="start" value="0" />
+        <enum name="end" value="1" />
+        <enum name="center" value="2" />
+    </attr>
+
+    <!-- define how Flow deal with wrapping elements -->
+    <attr name="flow_wrapMode" format="enum">
+        <enum name="none" value="0" />
+        <enum name="chain" value="1" />
+        <enum name="aligned" value="2" />
+        <enum name="chain2" value="3" />
+    </attr>
+
+    <!-- if defined, wrap after max elements -->
+    <attr name="flow_maxElementsWrap" format="integer" />
+
+    <!-- set the bias used by Flow for its elements -->
+    <attr name="flow_verticalBias" format="float" />
+    <attr name="flow_horizontalBias" format="float" />
+
+    <!-- set the bias used by Flow for the first chain -->
+    <attr name="flow_firstVerticalBias" format="float" />
+    <attr name="flow_firstHorizontalBias" format="float" />
+
+    <!-- set the bias used by Flow for the last chain -->
+    <attr name="flow_lastVerticalBias" format="float" />
+    <attr name="flow_lastHorizontalBias" format="float" />
+
+    <!-- set the radius and angles used by CircularFlow with your child views -->
+    <attr name="circularflow_radiusInDP" format="string"/>
+    <attr name="circularflow_angles" format="string"/>
+    <attr name="circularflow_viewCenter" format="reference"/>
+    <attr name="circularflow_defaultAngle" format="float"/>
+    <attr name="circularflow_defaultRadius" format="dimension"/>
+
+
+    <!-- TODO allows to use a drawable as horizontal separator between elements -->
+    <!--    <attr name="flow_horizontalSeparator" format="reference" />-->
+
+    <!-- TODO allows to use a drawable as vertical separator between elements -->
+    <!--    <attr name="flow_verticalSeparator" format="reference" />-->
+
+    <!-- =============================== End Flow =============================== -->
+
+    <!-- =============================== Start Carousel =============================== -->
+
+    <declare-styleable name="Carousel">
+        <attr name="carousel_firstView" format="reference" />
+        <attr name="carousel_previousState" format="reference" />
+        <attr name="carousel_nextState" format="reference" />
+        <attr name="carousel_infinite" format="boolean" />
+        <attr name="carousel_forwardTransition" format="reference" />
+        <attr name="carousel_backwardTransition" format="reference" />
+        <attr name="carousel_touchUp_dampeningFactor" format="float" />
+        <attr name="carousel_touchUpMode" format="enum">
+            <enum name="immediateStop" value="1" />
+            <enum name="carryVelocity" value="2" />
+        </attr>
+        <attr name="carousel_touchUp_velocityThreshold" format="float" />
+        <attr name="carousel_emptyViewsBehavior" format="enum">
+            <enum name="invisible" value="4" />
+            <enum name="gone" value="8" />
+        </attr>
+    </declare-styleable>
+
+    <!-- =============================== End Carousel =============================== -->
+
+    <!-- ======================================Grid===================================== -->
+    <declare-styleable name="Grid">
+        <attr name="grid_rows" format="integer" />
+        <attr name="grid_columns" format="integer" />
+        <attr name="grid_spans" format="string"/>
+        <attr name="grid_skips" format="string"/>
+        <attr name="grid_rowWeights" format="string"/>
+        <attr name="grid_columnWeights" format="string"/>
+        <attr name="grid_orientation"  format="enum">
+            <enum name="horizontal" value="0" />
+            <enum name="vertical" value="1" />
+        </attr>
+        <attr name="grid_horizontalGaps" format="dimension" />
+        <attr name="grid_verticalGaps" format="dimension" />
+        <attr name="grid_validateInputs" format="boolean" />
+        <attr name="grid_useRtl" format="boolean" />
+    </declare-styleable>
+    <!-- =============================== End Grid =============================== -->
+
+    <!-- =============================== Start FadeMove =============================== -->
+
+    <declare-styleable name="MotionEffect">
+        <attr name="motionEffect_start" format="integer" />
+        <attr name="motionEffect_end" format="integer" />
+        <attr name="motionEffect_translationX" format="dimension" />
+        <attr name="motionEffect_translationY" format="dimension" />
+        <attr name="motionEffect_alpha" format="float" />
+        <attr name="motionEffect_viewTransition" format="reference" />
+        <attr name="motionEffect_move" format="enum">
+            <enum name="auto" value="-1" />
+            <enum name="north" value="0" />
+            <enum name="south" value="1" />
+            <enum name="east" value="2" />
+            <enum name="west" value="3" />
+        </attr>
+        <attr name="motionEffect_strict" format="boolean" />
+    </declare-styleable>    <!-- ========================= End FadeMove ====================== -->
+
+    <!-- Used at design time to define to position the view -->
+    <attr name="layout_editor_absoluteX" format="dimension" />
+    <!-- Used at design time to define to position the view -->
+    <attr name="layout_editor_absoluteY" format="dimension" />
+
+    <!-- Used to set the type of optimization we apply. This is a mask. -->
+    <attr name="layout_optimizationLevel">
+        <flag name="none" value="0" />
+        <flag name="legacy" value="0" />
+        <flag name="standard" value="257" /> <!-- direct, measure caches -->
+        <flag name="direct" value="1" />
+        <flag name="barrier" value="2" />
+        <flag name="chains" value="4" />
+        <flag name="dimensions" value="8" />
+        <flag name="ratio" value="16" />
+        <flag name="groups" value="32" />
+        <flag name="graph" value="64" />
+        <flag name="graph_wrap" value="128" />
+        <flag name="cache_measures" value="256" />
+        <flag name="dependency_ordering" value="512" />
+        <flag name="grouping" value="1024" />
+    </attr>
+
+    <!-- Specify the style of match constraint -->
+    <attr name="layout_constraintWidth_default">
+        <enum name="spread" value="0" />
+        <enum name="wrap" value="1" />
+        <enum name="percent" value="2" />
+    </attr>
+
+    <!-- Defines the category or group this belongs to.
+     It can be used be helpers or MotionLayout to associate behaviour to views -->
+    <attr name="layout_constraintTag" format="string" />
+
+    <!-- handles circular constraints -->
+    <!-- For a circular constraint the view to be relative to. -->
+    <attr name="layout_constraintCircle" format="reference" />
+
+    <!-- For a circular constraint the distance to the related view (center to center).  -->
+    <attr name="layout_constraintCircleRadius" format="dimension" />
+
+    <!-- For a circular constraint the angle to the related view (center to center).  -->
+    <attr name="layout_constraintCircleAngle" format="float" />
+
+    <!-- explicitly enforces constraints in case of WRAP for width. -->
+    <attr name="layout_constrainedWidth" format="boolean" />
+
+    <!-- explicitly enforces constraints in case of WRAP for height. -->
+    <attr name="layout_constrainedHeight" format="boolean" />
+
+    <!-- used by to pick the view about which you can pivot default is self -->
+    <attr name="pivotAnchor" format="reference|enum">
+        <enum name="parent" value="0" />
+    </attr>
+
+    <!-- Defines the relative ordering of one view to another for purpose of staggering -->
+    <attr name="motionStagger" format="float" />
+    <attr name="quantizeMotionSteps" format="integer" />
+    <attr name="quantizeMotionPhase" format="float" />
+    <attr name="quantizeMotionInterpolator" format="string|reference|enum">
+        <enum name="easeInOut" value="0" />
+        <enum name="easeIn" value="1" />
+        <enum name="easeOut" value="2" />
+        <enum name="linear" value="3" />
+        <enum name="bounce" value="4" />
+        <enum name="overshoot" value="5" />
+    </attr>
+
+    <!-- Specify the visibility of a placeholder -->
+    <attr name="placeholder_emptyVisibility">
+        <enum name="visible" value="0" />
+        <enum name="invisible" value="4" />
+        <enum name="gone" value="8" />
+    </attr>
+
+    <attr name="content" format="reference" />
+    <attr name="layout_constraintWidth_min" format="dimension|enum">
+        <enum name="wrap" value="-2" />
+    </attr>
+    <attr name="layout_constraintWidth_max" format="dimension|enum">
+        <enum name="wrap" value="-2" />
+    </attr>
+    <attr name="layout_constraintWidth_percent" format="float" />
+
+    <!-- Specify the style of match constraint -->
+    <attr name="layout_constraintHeight_default">
+        <enum name="spread" value="0" />
+        <enum name="wrap" value="1" />
+        <enum name="percent" value="2" />
+    </attr>
+
+    <attr name="layout_constraintHeight_min" format="dimension|enum">
+        <enum name="wrap" value="-2" />
+    </attr>
+    <attr name="layout_constraintHeight_max" format="dimension|enum">
+        <enum name="wrap" value="-2" />
+    </attr>
+    <attr name="layout_constraintHeight_percent" format="float" />
+
+    <declare-styleable name="ConstraintLayout_placeholder">
+        <attr name="placeholder_emptyVisibility" />
+        <attr name="content" />
+    </declare-styleable>
+    <attr name="animateRelativeTo" format="reference" />
+    <attr name="animateCircleAngleTo" format="enum">
+        <enum name="bestChoice" value="0" />
+        <enum name="closest" value="1" />
+        <enum name="clockwise" value="2" />
+        <enum name="antiClockwise" value="3" />
+        <enum name="constraint" value="4" />
+    </attr>
+
+    <declare-styleable name="ConstraintLayout_ReactiveGuide">
+        <attr name="reactiveGuide_valueId" format="reference" />
+        <attr name="reactiveGuide_animateChange" format="boolean" />
+        <attr name="reactiveGuide_applyToAllConstraintSets" format="boolean" />
+        <attr name="reactiveGuide_applyToConstraintSet" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="MotionHelper">
+        <attr name="onShow" format="boolean" />
+        <attr name="onHide" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="MockView">
+        <attr name="mock_label" format="string" />
+        <attr name="mock_labelColor" format="color" />
+        <attr name="mock_labelBackgroundColor" format="color" />
+        <attr name="mock_diagonalsColor" format="color" />
+        <attr name="mock_showDiagonals" format="boolean" />
+        <attr name="mock_showLabel" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="MotionTelltales">
+        <attr name="telltales_velocityMode" format="enum">
+            <enum name="layout" value="0" />
+            <enum name="postLayout" value="1" />
+            <enum name="staticPostLayout" value="2" />
+            <enum name="staticLayout" value="3" />
+        </attr>
+        <attr name="telltales_tailColor" format="color" />
+        <attr name="telltales_tailScale" format="float" />
+    </declare-styleable>
+
+    <!-- =============================== Layout =============================== -->
+
+    <declare-styleable name="ConstraintLayout_Layout">
+        <attr name="android:orientation" />
+        <attr name="android:minWidth" />
+        <attr name="android:minHeight" />
+        <attr name="android:maxWidth" />
+        <attr name="android:maxHeight" />
+        <attr name="android:visibility" />
+        <attr name="android:elevation" />
+
+        <attr name="layout_optimizationLevel" />
+        <attr name="layoutDescription" />
+
+        <attr name="constraintSet" />
+        <attr name="barrierDirection" />
+        <attr name="barrierAllowsGoneWidgets" />
+        <attr name="barrierMargin" />
+        <attr name="constraint_referenced_ids" />
+        <attr name="constraint_referenced_tags" />
+        <attr name="chainUseRtl" />
+
+        <attr name="flow_horizontalStyle" />
+        <attr name="flow_verticalStyle" />
+        <attr name="flow_wrapMode" />
+        <attr name="flow_maxElementsWrap" />
+        <attr name="flow_horizontalGap" />
+        <attr name="flow_verticalGap" />
+        <attr name="android:padding" />
+        <attr name="android:paddingTop" />
+        <attr name="android:paddingBottom" />
+        <attr name="android:paddingLeft" />
+        <attr name="android:paddingRight" />
+        <attr name="android:paddingStart" />
+        <attr name="android:paddingEnd" />
+        <attr name="flow_verticalAlign" />
+        <attr name="flow_horizontalAlign" />
+        <attr name="flow_verticalBias" />
+        <attr name="flow_horizontalBias" />
+        <!--        <attr name="flow_horizontalSeparator" />-->
+        <!--        <attr name="flow_verticalSeparator" />-->
+
+        <attr name="flow_firstHorizontalStyle" />
+        <attr name="flow_firstVerticalStyle" />
+        <attr name="flow_firstHorizontalBias" />
+        <attr name="flow_firstVerticalBias" />
+
+        <attr name="flow_lastHorizontalStyle" />
+        <attr name="flow_lastVerticalStyle" />
+        <attr name="flow_lastHorizontalBias" />
+        <attr name="flow_lastVerticalBias" />
+
+        <attr name="circularflow_radiusInDP"/>
+        <attr name="circularflow_angles"/>
+        <attr name="circularflow_viewCenter"/>
+        <attr name="circularflow_defaultRadius"/>
+        <attr name="circularflow_defaultAngle"/>
+
+
+        <attr name="layout_constraintCircle" />
+        <attr name="layout_constraintCircleRadius" />
+        <attr name="layout_constraintCircleAngle" />
+
+        <attr name="layout_constraintGuide_begin" />
+        <attr name="layout_constraintGuide_end" />
+        <attr name="layout_constraintGuide_percent" />
+        <attr name="guidelineUseRtl" />
+        <attr name="layout_constraintLeft_toLeftOf" />
+        <attr name="layout_constraintLeft_toRightOf" />
+        <attr name="layout_constraintRight_toLeftOf" />
+        <attr name="layout_constraintRight_toRightOf" />
+        <attr name="layout_constraintTop_toTopOf" />
+        <attr name="layout_constraintTop_toBottomOf" />
+        <attr name="layout_constraintBottom_toTopOf" />
+        <attr name="layout_constraintBottom_toBottomOf" />
+        <attr name="layout_constraintBaseline_toBaselineOf" />
+        <attr name="layout_constraintBaseline_toTopOf" />
+        <attr name="layout_constraintBaseline_toBottomOf" />
+        <attr name="layout_constraintStart_toEndOf" />
+        <attr name="layout_constraintStart_toStartOf" />
+        <attr name="layout_constraintEnd_toStartOf" />
+        <attr name="layout_constraintEnd_toEndOf" />
+        <attr name="layout_goneMarginLeft" />
+        <attr name="layout_goneMarginTop" />
+        <attr name="layout_goneMarginRight" />
+        <attr name="layout_goneMarginBottom" />
+        <attr name="layout_goneMarginStart" />
+        <attr name="layout_goneMarginEnd" />
+        <attr name="layout_goneMarginBaseline" />
+        <attr name="layout_marginBaseline" />
+        <attr name="layout_constraintWidth" />
+        <attr name="layout_constraintHeight" />
+        <attr name="android:layout_width" />
+        <attr name="android:layout_height" />
+        <attr name="android:layout_margin" />
+        <attr name="android:layout_marginHorizontal" />
+        <attr name="android:layout_marginVertical" />
+        <attr name="android:layout_marginLeft" />
+        <attr name="android:layout_marginRight" />
+        <attr name="android:layout_marginTop" />
+        <attr name="android:layout_marginBottom" />
+        <attr name="android:layout_marginStart" />
+        <attr name="android:layout_marginEnd" />
+        <attr name="layout_constrainedWidth" />
+        <attr name="layout_constrainedHeight" />
+        <attr name="layout_constraintHorizontal_bias" />
+        <attr name="layout_constraintVertical_bias" />
+        <attr name="layout_constraintWidth_default" />
+        <attr name="layout_constraintHeight_default" />
+        <attr name="layout_constraintWidth_min" />
+        <attr name="layout_constraintWidth_max" />
+        <attr name="layout_constraintWidth_percent" />
+        <attr name="layout_constraintHeight_min" />
+        <attr name="layout_constraintHeight_max" />
+        <attr name="layout_constraintHeight_percent" />
+        <attr name="layout_constraintLeft_creator" />
+        <attr name="layout_constraintTop_creator" />
+        <attr name="layout_constraintRight_creator" />
+        <attr name="layout_constraintBottom_creator" />
+        <attr name="layout_constraintBaseline_creator" />
+        <attr name="layout_constraintDimensionRatio" />
+        <attr name="layout_constraintHorizontal_weight" />
+        <attr name="layout_constraintVertical_weight" />
+        <attr name="layout_constraintHorizontal_chainStyle" />
+        <attr name="layout_constraintVertical_chainStyle" />
+        <attr name="layout_editor_absoluteX" />
+        <attr name="layout_editor_absoluteY" />
+        <attr name="layout_constraintTag" />
+        <attr name="layout_wrapBehaviorInParent" />
+    </declare-styleable>
+
+    <!--Frame Interpolation provide a per key view  time interpolation capability
+        This supports linear (default) of cubic-bezier
+        cubic-bezier is of the form cubic-bezier(float,float,float,float)
+        where argument are x1,y1,x2,y2 representing the control on a cubic from 0,0 to 1,1
+        STANDARD = "cubic(0.4, 0.0, 0.2, 1)";
+        ACCELERATE = "cubic(0.4, 0.0, 1, 1)";
+        DECELERATE = "cubic(0.0, 0.0, 0.2, 1)";
+    -->
+    <attr name="transitionEasing" format="string|enum">
+        <enum name="standard" value="0" />
+        <enum name="accelerate" value="1" />
+        <enum name="decelerate" value="2" />
+        <enum name="linear" value="3" />
+    </attr>
+
+    <attr name="pathMotionArc" format="enum">
+        <enum name="none" value="0" />
+        <enum name="startVertical" value="1" />
+        <enum name="startHorizontal" value="2" />
+        <enum name="flip" value="3" />
+        <enum name="below" value="4" />
+        <enum name="above" value="5" />
+    </attr>
+
+    <attr name="polarRelativeTo" format="reference" />
+
+
+    <!--Rotate the view along the path it is taking if set defines the angle the
+        view will be rotate relative to the path. This is applied before rotation -->
+    <attr name="transitionPathRotate" format="float" />
+
+    <attr name="drawPath" format="enum">
+        <enum name="none" value="0" />
+        <enum name="path" value="1" />
+        <enum name="pathRelative" value="2" />
+        <enum name="deltaRelative" value="3" />
+        <enum name="asConfigured" value="4" />
+        <enum name="rectangles" value="5" />
+    </attr>
+
+    <declare-styleable name="ConstraintSet">
+        <attr name="deriveConstraintsFrom" format="reference" />
+        <attr name="stateLabels" format="string" />
+        <attr name="constraintRotate" format="enum" >
+            <enum name="none" value="0"/>
+            <enum name="right" value="1"/>
+            <enum name="left" value="2"/>
+            <enum name="x_right" value="3"/>
+            <enum name="x_left" value="4"/>
+        </attr>
+        <attr name="android:orientation" />
+        <attr name="android:id" />
+        <attr name="android:visibility" />
+        <attr name="android:alpha" />
+        <attr name="android:elevation" />
+        <attr name="android:rotation" />
+        <attr name="android:rotationX" />
+        <attr name="android:rotationY" />
+        <attr name="android:scaleX" />
+        <attr name="android:scaleY" />
+        <attr name="pivotAnchor" />
+        <attr name="android:pivotX" />
+        <attr name="android:pivotY" />
+        <attr name="android:transformPivotX" />
+        <attr name="android:transformPivotY" />
+        <attr name="android:translationX" />
+        <attr name="android:translationY" />
+        <attr name="android:translationZ" />
+        <attr name="android:layout_width" />
+        <!-- Specifies the basic height of the view.  This is a required attribute
+     for any view inside of a containing layout manager.  Its value may
+     be a dimension (such as "12dip") for a constant height or one of
+     the special constants. -->
+        <attr name="android:layout_height" />
+        <!--  Specifies extra space on the start side of this view.
+      This space is outside this view's bounds.
+      Margin values should be positive.-->
+        <attr name="android:layout_marginStart" />
+        <!--  Specifies extra space on the bottom side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
+        <attr name="android:layout_marginBottom" />
+        <attr name="android:layout_marginTop" />
+        <attr name="android:layout_marginEnd" />
+        <attr name="android:layout_marginLeft" />
+        <attr name="android:layout_marginRight" />
+
+        <attr name="layout_constraintCircle" />
+        <attr name="layout_constraintCircleRadius" />
+        <attr name="layout_constraintCircleAngle" />
+
+        <attr name="layout_constraintGuide_begin" />
+        <attr name="layout_constraintGuide_end" />
+        <attr name="layout_constraintGuide_percent" />
+        <attr name="guidelineUseRtl" />
+
+        <attr name="layout_constraintLeft_toLeftOf" />
+        <attr name="layout_constraintLeft_toRightOf" />
+        <attr name="layout_constraintRight_toLeftOf" />
+        <attr name="layout_constraintRight_toRightOf" />
+        <attr name="layout_constraintTop_toTopOf" />
+        <attr name="layout_constraintTop_toBottomOf" />
+        <attr name="layout_constraintBottom_toTopOf" />
+        <attr name="layout_constraintBottom_toBottomOf" />
+        <attr name="layout_constraintBaseline_toBaselineOf" />
+        <attr name="layout_constraintBaseline_toTopOf" />
+        <attr name="layout_constraintBaseline_toBottomOf" />
+        <attr name="layout_constraintStart_toEndOf" />
+        <attr name="layout_constraintStart_toStartOf" />
+        <attr name="layout_constraintEnd_toStartOf" />
+        <attr name="layout_constraintEnd_toEndOf" />
+        <attr name="layout_goneMarginLeft" />
+        <attr name="layout_goneMarginTop" />
+        <attr name="layout_goneMarginRight" />
+        <attr name="layout_goneMarginBottom" />
+        <attr name="layout_goneMarginStart" />
+        <attr name="layout_goneMarginEnd" />
+        <attr name="layout_goneMarginBaseline" />
+        <attr name="layout_marginBaseline" />
+        <attr name="layout_constrainedWidth" />
+        <attr name="layout_constrainedHeight" />
+        <attr name="layout_constraintHorizontal_bias" />
+        <attr name="layout_constraintVertical_bias" />
+        <attr name="layout_constraintWidth_default" />
+        <attr name="layout_constraintHeight_default" />
+        <attr name="layout_constraintWidth_min" />
+        <attr name="layout_constraintWidth_max" />
+        <attr name="layout_constraintWidth_percent" />
+        <attr name="layout_constraintHeight_min" />
+        <attr name="layout_constraintHeight_max" />
+        <attr name="layout_constraintHeight_percent" />
+        <attr name="layout_constraintLeft_creator" />
+        <attr name="layout_constraintTop_creator" />
+        <attr name="layout_constraintRight_creator" />
+        <attr name="layout_constraintBottom_creator" />
+        <attr name="layout_constraintBaseline_creator" />
+        <attr name="layout_constraintDimensionRatio" />
+        <attr name="layout_constraintHorizontal_weight" />
+        <attr name="layout_constraintVertical_weight" />
+        <attr name="layout_constraintHorizontal_chainStyle" />
+        <attr name="layout_constraintVertical_chainStyle" />
+        <attr name="layout_editor_absoluteX" />
+        <attr name="layout_editor_absoluteY" />
+        <attr name="layout_wrapBehaviorInParent" />
+
+        <attr name="barrierDirection" />
+        <attr name="constraint_referenced_ids" />
+        <attr name="constraint_referenced_tags" />
+        <attr name="barrierMargin" />
+        <attr name="android:maxHeight" />
+        <attr name="android:maxWidth" />
+        <attr name="android:minHeight" />
+        <attr name="android:minWidth" />
+        <attr name="barrierAllowsGoneWidgets" />
+        <attr name="chainUseRtl" />
+
+        <attr name="flow_horizontalStyle" />
+        <attr name="flow_verticalStyle" />
+        <attr name="flow_verticalAlign" />
+        <attr name="flow_horizontalAlign" />
+        <attr name="flow_verticalBias" />
+        <attr name="flow_horizontalBias" />
+        <attr name="flow_wrapMode" />
+        <attr name="flow_maxElementsWrap" />
+        <attr name="flow_horizontalGap" />
+        <attr name="flow_verticalGap" />
+        <!--        <attr name="flow_horizontalSeparator" />-->
+        <!--        <attr name="flow_verticalSeparator" />-->
+
+        <attr name="flow_firstHorizontalStyle" />
+        <attr name="flow_firstVerticalStyle" />
+        <attr name="flow_firstHorizontalBias" />
+        <attr name="flow_firstVerticalBias" />
+
+        <attr name="flow_lastHorizontalStyle" />
+        <attr name="flow_lastVerticalStyle" />
+        <attr name="flow_lastHorizontalBias" />
+        <attr name="flow_lastVerticalBias" />
+
+        <attr name="animateRelativeTo" />
+        <attr name="animateCircleAngleTo" />
+
+        <attr name="transitionEasing" />
+        <attr name="pathMotionArc" />
+        <attr name="polarRelativeTo" />
+        <attr name="transitionPathRotate" />
+        <attr name="motionStagger" />
+        <attr name="quantizeMotionSteps" />
+        <attr name="drawPath" />
+        <attr name="motionProgress" />
+        <attr name="layout_constraintTag" />
+
+    </declare-styleable>
+
+    <!--    This is the api for logging constraints in JSON5 format -->
+    <declare-styleable name="LogJson">
+        <attr name="logJsonTo" format="enum|string">
+            <enum name="log" value="1" />
+            <enum name="console" value="2" />
+        </attr>
+        <attr name="logJsonMode" format="enum">
+            <enum name="periodic" value="1" />
+            <enum name="delayed" value="2" />
+            <enum name="layout" value="3" />
+            <enum name="api" value="4" />
+        </attr>
+        <attr name="logJsonDelay" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="Constraint">
+        <attr name="android:orientation" />
+        <attr name="android:id" />
+
+        <!-- Controls the initial visibility of the view.  -->
+        <attr name="android:visibility" />
+        <attr name="visibilityMode" />
+
+        <!-- alpha property of the view, as a value between 0 (completely transparent) and 1
+             (completely opaque). -->
+        <attr name="android:alpha" />
+
+        <!-- base z depth of the view. -->
+        <attr name="android:elevation" />
+
+        <!-- rotation of the view, in degrees. -->
+        <attr name="android:rotation" />
+
+        <!-- rotation of the view around the x axis, in degrees. -->
+        <attr name="android:rotationX" />
+
+        <!-- rotation of the view around the y axis, in degrees. -->
+        <attr name="android:rotationY" />
+
+        <!-- scale of the view in the x direction. -->
+        <attr name="android:scaleX" />
+
+        <!-- scale of the view in the y direction. -->
+        <attr name="android:scaleY" />
+        <attr name="pivotAnchor" />
+
+        <attr name="android:transformPivotX" />
+        <attr name="android:transformPivotY" />
+        <attr name="transformPivotTarget" />
+
+        <!-- translation in x of the view. This value is added post-layout to the left
+             property of the view, which is set by its layout. -->
+        <attr name="android:translationX" />
+        <!-- translation in y of the view. This value is added post-layout to the top
+             property of the view, which is set by its layout. -->
+        <attr name="android:translationY" />
+        <!-- translation in z of the view. This value is added to its elevation. -->
+        <attr name="android:translationZ" />
+        <!-- Specifies the basic width of the view.  This is a required attribute
+             for any view inside of a containing layout manager.  Its value may
+             be a dimension (such as "12dip") for a constant width or one of
+             the special constants. -->
+        <attr name="android:layout_width" />
+        <!-- Specifies the basic height of the view.  This is a required attribute
+             for any view inside of a containing layout manager.  Its value may
+             be a dimension (such as "12dip") for a constant height or one of
+             the special constants. -->
+        <attr name="android:layout_height" />
+        <!--  Specifies extra space on the start side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
+        <attr name="layout_constraintWidth" />
+        <attr name="layout_constraintHeight" />
+        <attr name="android:layout_marginStart" />
+        <!--  Specifies extra space on the bottom side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
+        <attr name="android:layout_marginBottom" />
+        <!--  Specifies extra space on the top side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
+        <attr name="android:layout_marginTop" />
+        <!--  Specifies extra space on the end side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
+        <attr name="android:layout_marginEnd" />
+        <!--  Specifies extra space on the left side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive. -->
+        <attr name="android:layout_marginLeft" />
+        <!--  Specifies extra space on the right side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
+        <attr name="android:layout_marginRight" />
+
+        <attr name="layout_constraintCircle" />
+        <attr name="layout_constraintCircleRadius" />
+        <attr name="layout_constraintCircleAngle" />
+
+        <attr name="layout_constraintGuide_begin" />
+        <attr name="layout_constraintGuide_end" />
+        <attr name="layout_constraintGuide_percent" />
+        <attr name="guidelineUseRtl" />
+        <attr name="layout_constraintLeft_toLeftOf" />
+        <attr name="layout_constraintLeft_toRightOf" />
+        <attr name="layout_constraintRight_toLeftOf" />
+        <attr name="layout_constraintRight_toRightOf" />
+        <attr name="layout_constraintTop_toTopOf" />
+        <attr name="layout_constraintTop_toBottomOf" />
+        <attr name="layout_constraintBottom_toTopOf" />
+        <attr name="layout_constraintBottom_toBottomOf" />
+        <attr name="layout_constraintBaseline_toBaselineOf" />
+        <attr name="layout_constraintBaseline_toTopOf" />
+        <attr name="layout_constraintBaseline_toBottomOf" />
+        <attr name="layout_constraintStart_toEndOf" />
+        <attr name="layout_constraintStart_toStartOf" />
+        <attr name="layout_constraintEnd_toStartOf" />
+        <attr name="layout_constraintEnd_toEndOf" />
+        <attr name="layout_goneMarginLeft" />
+        <attr name="layout_goneMarginTop" />
+        <attr name="layout_goneMarginRight" />
+        <attr name="layout_goneMarginBottom" />
+        <attr name="layout_goneMarginStart" />
+        <attr name="layout_goneMarginEnd" />
+        <attr name="layout_goneMarginBaseline" />
+        <attr name="layout_marginBaseline" />
+        <attr name="layout_constrainedWidth" />
+        <attr name="layout_constrainedHeight" />
+        <attr name="layout_constraintHorizontal_bias" />
+        <attr name="layout_constraintVertical_bias" />
+        <attr name="layout_constraintWidth_default" />
+        <attr name="layout_constraintHeight_default" />
+        <attr name="layout_constraintWidth_min" />
+        <attr name="layout_constraintWidth_max" />
+        <attr name="layout_constraintWidth_percent" />
+        <attr name="layout_constraintHeight_min" />
+        <attr name="layout_constraintHeight_max" />
+        <attr name="layout_constraintHeight_percent" />
+        <attr name="layout_constraintLeft_creator" />
+        <attr name="layout_constraintTop_creator" />
+        <attr name="layout_constraintRight_creator" />
+        <attr name="layout_constraintBottom_creator" />
+        <attr name="layout_constraintBaseline_creator" />
+        <attr name="layout_constraintDimensionRatio" />
+        <attr name="layout_constraintHorizontal_weight" />
+        <attr name="layout_constraintVertical_weight" />
+        <attr name="layout_constraintHorizontal_chainStyle" />
+        <attr name="layout_constraintVertical_chainStyle" />
+        <attr name="layout_editor_absoluteX" />
+        <attr name="layout_editor_absoluteY" />
+        <attr name="layout_wrapBehaviorInParent" />
+
+        <attr name="barrierDirection" />
+        <attr name="barrierMargin" />
+        <attr name="constraint_referenced_ids" />
+        <attr name="constraint_referenced_tags" />
+
+        <attr name="android:maxHeight" />
+        <attr name="android:maxWidth" />
+        <attr name="android:minHeight" />
+        <attr name="android:minWidth" />
+        <attr name="barrierAllowsGoneWidgets" />
+        <attr name="chainUseRtl" />
+
+        <attr name="flow_horizontalStyle" />
+        <attr name="flow_verticalStyle" />
+        <attr name="flow_verticalAlign" />
+        <attr name="flow_horizontalAlign" />
+        <attr name="flow_verticalBias" />
+        <attr name="flow_horizontalBias" />
+        <attr name="flow_wrapMode" />
+        <attr name="flow_maxElementsWrap" />
+        <attr name="flow_horizontalGap" />
+        <attr name="flow_verticalGap" />
+        <!--        <attr name="flow_horizontalSeparator" />-->
+        <!--        <attr name="flow_verticalSeparator" />-->
+
+        <attr name="flow_firstHorizontalStyle" />
+        <attr name="flow_firstVerticalStyle" />
+        <attr name="flow_firstHorizontalBias" />
+        <attr name="flow_firstVerticalBias" />
+
+        <attr name="flow_lastHorizontalStyle" />
+        <attr name="flow_lastVerticalStyle" />
+        <attr name="flow_lastHorizontalBias" />
+        <attr name="flow_lastVerticalBias" />
+
+        <attr name="animateRelativeTo" />
+        <attr name="animateCircleAngleTo" />
+        <attr name="transitionEasing" />
+        <attr name="pathMotionArc" />
+        <attr name="polarRelativeTo" />
+        <attr name="transitionPathRotate" />
+        <attr name="drawPath" />
+        <attr name="motionProgress" />
+        <attr name="layout_constraintTag" />
+        <attr name="motionStagger" />
+        <attr name="quantizeMotionSteps" />
+        <attr name="quantizeMotionPhase" />
+        <attr name="quantizeMotionInterpolator" />
+    </declare-styleable>
+
+    <!--   This is used in ConstraintSet to allow a more compact expression of changes
+        to the original-->
+    <!--   Only changes need be defined. It does not support layout_constraint*_to* attributes  -->
+    <declare-styleable name="ConstraintOverride">
+        <attr name="android:orientation" />
+        <attr name="android:id" />
+        <attr name="motionTarget" />
+
+        <!-- Controls the initial visibility of the view.  -->
+        <attr name="android:visibility" />
+        <attr name="visibilityMode" />
+
+        <!-- alpha property of the view, as a value between 0 (completely transparent) and 1
+             (completely opaque). -->
+        <attr name="android:alpha" />
+
+        <!-- base z depth of the view. -->
+        <attr name="android:elevation" />
+
+        <!-- rotation of the view, in degrees. -->
+        <attr name="android:rotation" />
+
+        <!-- rotation of the view around the x axis, in degrees. -->
+        <attr name="android:rotationX" />
+
+        <!-- rotation of the view around the y axis, in degrees. -->
+        <attr name="android:rotationY" />
+
+        <!-- scale of the view in the x direction. -->
+        <attr name="android:scaleX" />
+
+        <!-- scale of the view in the y direction. -->
+        <attr name="android:scaleY" />
+        <attr name="pivotAnchor" />
+
+        <attr name="android:transformPivotX" />
+        <attr name="android:transformPivotY" />
+        <attr name="transformPivotTarget" />
+
+        <!-- translation in x of the view. This value is added post-layout to the left
+             property of the view, which is set by its layout. -->
+        <attr name="android:translationX" />
+        <!-- translation in y of the view. This value is added post-layout to the top
+             property of the view, which is set by its layout. -->
+        <attr name="android:translationY" />
+        <!-- translation in z of the view. This value is added to its elevation. -->
+        <attr name="android:translationZ" />
+        <!-- Specifies the basic width of the view.  This is a required attribute
+             for any view inside of a containing layout manager.  Its value may
+             be a dimension (such as "12dip") for a constant width or one of
+             the special constants. -->
+        <attr name="android:layout_width" />
+        <!-- Specifies the basic height of the view.  This is a required attribute
+             for any view inside of a containing layout manager.  Its value may
+             be a dimension (such as "12dip") for a constant height or one of
+             the special constants. -->
+        <attr name="android:layout_height" />
+        <!--  Specifies extra space on the start side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
+        <attr name="layout_constraintWidth" />
+        <attr name="layout_constraintHeight" />
+        <attr name="android:layout_marginStart" />
+        <!--  Specifies extra space on the bottom side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
+        <attr name="android:layout_marginBottom" />
+        <!--  Specifies extra space on the top side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
+        <attr name="android:layout_marginTop" />
+        <!--  Specifies extra space on the end side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
+        <attr name="android:layout_marginEnd" />
+        <!--  Specifies extra space on the left side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive. -->
+        <attr name="android:layout_marginLeft" />
+        <!--  Specifies extra space on the right side of this view.
+              This space is outside this view's bounds.
+              Margin values should be positive.-->
+        <attr name="android:layout_marginRight" />
+
+        <attr name="layout_constraintCircleRadius" />
+        <attr name="layout_constraintCircleAngle" />
+
+        <attr name="layout_constraintGuide_begin" />
+        <attr name="layout_constraintGuide_end" />
+        <attr name="layout_constraintGuide_percent" />
+        <attr name="guidelineUseRtl" />
+
+        <attr name="layout_goneMarginLeft" />
+        <attr name="layout_goneMarginTop" />
+        <attr name="layout_goneMarginRight" />
+        <attr name="layout_goneMarginBottom" />
+        <attr name="layout_goneMarginStart" />
+        <attr name="layout_goneMarginEnd" />
+        <attr name="layout_goneMarginBaseline" />
+        <attr name="layout_marginBaseline" />
+        <attr name="layout_constrainedWidth" />
+        <attr name="layout_constrainedHeight" />
+        <attr name="layout_constraintHorizontal_bias" />
+        <attr name="layout_constraintVertical_bias" />
+        <attr name="layout_constraintWidth_default" />
+        <attr name="layout_constraintHeight_default" />
+        <attr name="layout_constraintWidth_min" />
+        <attr name="layout_constraintWidth_max" />
+        <attr name="layout_constraintWidth_percent" />
+        <attr name="layout_constraintHeight_min" />
+        <attr name="layout_constraintHeight_max" />
+        <attr name="layout_constraintHeight_percent" />
+        <attr name="layout_constraintLeft_creator" />
+        <attr name="layout_constraintTop_creator" />
+        <attr name="layout_constraintRight_creator" />
+        <attr name="layout_constraintBottom_creator" />
+        <attr name="layout_constraintBaseline_creator" />
+        <attr name="layout_constraintDimensionRatio" />
+        <attr name="layout_constraintHorizontal_weight" />
+        <attr name="layout_constraintVertical_weight" />
+        <attr name="layout_constraintHorizontal_chainStyle" />
+        <attr name="layout_constraintVertical_chainStyle" />
+        <attr name="layout_editor_absoluteX" />
+        <attr name="layout_editor_absoluteY" />
+        <attr name="layout_wrapBehaviorInParent" />
+
+        <attr name="barrierDirection" />
+        <attr name="barrierMargin" />
+        <attr name="constraint_referenced_ids" />
+        <attr name="android:maxHeight" />
+        <attr name="android:maxWidth" />
+        <attr name="android:minHeight" />
+        <attr name="android:minWidth" />
+        <attr name="barrierAllowsGoneWidgets" />
+        <attr name="chainUseRtl" />
+
+        <attr name="flow_horizontalStyle" />
+        <attr name="flow_verticalStyle" />
+        <attr name="flow_verticalAlign" />
+        <attr name="flow_horizontalAlign" />
+        <attr name="flow_verticalBias" />
+        <attr name="flow_horizontalBias" />
+        <attr name="flow_wrapMode" />
+        <attr name="flow_maxElementsWrap" />
+        <attr name="flow_horizontalGap" />
+        <attr name="flow_verticalGap" />
+        <!--        <attr name="flow_horizontalSeparator" />-->
+        <!--        <attr name="flow_verticalSeparator" />-->
+
+        <attr name="flow_firstHorizontalStyle" />
+        <attr name="flow_firstVerticalStyle" />
+        <attr name="flow_firstHorizontalBias" />
+        <attr name="flow_firstVerticalBias" />
+
+        <attr name="flow_lastHorizontalStyle" />
+        <attr name="flow_lastVerticalStyle" />
+        <attr name="flow_lastHorizontalBias" />
+        <attr name="flow_lastVerticalBias" />
+
+        <attr name="animateRelativeTo" />
+        <attr name="animateCircleAngleTo" />
+        <attr name="transitionEasing" />
+        <attr name="pathMotionArc" />
+        <attr name="polarRelativeTo" />
+        <attr name="transitionPathRotate" />
+        <attr name="drawPath" />
+        <attr name="motionProgress" />
+        <attr name="layout_constraintTag" />
+        <attr name="motionStagger" />
+        <attr name="quantizeMotionSteps" />
+        <attr name="quantizeMotionPhase" />
+        <attr name="quantizeMotionInterpolator" />
+    </declare-styleable>
+
+    <!-- frame position is an integer from 0 to 100 -->
+    <attr name="framePosition" format="integer" />
+
+    <attr name="motionTarget" format="reference|string" />
+
+    <!--
+    Delta time is the offset between when you would would normally get to a point vs when you
+    you actually want to get there. e.g. if frame position=50 you would get there at t = 0.5
+    (half way) if delta was -0.25 you would only ne at 0.25
+    -->
+
+    <attr name="circleRadius" format="dimension" />
+    <attr name="sizePercent" format="float" />
+    <attr name="deltaPolarAngle" format="float" />
+    <attr name="deltaPolarRadius" format="float" />
+
+    <attr name="perpendicularPath_percent" format="float" />
+    <attr name="path_percent" format="float" />
+
+    <attr name="waveDecay" format="integer" />
+    <attr name="duration" format="integer" />
+    <attr name="motionPathRotate" format="float" />
+
+    <attr name="curveFit" format="enum">
+        <enum name="spline" value="0" />
+        <enum name="linear" value="1" />
+    </attr>
+
+    <attr name="arcMode" format="enum">
+        <enum name="startVertical" value="0" />
+        <enum name="startHorizontal" value="1" />
+        <enum name="flip" value="2" />
+    </attr>
+
+    <attr name="waveShape" format="enum|string">
+        <enum name="sin" value="0" />
+        <enum name="square" value="1" />
+        <enum name="triangle" value="2" />
+        <enum name="sawtooth" value="3" />
+        <enum name="reverseSawtooth" value="4" />
+        <enum name="cos" value="5" />
+        <enum name="bounce" value="6" />
+    </attr>
+
+    <attr name="waveVariesBy" format="enum">
+        <enum name="position" value="0" />
+        <enum name="path" value="1" />
+    </attr>
+
+    <attr name="wavePeriod" format="float" />
+    <attr name="wavePhase" format="float" />
+
+    <attr name="waveOffset" format="float|dimension" />
+    <attr name="defaultDuration" format="integer" />
+
+    <attr name="layoutDuringTransition" format="enum">
+        <enum name="ignoreRequest" value="0" />
+        <enum name="honorRequest" value="1" />
+        <enum name="callMeasure" value="2" />
+
+    </attr>
+
+    <attr name="transitionDisable" format="boolean" />
+
+    <!-- ==============  Transition ============== -->
+
+    <declare-styleable name="Transition">
+        <attr name="android:id" />
+        <attr name="constraintSetStart" format="reference" />
+        <attr name="constraintSetEnd" format="reference" />
+        <attr name="transitionDisable" />
+        <attr name="layoutDuringTransition" />
+
+        <attr name="pathMotionArc" />
+        <attr name="autoTransition" format="enum">
+            <enum name="none" value="0" />
+            <enum name="jumpToStart" value="1" />
+            <enum name="jumpToEnd" value="2" />
+            <enum name="animateToStart" value="3" />
+            <enum name="animateToEnd" value="4" />
+        </attr>
+        <attr name="motionInterpolator" format="string|reference|enum">
+            <enum name="easeInOut" value="0" />
+            <enum name="easeIn" value="1" />
+            <enum name="easeOut" value="2" />
+            <enum name="linear" value="3" />
+            <enum name="bounce" value="4" />
+            <enum name="overshoot" value="5" />
+            <enum name="anticipate" value="6" />
+        </attr>
+
+        <attr name="duration" />
+        <attr name="staggered" format="float" />
+
+        <attr name="transitionFlags">
+            <flag name="none" value="0" />
+            <flag name="beginOnFirstDraw" value="1" />
+            <flag name="disableIntraAutoTransition" value="2" />
+            <flag name="onInterceptTouchReturnSwipe" value="4" />
+        </attr>
+    </declare-styleable>
+
+
+    <!-- ==============  Transition ============== -->
+    <declare-styleable name="MotionScene">
+        <attr name="defaultDuration" />
+        <attr name="layoutDuringTransition" />
+    </declare-styleable>
+
+    <attr name="motionProgress" format="float" />
+
+    <!-- ==============  MotionLayout ============== -->
+    <declare-styleable name="MotionLayout">
+        <attr name="layoutDescription" />
+        <attr name="currentState" format="reference" />
+        <attr name="motionProgress" />
+        <attr name="applyMotionScene" format="boolean" />
+        <attr name="showPaths" format="boolean" />
+        <attr name="motionDebug" format="enum">
+            <enum name="NO_DEBUG" value="0" />
+            <enum name="SHOW_PROGRESS" value="1" />
+            <enum name="SHOW_PATH" value="2" />
+            <enum name="SHOW_ALL" value="3" />
+        </attr>
+    </declare-styleable>
+
+    <!-- ==============  TouchResponse ============== -->
+    <attr name="dragDirection" format="enum">
+        <enum name="dragUp" value="0" />
+        <enum name="dragDown" value="1" />
+        <enum name="dragLeft" value="2" />
+        <enum name="dragRight" value="3" />
+        <enum name="dragStart" value="4" />
+        <enum name="dragEnd" value="5" />
+        <enum name="dragClockwise" value="6" />
+        <enum name="dragAnticlockwise" value="7" />
+    </attr>
+
+    <attr name="touchAnchorId" format="reference" />
+    <attr name="touchAnchorSide" format="enum">
+        <enum name="top" value="0" />
+        <enum name="left" value="1" />
+        <enum name="right" value="2" />
+        <enum name="bottom" value="3" />
+        <enum name="middle" value="4" />
+        <enum name="start" value="5" />
+        <enum name="end" value="6" />
+    </attr>
+
+    <declare-styleable name="OnSwipe">
+        <attr name="dragScale" format="float" />
+        <attr name="dragThreshold" format="float" />
+        <attr name="autoCompleteMode" format="enum" >
+            <enum name="continuousVelocity"  value="0" />
+            <enum name="spring"  value="1" />
+        </attr>
+        <attr name="maxVelocity" format="float" />
+        <attr name="maxAcceleration" format="float" />
+        <attr name="springMass" format="float"/>
+        <attr name="springStiffness" format="float" />
+        <attr name="springDamping" format="float" />
+        <attr name="springStopThreshold" format="float" />
+        <attr name="springBoundary" format="flags">
+            <flag name="overshoot" value="0" />
+            <flag name="bounceStart" value="1" />
+            <flag name="bounceEnd" value="2" />
+            <flag name="bounceBoth" value="3" />
+        </attr>
+        <attr name="dragDirection" />
+        <attr name="touchAnchorId" />
+        <attr name="touchAnchorSide" />
+        <attr name="rotationCenterId" format="reference" />
+        <attr name="touchRegionId" format="reference" />
+        <attr name="limitBoundsTo" format="reference" />
+        <attr name="nestedScrollFlags" format="flags">
+            <flag name="none" value="0" />
+            <flag name="disablePostScroll" value="1" />
+            <flag name="disableScroll" value="2" />
+            <flag name="supportScrollUp" value="4" />
+        </attr>
+        <attr name="moveWhenScrollAtTop" format="boolean" />
+        <attr name="onTouchUp" format="enum">
+            <enum name="autoComplete" value="0" />
+            <enum name="autoCompleteToStart" value="1" />
+            <enum name="autoCompleteToEnd" value="2" />
+            <enum name="stop" value="3" />
+            <enum name="decelerate" value="4" />
+            <enum name="decelerateAndComplete" value="5" />
+            <enum name="neverCompleteToStart" value="6" />
+            <enum name="neverCompleteToEnd" value="7" />
+        </attr>
+
+    </declare-styleable>
+
+    <declare-styleable name="OnClick">
+        <attr name="targetId" />
+        <attr name="clickAction">
+            <flag name="toggle" value="0x0011" />
+            <flag name="transitionToEnd" value="0x0001" />
+            <flag name="transitionToStart" value="0x0010" />
+            <flag name="jumpToEnd" value="0x100" />
+            <flag name="jumpToStart" value="0x1000" />
+        </attr>
+    </declare-styleable>
+
+    <!--============================================================-->
+    <!--the new pattern contained in a key frames -->
+    <!--============================================================-->
+    <declare-styleable name="KeyFrame">
+
+    </declare-styleable>
+    <attr name="targetId" format="reference" />
+
+    <!--defines interpolation of attributes affecting the look of the view and custom attributes -->
+
+    <declare-styleable name="KeyAttribute">
+        <attr name="framePosition" />
+        <attr name="motionTarget" />
+        <attr name="transitionEasing" />
+        <attr name="curveFit" />
+
+        <attr name="motionProgress" />
+
+        <!-- interpolated -->
+        <attr name="android:alpha" />
+        <attr name="android:elevation" />
+        <attr name="android:rotation" />
+        <attr name="android:rotationX" />
+        <attr name="android:rotationY" />
+        <attr name="android:transformPivotX" />
+        <attr name="android:transformPivotY" />
+        <attr name="transformPivotTarget" />
+
+        <attr name="transitionPathRotate" />
+        <attr name="android:scaleX" />
+        <attr name="android:scaleY" />
+        <attr name="android:translationX" />
+        <attr name="android:translationY" />
+        <attr name="android:translationZ" />
+    </declare-styleable>
+
+
+    <declare-styleable name="KeyPosition">
+        <!-- How this keyframe's deviation for linear path is calculated. -->
+        <attr name="keyPositionType" format="enum">
+            <enum name="deltaRelative" value="0" />
+            <enum name="pathRelative" value="1" />
+            <enum name="parentRelative" value="2" />
+            <enum name="axisRelative" value="3" />
+        </attr>
+
+        <!--  Percent distance from start to end along X axis (deltaRelative)
+              or along the path in pathRelative. -->
+        <attr name="percentX" format="float" />
+
+        <!-- Percent distance from start to end along Y axis (deltaRelative)
+             or perpendicular to the path in pathRelative. -->
+        <attr name="percentY" format="float" />
+
+        <!-- Percent of change in the width. Note if the width does not change this has no effect.
+            This overrides sizePercent. -->
+        <attr name="percentWidth" format="float" />
+
+        <!-- Percent of change in the width. Note if the width does not change this has no effect.
+            This overrides sizePercent. -->
+        <attr name="percentHeight" format="float" />
+        <attr name="framePosition" />
+        <attr name="motionTarget" />
+        <attr name="transitionEasing" />
+        <attr name="pathMotionArc" />
+        <attr name="curveFit" />
+        <attr name="drawPath" />
+        <attr name="sizePercent" />
+    </declare-styleable>
+
+    <declare-styleable name="KeyCycle">
+        <attr name="motionTarget" />
+        <attr name="curveFit" />
+        <attr name="framePosition" />
+        <attr name="transitionEasing" />
+        <attr name="motionProgress" />
+        <attr name="waveShape" />
+        <attr name="wavePhase" />
+        <attr name="wavePeriod" />
+        <attr name="waveOffset" />
+        <attr name="waveVariesBy" />
+        <attr name="transitionPathRotate" />
+        <attr name="android:alpha" />
+        <attr name="android:elevation" />
+        <attr name="android:rotation" />
+        <attr name="android:rotationX" />
+        <attr name="android:rotationY" />
+        <attr name="android:scaleX" />
+        <attr name="android:scaleY" />
+        <attr name="android:translationX" />
+        <attr name="android:translationY" />
+        <attr name="android:translationZ" />
+    </declare-styleable>
+
+    <declare-styleable name="KeyTimeCycle">
+        <attr name="framePosition" />
+        <attr name="motionTarget" />
+        <attr name="transitionEasing" />
+        <attr name="curveFit" />
+        <attr name="waveShape" />
+        <attr name="wavePeriod" />
+        <attr name="motionProgress" />
+        <attr name="waveOffset" />
+        <attr name="wavePhase" />
+
+        <!--  The time in milliseconds before the wave decays to less than 1/256-->
+        <attr name="waveDecay" />
+
+        <!-- interpolated -->
+        <attr name="android:alpha" />
+        <attr name="android:elevation" />
+        <attr name="android:rotation" />
+        <attr name="android:rotationX" />
+        <attr name="android:rotationY" />
+        <attr name="transitionPathRotate" />
+        <attr name="android:scaleX" />
+        <attr name="android:scaleY" />
+        <attr name="android:translationX" />
+        <attr name="android:translationY" />
+        <attr name="android:translationZ" />
+    </declare-styleable>
+
+    <!--TBD-->
+    <declare-styleable name="KeyFramesVelocity">
+
+    </declare-styleable>
+    <!--TBD-->
+    <declare-styleable name="KeyFramesAcceleration">
+
+    </declare-styleable>
+    <!--the new pattern contained in a key frames -->
+    <attr name="borderRound" format="dimension" />
+    <attr name="borderRoundPercent" format="float" />
+    <attr name="textOutlineThickness" format="dimension" />
+    <attr name="textOutlineColor" format="color" />
+
+    <declare-styleable name="CustomAttribute">
+        <attr name="attributeName" format="string" />
+        <attr name="methodName" format="string" />
+        <attr name="customColorValue" format="color" />
+        <attr name="customColorDrawableValue" format="color" />
+        <attr name="customIntegerValue" format="integer" />
+        <attr name="customFloatValue" format="float" />
+        <attr name="customStringValue" format="string" />
+        <attr name="customDimension" format="dimension" />
+        <attr name="customPixelDimension" format="dimension" />
+        <attr name="customBoolean" format="boolean" />
+        <attr name="customReference" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="StateSet">
+        <attr name="defaultState" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="State">
+        <attr name="android:id" />
+        <attr name="constraints" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="Variant">
+        <attr name="region_widthLessThan" format="dimension" />
+        <attr name="region_widthMoreThan" format="dimension" />
+        <attr name="region_heightLessThan" format="dimension" />
+        <attr name="region_heightMoreThan" format="dimension" />
+        <attr name="constraints" />
+    </declare-styleable>
+
+    <declare-styleable name="ImageFilterView">
+        <attr name="blendSrc" format="reference" />
+        <attr name="altSrc" format="reference" />
+        <attr name="saturation" format="float" />
+        <attr name="brightness" format="float" />
+        <attr name="warmth" format="float" />
+        <attr name="contrast" format="float" />
+        <attr name="crossfade" format="float" />
+        <attr name="round" format="dimension" />
+        <attr name="overlay" format="boolean" />
+        <attr name="roundPercent" format="float" />
+        <attr name="imagePanX" format="float" />
+        <attr name="imagePanY" format="float" />
+        <attr name="imageZoom" format="float" />
+        <attr name="imageRotate" format="float" />
+    </declare-styleable>
+
+
+
+    <declare-styleable name="MotionLabel">
+        <attr name="android:text" />
+        <attr name="android:textColor" />
+        <attr name="android:textSize" />
+        <attr name="android:fontFamily" />
+        <attr name="android:gravity" />
+        <attr name="textPanX" format="float" />
+        <attr name="textPanY" format="float"/>
+        <attr name="android:typeface" />
+        <attr name="android:shadowRadius" />
+        <attr name="android:textStyle" />
+        <attr name="borderRound" />
+        <attr name="scaleFromTextSize" format="dimension" />
+        <attr name="borderRoundPercent" />
+        <attr name="textOutlineThickness" />
+        <attr name="textOutlineColor" />
+        <attr name="textBackground" format="reference"/>
+        <attr name="android:autoSizeTextType"/>
+        <attr name="textureWidth" format="dimension" />
+        <attr name="textureHeight" format="dimension" />
+        <attr name="textureBlurFactor" format="integer" />
+        <attr name="textBackgroundPanX" format="float" />
+        <attr name="textBackgroundPanY" format="float" />
+        <attr name="textBackgroundZoom" format="float" />
+        <attr name="textBackgroundRotate" format="float" />
+        <attr name="textureEffect" format="enum" >
+            <enum name="none" value="0" />
+            <enum name="frost" value="1" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="TextEffects">
+        <attr name="android:text" />
+        <attr name="android:textSize" />
+        <attr name="android:fontFamily" />
+        <attr name="android:typeface" />
+        <attr name="android:shadowColor" />
+        <attr name="android:shadowDx" />
+        <attr name="android:shadowDy" />
+        <attr name="android:shadowRadius" />
+        <attr name="android:textStyle" />
+        <attr name="textFillColor" format="color" />
+        <attr name="textOutlineThickness" />
+        <attr name="textOutlineColor" />
+        <attr name="borderRound" />
+        <attr name="borderRoundPercent" />
+    </declare-styleable>
+
+    <declare-styleable name="Layout">
+
+        <attr name="android:layout_width" />
+        <attr name="android:layout_height" />
+        <attr name="layout_constraintWidth" />
+        <attr name="layout_constraintHeight" />
+
+        <attr name="android:layout_marginStart" />
+
+        <attr name="android:layout_marginBottom" />
+
+        <attr name="android:layout_marginTop" />
+
+        <attr name="android:layout_marginEnd" />
+
+        <attr name="android:layout_marginLeft" />
+
+        <attr name="android:layout_marginRight" />
+
+        <attr name="layout_constraintCircle" />
+        <attr name="layout_constraintCircleRadius" />
+        <attr name="layout_constraintCircleAngle" />
+        <attr name="layout_constraintGuide_begin" />
+        <attr name="layout_constraintGuide_end" />
+        <attr name="layout_constraintGuide_percent" />
+        <attr name="guidelineUseRtl" />
+        <attr name="layout_constraintLeft_toLeftOf" />
+        <attr name="layout_constraintLeft_toRightOf" />
+        <attr name="layout_constraintRight_toLeftOf" />
+        <attr name="layout_constraintRight_toRightOf" />
+        <attr name="layout_constraintTop_toTopOf" />
+        <attr name="layout_constraintTop_toBottomOf" />
+        <attr name="layout_constraintBottom_toTopOf" />
+        <attr name="layout_constraintBottom_toBottomOf" />
+        <attr name="layout_constraintBaseline_toBaselineOf" />
+        <attr name="layout_constraintBaseline_toTopOf" />
+        <attr name="layout_constraintBaseline_toBottomOf" />
+        <attr name="layout_constraintStart_toEndOf" />
+        <attr name="layout_constraintStart_toStartOf" />
+        <attr name="layout_constraintEnd_toStartOf" />
+        <attr name="layout_constraintEnd_toEndOf" />
+        <attr name="layout_goneMarginLeft" />
+        <attr name="layout_goneMarginTop" />
+        <attr name="layout_goneMarginRight" />
+        <attr name="layout_goneMarginBottom" />
+        <attr name="layout_goneMarginStart" />
+        <attr name="layout_goneMarginEnd" />
+        <attr name="layout_goneMarginBaseline" />
+        <attr name="layout_marginBaseline" />
+        <attr name="layout_constrainedWidth" />
+        <attr name="layout_constrainedHeight" />
+        <attr name="layout_constraintHorizontal_bias" />
+        <attr name="layout_constraintVertical_bias" />
+        <attr name="layout_constraintWidth_default" />
+        <attr name="layout_constraintHeight_default" />
+        <attr name="layout_constraintWidth_min" />
+        <attr name="layout_constraintWidth_max" />
+        <attr name="android:orientation" />
+        <attr name="layout_constraintWidth_percent" />
+        <attr name="layout_constraintHeight_min" />
+        <attr name="layout_constraintHeight_max" />
+        <attr name="layout_constraintHeight_percent" />
+        <attr name="layout_constraintLeft_creator" />
+        <attr name="layout_constraintTop_creator" />
+        <attr name="layout_constraintRight_creator" />
+        <attr name="layout_constraintBottom_creator" />
+        <attr name="layout_constraintBaseline_creator" />
+        <attr name="layout_constraintDimensionRatio" />
+        <attr name="layout_constraintHorizontal_weight" />
+        <attr name="layout_constraintVertical_weight" />
+        <attr name="layout_constraintHorizontal_chainStyle" />
+        <attr name="layout_constraintVertical_chainStyle" />
+        <attr name="layout_editor_absoluteX" />
+        <attr name="layout_editor_absoluteY" />
+        <attr name="layout_wrapBehaviorInParent" />
+        <attr name="barrierDirection" />
+        <attr name="barrierMargin" />
+        <attr name="constraint_referenced_ids" />
+        <attr name="constraint_referenced_tags" />
+        <attr name="maxHeight" format="dimension" />
+        <attr name="maxWidth" format="dimension" />
+        <attr name="minHeight" format="dimension" />
+        <attr name="minWidth" format="dimension" />
+        <attr name="barrierAllowsGoneWidgets" />
+        <attr name="chainUseRtl" />
+    </declare-styleable>
+
+    <declare-styleable name="PropertySet">
+        <!-- Controls the initial visibility of the view.  -->
+        <attr name="android:visibility" />
+        <attr name="visibilityMode" />
+
+        <!-- alpha property of the view, as a value between 0 (completely transparent) and 1
+             (completely opaque). -->
+        <attr name="android:alpha" />
+
+        <!-- calls setProgress(float) on the view if the method exist -->
+        <attr name="motionProgress" />
+        <attr name="layout_constraintTag" />
+    </declare-styleable>
+
+    <declare-styleable name="Transform">
+        <!-- base z depth of the view. -->
+        <attr name="android:elevation" />
+
+        <!-- rotation of the view, in degrees. -->
+        <attr name="android:rotation" />
+
+        <!-- rotation of the view around the x axis, in degrees. -->
+        <attr name="android:rotationX" />
+
+        <!-- rotation of the view around the y axis, in degrees. -->
+        <attr name="android:rotationY" />
+
+        <!-- scale of the view in the x direction. -->
+        <attr name="android:scaleX" />
+
+        <!-- scale of the view in the y direction. -->
+        <attr name="android:scaleY" />
+
+        <!--  x location of the pivot point around which the view will rotate and scale.
+     This xml attribute sets the pivotX property of the View. -->
+        <attr name="android:transformPivotX" />
+
+        <!--   y location of the pivot point around which the view will rotate and scale.
+             This xml attribute sets the pivotY property of the View. -->
+        <attr name="android:transformPivotY" />
+
+        <attr name="transformPivotTarget" />
+
+        <!-- translation in x of the view. This value is added post-layout to the left
+           property of the view, which is set by its layout. -->
+        <attr name="android:translationX" format="dimension" />
+
+        <!-- translation in y of the view. This value is added post-layout to the top
+       property of the view, which is set by its layout. -->
+        <attr name="android:translationY" format="dimension" />
+
+        <!-- translation in z of the view. This value is added to its elevation. -->
+        <attr name="android:translationZ" format="dimension" />
+
+    </declare-styleable>
+
+    <declare-styleable name="Motion">
+        <attr name="animateRelativeTo" />
+        <attr name="animateCircleAngleTo" />
+        <attr name="transitionEasing" />
+        <attr name="pathMotionArc" />
+        <attr name="motionPathRotate" />
+        <attr name="motionStagger" />
+        <attr name="drawPath" />
+        <attr name="quantizeMotionSteps" />
+        <attr name="quantizeMotionPhase" />
+        <attr name="quantizeMotionInterpolator" />
+
+    </declare-styleable>
+
+    <declare-styleable name="KeyTrigger">
+        <attr name="framePosition" />
+        <attr name="motionTarget" />
+        <attr name="triggerReceiver" format="reference" />
+        <attr name="onNegativeCross" format="string" />
+        <attr name="onPositiveCross" format="string" />
+        <attr name="onCross" format="string" />
+        <attr name="viewTransitionOnNegativeCross" format="reference" />
+        <attr name="viewTransitionOnPositiveCross" format="reference" />
+        <attr name="viewTransitionOnCross" format="reference" />
+        <attr name="triggerSlack" format="float" />
+        <!-- The id of this trigger use when a callback listens for triggers -->
+        <attr name="triggerId" format="reference" />
+        <attr name="motion_postLayoutCollision" format="boolean" />
+        <!-- Trigger if the motionTarget collides with the other motionTarget-->
+        <attr name="motion_triggerOnCollision" format="reference" />
+    </declare-styleable>
+    <declare-styleable name="include">
+        <attr name="constraintSet" />
+    </declare-styleable>
+    <!-- ===================================ViewTransitions================================== -->
+
+    <attr name="onStateTransition" format="enum">
+        <enum name="actionDown" value="1" />
+        <enum name="actionUp" value="2" />
+        <enum name="actionDownUp" value="3" />
+        <enum name="sharedValueSet" value="4" />
+        <enum name="sharedValueUnset" value="5" />
+    </attr>
+
+    <attr name="viewTransitionMode" format="enum">
+        <enum name="currentState" value="0" />
+        <enum name="allStates" value="1" />
+        <!--        Operates independently of the rest of MotionLayout constraint set system -->
+        <enum name="noState" value="2" />
+    </attr>
+
+    <declare-styleable name="ViewTransition">
+        <attr name="android:id" />
+        <attr name="motionTarget" />
+        <attr name="viewTransitionMode" />
+        <attr name="onStateTransition" />
+        <attr name="duration" />
+        <attr name="upDuration" format="integer" />
+        <attr name="transitionDisable" />
+        <attr name="pathMotionArc" />
+        <attr name="motionInterpolator" />
+        <attr name="SharedValueId" format="reference"/>
+        <attr name="SharedValue" format="integer"/>
+        <attr name="setsTag" format="reference"/>
+        <attr name="clearsTag" format="reference"/>
+        <attr name="ifTagSet" format="reference"/>
+        <attr name="ifTagNotSet" format="reference"/>
+    </declare-styleable>
+</resources>

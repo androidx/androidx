@@ -19,40 +19,42 @@ package androidx.compose.ui.test
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.os.Build
 import android.view.View
 import android.view.Window
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.android.captureRegionToImage
+import androidx.compose.ui.test.android.forceRedraw
 import androidx.compose.ui.window.DialogWindowProvider
+import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.math.roundToInt
 
 /**
- * Captures the underlying semantics node's surface into bitmap.
+ * Captures the underlying semantics node's surface into bitmap. This can be used to capture
+ * nodes in a normal composable, a dialog if API >=28 and in a Popup. Note that the mechanism
+ * used to capture the bitmap from a Popup is not the same as from a normal composable, since
+ * a PopUp is in a different window.
  *
- * This has a limitation that if there is another window covering part of this node, such a
- * window won't occur in this bitmap.
- *
- * @throws IllegalArgumentException if a bitmap is taken inside of a popup.
-*/
+ * @throws IllegalArgumentException if we attempt to capture a bitmap of a dialog before API 28.
+ */
+@OptIn(ExperimentalTestApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
     val node = fetchSemanticsNode("Failed to capture a node to bitmap.")
-    // TODO(b/207828394): Consider doing assertIsDisplayed here. Will need to move things around.
-
-    // Validate we are not in popup
+    // Validate we are in popup
     val popupParentMaybe = node.findClosestParentNode(includeSelf = true) {
         it.config.contains(SemanticsProperties.IsPopup)
     }
     if (popupParentMaybe != null) {
-        // We do not support capturing popups to bitmap
-        throw IllegalArgumentException(
-            "The node that is being captured to bitmap is in " +
-                "a popup or is a popup itself. Popups currently cannot be captured to bitmap."
-        )
+        return processMultiWindowScreenshot(node, testContext)
     }
 
     val view = (node.root as ViewRootForTest).view
@@ -77,7 +79,7 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
     val windowToUse = dialogWindow ?: view.context.getActivityWindow()
 
     val nodeBounds = node.boundsInRoot
-    val nodeBoundsRect = android.graphics.Rect(
+    val nodeBoundsRect = Rect(
         nodeBounds.left.roundToInt(),
         nodeBounds.top.roundToInt(),
         nodeBounds.right.roundToInt(),
@@ -95,7 +97,44 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
     return windowToUse.captureRegionToImage(testContext, nodeBoundsRect)
 }
 
-private fun findDialogWindowProviderInParent(view: View): DialogWindowProvider? {
+@ExperimentalTestApi
+@RequiresApi(Build.VERSION_CODES.O)
+private fun processMultiWindowScreenshot(
+    node: SemanticsNode,
+    testContext: TestContext
+): ImageBitmap {
+
+    (node.root as ViewRootForTest).view.forceRedraw(testContext)
+
+    val nodePositionInScreen = findNodePosition(node)
+    val nodeBoundsInRoot = node.boundsInRoot
+
+    val combinedBitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+
+    val finalBitmap = Bitmap.createBitmap(
+        combinedBitmap,
+        (nodePositionInScreen.x + nodeBoundsInRoot.left).roundToInt(),
+        (nodePositionInScreen.y + nodeBoundsInRoot.top).roundToInt(),
+        nodeBoundsInRoot.width.roundToInt(),
+        nodeBoundsInRoot.height.roundToInt()
+    )
+    return finalBitmap.asImageBitmap()
+}
+
+@OptIn(InternalTestApi::class)
+private fun findNodePosition(
+    node: SemanticsNode
+): Offset {
+    val view = (node.root as ViewRootForTest).view
+    val locationOnScreen = intArrayOf(0, 0)
+    view.getLocationOnScreen(locationOnScreen)
+    val x = locationOnScreen[0]
+    val y = locationOnScreen[1]
+
+    return Offset(x.toFloat(), y.toFloat())
+}
+
+internal fun findDialogWindowProviderInParent(view: View): DialogWindowProvider? {
     if (view is DialogWindowProvider) {
         return view
     }

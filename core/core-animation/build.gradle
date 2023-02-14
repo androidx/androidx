@@ -35,7 +35,6 @@ androidx {
     name = "Android Support Animation"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CORE_ANIMATION
-    mavenGroup = LibraryGroups.CORE
     inceptionYear = "2018"
     description = "This library provides functionalities for creating and manipulating animations for API 14 and above."
 }

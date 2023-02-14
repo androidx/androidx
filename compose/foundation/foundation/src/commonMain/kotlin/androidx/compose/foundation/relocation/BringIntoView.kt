@@ -35,7 +35,6 @@ internal val ModifierLocalBringIntoViewParent = modifierLocalOf<BringIntoViewPar
  * [ModifierLocalBringIntoViewParent]s above a [BringIntoViewChildModifier]. The value returned by
  * this function should be passed to the [BringIntoViewChildModifier] constructor.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal expect fun rememberDefaultBringIntoViewParent(): BringIntoViewParent
 
@@ -45,14 +44,21 @@ internal expect fun rememberDefaultBringIntoViewParent(): BringIntoViewParent
  */
 internal fun interface BringIntoViewParent {
     /**
-     * Scrolls this node's content so that [rect] will be in visible bounds. Must ensure that the
+     * Scrolls this node's content so that [boundsProvider] will be in visible bounds. Must ensure that the
      * request is propagated up to the parent node.
      *
-     * @param rect The rectangle to bring into view, relative to [childCoordinates].
+     * This method will not return until this request has been satisfied or interrupted by a
+     * newer request.
+     *
      * @param childCoordinates The [LayoutCoordinates] of the child node making the request. This
-     * parent can use these [LayoutCoordinates] to translate [rect] into its own coordinates.
+     * parent can use these [LayoutCoordinates] to translate [boundsProvider] into its own
+     * coordinates.
+     * @param boundsProvider A function returning the rectangle to bring into view, relative to
+     * [childCoordinates]. The function may return a different value over time, if the bounds of the
+     * request change while the request is being processed. If the rectangle cannot be calculated,
+     * e.g. because [childCoordinates] is not attached, return null.
      */
-    suspend fun bringChildIntoView(rect: Rect, childCoordinates: LayoutCoordinates)
+    suspend fun bringChildIntoView(childCoordinates: LayoutCoordinates, boundsProvider: () -> Rect?)
 }
 
 /**
@@ -65,7 +71,6 @@ internal fun interface BringIntoViewParent {
  * [ModifierLocalBringIntoViewParent] available to read. This parent should always be obtained by
  * calling [rememberDefaultBringIntoViewParent] to support platform-specific integration.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal abstract class BringIntoViewChildModifier(
     private val defaultParent: BringIntoViewParent
 ) : ModifierLocalConsumer,

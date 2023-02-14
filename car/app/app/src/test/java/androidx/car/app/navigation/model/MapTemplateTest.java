@@ -194,17 +194,17 @@ public class MapTemplateTest {
     }
 
     @Test
-    public void setPane_rowWithToggle_throws() {
+    public void setPane_rowWithToggle() {
         Row rowWithToggle = new Row.Builder()
                 .setTitle("Title")
                 .setToggle(new Toggle.Builder(isChecked -> {
                 }).build())
                 .build();
-        assertThrows(IllegalArgumentException.class,
-                () -> new MapTemplate.Builder()
+
+        new MapTemplate.Builder()
                         .setHeader(DEFAULT_HEADER)
                         .setPane(new Pane.Builder().addRow(rowWithToggle).build())
-                        .build());
+                        .build();
     }
 
     @Test
@@ -232,23 +232,6 @@ public class MapTemplateTest {
         new MapTemplate.Builder()
                 .setHeader(DEFAULT_HEADER)
                 .setPane(new Pane.Builder().addRow(rowMeetingRestrictions).build())
-                .build();
-    }
-
-    @Test
-    public void addList_selectable_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new MapTemplate.Builder()
-                                .setHeader(DEFAULT_HEADER)
-                                .setItemList(TestUtils.createItemListWithDistanceSpan(6, true,
-                                        mDistanceSpan))
-                                .build());
-
-        new MapTemplate.Builder()
-                .setHeader(DEFAULT_HEADER)
-                .setItemList(TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
                 .build();
     }
 
@@ -289,7 +272,7 @@ public class MapTemplateTest {
     }
 
     @Test
-    public void addList_hasToggle_throws() {
+    public void addList_hasToggle() {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
         Header header = new Header.Builder()
@@ -299,13 +282,10 @@ public class MapTemplateTest {
                 new Row.Builder().setTitle(title).setToggle(new Toggle.Builder(isChecked -> {
                 }).build()).build();
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new MapTemplate.Builder()
-                                .setHeader(header)
-                                .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
-                                .build());
+        new MapTemplate.Builder()
+                .setHeader(header)
+                .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
+                .build();
     }
 
     @Test
@@ -391,6 +371,33 @@ public class MapTemplateTest {
 
         assertThat(template.getMapController()).isEqualTo(mapController);
         assertThat(template.getItemList()).isEqualTo(itemList);
+        assertThat(template.getPane()).isNull();
+        assertThat(template.getHeader()).isEqualTo(header);
+        assertThat(template.getActionStrip()).isEqualTo(actionStrip);
+    }
+
+    @Test
+    public void createInstanceWithSelectableItemList() {
+        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
+        String title = "title";
+        Header header = new Header.Builder()
+                .setTitle(title)
+                .setStartHeaderAction(Action.BACK)
+                .build();
+        MapController mapController = new MapController.Builder()
+                .setMapActionStrip(mMapActionStrip)
+                .build();
+        ItemList itemList = TestUtils.createItemListWithDistanceSpan(6, true, mDistanceSpan);
+        MapTemplate template = new MapTemplate.Builder()
+                .setMapController(mapController)
+                .setItemList(itemList)
+                .setHeader(header)
+                .setActionStrip(actionStrip)
+                .build();
+
+        assertThat(template.getMapController()).isEqualTo(mapController);
+        assertThat(template.getItemList()).isEqualTo(itemList);
+        assertThat(template.getItemList().getSelectedIndex()).isEqualTo(0);
         assertThat(template.getPane()).isNull();
         assertThat(template.getHeader()).isEqualTo(header);
         assertThat(template.getActionStrip()).isEqualTo(actionStrip);

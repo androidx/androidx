@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -28,12 +30,13 @@ android {
 
 dependencies {
     implementation(project(":car:app:app"))
-    implementation("com.squareup.leakcanary:leakcanary-android:2.7")
+    debugImplementation(libs.leakcanary)
 
     implementation("androidx.core:core:1.7.0")
-    implementation(project(":annotation:annotation-experimental"))
+    implementation "androidx.annotation:annotation-experimental:1.2.0"
     // There is an implicit compile-only dep due to :annotation-experimental
     // Build will complain without this manual declaration.
     compileOnly libs.kotlinStdlib
 }
+
 

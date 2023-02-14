@@ -20,8 +20,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -36,6 +36,7 @@ import android.os.Build;
 import android.os.PersistableBundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.TaskExecutor;
 import androidx.test.core.app.ApplicationProvider;
@@ -112,15 +113,14 @@ public class SystemJobServiceTest extends WorkManagerTest {
                 context,
                 configuration,
                 taskExecutor,
-                mDatabase,
-                schedulers);
+                mDatabase);
 
         mWorkManagerImpl = new WorkManagerImpl(
                 context, configuration, taskExecutor, mDatabase, schedulers, mProcessor);
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mSystemJobServiceSpy = spy(new SystemJobService());
         doReturn(context).when(mSystemJobServiceSpy).getApplicationContext();
-        doNothing().when(mSystemJobServiceSpy).onExecuted(anyString(), anyBoolean());
+        doNothing().when(mSystemJobServiceSpy).onExecuted(any(), anyBoolean());
         mSystemJobServiceSpy.onCreate();
     }
 
@@ -286,6 +286,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
     }
 
+    @RequiresApi(24)
     public static class ContentUriTriggerLoggingWorker extends Worker {
 
         static int sTimesUpdated = 0;
@@ -308,6 +309,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         }
     }
 
+    @RequiresApi(28)
     public static class NetworkLoggingWorker extends Worker {
 
         static int sTimesUpdated = 0;

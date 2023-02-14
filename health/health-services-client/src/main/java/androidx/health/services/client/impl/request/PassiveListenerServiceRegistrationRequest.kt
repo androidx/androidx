@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,13 +34,12 @@ internal class PassiveListenerServiceRegistrationRequest(
     public val passiveListenerConfig: PassiveListenerConfig,
 ) : ProtoParcelable<RequestsProto.PassiveListenerServiceRegistrationRequest>() {
 
-    override val proto: RequestsProto.PassiveListenerServiceRegistrationRequest by lazy {
+    override val proto: RequestsProto.PassiveListenerServiceRegistrationRequest =
         RequestsProto.PassiveListenerServiceRegistrationRequest.newBuilder()
             .setPackageName(packageName)
             .setListenerServiceClass(passiveListenerServiceClassName)
             .setConfig(passiveListenerConfig.proto)
             .build()
-    }
 
     public companion object {
         @JvmField

@@ -127,6 +127,7 @@ package androidx.leanback.widget {
   public final class GridLayoutManager extends androidx.recyclerview.widget.RecyclerView.LayoutManager {
     ctor public GridLayoutManager();
     method public androidx.recyclerview.widget.RecyclerView.LayoutParams generateDefaultLayoutParams();
+    method public void setFocusOutAllowed(boolean, boolean);
     method public void setOrientation(int);
   }
 

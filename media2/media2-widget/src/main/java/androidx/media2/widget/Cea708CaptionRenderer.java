@@ -146,7 +146,7 @@ class Cea708CaptionRenderer extends SubtitleController.Renderer {
         }
 
         @Override
-        public void onDraw(Canvas canvas) {
+        public void onDraw(@NonNull Canvas canvas) {
             super.onDraw(canvas);
             ((ViewGroup) mClosedCaptionLayout).draw(canvas);
         }
@@ -1138,10 +1138,6 @@ class Cea708CaptionRenderer extends SubtitleController.Renderer {
                     mCCLayout.removeOnLayoutChangeListener(this);
                     mCCLayout = null;
                 }
-            }
-
-            public void setText(String text) {
-                updateText(text, false);
             }
 
             public void appendText(String text) {

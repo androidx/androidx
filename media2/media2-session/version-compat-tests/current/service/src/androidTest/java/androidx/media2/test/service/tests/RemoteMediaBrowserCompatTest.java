@@ -19,12 +19,15 @@ package androidx.media2.test.service.tests;
 import static androidx.media2.test.common.CommonConstants.MOCK_MEDIA2_LIBRARY_SERVICE;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
+import android.os.Build;
 
 import androidx.media2.test.service.RemoteMediaBrowserCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -33,6 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Test {@link RemoteMediaBrowserCompat}. */
+@SdkSuppress(maxSdkVersion = 32) // b/244312419
 @RunWith(AndroidJUnit4.class)
 public class RemoteMediaBrowserCompatTest extends MediaSessionTestBase {
     private Context mContext;
@@ -40,6 +44,9 @@ public class RemoteMediaBrowserCompatTest extends MediaSessionTestBase {
 
     @Before
     public void setUp() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         mContext = ApplicationProvider.getApplicationContext();
         mRemoteBrowserCompat = new RemoteMediaBrowserCompat(mContext, MOCK_MEDIA2_LIBRARY_SERVICE);
     }

@@ -16,29 +16,27 @@
 
 package androidx.camera.core;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.RequiresApi;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /** A {@link ImageProxy} which filters out redundant calls to {@link #close()}. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SingleCloseImageProxy extends ForwardingImageProxy {
-    @GuardedBy("this")
-    private boolean mClosed = false;
+    private final AtomicBoolean mClosed = new AtomicBoolean(false);
 
     /**
      * Creates a new instances which wraps the given image.
      *
      * @param image to wrap
-     * @return new {@link SingleCloseImageProxy} instance
      */
     SingleCloseImageProxy(ImageProxy image) {
         super(image);
     }
 
     @Override
-    public synchronized void close() {
-        if (!mClosed) {
-            mClosed = true;
+    public void close() {
+        if (!mClosed.getAndSet(true)) {
             super.close();
         }
     }

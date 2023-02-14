@@ -16,7 +16,7 @@
 
 package androidx.camera.extensions.internal;
 
-import android.content.Context;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,10 +39,9 @@ public final class ExtensionsUseCaseConfigFactory implements UseCaseConfigFactor
 
     public ExtensionsUseCaseConfigFactory(
             @ExtensionMode.Mode int mode,
-            @NonNull VendorExtender vendorExtender,
-            @NonNull Context context) {
-        mImageCaptureConfigProvider = new ImageCaptureConfigProvider(mode, vendorExtender, context);
-        mPreviewConfigProvider = new PreviewConfigProvider(mode, vendorExtender, context);
+            @NonNull VendorExtender vendorExtender) {
+        mImageCaptureConfigProvider = new ImageCaptureConfigProvider(mode, vendorExtender);
+        mPreviewConfigProvider = new PreviewConfigProvider(mode, vendorExtender);
     }
 
     /**
@@ -72,6 +71,9 @@ public final class ExtensionsUseCaseConfigFactory implements UseCaseConfigFactor
             default:
                 return null;
         }
+
+        // Disable ZSL when Extension is ON.
+        mutableOptionsBundle.insertOption(OPTION_ZSL_DISABLED, true);
 
         return OptionsBundle.from(mutableOptionsBundle);
     }

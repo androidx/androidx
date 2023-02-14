@@ -22,22 +22,22 @@ import androidx.annotation.RestrictTo
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface StartActivityAction : Action {
-    abstract val parameters: ActionParameters
+interface StartActivityAction : Action {
+    val parameters: ActionParameters
 }
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class StartActivityComponentAction(
-    public val componentName: ComponentName,
-    public override val parameters: ActionParameters
+class StartActivityComponentAction(
+    val componentName: ComponentName,
+    override val parameters: ActionParameters
 ) : StartActivityAction
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class StartActivityClassAction(
-    public val activityClass: Class<out Activity>,
-    public override val parameters: ActionParameters
+class StartActivityClassAction(
+    val activityClass: Class<out Activity>,
+    override val parameters: ActionParameters
 ) : StartActivityAction
 
 /**
@@ -47,7 +47,7 @@ public class StartActivityClassAction(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  * the activity intent, keyed by the parameter key name string.
  */
-public fun actionStartActivity(
+fun actionStartActivity(
     componentName: ComponentName,
     parameters: ActionParameters = actionParametersOf()
 ): Action = StartActivityComponentAction(componentName, parameters)
@@ -59,7 +59,7 @@ public fun actionStartActivity(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  * the activity intent, keyed by the parameter key name string.
  */
-public fun <T : Activity> actionStartActivity(
+fun <T : Activity> actionStartActivity(
     activity: Class<T>,
     parameters: ActionParameters = actionParametersOf()
 ): Action = StartActivityClassAction(activity, parameters)
@@ -72,6 +72,6 @@ public fun <T : Activity> actionStartActivity(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  * the activity intent, keyed by the parameter key name string.
  */
-public inline fun <reified T : Activity> actionStartActivity(
+inline fun <reified T : Activity> actionStartActivity(
     parameters: ActionParameters = actionParametersOf()
 ): Action = actionStartActivity(T::class.java, parameters)

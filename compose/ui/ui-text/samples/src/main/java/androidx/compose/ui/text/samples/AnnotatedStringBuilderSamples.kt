@@ -46,7 +46,8 @@ fun AnnotatedStringConstructorSample() {
 
 @Sampled
 fun AnnotatedStringBuilderSample() {
-    with(AnnotatedString.Builder("Hello")) {
+    buildAnnotatedString {
+        append("Hello")
         // push green text style so that any appended text will be green
         pushStyle(SpanStyle(color = Color.Green))
         // append new text, this text will be rendered as green
@@ -63,8 +64,19 @@ fun AnnotatedStringBuilderSample() {
 }
 
 @Sampled
+fun AnnotatedStringBuilderAppendableSample() {
+    val words = listOf("Hello", "World")
+    buildAnnotatedString {
+        // joinTo is a Kotlin stdlib function that takes an Appendable
+        words.joinTo(this, separator = " ", postfix = "!")
+
+        toAnnotatedString()
+    }
+}
+
+@Sampled
 fun AnnotatedStringBuilderPushSample() {
-    with(AnnotatedString.Builder()) {
+    buildAnnotatedString {
         // push green text color so that any appended text will be rendered green
         pushStyle(SpanStyle(color = Color.Green))
         // append string, this text will be rendered green
@@ -96,7 +108,7 @@ fun AnnotatedStringBuilderPushParagraphStyleSample() {
 
 @Sampled
 fun AnnotatedStringBuilderPushStringAnnotationSample() {
-    with(AnnotatedString.Builder()) {
+    buildAnnotatedString {
         // push a string annotation to be applied to any appended text after this point.
         pushStringAnnotation("ParagrapLabel", "paragraph1")
         // append a paragraph, the annotation "paragraph1" is attached
@@ -112,7 +124,7 @@ fun AnnotatedStringBuilderPushStringAnnotationSample() {
 
 @Sampled
 fun AnnotatedStringBuilderWithStyleSample() {
-    with(AnnotatedString.Builder()) {
+    buildAnnotatedString {
         withStyle(SpanStyle(color = Color.Green)) {
             // green text style will be applied to all text in this block
             append("Hello")
@@ -139,7 +151,7 @@ fun AnnotatedStringBuilderLambdaSample() {
 
 @Sampled
 fun AnnotatedStringAddStringAnnotationSample() {
-    with(AnnotatedString.Builder()) {
+    buildAnnotatedString {
         append("link: Jetpack Compose")
         // attach a string annotation that stores a URL to the text "Jetpack Compose".
         addStringAnnotation(

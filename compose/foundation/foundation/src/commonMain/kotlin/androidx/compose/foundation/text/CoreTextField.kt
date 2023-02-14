@@ -21,6 +21,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -33,6 +34,7 @@ import androidx.compose.foundation.text.selection.isSelectionHandleInVisibleBoun
 import androidx.compose.foundation.text.selection.textFieldMagnifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
@@ -41,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusManager
@@ -103,6 +106,7 @@ import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
@@ -150,8 +154,10 @@ import kotlinx.coroutines.launch
  * provided, there will be no cursor drawn
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space.
- * @param maxLines The maximum height in terms of maximum number of visible lines. Should be
- * equal or greater than 1.
+ * @param maxLines The maximum height in terms of maximum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
+ * @param minLines The minimum height in terms of minimum number of visible lines. It is required
+ * that 1 <= [minLines] <= [maxLines].
  * @param imeOptions Contains different IME configuration options.
  * @param keyboardActions when the input service emits an IME action, the corresponding callback
  * is called. Note that this IME action may be different from what you specified in
@@ -181,6 +187,7 @@ internal fun CoreTextField(
     cursorBrush: Brush = SolidColor(Color.Unspecified),
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = DefaultMinLines,
     imeOptions: ImeOptions = ImeOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     enabled: Boolean = true,
@@ -188,7 +195,7 @@ internal fun CoreTextField(
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
         @Composable { innerTextField -> innerTextField() }
 ) {
-    val focusRequester = FocusRequester()
+    val focusRequester = remember { FocusRequester() }
 
     // CompositionLocals
     // If the text field is disabled or read-only, we should not deal with the input service
@@ -208,7 +215,7 @@ internal fun CoreTextField(
 
     // State
     val transformedText = remember(value, visualTransformation) {
-        val transformed = visualTransformation.filter(value.annotatedString)
+        val transformed = visualTransformation.filterWithValidation(value.annotatedString)
         value.composition?.let {
             TextFieldDelegate.applyCompositionDecoration(it, transformed)
         } ?: transformed
@@ -233,6 +240,7 @@ internal fun CoreTextField(
         )
     }
     state.update(
+        value.annotatedString,
         visualText,
         textStyle,
         softWrap,
@@ -281,7 +289,8 @@ internal fun CoreTextField(
                 textInputService,
                 state,
                 value,
-                imeOptions
+                imeOptions,
+                offsetMapping
             )
 
             // The focusable modifier itself will request the entire focusable be brought into view
@@ -307,36 +316,53 @@ internal fun CoreTextField(
         if (!it.isFocused) manager.deselect()
     }
 
+    // Hide the keyboard if made disabled or read-only while focused (b/237308379).
+    if (enabled && !readOnly) {
+        // TODO(b/230536793) This is a workaround since we don't get an explicit focus blur event
+        //  when the text field is removed from the composition entirely.
+        DisposableEffect(state) {
+            onDispose {
+                if (state.hasFocus) {
+                    onBlur(state)
+                }
+            }
+        }
+    }
+
     val pointerModifier = if (isInTouchMode) {
         val selectionModifier =
             Modifier.longPressDragGestureFilter(manager.touchSelectionObserver, enabled)
-        Modifier.tapPressTextFieldModifier(interactionSource, enabled) { offset ->
-            tapToFocus(state, focusRequester, !readOnly)
-            if (state.hasFocus) {
-                if (state.handleState != HandleState.Selection) {
-                    state.layoutResult?.let { layoutResult ->
-                        TextFieldDelegate.setCursorOffset(
-                            offset,
-                            layoutResult,
-                            state.processor,
-                            offsetMapping,
-                            state.onValueChange
-                        )
-                        // Won't enter cursor state when text is empty.
-                        if (state.textDelegate.text.isNotEmpty()) {
-                            state.handleState = HandleState.Cursor
+        Modifier
+            .tapPressTextFieldModifier(interactionSource, enabled) { offset ->
+                tapToFocus(state, focusRequester, !readOnly)
+                if (state.hasFocus) {
+                    if (state.handleState != HandleState.Selection) {
+                        state.layoutResult?.let { layoutResult ->
+                            TextFieldDelegate.setCursorOffset(
+                                offset,
+                                layoutResult,
+                                state.processor,
+                                offsetMapping,
+                                state.onValueChange
+                            )
+                            // Won't enter cursor state when text is empty.
+                            if (state.textDelegate.text.isNotEmpty()) {
+                                state.handleState = HandleState.Cursor
+                            }
                         }
+                    } else {
+                        manager.deselect(offset)
                     }
-                } else {
-                    manager.deselect(offset)
                 }
             }
-        }.then(selectionModifier)
+            .then(selectionModifier)
     } else {
-        Modifier.mouseDragGestureDetector(
-            observer = manager.mouseSelectionObserver,
-            enabled = enabled
-        ).pointerHoverIcon(textPointerIcon)
+        Modifier
+            .mouseDragGestureDetector(
+                observer = manager.mouseSelectionObserver,
+                enabled = enabled
+            )
+            .pointerHoverIcon(textPointerIcon)
     }
 
     val drawModifier = Modifier.drawBehind {
@@ -354,8 +380,8 @@ internal fun CoreTextField(
     }
 
     val onPositionedModifier = Modifier.onGloballyPositioned {
-        if (textInputService != null) {
-            state.layoutCoordinates = it
+        state.layoutCoordinates = it
+        if (enabled) {
             if (state.handleState == HandleState.Selection) {
                 if (state.showFloatingToolbar) {
                     manager.showSelectionToolbar()
@@ -370,6 +396,7 @@ internal fun CoreTextField(
                 state.showCursorHandle =
                     manager.isSelectionHandleInVisibleBound(isStartHandle = true)
             }
+            notifyFocusedRect(state, value, offsetMapping)
         }
         state.layoutResult?.innerTextFieldCoordinates = it
     }
@@ -502,6 +529,7 @@ internal fun CoreTextField(
     // gesture and semantics modifiers.
     val decorationBoxModifier = modifier
         .then(focusModifier)
+        .interceptDPadAndMoveFocus(state, focusManager)
         .previewKeyEventToDeselectOnBack(state, manager)
         .then(textKeyInputModifier)
         .textFieldScrollable(scrollerPosition, interactionSource, enabled)
@@ -523,7 +551,14 @@ internal fun CoreTextField(
             // Modifiers applied directly to the internal input field implementation. In general,
             // these will most likely include draw, layout and IME related modifiers.
             val coreTextFieldModifier = Modifier
-                .maxLinesHeight(maxLines, textStyle)
+                // min height is set for maxLines == 1 in order to prevent text cuts for single line
+                // TextFields
+                .heightIn(min = state.minHeightForSingleLineField)
+                .heightInLines(
+                    textStyle = textStyle,
+                    minLines = minLines,
+                    maxLines = maxLines
+                )
                 .textFieldScroll(
                     scrollerPosition,
                     value,
@@ -545,16 +580,32 @@ internal fun CoreTextField(
                             measurables: List<Measurable>,
                             constraints: Constraints
                         ): MeasureResult {
+                            val prevResult = Snapshot.withoutReadObservation {
+                                state.layoutResult?.value
+                            }
                             val (width, height, result) = TextFieldDelegate.layout(
                                 state.textDelegate,
                                 constraints,
                                 layoutDirection,
-                                state.layoutResult?.value
+                                prevResult
                             )
-                            if (state.layoutResult?.value != result) {
+                            if (prevResult != result) {
                                 state.layoutResult = TextLayoutResultProxy(result)
                                 onTextLayout(result)
+                                notifyFocusedRect(state, value, offsetMapping)
                             }
+
+                            // calculate the min height for single line text to prevent text cuts.
+                            // for single line text maxLines puts in max height constraint based on
+                            // constant characters therefore if the user enters a character that is
+                            // longer (i.e. emoji or a tall script) the text is cut
+                            state.minHeightForSingleLineField = with(density) {
+                                when (maxLines) {
+                                    1 -> result.getLineBottom(0).ceilToIntPx()
+                                    else -> 0
+                                }.toDp()
+                            }
+
                             return layout(
                                 width = width,
                                 height = height,
@@ -639,7 +690,7 @@ internal enum class HandleState {
 
 /**
  * Indicates which handle is being dragged when the user is dragging on a text field handle.
- * @see TextFieldState.draggingHandle
+ * @see TextFieldState.handleState
  */
 internal enum class Handle {
     Cursor,
@@ -677,6 +728,11 @@ internal class TextFieldState(
      */
     var hasFocus by mutableStateOf(false)
 
+    /**
+     * Set to a non-zero value for single line TextFields in order to prevent text cuts.
+     */
+    var minHeightForSingleLineField by mutableStateOf(0.dp)
+
     /** The last layout coordinates for the Text's layout, used by selection */
     var layoutCoordinates: LayoutCoordinates? = null
 
@@ -691,7 +747,23 @@ internal class TextFieldState(
      * position using the [TextFieldValue.selection] value which corresponds to the text directly,
      * and therefore does not require the translation.
      */
-    var layoutResult: TextLayoutResultProxy? = null
+    private val layoutResultState: MutableState<TextLayoutResultProxy?> = mutableStateOf(null)
+    var layoutResult: TextLayoutResultProxy?
+        get() = layoutResultState.value
+        set(value) {
+            layoutResultState.value = value
+            isLayoutResultStale = false
+        }
+
+    /**
+     * [textDelegate] keeps a reference to the visually transformed text that is visible to the
+     * user. TextFieldState needs to have access to the underlying value that is not transformed
+     * while making comparisons that test whether the user input actually changed.
+     *
+     * This field contains the real value that is passed by the user before it was visually
+     * transformed.
+     */
+    var untransformedText: AnnotatedString? = null
 
     /**
      * The gesture detector state, to indicate whether current state is selection, cursor
@@ -735,6 +807,16 @@ internal class TextFieldState(
      */
     var showCursorHandle by mutableStateOf(false)
 
+    /**
+     * TextFieldState holds both TextDelegate and layout result. However, these two values are not
+     * updated at the same time. TextDelegate is updated during composition according to new
+     * arguments while layoutResult is updated during layout phase. Therefore, [layoutResult] might
+     * not indicate the result of [textDelegate] at a given time during composition. This variable
+     * indicates whether layout result is lacking behind the latest TextDelegate.
+     */
+    var isLayoutResultStale: Boolean = true
+        private set
+
     private val keyboardActionRunner: KeyboardActionRunner = KeyboardActionRunner()
 
     /**
@@ -745,7 +827,7 @@ internal class TextFieldState(
     private var onValueChangeOriginal: (TextFieldValue) -> Unit = {}
 
     val onValueChange: (TextFieldValue) -> Unit = {
-        if (it.text != textDelegate.text.text) {
+        if (it.text != untransformedText?.text) {
             // Text has been changed, enter the HandleState.None and hide the cursor handle.
             handleState = HandleState.None
         }
@@ -761,6 +843,7 @@ internal class TextFieldState(
     val selectionPaint: Paint = Paint()
 
     fun update(
+        untransformedText: AnnotatedString,
         visualText: AnnotatedString,
         textStyle: TextStyle,
         softWrap: Boolean,
@@ -776,9 +859,11 @@ internal class TextFieldState(
         this.keyboardActionRunner.apply {
             this.keyboardActions = keyboardActions
             this.focusManager = focusManager
+            this.inputSession = this@TextFieldState.inputSession
         }
+        this.untransformedText = untransformedText
 
-        textDelegate = updateTextDelegate(
+        val newTextDelegate = updateTextDelegate(
             current = textDelegate,
             text = visualText,
             style = textStyle,
@@ -787,6 +872,9 @@ internal class TextFieldState(
             fontFamilyResolver = fontFamilyResolver,
             placeholders = emptyList(),
         )
+
+        if (textDelegate !== newTextDelegate) isLayoutResultStale = true
+        textDelegate = newTextDelegate
     }
 }
 
@@ -805,12 +893,13 @@ private fun tapToFocus(
     }
 }
 
-@OptIn(InternalFoundationTextApi::class, ExperimentalFoundationApi::class)
+@OptIn(InternalFoundationTextApi::class)
 private fun notifyTextInputServiceOnFocusChange(
     textInputService: TextInputService,
     state: TextFieldState,
     value: TextFieldValue,
-    imeOptions: ImeOptions
+    imeOptions: ImeOptions,
+    offsetMapping: OffsetMapping
 ) {
     if (state.hasFocus) {
         state.inputSession = TextFieldDelegate.onFocus(
@@ -821,12 +910,17 @@ private fun notifyTextInputServiceOnFocusChange(
             state.onValueChange,
             state.onImeActionPerformed
         )
+        notifyFocusedRect(state, value, offsetMapping)
     } else {
-        state.inputSession?.let { session ->
-            TextFieldDelegate.onBlur(session, state.processor, state.onValueChange)
-        }
-        state.inputSession = null
+        onBlur(state)
     }
+}
+
+private fun onBlur(state: TextFieldState) {
+    state.inputSession?.let { session ->
+        TextFieldDelegate.onBlur(session, state.processor, state.onValueChange)
+    }
+    state.inputSession = null
 }
 
 /**
@@ -879,9 +973,11 @@ internal suspend fun BringIntoViewRequester.bringSelectionEndIntoView(
 
 @Composable
 private fun SelectionToolbarAndHandles(manager: TextFieldSelectionManager, show: Boolean) {
-    if (show) {
-        with(manager) {
-            state?.layoutResult?.value?.let {
+    with(manager) {
+        if (show) {
+            // Check whether text layout result became stale. A stale text layout might be
+            // completely unrelated to current TextFieldValue, causing offset errors.
+            state?.layoutResult?.value?.takeIf { !(state?.isLayoutResultStale ?: true) }?.let {
                 if (!value.selection.collapsed) {
                     val startOffset = offsetMapping.originalToTransformed(value.selection.start)
                     val endOffset = offsetMapping.originalToTransformed(value.selection.end)
@@ -914,8 +1010,8 @@ private fun SelectionToolbarAndHandles(manager: TextFieldSelectionManager, show:
                     }
                 }
             }
-        }
-    } else manager.hideSelectionToolbar()
+        } else hideSelectionToolbar()
+    }
 }
 
 @Composable
@@ -946,3 +1042,29 @@ internal expect fun CursorHandle(
     modifier: Modifier,
     content: @Composable (() -> Unit)?
 )
+
+// TODO(b/262648050) Try to find a better API.
+@OptIn(InternalFoundationTextApi::class)
+private fun notifyFocusedRect(
+    state: TextFieldState,
+    value: TextFieldValue,
+    offsetMapping: OffsetMapping
+) {
+    // If this reports state reads it causes an invalidation cycle.
+    // This function doesn't need to be invalidated anyway because it's already explicitly called
+    // after updating text layout or position.
+    Snapshot.withoutReadObservation {
+        val layoutResult = state.layoutResult ?: return
+        val inputSession = state.inputSession ?: return
+        val layoutCoordinates = state.layoutCoordinates ?: return
+        TextFieldDelegate.notifyFocusedRect(
+            value,
+            state.textDelegate,
+            layoutResult.value,
+            layoutCoordinates,
+            inputSession,
+            state.hasFocus,
+            offsetMapping
+        )
+    }
+}

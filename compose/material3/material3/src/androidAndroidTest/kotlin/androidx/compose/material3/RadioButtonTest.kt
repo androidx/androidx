@@ -43,7 +43,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class RadioButtonTest {
@@ -286,7 +285,7 @@ class RadioButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumTouchTargetEnforcement provides minimumTouchTarget
+                    LocalMinimumInteractiveComponentEnforcement provides minimumTouchTarget
                 ) {
                     RadioButton(
                         selected = selected, onClick = if (clickable) {

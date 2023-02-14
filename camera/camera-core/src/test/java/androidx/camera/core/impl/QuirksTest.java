@@ -56,6 +56,34 @@ public class QuirksTest {
     }
 
     @Test
+    public void getAllReturnsExactAndInheritedQuirks() {
+        SuperQuirk superQuirk = new SuperQuirk();
+        SubQuirk subQuirk = new SubQuirk();
+
+        List<Quirk> allQuirks = new ArrayList<>();
+        allQuirks.add(superQuirk);
+        allQuirks.add(subQuirk);
+
+        Quirks quirks = new Quirks(allQuirks);
+
+        assertThat(quirks.getAll(SubQuirk.class)).containsExactly(subQuirk);
+        assertThat(quirks.getAll(SuperQuirk.class)).containsExactly(superQuirk, subQuirk);
+    }
+
+    @Test
+    public void getAllReturnsImplementedQuirks() {
+        SubIQuirk subIQuirk = new SubIQuirk();
+
+        List<Quirk> allQuirks = new ArrayList<>();
+        allQuirks.add(subIQuirk);
+
+        Quirks quirks = new Quirks(allQuirks);
+
+        assertThat(quirks.getAll(SubIQuirk.class)).containsExactly(subIQuirk);
+        assertThat(quirks.getAll(ISuperQuirk.class)).containsExactly(subIQuirk);
+    }
+
+    @Test
     public void containsReturnsTrueForExistentQuirk() {
         final Quirk1 quirk1 = new Quirk1();
 

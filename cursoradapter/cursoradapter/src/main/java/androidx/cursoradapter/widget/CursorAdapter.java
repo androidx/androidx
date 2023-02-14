@@ -29,6 +29,9 @@ import android.widget.Filter;
 import android.widget.FilterQueryProvider;
 import android.widget.Filterable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Static library support version of the framework's {@link android.widget.CursorAdapter}.
  * Used to write apps that run on platforms prior to Android 3.0.  When running
@@ -101,7 +104,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      *                    data is always displayed.  Using true here is discouraged.
      */
     @SuppressWarnings("deprecation")
-    public CursorAdapter(Context context, Cursor c, boolean autoRequery) {
+    public CursorAdapter(@NonNull Context context, @Nullable Cursor c, boolean autoRequery) {
         init(context, c, autoRequery ? FLAG_AUTO_REQUERY : FLAG_REGISTER_CONTENT_OBSERVER);
     }
 
@@ -114,7 +117,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * be any combination of {@link #FLAG_AUTO_REQUERY} and
      * {@link #FLAG_REGISTER_CONTENT_OBSERVER}.
      */
-    public CursorAdapter(Context context, Cursor c, int flags) {
+    public CursorAdapter(@NonNull Context context, @Nullable Cursor c, int flags) {
         init(context, c, flags);
     }
 
@@ -129,7 +132,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
     }
 
     @SuppressWarnings("deprecation")
-    void init(Context context, Cursor c, int flags) {
+    void init(@NonNull Context context, @Nullable Cursor c, int flags) {
         // Maintained for compatibility.
         if ((flags & FLAG_AUTO_REQUERY) == FLAG_AUTO_REQUERY) {
             flags |= FLAG_REGISTER_CONTENT_OBSERVER;
@@ -137,11 +140,11 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
         } else {
             mAutoRequery = false;
         }
-        boolean cursorPresent = c != null;
         mCursor = c;
+        boolean cursorPresent = mCursor != null;
         mDataValid = cursorPresent;
         mContext = context;
-        mRowIDColumn = cursorPresent ? c.getColumnIndexOrThrow("_id") : -1;
+        mRowIDColumn = cursorPresent ? mCursor.getColumnIndexOrThrow("_id") : -1;
         if ((flags & FLAG_REGISTER_CONTENT_OBSERVER) == FLAG_REGISTER_CONTENT_OBSERVER) {
             mChangeObserver = new ChangeObserver();
             mDataSetObserver = new MyDataSetObserver();
@@ -151,8 +154,8 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
         }
 
         if (cursorPresent) {
-            if (mChangeObserver != null) c.registerContentObserver(mChangeObserver);
-            if (mDataSetObserver != null) c.registerDataSetObserver(mDataSetObserver);
+            if (mChangeObserver != null) mCursor.registerContentObserver(mChangeObserver);
+            if (mDataSetObserver != null) mCursor.registerDataSetObserver(mDataSetObserver);
         }
     }
 
@@ -161,7 +164,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @return the cursor.
      */
     @Override
-    public Cursor getCursor() {
+    public @Nullable Cursor getCursor() {
         return mCursor;
     }
 
@@ -219,6 +222,10 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
         if (!mDataValid) {
             throw new IllegalStateException("this should only be called when the cursor is valid");
         }
+        if (mCursor == null) {
+            throw new IllegalStateException("this should only be called when the cursor is "
+                    + "non-null");
+        }
         if (!mCursor.moveToPosition(position)) {
             throw new IllegalStateException("couldn't move cursor to position " + position);
         }
@@ -234,7 +241,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
 
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
-        if (mDataValid) {
+        if (mDataValid && mCursor != null) {
             mCursor.moveToPosition(position);
             View v;
             if (convertView == null) {
@@ -257,7 +264,8 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @param parent The parent to which the new view is attached to
      * @return the newly created view.
      */
-    public abstract View newView(Context context, Cursor cursor, ViewGroup parent);
+    public abstract @NonNull View newView(@NonNull Context context, @NonNull Cursor cursor,
+            @Nullable ViewGroup parent);
 
     /**
      * Makes a new drop down view to hold the data pointed to by cursor.
@@ -267,7 +275,8 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @param parent The parent to which the new view is attached to
      * @return the newly created view.
      */
-    public View newDropDownView(Context context, Cursor cursor, ViewGroup parent) {
+    public @NonNull View newDropDownView(@NonNull Context context, @NonNull Cursor cursor,
+            @Nullable ViewGroup parent) {
         return newView(context, cursor, parent);
     }
 
@@ -278,7 +287,8 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @param cursor The cursor from which to get the data. The cursor is already
      * moved to the correct position.
      */
-    public abstract void bindView(View view, Context context, Cursor cursor);
+    public abstract void bindView(@NonNull View view, @NonNull Context context,
+            @NonNull Cursor cursor);
 
     /**
      * Change the underlying cursor to a new cursor. If there is an existing cursor it will be
@@ -287,7 +297,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @param cursor The new cursor to be used
      */
     @Override
-    public void changeCursor(Cursor cursor) {
+    public void changeCursor(@Nullable Cursor cursor) {
         Cursor old = swapCursor(cursor);
         if (old != null) {
             old.close();
@@ -304,7 +314,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * If the given new Cursor is the same instance is the previously set
      * Cursor, null is also returned.
      */
-    public Cursor swapCursor(Cursor newCursor) {
+    public @Nullable Cursor swapCursor(@Nullable Cursor newCursor) {
         if (newCursor == mCursor) {
             return null;
         }
@@ -340,7 +350,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @return a CharSequence representing the value
      */
     @Override
-    public CharSequence convertToString(Cursor cursor) {
+    public @NonNull CharSequence convertToString(@Nullable Cursor cursor) {
         return cursor == null ? "" : cursor.toString();
     }
 
@@ -370,7 +380,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @see #setFilterQueryProvider(android.widget.FilterQueryProvider)
      */
     @Override
-    public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
+    public @Nullable Cursor runQueryOnBackgroundThread(@Nullable CharSequence constraint) {
         if (mFilterQueryProvider != null) {
             return mFilterQueryProvider.runQuery(constraint);
         }
@@ -395,7 +405,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @see #setFilterQueryProvider(android.widget.FilterQueryProvider)
      * @see #runQueryOnBackgroundThread(CharSequence)
      */
-    public FilterQueryProvider getFilterQueryProvider() {
+    public @Nullable FilterQueryProvider getFilterQueryProvider() {
         return mFilterQueryProvider;
     }
 
@@ -411,7 +421,7 @@ public abstract class CursorAdapter extends BaseAdapter implements Filterable,
      * @see #getFilterQueryProvider()
      * @see #runQueryOnBackgroundThread(CharSequence)
      */
-    public void setFilterQueryProvider(FilterQueryProvider filterQueryProvider) {
+    public void setFilterQueryProvider(@Nullable FilterQueryProvider filterQueryProvider) {
         mFilterQueryProvider = filterQueryProvider;
     }
 

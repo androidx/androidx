@@ -22,6 +22,9 @@ plugins {
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled true
+    }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
@@ -32,9 +35,9 @@ dependencies {
     api('androidx.annotation:annotation:1.1.0')
     api(libs.guavaListenableFuture)
 
+    implementation('androidx.collection:collection:1.2.0')
     implementation('androidx.concurrent:concurrent-futures:1.0.0')
-    implementation('androidx.core:core:1.2.0')
-    implementation('androidx.collection:collection:1.0.0')
+    implementation('androidx.core:core:1.7.0')
 
     androidTestAnnotationProcessor project(':appsearch:appsearch-compiler')
     androidTestImplementation project(':appsearch:appsearch-local-storage')
@@ -48,23 +51,12 @@ dependencies {
     // This dependency is unused by the test implementation, but it's here to validate that
     // icing's jarjar'ing of the Protobuf_lite doesn't conflict with external dependencies.
     androidTestImplementation(libs.protobufLite)
-}
-
-// Create a jar for use by appsearch-compiler:test
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-    project.tasks.create(name: "jar${suffix}", type: Jar) {
-        dependsOn variant.javaCompileProvider.get()
-        from variant.javaCompileProvider.get().destinationDirectory
-        destinationDirectory.set(new File(project.buildDir, "libJar"))
-    }
+    androidTestImplementation(libs.multidex)
 }
 
 androidx {
     name = 'AndroidX AppSearch'
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = '2019'
     description = 'AndroidX AppSearch - App Indexing'
 }

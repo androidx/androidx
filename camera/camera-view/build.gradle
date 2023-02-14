@@ -27,6 +27,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-common:2.0.0")
     api("androidx.annotation:annotation:1.2.0")
     api(project(":camera:camera-core"))
+    api(project(":camera:camera-video"))
     implementation(project(":camera:camera-lifecycle"))
     implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
     implementation(libs.guavaListenableFuture)
@@ -40,7 +41,7 @@ dependencies {
     annotationProcessor(libs.autoValue)
 
     testImplementation(libs.testRunner)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
@@ -51,7 +52,6 @@ dependencies {
 
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.mockitoCore)
-    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -61,8 +61,11 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-camera2"))
     androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
+    androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
 }
 android {
     defaultConfig {
@@ -80,7 +83,6 @@ androidx {
     name = "Jetpack Camera View Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
 
-    mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"
     description = "UI tools for the Jetpack Camera Library, a library providing a consistent and " +
             "reliable camera foundation that enables great camera driven experiences across all " +

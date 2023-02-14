@@ -16,8 +16,11 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.localstorage;
 
+import static androidx.appsearch.app.AppSearchResult.RESULT_INTERNAL_ERROR;
+import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
 import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
+import android.content.Context;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -30,24 +33,27 @@ import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.Migrator;
-import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.app.SearchSuggestionResult;
+import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
+import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
-import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
+import androidx.appsearch.stats.SchemaMigrationStats;
 import androidx.appsearch.util.SchemaMigrationUtil;
-import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -70,86 +76,109 @@ import java.util.concurrent.Executor;
  */
 class SearchSessionImpl implements AppSearchSession {
     private static final String TAG = "AppSearchSessionImpl";
+
     private final AppSearchImpl mAppSearchImpl;
     private final Executor mExecutor;
     private final Features mFeatures;
-    private final String mPackageName;
+    private final Context mContext;
     private final String mDatabaseName;
+    @Nullable private final AppSearchLogger mLogger;
+
+    private final String mPackageName;
+    private final CallerAccess mSelfCallerAccess;
+
     private volatile boolean mIsMutated = false;
     private volatile boolean mIsClosed = false;
-    @Nullable private final AppSearchLogger mLogger;
 
     SearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull Executor executor,
             @NonNull Features features,
-            @NonNull String packageName,
+            @NonNull Context context,
             @NonNull String databaseName,
             @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
         mFeatures = Preconditions.checkNotNull(features);
-        mPackageName = packageName;
+        mContext = Preconditions.checkNotNull(context);
         mDatabaseName = Preconditions.checkNotNull(databaseName);
         mLogger = logger;
+
+        mPackageName = mContext.getPackageName();
+        mSelfCallerAccess = new CallerAccess(/*callingPackageName=*/mPackageName);
     }
 
     @Override
     @NonNull
-    public ListenableFuture<SetSchemaResponse> setSchema(
+    public ListenableFuture<SetSchemaResponse> setSchemaAsync(
             @NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
 
+        long startMillis = SystemClock.elapsedRealtime();
+        long waitExecutorStartLatencyMillis = SystemClock.elapsedRealtime();
         ListenableFuture<SetSchemaResponse> future = execute(() -> {
-            long startMillis = SystemClock.elapsedRealtime();
-
-            // Convert the inner set into a List since Binder can't handle Set.
-            Map<String, Set<PackageIdentifier>> schemasVisibleToPackages =
-                    request.getSchemasVisibleToPackagesInternal();
-            Map<String, List<PackageIdentifier>> copySchemasVisibleToPackages = new ArrayMap<>();
-            for (Map.Entry<String, Set<PackageIdentifier>> entry :
-                    schemasVisibleToPackages.entrySet()) {
-                copySchemasVisibleToPackages.put(entry.getKey(),
-                        new ArrayList<>(entry.getValue()));
-            }
-
-            SetSchemaStats.Builder setSchemaStatsBuilder = null;
+            long waitExecutorEndLatencyMillis = SystemClock.elapsedRealtime();
+            SetSchemaStats.Builder firstSetSchemaStatsBuilder = null;
+            SetSchemaStats.Builder secondSetSchemaStatsBuilder = null;
             if (mLogger != null) {
-                setSchemaStatsBuilder = new SetSchemaStats.Builder(mPackageName, mDatabaseName);
+                firstSetSchemaStatsBuilder = new SetSchemaStats.Builder(
+                        mPackageName, mDatabaseName);
             }
+
+            // Extract a Map<schema, VisibilityDocument> from the request.
+            List<VisibilityDocument> visibilityDocuments = VisibilityDocument
+                    .toVisibilityDocuments(request);
 
             Map<String, Migrator> migrators = request.getMigrators();
             // No need to trigger migration if user never set migrator.
             if (migrators.size() == 0) {
-                SetSchemaResponse setSchemaResponse =
-                        setSchemaNoMigrations(request, copySchemasVisibleToPackages,
-                                setSchemaStatsBuilder);
-                if (setSchemaStatsBuilder != null) {
-                    setSchemaStatsBuilder.setTotalLatencyMillis(
-                            (int) (SystemClock.elapsedRealtime() - startMillis));
-                    mLogger.logStats(setSchemaStatsBuilder.build());
+                SetSchemaResponse setSchemaResponse = setSchemaNoMigrations(request,
+                        visibilityDocuments, firstSetSchemaStatsBuilder);
+
+                long dispatchNotificationStartTimeMillis = SystemClock.elapsedRealtime();
+                // Schedule a task to dispatch change notifications. See requirements for where the
+                // method is called documented in the method description.
+                dispatchChangeNotifications();
+                long dispatchNotificationEndTimeMillis = SystemClock.elapsedRealtime();
+
+                // We will have only one SetSchemaStats for non-migration cases.
+                if (firstSetSchemaStatsBuilder != null) {
+                    firstSetSchemaStatsBuilder
+                            .setTotalLatencyMillis(
+                                    (int) (SystemClock.elapsedRealtime() - startMillis))
+                            .setDispatchChangeNotificationsLatencyMillis(
+                                    (int) (dispatchNotificationEndTimeMillis
+                                            - dispatchNotificationStartTimeMillis));
+                    mLogger.logStats(firstSetSchemaStatsBuilder.build());
                 }
+
                 return setSchemaResponse;
             }
 
             // Migration process
             // 1. Validate and retrieve all active migrators.
-            GetSchemaResponse getSchemaResponse =
-                    mAppSearchImpl.getSchema(mPackageName, mDatabaseName);
+            SchemaMigrationStats.Builder schemaMigrationStatsBuilder = null;
+            if (mLogger != null) {
+                schemaMigrationStatsBuilder = new SchemaMigrationStats.Builder(mPackageName,
+                        mDatabaseName);
+            }
+            long getSchemaLatencyStartTimeMillis = SystemClock.elapsedRealtime();
+            GetSchemaResponse getSchemaResponse = mAppSearchImpl.getSchema(
+                    mPackageName, mDatabaseName, mSelfCallerAccess);
+            long getSchemaLatencyEndTimeMillis = SystemClock.elapsedRealtime();
             int currentVersion = getSchemaResponse.getVersion();
             int finalVersion = request.getVersion();
             Map<String, Migrator> activeMigrators = SchemaMigrationUtil.getActiveMigrators(
                     getSchemaResponse.getSchemas(), migrators, currentVersion, finalVersion);
             // No need to trigger migration if no migrator is active.
             if (activeMigrators.size() == 0) {
-                SetSchemaResponse setSchemaResponse =
-                        setSchemaNoMigrations(request, copySchemasVisibleToPackages,
-                                setSchemaStatsBuilder);
-                if (setSchemaStatsBuilder != null) {
-                    setSchemaStatsBuilder.setTotalLatencyMillis(
+                SetSchemaResponse setSchemaResponse = setSchemaNoMigrations(request,
+                        visibilityDocuments, firstSetSchemaStatsBuilder);
+                if (firstSetSchemaStatsBuilder != null) {
+                    firstSetSchemaStatsBuilder.setTotalLatencyMillis(
                             (int) (SystemClock.elapsedRealtime() - startMillis));
-                    mLogger.logStats(setSchemaStatsBuilder.build());
+                    mLogger.logStats(firstSetSchemaStatsBuilder.build());
                 }
                 return setSchemaResponse;
             }
@@ -157,54 +186,69 @@ class SearchSessionImpl implements AppSearchSession {
             // 2. SetSchema with forceOverride=false, to retrieve the list of incompatible/deleted
             // types.
             long firstSetSchemaLatencyStartMillis = SystemClock.elapsedRealtime();
-            SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema(
+            if (firstSetSchemaStatsBuilder != null) {
+                firstSetSchemaStatsBuilder.setSchemaMigrationCallType(
+                        SchemaMigrationStats.FIRST_CALL_GET_INCOMPATIBLE);
+            }
+            InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                     mPackageName,
                     mDatabaseName,
                     new ArrayList<>(request.getSchemas()),
-                    /*visibilityStore=*/ null,
-                    new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
-                    copySchemasVisibleToPackages,
+                    visibilityDocuments,
                     /*forceOverride=*/false,
                     request.getVersion(),
-                    setSchemaStatsBuilder);
+                    firstSetSchemaStatsBuilder);
+            long firstSetSchemaLatencyEndTimeMillis = SystemClock.elapsedRealtime();
+            if (schemaMigrationStatsBuilder != null) {
+                schemaMigrationStatsBuilder
+                        .setIsFirstSetSchemaSuccess(internalSetSchemaResponse.isSuccess());
+            }
 
             // 3. If forceOverride is false, check that all incompatible types will be migrated.
             // If some aren't we must throw an error, rather than proceeding and deleting those
             // types.
             long queryAndTransformLatencyStartMillis = SystemClock.elapsedRealtime();
-            if (!request.isForceOverride()) {
-                SchemaMigrationUtil.checkDeletedAndIncompatibleAfterMigration(setSchemaResponse,
-                        activeMigrators.keySet());
-            }
-
-            SchemaMigrationStats.Builder schemaMigrationStatsBuilder = null;
-            if (setSchemaStatsBuilder != null) {
-                schemaMigrationStatsBuilder = new SchemaMigrationStats.Builder();
-            }
+            SchemaMigrationUtil.checkDeletedAndIncompatibleAfterMigration(
+                    internalSetSchemaResponse, activeMigrators.keySet());
 
             try (AppSearchMigrationHelper migrationHelper = new AppSearchMigrationHelper(
                     mAppSearchImpl, mPackageName, mDatabaseName, request.getSchemas())) {
                 // 4. Trigger migration for all activity migrators.
                 migrationHelper.queryAndTransform(activeMigrators, currentVersion, finalVersion,
                         schemaMigrationStatsBuilder);
+                long queryAndTransformLatencyEndTimeMillis = SystemClock.elapsedRealtime();
 
                 // 5. SetSchema a second time with forceOverride=true if the first attempted failed
                 // due to backward incompatible changes.
                 long secondSetSchemaLatencyStartMillis = SystemClock.elapsedRealtime();
-                if (!setSchemaResponse.getIncompatibleTypes().isEmpty()
-                        || !setSchemaResponse.getDeletedTypes().isEmpty()) {
-                    setSchemaResponse = mAppSearchImpl.setSchema(
+                if (!internalSetSchemaResponse.isSuccess()) {
+                    if (mLogger != null) {
+                        // Create a new stats builder for the second set schema call.
+                        secondSetSchemaStatsBuilder =
+                                new SetSchemaStats.Builder(mPackageName, mDatabaseName)
+                                        .setSchemaMigrationCallType(
+                                                SchemaMigrationStats.SECOND_CALL_APPLY_NEW_SCHEMA);
+                    }
+                    internalSetSchemaResponse = mAppSearchImpl.setSchema(
                             mPackageName,
                             mDatabaseName,
                             new ArrayList<>(request.getSchemas()),
-                            /*visibilityStore=*/ null,
-                            new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
-                            copySchemasVisibleToPackages,
+                            visibilityDocuments,
                             /*forceOverride=*/ true,
                             request.getVersion(),
-                            setSchemaStatsBuilder);
+                            secondSetSchemaStatsBuilder);
+                    if (!internalSetSchemaResponse.isSuccess()) {
+                        // Impossible case, we just set forceOverride to be true, we should never
+                        // fail in incompatible changes. And all other cases should failed during
+                        // the first call.
+                        throw new AppSearchException(RESULT_INTERNAL_ERROR,
+                                internalSetSchemaResponse.getErrorMessage());
+                    }
                 }
-                SetSchemaResponse.Builder responseBuilder = setSchemaResponse.toBuilder()
+                long secondSetSchemaLatencyEndTimeMillis = SystemClock.elapsedRealtime();
+                SetSchemaResponse.Builder responseBuilder = internalSetSchemaResponse
+                        .getSetSchemaResponse()
+                        .toBuilder()
                         .addMigratedTypes(activeMigrators.keySet());
                 mIsMutated = true;
 
@@ -213,30 +257,65 @@ class SearchSessionImpl implements AppSearchSession {
                 SetSchemaResponse finalSetSchemaResponse =
                         migrationHelper.readAndPutDocuments(responseBuilder,
                                 schemaMigrationStatsBuilder);
+                long saveDocumentLatencyEndMillis = SystemClock.elapsedRealtime();
 
-                if (schemaMigrationStatsBuilder != null) {
-                    long endMillis = SystemClock.elapsedRealtime();
-                    schemaMigrationStatsBuilder
-                            .setSaveDocumentLatencyMillis(
-                                    (int) (endMillis - saveDocumentLatencyStartMillis))
-                            .setGetSchemaLatencyMillis(
-                                    (int) (firstSetSchemaLatencyStartMillis - startMillis))
-                            .setFirstSetSchemaLatencyMillis(
-                                    (int) (queryAndTransformLatencyStartMillis
+                // Schedule a task to dispatch change notifications. See requirements for where the
+                // method is called documented in the method description.
+                long dispatchNotificationStartTimeMillis = SystemClock.elapsedRealtime();
+                dispatchChangeNotifications();
+                long dispatchNotificationEndTimeMillis = SystemClock.elapsedRealtime();
+
+                long endMillis = SystemClock.elapsedRealtime();
+                if (firstSetSchemaStatsBuilder != null) {
+                    firstSetSchemaStatsBuilder
+                            .setExecutorAcquisitionLatencyMillis(
+                                    (int) (waitExecutorEndLatencyMillis
+                                            - waitExecutorStartLatencyMillis))
+                            .setTotalLatencyMillis(
+                                    (int) (firstSetSchemaLatencyEndTimeMillis
                                             - firstSetSchemaLatencyStartMillis))
-                            .setQueryAndTransformLatencyMillis(
-                                    (int) (secondSetSchemaLatencyStartMillis
-                                            - queryAndTransformLatencyStartMillis))
-                            .setSecondSetSchemaLatencyMillis(
-                                    (int) (saveDocumentLatencyStartMillis
-                                            - secondSetSchemaLatencyStartMillis));
-                    setSchemaStatsBuilder
-                            .setSchemaMigrationStats(
-                                    schemaMigrationStatsBuilder.build())
-                            .setTotalLatencyMillis((int) (endMillis - startMillis));
-                    mLogger.logStats(setSchemaStatsBuilder.build());
+                            .setDispatchChangeNotificationsLatencyMillis(
+                                    (int) (dispatchNotificationEndTimeMillis
+                                            - dispatchNotificationStartTimeMillis));
+                    mLogger.logStats(firstSetSchemaStatsBuilder.build());
                 }
-
+                if (secondSetSchemaStatsBuilder != null) {
+                    secondSetSchemaStatsBuilder
+                            .setExecutorAcquisitionLatencyMillis(
+                                    (int) (waitExecutorEndLatencyMillis
+                                            - waitExecutorStartLatencyMillis))
+                            .setTotalLatencyMillis(
+                                    (int) (secondSetSchemaLatencyEndTimeMillis
+                                            - secondSetSchemaLatencyStartMillis))
+                            .setDispatchChangeNotificationsLatencyMillis(
+                                    (int) (dispatchNotificationEndTimeMillis
+                                            - dispatchNotificationStartTimeMillis));
+                    mLogger.logStats(secondSetSchemaStatsBuilder.build());
+                }
+                if (schemaMigrationStatsBuilder != null) {
+                    schemaMigrationStatsBuilder
+                            .setExecutorAcquisitionLatencyMillis(
+                                    (int) (waitExecutorEndLatencyMillis
+                                            - waitExecutorStartLatencyMillis))
+                            .setGetSchemaLatencyMillis(
+                                    (int) (getSchemaLatencyEndTimeMillis
+                                            - getSchemaLatencyStartTimeMillis))
+                            .setQueryAndTransformLatencyMillis(
+                                    (int) (queryAndTransformLatencyEndTimeMillis
+                                            - queryAndTransformLatencyStartMillis))
+                            .setSaveDocumentLatencyMillis(
+                                    (int) (saveDocumentLatencyEndMillis
+                                            - saveDocumentLatencyStartMillis))
+                            .setFirstSetSchemaLatencyMillis(
+                                    (int) (firstSetSchemaLatencyEndTimeMillis
+                                            - firstSetSchemaLatencyStartMillis))
+                            .setSecondSetSchemaLatencyMillis(
+                                    (int) (secondSetSchemaLatencyEndTimeMillis
+                                            - secondSetSchemaLatencyStartMillis))
+                            .setTotalLatencyMillis(
+                                    (int) (endMillis - startMillis));
+                    mLogger.logStats(schemaMigrationStatsBuilder.build());
+                }
                 return finalSetSchemaResponse;
             }
         });
@@ -251,14 +330,15 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<GetSchemaResponse> getSchema() {
+    public ListenableFuture<GetSchemaResponse> getSchemaAsync() {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
-        return execute(() -> mAppSearchImpl.getSchema(mPackageName, mDatabaseName));
+        return execute(
+                () -> mAppSearchImpl.getSchema(mPackageName, mDatabaseName, mSelfCallerAccess));
     }
 
     @NonNull
     @Override
-    public ListenableFuture<Set<String>> getNamespaces() {
+    public ListenableFuture<Set<String>> getNamespacesAsync() {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         return execute(() -> {
             List<String> namespaces = mAppSearchImpl.getNamespaces(mPackageName, mDatabaseName);
@@ -268,7 +348,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> put(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> putAsync(
             @NonNull PutDocumentsRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
@@ -278,7 +358,12 @@ class SearchSessionImpl implements AppSearchSession {
             for (int i = 0; i < request.getGenericDocuments().size(); i++) {
                 GenericDocument document = request.getGenericDocuments().get(i);
                 try {
-                    mAppSearchImpl.putDocument(mPackageName, mDatabaseName, document, mLogger);
+                    mAppSearchImpl.putDocument(
+                            mPackageName,
+                            mDatabaseName,
+                            document,
+                            /*sendChangeNotifications=*/ true,
+                            mLogger);
                     resultBuilder.setSuccess(document.getId(), /*value=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(document.getId(), throwableToFailedResult(t));
@@ -303,7 +388,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentId(
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
             @NonNull GetByDocumentIdRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
@@ -344,9 +429,25 @@ class SearchSessionImpl implements AppSearchSession {
                 mLogger);
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<List<SearchSuggestionResult>> searchSuggestionAsync(
+            @NonNull String suggestionQueryExpression,
+            @NonNull SearchSuggestionSpec searchSuggestionSpec) {
+        Preconditions.checkNotNull(suggestionQueryExpression);
+        Preconditions.checkStringNotEmpty(suggestionQueryExpression);
+        Preconditions.checkNotNull(searchSuggestionSpec);
+        Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
+        return execute(() -> mAppSearchImpl.searchSuggestion(
+                mPackageName,
+                mDatabaseName,
+                suggestionQueryExpression,
+                searchSuggestionSpec));
+    }
+
     @Override
     @NonNull
-    public ListenableFuture<Void> reportUsage(@NonNull ReportUsageRequest request) {
+    public ListenableFuture<Void> reportUsageAsync(@NonNull ReportUsageRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         return execute(() -> {
@@ -364,7 +465,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> remove(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeAsync(
             @NonNull RemoveByDocumentIdRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
@@ -403,10 +504,16 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<Void> remove(
+    public ListenableFuture<Void> removeAsync(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
+
+        if (searchSpec.getJoinSpec() != null) {
+            throw new IllegalArgumentException("JoinSpec not allowed in removeByQuery, but "
+                    + "JoinSpec was provided.");
+        }
+
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         ListenableFuture<Void> future = execute(() -> {
             RemoveStats.Builder removeStatsBuilder = null;
@@ -432,14 +539,14 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public ListenableFuture<StorageInfo> getStorageInfo() {
+    public ListenableFuture<StorageInfo> getStorageInfoAsync() {
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
         return execute(() -> mAppSearchImpl.getStorageInfoForDatabase(mPackageName, mDatabaseName));
     }
 
     @NonNull
     @Override
-    public ListenableFuture<Void> requestFlush() {
+    public ListenableFuture<Void> requestFlushAsync() {
         return execute(() -> {
             mAppSearchImpl.persistToDisk(PersistType.Code.FULL);
             return null;
@@ -472,31 +579,32 @@ class SearchSessionImpl implements AppSearchSession {
     /**
      * Set schema to Icing for no-migration scenario.
      *
-     * <p>We only need one time {@link #setSchema} call for no-migration scenario by using the
+     * <p>We only need one time {@link #setSchemaAsync} call for no-migration scenario by using the
      * forceoverride in the request.
      */
     private SetSchemaResponse setSchemaNoMigrations(@NonNull SetSchemaRequest request,
-            @NonNull Map<String, List<PackageIdentifier>> copySchemasVisibleToPackages,
-            SetSchemaStats.Builder setSchemaStatsBuilder)
+            @NonNull List<VisibilityDocument> visibilityDocuments,
+            @Nullable SetSchemaStats.Builder setSchemaStatsBuilder)
             throws AppSearchException {
-        SetSchemaResponse setSchemaResponse = mAppSearchImpl.setSchema(
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setSchemaMigrationCallType(SchemaMigrationStats.NO_MIGRATION);
+        }
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 mPackageName,
                 mDatabaseName,
                 new ArrayList<>(request.getSchemas()),
-                /*visibilityStore=*/ null,
-                new ArrayList<>(request.getSchemasNotDisplayedBySystem()),
-                copySchemasVisibleToPackages,
+                visibilityDocuments,
                 request.isForceOverride(),
                 request.getVersion(),
                 setSchemaStatsBuilder);
-        if (!request.isForceOverride()) {
-            // check both deleted types and incompatible types are empty. That's the only case we
-            // swallowed in the AppSearchImpl#setSchema().
-            SchemaMigrationUtil.checkDeletedAndIncompatible(setSchemaResponse.getDeletedTypes(),
-                    setSchemaResponse.getIncompatibleTypes());
+        if (!internalSetSchemaResponse.isSuccess()) {
+            // check is the set schema call failed because incompatible changes.
+            // That's the only case we swallowed in the AppSearchImpl#setSchema().
+            throw new AppSearchException(RESULT_INVALID_SCHEMA,
+                    internalSetSchemaResponse.getErrorMessage());
         }
         mIsMutated = true;
-        return setSchemaResponse;
+        return internalSetSchemaResponse.getSetSchemaResponse();
     }
 
     /**

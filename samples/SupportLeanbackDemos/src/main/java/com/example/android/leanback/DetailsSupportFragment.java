@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.leanback.widget.Action;
@@ -171,7 +172,7 @@ public class DetailsSupportFragment extends androidx.leanback.app.DetailsSupport
 
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(ITEM, mPhotoItem);
     }

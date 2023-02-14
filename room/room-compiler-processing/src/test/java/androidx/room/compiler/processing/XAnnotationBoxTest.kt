@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnum
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnumArray
@@ -41,7 +43,6 @@ import com.squareup.javapoet.ClassName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.LinkedHashMap
 
 @RunWith(Parameterized::class)
 class XAnnotationBoxTest(
@@ -243,11 +244,11 @@ class XAnnotationBoxTest(
             element.getAnnotation(MainAnnotation::class)!!.let { annotation ->
                 assertThat(
                     annotation.getAsTypeList("typeList").map {
-                        it.typeName
+                        it.asTypeName()
                     }
                 ).containsExactly(
-                    String::class.typeName(),
-                    Int::class.typeName()
+                    String::class.asClassName(),
+                    XTypeName.PRIMITIVE_INT
                 )
                 assertThat(
                     annotation.getAsType("singleType")

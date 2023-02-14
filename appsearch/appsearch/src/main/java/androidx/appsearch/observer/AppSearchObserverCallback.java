@@ -16,23 +16,13 @@
 
 package androidx.appsearch.observer;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
- * An interface which apps can implement to subscribe to notifications of changes to AppSearch data.
+ * @deprecated use {@link ObserverCallback} instead.
+ * @hide
  */
-public interface AppSearchObserverCallback {
-    /**
-     * Callback to trigger after schema changes (schema type added, updated or removed).
-     *
-     * @param changeInfo Information about the nature of the change.
-     */
-    void onSchemaChanged(@NonNull SchemaChangeInfo changeInfo);
-
-    /**
-     * Callback to trigger after document changes (documents added, updated or removed).
-     *
-     * @param changeInfo Information about the nature of the change.
-     */
-    void onDocumentChanged(@NonNull DocumentChangeInfo changeInfo);
-}
+// TODO(b/209734214): Remove this after dogfooders and devices have migrated away from this class.
+@Deprecated
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface AppSearchObserverCallback extends ObserverCallback {}

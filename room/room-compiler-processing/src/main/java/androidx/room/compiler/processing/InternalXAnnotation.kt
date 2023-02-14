@@ -19,8 +19,18 @@ package androidx.room.compiler.processing
 import java.lang.annotation.Repeatable
 
 @PublishedApi
-internal interface InternalXAnnotation : XAnnotation {
-    fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T>
+internal abstract class InternalXAnnotation : XAnnotation {
+    // A cache to quickly get annotation values by name.
+    private val valuesByName: Map<String, XAnnotationValue> by lazy {
+        annotationValues.associateBy { it.name }
+    }
+
+    override fun getAnnotationValue(methodName: String): XAnnotationValue {
+        return valuesByName[methodName]
+            ?: error("No property named $methodName was found in annotation $name")
+    }
+
+    abstract fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T>
 }
 
 /**
@@ -33,16 +43,11 @@ internal fun XAnnotation.unwrapRepeatedAnnotationsFromContainer(): List<XAnnotat
         // single "default" method that returns an array typed with the repeatable annotation type.
         if (annotationValues.size != 1 ||
             annotationValues[0].name != "value" ||
-            annotationValues[0].value !is List<*>
+            !annotationValues[0].hasAnnotationListValue()
         ) {
             return null
         }
-        val nestedValues = getAsAnnotationValueList("value")
-
-        if (nestedValues.isEmpty() || nestedValues[0].value !is XAnnotation) {
-            return null
-        }
-        val nestedAnnotations = nestedValues.map { it.asAnnotation() }
+        val nestedAnnotations = getAsAnnotationList("value")
 
         // Ideally we would read the value of the Repeatable annotation to get the container class
         // type and check that it matches "this" type. However, there seems to be a KSP bug where

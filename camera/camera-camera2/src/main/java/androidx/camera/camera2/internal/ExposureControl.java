@@ -23,10 +23,12 @@ import android.util.Range;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.impl.annotation.ExecutedBy;
@@ -125,6 +127,7 @@ public class ExposureControl {
      * to the shared options. It applies to all repeating requests and single requests.
      */
     @ExecutedBy("mExecutor")
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     void setCaptureRequestOption(@NonNull Camera2ImplConfig.Builder configBuilder) {
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,
                 mExposureStateImpl.getExposureCompensationIndex());

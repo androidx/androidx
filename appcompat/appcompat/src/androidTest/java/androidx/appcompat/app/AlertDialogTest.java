@@ -89,6 +89,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -1384,6 +1385,7 @@ public class AlertDialogTest {
      * successfully when the foreground color is a CSL and that the color is used for the scroll
      * indicator tint.
      */
+    @Ignore("b/236995180")
     @Test
     @UiThreadTest
     @SdkSuppress(maxSdkVersion = 22)

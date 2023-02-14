@@ -26,7 +26,6 @@ android {
 androidx {
     name = "Android Percent Support Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.PERCENTLAYOUT
     inceptionYear = "2015"
     description = "Android Percent Support Library"
 }

@@ -41,8 +41,6 @@ import java.util.Locale;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraNoResponseWhenEnablingFlashQuirk implements UseTorchAsFlashQuirk {
-    @VisibleForTesting
-    public static final String BUILD_BRAND = "SAMSUNG";
 
     @VisibleForTesting
     public static final List<String> AFFECTED_MODELS = Arrays.asList(
@@ -71,8 +69,7 @@ public class CameraNoResponseWhenEnablingFlashQuirk implements UseTorchAsFlashQu
     );
 
     static boolean load(@NonNull CameraCharacteristicsCompat characteristics) {
-        return BUILD_BRAND.equals(Build.BRAND.toUpperCase(Locale.US))
-                && AFFECTED_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
+        return AFFECTED_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
                 && characteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
     }
 }

@@ -27,10 +27,12 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Owner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.LifecycleOwner
 import java.lang.ref.WeakReference
 
 /**
@@ -170,12 +172,14 @@ abstract class AbstractComposeView @JvmOverloads constructor(
      * whichever comes first.
      */
     @Composable
+    @UiComposable
     abstract fun Content()
 
     /**
      * Perform initial composition for this view.
      * Once this method is called or the view becomes attached to a window,
-     * either [disposeComposition] must be called or the [ViewTreeLifecycleOwner] must
+     * either [disposeComposition] must be called or the
+     * [LifecycleOwner] returned by [findViewTreeLifecycleOwner] must
      * reach the [Lifecycle.State.DESTROYED] state for the composition to be cleaned up
      * properly. (This restriction is temporary.)
      *
@@ -329,6 +333,28 @@ abstract class AbstractComposeView @JvmOverloads constructor(
         // but the composition child view won't until it measures. This can be too late
         // to catch the composition pass for that frame, so propagate it eagerly.
         getChildAt(0)?.layoutDirection = layoutDirection
+    }
+
+    // Transition group handling:
+    // Both the framework and androidx transition APIs use isTransitionGroup as a signal for
+    // determining view properties to capture during a transition. As AbstractComposeView uses
+    // a view subhierarchy to perform its work but operates as a single unit, mark instances as
+    // transition groups by default.
+    // This is implemented as overridden methods instead of setting isTransitionGroup = true in
+    // the constructor so that values set explicitly by xml inflation performed by the ViewGroup
+    // constructor will take precedence. As of this writing all known framework implementations
+    // use the public isTransitionGroup method rather than checking the internal ViewGroup flag
+    // to determine behavior, making this implementation a slight compatibility risk for a
+    // tradeoff of cleaner View-consumer API behavior without the overhead of performing an
+    // additional obtainStyledAttributes call to determine a value potentially overridden from xml.
+
+    private var isTransitionGroupSet = false
+
+    override fun isTransitionGroup(): Boolean = !isTransitionGroupSet || super.isTransitionGroup()
+
+    override fun setTransitionGroup(isTransitionGroup: Boolean) {
+        super.setTransitionGroup(isTransitionGroup)
+        isTransitionGroupSet = true
     }
 
     // Below: enforce restrictions on adding child views to this ViewGroup

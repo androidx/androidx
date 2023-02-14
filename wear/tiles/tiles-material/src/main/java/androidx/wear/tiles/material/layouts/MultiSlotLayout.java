@@ -18,22 +18,30 @@ package androidx.wear.tiles.material.layouts;
 
 import static androidx.annotation.Dimension.DP;
 import static androidx.wear.tiles.DimensionBuilders.dp;
-import static androidx.wear.tiles.DimensionBuilders.expand;
+import static androidx.wear.tiles.DimensionBuilders.wrap;
+import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getMetadataTagName;
+import static androidx.wear.tiles.material.Helper.getTagBytes;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH;
 
 import android.annotation.SuppressLint;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.wear.tiles.DimensionBuilders.SpacerDimension;
 import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.LayoutElementBuilders.Row;
 import androidx.wear.tiles.LayoutElementBuilders.Spacer;
-import androidx.wear.tiles.proto.LayoutElementProto;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
+import androidx.wear.tiles.ModifiersBuilders.Modifiers;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +50,36 @@ import java.util.List;
  * Opinionated Tiles layout, row like style with horizontally aligned and spaced slots (for icons or
  * other small content). Should be used as a content passed in to the {@link PrimaryLayout}.
  *
- * <p>Recommended number of added slots is 1 to 3. Their width will be scaled to fit and have the
- * same value, with the {@link LayoutDefaults#MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH} space
+ * <p>Recommended number of added slots is 1 to 3. Their width will be the width of an element
+ * passed in, with the {@link LayoutDefaults#MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH} space
  * between.
+ *
+ * <p>For additional examples and suggested layouts see <a
+ * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * MultiSlotLayout msl = new MultiSlotLayout...
+ * Box box = new Box.Builder().addContent(msl).build();
+ *
+ * MultiSlotLayout myMsl = (MultiSlotLayout) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link MultiSlotLayout} object from any layout element, {@link
+ * #fromLayoutElement} method should be used, i.e.:
+ *
+ * <pre>{@code
+ * MultiSlotLayout myMsl = MultiSlotLayout.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
-// TODO(b/215323986): Link visuals.
 public class MultiSlotLayout implements LayoutElement {
+    /** Tool tag for Metadata in Modifiers, so we know that Row is actually a MultiSlotLayout. */
+    static final String METADATA_TAG = "MSL";
+
     @NonNull private final Row mElement;
 
     MultiSlotLayout(@NonNull Row mElement) {
@@ -69,8 +101,8 @@ public class MultiSlotLayout implements LayoutElement {
         /** Add one new slot to the layout with the given content inside. */
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
-        // There is no direct matching getter for this setter as the serialized format of the
-        // ProtoLayouts do not allow for a direct reconstruction of the arguments. b/221427609
+        // There is no direct matching getter for this setter, but there is a getter that gets all
+        // added slots.
         public Builder addSlotContent(@NonNull LayoutElement slotContent) {
             mSlotsContent.add(slotContent);
             return this;
@@ -82,15 +114,12 @@ public class MultiSlotLayout implements LayoutElement {
          * LayoutDefaults#MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH} will be used.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // There is no direct matching getter for this setter as the serialized format of the
-        // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
-        // methods to get the contents a whole for rendering.
         public Builder setHorizontalSpacerWidth(@Dimension(unit = DP) float width) {
             this.mHorizontalSpacerWidth = dp(width);
             return this;
         }
 
+        /** Constructs and returns {@link MultiSlotLayout} with the provided content and look. */
         @NonNull
         @Override
         // The @Dimension(unit = DP) on mVerticalSpacerHeight.getValue() is seemingly being ignored,
@@ -100,9 +129,16 @@ public class MultiSlotLayout implements LayoutElement {
         public MultiSlotLayout build() {
             Row.Builder rowBuilder =
                     new Row.Builder()
-                            .setHeight(expand())
+                            .setHeight(wrap())
                             .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
-                            .setWidth(expand());
+                            .setWidth(wrap())
+                            .setModifiers(
+                                    new Modifiers.Builder()
+                                            .setMetadata(
+                                                    new ElementMetadata.Builder()
+                                                            .setTagData(getTagBytes(METADATA_TAG))
+                                                            .build())
+                                            .build());
             if (!mSlotsContent.isEmpty()) {
 
                 boolean isFirst = true;
@@ -115,8 +151,8 @@ public class MultiSlotLayout implements LayoutElement {
                     }
                     rowBuilder.addContent(
                             new Box.Builder()
-                                    .setWidth(expand())
-                                    .setHeight(expand())
+                                    .setWidth(wrap())
+                                    .setHeight(wrap())
                                     .addContent(slot)
                                     .build());
                 }
@@ -136,6 +172,52 @@ public class MultiSlotLayout implements LayoutElement {
             }
         }
         return slots;
+    }
+
+    /** Gets the width of horizontal spacer that is between slots. */
+    // The @Dimension(unit = DP) on getLinearDimension.getValue() is seemingly being ignored, so
+    // lint complains that we're passing PX to something expecting DP. Just suppress the warning for
+    // now.
+    @SuppressLint("ResourceType")
+    @Dimension(unit = DP)
+    public float getHorizontalSpacerWidth() {
+        for (LayoutElement slot : mElement.getContents()) {
+            if (slot instanceof Spacer) {
+                SpacerDimension width = ((Spacer) slot).getWidth();
+                if (width instanceof DpProp) {
+                    return ((DpProp) width).getValue();
+                }
+            }
+        }
+        return LayoutDefaults.MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH.getValue();
+    }
+
+    /** Returns metadata tag set to this MultiSlotLayout. */
+    @NonNull
+    String getMetadataTag() {
+        return getMetadataTagName(
+                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
+    }
+
+    /**
+     * Returns MultiSlotLayout object from the given LayoutElement (e.g. one retrieved from a
+     * container's content with {@code container.getContents().get(index)}) if that element can be
+     * converted to MultiSlotLayout. Otherwise, it will return null.
+     */
+    @Nullable
+    public static MultiSlotLayout fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof MultiSlotLayout) {
+            return (MultiSlotLayout) element;
+        }
+        if (!(element instanceof Row)) {
+            return null;
+        }
+        Row rowElement = (Row) element;
+        if (!checkTag(rowElement.getModifiers(), METADATA_TAG)) {
+            return null;
+        }
+        // Now we are sure that this element is a MultiSlotLayout.
+        return new MultiSlotLayout(rowElement);
     }
 
     /** @hide */

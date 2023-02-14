@@ -41,5 +41,7 @@ class CameraPipeCameraProperties @Inject constructor(
 ) : CameraProperties {
     override val cameraId: CameraId
         get() = cameraConfig.cameraId
-    override val metadata: CameraMetadata by lazy { cameraPipe.cameras().awaitMetadata(cameraId) }
+    override val metadata: CameraMetadata by lazy {
+        checkNotNull(cameraPipe.cameras().awaitCameraMetadata(cameraId))
+    }
 }

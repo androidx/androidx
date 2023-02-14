@@ -20,6 +20,7 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Pair;
@@ -32,6 +33,7 @@ import androidx.annotation.RequiresApi;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 
@@ -55,16 +57,18 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     public HdrPreviewExtenderImpl() { }
 
     @Override
-    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    public void init(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics) {
     }
 
     @Override
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @Nullable CameraCharacteristics cameraCharacteristics) {
-        // Implement the logic to check whether the extension function is supported or not.
-        return true;
+        // Return false to skip tests since old devices do not support extensions.
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 
+    @NonNull
     @Override
     public CaptureStageImpl getCaptureStage() {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
@@ -72,16 +76,20 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         return new SettableCaptureStage(DEFAULT_STAGE_ID);
     }
 
+    @NonNull
     @Override
     public ProcessorType getProcessorType() {
         return ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR;
     }
 
+    @SuppressWarnings("ConstantConditions") // Super method is nullable.
+    @Nullable
     @Override
     public ProcessorImpl getProcessor() {
         return mProcessor;
     }
 
+    @Nullable
     @Override
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
         return null;
@@ -91,8 +99,9 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
             new HdrPreviewExtenderPreviewImageProcessorImpl();
 
     @Override
-    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
-            Context context) {
+    public void onInit(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull Context context) {
         mGlHandlerThread = new GlHandlerThread();
         mGlHandlerThread.postToRenderThread(() -> mRenderer = new GLImage2SurfaceRenderer());
     }
@@ -111,16 +120,19 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         }
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onPresetSession() {
         return null;
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onEnableSession() {
         return null;
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onDisableSession() {
         return null;
@@ -143,7 +155,7 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         }
 
         @Override
-        public void onOutputSurface(Surface surface, int imageFormat) {
+        public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
             mSurface = surface;
             setWindowSurface();
         }
@@ -160,7 +172,13 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         }
 
         @Override
-        public void onResolutionUpdate(Size size) {
+        public void process(Image image, TotalCaptureResult result,
+                ProcessResultImpl resultCallback, Executor executor) {
+
+        }
+
+        @Override
+        public void onResolutionUpdate(@NonNull Size size) {
             mSize = size;
             setWindowSurface();
             if (mGlHandlerThread != null) {
@@ -206,6 +224,5 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
                 // handle exception
             }
         }
-
     }
 }

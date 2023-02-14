@@ -7,7 +7,7 @@ import kotlin.String
 
 public class SettingsDirections private constructor() {
   private data class Exit(
-    public val exitReason: String = "DEFAULT"
+    public val exitReason: String = "DEFAULT",
   ) : NavDirections {
     public override val actionId: Int = R.id.exit
 

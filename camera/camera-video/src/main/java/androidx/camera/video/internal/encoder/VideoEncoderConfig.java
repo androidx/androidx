@@ -22,6 +22,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.Timebase;
 
 import com.google.auto.value.AutoValue;
 
@@ -53,6 +54,10 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
 
     @Override
     public abstract int getProfile();
+
+    @Override
+    @NonNull
+    public abstract Timebase getInputTimebase();
 
     /** Gets the resolution. */
     @NonNull
@@ -101,6 +106,10 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
         /** Sets (optional) profile for the mime type specified by {@link #setMimeType(String)}. */
         @NonNull
         public abstract Builder setProfile(int profile);
+
+        /** Sets the source timebase. */
+        @NonNull
+        public abstract Builder setInputTimebase(@NonNull Timebase timebase);
 
         /** Sets the resolution. */
         @NonNull

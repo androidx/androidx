@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="MediaControlView_subtitle_off_text" msgid="3464220590351304587">"ಆಫ್ ಮಾಡಿ"</string>
-    <string name="MediaControlView_audio_track_text" msgid="3309135445007366582">"ಆಡಿಯೊ ಟ್ರ್ಯಾಕ್"</string>
+    <string name="MediaControlView_audio_track_text" msgid="3309135445007366582">"ಆಡಿಯೋ ಟ್ರ್ಯಾಕ್"</string>
     <string name="MediaControlView_audio_track_none_text" msgid="2659752099246305694">"ಯಾವುದೂ ಇಲ್ಲ"</string>
     <string name="MediaControlView_playback_speed_text" msgid="1481072528142380025">"ಪ್ಲೇಬ್ಯಾಕ್ ವೇಗ"</string>
     <string name="MediaControlView_playback_speed_normal" msgid="2029510260288453183">"ಸಾಮಾನ್ಯ"</string>

@@ -16,6 +16,7 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
@@ -26,7 +27,6 @@ import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.solver.types.StatementValueBinder
-import com.squareup.javapoet.TypeName
 import java.util.Locale
 
 // used in cache matching, must stay as a data class or implement equals
@@ -50,9 +50,10 @@ data class Field(
     lateinit var setter: FieldSetter
     // binds the field into a statement
     var statementBinder: StatementValueBinder? = null
+
     // reads this field from a cursor column
     var cursorValueReader: CursorValueReader? = null
-    val typeName: TypeName by lazy { type.typeName }
+    val typeName: XTypeName by lazy { type.asTypeName() }
 
     override fun getIdKey(): String {
         return buildString {
@@ -99,7 +100,10 @@ data class Field(
                 result.add(name.substring(1).decapitalize(Locale.US))
             }
 
-            if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
+            if (
+                typeName == XTypeName.PRIMITIVE_BOOLEAN ||
+                typeName == XTypeName.BOXED_BOOLEAN
+            ) {
                 if (name.length > 2 && name.startsWith("is") && name[2].isUpperCase()) {
                     result.add(name.substring(2).decapitalize(Locale.US))
                 }
@@ -113,7 +117,10 @@ data class Field(
 
     val getterNameWithVariations by lazy {
         nameWithVariations.map { "get${it.capitalize(Locale.US)}" } +
-            if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
+            if (
+                typeName == XTypeName.PRIMITIVE_BOOLEAN ||
+                typeName == XTypeName.BOXED_BOOLEAN
+            ) {
                 nameWithVariations.flatMap {
                     listOf("is${it.capitalize(Locale.US)}", "has${it.capitalize(Locale.US)}")
                 }

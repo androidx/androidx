@@ -99,7 +99,7 @@ class SyncTriggersConcurrencyTest {
         // 2. Insert an entity
         // 4. Remove the observer
         // 5. Assert that the observer received an invalidation call.
-        val dao = database.sampleDao
+        val dao = database.getDao()
         repeat(CHECK_ITERATIONS) { iteration ->
             val checkObserver = TestObserver(
                 expectedInvalidationCount = 1
@@ -142,14 +142,14 @@ class SyncTriggersConcurrencyTest {
 
         val latch = CountDownLatch(expectedInvalidationCount)
 
-        override fun onInvalidated(tables: MutableSet<String>) {
+        override fun onInvalidated(tables: Set<String>) {
             latch.countDown()
         }
     }
 
     @Database(entities = [SampleEntity::class], version = 1, exportSchema = false)
     abstract class SampleDatabase : RoomDatabase() {
-        abstract val sampleDao: SampleDao
+        abstract fun getDao(): SampleDao
     }
 
     @Dao

@@ -40,7 +40,6 @@ import androidx.compose.material3.catalog.library.util.openUrl
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -93,7 +92,7 @@ fun CatalogScaffold(
             scrimColor = SheetScrimColor
         ) {
             val context = LocalContext.current
-            val scrollBehavior = remember { TopAppBarDefaults.pinnedScrollBehavior() }
+            val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             Scaffold(
                 topBar = {
                     CatalogTopAppBar(

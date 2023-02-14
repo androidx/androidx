@@ -23,11 +23,11 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -48,17 +48,14 @@ import java.util.Objects;
  * </ul>
  */
 @CarProtocol
+@KeepFields
 public final class PaneTemplate implements Template {
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final Pane mPane;
-    @Keep
     @Nullable
     private final Action mHeaderAction;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
 
@@ -160,8 +157,8 @@ public final class PaneTemplate implements Template {
          *
          * <p>Unless set with this method, the template will not have a title.
          *
-         * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
-         * string.
+         * <p>Only {@link DistanceSpan}s, {@link DurationSpan}s and {@link CarIconSpan} are
+         * supported in the input string.
          *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
@@ -170,7 +167,7 @@ public final class PaneTemplate implements Template {
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
-            CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
+            CarTextConstraints.TEXT_AND_ICON.validateOrThrow(mTitle);
             return this;
         }
 
@@ -233,21 +230,16 @@ public final class PaneTemplate implements Template {
          * can be customized with {@link ForegroundCarColorSpan} instances. Any other span is not
          * supported.
          *
-         * <p>Either a header {@link Action} or title must be set on the template.
+         * <p>If none of the header {@link Action}, the header title or the action strip have been
+         * set on the template, the header is hidden.
          *
          * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
-         * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link Action} set
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public PaneTemplate build() {
             ROW_LIST_CONSTRAINTS_PANE.validateOrThrow(mPane);
             ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION.validateOrThrow(mPane.getActions());
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
-            }
 
             return new PaneTemplate(this);
         }

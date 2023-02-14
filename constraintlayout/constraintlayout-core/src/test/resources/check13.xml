@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/activity_main"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:tag="0,0,816,864"
+    tools:context="com.example.android.checkconstraintlayout.MainActivity">
+
+    <ImageView android:id="@+id/imageView" android:layout_width="76dp" android:layout_height="0dp"
+        android:tag="48,48,228,228" app:srcCompat="@mipmap/ic_launcher"
+        android:layout_marginTop="16dp" app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="16dp" app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="16dp" app:layout_constraintDimensionRatio="h,1:1" />
+
+    <ImageView android:id="@+id/imageView2" android:layout_width="0dp" android:layout_height="0dp"
+        app:srcCompat="@mipmap/ic_launcher" android:tag="300,48,228,228"
+        android:layout_marginStart="8dp" app:layout_constraintLeft_toRightOf="@+id/imageView"
+        android:layout_marginLeft="8dp" app:layout_constraintTop_toTopOf="@+id/imageView"
+        app:layout_constraintDimensionRatio="w,1:1"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView" />
+
+    <ImageButton android:id="@+id/imageButton" android:layout_width="0dp"
+        android:layout_height="0dp" app:srcCompat="@mipmap/ic_launcher" android:tag="48,300,480,480"
+        app:layout_constraintRight_toRightOf="@+id/imageView2"
+        app:layout_constraintLeft_toLeftOf="@+id/imageView" android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/imageView2"
+        app:layout_constraintDimensionRatio="h,1:1" />
+
+    <ImageButton android:id="@+id/imageButton2" android:layout_width="0dp"
+        android:layout_height="0dp" app:srcCompat="@mipmap/ic_launcher" android:tag="552,48,480,480"
+        android:layout_marginStart="8dp" app:layout_constraintLeft_toRightOf="@+id/imageView2"
+        android:layout_marginLeft="8dp" android:layout_marginEnd="16dp"
+        app:layout_constraintRight_toRightOf="parent" android:layout_marginRight="16dp"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintTop_toTopOf="@+id/imageView2" />
+
+    <ImageView android:id="@+id/imageView3" android:layout_width="0dp" android:layout_height="48dp"
+        app:srcCompat="@mipmap/ic_launcher" android:tag="48,1728,288,144"
+        app:layout_constraintDimensionRatio="w,2:1" app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="16dp" android:layout_marginStart="16dp"
+        app:layout_constraintLeft_toLeftOf="parent" android:layout_marginLeft="16dp" />
+
+    <ImageView android:id="@+id/imageView4" android:layout_width="0dp" android:layout_height="0dp"
+        app:srcCompat="@mipmap/ic_launcher" android:tag="48,1416,288,288"
+        app:layout_constraintRight_toRightOf="@+id/imageView3"
+        app:layout_constraintLeft_toLeftOf="@+id/imageView3"
+        app:layout_constraintDimensionRatio="h,1:1" app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintBottom_toTopOf="@+id/imageView3" android:layout_marginBottom="8dp" />
+
+    <ImageView android:id="@+id/imageView5" android:layout_width="0dp" android:layout_height="0dp"
+        app:srcCompat="@mipmap/ic_launcher" android:tag="360,1416,456,456"
+        app:layout_constraintTop_toTopOf="@+id/imageView4"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView3" android:layout_marginStart="8dp"
+        app:layout_constraintLeft_toRightOf="@+id/imageView4" android:layout_marginLeft="8dp"
+        app:layout_constraintDimensionRatio="w,1:1" />
+
+    <ImageView android:id="@+id/imageView6" android:layout_width="0dp" android:layout_height="0dp"
+        app:srcCompat="@mipmap/ic_launcher" android:tag="552,919,480,106"
+        app:layout_constraintLeft_toLeftOf="@+id/imageButton2"
+        app:layout_constraintRight_toRightOf="@+id/imageButton2"
+        app:layout_constraintBottom_toTopOf="@+id/imageView5" android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/imageButton2"
+        app:layout_constraintDimensionRatio="h,0.222" />
+</androidx.constraintlayout.widget.ConstraintLayout>

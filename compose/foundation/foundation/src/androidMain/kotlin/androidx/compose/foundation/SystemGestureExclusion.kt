@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.boundsInRoot
@@ -40,13 +39,13 @@ import kotlin.math.roundToInt
  * @see View.setSystemGestureExclusionRects
  */
 fun Modifier.systemGestureExclusion() =
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
         this
     } else {
         composed(inspectorInfo = debugInspectorInfo {
             name = "systemGestureExclusion"
         }) {
-            excludeFromSystemGestureR(null)
+            excludeFromSystemGestureQ(null)
         }
     }
 
@@ -61,21 +60,21 @@ fun Modifier.systemGestureExclusion() =
  * @see View.setSystemGestureExclusionRects
  */
 fun Modifier.systemGestureExclusion(exclusion: (LayoutCoordinates) -> Rect) =
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
         this
     } else {
         composed(inspectorInfo = debugInspectorInfo {
             name = "systemGestureExclusion"
             properties["exclusion"] = exclusion
         }) {
-            excludeFromSystemGestureR(exclusion)
+            excludeFromSystemGestureQ(exclusion)
         }
     }
 
 @Suppress("NOTHING_TO_INLINE", "ComposableModifierFactory", "ModifierFactoryExtensionFunction")
-@RequiresApi(Build.VERSION_CODES.R)
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-private inline fun excludeFromSystemGestureR(
+private inline fun excludeFromSystemGestureQ(
     noinline exclusion: ((LayoutCoordinates) -> Rect)?
 ): Modifier {
     val view = LocalView.current
@@ -88,7 +87,7 @@ private inline fun excludeFromSystemGestureR(
     return modifier
 }
 
-@RequiresApi(Build.VERSION_CODES.R)
+@RequiresApi(Build.VERSION_CODES.Q)
 private class ExcludeFromSystemGestureModifier(
     val view: View,
     val exclusion: ((LayoutCoordinates) -> Rect)?
@@ -97,7 +96,13 @@ private class ExcludeFromSystemGestureModifier(
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         val newRect = if (exclusion == null) {
-            coordinates.boundsInRoot().toAndroidRect()
+            val boundsInRoot = coordinates.boundsInRoot()
+            android.graphics.Rect(
+                boundsInRoot.left.roundToInt(),
+                boundsInRoot.top.roundToInt(),
+                boundsInRoot.right.roundToInt(),
+                boundsInRoot.bottom.roundToInt()
+            )
         } else {
             calcBounds(coordinates, exclusion.invoke(coordinates))
         }

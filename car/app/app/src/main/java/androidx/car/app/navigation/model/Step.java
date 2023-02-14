@@ -18,7 +18,6 @@ package androidx.car.app.navigation.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
@@ -28,6 +27,7 @@ import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -42,19 +42,15 @@ import java.util.Objects;
  * highway, or continuing straight through a roundabout.
  */
 @CarProtocol
+@KeepFields
 public final class Step {
-    @Keep
     @Nullable
     private final Maneuver mManeuver;
-    @Keep
     private final List<Lane> mLanes;
-    @Keep
     @Nullable
     private final CarIcon mLanesImage;
-    @Keep
     @Nullable
     private final CarText mCue;
-    @Keep
     @Nullable
     private final CarText mRoad;
 
@@ -184,8 +180,8 @@ public final class Step {
         private CarText mRoad;
 
         /**
-        * Constructs a new builder of {@link Step}.
-        */
+         * Constructs a new builder of {@link Step}.
+         */
         public Builder() {
         }
 

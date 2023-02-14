@@ -17,6 +17,7 @@
 package androidx.compose.foundation.textfield
 
 import android.view.KeyEvent
+import android.view.KeyEvent.META_ALT_ON
 import android.view.KeyEvent.META_CTRL_ON
 import android.view.KeyEvent.META_SHIFT_ON
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -33,11 +34,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performKeyPress
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -77,6 +80,30 @@ class HardwareKeyboardTest {
             Key.Spacebar.downAndUp()
             Key.V.downAndUp(META_CTRL_ON)
             expectedText("hello hello")
+        }
+    }
+
+    @Test
+    fun textField_directCopyPaste() {
+        keysSequenceTest(initText = "hello") {
+            Key.A.downAndUp(META_CTRL_ON)
+            Key.Copy.downAndUp()
+            expectedText("hello")
+            Key.DirectionRight.downAndUp()
+            Key.Spacebar.downAndUp()
+            Key.Paste.downAndUp()
+            expectedText("hello hello")
+        }
+    }
+
+    @Test
+    fun textField_directCutPaste() {
+        keysSequenceTest(initText = "hello") {
+            Key.A.downAndUp(META_CTRL_ON)
+            Key.Cut.downAndUp()
+            expectedText("")
+            Key.Paste.downAndUp()
+            expectedText("hello")
         }
     }
 
@@ -128,6 +155,30 @@ class HardwareKeyboardTest {
         keysSequenceTest(initText = "hello") {
             Key.Delete.downAndUp()
             expectedText("ello")
+        }
+    }
+
+    @Test
+    fun textField_delete_atEnd() {
+        val text = "hello"
+        val value = mutableStateOf(
+            TextFieldValue(
+                text,
+                // Place cursor at end.
+                selection = TextRange(text.length)
+            )
+        )
+        keysSequenceTest(value = value) {
+            Key.Delete.downAndUp()
+            expectedText("hello")
+        }
+    }
+
+    @Test
+    fun textField_delete_whenEmpty() {
+        keysSequenceTest(initText = "") {
+            Key.Delete.downAndUp()
+            expectedText("")
         }
     }
 
@@ -213,6 +264,45 @@ class HardwareKeyboardTest {
             expectedText("hello \nhi world")
             Key.Delete.downAndUp(META_CTRL_ON)
             expectedText("hello  world")
+        }
+    }
+
+    @Test
+    fun textField_deleteToBeginningOfLine() {
+        keysSequenceTest(initText = "hello world\nhi world") {
+            Key.DirectionRight.downAndUp(META_CTRL_ON)
+            Key.Backspace.downAndUp(META_ALT_ON)
+            expectedText(" world\nhi world")
+            Key.Backspace.downAndUp(META_ALT_ON)
+            expectedText(" world\nhi world")
+            repeat(3) { Key.DirectionRight.downAndUp() }
+            Key.Backspace.downAndUp(META_ALT_ON)
+            expectedText("rld\nhi world")
+            Key.DirectionDown.downAndUp()
+            Key.MoveEnd.downAndUp()
+            Key.Backspace.downAndUp(META_ALT_ON)
+            expectedText("rld\n")
+            Key.Backspace.downAndUp(META_ALT_ON)
+            expectedText("rld\n")
+        }
+    }
+
+    @Test
+    fun textField_deleteToEndOfLine() {
+        keysSequenceTest(initText = "hello world\nhi world") {
+            Key.DirectionRight.downAndUp(META_CTRL_ON)
+            Key.Delete.downAndUp(META_ALT_ON)
+            expectedText("hello\nhi world")
+            Key.Delete.downAndUp(META_ALT_ON)
+            expectedText("hello\nhi world")
+            repeat(3) { Key.DirectionRight.downAndUp() }
+            Key.Delete.downAndUp(META_ALT_ON)
+            expectedText("hello\nhi")
+            Key.MoveHome.downAndUp()
+            Key.Delete.downAndUp(META_ALT_ON)
+            expectedText("hello\n")
+            Key.Delete.downAndUp(META_ALT_ON)
+            expectedText("hello\n")
         }
     }
 
@@ -328,8 +418,9 @@ class HardwareKeyboardTest {
         sequence: SequenceScope.() -> Unit,
     ) {
         val inputService = TextInputService(mock())
-        val focusFequester = FocusRequester()
+        val focusRequester = FocusRequester()
         rule.setContent {
+            LocalClipboardManager.current.setText(AnnotatedString("InitialTestText"))
             CompositionLocalProvider(
                 LocalTextInputService provides inputService
             ) {
@@ -339,13 +430,13 @@ class HardwareKeyboardTest {
                         fontFamily = TEST_FONT_FAMILY,
                         fontSize = 10.sp
                     ),
-                    modifier = modifier.focusRequester(focusFequester),
+                    modifier = modifier.focusRequester(focusRequester),
                     onValueChange = onValueChange
                 )
             }
         }
 
-        rule.runOnIdle { focusFequester.requestFocus() }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         sequence(SequenceScope(value) { rule.onNode(hasSetTextAction()) })
     }

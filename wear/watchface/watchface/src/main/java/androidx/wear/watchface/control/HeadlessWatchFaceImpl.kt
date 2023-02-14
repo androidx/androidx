@@ -18,12 +18,11 @@ package androidx.wear.watchface.control
 
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
-import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
-import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
+import androidx.wear.watchface.utility.TraceEvent
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
@@ -33,7 +32,8 @@ import kotlinx.coroutines.withContext
  */
 @RequiresApi(27)
 internal class HeadlessWatchFaceImpl(
-    internal var engine: WatchFaceService.EngineWrapper?
+    internal var engine: WatchFaceService.EngineWrapper?,
+    internal var watchFaceService: WatchFaceService?
 ) : IHeadlessWatchFace.Stub() {
 
     internal companion object {
@@ -55,18 +55,15 @@ internal class HeadlessWatchFaceImpl(
             indentingPrintWriter.decreaseIndent()
         }
 
-        private val headlessInstances = HashSet<HeadlessWatchFaceImpl>()
+        internal val headlessInstances = HashSet<HeadlessWatchFaceImpl>()
     }
 
     init {
         TraceEvent("HeadlessWatchFaceImpl.init").use {
             runBlocking {
-                val coroutineContext = synchronized(this) {
-                    engine!!.uiThreadCoroutineScope.coroutineContext
-                }
-                withContext(coroutineContext) {
-                    headlessInstances.add(this@HeadlessWatchFaceImpl)
-                }
+                val coroutineContext =
+                    synchronized(this) { engine!!.uiThreadCoroutineScope.coroutineContext }
+                withContext(coroutineContext) { headlessInstances.add(this@HeadlessWatchFaceImpl) }
             }
         }
     }
@@ -77,63 +74,82 @@ internal class HeadlessWatchFaceImpl(
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "HeadlessWatchFaceImpl.renderWatchFaceToBitmap"
-        ) { watchFaceImpl -> watchFaceImpl.renderWatchFaceToBitmap(params) }
+        ) {
+            it.renderWatchFaceToBitmap(params)
+        }
 
     override fun getPreviewReferenceTimeMillis() =
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "HeadlessWatchFaceImpl.getPreviewReferenceTimeMillis"
-        ) { watchFaceImpl -> watchFaceImpl.previewReferenceInstant.toEpochMilli() } ?: 0
+        ) {
+            it.previewReferenceInstant.toEpochMilli()
+        }
+            ?: 0
 
-    override fun getComplicationState() =
-        WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
-            engine,
-            "HeadlessWatchFaceImpl.getComplicationState"
-        ) { watchFaceImpl -> watchFaceImpl.getComplicationState() }
+    override fun getComplicationState() = run {
+        val engineCopy = engine
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
+            engineCopy,
+            "HeadlessWatchFaceImpl.getComplicationState",
+            WatchFaceService.Companion.ExecutionThread.UI
+        ) {
+            it.complicationSlotsManager.getComplicationsState(engineCopy!!.screenBounds)
+        }
+    }
 
     override fun renderComplicationToBitmap(params: ComplicationRenderParams) =
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "HeadlessWatchFaceImpl.renderComplicationToBitmap"
-        ) { watchFaceImpl -> watchFaceImpl.renderComplicationToBitmap(params) }
+        ) {
+            it.renderComplicationToBitmap(params)
+        }
 
     override fun getUserStyleSchema() =
-        WatchFaceService.deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engine,
-            "HeadlessWatchFaceImpl.getUserStyleSchema"
-        ) { watchFaceInitDetails ->
-            watchFaceInitDetails.userStyleRepository.schema.toWireFormat()
+            "HeadlessWatchFaceImpl.getUserStyleSchema",
+            WatchFaceService.Companion.ExecutionThread.CURRENT
+        ) {
+            it.userStyleRepository.schema.toWireFormat()
         }
 
     override fun computeUserStyleSchemaDigestHash() =
-        WatchFaceService.deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engine,
-            "HeadlessWatchFaceImpl.computeUserStyleSchemaDigestHash"
-        ) { watchFaceInitDetails ->
-            watchFaceInitDetails.userStyleRepository.schema.getDigestHash()
+            "HeadlessWatchFaceImpl.computeUserStyleSchemaDigestHash",
+            WatchFaceService.Companion.ExecutionThread.CURRENT
+        ) {
+            it.userStyleRepository.schema.getDigestHash()
         }
 
-    @OptIn(WatchFaceFlavorsExperimental::class)
     override fun getUserStyleFlavors() =
-        WatchFaceService.deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
             engine,
-            "HeadlessWatchFaceImpl.getUserStyleFlavors"
-        ) { watchFaceInitDetails ->
-            watchFaceInitDetails.userStyleFlavors.toWireFormat()
+            "HeadlessWatchFaceImpl.getUserStyleFlavors",
+            WatchFaceService.Companion.ExecutionThread.CURRENT
+        ) {
+            it.userStyleFlavors.toWireFormat()
         }
 
     override fun release() {
         TraceEvent("HeadlessWatchFaceImpl.release").use {
             runBlocking {
-                val engineCopy = synchronized(this) { engine!! }
-                withContext(engineCopy.uiThreadCoroutineScope.coroutineContext) {
-                    headlessInstances.remove(this@HeadlessWatchFaceImpl)
-                    synchronized(this@HeadlessWatchFaceImpl) {
-                        engine!!.onDestroy()
-                        engine = null
+                    val engineCopy = synchronized(this) { engine!! }
+                    withContext(engineCopy.uiThreadCoroutineScope.coroutineContext) {
+                        headlessInstances.remove(this@HeadlessWatchFaceImpl)
+                        synchronized(this@HeadlessWatchFaceImpl) {
+                            engine!!.onDestroy()
+                            engine = null
+
+                            watchFaceService!!.onDestroy()
+                            watchFaceService = null
+                        }
                     }
+                    engineCopy
                 }
-            }
+                .cancelCoroutineScopes()
         }
     }
 }

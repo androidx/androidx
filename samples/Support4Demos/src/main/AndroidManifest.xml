@@ -21,6 +21,7 @@
      to come from a domain that you own or have control over. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
         android:hardwareAccelerated="true"
         android:icon="@drawable/app_sample_code"
@@ -419,6 +420,17 @@
             android:name=".widget.NestedScrollActivity3Levels"
             android:exported="true"
             android:label="@string/nested_scroll_3_levels">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".widget.NestedScrollActivity3LevelsWithCollapsingToolbar"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:label="@string/nested_scroll_3_levels_collapsing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />

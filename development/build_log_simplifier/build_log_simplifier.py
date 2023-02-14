@@ -532,7 +532,7 @@ def main():
             print("Instructions:")
             print("  If you can fix these messages, do so.")
             print("  If you cannot fix these messages, you may suppress them.")
-            print("    To automatically suppress new output from build server builds, run development/build_log_simplifier/update.sh .")
+            print("    To automatically suppress new output from build server builds, run development/build_log_simplifier/update.sh")
             print("  See also https://android.googlesource.com/platform/frameworks/support/+/androidx-main/development/build_log_simplifier/VALIDATION_FAILURE.md")
             print("")
             new_exemptions_path = log_paths[0] + ".ignore"

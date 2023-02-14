@@ -52,6 +52,19 @@ import java.util.List;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
+    private static final ControlUpdateCallback NO_OP_CALLBACK = new ControlUpdateCallback() {
+        @Override
+        public void onCameraControlUpdateSessionConfig() {
+            // No-op
+        }
+
+        @Override
+        public void onCameraControlCaptureRequests(
+                @NonNull List<CaptureConfig> captureConfigs) {
+            // No-op
+        }
+    };
+
     private final ControlUpdateCallback mControlUpdateCallback;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     @ImageCapture.FlashMode
@@ -62,8 +75,15 @@ public final class FakeCameraControl implements CameraControlInternal {
     private final ArrayList<CallbackToFutureAdapter.Completer<Void>> mSubmittedCompleterList =
             new ArrayList<>();
 
-    private boolean mIsZslDisabled = true;
+    private boolean mIsZslDisabledByUseCaseConfig = false;
     private boolean mIsZslConfigAdded = false;
+    private float mZoomRatio = -1;
+    private float mLinearZoom = -1;
+    private boolean mTorchEnabled = false;
+
+    public FakeCameraControl() {
+        this(NO_OP_CALLBACK);
+    }
 
     public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
         mControlUpdateCallback = controlUpdateCallback;
@@ -131,29 +151,24 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public void setZslDisabled(boolean disabled) {
-        mIsZslDisabled = disabled;
+    public void setZslDisabledByUserCaseConfig(boolean disabled) {
+        mIsZslDisabledByUseCaseConfig = disabled;
     }
 
     @Override
-    public void addZslConfig(@NonNull Size resolution,
-            @NonNull SessionConfig.Builder sessionConfigBuilder) {
+    public boolean isZslDisabledByByUserCaseConfig() {
+        return mIsZslDisabledByUseCaseConfig;
+    }
+
+    @Override
+    public void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder) {
         // Override if Zero-Shutter Lag needs to add config to session config.
         mIsZslConfigAdded = true;
     }
 
     /**
-     * Checks if Zsl is disabled. Only for testing purpose.
-     * @return
-     */
-    public boolean isZslDisabled() {
-        return mIsZslDisabled;
-    }
-
-    /**
      * Checks if {@link FakeCameraControl#addZslConfig(Size, SessionConfig.Builder)} is
      * triggered. Only for testing purpose.
-     * @return
      */
     public boolean isZslConfigAdded() {
         return mIsZslConfigAdded;
@@ -163,7 +178,12 @@ public final class FakeCameraControl implements CameraControlInternal {
     @NonNull
     public ListenableFuture<Void> enableTorch(boolean torch) {
         Logger.d(TAG, "enableTorch(" + torch + ")");
+        mTorchEnabled = torch;
         return Futures.immediateFuture(null);
+    }
+
+    public boolean getTorchEnabled() {
+        return mTorchEnabled;
     }
 
     @NonNull
@@ -226,13 +246,23 @@ public final class FakeCameraControl implements CameraControlInternal {
     @NonNull
     @Override
     public ListenableFuture<Void> setZoomRatio(float ratio) {
+        mZoomRatio = ratio;
         return Futures.immediateFuture(null);
+    }
+
+    public float getZoomRatio() {
+        return mZoomRatio;
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> setLinearZoom(float linearZoom) {
+        mLinearZoom = linearZoom;
         return Futures.immediateFuture(null);
+    }
+
+    public float getLinearZoom() {
+        return mLinearZoom;
     }
 
     @Override

@@ -29,24 +29,19 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.ShortcutAdapter;
 import androidx.core.content.pm.ShortcutInfoChangeListener;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.google.shortcuts.builders.CapabilityBuilder;
 import androidx.core.google.shortcuts.builders.ParameterBuilder;
 import androidx.core.google.shortcuts.builders.ShortcutBuilder;
-import androidx.core.google.shortcuts.converters.AppSearchDocumentConverter;
-import androidx.core.google.shortcuts.converters.AppSearchDocumentConverterFactory;
-import androidx.core.google.shortcuts.utils.EntityUriUtils;
 import androidx.core.google.shortcuts.utils.ShortcutUtils;
 import androidx.core.graphics.drawable.IconCompat;
 
+import com.google.android.gms.appindex.Action;
+import com.google.android.gms.appindex.AppIndex;
+import com.google.android.gms.appindex.Indexable;
+import com.google.android.gms.appindex.UserActions;
 import com.google.crypto.tink.KeysetHandle;
-import com.google.firebase.appindexing.Action;
-import com.google.firebase.appindexing.FirebaseAppIndex;
-import com.google.firebase.appindexing.FirebaseUserActions;
-import com.google.firebase.appindexing.Indexable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,8 +54,8 @@ import java.util.List;
 @RestrictTo(LIBRARY_GROUP)
 public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     private final Context mContext;
-    private final FirebaseAppIndex mFirebaseAppIndex;
-    private final FirebaseUserActions mFirebaseUserActions;
+    private final AppIndex mFirebaseAppIndex;
+    private final UserActions mFirebaseUserActions;
     @Nullable private final KeysetHandle mKeysetHandle;
 
     /**
@@ -71,14 +66,14 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
      */
     @NonNull
     public static ShortcutInfoChangeListenerImpl getInstance(@NonNull Context context) {
-        return new ShortcutInfoChangeListenerImpl(context, FirebaseAppIndex.getInstance(context),
-                FirebaseUserActions.getInstance(context),
+        return new ShortcutInfoChangeListenerImpl(context, AppIndex.getInstance(context),
+                UserActions.getInstance(context),
                 ShortcutUtils.getOrCreateShortcutKeysetHandle(context));
     }
 
     @VisibleForTesting
-    ShortcutInfoChangeListenerImpl(Context context, FirebaseAppIndex firebaseAppIndex,
-            FirebaseUserActions firebaseUserActions, @Nullable KeysetHandle keysetHandle) {
+    ShortcutInfoChangeListenerImpl(Context context, AppIndex firebaseAppIndex,
+            UserActions firebaseUserActions, @Nullable KeysetHandle keysetHandle) {
         mContext = context;
         mFirebaseAppIndex = firebaseAppIndex;
         mFirebaseUserActions = firebaseUserActions;
@@ -93,34 +88,9 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     @Override
     public void onShortcutAdded(@NonNull List<ShortcutInfoCompat> shortcuts) {
         List<Indexable> indexables = new ArrayList<>();
-        // A shortcut can either be an entity shortcut, or capability-instance shortcuts. Entity
-        // shortcuts will be indexed under their respective schema type, and capability-instance
-        // shortcuts will be indexed in the general shortcut corpus.
         for (ShortcutInfoCompat shortcut : shortcuts) {
-            GenericDocument entity = null;
-            // ShortcutAdapter is only available for Lollipop and above.
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                entity = ShortcutAdapter.extractDocument(shortcut);
-            }
-
-            if (entity == null) {
-                // API level < Lollipop, or Shortcut might be a capability-instance shortcut.
-                ShortcutBuilder shortcutBuilder = buildShortcutIndexable(shortcut);
-
-                // Capability-instance shortcuts may contain references to entity shortcuts. If
-                // that's the case, report usage for those entity shortcuts.
-                // TODO (b/207161241): use capability binding api directly from shortcut once it's
-                //  available.
-                maybeReportEntityUsage(shortcutBuilder);
-                indexables.add(shortcutBuilder.build());
-            } else {
-                // Shortcut is an entity shortcut.
-                AppSearchDocumentConverter converter =
-                        AppSearchDocumentConverterFactory.getConverter(entity.getSchemaType());
-                Indexable.Builder entityIndexableBuilder =
-                        converter.convertGenericDocument(mContext, entity);
-                indexables.add(entityIndexableBuilder.build());
-            }
+            ShortcutBuilder shortcutBuilder = buildShortcutIndexable(shortcut);
+            indexables.add(shortcutBuilder.build());
         }
         mFirebaseAppIndex.update(indexables.toArray(new Indexable[0]));
     }
@@ -173,45 +143,11 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
         mFirebaseAppIndex.removeAll();
     }
 
-    /**
-     * If the shortcut has references to entity URIs, then report usage for those URIs.
-     */
-    private void maybeReportEntityUsage(@NonNull ShortcutBuilder shortcutBuilder) {
-        CapabilityBuilder[] capabilities = shortcutBuilder.getCapabilities();
-        if (capabilities == null) {
-            return;
-        }
-
-        for (CapabilityBuilder capability : capabilities) {
-            ParameterBuilder[] parameters = capability.getParameters();
-            if (parameters == null) {
-                continue;
-            }
-
-            for (ParameterBuilder parameter : parameters) {
-                String[] values = parameter.getValues();
-                if (values == null) {
-                    continue;
-                }
-                for (String value : values) {
-                    String entityId = EntityUriUtils.getEntityId(value);
-                    if (entityId != null) {
-                        mFirebaseUserActions.end(
-                                buildAction(ShortcutUtils.getIndexableUrl(mContext, entityId)));
-                    }
-                }
-            }
-        }
-    }
-
     @NonNull
     private Action buildAction(@NonNull String url) {
-        // The reported action isn't uploaded to the server.
-        Action.Metadata.Builder metadataBuilder = new Action.Metadata.Builder().setUpload(false);
         return new Action.Builder(Action.Builder.VIEW_ACTION)
                 // Empty label as placeholder.
                 .setObject("", url)
-                .setMetadata(metadataBuilder)
                 .build();
     }
 

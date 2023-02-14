@@ -20,13 +20,17 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.os.Build;
+
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 public class PlatformStorageTest {
     @Test
     public void testSearchContext_databaseName() {

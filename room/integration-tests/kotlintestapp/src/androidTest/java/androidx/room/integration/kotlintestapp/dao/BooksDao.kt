@@ -26,6 +26,7 @@ import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import androidx.room.TypeConverters
 import androidx.room.Update
+import androidx.room.Upsert
 import androidx.room.integration.kotlintestapp.vo.AnswerConverter
 import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
@@ -40,15 +41,19 @@ import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBooks
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.google.common.base.Optional
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableListMultimap
 import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
+import io.reactivex.Observable
 import io.reactivex.Single
+import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
-import java.util.Date
 
+@JvmDefaultWithCompatibility
 @Dao
 @TypeConverters(DateConverter::class, AnswerConverter::class)
 interface BooksDao {
@@ -129,10 +134,19 @@ interface BooksDao {
     fun getBook(bookId: String): Book
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
+    fun getBookNullable(bookId: String): Book?
+
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
     suspend fun getBookSuspend(bookId: String): Book
+
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
+    suspend fun getBookNullableSuspend(bookId: String): Book?
 
     @Query("SELECT * FROM book")
     suspend fun getBooksSuspend(): List<Book>
+
+    @Query("SELECT * FROM publisher")
+    suspend fun getPublishersSuspend(): List<Publisher>
 
     @Query("UPDATE book SET salesCnt = salesCnt + 1 WHERE bookId = :bookId")
     fun increaseBookSales(bookId: String)
@@ -153,7 +167,7 @@ interface BooksDao {
     fun increaseBookSalesFuture(bookId: String): ListenableFuture<Int>
 
     @Query("UPDATE book SET salesCnt = salesCnt + 1 WHERE bookId = :bookId")
-    fun increaseBookSalesVoidFuture(bookId: String): ListenableFuture<Void>
+    fun increaseBookSalesVoidFuture(bookId: String): ListenableFuture<Void?>
 
     @Query("DELETE FROM book WHERE salesCnt = 0")
     fun deleteUnsoldBooks(): Int
@@ -174,7 +188,7 @@ interface BooksDao {
     fun deleteUnsoldBooksFuture(): ListenableFuture<Int>
 
     @Query("DELETE FROM book WHERE salesCnt = 0")
-    fun deleteUnsoldBooksVoidFuture(): ListenableFuture<Void>
+    fun deleteUnsoldBooksVoidFuture(): ListenableFuture<Void?>
 
     @Query("DELETE FROM book WHERE bookId IN (:bookIds)")
     fun deleteBookWithIds(vararg bookIds: String)
@@ -352,8 +366,14 @@ interface BooksDao {
     @Query("SELECT * FROM Publisher")
     fun getPublishers(): List<Publisher>
 
+    @Query("SELECT * FROM Publisher")
+    fun getPublishersImmutable(): ImmutableList<Publisher>
+
     @Query("SELECT * FROM Publisher WHERE publisherId = :publisherId")
     fun getPublisher(publisherId: String): Publisher
+
+    @Query("SELECT * FROM Publisher WHERE publisherId = :publisherId")
+    fun getPublisherNullable(publisherId: String): Publisher?
 
     @Query("SELECT * FROM Publisher WHERE _rowid_ = :rowid")
     fun getPublisher(rowid: Long): Publisher
@@ -447,12 +467,85 @@ interface BooksDao {
         action: suspend (input: Book) -> Book
     ): Book = action(input)
 
+    // Commented out because of https://youtrack.jetbrains.com/issue/KT-48013
     // This is a private method to validate b/194706278
-    private fun getNullAuthor(): Author? = null
+    // private fun getNullAuthor(): Author? = null
 
     @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
     fun getBooksByPublisher(): Map<Publisher, List<Book>>
 
-    @get:Query("SELECT * FROM Book")
-    val allBooks: List<Book>
+    @Query("SELECT * FROM Publisher JOIN Book ON (Publisher.publisherId == Book.bookPublisherId)")
+    fun getBooksByPublisherImmutable(): ImmutableListMultimap<Publisher, Book>
+
+    @Query("SELECT * FROM Book")
+    fun getAllBooks(): List<Book>
+
+    @Upsert
+    fun upsertBooks(vararg books: Book)
+
+    @Upsert
+    suspend fun upsertBooksSuspend(vararg books: Book)
+
+    @Upsert
+    fun upsertBookPublisher(publisher: Publisher, book: Book)
+
+    @Upsert(entity = Book::class)
+    fun upsertMiniBook(miniBook: MiniBook)
+
+    @Upsert
+    fun upsertBookReturnLong(book: Book): Long
+
+    @Upsert
+    fun upsertBooksReturnLongList(vararg books: Book): List<Long>
+
+    @Upsert
+    fun upsertBooksReturnLongArray(vararg books: Book): Array<Long>
+
+    @Upsert
+    fun upsertBooksReturnLongArrayPrimitive(vararg books: Book): LongArray
+
+    @Upsert
+    fun upsertBooksReturnListenableFuture(vararg books: Book): ListenableFuture<List<Long>>
+
+    @Upsert
+    fun upsertPublishers(vararg publishers: Publisher)
+
+    @Upsert
+    fun upsertTwoPublishers(publisherOne: Publisher, publisherTwo: Publisher)
+
+    @Upsert
+    fun upsertMultiple(publisher: Publisher, publishers: List<Publisher>)
+
+    @Upsert
+    fun upsertPublisherSingle(publisher: Publisher): Single<Long>
+
+    @Upsert
+    fun upsertBookSingle(book: Book): Single<Long>
+
+    @Upsert
+    fun upsertBookMaybe(book: Book): Maybe<Long>
+
+    @Upsert
+    fun upsertBookCompletable(book: Book): Completable
+
+    @Upsert
+    fun upsertListOfBooksReturnLongArray(books: List<Book>): Array<Long>
+
+    @Query("SELECT * FROM book")
+    fun getBooksFlowable(): Flowable<List<Book>>
+
+    @Query("SELECT * FROM book")
+    fun getBooksObservable(): Observable<List<Book>>
+
+    @Insert
+    fun addPublisherReturnArray(publishers: List<Publisher>): Array<Long>
+
+    @Upsert
+    suspend fun upsertBookSuspend(books: Book)
+
+    @Upsert
+    suspend fun upsertBookSuspendReturnId(book: Book): Long
+
+    @Upsert
+    suspend fun upsertBooksSuspendReturnIds(books: List<Book>): List<Long>
 }

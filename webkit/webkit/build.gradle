@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.2.0")
     api("androidx.core:core:1.1.0")
 
     androidTestImplementation(libs.okhttpMockwebserver)
@@ -31,12 +31,14 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
+    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation("androidx.concurrent:concurrent-futures:1.0.0")
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.multidex)
 
     // Hamcrest matchers:
-    androidTestImplementation(libs.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
 }
 
 ext {
@@ -53,7 +55,9 @@ android {
         // Allow compiling the WebView support library boundary interfaces from this project.
         main.java.srcDirs += new File(webviewBoundaryInterfacesDir, "src").getCanonicalPath()
     }
-
+    defaultConfig {
+        multiDexEnabled = true
+    }
     buildTypes.all {
         consumerProguardFiles(
                 new File(webviewBoundaryInterfacesDir, "proguard.flags"),
@@ -66,7 +70,7 @@ android {
 androidx {
     name = "WebView Support Library"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEBKIT
     inceptionYear = "2017"
     description = "The WebView Support Library is a static library you can add to your Android application in order to use android.webkit APIs that are not available for older platform versions."
+    additionalDeviceTestApkKeys.add("chrome")
 }

@@ -17,12 +17,12 @@ package androidx.car.app.hardware.info;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Objects;
 
@@ -31,16 +31,14 @@ import java.util.Objects;
  */
 @CarProtocol
 @RequiresCarApi(3)
+@KeepFields
 public final class Model {
-    @Keep
     @NonNull
     private final CarValue<String> mName;
 
-    @Keep
     @NonNull
     private final CarValue<Integer> mYear;
 
-    @Keep
     @NonNull
     private final CarValue<String> mManufacturer;
 
@@ -96,16 +94,16 @@ public final class Model {
 
     /** Constructs an empty instance, used by serialization code. */
     private Model() {
-        mName = CarValue.UNIMPLEMENTED_STRING;
-        mManufacturer = CarValue.UNIMPLEMENTED_STRING;
-        mYear = CarValue.UNIMPLEMENTED_INTEGER;
+        mName = CarValue.UNKNOWN_STRING;
+        mManufacturer = CarValue.UNKNOWN_STRING;
+        mYear = CarValue.UNKNOWN_INTEGER;
     }
 
     /** A builder of {@link Model}. */
     public static final class Builder {
-        CarValue<String> mName = CarValue.UNIMPLEMENTED_STRING;
-        CarValue<Integer> mYear = CarValue.UNIMPLEMENTED_INTEGER;
-        CarValue<String> mManufacturer = CarValue.UNIMPLEMENTED_STRING;
+        CarValue<String> mName = CarValue.UNKNOWN_STRING;
+        CarValue<Integer> mYear = CarValue.UNKNOWN_INTEGER;
+        CarValue<String> mManufacturer = CarValue.UNKNOWN_STRING;
 
         /**
          * Sets the car model name.

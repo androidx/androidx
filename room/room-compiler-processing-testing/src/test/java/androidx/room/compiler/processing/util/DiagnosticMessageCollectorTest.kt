@@ -20,11 +20,11 @@ import androidx.room.compiler.processing.util.compiler.DiagnosticsMessageCollect
 import androidx.room.compiler.processing.util.compiler.steps.RawDiagnosticMessage
 import androidx.room.compiler.processing.util.compiler.steps.RawDiagnosticMessage.Location
 import com.google.common.truth.Truth.assertThat
+import javax.tools.Diagnostic
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import javax.tools.Diagnostic
 
 @RunWith(Parameterized::class)
 internal class DiagnosticMessageCollectorTest(
@@ -32,7 +32,7 @@ internal class DiagnosticMessageCollectorTest(
 ) {
     @Test
     fun parseDiagnosticMessage() {
-        val collector = DiagnosticsMessageCollector()
+        val collector = DiagnosticsMessageCollector("test")
         collector.report(
             severity = params.severity,
             message = params.message
@@ -185,6 +185,19 @@ internal class DiagnosticMessageCollectorTest(
                     kind = Diagnostic.Kind.WARNING,
                     message = "/foo/bar/Subjectjava:2: warning: the real message",
                     location = null
+                )
+            ),
+            // ksp kotlin on Windows
+            TestParams(
+                message = "[ksp] C:\\foo\\bar\\Subject.kt:3: the real message",
+                severity = CompilerMessageSeverity.ERROR,
+                expected = RawDiagnosticMessage(
+                    kind = Diagnostic.Kind.ERROR,
+                    message = "the real message",
+                    location = Location(
+                        path = "C:\\foo\\bar\\Subject.kt",
+                        line = 3
+                    )
                 )
             ),
         )

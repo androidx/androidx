@@ -16,13 +16,12 @@
 
 package androidx.compose.compiler.plugins.kotlin.lower
 
+import androidx.compose.compiler.plugins.kotlin.ComposeClassIds
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.ComposeWritableSlices.DURABLE_FUNCTION_KEY
 import androidx.compose.compiler.plugins.kotlin.analysis.ComposeWritableSlices.DURABLE_FUNCTION_KEYS
 import androidx.compose.compiler.plugins.kotlin.irTrace
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.backend.common.ir.addChild
-import org.jetbrains.kotlin.backend.common.ir.createParameterDeclarations
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
@@ -40,13 +39,14 @@ import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
+import org.jetbrains.kotlin.ir.util.addChild
 import org.jetbrains.kotlin.ir.util.constructors
+import org.jetbrains.kotlin.ir.util.createParameterDeclarations
 import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.load.kotlin.PackagePartClassUtils
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.BindingTrace
 
 class KeyInfo(
     val name: String,
@@ -102,13 +102,11 @@ class KeyInfo(
 class DurableFunctionKeyTransformer(
     context: IrPluginContext,
     symbolRemapper: DeepCopySymbolRemapper,
-    bindingTrace: BindingTrace,
     metrics: ModuleMetrics,
 ) : DurableKeyTransformer(
     DurableKeyVisitor(),
     context,
     symbolRemapper,
-    bindingTrace,
     metrics
 ) {
     fun removeKeyMetaClasses(moduleFragment: IrModuleFragment) {
@@ -153,9 +151,9 @@ class DurableFunctionKeyTransformer(
     var currentKeys = mutableListOf<KeyInfo>()
 
     private val keyMetaAnnotation =
-        getInternalClassOrNull("FunctionKeyMeta")
+        getTopLevelClassOrNull(ComposeClassIds.FunctionKeyMeta)
     private val metaClassAnnotation =
-        getInternalClassOrNull("FunctionKeyMetaClass")
+        getTopLevelClassOrNull(ComposeClassIds.FunctionKeyMetaClass)
 
     private fun irKeyMetaAnnotation(
         key: KeyInfo

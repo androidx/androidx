@@ -43,11 +43,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DefaultCameraDistance
+import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.colorspace.ColorModel
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.debugInspectorInfo
@@ -85,6 +88,7 @@ import org.junit.runner.RunWith
 
 private const val ROOT_ID = 3L
 private const val NODE_ID = -7L
+private const val ANCHOR_HASH = 77
 private const val PARAM_INDEX = 4
 private const val MAX_RECURSIONS = 2
 private const val MAX_ITERABLE_SIZE = 5
@@ -669,6 +673,44 @@ class ParameterFactoryTest {
     }
 
     @Test
+    fun testSingleModifierNode() {
+        validate(
+            create(
+                "modifier",
+                Modifier.graphicsLayer(
+                    scaleX = 2f,
+                    scaleY = 1.5f,
+                    alpha = 0.5f,
+                    clip = true
+                )
+            )
+        ) {
+            parameter("modifier", ParameterType.String, "") {
+                parameter("graphicsLayer", ParameterType.String, "") {
+                    parameter("scaleX", ParameterType.Float, 2f)
+                    parameter("scaleY", ParameterType.Float, 1.5f)
+                    parameter("alpha", ParameterType.Float, 0.5f)
+                    parameter("translationX", ParameterType.Float, 0f)
+                    parameter("translationY", ParameterType.Float, 0f)
+                    parameter("shadowElevation", ParameterType.Float, 0f)
+                    parameter("rotationX", ParameterType.Float, 0f)
+                    parameter("rotationY", ParameterType.Float, 0f)
+                    parameter("rotationZ", ParameterType.Float, 0f)
+                    parameter("cameraDistance", ParameterType.Float, DefaultCameraDistance)
+                    parameter("transformOrigin", ParameterType.String, "Center")
+                    parameter("shape", ParameterType.String, "RectangleShape")
+                    parameter("clip", ParameterType.Boolean, true)
+                    // parameter("renderEffect", ParameterType.String, "")
+                    val shadowArgb = DefaultShadowColor.toArgb()
+                    parameter("ambientShadowColor", ParameterType.Color, shadowArgb, index = 14)
+                    parameter("spotShadowColor", ParameterType.Color, shadowArgb, index = 15)
+                    parameter("compositingStrategy", ParameterType.String, "Auto", index = 16)
+                }
+            }
+        }
+    }
+
+    @Test
     fun testWrappedModifier() {
         fun Modifier.frame(color: Color) = inspectable(
             debugInspectorInfo {
@@ -922,6 +964,7 @@ class ParameterFactoryTest {
         val parameter = factory.create(
             ROOT_ID,
             NODE_ID,
+            ANCHOR_HASH,
             name,
             value,
             ParameterKind.Normal,
@@ -956,6 +999,7 @@ class ParameterFactoryTest {
         factory.expand(
             ROOT_ID,
             NODE_ID,
+            ANCHOR_HASH,
             name,
             value,
             reference,
@@ -972,7 +1016,7 @@ class ParameterFactoryTest {
     }
 
     private fun ref(vararg reference: Int): NodeParameterReference =
-        NodeParameterReference(NODE_ID, ParameterKind.Normal, PARAM_INDEX, reference)
+        NodeParameterReference(NODE_ID, ANCHOR_HASH, ParameterKind.Normal, PARAM_INDEX, reference)
 
     private fun validate(
         parameter: NodeParameter,
@@ -992,7 +1036,8 @@ class ParameterFactoryTest {
         maxInitialIterableSize: Int
     ) {
         factory.clearReferenceCache()
-        val reference = NodeParameterReference(NODE_ID, ParameterKind.Normal, PARAM_INDEX, indices)
+        val reference =
+            NodeParameterReference(NODE_ID, ANCHOR_HASH, ParameterKind.Normal, PARAM_INDEX, indices)
         val expanded = expand(
             name,
             value,

@@ -22,12 +22,12 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.camera.integration.extensions.R
-import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeStringFromId
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_FAILED
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_SUPPORTED
-import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_PASSED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_FAILED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_NOT_SUPPORTED
+import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PASSED
 
 class ExtensionValidationResultAdapter constructor(
+    private val testType: String,
     private val layoutInflater: LayoutInflater,
     private val extensionResultMap: LinkedHashMap<Int, Int>
 ) : BaseAdapter() {
@@ -68,7 +68,7 @@ class ExtensionValidationResultAdapter constructor(
         }
 
         val padding = 10
-        textView.text = getExtensionModeStringFromId(item.key)
+        textView.text = TestResults.getExtensionModeStringFromId(testType, item.key)
         textView.setPadding(padding, 0, padding, 0)
         textView.compoundDrawablePadding = padding
         textView.setBackgroundResource(backgroundResource)

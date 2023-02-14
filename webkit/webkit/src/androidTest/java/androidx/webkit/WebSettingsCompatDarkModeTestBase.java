@@ -21,12 +21,14 @@ import static org.junit.Assert.assertTrue;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Build;
 import android.util.Base64;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -41,7 +43,18 @@ import java.util.Map;
 /**
  * Base class for dark mode related test.
  */
+@RequiresApi(Build.VERSION_CODES.KITKAT)
 public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
+
+    // The size of WebViews to use in the app.
+    private static final int WEBVIEW_SIZE = 128;
+
+    // The webview renders a green border that interferes with capturing the colour of it.
+    // The border itself has a width of 2, but there seems to be some blending in the captured
+    // bitmap we get from the webview, so this constant is used to exclude the outer 3 pixels of the
+    // image when computing the majority colour.
+    private static final int GREEN_BORDER_THICKNESS = 3;
+
     public final String mDarkThemeSupport = Base64.encodeToString((
             "<html>"
                     + "  <head>"
@@ -65,7 +78,7 @@ public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
     @Rule
     public final TargetSdkActivityTestRule<T> mActivityRule;
 
-    public WebSettingsCompatDarkModeTestBase(Class<T> activityClass, int targetSdk) {
+    public WebSettingsCompatDarkModeTestBase(@NonNull Class<T> activityClass, int targetSdk) {
         mActivityRule = new TargetSdkActivityTestRule<T>(activityClass,
                 targetSdk);
     }
@@ -94,12 +107,12 @@ public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
         return getWebViewOnUiThread().getSettings();
     }
 
-    public void setWebViewSize(final int width, final int height) {
+    public void setWebViewSize() {
         WebkitUtils.onMainThreadSync(() -> {
             WebView webView = mWebViewOnUiThread.getWebViewOnCurrentThread();
             ViewGroup.LayoutParams params = webView.getLayoutParams();
-            params.height = height;
-            params.width = width;
+            params.height = WEBVIEW_SIZE;
+            params.width = WEBVIEW_SIZE;
             webView.setLayoutParams(params);
         });
     }
@@ -107,8 +120,10 @@ public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
     // Requires {@link WebViewFeature.OFF_SCREEN_PRERASTER} for {@link
     // WebViewOnUiThread#captureBitmap}.
     public int getWebPageColor() {
+        final int sideLength = WEBVIEW_SIZE - 2 * GREEN_BORDER_THICKNESS;
         Map<Integer, Integer> histogram =
-                getBitmapHistogram(mWebViewOnUiThread.captureBitmap(), 0, 0, 64, 64);
+                getBitmapHistogram(mWebViewOnUiThread.captureBitmap(), GREEN_BORDER_THICKNESS,
+                        GREEN_BORDER_THICKNESS, sideLength, sideLength);
         Map.Entry<Integer, Integer> maxEntry = null;
         for (Map.Entry<Integer, Integer> entry : histogram.entrySet()) {
             if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
@@ -116,7 +131,8 @@ public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
             }
         }
         assertNotNull("There must be at least one color on the screen", maxEntry);
-        double major = 1.0 * maxEntry.getValue() / (64 * 64);
+
+        double major = 1.0 * maxEntry.getValue() / (sideLength * sideLength);
         assertTrue(
                 "The majority color should be at least 85% of the pixels,"
                 + " the actual value " + major,
@@ -151,6 +167,7 @@ public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
     /**
      * Returns a matcher to check if a color int is mostly green.
      */
+    @NonNull
     public static Matcher<Integer> isGreen() {
         return new TypeSafeMatcher<Integer>() {
             private int mPageColor;

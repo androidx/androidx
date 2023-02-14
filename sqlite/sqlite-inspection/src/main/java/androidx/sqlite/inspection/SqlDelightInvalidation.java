@@ -16,12 +16,15 @@
 
 package androidx.sqlite.inspection;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.inspection.InspectorEnvironment;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 
 class SqlDelightInvalidation {
     private static final String SQLDELIGHT_QUERY_CLASS_NAME = "com.squareup.sqldelight.Query";
@@ -41,6 +44,7 @@ class SqlDelightInvalidation {
     @NonNull
     static SqlDelightInvalidation create(@NonNull InspectorEnvironment environment) {
         ClassLoader classLoader = SqlDelightInvalidation.class.getClassLoader();
+        Objects.requireNonNull(classLoader);
         try {
             Class<?> queryClass = classLoader.loadClass(SQLDELIGHT_QUERY_CLASS_NAME);
             Method notifyMethod = queryClass.getMethod(SQLDELIGHT_NOTIFY_METHOD_NAME);
@@ -61,6 +65,7 @@ class SqlDelightInvalidation {
         }
     }
 
+    @SuppressLint("BanUncheckedReflection") // Not a platform method.
     private void notifyDataChanged(Object query) {
         try {
             mNotifyDataChangeMethod.invoke(query);

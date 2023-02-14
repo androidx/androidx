@@ -16,7 +16,6 @@
 
 package androidx.build
 
-import androidx.build.checkapi.jvmCompileInputsFromKmpProject
 import androidx.build.java.JavaCompileInputs
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.builder.core.BuilderConstants
@@ -40,7 +39,7 @@ import org.gradle.process.CommandLineArgumentProvider
 const val ERROR_PRONE_TASK = "runErrorProne"
 
 private const val ERROR_PRONE_CONFIGURATION = "errorprone"
-private const val ERROR_PRONE_VERSION = "com.google.errorprone:error_prone_core:2.4.0"
+private const val ERROR_PRONE_VERSION = "com.google.errorprone:error_prone_core:2.14.0"
 private val log = Logging.getLogger("ErrorProneConfiguration")
 
 fun Project.configureErrorProneForJava() {
@@ -58,7 +57,7 @@ fun Project.configureErrorProneForJava() {
         makeKmpErrorProneTask(
             javaCompileProvider,
             jvmJarProvider,
-            project.jvmCompileInputsFromKmpProject()
+            JavaCompileInputs.fromKmpJvmTarget(project)
         )
     } else {
         makeErrorProneTask(javaCompileProvider)
@@ -118,6 +117,20 @@ private fun Project.createErrorProneConfiguration(): Configuration {
 
 // Given an existing JavaCompile task, reconfigures the task to use the ErrorProne compiler plugin
 private fun JavaCompile.configureWithErrorProne() {
+    options.isFork = true
+    options.forkOptions.jvmArgs!!.addAll(listOf(
+        "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+        "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+        "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
+        )
+    )
     val compilerArgs = this.options.compilerArgs
     compilerArgs += listOf(
         // Tell error-prone that we are running it on android compatible libraries
@@ -127,7 +140,31 @@ private fun JavaCompile.configureWithErrorProne() {
         listOf(
             "-Xplugin:ErrorProne",
 
-            "-XepExcludedPaths:.*/(build/generated|build/errorProne|external)/.*",
+            "-XepExcludedPaths:.*/(build/generated|build/errorProne|external|" +
+                "compileTransaction/compile-output)/.*",
+
+            // Consider re-enabling the following checks. Disabled as part of
+            // error-prone upgrade
+            "-Xep:InlineMeSuggester:OFF",
+            "-Xep:NarrowCalculation:OFF",
+            "-Xep:LongDoubleConversion:OFF",
+            "-Xep:UnicodeEscape:OFF",
+            "-Xep:JavaUtilDate:OFF",
+            "-Xep:UnrecognisedJavadocTag:OFF",
+            "-Xep:ObjectEqualsForPrimitives:OFF",
+            "-Xep:DoNotCallSuggester:OFF",
+            "-Xep:EqualsNull:OFF",
+            "-Xep:MalformedInlineTag:OFF",
+            "-Xep:MissingSuperCall:OFF",
+            "-Xep:ToStringReturnsNull:OFF",
+            "-Xep:ReturnValueIgnored:OFF",
+            "-Xep:MissingImplementsComparable:OFF",
+            "-Xep:EmptyTopLevelDeclaration:OFF",
+            "-Xep:InvalidThrowsLink:OFF",
+            "-Xep:StaticAssignmentOfThrowable:OFF",
+            "-Xep:DoNotClaimAnnotations:OFF",
+            "-Xep:AlreadyChecked:OFF",
+            "-Xep:StringSplitter:OFF",
 
             // We allow inter library RestrictTo usage.
             "-Xep:RestrictTo:OFF",
@@ -174,7 +211,7 @@ private fun JavaCompile.configureWithErrorProne() {
             "-Xep:MissingFail:ERROR",
             "-Xep:JavaLangClash:ERROR",
             "-Xep:TypeParameterUnusedInFormals:ERROR",
-            "-Xep:StringSplitter:ERROR",
+            // "-Xep:StringSplitter:ERROR", // disabled with upgrade to 2.14.0
             "-Xep:ReferenceEquality:ERROR",
             "-Xep:AssertionFailureIgnored:ERROR",
             "-Xep:UnnecessaryParentheses:ERROR",

@@ -18,11 +18,14 @@ package androidx.car.app.activity;
 
 import static android.os.Looper.getMainLooper;
 
+import static androidx.car.app.SessionInfo.DEFAULT_SESSION_INFO;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -38,6 +41,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.car.app.HandshakeInfo;
+import androidx.car.app.SessionInfoIntentEncoder;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IRendererService;
 import androidx.car.app.serialization.Bundleable;
@@ -47,6 +51,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowApplication;
@@ -72,7 +77,7 @@ public class ServiceConnectionManagerTest {
             new RenderServiceDelegate(mRenderService);
     private final CarAppViewModel mViewModel =
             new CarAppViewModel(ApplicationProvider.getApplicationContext(),
-                    mFakeCarAppServiceComponent);
+                    mFakeCarAppServiceComponent, DEFAULT_SESSION_INFO);
     private final ServiceConnectionManager mServiceConnectionManager =
             mViewModel.getServiceConnectionManager();
     private final ShadowLooper mMainLooper = shadowOf(getMainLooper());
@@ -125,7 +130,7 @@ public class ServiceConnectionManagerTest {
     public void testBind_unbound_bindsToRenderer() {
         setupCarAppActivityForTesting();
         ICarAppActivity iCarAppActivity = mock(ICarAppActivity.class);
-
+        ArgumentCaptor<Intent> intentArgumentCaptor = ArgumentCaptor.forClass(Intent.class);
         mServiceConnectionManager.bind(TEST_INTENT, iCarAppActivity, TEST_DISPLAY_ID);
         mMainLooper.idle();
         try {
@@ -133,12 +138,18 @@ public class ServiceConnectionManagerTest {
             assertThat(mViewModel.getError().getValue()).isNull();
             verify(mRenderService).initialize(iCarAppActivity, mFakeCarAppServiceComponent,
                     TEST_DISPLAY_ID);
-            verify(mRenderService).onNewIntent(TEST_INTENT, mFakeCarAppServiceComponent,
-                    TEST_DISPLAY_ID);
+            verify(mRenderService).onNewIntent(intentArgumentCaptor.capture(),
+                    eq(mFakeCarAppServiceComponent),
+                    eq(TEST_DISPLAY_ID));
         } catch (RemoteException e) {
             fail(Log.getStackTraceString(e));
         }
         assertThat(mServiceConnectionManager.isBound()).isTrue();
+        assertThat(intentArgumentCaptor.getValue()).isEqualTo(TEST_INTENT);
+        assertThat(intentArgumentCaptor.getValue().getExtras()).isNotNull();
+
+        assertThat(SessionInfoIntentEncoder.decode(intentArgumentCaptor.getValue())).isEqualTo(
+                DEFAULT_SESSION_INFO);
     }
 
     @Test

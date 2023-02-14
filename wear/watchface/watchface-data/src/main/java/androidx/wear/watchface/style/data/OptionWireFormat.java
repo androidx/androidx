@@ -32,7 +32,7 @@ import androidx.versionedparcelable.VersionedParcelize;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class OptionWireFormat implements VersionedParcelable, Parcelable {
@@ -43,8 +43,7 @@ public class OptionWireFormat implements VersionedParcelable, Parcelable {
 
     // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
 
-    OptionWireFormat() {
-    }
+    OptionWireFormat() {}
 
     public OptionWireFormat(@NonNull byte[] id) {
         mId = id;

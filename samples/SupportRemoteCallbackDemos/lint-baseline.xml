@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="cli" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="UnknownNullness"
@@ -7,9 +7,7 @@
         errorLine1="    public RemoteViews createRemoteViews(Context context, int[] ids, int value) {"
         errorLine2="           ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="43"
-            column="12"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public RemoteViews createRemoteViews(Context context, int[] ids, int value) {"
         errorLine2="                                         ~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="43"
-            column="42"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public RemoteViews createRemoteViews(Context context, int[] ids, int value) {"
         errorLine2="                                                          ~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="43"
-            column="59"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public RemoteCallback setValue(Context context, int[] ids, int value) {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="62"
-            column="12"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public RemoteCallback setValue(Context context, int[] ids, int value) {"
         errorLine2="                                   ~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="62"
-            column="36"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public RemoteCallback setValue(Context context, int[] ids, int value) {"
         errorLine2="                                                    ~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="62"
-            column="53"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
 </issues>
