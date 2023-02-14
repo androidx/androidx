@@ -38,6 +38,7 @@ import androidx.window.embedding.SplitPairRule
 import androidx.window.demo.R
 import androidx.window.demo.databinding.ActivitySplitDeviceStateLayoutBinding
 import androidx.window.embedding.RuleController
+import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
 
 open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListener,
     RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener,
@@ -67,7 +68,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         super.onCreate(savedInstanceState)
         viewBinding = ActivitySplitDeviceStateLayoutBinding.inflate(layoutInflater)
         splitController = SplitController.getInstance(this)
-        if (!splitController.isSplitSupported()) {
+        if (splitController.splitSupportStatus != SPLIT_AVAILABLE) {
             Toast.makeText(
                 this, R.string.toast_split_not_support,
                 Toast.LENGTH_SHORT

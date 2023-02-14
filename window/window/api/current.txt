@@ -173,15 +173,26 @@ package androidx.window.embedding {
     method public void addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
     method public void clearSplitAttributesCalculator();
     method public static androidx.window.embedding.SplitController getInstance(android.content.Context context);
+    method public androidx.window.embedding.SplitController.SplitSupportStatus getSplitSupportStatus();
     method public boolean isSplitAttributesCalculatorSupported();
-    method public boolean isSplitSupported();
     method public void removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
     method public void setSplitAttributesCalculator(kotlin.jvm.functions.Function1<? super androidx.window.embedding.SplitAttributesCalculatorParams,androidx.window.embedding.SplitAttributes> calculator);
+    property public final androidx.window.embedding.SplitController.SplitSupportStatus splitSupportStatus;
     field public static final androidx.window.embedding.SplitController.Companion Companion;
   }
 
   public static final class SplitController.Companion {
     method public androidx.window.embedding.SplitController getInstance(android.content.Context context);
+  }
+
+  public static final class SplitController.SplitSupportStatus {
+    field public static final androidx.window.embedding.SplitController.SplitSupportStatus.Companion Companion;
+    field public static final androidx.window.embedding.SplitController.SplitSupportStatus SPLIT_AVAILABLE;
+    field public static final androidx.window.embedding.SplitController.SplitSupportStatus SPLIT_ERROR_PROPERTY_NOT_DECLARED;
+    field public static final androidx.window.embedding.SplitController.SplitSupportStatus SPLIT_UNAVAILABLE;
+  }
+
+  public static final class SplitController.SplitSupportStatus.Companion {
   }
 
   public final class SplitInfo {
