@@ -20,8 +20,8 @@ import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 
 class FakeZoomCompat constructor(
-    override val minZoom: Float = 0f,
-    override val maxZoom: Float = 0f,
+    override val minZoomRatio: Float = 0f,
+    override val maxZoomRatio: Float = 0f,
 ) : ZoomCompat {
     var zoomRatio = 0f
 

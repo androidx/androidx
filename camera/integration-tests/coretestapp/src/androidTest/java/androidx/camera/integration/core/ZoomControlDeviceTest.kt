@@ -278,7 +278,7 @@ class ZoomControlDeviceTest(
 
     @Test
     fun setZoomRatioBy2_0_cropRegionIsSetCorrectly() = runBlocking {
-        assumeTrue(getMaxDigitalZoom() != null && getMaxDigitalZoom()!! <= 2.0f + DELTA)
+        assumeTrue(getMaxDigitalZoom() != null && getMaxDigitalZoom()!! > 2.0f + DELTA)
 
         checkTestPreconditions(isAndroidRZoom = false)
 
@@ -342,11 +342,6 @@ class ZoomControlDeviceTest(
 
     @Test
     fun setLinearZoomBy0_5_isHalfCropWidth() = runBlocking {
-        assumeFalse(
-            "b/267665704: CameraPipe linear zoom conversion to zoom ratio is not correct",
-            implName == "CameraPipeConfig"
-        )
-
         checkTestPreconditions(isAndroidRZoom = false)
 
         // crop region in percentage == 0 may be null, need to use sensor rect instead.
@@ -363,11 +358,6 @@ class ZoomControlDeviceTest(
     @Test
     @SdkSuppress(minSdkVersion = 30)
     fun setLinearZoomBy0_5_androidRZoomRatioUpdatedCorrectly() = runBlocking {
-        assumeFalse(
-            "b/267665704: CameraPipe linear zoom conversion to zoom ratio is not correct",
-            implName == "CameraPipeConfig"
-        )
-
         checkTestPreconditions(isAndroidRZoom = true)
 
         val cropWidth = 10000f
@@ -388,11 +378,6 @@ class ZoomControlDeviceTest(
 
     @Test
     fun setLinearZoom_cropWidthChangedLinearly() = runBlocking {
-        assumeFalse(
-            "b/267665704: CameraPipe linear zoom conversion to zoom ratio is not correct",
-            implName == "CameraPipeConfig"
-        )
-
         checkTestPreconditions(isAndroidRZoom = false)
 
         // crop region in percentage == 0 may be null, need to use sensor rect instead.
@@ -421,11 +406,6 @@ class ZoomControlDeviceTest(
     @RequiresApi(Build.VERSION_CODES.R)
     @Test
     fun setLinearZoom_androidRZoomRatio_cropWidthChangedLinearly() = runBlocking {
-        assumeFalse(
-            "b/267665704: CameraPipe linear zoom conversion to zoom ratio is not correct",
-            implName == "CameraPipeConfig"
-        )
-
         checkTestPreconditions(isAndroidRZoom = true)
 
         val cropWidth = 10000f
@@ -527,7 +507,7 @@ class ZoomControlDeviceTest(
 
     @Test
     fun getZoomRatioLiveData_observerIsCalledWhenZoomRatioIsSet() = runBlocking {
-        assumeTrue(getMaxDigitalZoom() != null && getMaxDigitalZoom()!! <= 2.0f + DELTA)
+        assumeTrue(getMaxDigitalZoom() != null && getMaxDigitalZoom()!! > 2.0f + DELTA)
 
         val latch1 = CountDownLatch(1)
         val latch2 = CountDownLatch(1)
@@ -579,11 +559,6 @@ class ZoomControlDeviceTest(
 
     @Test
     fun getZoomPercentageLiveData_observerIsCalledWhenZoomPercentageIsSet() = runBlocking {
-        assumeFalse(
-            "b/267665704: CameraPipe linear zoom conversion to zoom ratio is not correct",
-            implName == "CameraPipeConfig"
-        )
-
         val latch1 = CountDownLatch(1)
         val latch2 = CountDownLatch(1)
         val latch3 = CountDownLatch(1)
@@ -611,7 +586,7 @@ class ZoomControlDeviceTest(
 
     @Test
     fun getZoomPercentageLiveData_observerIsCalledWhenZoomRatioIsSet() = runBlocking {
-        assumeTrue(getMaxDigitalZoom() != null && getMaxDigitalZoom()!! <= 2.0f + DELTA)
+        assumeTrue(getMaxDigitalZoom() != null && getMaxDigitalZoom()!! > 2.0f + DELTA)
 
         val latch = CountDownLatch(3)
         withContext(Dispatchers.Main) {

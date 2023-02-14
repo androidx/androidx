@@ -66,9 +66,9 @@ class ZoomControlTest {
 
     @Test
     fun canUpdateZoomRatioInCompat() {
-        zoomControl.setZoomRatioAsync(3.0f)[3, TimeUnit.SECONDS]
+        zoomControl.setZoomRatio(3.0f)[3, TimeUnit.SECONDS]
 
-        Truth.assertWithMessage("zoomState did not return default zoom state successfully")
+        Truth.assertWithMessage("zoomCompat not updated with correct zoom ratio")
             .that(zoomCompat.zoomRatio)
             .isEqualTo(3.0f)
     }
