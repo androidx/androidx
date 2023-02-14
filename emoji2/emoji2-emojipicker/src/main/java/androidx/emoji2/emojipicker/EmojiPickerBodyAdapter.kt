@@ -81,8 +81,6 @@ internal class EmojiPickerBodyAdapter(
                         }
                     })
             }
-
-            ItemType.PLACEHOLDER_EMOJI -> object : ViewHolder(View(context)) {}
         }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
@@ -99,8 +97,6 @@ internal class EmojiPickerBodyAdapter(
             ItemType.EMOJI -> {
                 (viewHolder as EmojiViewHolder).bindEmoji((item as EmojiViewData).emoji)
             }
-
-            ItemType.PLACEHOLDER_EMOJI -> {}
         }
     }
 
