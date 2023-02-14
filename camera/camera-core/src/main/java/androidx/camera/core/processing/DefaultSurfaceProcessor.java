@@ -16,6 +16,10 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+import static androidx.core.util.Preconditions.checkState;
+
+import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -165,9 +169,15 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         for (Map.Entry<SurfaceOutput, Surface> entry : mOutputSurfaces.entrySet()) {
             Surface surface = entry.getValue();
             SurfaceOutput surfaceOutput = entry.getKey();
-
-            surfaceOutput.updateTransformMatrix(mSurfaceOutputMatrix, mTextureMatrix);
-            mGlRenderer.render(surfaceTexture.getTimestamp(), mSurfaceOutputMatrix, surface);
+            if (surfaceOutput.getFormat() == INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
+                // Render GPU output directly.
+                surfaceOutput.updateTransformMatrix(mSurfaceOutputMatrix, mTextureMatrix);
+                mGlRenderer.render(surfaceTexture.getTimestamp(), mSurfaceOutputMatrix, surface);
+            } else {
+                checkState(surfaceOutput.getFormat() == ImageFormat.JPEG,
+                        "Unsupported format: " + surfaceOutput.getFormat());
+                // TODO: download RGB from GPU and encode to JPEG bytes before writing to Surface.
+            }
         }
     }
 

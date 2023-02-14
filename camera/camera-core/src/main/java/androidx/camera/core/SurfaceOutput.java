@@ -66,6 +66,15 @@ public interface SurfaceOutput {
     int getTargets();
 
     /**
+     * This field indicates the format of the {@link Surface}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @CameraEffect.Formats
+    int getFormat();
+
+    /**
      * Gets the size of the {@link Surface}.
      */
     @NonNull
