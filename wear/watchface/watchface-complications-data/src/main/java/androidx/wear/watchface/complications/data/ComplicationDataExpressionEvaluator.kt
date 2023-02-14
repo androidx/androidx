@@ -62,7 +62,6 @@ class ComplicationDataExpressionEvaluator(
     @JvmOverloads
     constructor(
         val unevaluatedData: WireComplicationData,
-        private val executor: Executor,
         private val listener: Consumer<WireComplicationData>,
         stateStore: ObservableStateStore = ObservableStateStore(emptyMap()),
         sensorGateway: SensorGateway? = null,
@@ -70,8 +69,11 @@ class ComplicationDataExpressionEvaluator(
         private val evaluator =
             ComplicationDataExpressionEvaluator(unevaluatedData, stateStore, sensorGateway)
 
-        /** @see ComplicationDataExpressionEvaluator.init */
-        fun init() {
+        /**
+         * @see ComplicationDataExpressionEvaluator.init, [executor] is used in place of
+         *   `coroutineScope`.
+         */
+        fun init(executor: Executor) {
             evaluator.init()
             evaluator.data
                 .filterNotNull()
@@ -101,13 +103,15 @@ class ComplicationDataExpressionEvaluator(
      * Parses the expression and starts blocking evaluation.
      *
      * This needs to be called exactly once.
+     *
+     * @param coroutineScope used for background evaluation
      */
-    fun init() {
+    fun init(coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)) {
         // Add all the receivers before we start binding them because binding can synchronously
         // trigger the receiver, which would update the data before all the fields are evaluated.
         initStateReceivers()
         initEvaluator()
-        monitorState()
+        monitorState(coroutineScope)
     }
 
     /**
@@ -184,13 +188,13 @@ class ComplicationDataExpressionEvaluator(
     }
 
     /** Monitors [state] changes and updates [data]. */
-    private fun monitorState() {
+    private fun monitorState(coroutineScope: CoroutineScope) {
         state
             .onEach {
                 if (it.invalid.isNotEmpty()) _data.value = INVALID_DATA
                 else if (it.pending.isEmpty()) _data.value = it.data
             }
-            .launchIn(CoroutineScope(Dispatchers.Main))
+            .launchIn(coroutineScope)
     }
 
     /**

@@ -334,31 +334,22 @@ class ComplicationDataExpressionEvaluatorTest {
 
     @Test
     fun compat_notInitialized_listenerNotInvoked() {
-        ComplicationDataExpressionEvaluator.Compat(
-                DATA_WITH_NO_EXPRESSION,
-                ContextCompat.getMainExecutor(getApplicationContext()),
-                listener,
-            )
-            .use {
-                runUiThreadTasks()
+        ComplicationDataExpressionEvaluator.Compat(DATA_WITH_NO_EXPRESSION, listener).use {
+            runUiThreadTasks()
 
-                verify(listener, never()).accept(any())
-            }
+            verify(listener, never()).accept(any())
+        }
     }
 
     @Test
     fun compat_noExpression_listenerInvokedWithData() {
-        ComplicationDataExpressionEvaluator.Compat(
-                DATA_WITH_NO_EXPRESSION,
-                ContextCompat.getMainExecutor(getApplicationContext()),
-                listener,
-            )
-            .use { evaluator ->
-                evaluator.init()
-                runUiThreadTasks()
+        ComplicationDataExpressionEvaluator.Compat(DATA_WITH_NO_EXPRESSION, listener).use {
+            evaluator ->
+            evaluator.init(ContextCompat.getMainExecutor(getApplicationContext()))
+            runUiThreadTasks()
 
-                verify(listener, times(1)).accept(DATA_WITH_NO_EXPRESSION)
-            }
+            verify(listener, times(1)).accept(DATA_WITH_NO_EXPRESSION)
+        }
     }
 
     private companion object {
