@@ -21,6 +21,7 @@ import android.content.Context
 import androidx.annotation.UiContext
 import androidx.core.util.Consumer
 import android.inputmethodservice.InputMethodService
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.CoroutineScope
@@ -72,6 +73,7 @@ class WindowInfoTrackerCallbackAdapter(
      * @param consumer for [WindowLayoutInfo] values.
      * @see WindowInfoTracker.windowLayoutInfo
      */
+    @OptIn(ExperimentalWindowApi::class)
     fun addWindowLayoutInfoListener(
         @UiContext context: Context,
         executor: Executor,
