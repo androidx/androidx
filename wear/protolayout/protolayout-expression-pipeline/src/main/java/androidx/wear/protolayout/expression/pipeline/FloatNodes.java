@@ -145,7 +145,7 @@ class FloatNodes {
                     ValueAnimator.ofFloat(mProtoNode.getFromValue(), mProtoNode.getToValue());
             animator.addUpdateListener(a -> mDownstream.onData((float) a.getAnimatedValue()));
 
-            applyAnimationSpecToAnimator(animator, mProtoNode.getSpec());
+            applyAnimationSpecToAnimator(animator, mProtoNode.getAnimationSpec());
 
             mQuotaAwareAnimator.updateAnimator(animator);
             startOrSkipAnimator();
