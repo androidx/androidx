@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
+import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl.OperationCanceledException
@@ -160,7 +161,7 @@ class FocusMeteringControl @Inject constructor(
                     } else {
                         if (isCancelEnabled) {
                             if (signal.isActive) {
-                                cancelFocusAndMeteringNow(useCaseCamera, signal)
+                                cancelFocusAndMeteringNowAsync(useCaseCamera, signal)
                             }
                         } else {
                             signal.complete(FocusMeteringResult.create(false))
@@ -230,7 +231,7 @@ class FocusMeteringControl @Inject constructor(
             threads.sequentialScope.launch {
                 cancelSignal?.setCancelException("Cancelled by another cancelFocusAndMetering()")
                 cancelSignal = signal
-                signal.complete(cancelFocusAndMeteringNow(useCaseCamera, updateSignal))
+                cancelFocusAndMeteringNowAsync(useCaseCamera, updateSignal).propagateTo(signal)
             }
         } ?: run {
             signal.completeExceptionally(OperationCanceledException("Camera is not active."))
@@ -239,13 +240,13 @@ class FocusMeteringControl @Inject constructor(
         return signal
     }
 
-    private suspend fun cancelFocusAndMeteringNow(
+    private suspend fun cancelFocusAndMeteringNowAsync(
         useCaseCamera: UseCaseCamera,
         signalToCancel: CompletableDeferred<FocusMeteringResult>?,
-    ): Result3A {
+    ): Deferred<Result3A> {
         signalToCancel?.setCancelException("Cancelled by cancelFocusAndMetering()")
         state3AControl.preferredFocusMode = null
-        return useCaseCamera.requestControl.cancelFocusAndMeteringAsync().await()
+        return useCaseCamera.requestControl.cancelFocusAndMeteringAsync()
     }
 
     private fun <T> CompletableDeferred<T>.setCancelException(message: String) {

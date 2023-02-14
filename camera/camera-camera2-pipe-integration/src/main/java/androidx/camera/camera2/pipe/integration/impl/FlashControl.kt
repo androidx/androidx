@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
@@ -45,7 +46,7 @@ class FlashControl @Inject constructor(
         get() = _useCaseCamera
         set(value) {
             _useCaseCamera = value
-            setFlashAsync(_flashMode)
+            setFlashAsync(_flashMode, false)
         }
 
     override fun reset() {
@@ -71,7 +72,7 @@ class FlashControl @Inject constructor(
         }
         private set
 
-    fun setFlashAsync(flashMode: Int): Deferred<Unit> {
+    fun setFlashAsync(flashMode: Int, cancelPreviousTask: Boolean = true): Deferred<Unit> {
         val signal = CompletableDeferred<Unit>()
 
         useCaseCamera?.let {
@@ -81,13 +82,18 @@ class FlashControl @Inject constructor(
             _flashMode = flashMode
 
             threads.sequentialScope.launch {
-                stopRunningTask()
+                if (cancelPreviousTask) {
+                    stopRunningTask()
+                } else {
+                    // Propagate the result to the previous updateSignal
+                    _updateSignal?.let { previousUpdateSignal ->
+                        signal.propagateTo(previousUpdateSignal)
+                    }
+                }
 
                 _updateSignal = signal
                 state3AControl.flashMode = flashMode
-                state3AControl.updateSignal?.join()
-
-                signal.complete(Unit)
+                state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
             }
         } ?: run {
             signal.completeExceptionally(

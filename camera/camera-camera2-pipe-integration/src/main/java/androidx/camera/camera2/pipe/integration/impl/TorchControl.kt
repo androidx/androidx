@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl
 import androidx.camera.core.TorchState
@@ -51,10 +52,11 @@ class TorchControl @Inject constructor(
         set(value) {
             _useCaseCamera = value
             setTorchAsync(
-                when (torchStateLiveData.value) {
+                torch = when (torchStateLiveData.value) {
                     TorchState.ON -> true
                     else -> false
-                }
+                },
+                cancelPreviousTask = false,
             )
         }
 
@@ -77,7 +79,7 @@ class TorchControl @Inject constructor(
 
     private var _updateSignal: CompletableDeferred<Unit>? = null
 
-    fun setTorchAsync(torch: Boolean): Deferred<Unit> {
+    fun setTorchAsync(torch: Boolean, cancelPreviousTask: Boolean = true): Deferred<Unit> {
         val signal = CompletableDeferred<Unit>()
 
         if (!hasFlashUnit) {
@@ -89,7 +91,15 @@ class TorchControl @Inject constructor(
             _torchState.setLiveDataValue(torch)
 
             threads.sequentialScope.launch {
-                stopRunningTaskInternal()
+                if (cancelPreviousTask) {
+                    stopRunningTaskInternal()
+                } else {
+                    // Propagate the result to the previous updateSignal
+                    _updateSignal?.let { previousUpdateSignal ->
+                        signal.propagateTo(previousUpdateSignal)
+                    }
+                }
+
                 _updateSignal = signal
 
                 // TODO(b/209757083), handle the failed result of the setTorchAsync().
@@ -98,9 +108,7 @@ class TorchControl @Inject constructor(
                 // Hold the internal AE mode to ON while the torch is turned ON.
                 state3AControl.preferredAeMode =
                     if (torch) CaptureRequest.CONTROL_AE_MODE_ON else null
-                state3AControl.updateSignal?.join()
-
-                signal.complete(Unit)
+                state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
             }
         } ?: run {
             signal.createFailureResult(

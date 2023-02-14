@@ -19,9 +19,12 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
+import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
@@ -45,7 +48,16 @@ class State3AControl @Inject constructor(
         set(value) {
             _useCaseCamera = value
             value?.let {
+                val previousSignals = synchronized(lock) {
+                    updateSignal = null
+                    updateSignals.toList()
+                }
+
                 invalidate() // Always apply the settings to the camera.
+
+                synchronized(lock) { updateSignal }?.let { newUpdateSignal ->
+                    previousSignals.forEach { newUpdateSignal.propagateTo(it) }
+                } ?: run { previousSignals.forEach { it.complete(Unit) } }
             }
         }
 
@@ -68,6 +80,12 @@ class State3AControl @Inject constructor(
         intArrayOf(CaptureRequest.CONTROL_AWB_MODE_OFF)
     ).asList()
 
+    private val lock = Any()
+
+    @GuardedBy("lock")
+    private val updateSignals = mutableSetOf<CompletableDeferred<Unit>>()
+
+    @GuardedBy("lock")
     var updateSignal: Deferred<Unit>? = null
         private set
     var flashMode by updateOnPropertyChange(DEFAULT_FLASH_MODE)
@@ -76,6 +94,7 @@ class State3AControl @Inject constructor(
     var preferredFocusMode: Int? by updateOnPropertyChange(null)
 
     override fun reset() {
+        synchronized(lock) { updateSignals.toList() }.cancelAll()
         preferredAeMode = null
         preferredFocusMode = null
         flashMode = DEFAULT_FLASH_MODE
@@ -106,7 +125,7 @@ class State3AControl @Inject constructor(
 
         val preferAfMode = preferredFocusMode ?: getDefaultAfMode()
 
-        updateSignal = useCaseCamera?.requestControl?.addParametersAsync(
+        useCaseCamera?.requestControl?.addParametersAsync(
             values = mapOf(
                 CaptureRequest.CONTROL_AE_MODE to getSupportedAeMode(preferAeMode),
                 CaptureRequest.CONTROL_AF_MODE to getSupportedAfMode(preferAfMode),
@@ -114,7 +133,21 @@ class State3AControl @Inject constructor(
                     CaptureRequest.CONTROL_AWB_MODE_AUTO
                 ),
             )
-        ) ?: CompletableDeferred(null)
+        )?.apply {
+            toCompletableDeferred().also { signal ->
+                synchronized(lock) {
+                    updateSignals.add(signal)
+                    updateSignal = signal
+                    signal.invokeOnCompletion {
+                        synchronized(lock) {
+                            updateSignals.remove(signal)
+                        }
+                    }
+                }
+            }
+        } ?: run {
+            synchronized(lock) { updateSignal = CompletableDeferred(null) }
+        }
     }
 
     private fun getDefaultAfMode(): Int = when (template) {
@@ -187,6 +220,13 @@ class State3AControl @Inject constructor(
                 DEFAULT_REQUEST_TEMPLATE
             }
         }
+    }
+
+    private fun <T> Deferred<T>.toCompletableDeferred() =
+        CompletableDeferred<T>().also { propagateTo(it) }
+
+    private fun <T> Collection<CompletableDeferred<T>>.cancelAll() = forEach {
+        it.completeExceptionally(CameraControl.OperationCanceledException("Camera is not active."))
     }
 
     @Module

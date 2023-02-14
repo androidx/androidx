@@ -108,11 +108,11 @@ class CameraControlAdapter @Inject constructor(
 
     override fun cancelFocusAndMetering(): ListenableFuture<Void> {
         return Futures.nonCancellationPropagating(
-            FutureChain.from(
-                focusMeteringControl.cancelFocusAndMeteringAsync().asListenableFuture()
-            ).transform(
-                Function { return@Function null }, CameraXExecutors.directExecutor()
-            )
+            threads.sequentialScope.async {
+                focusMeteringControl.cancelFocusAndMeteringAsync().join()
+                // Convert to null once the task is done, ignore the results.
+                return@async null
+            }.asListenableFuture()
         )
     }
 
