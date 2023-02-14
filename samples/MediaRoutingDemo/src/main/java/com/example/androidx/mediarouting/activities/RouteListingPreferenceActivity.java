@@ -47,6 +47,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.androidx.mediarouting.R;
 import com.example.androidx.mediarouting.RoutesManager;
+import com.example.androidx.mediarouting.ui.UiUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -144,6 +145,13 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
         CheckBox suggestedRouteCheckBox =
                 dialogView.findViewById(R.id.rlp_item_dialog_suggested_checkbox);
 
+        Spinner subtextSpinner = dialogView.findViewById(R.id.rlp_item_dialog_subtext_spinner);
+        UiUtils.setUpEnumBasedSpinner(
+                this,
+                subtextSpinner,
+                RoutesManager.RouteListingPreferenceItemSubtext.SUBTEXT_NONE,
+                (unused) -> {});
+
         if (itemPositionInList < routeListingPreference.size()) {
             RoutesManager.RouteListingPreferenceItem itemToEdit =
                     routeListingPreference.get(itemPositionInList);
@@ -158,7 +166,8 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                     new RoutesManager.RouteListingPreferenceItem(
                             mediaRoute2Info.getId(),
                             String.valueOf(mediaRoute2Info.getName()),
-                            /* flags= */ 0));
+                            /* flags= */ 0,
+                            RoutesManager.RouteListingPreferenceItemSubtext.SUBTEXT_NONE));
         }
         routeSpinner.setAdapter(
                 new ArrayAdapter<>(
@@ -184,8 +193,12 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                                                     : 0;
                                     flags |=
                                             suggestedRouteCheckBox.isChecked() ? FLAG_SUGGESTED : 0;
+                                    RoutesManager.RouteListingPreferenceItemSubtext subtext =
+                                            (RoutesManager.RouteListingPreferenceItemSubtext)
+                                                    subtextSpinner.getSelectedItem();
                                     onEditRlpItemDialogAccepted(
-                                            item.copyWithFlags(flags), itemPositionInList);
+                                            item.copyWithFlags(flags).copyWithSubtext(subtext),
+                                            itemPositionInList);
                                 })
                         .setNegativeButton("Dismiss", (unusedDialog, unusedWhich) -> {})
                         .create();

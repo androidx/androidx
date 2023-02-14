@@ -309,6 +309,34 @@ public final class RoutesManager {
         OUTPUT_SWITCHER
     }
 
+    // TODO(b/266561322): Replace int literals with constant references. We need to use their values
+    // directly because AndroidX still depends on an old SDK, where the new one has changed the
+    // values of the flags.
+    public enum RouteListingPreferenceItemSubtext {
+        SUBTEXT_NONE(0, "None"),
+        SUBTEXT_ERROR_UNKNOWN(1, "Unknown error"),
+        SUBTEXT_SUBSCRIPTION_REQUIRED(2, "Subscription required"),
+        SUBTEXT_DOWNLOADED_CONTENT_ROUTING_DISALLOWED(3, "Downloaded content disallowed"),
+        SUBTEXT_AD_ROUTING_DISALLOWED(4, "Ad in progress"),
+        SUBTEXT_DEVICE_LOW_POWER(5, "Device in low power mode"),
+        SUBTEXT_UNAUTHORIZED(6, "Unauthorized"),
+        SUBTEXT_TRACK_UNSUPPORTED(7, "Track unsupported");
+
+        public final int mConstant;
+        @NonNull public final String mHumanReadableString;
+
+        RouteListingPreferenceItemSubtext(int constant, @NonNull String humanReadableString) {
+            mConstant = constant;
+            mHumanReadableString = humanReadableString;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return mHumanReadableString;
+        }
+    }
+
     /** An item corresponding to a route in the route listing preference of this app. */
     public static final class RouteListingPreferenceItem {
 
@@ -331,18 +359,30 @@ public final class RoutesManager {
         @NonNull public final String mRouteName;
         public final int mFlags;
         // TODO(b/266561322): Add subtext, deep-link-to-app, and others.
+        public final RouteListingPreferenceItemSubtext mSubtext;
 
         public RouteListingPreferenceItem(
-                @NonNull String routeId, @NonNull String routeName, int flags) {
+                @NonNull String routeId,
+                @NonNull String routeName,
+                int flags,
+                @NonNull RouteListingPreferenceItemSubtext subtext) {
             mRouteId = routeId;
             mRouteName = routeName;
             mFlags = flags;
+            mSubtext = subtext;
         }
 
         /** Returns a copy of this instance with the provided {@link #mFlags}. */
         @NonNull
         public RouteListingPreferenceItem copyWithFlags(@Flags int flags) {
-            return new RouteListingPreferenceItem(mRouteId, mRouteName, flags);
+            return new RouteListingPreferenceItem(mRouteId, mRouteName, flags, mSubtext);
+        }
+
+        /** Returns a copy of this instance with the provided {@link #mSubtext}. */
+        @NonNull
+        public RouteListingPreferenceItem copyWithSubtext(
+                @NonNull RouteListingPreferenceItemSubtext subtext) {
+            return new RouteListingPreferenceItem(mRouteId, mRouteName, mFlags, subtext);
         }
 
         /** Returns the name of the corresponding route. */
@@ -370,6 +410,7 @@ public final class RoutesManager {
                                         it ->
                                                 new RouteListingPreference.Item.Builder(it.mRouteId)
                                                         .setFlags(it.mFlags)
+                                                        .setSubText(it.mSubtext.mConstant)
                                                         .build())
                                 .collect(Collectors.toList());
                 RouteListingPreference routeListingPreference =
