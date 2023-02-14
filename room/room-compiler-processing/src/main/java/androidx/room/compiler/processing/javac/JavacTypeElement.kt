@@ -37,6 +37,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.kotlinpoet.javapoet.JClassName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.util.ElementFilter
 
@@ -218,11 +219,15 @@ internal sealed class JavacTypeElement(
     }
 
     override val superInterfaces by lazy {
+        val superTypesFromKotlinMetadata = kotlinMetadata?.superTypes
+            ?.associateBy { it.className } ?: emptyMap()
         element.interfaces.map {
+            check(it is DeclaredType)
+            val interfaceName = ClassName.get(MoreElements.asType(it.asElement()))
             val element = MoreTypes.asTypeElement(it)
             env.wrap<JavacType>(
                 typeMirror = it,
-                kotlinType = KmClassContainer.createFor(env, element)?.type,
+                kotlinType = superTypesFromKotlinMetadata[interfaceName.canonicalName()],
                 elementNullability = element.nullability
             )
         }
