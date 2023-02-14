@@ -59,3 +59,13 @@ androidx {
     inceptionYear = "2022"
     description = "Contains the sample code for the Android Wear Compose Material 3 Classes"
 }
+
+// Workaround for https://github.com/gradle/gradle/issues/19882
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel-ktx:")).
+                using project(":lifecycle:lifecycle-viewmodel-ktx")
+        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
+                using project(":lifecycle:lifecycle-runtime-ktx")
+    }
+}
