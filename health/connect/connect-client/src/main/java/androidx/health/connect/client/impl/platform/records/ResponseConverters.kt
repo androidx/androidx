@@ -23,26 +23,24 @@ import android.health.connect.AggregateRecordsGroupedByDurationResponse
 import android.health.connect.AggregateRecordsGroupedByPeriodResponse
 import android.health.connect.AggregateRecordsResponse
 import android.health.connect.datatypes.AggregationType
-import android.health.connect.datatypes.NutritionRecord
 import android.health.connect.datatypes.units.Energy as PlatformEnergy
-import android.health.connect.datatypes.units.Mass
+import android.health.connect.datatypes.units.Length as PlatformLength
+import android.health.connect.datatypes.units.Mass as PlatformMass
+import android.health.connect.datatypes.units.Power as PlatformPower
+import android.health.connect.datatypes.units.Volume as PlatformVolume
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
+import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.units.Energy
+import androidx.health.connect.client.units.Mass
+import androidx.health.connect.client.units.Volume
 import java.time.ZoneOffset
-
-private val DOUBLE_AGGREGATION_TYPE_CONVERTERS: Map<AggregationType<out Any>, (Any) -> Double> =
-    mapOf(
-        NutritionRecord.CAFFEINE_TOTAL to { (it as Mass).inKilograms },
-        NutritionRecord.ENERGY_TOTAL to
-            {
-                Energy.joules((it as PlatformEnergy).inJoules).inKilocalories
-            })
 
 fun AggregateRecordsResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
     buildAggregationResult(metrics, ::get)
@@ -73,24 +71,48 @@ private fun buildAggregationResult(
         getLongMetricValues(metricValueMap), getDoubleMetricValues(metricValueMap), setOf())
 }
 
-private fun getLongMetricValues(metricValueMap: Map<AggregateMetric<Any>, Any>): Map<String, Long> {
+@VisibleForTesting
+internal fun getLongMetricValues(
+    metricValueMap: Map<AggregateMetric<Any>, Any>
+): Map<String, Long> {
     return buildMap {
-        metricValueMap
-            .filterKeys { it.isLongAggregationType() }
-            .forEach { this[it.key.metricKey] = it.value as Long }
+        metricValueMap.forEach {
+            LONG_AGGREGATION_METRIC_TYPE_MAP[it.key]?.also { _ ->
+                this[it.key.metricKey] = it.value as Long
+            }
+        }
     }
 }
 
-private fun getDoubleMetricValues(
+@VisibleForTesting
+internal fun getDoubleMetricValues(
     metricValueMap: Map<AggregateMetric<Any>, Any>
 ): Map<String, Double> {
     return buildMap {
-        metricValueMap
-            .filterKeys { it.isDoubleAggregationType() }
-            .forEach {
-                DOUBLE_AGGREGATION_TYPE_CONVERTERS[it.key.toAggregationType()]?.also { convert ->
-                    this[it.key.metricKey] = convert(it.value)
-                }
+        metricValueMap.forEach {
+            ENERGY_AGGREGATION_METRIC_TYPE_MAP[it.key]?.also { _ ->
+                this[it.key.metricKey] =
+                    Energy.joules((it.value as PlatformEnergy).inJoules).inKilocalories
             }
+                ?: LENGTH_AGGREGATION_METRIC_TYPE_MAP[it.key]?.also { _ ->
+                    this[it.key.metricKey] = (it.value as PlatformLength).inMeters
+                }
+                    ?: MASS_AGGREGATION_METRIC_TYPE_MAP[it.key]?.also { _ ->
+                    this[it.key.metricKey] =
+                        Mass.kilograms((it.value as PlatformMass).inKilograms).inGrams
+                }
+                    ?: POWER_AGGREGATION_METRIC_TYPE_MAP[it.key]?.also { _ ->
+                    this[it.key.metricKey] = (it.value as PlatformPower).inWatts
+                }
+                    ?: VOLUME_AGGREGATION_METRIC_TYPE_MAP[it.key]?.also { _ ->
+                    this[it.key.metricKey] =
+                        Volume.milliliters((it.value as PlatformVolume).inMilliliters).inLiters
+                }
+                    ?: it.key
+                    .takeIf { aggregateMetric ->
+                        aggregateMetric == FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL
+                    }
+                    ?.also { _ -> this[it.key.metricKey] = (it.value as Long).toDouble() }
+        }
     }
 }
