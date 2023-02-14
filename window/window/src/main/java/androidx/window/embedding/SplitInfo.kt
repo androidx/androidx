@@ -36,6 +36,10 @@ class SplitInfo internal constructor(
      */
     internal val token: IBinder,
 ) {
+    /**
+     * Whether the [primaryActivityStack] or the [secondaryActivityStack] in this [SplitInfo]
+     * contains the [activity].
+     */
     operator fun contains(activity: Activity): Boolean {
         return primaryActivityStack.contains(activity) ||
             secondaryActivityStack.contains(activity)
