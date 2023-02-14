@@ -36,3 +36,10 @@ message FixedColor {
   // The color value, in ARGB format.
   uint32 argb = 1;
 }
+
+// A fixed time instant type.
+message FixedInstant {
+  // The number of seconds that have elapsed since 00:00:00 UTC on 1 January
+  // 1970.
+  int64 epoch_seconds = 1;
+}

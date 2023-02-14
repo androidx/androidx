@@ -22,8 +22,6 @@ import android.os.Build.VERSION_CODES;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
-import androidx.collection.SimpleArrayMap;
-import androidx.wear.protolayout.expression.pipeline.TimeGateway.TimeCallback;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway.SensorDataType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32SourceType;
@@ -41,48 +39,6 @@ class PlatformDataSources {
 
         void unregisterForData(
                 PlatformInt32SourceType sourceType, DynamicTypeValueReceiver<Integer> consumer);
-    }
-
-    /** Utility for time data source. */
-    static class EpochTimePlatformDataSource implements PlatformDataSource {
-        private final Executor mUiExecutor;
-        private final TimeGateway mGateway;
-        private final SimpleArrayMap<DynamicTypeValueReceiver<Integer>, TimeCallback>
-                mConsumerToTimeCallback = new SimpleArrayMap<>();
-
-        EpochTimePlatformDataSource(Executor uiExecutor, TimeGateway gateway) {
-            mUiExecutor = uiExecutor;
-            mGateway = gateway;
-        }
-
-        @Override
-        public void registerForData(
-                PlatformInt32SourceType sourceType, DynamicTypeValueReceiver<Integer> consumer) {
-            TimeCallback timeCallback =
-                    new TimeCallback() {
-                        @Override
-                        public void onPreUpdate() {
-                            consumer.onPreUpdate();
-                        }
-
-                        @Override
-                        public void onData() {
-                            long currentEpochTimeSeconds = System.currentTimeMillis() / 1000;
-                            consumer.onData((int) currentEpochTimeSeconds);
-                        }
-                    };
-            mGateway.registerForUpdates(mUiExecutor, timeCallback);
-            mConsumerToTimeCallback.put(consumer, timeCallback);
-        }
-
-        @Override
-        public void unregisterForData(
-                PlatformInt32SourceType sourceType, DynamicTypeValueReceiver<Integer> consumer) {
-            TimeCallback timeCallback = mConsumerToTimeCallback.remove(consumer);
-            if (timeCallback != null) {
-                mGateway.unregisterForUpdates(timeCallback);
-            }
-        }
     }
 
     /** Utility for sensor data source. */
