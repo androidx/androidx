@@ -31,6 +31,10 @@ class SplitInfo internal constructor(
     /** The [SplitAttributes] of this split pair. */
     val splitAttributes: SplitAttributes
 ) {
+    /**
+     * Whether the [primaryActivityStack] or the [secondaryActivityStack] in this [SplitInfo]
+     * contains the [activity].
+     */
     operator fun contains(activity: Activity): Boolean {
         return primaryActivityStack.contains(activity) ||
             secondaryActivityStack.contains(activity)
