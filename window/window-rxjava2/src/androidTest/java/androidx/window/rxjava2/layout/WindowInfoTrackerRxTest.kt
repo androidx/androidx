@@ -18,6 +18,7 @@ package androidx.window.rxjava2.layout
 
 import android.app.Activity
 import android.content.Context
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
@@ -29,6 +30,7 @@ import org.junit.Test
 /**
  * Tests for the RxJava 2 adapters.
  */
+@OptIn(ExperimentalWindowApi::class)
 class WindowInfoTrackerRxTest {
 
     @Test

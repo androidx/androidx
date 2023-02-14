@@ -18,6 +18,7 @@ package androidx.window.java.layout
 
 import android.app.Activity
 import android.content.Context
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.java.TestConsumer
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
@@ -35,6 +36,7 @@ import org.junit.Test
  * from the kotlin coroutine API to listeners and callbacks.
  * @see WindowInfoTracker
  */
+@OptIn(ExperimentalWindowApi::class)
 public class WindowInfoTrackerCallbackAdapterTest {
 
     @Test

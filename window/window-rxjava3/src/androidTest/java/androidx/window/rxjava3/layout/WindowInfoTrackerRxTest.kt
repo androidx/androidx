@@ -18,6 +18,7 @@ package androidx.window.rxjava3.layout
 
 import android.app.Activity
 import android.content.Context
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
@@ -31,6 +32,7 @@ import org.junit.Test
  * [io.reactivex.rxjava3.core.Flowable] and ensure that data is forwarded appropriately.
  * @see WindowInfoTracker
  */
+@OptIn(ExperimentalWindowApi::class)
 class WindowInfoTrackerRxTest {
 
     @Test
