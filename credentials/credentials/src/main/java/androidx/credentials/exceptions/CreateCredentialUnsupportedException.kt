@@ -23,7 +23,6 @@ package androidx.credentials.exceptions
  * be the limiting factor.
  *
  * @see CreateCredentialException
- * @hide
  */
 class CreateCredentialUnsupportedException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
