@@ -29,6 +29,10 @@ dependencies {
 
     implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
     implementation(project(":wear:protolayout:protolayout-expression"))
+    implementation(project(":wear:protolayout:protolayout-expression-pipeline"))
+    implementation("androidx.core:core:1.7.0")
+    implementation("androidx.vectordrawable:vectordrawable-seekable:1.0.0-beta01")
+    implementation("androidx.collection:collection:1.2.0")
 
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.testExtJunit)
