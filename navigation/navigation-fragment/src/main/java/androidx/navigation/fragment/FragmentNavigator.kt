@@ -58,6 +58,10 @@ public open class FragmentNavigator(
     private val containerId: Int
 ) : Navigator<Destination>() {
     private val savedIds = mutableSetOf<String>()
+
+    /**
+     * List of entries that were popped by direct calls to popBackStack (i.e. from NavController)
+     */
     private val entriesToPop = mutableSetOf<String>()
 
     /**
@@ -88,7 +92,7 @@ public open class FragmentNavigator(
                 val entry = (state.backStack.value + state.transitionsInProgress.value).lastOrNull {
                     it.id == fragment.tag
                 }
-                if (fragment.view != null && entry != null) {
+                if (entry != null && fragmentWasAddedOrPopped(fragment, entry)) {
                     val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
                     val currentState = viewLifecycle.currentState
                     // We only need to add observers while the viewLifecycle has not reached a final
@@ -116,12 +120,24 @@ public open class FragmentNavigator(
                         })
                     }
                     entriesToPop.remove(entry.id)
-                } else if (pop && entriesToPop.isEmpty() && fragment.tag == null) {
+                } else if (fragmentShouldBePopped(fragment, pop)) {
                     // This is the case of system back where we will need to make the call to
                     // popBackStack. Otherwise, popBackStack was called directly and this should
                     // end up being a no-op.
-                    popBackStack(state.backStack.value.last(), false)
+                    var entryToPop = state.backStack.value.last()
+                    popBackStack(entryToPop, false)
+                    // remove it so we don't falsely identify a direct call to popBackStack
+                    entriesToPop.remove(entryToPop.id)
                 }
+            }
+
+            fun fragmentWasAddedOrPopped(fragment: Fragment, entry: NavBackStackEntry): Boolean {
+                return fragment.view != null &&
+                    (fragment.isAdded || entriesToPop.contains(entry.id))
+            }
+
+            fun fragmentShouldBePopped(fragment: Fragment, pop: Boolean): Boolean {
+                return pop && entriesToPop.isEmpty() && !fragment.isAdded
             }
         })
     }
