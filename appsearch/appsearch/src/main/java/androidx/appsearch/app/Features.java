@@ -26,6 +26,8 @@ import androidx.annotation.NonNull;
  * the feature will be available forever on that AppSearch storage implementation, at that
  * Android API level, on that device.
  */
+
+// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/Features.java)
 public interface Features {
 
     /**
@@ -78,7 +80,7 @@ public interface Features {
      * {@link AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_RANGE} and all other numeric search
      * features.
      */
-    String NUMERIC_SEARCH = "NUMERIC_SEARCH";
+    String NUMERIC_SEARCH = FeatureConstants.NUMERIC_SEARCH;
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
@@ -88,7 +90,7 @@ public interface Features {
      *
      * <p>Ex. '"foo/bar" OR baz' will ensure that 'foo/bar' is treated as a single 'verbatim' token.
      */
-    String VERBATIM_SEARCH = "VERBATIM_SEARCH";
+    String VERBATIM_SEARCH = FeatureConstants.VERBATIM_SEARCH;
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers the
@@ -115,7 +117,7 @@ public interface Features {
      * for example, the query "(subject:foo OR body:foo) (subject:bar OR body:bar)"
      * could be rewritten as "termSearch(\"foo bar\", createList(\"subject\", \"bar\"))"
      */
-    String LIST_FILTER_QUERY_LANGUAGE = "LIST_FILTER_QUERY_LANGUAGE";
+    String LIST_FILTER_QUERY_LANGUAGE = FeatureConstants.LIST_FILTER_QUERY_LANGUAGE;
 
     /** Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link SearchSpec.Builder#setPropertyWeights}.
