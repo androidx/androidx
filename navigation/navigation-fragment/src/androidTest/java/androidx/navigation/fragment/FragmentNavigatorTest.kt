@@ -810,6 +810,135 @@ class FragmentNavigatorTest {
         assertWithMessage("Entry2 should have been started").that(entry2Started).isTrue()
     }
 
+    @LargeTest
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Suppress("DEPRECATION")
+    fun testSystemBackPress() {
+        val entry1 = createBackStackEntry()
+        val entry2 = createBackStackEntry(SECOND_FRAGMENT)
+
+        val options = navOptions {
+            anim {
+                enter = R.animator.fade_enter
+                exit = R.animator.fade_exit
+                popEnter = R.animator.fade_enter
+                popExit = R.animator.fade_exit
+            }
+        }
+
+        // navigate to first entry and verify it executed correctly
+        fragmentNavigator.navigate(listOf(entry1), options, null)
+        assertThat(fragmentNavigator.backStack.value).containsExactly(entry1)
+        assertThat(navigatorState.backStack.value).containsExactly(entry1)
+        activityRule.runOnUiThread {
+            fragmentManager.executePendingTransactions()
+        }
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+
+        // navigate to the second entry
+        fragmentNavigator.navigate(listOf(entry2), options, null)
+        activityRule.runOnUiThread {
+            fragmentManager.executePendingTransactions()
+        }
+        assertThat(navigatorState.backStack.value).containsExactlyElementsIn(listOf(entry1, entry2))
+        assertThat(fragmentNavigator.backStack.value).containsExactlyElementsIn(
+            listOf(entry1, entry2)
+        ).inOrder()
+
+        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        // system back press
+        activityRule.runOnUiThread {
+            emptyActivity.onBackPressed()
+        }
+
+        // assert exit from entry2 and enter entry1
+        assertThat(fragmentNavigator.backStack.value).containsExactly(entry1)
+        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+    }
+
+    @LargeTest
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @Suppress("DEPRECATION")
+    fun testSystemBackPress_multiEntries() {
+        val entry1 = createBackStackEntry()
+        val entry2 = createBackStackEntry(SECOND_FRAGMENT)
+        val entry3 = createBackStackEntry(THIRD_FRAGMENT)
+
+        val options = navOptions {
+            anim {
+                enter = R.animator.fade_enter
+                exit = R.animator.fade_exit
+                popEnter = R.animator.fade_enter
+                popExit = R.animator.fade_exit
+            }
+        }
+
+        // navigate to first entry and verify it executed correctly
+        fragmentNavigator.navigate(listOf(entry1), options, null)
+        assertThat(fragmentNavigator.backStack.value).containsExactly(entry1)
+        assertThat(navigatorState.backStack.value).containsExactly(entry1)
+        activityRule.runOnUiThread {
+            fragmentManager.executePendingTransactions()
+        }
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+
+        // navigate to the second entry
+        fragmentNavigator.navigate(listOf(entry2), options, null)
+        activityRule.runOnUiThread {
+            fragmentManager.executePendingTransactions()
+        }
+        assertThat(navigatorState.backStack.value).containsExactlyElementsIn(listOf(entry1, entry2))
+        assertThat(fragmentNavigator.backStack.value).containsExactlyElementsIn(
+            listOf(entry1, entry2)
+        ).inOrder()
+
+        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        // navigate to third entry
+        fragmentNavigator.navigate(listOf(entry3), options, null)
+        activityRule.runOnUiThread {
+            fragmentManager.executePendingTransactions()
+        }
+        assertThat(navigatorState.backStack.value).containsExactlyElementsIn(
+            listOf(entry1, entry2, entry3)
+        )
+        assertThat(fragmentNavigator.backStack.value).containsExactlyElementsIn(
+            listOf(entry1, entry2, entry3)
+        ).inOrder()
+
+        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(entry3.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        // system back press
+        activityRule.runOnUiThread {
+            emptyActivity.onBackPressed()
+        }
+
+        // exit from entry3, enter entry2
+        assertThat(navigatorState.backStack.value).containsExactlyElementsIn(
+            listOf(entry1, entry2)
+        )
+        assertThat(fragmentNavigator.backStack.value).containsExactlyElementsIn(
+            listOf(entry1, entry2)
+        )
+        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(entry3.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+    }
+
     @UiThreadTest
     @Test
     fun testSaveRestoreState() {
