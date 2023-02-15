@@ -547,7 +547,7 @@ public class NotificationCompat {
         private Api24Impl() {}
 
         @DoNotInline
-        static Notification.DecoratedMediaCustomViewStyle createDecoratedMediaCustomViewStyle() {
+        static Notification.MediaStyle createDecoratedMediaCustomViewStyle() {
             return new Notification.DecoratedMediaCustomViewStyle();
         }
     }
