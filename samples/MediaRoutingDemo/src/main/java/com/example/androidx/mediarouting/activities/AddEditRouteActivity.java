@@ -48,7 +48,6 @@ public class AddEditRouteActivity extends AppCompatActivity {
     private ServiceConnection mConnection;
     private RoutesManager mRoutesManager;
     private RouteItem mRouteItem;
-    private Switch mCanDisconnectSwitch;
 
     /** Launches the activity. */
     public static void launchActivity(@NonNull Context context, @Nullable String routeId) {
@@ -73,8 +72,6 @@ public class AddEditRouteActivity extends AppCompatActivity {
         } else {
             mRouteItem = RouteItem.copyOf(mRouteItem);
         }
-
-        mCanDisconnectSwitch = findViewById(R.id.cam_disconnect_switch);
 
         setUpViews();
     }
@@ -148,17 +145,17 @@ public class AddEditRouteActivity extends AppCompatActivity {
                 String.valueOf(mRouteItem.getVolumeMax()),
                 mewVolumeMax -> mRouteItem.setVolumeMax(Integer.parseInt(mewVolumeMax)));
 
-        setUpCanDisconnectSwitch();
+        setUpSwitch(
+                findViewById(R.id.can_disconnect_switch),
+                mRouteItem.isCanDisconnect(),
+                newValue -> mRouteItem.setCanDisconnect(newValue));
+
+        setUpSwitch(
+                findViewById(R.id.is_sender_driven_switch),
+                mRouteItem.isSenderDriven(),
+                newValue -> mRouteItem.setSenderDriven(newValue));
 
         setUpSaveButton();
-    }
-
-    private void setUpCanDisconnectSwitch() {
-        mCanDisconnectSwitch.setChecked(mRouteItem.isCanDisconnect());
-        mCanDisconnectSwitch.setOnCheckedChangeListener(
-                (compoundButton, b) -> {
-                    mRouteItem.setCanDisconnect(b);
-                });
     }
 
     private void setUpSaveButton() {
@@ -169,6 +166,12 @@ public class AddEditRouteActivity extends AppCompatActivity {
                     mService.reloadRoutes();
                     finish();
                 });
+    }
+
+    private static void setUpSwitch(Switch switchWidget, boolean currentValue,
+            Consumer<Boolean> propertySetter) {
+        switchWidget.setChecked(currentValue);
+        switchWidget.setOnCheckedChangeListener((compoundButton, b) -> propertySetter.accept(b));
     }
 
     private static void setUpEditText(
