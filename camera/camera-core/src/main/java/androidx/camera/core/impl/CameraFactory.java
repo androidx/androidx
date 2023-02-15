@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.InitializationException;
+import androidx.camera.core.concurrent.CameraCoordinator;
 
 import java.util.Set;
 
@@ -72,6 +73,14 @@ public interface CameraFactory {
      */
     @NonNull
     Set<String> getAvailableCameraIds();
+
+    /**
+     * Gets the {@link CameraCoordinator}.
+     *
+     * @return the instance of {@link CameraCoordinator}.
+     */
+    @Nullable
+    CameraCoordinator getCameraCoordinator();
 
     /**
      * Gets the camera manager instance that is used to access the camera API.
