@@ -110,6 +110,10 @@ class TestSchedulerRealExecutorTest {
         wm.enqueue(request).result.get()
         driver.setInitialDelayMet(request.id)
         awaitPeriodicRunOnce(request.id)
+        driver.setPeriodDelayMet(request.id)
+        awaitCondition(request.id) {
+            it.state == WorkInfo.State.ENQUEUED && CountingTestWorker.COUNT.get() == 2
+        }
     }
 
     @Test
