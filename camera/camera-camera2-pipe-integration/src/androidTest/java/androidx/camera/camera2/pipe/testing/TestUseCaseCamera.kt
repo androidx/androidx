@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
@@ -42,6 +43,7 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraState
 import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
+import androidx.camera.camera2.pipe.integration.impl.toMap
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.Config
 import kotlinx.coroutines.Deferred
@@ -97,7 +99,21 @@ class TestUseCaseCamera(
         useCaseGraphConfig = useCaseCameraGraphConfig,
     ).apply {
         SessionConfigAdapter(useCases).getValidSessionConfigOrNull()?.let { sessionConfig ->
-            setSessionConfigAsync(sessionConfig)
+            setConfigAsync(
+                type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
+                config = sessionConfig.implementationOptions,
+                tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
+                listeners = setOf(
+                    CameraCallbackMap.createFor(
+                        sessionConfig.repeatingCameraCaptureCallbacks,
+                        threads.backgroundExecutor
+                    )
+                ),
+                template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
+                streams = useCaseCameraGraphConfig.getStreamIdsFromSurfaces(
+                    sessionConfig.repeatingCaptureConfig.surfaces
+                ),
+            )
         }
     }
 
