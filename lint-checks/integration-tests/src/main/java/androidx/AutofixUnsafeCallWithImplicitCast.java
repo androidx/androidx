@@ -24,10 +24,10 @@ import android.graphics.drawable.Icon;
 import androidx.annotation.RequiresApi;
 
 /**
- * Tests to ensure the generated lint fix does not leave in implicit casts from a new return type.
+ * Tests to ensure the generated lint fix does not leave in implicit casts from a new type.
  */
 @SuppressWarnings("unused")
-public abstract class AutofixUnsafeCallWithImplicitReturnCast {
+public abstract class AutofixUnsafeCallWithImplicitCast {
     /**
      * This method creates an AdaptiveIconDrawable and implicitly casts it to Drawable.
      */
