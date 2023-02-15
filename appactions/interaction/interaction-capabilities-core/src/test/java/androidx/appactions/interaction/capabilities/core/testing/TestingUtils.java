@@ -114,8 +114,7 @@ public final class TestingUtils {
         return Optional.of(
                 (finalArgs) -> {
                     future.set(finalArgs);
-                    return Futures.immediateFuture(
-                            ConfirmationOutput.getDefaultInstance());
+                    return Futures.immediateFuture(ConfirmationOutput.getDefaultInstance());
                 });
     }
 
@@ -204,7 +203,11 @@ public final class TestingUtils {
 
     public static <ArgumentT, OutputT>
             ActionExecutor<ArgumentT, OutputT> createFakeActionExecutor() {
-        return (args) ->
-                Futures.immediateFuture(ExecutionResult.<OutputT>getDefaultInstance());
+        return new ActionExecutor<ArgumentT, OutputT>() {
+            @Override
+            public ListenableFuture<ExecutionResult<OutputT>> executeAsync(ArgumentT args) {
+                return Futures.immediateFuture(ExecutionResult.<OutputT>getDefaultInstance());
+            }
+        };
     }
 }
