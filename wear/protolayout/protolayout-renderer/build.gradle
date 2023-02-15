@@ -23,10 +23,20 @@ plugins {
 
 dependencies {
     annotationProcessor(libs.nullaway)
+    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.core:core:1.7.0")
+    implementation("androidx.core:core:1.3.2")
+
+    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
+    implementation(project(":wear:protolayout:protolayout-expression"))
 }
 
 android {
     namespace "androidx.wear.protolayout.renderer"
+
+    defaultConfig {
+        minSdkVersion 26
+    }
 }
 
 androidx {
