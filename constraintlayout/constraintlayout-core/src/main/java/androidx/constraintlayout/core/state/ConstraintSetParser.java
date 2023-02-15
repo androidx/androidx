@@ -1575,15 +1575,15 @@ public class ConstraintSetParser {
                 break;
             case "translationX":
                 value = layoutVariables.get(element.get(attributeName));
-                reference.translationX(value);
+                reference.translationX(toPix(state, value));
                 break;
             case "translationY":
                 value = layoutVariables.get(element.get(attributeName));
-                reference.translationY(value);
+                reference.translationY(toPix(state, value));
                 break;
             case "translationZ":
                 value = layoutVariables.get(element.get(attributeName));
-                reference.translationZ(value);
+                reference.translationZ(toPix(state, value));
                 break;
             case "pivotX":
                 value = layoutVariables.get(element.get(attributeName));
@@ -1807,13 +1807,13 @@ public class ConstraintSetParser {
                 // params: target, anchor, margin
                 CLElement arg2 = constraint.getOrNull(2);
                 margin = layoutVariables.get(arg2);
-                margin = state.convertDimension(toPix(state, margin));
+                margin = toPix(state, margin);
             }
             if (constraint.size() > 3) {
                 // params: target, anchor, margin, marginGone
                 CLElement arg2 = constraint.getOrNull(3);
                 marginGone = layoutVariables.get(arg2);
-                marginGone = state.convertDimension(toPix(state, marginGone));
+                marginGone = toPix(state, marginGone);
             }
 
             ConstraintReference targetReference = target.equals("parent")
@@ -1832,7 +1832,7 @@ public class ConstraintSetParser {
                     if (constraint.size() > 2) {
                         CLElement distanceArg = constraint.getOrNull(2);
                         distance = layoutVariables.get(distanceArg);
-                        distance = state.convertDimension(toPix(state, distance));
+                        distance = toPix(state, distance);
                     }
                     reference.circularConstraint(targetReference, angle, distance);
                     break;
