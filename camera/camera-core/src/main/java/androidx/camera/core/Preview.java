@@ -90,7 +90,9 @@ import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
@@ -645,6 +647,19 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public SurfaceEdge getCameraEdge() {
         return requireNonNull(mCameraEdge);
+    }
+
+    /**
+     * @inheritDoc
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    public Set<Integer> getSupportedEffectTargets() {
+        Set<Integer> targets = new HashSet<>();
+        targets.add(PREVIEW);
+        return targets;
     }
 
     /**
