@@ -257,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Iniciou sessão!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Início de sessão concluído"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Demonstração do modelo de início de sessão"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Demonstrações do modelo de separador"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Demonstração do modelo de separador"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Separador de mensagem"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Separador de painel"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"Separador de lista"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Separador de grelha com título do separador longo"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Separador de pesquisa"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demonstração do carregamento do modelo de separador"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstração do modelo de separador sem separadores"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Não podem ser apresentadas imagens num anfitrião desconhecido"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Ícone"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Demonstração de ícones do fornecedor de conteúdo"</string>
