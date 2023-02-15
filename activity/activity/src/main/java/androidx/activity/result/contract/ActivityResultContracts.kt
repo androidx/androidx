@@ -668,7 +668,7 @@ class ActivityResultContracts private constructor() {
              * Note: this should not be used directly, instead relying on the selection logic
              * done by [createIntent] to create the correct Intent for the current device.
              */
-            @Suppress("ActionValue") /* Don't include SYSTEM_FALLBACk in the action */
+            @Suppress("ActionValue") /* Don't include SYSTEM_FALLBACK in the action */
             const val ACTION_SYSTEM_FALLBACK_PICK_IMAGES =
                 "androidx.activity.result.contract.action.PICK_IMAGES"
 
@@ -682,7 +682,7 @@ class ActivityResultContracts private constructor() {
              * If this extra is present but equal to [Int.MAX_VALUE], then no limit should
              * be enforced.
              */
-            @Suppress("ActionValue") /* Don't include SYSTEM_FALLBACk in the extra */
+            @Suppress("ActionValue") /* Don't include SYSTEM_FALLBACK in the extra */
             const val EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX =
                 "androidx.activity.result.contract.extra.PICK_IMAGES_MAX"
 
