@@ -22,9 +22,6 @@ internal object EmojiPickerConstants {
     // The default number of body columns.
     const val DEFAULT_BODY_COLUMNS = 9
 
-    // The default number of body rows.
-    const val DEFAULT_BODY_ROWS = 7.5f
-
     // The default number of rows of recent items held.
     const val DEFAULT_MAX_RECENT_ITEM_ROWS = 3
 
