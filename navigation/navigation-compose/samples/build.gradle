@@ -48,3 +48,11 @@ androidx {
 android {
     namespace "androidx.navigation.compose.samples"
 }
+
+// Workaround for https://github.com/gradle/gradle/issues/19882
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel-ktx:")).
+                using project(":lifecycle:lifecycle-viewmodel-ktx")
+    }
+}
