@@ -46,6 +46,5 @@
         android:id="@+id/emoji_picker"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:emojiGridRows="15"
         app:emojiGridColumns="9" />
 </LinearLayout>
