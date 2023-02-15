@@ -29,6 +29,14 @@ dependencies {
 
     implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
     implementation(project(":wear:protolayout:protolayout-expression"))
+
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.robolectric)
+    testImplementation("androidx.collection:collection:1.2.0")
+    testImplementation(libs.truth)
 }
 
 android {
