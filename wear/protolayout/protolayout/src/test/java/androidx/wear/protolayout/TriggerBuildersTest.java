@@ -44,7 +44,7 @@ public class TriggerBuildersTest {
                 condition);
 
         assertThat(
-                onConditionMetTrigger.toTriggerProto().getOnConditionTrigger().getDynamicBool())
+                onConditionMetTrigger.toTriggerProto().getOnConditionMetTrigger().getTrigger())
                 .isEqualTo(condition.toDynamicBoolProto());
     }
 }
