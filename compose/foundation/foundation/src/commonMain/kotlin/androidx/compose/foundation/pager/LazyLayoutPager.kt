@@ -90,7 +90,7 @@ internal fun Pager(
     /** The alignment to align pages vertically. Required when isVertical is false */
     verticalAlignment: Alignment.Vertical,
     /** The content of the list */
-    pageContent: @Composable (page: Int) -> Unit
+    pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     require(beyondBoundsPageCount >= 0) {
         "beyondBoundsPageCount should be greater than or equal to 0, " +
@@ -178,7 +178,7 @@ internal fun Pager(
 @ExperimentalFoundationApi
 internal class PagerLazyLayoutItemProvider(
     val state: PagerState,
-    latestContent: () -> (@Composable (page: Int) -> Unit),
+    latestContent: () -> (@Composable PagerScope.(page: Int) -> Unit),
     key: ((index: Int) -> Any)?,
     pageCount: () -> Int
 ) : LazyLayoutItemProvider {
@@ -191,13 +191,16 @@ internal class PagerLazyLayoutItemProvider(
         extraItemCount = { NearestItemsExtraItemCount },
         content = { pagerContent }
     )
+
+    private val pagerScopeImpl = PagerScopeImpl
+
     override val itemCount: Int
         get() = pagerContent.itemCount
 
     @Composable
     override fun Item(index: Int) {
         pagerContent.PinnableItem(index, state.pinnedPages) { localIndex ->
-            item(localIndex)
+            item(pagerScopeImpl, localIndex)
         }
     }
 
@@ -208,7 +211,7 @@ internal class PagerLazyLayoutItemProvider(
 
 @OptIn(ExperimentalFoundationApi::class)
 private class PagerLayoutIntervalContent(
-    val pageContent: @Composable (page: Int) -> Unit,
+    val pageContent: @Composable PagerScope.(page: Int) -> Unit,
     val key: ((index: Int) -> Any)?,
     val pageCount: Int
 ) : LazyLayoutIntervalContent<PagerIntervalContent>() {
@@ -221,14 +224,14 @@ private class PagerLayoutIntervalContent(
 @OptIn(ExperimentalFoundationApi::class)
 internal class PagerIntervalContent(
     override val key: ((page: Int) -> Any)?,
-    val item: @Composable (page: Int) -> Unit
+    val item: @Composable PagerScope.(page: Int) -> Unit
 ) : LazyLayoutIntervalContent.Interval
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberPagerItemProvider(
     state: PagerState,
-    pageContent: @Composable (page: Int) -> Unit,
+    pageContent: @Composable PagerScope.(page: Int) -> Unit,
     key: ((index: Int) -> Any)?,
     pageCount: () -> Int
 ): PagerLazyLayoutItemProvider {

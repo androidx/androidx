@@ -125,7 +125,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         snapVelocityThreshold: Dp = MinFlingVelocityDp,
         snapPositionalThreshold: Float = 0.5f,
         key: ((index: Int) -> Any)? = null,
-        pageContent: @Composable (page: Int) -> Unit = { Page(index = it) }
+        pageContent: @Composable PagerScope.(page: Int) -> Unit = { Page(index = it) }
     ) {
 
         rule.setContent {
@@ -278,7 +278,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
         pageSpacing: Dp = 0.dp,
         key: ((index: Int) -> Any)? = null,
-        pageContent: @Composable (pager: Int) -> Unit
+        pageContent: @Composable PagerScope.(pager: Int) -> Unit
     ) {
         if (vertical) {
             VerticalPager(

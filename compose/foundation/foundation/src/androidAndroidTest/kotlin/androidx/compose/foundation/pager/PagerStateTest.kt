@@ -32,6 +32,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -861,6 +862,21 @@ class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
             HorizontalOrVerticalPager(state = state) {
                 Page(index = it)
             }
+        }
+    }
+
+    @Test
+    fun calculatePageCountOffset_shouldBeBasedOnCurrentPage() {
+        val pageToOffsetCalculations = mutableMapOf<Int, Float>()
+        createPager(modifier = Modifier.fillMaxSize(), pageSize = { PageSize.Fixed(20.dp) }) {
+            pageToOffsetCalculations[it] = pagerState.getOffsetFractionForPage(it)
+            Page(index = it)
+        }
+
+        for ((page, offset) in pageToOffsetCalculations) {
+            val currentPage = pagerState.currentPage
+            val currentPageOffset = pagerState.currentPageOffsetFraction
+            assertThat(offset).isEqualTo((currentPage - page) + currentPageOffset)
         }
     }
 

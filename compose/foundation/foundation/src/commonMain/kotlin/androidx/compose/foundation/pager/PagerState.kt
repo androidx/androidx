@@ -604,6 +604,24 @@ abstract class PagerState(
             }
         }
     }
+
+    /**
+     * An utility function to help to calculate a given page's offset. Since this is based off
+     * [currentPageOffsetFraction] the same concept applies: a fraction offset that represents
+     * how far [page] is from the settled position (represented by [currentPage] offset). The
+     * difference here is that [currentPageOffsetFraction] is a value between -0.5 and 0.5 and
+     * the value calculate by this function can be larger than these numbers if [page] is different
+     * than [currentPage].
+     *
+     * @param page The page to calculate the offset from. This should be between 0 and [pageCount].
+     * @return The offset of [page] with respect to [currentPage].
+     */
+    fun getOffsetFractionForPage(page: Int): Float {
+        require(page in 0..pageCount) {
+            "page $page is not within the range 0 to pageCount"
+        }
+        return (currentPage - page) + currentPageOffsetFraction
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
