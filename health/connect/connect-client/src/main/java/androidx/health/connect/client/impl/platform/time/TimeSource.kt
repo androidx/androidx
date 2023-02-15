@@ -15,11 +15,10 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY)
-@file:RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@file:RequiresApi(api = 34)
 
 package androidx.health.connect.client.impl.platform.time
 
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import java.time.Instant

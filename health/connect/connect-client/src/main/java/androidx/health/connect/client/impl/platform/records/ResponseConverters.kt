@@ -15,7 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY)
-@file:RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@file:RequiresApi(api = 34)
 
 package androidx.health.connect.client.impl.platform.records
 
@@ -28,7 +28,6 @@ import android.health.connect.datatypes.units.Length as PlatformLength
 import android.health.connect.datatypes.units.Mass as PlatformMass
 import android.health.connect.datatypes.units.Power as PlatformPower
 import android.health.connect.datatypes.units.Volume as PlatformVolume
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -53,7 +52,8 @@ fun AggregateRecordsGroupedByDurationResponse<Any>.toSdkResponse(
         startTime,
         endTime,
         getZoneOffset(metrics.first().toAggregationType())
-            ?: ZoneOffset.systemDefault().rules.getOffset(startTime))
+            ?: ZoneOffset.systemDefault().rules.getOffset(startTime)
+    )
 
 fun AggregateRecordsGroupedByPeriodResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
     AggregationResultGroupedByPeriod(buildAggregationResult(metrics, ::get), startTime, endTime)
@@ -68,7 +68,10 @@ private fun buildAggregationResult(
         }
     }
     return AggregationResult(
-        getLongMetricValues(metricValueMap), getDoubleMetricValues(metricValueMap), setOf())
+        getLongMetricValues(metricValueMap),
+        getDoubleMetricValues(metricValueMap),
+        setOf()
+    )
 }
 
 @VisibleForTesting

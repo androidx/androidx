@@ -15,7 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY)
-@file:RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@file:RequiresApi(api = 34)
 
 package androidx.health.connect.client.impl.platform.records
 
@@ -28,7 +28,6 @@ import android.health.connect.datatypes.Record as PlatformRecord
 import android.health.connect.datatypes.StepsRecord as PlatformStepsRecord
 import android.health.connect.datatypes.units.Energy as PlatformEnergy
 import android.health.connect.datatypes.units.Mass as PlatformMass
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -62,7 +61,8 @@ fun Record.toPlatformRecord(): PlatformRecord {
                     metadata.toPlatformMetadata(),
                     startTime,
                     endTime,
-                    samples.map { it.toPlatformHeartRateSample() })
+                    samples.map { it.toPlatformHeartRateSample() }
+                )
                 .apply {
                     startZoneOffset?.let { setStartZoneOffset(it) }
                     endZoneOffset?.let { setEndZoneOffset(it) }
@@ -98,7 +98,13 @@ fun PlatformRecord.toSdkRecord(): Record {
     return when (this) {
         is PlatformStepsRecord ->
             StepsRecord(
-                startTime, startZoneOffset, endTime, endZoneOffset, count, metadata.toSdkMetadata())
+                startTime,
+                startZoneOffset,
+                endTime,
+                endZoneOffset,
+                count,
+                metadata.toSdkMetadata()
+            )
         else -> throw IllegalArgumentException("Unsupported record $this")
     }
 }
@@ -125,7 +131,8 @@ internal fun PlatformMetadata.toSdkMetadata(): Metadata {
         lastModifiedTime,
         clientRecordId,
         clientRecordVersion,
-        device.toSdkDevice())
+        device.toSdkDevice()
+    )
 }
 
 private fun Device.toPlatformDevice(): PlatformDevice {

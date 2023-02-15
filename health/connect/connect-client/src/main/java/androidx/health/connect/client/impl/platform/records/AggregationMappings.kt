@@ -15,7 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY)
-@file:RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@file:RequiresApi(api = 34)
 
 package androidx.health.connect.client.impl.platform.records
 
@@ -40,7 +40,6 @@ import android.health.connect.datatypes.units.Length as PlatformLength
 import android.health.connect.datatypes.units.Mass as PlatformMass
 import android.health.connect.datatypes.units.Power as PlatformPower
 import android.health.connect.datatypes.units.Volume as PlatformVolume
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric

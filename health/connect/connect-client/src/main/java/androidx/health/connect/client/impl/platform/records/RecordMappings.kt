@@ -15,7 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY)
-@file:RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@file:RequiresApi(api = 34)
 
 package androidx.health.connect.client.impl.platform.records
 
@@ -59,7 +59,6 @@ import android.health.connect.datatypes.TotalCaloriesBurnedRecord as PlatformTot
 import android.health.connect.datatypes.Vo2MaxRecord as PlatformVo2MaxRecord
 import android.health.connect.datatypes.WeightRecord as PlatformWeightRecord
 import android.health.connect.datatypes.WheelchairPushesRecord as PlatformWheelchairPushesRecord
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
