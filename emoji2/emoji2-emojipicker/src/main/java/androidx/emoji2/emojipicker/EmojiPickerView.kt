@@ -50,19 +50,21 @@ class EmojiPickerView @JvmOverloads constructor(
         internal var emojiCompatLoaded: Boolean = false
     }
 
+    private var _emojiGridRows: Float? = null
     /**
      * The number of rows of the emoji picker.
      *
-     * Default value([EmojiPickerConstants.DEFAULT_BODY_ROWS]: 7.5) will be used if emojiGridRows
-     * is set to non-positive value. Float value indicates that we will display partial of the last
-     * row and have content down, so the users get the idea that they can scroll down for more
-     * contents.
+     * Optional field. If not set, the value will be calculated based on parent view height and
+     * [emojiGridColumns].
+     * Float value indicates that the picker could display the last row partially, so the users get
+     * the idea that they can scroll down for more contents.
      * @attr ref androidx.emoji2.emojipicker.R.styleable.EmojiPickerView_emojiGridRows
      */
-    var emojiGridRows: Float = EmojiPickerConstants.DEFAULT_BODY_ROWS
+    var emojiGridRows: Float
+        get() = _emojiGridRows ?: -1F
         set(value) {
-            field = if (value > 0) value else EmojiPickerConstants.DEFAULT_BODY_ROWS
-            // this step is to ensure the layout refresh when emojiGridRows is reset
+            _emojiGridRows = value.takeIf { it > 0 }
+            // Refresh when emojiGridRows is reset
             if (isLaidOut) {
                 showEmojiPickerView()
             }
@@ -77,8 +79,8 @@ class EmojiPickerView @JvmOverloads constructor(
      */
     var emojiGridColumns: Int = EmojiPickerConstants.DEFAULT_BODY_COLUMNS
         set(value) {
-            field = if (value > 0) value else EmojiPickerConstants.DEFAULT_BODY_COLUMNS
-            // this step is to ensure the layout refresh when emojiGridColumns is reset
+            field = value.takeIf { it > 0 } ?: EmojiPickerConstants.DEFAULT_BODY_COLUMNS
+            // Refresh when emojiGridColumns is reset
             if (isLaidOut) {
                 showEmojiPickerView()
             }
@@ -100,10 +102,11 @@ class EmojiPickerView @JvmOverloads constructor(
     init {
         val typedArray: TypedArray =
             context.obtainStyledAttributes(attrs, R.styleable.EmojiPickerView, 0, 0)
-        emojiGridRows = typedArray.getFloat(
-            R.styleable.EmojiPickerView_emojiGridRows,
-            EmojiPickerConstants.DEFAULT_BODY_ROWS
-        )
+        _emojiGridRows = with(R.styleable.EmojiPickerView_emojiGridRows) {
+            if (typedArray.hasValue(this)) {
+                typedArray.getFloat(this, 0F)
+            } else null
+        }
         emojiGridColumns = typedArray.getInt(
             R.styleable.EmojiPickerView_emojiGridColumns,
             EmojiPickerConstants.DEFAULT_BODY_COLUMNS
@@ -146,7 +149,7 @@ class EmojiPickerView @JvmOverloads constructor(
         return EmojiPickerBodyAdapter(
             context,
             emojiGridColumns,
-            emojiGridRows,
+            _emojiGridRows,
             stickyVariantProvider,
             emojiPickerItemsProvider = { emojiPickerItems },
             onEmojiPickedListener = { emojiViewItem ->
