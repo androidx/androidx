@@ -16,6 +16,8 @@
 
 package androidx.window.testing.emedding;
 
+import static androidx.window.embedding.SplitAttributes.SplitType.SPLIT_TYPE_HINGE;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -52,8 +54,7 @@ public class SplitAttributesCalculatorParamsTestingJavaTest {
     private static final SplitAttributes DEFAULT_SPLIT_ATTRIBUTES =
             new SplitAttributes.Builder().build();
     private static final SplitAttributes TABLETOP_HINGE_ATTRIBUTES = new SplitAttributes.Builder()
-            .setSplitType(SplitAttributes.SplitType.splitByHinge(
-                    SplitAttributes.SplitType.splitEqually()))
+            .setSplitType(SPLIT_TYPE_HINGE)
             .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
             .build();
 
@@ -114,7 +115,7 @@ public class SplitAttributesCalculatorParamsTestingJavaTest {
             return params.getDefaultSplitAttributes();
         } else {
             return new SplitAttributes.Builder()
-                    .setSplitType(SplitAttributes.SplitType.expandContainers())
+                    .setSplitType(SplitAttributes.SplitType.SPLIT_TYPE_EXPAND)
                     .build();
         }
     }

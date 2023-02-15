@@ -21,6 +21,9 @@ import android.graphics.Color
 import androidx.annotation.Sampled
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitAttributes
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 import androidx.window.embedding.SplitController
 import androidx.window.layout.FoldingFeature
 
@@ -50,7 +53,7 @@ fun splitAttributesCalculatorSample() {
                 // Split the parent container that followed by the hinge if the hinge separates the
                 // parent window.
                 return@setSplitAttributesCalculator SplitAttributes.Builder()
-                    .setSplitType(SplitAttributes.SplitType.splitByHinge())
+                    .setSplitType(SPLIT_TYPE_HINGE)
                     .setLayoutDirection(
                         if (foldingState.orientation == FoldingFeature.Orientation.HORIZONTAL) {
                             SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
@@ -67,14 +70,14 @@ fun splitAttributesCalculatorSample() {
             ) {
                 // Split the parent container equally and vertically if the device is in landscape.
                 SplitAttributes.Builder()
-                    .setSplitType(SplitAttributes.SplitType.splitEqually())
+                    .setSplitType(SPLIT_TYPE_EQUAL)
                     .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
                     .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GRAY))
                     .build()
             } else {
                 // Expand containers if the device is in portrait or the width is less than 600 dp.
                 SplitAttributes.Builder()
-                    .setSplitType(SplitAttributes.SplitType.expandContainers())
+                    .setSplitType(SPLIT_TYPE_EXPAND)
                     .build()
             }
         }
@@ -104,7 +107,7 @@ fun splitWithOrientations() {
             } else {
                 // Fallback to expand the secondary container
                 builder
-                    .setSplitType(SplitAttributes.SplitType.expandContainers())
+                    .setSplitType(SPLIT_TYPE_EXPAND)
                     .build()
             }
         }
@@ -122,7 +125,7 @@ fun expandContainersInPortrait() {
             val areDefaultConstraintsSatisfied = params.areDefaultConstraintsSatisfied
 
             val expandContainersAttrs = SplitAttributes.Builder()
-                .setSplitType(SplitAttributes.SplitType.expandContainers())
+                .setSplitType(SPLIT_TYPE_EXPAND)
                 .build()
             if (!areDefaultConstraintsSatisfied) {
                 return@setSplitAttributesCalculator expandContainersAttrs
@@ -130,12 +133,28 @@ fun expandContainersInPortrait() {
             // Always expand containers for the splitRule tagged as
             // TAG_SPLIT_RULE_EXPAND_IN_PORTRAIT if the device is in portrait
             // even if [areDefaultConstraintsSatisfied] reports true.
-            if (bounds.height() > bounds.width() && TAG_SPLIT_RULE_EXPAND_IN_PORTRAIT.equals(tag)) {
+            if (bounds.height() > bounds.width() && TAG_SPLIT_RULE_EXPAND_IN_PORTRAIT == tag) {
                 return@setSplitAttributesCalculator expandContainersAttrs
             }
             // Otherwise, use the default splitAttributes.
             return@setSplitAttributesCalculator defaultSplitAttributes
         }
+}
+
+@OptIn(ExperimentalWindowApi::class)
+@Sampled
+fun fallbackToExpandContainersForSplitTypeHinge() {
+    SplitController.getInstance(context).setSplitAttributesCalculator { params ->
+        SplitAttributes.Builder()
+            .setSplitType(
+                if (params.parentWindowLayoutInfo.displayFeatures
+                        .filterIsInstance<FoldingFeature>().isNotEmpty()) {
+                    SPLIT_TYPE_HINGE
+                } else {
+                    SPLIT_TYPE_EXPAND
+                }
+            ).build()
+    }
 }
 
 /** Assume it's a valid [Application]... */

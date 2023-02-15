@@ -36,6 +36,8 @@ import androidx.window.demo.databinding.ActivitySplitDeviceStateLayoutBinding
 import androidx.window.embedding.EmbeddingRule
 import androidx.window.embedding.RuleController
 import androidx.window.embedding.SplitAttributes
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
 import androidx.window.embedding.SplitInfo
@@ -262,7 +264,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         )
         splitPairFilters.add(splitPairFilter)
         val defaultSplitAttributes = SplitAttributes.Builder()
-            .setSplitType(SplitAttributes.SplitType.splitEqually())
+            .setSplitType(SPLIT_TYPE_EQUAL)
             .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
             .setAnimationBackgroundColor(demoActivityEmbeddingController.animationBackgroundColor)
             .build()
@@ -309,7 +311,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
 
     private suspend fun updateSplitAttributesText(newSplitInfos: List<SplitInfo>) {
         var splitAttributes: SplitAttributes = SplitAttributes.Builder()
-            .setSplitType(SplitAttributes.SplitType.expandContainers())
+            .setSplitType(SPLIT_TYPE_EXPAND)
             .build()
         var suggestToFinishItself = false
         val isCallbackSupported = splitController.isSplitAttributesCalculatorSupported()
@@ -318,8 +320,7 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
             if (info.contains(this@SplitDeviceStateActivityBase)) {
                 splitAttributes = info.splitAttributes
                 if (componentName == activityB &&
-                    splitAttributes.splitType
-                        is SplitAttributes.SplitType.ExpandContainersSplitType
+                    splitAttributes.splitType == SPLIT_TYPE_EXPAND
                 ) {
                     // We don't put any functionality on activity B. Suggest users to finish the
                     // activity if it fills the host task.
