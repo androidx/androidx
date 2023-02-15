@@ -25,7 +25,9 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.util.Consumer
 import androidx.window.WindowProperties
+import androidx.window.core.BuildConfig
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.VerificationMode
 import androidx.window.embedding.SplitController.Api31Impl.isSplitPropertyEnabled
 import androidx.window.layout.WindowMetrics
 import java.util.concurrent.Executor
@@ -47,7 +49,6 @@ import kotlin.concurrent.withLock
 class SplitController private constructor(private val applicationContext: Context) {
     private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend
         .getInstance(applicationContext)
-    private var splitPropertyEnabled: Boolean = false
 
     // TODO(b/258356512): Make this method a flow API
     /**
@@ -100,17 +101,39 @@ class SplitController private constructor(private val applicationContext: Contex
      * must be enabled in AndroidManifest within <application> in order to get the correct
      * state or `false` will be returned by default.
      */
-    fun isSplitSupported(): Boolean {
-        if (!splitPropertyEnabled) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                splitPropertyEnabled = isSplitPropertyEnabled(applicationContext)
-            } else {
-                // The PackageManager#getProperty API is not supported before S, assuming
-                // the property is enabled to keep the same behavior on earlier platforms.
-                splitPropertyEnabled = true
-            }
+    @ExperimentalWindowApi
+    @Deprecated("Use splitSupportStatus instead",
+        replaceWith = ReplaceWith("splitSupportStatus")
+    )
+    fun isSplitSupported(): Boolean = splitSupportStatus == SplitSupportStatus.SPLIT_AVAILABLE
+
+    /**
+     * Indicates whether split functionality is supported on the device. Note
+     * that devices might not enable splits in all states or conditions. For
+     * example, a foldable device with multiple screens can choose to collapse
+     * splits when apps run on the device's small display, but enable splits
+     * when apps run on the device's large display. In cases like this,
+     * [splitSupportStatus] always returns [SplitSupportStatus.SPLIT_AVAILABLE], and if the split is
+     * collapsed, activities are launched on top, following the non-activity embedding model.
+     *
+     * Also the [androidx.window.WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED]
+     * must be enabled in AndroidManifest within <application> in order to get the correct
+     * state or [SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED] will be returned in some
+     * cases.
+     *
+     * @see SplitSupportStatus
+     */
+    val splitSupportStatus: SplitSupportStatus by lazy {
+        if (!embeddingBackend.isSplitSupported()) {
+            SplitSupportStatus.SPLIT_UNAVAILABLE
         }
-        return splitPropertyEnabled && embeddingBackend.isSplitSupported()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            isSplitPropertyEnabled(applicationContext)
+        } else {
+            // The PackageManager#getProperty API is not supported before S, assuming
+            // the property is enabled to keep the same behavior on earlier platforms.
+            SplitSupportStatus.SPLIT_AVAILABLE
+        }
     }
 
     /**
@@ -246,6 +269,45 @@ class SplitController private constructor(private val applicationContext: Contex
     fun isUpdatingSplitAttributesSupported(): Boolean =
         embeddingBackend.areSplitAttributesUpdatesSupported()
 
+    /**
+     * A class to determine if activity splits with Activity Embedding are currently available.
+     * Depending on the split property declaration, device software version or user preferences
+     * the feature might not be available.
+     */
+    class SplitSupportStatus private constructor(private val rawValue: Int) {
+        override fun toString(): String {
+            return when (rawValue) {
+                0 -> "SplitSupportStatus: AVAILABLE"
+                1 -> "SplitSupportStatus: UNAVAILABLE"
+                2 -> "SplitSupportStatus: ERROR_SPLIT_PROPERTY_NOT_DECLARED"
+                else -> "UNKNOWN"
+            }
+        }
+
+        companion object {
+            /**
+             * The activity splits API is available and split rules can take effect depending on
+             * the window state.
+             */
+            @JvmField
+            val SPLIT_AVAILABLE = SplitSupportStatus(0)
+
+            /**
+             * The activity splits API is currently unavailable.
+             */
+            @JvmField
+            val SPLIT_UNAVAILABLE = SplitSupportStatus(1)
+
+            /**
+             * Denotes that [WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED] has not
+             * been set. This property must be set and enabled in AndroidManifest.xml to use splits
+             * APIs.
+             */
+            @JvmField
+            val SPLIT_ERROR_PROPERTY_NOT_DECLARED = SplitSupportStatus(2)
+        }
+    }
+
     companion object {
         @Volatile
         private var globalInstance: SplitController? = null
@@ -275,31 +337,42 @@ class SplitController private constructor(private val applicationContext: Contex
     @RequiresApi(31)
     private object Api31Impl {
         @DoNotInline
-        fun isSplitPropertyEnabled(applicationContext: Context): Boolean {
+        fun isSplitPropertyEnabled(applicationContext: Context): SplitSupportStatus {
             val property = try {
                 applicationContext.packageManager.getProperty(
                     WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED,
                     applicationContext.packageName
                 )
             } catch (e: PackageManager.NameNotFoundException) {
-                Log.e(
-                    TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
-                    " must be set and enabled in AndroidManifest.xml to use splits APIs."
-                )
-                return false
+                if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                    Log.w(
+                        TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
+                            " must be set and enabled in AndroidManifest.xml to use splits APIs."
+                    )
+                }
+                return SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
             } catch (e: Exception) {
-                // This can happen when it is a test environment that doesn't support getProperty.
-                Log.e(TAG, "PackageManager.getProperty is not supported", e)
-                return false
+                if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                    // This can happen when it is a test environment that doesn't support
+                    // getProperty.
+                    Log.e(TAG, "PackageManager.getProperty is not supported", e)
+                }
+                return SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
             }
             if (!property.isBoolean) {
-                Log.e(
-                    TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
-                    " must have a boolean value"
-                )
-                return false
+                if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                    Log.w(
+                        TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
+                            " must have a boolean value"
+                    )
+                }
+                return SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
             }
-            return property.boolean
+            return if (property.boolean) {
+                SplitSupportStatus.SPLIT_AVAILABLE
+            } else {
+                SplitSupportStatus.SPLIT_UNAVAILABLE
+            }
         }
     }
 }
