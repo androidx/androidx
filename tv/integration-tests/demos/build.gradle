@@ -61,3 +61,19 @@ android {
     }
     namespace "androidx.tv.integration.demos"
 }
+
+// Workaround for https://github.com/gradle/gradle/issues/19882
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("androidx.lifecycle:lifecycle-common-java8:")).
+                using project(":lifecycle:lifecycle-common-java8")
+        substitute(module("androidx.lifecycle:lifecycle-livedata-core:")).
+                using project(":lifecycle:lifecycle-livedata-core")
+        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
+                using project(":lifecycle:lifecycle-runtime")
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
+                using project(":lifecycle:lifecycle-viewmodel")
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel-savedstate:")).
+                using project(":lifecycle:lifecycle-viewmodel-savedstate")
+    }
+}
