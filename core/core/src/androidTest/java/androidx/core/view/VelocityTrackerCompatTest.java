@@ -25,9 +25,9 @@ import static androidx.core.view.MotionEventCompat.AXIS_SCROLL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 import android.os.Build;
+import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 
@@ -37,31 +37,81 @@ import androidx.test.filters.SmallTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class VelocityTrackerCompatTest {
-    @Mock private VelocityTracker mTracker;
+    /** Arbitrarily chosen velocities across different supported dimensions and some pointer IDs. */
+    private static final float X_VEL_POINTER_ID_1 = 5;
+    private static final float X_VEL_POINTER_ID_2 = 6;
+    private static final float Y_VEL_POINTER_ID_1 = 7;
+    private static final float Y_VEL_POINTER_ID_2 = 8;
+    private static final float SCROLL_VEL_POINTER_ID_1 = 9;
+    private static final float SCROLL_VEL_POINTER_ID_2 = 10;
+
+    /**
+     * A small enough step time stamp (ms), that the VelocityTracker wouldn't consider big enough to
+     * assume a pointer has stopped.
+     */
+    private static final long TIME_STEP_MS = 10;
+
+    /**
+     * An arbitrarily chosen value for the number of times a movement particular type of movement
+     * is added to a tracker. For velocities to be non-zero, we should generally have 2/3 movements,
+     * so 4 is a good value to use.
+     */
+    private static final int NUM_MOVEMENTS = 4;
+
+    private VelocityTracker mPlanarTracker;
+    private VelocityTracker mScrollTracker;
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        mPlanarTracker = VelocityTracker.obtain();
+        mScrollTracker = VelocityTracker.obtain();
+
+        long time = 0;
+        float xPointer1 = 0;
+        float yPointer1 = 0;
+        float scrollPointer1 = 0;
+        float xPointer2 = 0;
+        float yPointer2 = 0;
+        float scrollPointer2 = 0;
+
+        // Add MotionEvents to create some velocity!
+        // Note that: the goal of these tests is not to check the specific values of the velocities,
+        // but instead, compare the outputs of the Compat tracker against the platform tracker.
+        for (int i = 0; i < NUM_MOVEMENTS; i++) {
+            time += TIME_STEP_MS;
+            xPointer1 += X_VEL_POINTER_ID_1 * TIME_STEP_MS;
+            yPointer1 += Y_VEL_POINTER_ID_1 * TIME_STEP_MS;
+            scrollPointer1 = SCROLL_VEL_POINTER_ID_1 * TIME_STEP_MS;
+
+            xPointer2 += X_VEL_POINTER_ID_2 * TIME_STEP_MS;
+            yPointer2 += Y_VEL_POINTER_ID_2 * TIME_STEP_MS;
+            scrollPointer2 = SCROLL_VEL_POINTER_ID_2 * TIME_STEP_MS;
+
+            addPlanarMotionEvent(1, time, xPointer1, yPointer1);
+            addPlanarMotionEvent(2, time, xPointer2, yPointer2);
+            addScrollMotionEvent(1, time, scrollPointer1);
+            addScrollMotionEvent(2, time, scrollPointer2);
+        }
+
+        mPlanarTracker.computeCurrentVelocity(1000);
+        mScrollTracker.computeCurrentVelocity(1000);
     }
 
     @Test
     public void testIsAxisSupported_planarAxes() {
-        assertTrue(VelocityTrackerCompat.isAxisSupported(mTracker, AXIS_X));
-        assertTrue(VelocityTrackerCompat.isAxisSupported(mTracker, AXIS_Y));
+        assertTrue(VelocityTrackerCompat.isAxisSupported(VelocityTracker.obtain(), AXIS_X));
+        assertTrue(VelocityTrackerCompat.isAxisSupported(VelocityTracker.obtain(), AXIS_Y));
     }
 
     @Test
     public void testIsAxisSupported_nonPlanarAxes() {
         if (Build.VERSION.SDK_INT >= 34) {
-            when(mTracker.isAxisSupported(MotionEvent.AXIS_SCROLL)).thenReturn(true);
-
-            assertTrue(VelocityTrackerCompat.isAxisSupported(mTracker, AXIS_SCROLL));
+            assertTrue(
+                    VelocityTrackerCompat.isAxisSupported(VelocityTracker.obtain(), AXIS_SCROLL));
         } else {
             assertFalse(
                     VelocityTrackerCompat.isAxisSupported(VelocityTracker.obtain(), AXIS_SCROLL));
@@ -72,55 +122,101 @@ public class VelocityTrackerCompatTest {
     }
 
     @Test
-    public void testGetAxisVelocity() {
+    public void testGetAxisVelocity_planarAxes_noPointerId_againstEquivalentPlatformApis() {
         if (Build.VERSION.SDK_INT >= 34) {
-            when(mTracker.getAxisVelocity(AXIS_X)).thenReturn(1f);
-            when(mTracker.getAxisVelocity(AXIS_Y)).thenReturn(2f);
-            when(mTracker.getAxisVelocity(AXIS_SCROLL)).thenReturn(3f);
+            float compatXVelocity = VelocityTrackerCompat.getAxisVelocity(mPlanarTracker, AXIS_X);
+            float compatYVelocity = VelocityTrackerCompat.getAxisVelocity(mPlanarTracker, AXIS_Y);
 
-            assertEquals(1f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_X), 0);
-            assertEquals(2f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_Y), 0);
-            assertEquals(3f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_SCROLL), 0);
-        } else {
-            when(mTracker.getXVelocity()).thenReturn(2f);
-            when(mTracker.getYVelocity()).thenReturn(3f);
-
-            assertEquals(2f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_X), 0);
-            assertEquals(3f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_Y), 0);
-            // AXIS_SCROLL not supported before API 34.
-            assertEquals(0f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_SCROLL), 0);
+            assertEquals(mPlanarTracker.getAxisVelocity(AXIS_X), compatXVelocity, 0);
+            assertEquals(mPlanarTracker.getAxisVelocity(AXIS_Y), compatYVelocity, 0);
         }
-
-        // Check against an axis that has not yet been supported at any Android version.
-        assertEquals(0f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_BRAKE), 0);
     }
 
     @Test
-    public void testGetAxisVelocity_withPointerId() {
+    public void testGetAxisVelocity_planarAxes_withPointerId_againstEquivalentPlatformApis() {
         if (Build.VERSION.SDK_INT >= 34) {
-            when(mTracker.getAxisVelocity(AXIS_X, 4)).thenReturn(1f);
-            when(mTracker.getAxisVelocity(AXIS_Y, 5)).thenReturn(2f);
-            when(mTracker.getAxisVelocity(AXIS_SCROLL, 1)).thenReturn(3f);
+            float compatXVelocity =
+                    VelocityTrackerCompat.getAxisVelocity(mPlanarTracker, AXIS_X, 2);
+            float compatYVelocity =
+                    VelocityTrackerCompat.getAxisVelocity(mPlanarTracker, AXIS_Y, 2);
 
-            assertEquals(4f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_X, 4), 0);
-            assertEquals(5f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_Y, 5), 0);
-            assertEquals(3f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_SCROLL, 1), 0);
-            // Test with pointer IDs with no velocity.
-            assertEquals(0f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_X, 2), 0);
-            assertEquals(0f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_Y, 2), 0);
-            assertEquals(0f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_SCROLL, 2), 0);
-        } else {
-            when(mTracker.getXVelocity(2)).thenReturn(2f);
-            when(mTracker.getYVelocity(3)).thenReturn(3f);
-
-            // Test with pointer IDs with no velocity.
-            assertEquals(2f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_X, 2), 0);
-            assertEquals(3f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_Y, 3), 0);
-            // AXIS_SCROLL not supported before API 34.
-            assertEquals(0f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_SCROLL, 2), 0);
+            assertEquals(mPlanarTracker.getAxisVelocity(AXIS_X, 2), compatXVelocity, 0);
+            assertEquals(mPlanarTracker.getAxisVelocity(AXIS_Y, 2), compatYVelocity, 0);
         }
+    }
 
-        // Check against an axis that has not yet been supported at any Android version.
-        assertEquals(0f, VelocityTrackerCompat.getAxisVelocity(mTracker, AXIS_BRAKE, 4), 0);
+    @Test
+    public void testGetAxisVelocity_planarAxes_noPointerId_againstGenericXAndYVelocityApis() {
+        float compatXVelocity = VelocityTrackerCompat.getAxisVelocity(mPlanarTracker, AXIS_X);
+        float compatYVelocity = VelocityTrackerCompat.getAxisVelocity(mPlanarTracker, AXIS_Y);
+
+        assertEquals(mPlanarTracker.getXVelocity(), compatXVelocity, 0);
+        assertEquals(mPlanarTracker.getYVelocity(), compatYVelocity, 0);
+    }
+
+    @Test
+    public void testGetAxisVelocity_planarAxes_withPointerId_againstGenericXAndYVelocityApis() {
+        float compatXVelocity =
+                VelocityTrackerCompat.getAxisVelocity(mPlanarTracker, AXIS_X, 2);
+        float compatYVelocity =
+                VelocityTrackerCompat.getAxisVelocity(mPlanarTracker, AXIS_Y, 2);
+
+        assertEquals(mPlanarTracker.getXVelocity(2), compatXVelocity, 0);
+        assertEquals(mPlanarTracker.getYVelocity(2), compatYVelocity, 0);
+    }
+
+    @Test
+    public void testGetAxisVelocity_axisScroll_noPointerId() {
+        float compatScrollVelocity =
+                VelocityTrackerCompat.getAxisVelocity(mScrollTracker, AXIS_SCROLL);
+
+        if (Build.VERSION.SDK_INT >= 34) {
+            assertEquals(mScrollTracker.getAxisVelocity(AXIS_SCROLL), compatScrollVelocity, 0);
+        } else {
+            assertEquals(0, compatScrollVelocity, 0);
+        }
+    }
+
+    @Test
+    public void testGetAxisVelocity_axisScroll_withPointerId() {
+        float compatScrollVelocity =
+                VelocityTrackerCompat.getAxisVelocity(mScrollTracker, AXIS_SCROLL, 2);
+
+        if (Build.VERSION.SDK_INT >= 34) {
+            assertEquals(mScrollTracker.getAxisVelocity(AXIS_SCROLL, 2), compatScrollVelocity, 0);
+        } else {
+            assertEquals(0, compatScrollVelocity, 0);
+        }
+    }
+
+
+    private void addPlanarMotionEvent(int pointerId, long time, float x, float y) {
+        MotionEvent ev = MotionEvent.obtain(0L, time, MotionEvent.ACTION_MOVE, x, y, 0);
+        mPlanarTracker.addMovement(ev);
+        ev.recycle();
+    }
+    private void addScrollMotionEvent(int pointerId, long time, float scrollAmount) {
+        MotionEvent.PointerProperties props = new MotionEvent.PointerProperties();
+        props.id = pointerId;
+
+        MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
+        coords.setAxisValue(MotionEvent.AXIS_SCROLL, scrollAmount);
+
+        MotionEvent ev = MotionEvent.obtain(0 /* downTime */,
+                time,
+                MotionEvent.ACTION_SCROLL,
+                1 /* pointerCount */,
+                new MotionEvent.PointerProperties[] {props},
+                new MotionEvent.PointerCoords[] {coords},
+                0 /* metaState */,
+                0 /* buttonState */,
+                0 /* xPrecision */,
+                0 /* yPrecision */,
+                1 /* deviceId */,
+                0 /* edgeFlags */,
+                InputDevice.SOURCE_ROTARY_ENCODER,
+                0 /* flags */);
+        mScrollTracker.addMovement(ev);
+        ev.recycle();
     }
 }
