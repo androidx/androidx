@@ -38,6 +38,10 @@ object DeviceQuirksLoader {
             quirks.add(InvalidVideoProfilesQuirk())
         }
 
+        if (PreviewPixelHDRnetQuirk.isEnabled()) {
+            quirks.add(PreviewPixelHDRnetQuirk())
+        }
+
         if (RepeatingStreamConstraintForVideoRecordingQuirk.isEnabled()) {
             quirks.add(RepeatingStreamConstraintForVideoRecordingQuirk())
         }

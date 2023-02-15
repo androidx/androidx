@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraDevice
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
+import androidx.camera.camera2.pipe.integration.compat.workaround.setupHDRnet
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.DisplayInfoManager
 import androidx.camera.camera2.pipe.integration.impl.SESSION_PHYSICAL_CAMERA_ID_OPTION
@@ -85,6 +86,10 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE -> sessionBuilder.setTemplateType(
                 CameraDevice.TEMPLATE_RECORD
             )
+        }
+        if (captureType == UseCaseConfigFactory.CaptureType.PREVIEW) {
+            // Set the WYSIWYG preview for CAPTURE_TYPE_PREVIEW
+            sessionBuilder.setupHDRnet()
         }
         mutableConfig.insertOption(
             UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG,
