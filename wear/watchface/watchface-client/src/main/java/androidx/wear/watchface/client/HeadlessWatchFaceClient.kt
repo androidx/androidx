@@ -21,6 +21,7 @@ import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.os.RemoteException
 import android.support.wearable.watchface.SharedMemoryImage
+import android.view.Surface
 import androidx.annotation.AnyThread
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.ComplicationSlot
@@ -30,6 +31,7 @@ import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
+import androidx.wear.watchface.control.data.WatchFaceSurfaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleFlavors
@@ -115,6 +117,37 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
         userStyle: UserStyle?,
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
+
+    /** Whether or not the watch face supports [renderWatchFaceToSurface]. */
+    public val isRenderWatchFaceToSurfaceSupported: Boolean
+        @get:JvmName("isRenderWatchFaceToSurfaceSupported")
+        get() = false
+
+    /**
+     * Renders the watchface (once) to a [Surface] with the given settings. This is more efficient
+     * than renderWatchFaceToBitmap since typically a hardware canvas will be used for rendering
+     * canvas based watchface, and for OpenGL ones this method avoids glReadPixels.
+     *
+     * Requires a watch face built with a compatible library to operate or it will throw an
+     * [UnsupportedOperationException]. You can check if it's supported via
+     * [isRenderWatchFaceToSurfaceSupported].
+     *
+     * @param renderParameters The [RenderParameters] to draw with.
+     * @param instant The [Instant] render with.
+     * @param userStyle Optional [UserStyle] to render with, if null the current style is used.
+     * @param idAndComplicationData Map of complication ids to [ComplicationData] to render with, or
+     *   if null then the existing complication data if any is used.
+     * @param surface The [Surface] to render into. This is assumed to have the same dimensions as
+     *   the screen.
+     */
+    @Throws(RemoteException::class)
+    public fun renderWatchFaceToSurface(
+        renderParameters: RenderParameters,
+        instant: Instant,
+        userStyle: UserStyle?,
+        idAndComplicationData: Map<Int, ComplicationData>?,
+        surface: Surface
+    ) { }
 
     /**
      * Renders the [androidx.wear.watchface.ComplicationSlot] to a shared memory backed [Bitmap]
@@ -239,6 +272,35 @@ internal constructor(private val iHeadlessWatchFace: IHeadlessWatchFace) : Headl
                 )
             )
         }
+
+    override val isRenderWatchFaceToSurfaceSupported = iHeadlessWatchFace.apiVersion >= 4
+
+    override fun renderWatchFaceToSurface(
+        renderParameters: RenderParameters,
+        instant: Instant,
+        userStyle: UserStyle?,
+        idAndComplicationData: Map<Int, ComplicationData>?,
+        surface: Surface
+    ): Unit = TraceEvent("InteractiveWatchFaceClientImpl.renderWatchFaceToSurface").use {
+        if (iHeadlessWatchFace.apiVersion < 8) {
+            throw UnsupportedOperationException()
+        }
+
+        iHeadlessWatchFace.renderWatchFaceToSurface(
+            WatchFaceSurfaceRenderParams(
+                renderParameters.toWireFormat(),
+                surface,
+                instant.toEpochMilli(),
+                userStyle?.toWireFormat(),
+                idAndComplicationData?.map {
+                    IdAndComplicationDataWireFormat(
+                        it.key,
+                        it.value.asWireComplicationData()
+                    )
+                }
+            )
+        )
+    }
 
     @RequiresApi(27)
     override fun renderComplicationToBitmap(

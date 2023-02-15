@@ -20,6 +20,7 @@ import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
 import androidx.wear.watchface.control.IWatchfaceListener;
 import androidx.wear.watchface.control.IWatchfaceReadyListener;
 import androidx.wear.watchface.control.data.WatchFaceRenderParams;
+import androidx.wear.watchface.control.data.WatchFaceSurfaceRenderParams;
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
 import androidx.wear.watchface.data.WatchFaceOverlayStyleWireFormat;
@@ -35,12 +36,12 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 24
+    // Next Id: 25
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 8;
+    const int API_VERSION = 9;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -222,4 +223,12 @@ interface IInteractiveWatchFace {
      * @since API version 7.
      */
     long getComplicationIdAt(in int xPos, in int yPos) = 23;
+
+    /**
+     * Request to render the watch face into a surface.
+     *
+     * @since API version 9.
+     * @param params The {@link WatchFaceSurfaceRenderParams} for this screenshot.
+     */
+    oneway void renderWatchFaceToSurface(in WatchFaceSurfaceRenderParams params) = 24;
 }
