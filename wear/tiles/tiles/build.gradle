@@ -24,6 +24,8 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
+    api(project(":wear:protolayout:protolayout"))
+    api(project(":wear:protolayout:protolayout-expression"))
     api(libs.guavaListenableFuture)
 
     implementation("androidx.annotation:annotation-experimental:1.2.0")
@@ -43,7 +45,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 25
+        minSdkVersion 26
     }
     buildFeatures {
         aidl = true

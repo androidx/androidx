@@ -968,6 +968,8 @@ package androidx.wear.tiles {
   public static final class TileBuilders.Tile {
     method public long getFreshnessIntervalMillis();
     method public String getResourcesVersion();
+    method public androidx.wear.protolayout.StateBuilders.State? getState();
+    method public androidx.wear.protolayout.TimelineBuilders.Timeline? getTileTimeline();
     method public androidx.wear.tiles.TimelineBuilders.Timeline? getTimeline();
   }
 
@@ -976,6 +978,8 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.TileBuilders.Tile build();
     method public androidx.wear.tiles.TileBuilders.Tile.Builder setFreshnessIntervalMillis(long);
     method public androidx.wear.tiles.TileBuilders.Tile.Builder setResourcesVersion(String);
+    method public androidx.wear.tiles.TileBuilders.Tile.Builder setState(androidx.wear.protolayout.StateBuilders.State);
+    method public androidx.wear.tiles.TileBuilders.Tile.Builder setTileTimeline(androidx.wear.protolayout.TimelineBuilders.Timeline);
     method public androidx.wear.tiles.TileBuilders.Tile.Builder setTimeline(androidx.wear.tiles.TimelineBuilders.Timeline);
   }
 
