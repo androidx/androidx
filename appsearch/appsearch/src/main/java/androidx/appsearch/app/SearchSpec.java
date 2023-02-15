@@ -459,21 +459,21 @@ public final class SearchSpec {
      * Returns whether the {@link Features#NUMERIC_SEARCH} feature is enabled.
      */
     public boolean isNumericSearchEnabled() {
-        return getEnabledFeatures().contains(Features.NUMERIC_SEARCH);
+        return getEnabledFeatures().contains(FeatureConstants.NUMERIC_SEARCH);
     }
 
     /**
      * Returns whether the {@link Features#VERBATIM_SEARCH} feature is enabled.
      */
     public boolean isVerbatimSearchEnabled() {
-        return getEnabledFeatures().contains(Features.VERBATIM_SEARCH);
+        return getEnabledFeatures().contains(FeatureConstants.VERBATIM_SEARCH);
     }
 
     /**
      * Returns whether the {@link Features#LIST_FILTER_QUERY_LANGUAGE} feature is enabled.
      */
     public boolean isListFilterQueryLanguageEnabled() {
-        return getEnabledFeatures().contains(Features.LIST_FILTER_QUERY_LANGUAGE);
+        return getEnabledFeatures().contains(FeatureConstants.LIST_FILTER_QUERY_LANGUAGE);
     }
 
     /**
@@ -1316,7 +1316,7 @@ public final class SearchSpec {
         // @exportToFramework:endStrip()
         @NonNull
         public Builder setNumericSearchEnabled(boolean enabled) {
-            modifyEnabledFeature(Features.NUMERIC_SEARCH, enabled);
+            modifyEnabledFeature(FeatureConstants.NUMERIC_SEARCH, enabled);
             return this;
         }
 
@@ -1341,7 +1341,7 @@ public final class SearchSpec {
         // @exportToFramework:endStrip()
         @NonNull
         public Builder setVerbatimSearchEnabled(boolean enabled) {
-            modifyEnabledFeature(Features.VERBATIM_SEARCH, enabled);
+            modifyEnabledFeature(FeatureConstants.VERBATIM_SEARCH, enabled);
             return this;
         }
 
@@ -1381,7 +1381,7 @@ public final class SearchSpec {
         // @exportToFramework:endStrip()
         @NonNull
         public Builder setListFilterQueryLanguageEnabled(boolean enabled) {
-            modifyEnabledFeature(Features.LIST_FILTER_QUERY_LANGUAGE, enabled);
+            modifyEnabledFeature(FeatureConstants.LIST_FILTER_QUERY_LANGUAGE, enabled);
             return this;
         }
 
