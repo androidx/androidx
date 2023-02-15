@@ -169,6 +169,9 @@ class ComplicationDataSourceServiceTest {
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture())
         assertThat(data.firstValue.longText!!.getTextAt(Resources.getSystem(), 0))
             .isEqualTo("hello")
+        @Suppress("NewApi") // isForSafeWatchFace
+        assertThat(mService.lastRequest!!.isForSafeWatchFace)
+            .isEqualTo(TargetWatchFaceSafety.UNKNOWN)
     }
 
     @Test
@@ -181,13 +184,16 @@ class ComplicationDataSourceServiceTest {
 
         @Suppress("NewApi") // onUpdate2
         mProvider.onUpdate2(
-            id, ComplicationType.LONG_TEXT.toWireComplicationType(),
-            /* isForSafeWatchFace= */ true, mLocalManager
+            id,
+            ComplicationType.LONG_TEXT.toWireComplicationType(),
+            /* isForSafeWatchFace= */ TargetWatchFaceSafety.SAFE,
+            mLocalManager
         )
 
         assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         @Suppress("NewApi") // isForSafeWatchFace
-        assertThat(mService.lastRequest!!.isForSafeWatchFace).isTrue()
+        assertThat(mService.lastRequest!!.isForSafeWatchFace)
+            .isEqualTo(TargetWatchFaceSafety.SAFE)
     }
 
     @Test
@@ -467,6 +473,9 @@ class ComplicationDataSourceServiceTest {
             assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
             assertThat(response.get().longText!!.getTextAt(Resources.getSystem(), 0))
                 .isEqualTo("hello")
+            @Suppress("NewApi") // isForSafeWatchFace
+            assertThat(mService.lastRequest!!.isForSafeWatchFace)
+                .isEqualTo(TargetWatchFaceSafety.UNKNOWN)
         } finally {
             thread.quitSafely()
         }
@@ -493,7 +502,7 @@ class ComplicationDataSourceServiceTest {
                     response.set(
                         mProvider.onSynchronousComplicationRequest2(
                             id,
-                            /* isForSafeWatchFace= */ true,
+                            /* isForSafeWatchFace= */ TargetWatchFaceSafety.SAFE,
                             ComplicationType.LONG_TEXT.toWireComplicationType()
                         )
                     )
@@ -505,7 +514,8 @@ class ComplicationDataSourceServiceTest {
 
             assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
             @Suppress("NewApi") // isForSafeWatchFace
-            assertThat(mService.lastRequest!!.isForSafeWatchFace).isTrue()
+            assertThat(mService.lastRequest!!.isForSafeWatchFace)
+                .isEqualTo(TargetWatchFaceSafety.SAFE)
         } finally {
             thread.quitSafely()
         }
