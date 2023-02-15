@@ -37,6 +37,9 @@ import kotlinx.coroutines.sync.withLock
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class FileStorage<T>(
     private val serializer: Serializer<T>,
+    private val coordinatorProducer: (File) -> InterProcessCoordinator = {
+        SingleProcessCoordinator()
+    },
     private val produceFile: () -> File
 ) : Storage<T> {
 
@@ -54,7 +57,7 @@ class FileStorage<T>(
             activeFiles.add(path)
         }
 
-        return FileStorageConnection(file, serializer) {
+        return FileStorageConnection(file, serializer, coordinatorProducer(file)) {
             synchronized(activeFilesLock) {
                 activeFiles.remove(file.absolutePath)
             }
@@ -78,6 +81,7 @@ class FileStorage<T>(
 internal class FileStorageConnection<T>(
     private val file: File,
     private val serializer: Serializer<T>,
+    override val coordinator: InterProcessCoordinator,
     private val onClose: () -> Unit
 ) : StorageConnection<T> {
 

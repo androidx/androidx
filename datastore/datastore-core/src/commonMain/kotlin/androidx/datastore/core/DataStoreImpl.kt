@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,16 @@
 
 package androidx.datastore.core
 
-import android.os.FileObserver
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.nio.channels.FileLock
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.dropWhile
@@ -44,7 +39,7 @@ import kotlinx.coroutines.withContext
 /**
  * Multi process implementation of DataStore. It is multi-process safe.
  */
-internal class MultiProcessDataStore<T>(
+internal class DataStoreImpl<T>(
     private val storage: Storage<T>,
     /**
      * The list of initialization tasks to perform. These tasks will be completed before any data
@@ -55,8 +50,7 @@ internal class MultiProcessDataStore<T>(
      */
     initTasksList: List<suspend (api: InitializerApi<T>) -> Unit> = emptyList(),
     private val corruptionHandler: CorruptionHandler<T> = NoOpCorruptionHandler<T>(),
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-    private val produceFile: () -> File
+    private val scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob())
 ) : DataStore<T> {
     override val data: Flow<T> = flow {
         /**
@@ -78,13 +72,7 @@ internal class MultiProcessDataStore<T>(
          * Final. ReadException can transition to another ReadException, Data or Final.
          * Data can transition to another Data or Final. Final will not change.
          */
-        // Only switch coroutine if sharedCounter is not initialized because initialization incurs
-        // disk IO
-        val latestVersionAtRead =
-            if (lazySharedCounter.isInitialized()) sharedCounter.getValue() else
-                withContext(scope.coroutineContext) {
-                    sharedCounter.getValue()
-                }
+        val latestVersionAtRead = coordinator.getVersion()
         val currentDownStreamFlowState = downstreamFlow.value
 
         if ((currentDownStreamFlowState !is Data) ||
@@ -134,58 +122,22 @@ internal class MultiProcessDataStore<T>(
         return ack.await()
     }
 
-    private val LOCK_SUFFIX = ".lock"
-    private val VERSION_SUFFIX = ".version"
     private val BUG_MESSAGE = "This is a bug in DataStore. Please file a bug at: " +
         "https://issuetracker.google.com/issues/new?component=907884&template=1466542"
     // TODO(b/255419657): update the shared lock IOException handling logic
-    private val LOCK_ERROR_MESSAGE = "fcntl failed: EAGAIN"
     private val INVALID_VERSION = -1
     private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
         initTasksList.toList()
 
-    private val lazySharedCounter = lazy {
-        SharedCounter.loadLib()
-        SharedCounter.create {
-            val versionFile = fileWithSuffix(VERSION_SUFFIX)
-            versionFile.createIfNotExists()
-            versionFile
-        }
-    }
-    private val sharedCounter by lazySharedCounter
-
-    private val threadLock = Mutex()
     private val storageConnection: StorageConnection<T> by lazy {
         storage.createConnection()
     }
-
-    // file is protected rather than private to avoid requiring synthetic accessor for its usage in
-    // the definition of FileObserver
-    protected val file: File by lazy {
-        produceFile()
-    }
-
-    private val lockFile: File by lazy {
-        val lockFile = fileWithSuffix(LOCK_SUFFIX)
-        lockFile.createIfNotExists()
-        lockFile
-    }
-
-    private val fileObserver: FileObserver by lazy {
-        @Suppress("DEPRECATION")
-        object : FileObserver(file.canonicalFile.parent!!, FileObserver.MOVED_TO) {
-            // It will be triggered by same-process-write as well. Shared memory version check will
-            // prevent it from reading again. parameter `path` is relative to the observed directory
-            override fun onEvent(event: Int, path: String?) {
-                if ((downstreamFlow.value !is Final) && (file.name == path)) {
-                    readActor.offer(Message.Read(downstreamFlow.value))
-                }
-            }
-        }
-    }
+    private val coordinator: InterProcessCoordinator by lazy { storageConnection.coordinator }
 
     @Suppress("UNCHECKED_CAST")
     private val downstreamFlow = MutableStateFlow(UnInitialized as State<T>)
+
+    private lateinit var updateCollector: Job
 
     private val writeActor = SimpleActor<Message.Update<T>>(
         scope = scope,
@@ -212,8 +164,11 @@ internal class MultiProcessDataStore<T>(
     private val readActor = SimpleActor<Message.Read<T>>(
         scope = scope,
         onComplete = {
+            // TODO(b/267792241): remove it if updateCollector is better scoped
             // no more reads so stop listening to file changes
-            fileObserver.stopWatching()
+            if (::updateCollector.isInitialized) {
+                updateCollector.cancel()
+            }
         },
         onUndeliveredElement = { _, _ -> }
     ) { msg ->
@@ -305,7 +260,8 @@ internal class MultiProcessDataStore<T>(
             if ((initTasks == null) || initTasks!!.isEmpty()) {
                 initData = readDataOrHandleCorruption(hasWriteFileLock = false)
             } else {
-                initData = getWriteFileLock {
+                var version = INVALID_VERSION
+                val currentValue = coordinator.lock {
                     val updateLock = Mutex()
                     var initializationComplete: Boolean = false
                     var currentData = readDataOrHandleCorruption(hasWriteFileLock = true).value
@@ -335,13 +291,24 @@ internal class MultiProcessDataStore<T>(
                     updateLock.withLock {
                         initializationComplete = true
                     }
+                    version = coordinator.getVersion()
 
                     // only to make compiler happy
                     currentData
                 }
+                initData = Data(currentValue, currentValue.hashCode(), version)
             }
             downstreamFlow.value = initData
-            fileObserver.startWatching()
+            // TODO(b/267792241): consider scope it with active datastore.data observers
+            if (!::updateCollector.isInitialized) {
+                updateCollector = scope.launch {
+                    coordinator.updateNotifications.collect {
+                        if (downstreamFlow.value !is Final) {
+                            readActor.offer(Message.Read(downstreamFlow.value))
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -350,17 +317,21 @@ internal class MultiProcessDataStore<T>(
         try {
             if (hasWriteFileLock) {
                 val data = readDataFromFileOrDefault()
-                return Data(data, data.hashCode(), version = sharedCounter.getValue())
+                return Data(data, data.hashCode(), version = coordinator.getVersion())
             } else {
-                return tryGetReadFileLock {
-                    val data = readDataFromFileOrDefault()
-                    val version = if (it) sharedCounter.getValue() else INVALID_VERSION
-                    Data(
-                        data,
-                        data.hashCode(),
-                        version
-                    )
+                var version = INVALID_VERSION
+                val data = coordinator.tryLock {
+                    val result = readDataFromFileOrDefault()
+                    if (it) {
+                        version = coordinator.getVersion()
+                    }
+                    result
                 }
+                return Data(
+                    data,
+                    data.hashCode(),
+                    version
+                )
             }
         } catch (ex: CorruptionException) {
             var newData: T = corruptionHandler.handleCorruption(ex)
@@ -371,7 +342,7 @@ internal class MultiProcessDataStore<T>(
                     // Confirms the file is still corrupted before overriding
                     try {
                         newData = readDataFromFileOrDefault()
-                        version = sharedCounter.getValue()
+                        version = coordinator.getVersion()
                     } catch (ignoredEx: CorruptionException) {
                         version = writeData(newData)
                     }
@@ -390,30 +361,30 @@ internal class MultiProcessDataStore<T>(
     }
 
     private suspend fun doWithWriteFileLock(hasWriteFileLock: Boolean, block: suspend () -> T) {
-        if (hasWriteFileLock) block() else getWriteFileLock { block() }
+        if (hasWriteFileLock) block() else coordinator.lock { block() }
     }
 
     // It handles the read when the current state is Data
     private suspend fun readData(): T {
         // Check if the cached version matches with shared memory counter
         val currentState = downstreamFlow.value
-        val version = sharedCounter.getValue()
+        val version = coordinator.getVersion()
         val cachedVersion = if (currentState is Data) currentState.version else INVALID_VERSION
 
         // Return cached value if cached version is latest
         if (currentState is Data && version == cachedVersion) {
             return currentState.value
         }
-        val data = tryGetReadFileLock {
+        var latestVersion = INVALID_VERSION
+        val data = coordinator.tryLock {
             val result = readDataFromFileOrDefault()
-            Data(
-                result,
-                result.hashCode(),
-                if (it) sharedCounter.getValue() else INVALID_VERSION
-            )
+            if (it) {
+                latestVersion = coordinator.getVersion()
+            }
+            result
         }
-        downstreamFlow.value = data
-        return data.value
+        downstreamFlow.value = Data(data, data.hashCode(), latestVersion)
+        return data
     }
 
     // Caller is responsible for (try to) getting file lock. It reads from the file directly without
@@ -425,7 +396,7 @@ internal class MultiProcessDataStore<T>(
     private suspend fun transformAndWrite(
         transform: suspend (t: T) -> T,
         callerContext: CoroutineContext
-    ): T = getWriteFileLock {
+    ): T = coordinator.lock {
         val curData = readDataFromFileOrDefault()
         val curDataAndHash = Data(curData, curData.hashCode(), /* unused */ version = 0)
         val newData = withContext(callerContext) { transform(curData) }
@@ -437,7 +408,7 @@ internal class MultiProcessDataStore<T>(
             writeData(newData)
         }
         newData
-    }.value
+    }
 
     // Write data to disk and return the corresponding version if succeed.
     internal suspend fun writeData(newData: T, updateCache: Boolean = true): Int {
@@ -449,7 +420,7 @@ internal class MultiProcessDataStore<T>(
             // TODO(b/256242862): decide the long term solution to increment version after write to
             // scratch file. We used to increment version after scratch file write for performance
             // optimization for concurrent reads and failed writes.
-            newVersion = sharedCounter.incrementAndGetValue()
+            newVersion = coordinator.incrementAndGetVersion()
             writeData(newData)
             if (updateCache) {
                 downstreamFlow.value = Data(newData, newData.hashCode(), newVersion)
@@ -457,96 +428,6 @@ internal class MultiProcessDataStore<T>(
         }
 
         return newVersion
-    }
-
-    private fun fileWithSuffix(suffix: String): File {
-        return File(file.absolutePath + suffix)
-    }
-
-    private fun File.createIfNotExists() {
-        createParentDirectories()
-        if (!exists()) {
-            createNewFile()
-        }
-    }
-
-    private fun File.createParentDirectories() {
-        val parent: File? = canonicalFile.parentFile
-
-        parent?.let {
-            it.mkdirs()
-            if (!it.isDirectory) {
-                throw IOException("Unable to create parent directories of $this")
-            }
-        }
-    }
-
-    private suspend fun getWriteFileLock(block: suspend () -> T): Data<T> {
-        threadLock.withLock {
-            FileOutputStream(lockFile).use { lockFileStream ->
-                var lock: FileLock? = null
-                try {
-                    lock = lockFileStream.getChannel().lock(0L, Long.MAX_VALUE, /* shared= */ false)
-                    val data = block()
-                    return Data(data, data.hashCode(), sharedCounter.getValue())
-                } finally {
-                    lock?.release()
-                }
-            }
-        }
-    }
-
-    private suspend fun tryGetReadFileLock(
-        block: suspend (Boolean) -> Data<T>
-    ): Data<T> {
-        return threadLock.withTryLock<Data<T>> {
-            if (it == false) {
-                return block(false)
-            }
-            FileInputStream(lockFile).use { lockFileStream ->
-                var lock: FileLock? = null
-                try {
-                    try {
-                        lock = lockFileStream.getChannel().tryLock(
-                            /* position= */ 0L,
-                            /* size= */ Long.MAX_VALUE,
-                            /* shared= */ true
-                        )
-                    } catch (ex: IOException) {
-                        // TODO(b/255419657): Update the shared lock IOException handling logic for
-                        // KMM.
-
-                        // Some platforms / OS do not support shared lock and convert shared lock
-                        // requests to exclusive lock requests. If the lock can't be acquired, it
-                        // will throw an IOException with EAGAIN error, instead of returning null as
-                        // specified in {@link FileChannel#tryLock}. We only continue if the error
-                        // message is EAGAIN, otherwise just throw it.
-                        if (ex.message?.startsWith(LOCK_ERROR_MESSAGE) != true) {
-                            throw ex
-                        }
-                    }
-                    return block(lock != null)
-                } finally {
-                    lock?.release()
-                }
-            }
-        }
-    }
-
-    /**
-     * Provide similar functionality of {@link kotlinx.coroutines.sync.Mutex#withLock} but don't
-     * wait for the lock if unavailable, instead it passes a Boolean into the {@link action} lambda
-     * to indicate if it is able to get the lock and run {@link action} immediately.
-     */
-    private inline fun <R> Mutex.withTryLock(owner: Any? = null, action: (Boolean) -> R): R {
-        val locked: Boolean = tryLock(owner)
-        try {
-            return action(locked)
-        } finally {
-            if (locked) {
-                unlock(owner)
-            }
-        }
     }
 
     internal companion object {

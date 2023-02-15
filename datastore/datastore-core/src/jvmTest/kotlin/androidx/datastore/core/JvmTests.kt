@@ -65,7 +65,7 @@ class SingleProcessDatastoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
             }
         }
 
-        val dataStore = SingleProcessDataStore(
+        val dataStore = DataStoreImpl(
             FileStorage(serializer) { testFile.file }
         )
 
