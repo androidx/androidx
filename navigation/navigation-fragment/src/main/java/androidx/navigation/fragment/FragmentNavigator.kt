@@ -35,6 +35,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
+import androidx.navigation.NavigatorState
 import androidx.navigation.fragment.FragmentNavigator.Destination
 
 /**
@@ -59,7 +60,8 @@ public open class FragmentNavigator(
     private val savedIds = mutableSetOf<String>()
     private val entriesToPop = mutableSetOf<String>()
 
-    init {
+    override fun onAttach(state: NavigatorState) {
+        super.onAttach(state)
         fragmentManager.addOnBackStackChangedListener(object : OnBackStackChangedListener {
             override fun onBackStackChanged() { }
 
