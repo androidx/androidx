@@ -40,6 +40,7 @@ public final class RouteItem {
     private int mVolumeMax;
     private DeviceType mDeviceType;
     private List<String> mGroupMemberIds;
+    private boolean mIsSenderDriven;
 
     public RouteItem() {
         this.mId = UUID.randomUUID().toString();
@@ -54,6 +55,7 @@ public final class RouteItem {
         this.mDeviceType = DeviceType.UNKNOWN;
         this.mCanDisconnect = false;
         this.mGroupMemberIds = new ArrayList<>();
+        this.mIsSenderDriven = false;
     }
 
     public RouteItem(
@@ -68,7 +70,8 @@ public final class RouteItem {
             int volume,
             int volumeMax,
             @NonNull DeviceType deviceType,
-            @NonNull List<String> groupMemberIds) {
+            @NonNull List<String> groupMemberIds,
+            boolean isSenderDriven) {
         mId = id;
         mName = name;
         mDescription = description;
@@ -81,6 +84,7 @@ public final class RouteItem {
         mVolumeMax = volumeMax;
         mDeviceType = deviceType;
         mGroupMemberIds = groupMemberIds;
+        mIsSenderDriven = isSenderDriven;
     }
 
     /** Returns a deep copy of an existing {@link RouteItem}. */
@@ -98,7 +102,8 @@ public final class RouteItem {
                 routeItem.getVolume(),
                 routeItem.getVolumeMax(),
                 routeItem.getDeviceType(),
-                routeItem.getGroupMemberIds());
+                routeItem.getGroupMemberIds(),
+                routeItem.isSenderDriven());
     }
 
     public enum ControlFilter {
@@ -262,5 +267,13 @@ public final class RouteItem {
 
     public void setGroupMemberIds(@NonNull List<String> groupMemberIds) {
         mGroupMemberIds = groupMemberIds;
+    }
+
+    public boolean isSenderDriven() {
+        return mIsSenderDriven;
+    }
+
+    public void setSenderDriven(boolean isSenderDriven) {
+        mIsSenderDriven = isSenderDriven;
     }
 }

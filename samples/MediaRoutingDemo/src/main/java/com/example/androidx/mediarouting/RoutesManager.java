@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
 public final class RoutesManager {
 
     private static final String VARIABLE_VOLUME_BASIC_ROUTE_ID = "variable_basic";
+    private static final String SENDER_DRIVEN_BASIC_ROUTE_ID = "sender_driven_route";
     private static final int VOLUME_MAX = 25;
     private static final int VOLUME_DEFAULT = 5;
 
@@ -288,10 +289,40 @@ public final class RoutesManager {
         r4.setVolume(VOLUME_DEFAULT);
         r4.setCanDisconnect(true);
 
+        RouteItem r5 = new RouteItem();
+        r5.setId(SENDER_DRIVEN_BASIC_ROUTE_ID + "1");
+        r5.setName(r.getString(R.string.sender_driven_route_name1));
+        r5.setDescription(r.getString(R.string.sample_route_description));
+        r5.setControlFilter(BASIC);
+        r5.setDeviceType(TV);
+        r5.setPlaybackStream(MUSIC);
+        r5.setPlaybackType(REMOTE);
+        r5.setVolumeHandling(VARIABLE);
+        r5.setVolumeMax(VOLUME_MAX);
+        r5.setVolume(VOLUME_DEFAULT);
+        r5.setCanDisconnect(true);
+        r5.setSenderDriven(true);
+
+        RouteItem r6 = new RouteItem();
+        r6.setId(SENDER_DRIVEN_BASIC_ROUTE_ID + "2");
+        r6.setName(r.getString(R.string.sender_driven_route_name2));
+        r6.setDescription(r.getString(R.string.sample_route_description));
+        r6.setControlFilter(BASIC);
+        r6.setDeviceType(TV);
+        r6.setPlaybackStream(MUSIC);
+        r6.setPlaybackType(REMOTE);
+        r6.setVolumeHandling(VARIABLE);
+        r6.setVolumeMax(VOLUME_MAX);
+        r6.setVolume(VOLUME_DEFAULT);
+        r6.setCanDisconnect(true);
+        r6.setSenderDriven(true);
+
         mRouteItems.put(r1.getId(), r1);
         mRouteItems.put(r2.getId(), r2);
         mRouteItems.put(r3.getId(), r3);
         mRouteItems.put(r4.getId(), r4);
+        mRouteItems.put(r5.getId(), r5);
+        mRouteItems.put(r6.getId(), r6);
     }
 
     @RequiresApi(api = 34)
