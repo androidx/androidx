@@ -60,6 +60,11 @@ public open class FragmentNavigator(
     private val savedIds = mutableSetOf<String>()
     private val entriesToPop = mutableSetOf<String>()
 
+    /**
+     * Get the back stack from the [state].
+     */
+    internal val backStack get() = state.backStack
+
     override fun onAttach(state: NavigatorState) {
         super.onAttach(state)
         fragmentManager.addOnBackStackChangedListener(object : OnBackStackChangedListener {
