@@ -36,6 +36,7 @@ import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.TOP_TO_BOTTOM
 import androidx.window.embedding.SplitAttributesCalculatorParams
 import androidx.window.embedding.SplitController
+import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
@@ -54,7 +55,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
             }
         }
         return RuleController.getInstance(context).apply {
-            if (SplitController.getInstance(context).isSplitSupported()) {
+            if (SplitController.getInstance(context).splitSupportStatus == SPLIT_AVAILABLE) {
                 setRules(RuleController.parseRules(context, R.xml.main_split_config))
             }
         }

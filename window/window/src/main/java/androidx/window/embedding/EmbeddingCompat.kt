@@ -20,9 +20,12 @@ import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
+import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
+import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
 import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_2
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.core.util.function.Consumer
@@ -48,11 +51,15 @@ internal class EmbeddingCompat constructor(
                 break
             }
         }
-        if (hasSplitRule && !SplitController.getInstance(applicationContext).isSplitSupported()) {
-            Log.e(
-                TAG, "Cannot set SplitRule because ActivityEmbedding Split is not supported" +
-                    " or PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED is not set."
-            )
+        if (hasSplitRule &&
+            SplitController.getInstance(applicationContext).splitSupportStatus != SPLIT_AVAILABLE
+        ) {
+            if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                Log.w(
+                    TAG, "Cannot set SplitRule because ActivityEmbedding Split is not " +
+                        "supported or PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED is not set."
+                )
+            }
             return
         }
 
