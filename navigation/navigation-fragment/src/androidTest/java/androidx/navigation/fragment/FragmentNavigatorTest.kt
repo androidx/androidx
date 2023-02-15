@@ -41,6 +41,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -696,6 +697,7 @@ class FragmentNavigatorTest {
         assertWithMessage("Entry2 should have been stopped").that(entry1Stopped).isTrue()
     }
 
+    @Ignore // b/269297210
     @LargeTest
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
