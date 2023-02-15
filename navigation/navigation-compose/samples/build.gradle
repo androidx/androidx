@@ -54,5 +54,7 @@ configurations.all {
     resolutionStrategy.dependencySubstitution {
         substitute(module("androidx.lifecycle:lifecycle-viewmodel-ktx:")).
                 using project(":lifecycle:lifecycle-viewmodel-ktx")
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel-savedstate:")).
+                using project(":lifecycle:lifecycle-viewmodel-savedstate")
     }
 }
