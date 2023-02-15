@@ -37,7 +37,7 @@ import java.util.Objects;
 @RequiresCarApi(6)
 @KeepFields
 public class CarMessage {
-    @NonNull
+    @Nullable
     private final Bundle mSender;
     @NonNull
     private final CarText mBody;
@@ -47,7 +47,7 @@ public class CarMessage {
     @Override
     public int hashCode() {
         return Objects.hash(
-                getPersonHashCode(getSender()),
+                PersonsEqualityHelper.getPersonHashCode(getSender()),
                 mBody,
                 mReceivedTimeEpochMillis,
                 mIsRead
@@ -65,53 +65,14 @@ public class CarMessage {
         CarMessage otherCarMessage = (CarMessage) other;
 
         return
-                arePeopleEqual(getSender(), otherCarMessage.getSender())
+                PersonsEqualityHelper.arePersonsEqual(getSender(), otherCarMessage.getSender())
                         && Objects.equals(mBody, otherCarMessage.mBody)
                         && mReceivedTimeEpochMillis == otherCarMessage.mReceivedTimeEpochMillis
-                        && mIsRead == otherCarMessage.mIsRead
-                ;
-    }
-
-    // TODO(b/266877597): Move to androidx.core.app.Person
-    private static boolean arePeopleEqual(Person person1, Person person2) {
-        // If a unique ID was provided, use it
-        String key1 = person1.getKey();
-        String key2 = person2.getKey();
-        if (key1 != null || key2 != null) {
-            return Objects.equals(key1, key2);
-        }
-
-        // CharSequence doesn't have well-defined "equals" behavior -- convert to String instead
-        String name1 = Objects.toString(person1.getName());
-        String name2 = Objects.toString(person2.getName());
-
-        // Fallback: Compare field-by-field
-        return
-                Objects.equals(name1, name2)
-                        && Objects.equals(person1.getUri(), person2.getUri())
-                        && Objects.equals(person1.isBot(), person2.isBot())
-                        && Objects.equals(person1.isImportant(), person2.isImportant());
-    }
-
-    // TODO(b/266877597): Move to androidx.core.app.Person
-    private static int getPersonHashCode(Person person) {
-        // If a unique ID was provided, use it
-        String key = person.getKey();
-        if (key != null) {
-            return key.hashCode();
-        }
-
-        // Fallback: Use hash code for individual fields
-        return Objects.hash(
-                person.getName(),
-                person.getUri(),
-                person.isBot(),
-                person.isImportant()
-        );
+                        && mIsRead == otherCarMessage.mIsRead;
     }
 
     CarMessage(@NonNull Builder builder) {
-        this.mSender = requireNonNull(builder.mSender).toBundle();
+        this.mSender = builder.mSender == null ? null : requireNonNull(builder.mSender).toBundle();
         this.mBody = requireNonNull(builder.mBody);
         this.mReceivedTimeEpochMillis = builder.mReceivedTimeEpochMillis;
         this.mIsRead = builder.mIsRead;
@@ -119,17 +80,22 @@ public class CarMessage {
 
     /** Default constructor for serialization. */
     private CarMessage() {
-        this.mSender = new Person.Builder().setName("").build().toBundle();
+        this.mSender = null;
         this.mBody = new CarText.Builder("").build();
         this.mReceivedTimeEpochMillis = 0;
         this.mIsRead = false;
     }
 
 
-    /** Returns a {@link Person} representing the message sender */
-    @NonNull
+    /**
+     * Returns a {@link Person} representing the message sender.
+     *
+     * <p> For self-sent messages, this method will return {@code null} or
+     * {@link ConversationItem#getSelf()}.
+     */
+    @Nullable
     public Person getSender() {
-        return Person.fromBundle(mSender);
+        return mSender == null ? null : Person.fromBundle(mSender);
     }
 
     /** Returns a {@link CarText} representing the message body */
@@ -158,7 +124,7 @@ public class CarMessage {
         boolean mIsRead;
 
         /** Sets a {@link Person} representing the message sender */
-        public @NonNull Builder setSender(@NonNull Person sender) {
+        public @NonNull Builder setSender(@Nullable Person sender) {
             mSender = sender;
             return this;
         }

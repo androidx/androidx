@@ -51,18 +51,6 @@ public class CarMessageTest {
     // Ignore nullability, so we can null out a builder field
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void build_throwsException_ifSenderMissing() {
-        assertThrows(
-                NullPointerException.class,
-                () -> TestConversationFactory.createMinimalMessageBuilder()
-                        .setSender(null)
-                        .build()
-        );
-    }
-
-    // Ignore nullability, so we can null out a builder field
-    @SuppressWarnings("ConstantConditions")
-    @Test
     public void build_throwsException_ifMessageBodyMissing() {
         assertThrows(
                 NullPointerException.class,
