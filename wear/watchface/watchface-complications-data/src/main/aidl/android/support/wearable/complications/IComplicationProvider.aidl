@@ -139,23 +139,28 @@ interface IComplicationProvider {
      * @param complicationInstanceId The system's id for the updated complication which is a unique
      * value for the tuple [Watch face ComponentName, complication slot ID].
      * @param type The type of complication requested
-     * @param manager The binder for IComplicationManager
      * @param isForSafeWatchFace Whether this request is on behalf of a safe watchface as defined by
-     * the data source.
+     * the data source. Must be one of {@link #IS_SAFE_FOR_WATCHFACE_NULL},
+     * {@link #IS_SAFE_FOR_WATCHFACE_TRUE} or {@link #IS_SAFE_FOR_WATCHFACE_FALSE}.
+     * @param manager The binder for IComplicationManager
      * @since API version 3.
      */
-    void onUpdate2(int complicationInstanceId, int type, boolean isForSafeWatchFace,
+    void onUpdate2(int complicationInstanceId, int type, int isForSafeWatchFace,
         IBinder manager) = 8;
 
     /**
      * Same as {@link #onSynchronousComplicationRequest2}, but specifies isForSafeWatchFace.
      *
      * @param complicationInstanceId The system's id for the requested complication which is a
+     * unique value for the tuple [Watch face ComponentName, complication slot ID].
+     * @param isForSafeWatchFace Whether this request is on behalf of a safe watchface as defined by
+     * the data source. Must be one of {@link #IS_SAFE_FOR_WATCHFACE_NULL},
+     * {@link #IS_SAFE_FOR_WATCHFACE_TRUE} or {@link #IS_SAFE_FOR_WATCHFACE_FALSE}.
      * @param type The type of complication requested
      * unique value for the tuple [Watch face ComponentName, complication slot ID].
      * @return The updated ComplicationData or null if no update is necessary
      * @since API version 3.
      */
     ComplicationData onSynchronousComplicationRequest2(int complicationInstanceId,
-        boolean isForSafeWatchFace, int type) = 9;
+        int isForSafeWatchFace, int type) = 9;
 }
