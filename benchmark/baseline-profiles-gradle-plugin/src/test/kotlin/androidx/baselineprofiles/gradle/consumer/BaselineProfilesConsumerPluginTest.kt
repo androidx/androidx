@@ -69,7 +69,12 @@ class BaselineProfilesConsumerPluginTest {
             prefix = MockProducerBuildGrade()
                 .withConfiguration(flavor = "", buildType = "release")
                 .withProducedBaselineProfiles(
-                    listOf("a", "b", "c", "d"),
+                    lines = listOf(
+                        Fixtures.CLASS_1_METHOD_1,
+                        Fixtures.CLASS_2_METHOD_2,
+                        Fixtures.CLASS_2,
+                        Fixtures.CLASS_1,
+                    ),
                     flavor = "",
                     buildType = "release"
                 )
@@ -104,8 +109,22 @@ class BaselineProfilesConsumerPluginTest {
         producerProjectSetup.writeDefaultBuildGradle(
             prefix = MockProducerBuildGrade()
                 .withConfiguration(flavor = "", buildType = "release")
-                .withProducedBaselineProfiles(listOf("3", "2"), flavor = "", buildType = "release")
-                .withProducedBaselineProfiles(listOf("4", "1"), flavor = "", buildType = "release")
+                .withProducedBaselineProfiles(
+                    lines = listOf(
+                        Fixtures.CLASS_1_METHOD_1,
+                        Fixtures.CLASS_1,
+                    ),
+                    flavor = "",
+                    buildType = "release"
+                )
+                .withProducedBaselineProfiles(
+                    lines = listOf(
+                        Fixtures.CLASS_2_METHOD_1,
+                        Fixtures.CLASS_2,
+                    ),
+                    flavor = "",
+                    buildType = "release"
+                )
                 .build(),
             suffix = ""
         )
@@ -114,9 +133,13 @@ class BaselineProfilesConsumerPluginTest {
             .withArguments("generateBaselineProfiles", "--stacktrace")
             .build()
 
-        // The expected output should have each line sorted descending
         assertThat(readBaselineProfileFileContent("main"))
-            .containsExactly("4", "3", "2", "1")
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1,
+            )
     }
 
     @Test
@@ -150,12 +173,18 @@ class BaselineProfilesConsumerPluginTest {
                 .withConfiguration(flavor = "free", buildType = "release")
                 .withConfiguration(flavor = "paid", buildType = "release")
                 .withProducedBaselineProfiles(
-                    listOf("3", "2"),
+                    lines = listOf(
+                        Fixtures.CLASS_1_METHOD_1,
+                        Fixtures.CLASS_1,
+                    ),
                     flavor = "free",
                     buildType = "release"
                 )
                 .withProducedBaselineProfiles(
-                    listOf("4", "1"),
+                    lines = listOf(
+                        Fixtures.CLASS_2_METHOD_1,
+                        Fixtures.CLASS_2,
+                    ),
                     flavor = "paid",
                     buildType = "release"
                 )
@@ -179,12 +208,17 @@ class BaselineProfilesConsumerPluginTest {
             .withArguments("generateBaselineProfiles", "--stacktrace")
             .build()
 
-        // The expected output should have each line sorted ascending
         assertThat(readBaselineProfileFileContent("free"))
-            .containsExactly("2", "3")
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+            )
 
         assertThat(readBaselineProfileFileContent("paid"))
-            .containsExactly("1", "4")
+            .containsExactly(
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1,
+            )
     }
 
     @Test
@@ -221,12 +255,18 @@ class BaselineProfilesConsumerPluginTest {
                 .withConfiguration(flavor = "free", buildType = "release")
                 .withConfiguration(flavor = "paid", buildType = "release")
                 .withProducedBaselineProfiles(
-                    listOf("3", "2"),
+                    lines = listOf(
+                        Fixtures.CLASS_1_METHOD_1,
+                        Fixtures.CLASS_1,
+                    ),
                     flavor = "free",
                     buildType = "release"
                 )
                 .withProducedBaselineProfiles(
-                    listOf("4", "1"),
+                    lines = listOf(
+                        Fixtures.CLASS_2_METHOD_1,
+                        Fixtures.CLASS_2,
+                    ),
                     flavor = "paid",
                     buildType = "release"
                 )
@@ -248,9 +288,13 @@ class BaselineProfilesConsumerPluginTest {
             .withArguments("generateBaselineProfiles", "--stacktrace")
             .build()
 
-        // The expected output should have each line sorted ascending
         assertThat(readBaselineProfileFileContent("main"))
-            .containsExactly("1", "2", "3", "4")
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1,
+            )
     }
 
     @Test
@@ -287,12 +331,18 @@ class BaselineProfilesConsumerPluginTest {
                 .withConfiguration(flavor = "free", buildType = "release")
                 .withConfiguration(flavor = "paid", buildType = "release")
                 .withProducedBaselineProfiles(
-                    listOf("3", "2"),
+                    lines = listOf(
+                        Fixtures.CLASS_1_METHOD_1,
+                        Fixtures.CLASS_1,
+                    ),
                     flavor = "free",
                     buildType = "release"
                 )
                 .withProducedBaselineProfiles(
-                    listOf("4", "1"),
+                    lines = listOf(
+                        Fixtures.CLASS_2_METHOD_1,
+                        Fixtures.CLASS_2,
+                    ),
                     flavor = "paid",
                     buildType = "release"
                 )
@@ -315,12 +365,17 @@ class BaselineProfilesConsumerPluginTest {
             .withArguments("generateBaselineProfiles", "--stacktrace")
             .build()
 
-        // The expected output should have each line sorted ascending
         assertThat(readBaselineProfileFileContent("free"))
-            .containsExactly("2", "3")
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+            )
 
         assertThat(readBaselineProfileFileContent("paid"))
-            .containsExactly("1", "4")
+            .containsExactly(
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1,
+            )
     }
 
     @Test
@@ -460,7 +515,10 @@ class BaselineProfilesConsumerPluginTest {
 
         // There is no sync task but any task will do since the check is on the injected property.
         gradleRunner
-            .withArguments("tasks", "--stacktrace", "-Pandroid.injected.build.model.only=true")
+            .withArguments(
+                "tasks",
+                "--stacktrace",
+                "-Pandroid.injected.build.model.only=true")
             .build()
 
         // This test should not fail as we don't throw exceptions when syncing.
@@ -482,28 +540,12 @@ class BaselineProfilesConsumerPluginTest {
                         paid { dimension "version" }
                     }
                 }
-                dependencies {
-                    baselineprofiles(project(":$producerModuleName"))
-                }
                 android.applicationVariants.all { variant ->
                     tasks.register(variant.name + "Print") { t ->
                         println(android.sourceSets[variant.name].baselineProfiles)
                     }
                 }
             """.trimIndent(),
-            suffix = ""
-        )
-        producerProjectSetup.writeDefaultBuildGradle(
-            prefix = MockProducerBuildGrade()
-                .withConfiguration(flavor = "free", buildType = "release")
-                .withConfiguration(flavor = "paid", buildType = "release")
-                .withProducedBaselineProfiles(
-                    listOf("3", "2"), flavor = "free", buildType = "release"
-                )
-                .withProducedBaselineProfiles(
-                    listOf("4", "1"), flavor = "paid", buildType = "release"
-                )
-                .build(),
             suffix = ""
         )
         arrayOf("freeRelease", "paidRelease").forEach {
@@ -516,6 +558,88 @@ class BaselineProfilesConsumerPluginTest {
             )
                 .isTrue()
         }
+    }
+
+    @Test
+    fun testBaselineProfilesFilterAndSortAndMerge() {
+        consumerProjectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id("com.android.library")
+                    id("androidx.baselineprofiles.consumer")
+                }
+                android {
+                    namespace 'com.example.namespace'
+                    productFlavors {
+                        flavorDimensions = ["version"]
+                        free {
+                            dimension "version"
+                        }
+                        paid {
+                            dimension "version"
+                        }
+                    }
+                }
+                dependencies {
+                    baselineprofiles(project(":$producerModuleName"))
+                }
+                baselineProfilesProfileConsumer {
+                    merge = "all"
+                    filter { include("com.sample.Utils") }
+                }
+            """.trimIndent(),
+            suffix = ""
+        )
+        producerProjectSetup.writeDefaultBuildGradle(
+            prefix = MockProducerBuildGrade()
+                .withConfiguration(
+                    flavor = "free",
+                    buildType = "release"
+                )
+                .withConfiguration(
+                    flavor = "paid",
+                    buildType = "release"
+                )
+                .withProducedBaselineProfiles(
+                    lines = listOf(
+                        Fixtures.CLASS_1_METHOD_1,
+                        Fixtures.CLASS_1_METHOD_2,
+                        Fixtures.CLASS_1,
+                    ),
+                    flavor = "free",
+                    buildType = "release"
+                )
+                .withProducedBaselineProfiles(
+                    lines = listOf(
+                        Fixtures.CLASS_2_METHOD_1,
+                        Fixtures.CLASS_2_METHOD_2,
+                        Fixtures.CLASS_2_METHOD_3,
+                        Fixtures.CLASS_2_METHOD_4,
+                        Fixtures.CLASS_2_METHOD_5,
+                        Fixtures.CLASS_2,
+                    ),
+                    flavor = "paid",
+                    buildType = "release"
+                )
+                .build(),
+            suffix = ""
+        )
+
+        gradleRunner
+            .withArguments("generateBaselineProfiles", "--stacktrace")
+            .build()
+
+        // In the final output there should be :
+        //  - one single file in src/main/generatedBaselineProfiles because merge = `all`.
+        //  - There should be only the Utils class [CLASS_2] because of the include filter.
+        //  - The method `someOtherMethod` [CLASS_2_METHOD_3] should be included only once.
+        assertThat(readBaselineProfileFileContent("main"))
+            .containsExactly(
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1,
+                Fixtures.CLASS_2_METHOD_2,
+                Fixtures.CLASS_2_METHOD_3,
+            )
     }
 }
 
@@ -581,3 +705,15 @@ private class MockProducerBuildGrade {
 
 private fun configurationName(flavor: String, buildType: String): String =
     camelCase(flavor, buildType, CONFIGURATION_NAME_BASELINE_PROFILES)
+
+object Fixtures {
+    const val CLASS_1 = "Lcom/sample/Activity;"
+    const val CLASS_1_METHOD_1 = "HSPLcom/sample/Activity;-><init>()V"
+    const val CLASS_1_METHOD_2 = "HSPLcom/sample/Activity;->onCreate(Landroid/os/Bundle;)V"
+    const val CLASS_2 = "Lcom/sample/Utils;"
+    const val CLASS_2_METHOD_1 = "HSLcom/sample/Utils;-><init>()V"
+    const val CLASS_2_METHOD_2 = "HLcom/sample/Utils;->someMethod()V"
+    const val CLASS_2_METHOD_3 = "HLcom/sample/Utils;->someOtherMethod()V"
+    const val CLASS_2_METHOD_4 = "HSLcom/sample/Utils;->someOtherMethod()V"
+    const val CLASS_2_METHOD_5 = "HSPLcom/sample/Utils;->someOtherMethod()V"
+}
