@@ -32,10 +32,6 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-
-    constraints {
-        implementation(project(":lifecycle:lifecycle-viewmodel"))
-    }
 }
 
 androidx {
