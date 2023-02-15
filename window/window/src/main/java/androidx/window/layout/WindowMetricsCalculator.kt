@@ -133,14 +133,14 @@ interface WindowMetricsCalculator {
 
         @ExperimentalWindowApi
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.TESTS)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun overrideDecorator(overridingDecorator: WindowMetricsCalculatorDecorator) {
             decorator = overridingDecorator::decorate
         }
 
         @ExperimentalWindowApi
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.TESTS)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun reset() {
             decorator = { it }
         }
@@ -160,13 +160,11 @@ interface WindowMetricsCalculator {
 }
 
 @ExperimentalWindowApi
-@RestrictTo(RestrictTo.Scope.TESTS)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface WindowMetricsCalculatorDecorator {
 
-    @ExperimentalWindowApi
     /**
      * Returns an instance of [WindowMetricsCalculator]
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
     fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator
 }
