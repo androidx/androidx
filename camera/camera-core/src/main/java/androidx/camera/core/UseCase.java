@@ -46,12 +46,14 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -926,6 +928,22 @@ public abstract class UseCase {
         int rotationDegrees = getRelativeRotation(camera);
 
         return ResolutionInfo.create(resolution, cropRect, rotationDegrees);
+    }
+
+    /**
+     * Returns the supported {@link CameraEffect} targets.
+     *
+     * <p>{@link CameraUseCaseAdapter} sets {@link CameraEffect} on this {@link UseCase} if the
+     * returned set contains the {@link CameraEffect#getTargets()}.
+     *
+     * <p>Returns an empty set if this {@link UseCase} does not support effects.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public Set<Integer> getSupportedEffectTargets() {
+        return Collections.emptySet();
     }
 
     enum State {

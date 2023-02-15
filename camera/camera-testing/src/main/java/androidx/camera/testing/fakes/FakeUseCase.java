@@ -32,6 +32,8 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType;
 import androidx.core.util.Supplier;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -46,6 +48,7 @@ public class FakeUseCase extends UseCase {
     private boolean mMergedConfigRetrieved = false;
     private int mPipelineCreationCount = 0;
     private Supplier<SessionConfig> mSessionConfigSupplier;
+    private Set<Integer> mEffectTargets = Collections.emptySet();
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration and capture type.
@@ -143,6 +146,22 @@ public class FakeUseCase extends UseCase {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Sets effect targets.
+     */
+    public void setSupportedEffectTargets(@NonNull Set<Integer> effectTargets) {
+        mEffectTargets = effectTargets;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @NonNull
+    @Override
+    public Set<Integer> getSupportedEffectTargets() {
+        return mEffectTargets;
     }
 
 

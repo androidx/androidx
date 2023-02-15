@@ -155,8 +155,8 @@ public abstract class CameraEffect {
             @Targets int targets,
             @NonNull Executor executor,
             @NonNull SurfaceProcessor surfaceProcessor) {
-        checkArgument(targets == PREVIEW,
-                "Currently SurfaceProcessor can only target PREVIEW.");
+        checkArgument(targets == PREVIEW || targets == VIDEO_CAPTURE,
+                "Currently SurfaceProcessor can only target PREVIEW and VIDEO_CAPTURE.");
         mTargets = targets;
         mExecutor = executor;
         mSurfaceProcessor = surfaceProcessor;

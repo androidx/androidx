@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -136,8 +137,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
@@ -566,7 +569,7 @@ public final class ImageCapture extends UseCase {
                 null);
         if (bufferFormat != null) {
             Preconditions.checkArgument(!(isSessionProcessorEnabledInCurrentCamera()
-                            &&  bufferFormat != ImageFormat.JPEG),
+                            && bufferFormat != ImageFormat.JPEG),
                     "Cannot set non-JPEG buffer format with Extensions enabled.");
             builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                     useSoftwareJpeg ? ImageFormat.YUV_420_888 : bufferFormat);
@@ -1809,6 +1812,19 @@ public final class ImageCapture extends UseCase {
     }
 
     // ===== New architecture end =====
+
+    /**
+     * @inheritDoc
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    public Set<Integer> getSupportedEffectTargets() {
+        Set<Integer> targets = new HashSet<>();
+        targets.add(IMAGE_CAPTURE);
+        return targets;
+    }
 
     /**
      * Describes the error that occurred during an image capture operation (such as {@link

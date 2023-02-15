@@ -45,12 +45,21 @@ public class FakeSurfaceEffect extends CameraEffect {
     /**
      * Create a fake {@link CameraEffect} the {@link #createSurfaceProcessorInternal} value
      * overridden.
+     */
+    public FakeSurfaceEffect(@NonNull SurfaceProcessorInternal surfaceProcessorInternal) {
+        this(PREVIEW, surfaceProcessorInternal);
+    }
+
+    /**
+     * Create a fake {@link CameraEffect} the {@link #createSurfaceProcessorInternal} value
+     * overridden.
      *
      * <p> This is helpful when we want to make sure the {@link SurfaceProcessorInternal} is
      * released properly.
      */
-    public FakeSurfaceEffect(@NonNull SurfaceProcessorInternal surfaceProcessorInternal) {
-        super(PREVIEW, mainThreadExecutor(), surfaceProcessorInternal);
+    public FakeSurfaceEffect(@Targets int targets,
+            @NonNull SurfaceProcessorInternal surfaceProcessorInternal) {
+        super(targets, mainThreadExecutor(), surfaceProcessorInternal);
         mSurfaceProcessorInternal = surfaceProcessorInternal;
     }
 
