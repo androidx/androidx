@@ -287,8 +287,6 @@ class FocusMeteringControl @Inject constructor(
             val cropRegionAspectRatio =
                 Rational(cropSensorRegion.width(), cropSensorRegion.height())
 
-            // TODO(sushilnath@): limit the number of metering regions to what is supported by the
-            // device.
             for (meteringPoint in meteringPoints) {
                 // Only enable at most maxRegionCount.
                 if (meteringRegions.size >= maxRegionCount) {
@@ -297,8 +295,6 @@ class FocusMeteringControl @Inject constructor(
                 if (!isValid(meteringPoint)) {
                     continue
                 }
-                // TODO(sushilnath@): Use the zoom based crop region aspect ratio instead of sensor
-                // active array aspect ratio.
                 val adjustedPoint: PointF =
                     getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio, defaultAspectRatio)
                 val meteringRectangle: MeteringRectangle =
