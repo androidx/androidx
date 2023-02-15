@@ -2743,7 +2743,7 @@ public class AccessibilityNodeInfoCompat {
     /**
      * Gets the minimum time duration between two content change events.
      */
-    public long getMinDurationBetweenContentChanges() {
+    public long getMinDurationBetweenContentChangesMillis() {
         if (Build.VERSION.SDK_INT >= 19) {
             return Api19Impl.getExtras(mInfo).getLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY);
         }
@@ -2764,7 +2764,7 @@ public class AccessibilityNodeInfoCompat {
      * @see AccessibilityEventCompat#getContentChangeTypes for all content change types.
      * @param duration the minimum duration between content change events.
      */
-    public void setMinDurationBetweenContentChanges(long duration) {
+    public void setMinDurationBetweenContentChangesMillis(long duration) {
         if (Build.VERSION.SDK_INT >= 19) {
             Api19Impl.getExtras(mInfo).putLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY, duration);
         }

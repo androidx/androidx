@@ -105,8 +105,8 @@ public class AccessibilityNodeInfoCompatTest {
     @Test
     public void testGetSetMinDurationBetweenContentChanges() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
-        nodeCompat.setMinDurationBetweenContentChanges(200L);
-        assertThat(nodeCompat.getMinDurationBetweenContentChanges(), equalTo(200L));
+        nodeCompat.setMinDurationBetweenContentChangesMillis(200L);
+        assertThat(nodeCompat.getMinDurationBetweenContentChangesMillis(), equalTo(200L));
     }
 
     @SdkSuppress(minSdkVersion = 19)
