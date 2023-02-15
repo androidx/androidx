@@ -21,6 +21,8 @@ import android.content.res.Configuration
 import android.graphics.Rect
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitAttributes
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.embedding.SplitAttributesCalculatorParams
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowLayoutInfo
@@ -90,7 +92,7 @@ class SplitAttributesCalculatorParamsTestingTest {
             params.defaultSplitAttributes
         } else {
             SplitAttributes.Builder()
-                .setSplitType(SplitAttributes.SplitType.expandContainers())
+                .setSplitType(SPLIT_TYPE_EXPAND)
                 .build()
         }
     }
@@ -100,7 +102,7 @@ class SplitAttributesCalculatorParamsTestingTest {
         private val TEST_METRICS = WindowMetrics(TEST_BOUNDS)
         private val DEFAULT_SPLIT_ATTRIBUTES = SplitAttributes.Builder().build()
         private val TABLETOP_HINGE_ATTRIBUTES = SplitAttributes.Builder()
-            .setSplitType(SplitAttributes.SplitType.splitByHinge())
+            .setSplitType(SPLIT_TYPE_HINGE)
             .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
             .build()
     }
