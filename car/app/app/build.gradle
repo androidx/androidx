@@ -16,6 +16,7 @@
 
 import androidx.build.LibraryType
 import androidx.build.Release
+import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.metalava.MetalavaRunnerKt
 import androidx.build.uptodatedness.EnableCachingKt
 import androidx.build.Version
@@ -28,6 +29,8 @@ import org.apache.commons.io.FileUtils
 
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 buildscript {
     dependencies {
@@ -314,14 +317,12 @@ class ApiLevelFileWriterTask extends DefaultTask {
     @Input
     String carApiLevel = project.latestCarAppApiLevel
 
-    @OutputDirectory
-    final DirectoryProperty outputDir = project.objects.directoryProperty()
+    @OutputFile
+    File apiLevelFile
 
     @TaskAction
     def exec() {
-        def outputFile = new File(outputDir.get().asFile, "car-app-api.level")
-        outputFile.parentFile.mkdirs()
-        PrintWriter writer = new PrintWriter(outputFile)
+        PrintWriter writer = new PrintWriter(apiLevelFile)
         writer.println(carApiLevel)
         writer.close()
     }
@@ -379,6 +380,9 @@ class ProtocolLocation {
     }
 }
 
+def RESOURCE_DIRECTORY = "generatedResources"
+def API_LEVEL_FILE_PATH = "$RESOURCE_DIRECTORY/car-app-api.level"
+
 LibraryExtension library = project.extensions.getByType(LibraryExtension.class)
 
 def getLibraryExtension() {
@@ -409,15 +413,24 @@ public FileCollection getSourceCollection() {
     return sourceCollection
 }
 
-def writeCarApiLevelFileTask = tasks.register("writeCarApiLevelFile", ApiLevelFileWriterTask) { task ->
-    task.outputDir.set(new File(project.buildDir, "generatedResources"))
-}
-
-AndroidSourceDirectorySet resources = library.sourceSets.getByName("main").resources
-resources.srcDir(writeCarApiLevelFileTask.map {it.outputDir })
-
 // afterEvaluate required to read extension properties
 afterEvaluate {
+    task writeCarApiLevelFile(type: ApiLevelFileWriterTask) {
+        File artifactName = new File(buildDir, API_LEVEL_FILE_PATH)
+        apiLevelFile = artifactName
+    }
+
+    AndroidSourceDirectorySet resources = library.sourceSets.getByName("main").resources
+    Set<File> resFiles = new HashSet<>()
+    resFiles.add(resources.srcDirs)
+    resFiles.add(new File(buildDir, RESOURCE_DIRECTORY))
+    resources.srcDirs(resFiles)
+    Set<String> includes = resources.includes
+    if (!includes.isEmpty()) {
+        includes.add("*.level")
+        resources.setIncludes(includes)
+    }
+
     FileCollection sourceCollection = getSourceCollection()
     FileCollection dependencyClasspath = getLibraryVariant().getCompileClasspath(null)
     FileCollection metalavaClasspath = MetalavaRunnerKt.getMetalavaClasspath(project)

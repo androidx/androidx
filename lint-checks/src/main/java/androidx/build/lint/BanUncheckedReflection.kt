@@ -17,19 +17,17 @@
 
 package androidx.build.lint
 
-import com.android.sdklib.SdkVersionInfo.HIGHEST_KNOWN_API
-import com.android.tools.lint.detector.api.ApiConstraint
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
-import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
+import com.android.sdklib.SdkVersionInfo.HIGHEST_KNOWN_API
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.android.tools.lint.detector.api.VersionChecks.Companion.isPrecededByVersionCheckExit
-import com.android.tools.lint.detector.api.VersionChecks.Companion.isWithinVersionCheckConditional
+import com.android.tools.lint.detector.api.VersionChecks
 import com.intellij.psi.PsiAnnotation
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
@@ -57,14 +55,15 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
         if (!context.evaluator.isMemberInClass(method, METHOD_REFLECTION_CLASS)) return
 
         // Flag if the call isn't inside or preceded by an SDK_INT check.
-        if (!isWithinVersionCheckConditional(
+        if (!VersionChecks.isWithinVersionCheckConditional(
                 context,
                 node,
-                ApiConstraint.get(HIGHEST_KNOWN_API), false
+                HIGHEST_KNOWN_API,
+                false
             ) &&
-            !isWithinVersionCheckConditional(context, node, ApiConstraint.get(1), true) &&
-            !isPrecededByVersionCheckExit(context, node, ApiConstraint.get(HIGHEST_KNOWN_API)) &&
-            !isPrecededByVersionCheckExit(context, node, ApiConstraint.get(1)) &&
+            !VersionChecks.isWithinVersionCheckConditional(context, node, 1, true) &&
+            !VersionChecks.isPrecededByVersionCheckExit(context, node, HIGHEST_KNOWN_API) &&
+            !VersionChecks.isPrecededByVersionCheckExit(context, node, 1) &&
             !isWithinDeprecatedSinceApiMethod(node) &&
             !isWithinDeprecatedSinceApiClass(node)
         ) {
