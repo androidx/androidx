@@ -128,8 +128,9 @@ public class VisibilityStoreMigrationHelperFromV0Test {
         // Persist to disk and re-open the AppSearchImpl
         appSearchImplInV0.close();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mFile, new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(), /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
-                /*visibilityChecker=*/null);
+                new DefaultIcingOptionsConfig(), /*initStatsBuilder=*/ null,
+                /*visibilityChecker=*/ null,
+                ALWAYS_OPTIMIZE);
 
         VisibilityDocument actualDocument1 = new VisibilityDocument(
                 appSearchImpl.getDocument(
@@ -194,8 +195,8 @@ public class VisibilityStoreMigrationHelperFromV0Test {
                 .build();
         // Set deprecated visibility schema version 0 into AppSearchImpl.
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mFile, new UnlimitedLimitConfig(),
-                new DefaultIcingOptionsConfig(), /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
-                /*visibilityChecker=*/null);
+                new DefaultIcingOptionsConfig(), /*initStatsBuilder=*/ null,
+                /*visibilityChecker=*/ null, ALWAYS_OPTIMIZE);
         InternalSetSchemaResponse internalSetSchemaResponse = appSearchImpl.setSchema(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.VISIBILITY_DATABASE_NAME,
