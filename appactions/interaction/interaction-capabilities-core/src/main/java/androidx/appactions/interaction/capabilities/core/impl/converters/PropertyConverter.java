@@ -36,8 +36,7 @@ import java.util.function.Function;
 /** Contains utility functions that convert properties to IntentParameter proto. */
 public final class PropertyConverter {
 
-    private PropertyConverter() {
-    }
+    private PropertyConverter() {}
 
     /** Create IntentParameter proto from a StringProperty. */
     @NonNull
@@ -112,16 +111,18 @@ public final class PropertyConverter {
     @NonNull
     public static Entity entityToProto(
             @NonNull androidx.appactions.interaction.capabilities.core.properties.Entity entity) {
-        Entity.Builder builder = Entity.newBuilder().addAllAlternateNames(
-                entity.getAlternateNames());
-        entity.getName().ifPresent(builder::setName);
-        entity.getId().ifPresent(builder::setIdentifier);
+        Entity.Builder builder =
+                Entity.newBuilder()
+                        .setName(entity.getName())
+                        .addAllAlternateNames(entity.getAlternateNames());
+        if (entity.getId() != null) {
+            builder.setIdentifier(entity.getId());
+        }
         return builder.build();
     }
 
     /**
-     * Converts a capabilities library StringProperty.PossibleValue to a appactions Entity proto
-     * .
+     * Converts a capabilities library StringProperty.PossibleValue to a appactions Entity proto .
      */
     @NonNull
     public static Entity possibleValueToProto(@NonNull PossibleValue possibleValue) {

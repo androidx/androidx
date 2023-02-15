@@ -95,7 +95,7 @@ public final class ActionSpecTest {
                 Property.create(
                         EntityProperty.newBuilder()
                                 .addPossibleEntity(
-                                        Entity.newBuilder()
+                                        new Entity.Builder()
                                                 .setId("contact_2")
                                                 .setName("Donald")
                                                 .setAlternateNames("Duck")
@@ -130,7 +130,7 @@ public final class ActionSpecTest {
                 Property.create(
                         EntityProperty.newBuilder()
                                 .addPossibleEntity(
-                                        Entity.newBuilder()
+                                        new Entity.Builder()
                                                 .setId("contact_2")
                                                 .setName("Donald")
                                                 .setAlternateNames("Duck")
@@ -139,7 +139,7 @@ public final class ActionSpecTest {
                         Optional.of(
                                 EntityProperty.newBuilder()
                                         .addPossibleEntity(
-                                                Entity.newBuilder()
+                                                new Entity.Builder()
                                                         .setId("entity1")
                                                         .setName("optional possible entity")
                                                         .build())
@@ -153,12 +153,12 @@ public final class ActionSpecTest {
                         Optional.of(
                                 EntityProperty.newBuilder()
                                         .addPossibleEntity(
-                                                Entity.newBuilder()
+                                                new Entity.Builder()
                                                         .setId("entity1")
                                                         .setName("repeated entity1")
                                                         .build())
                                         .addPossibleEntity(
-                                                Entity.newBuilder()
+                                                new Entity.Builder()
                                                         .setId("entity2")
                                                         .setName("repeated entity2")
                                                         .build())
