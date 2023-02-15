@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
@@ -2341,7 +2342,9 @@ class ConstraintLayoutTest {
                                 bottom.linkTo(parent.bottom)
                             }
                             .onGloballyPositioned {
-                                box1Position = it.positionInRoot().round()
+                                box1Position = it
+                                    .positionInRoot()
+                                    .round()
                             })
                     Box(
                         Modifier
@@ -2353,7 +2356,9 @@ class ConstraintLayoutTest {
                                 bottom.linkTo(parent.bottom)
                             }
                             .onGloballyPositioned {
-                                box2Position = it.positionInRoot().round()
+                                box2Position = it
+                                    .positionInRoot()
+                                    .round()
                             })
                 }
             }
@@ -2366,6 +2371,97 @@ class ConstraintLayoutTest {
             assertEquals(expectedSize, clSize)
             assertEquals(IntOffset(0, expectedBox1Y), box1Position)
             assertEquals(IntOffset(box1Size, 0), box2Position)
+        }
+    }
+
+    @Test
+    fun testTranslationXY_withDsl() = with(rule.density) {
+        val rootSizePx = 100
+        val boxSizePx = 10
+        val translationXPx = 7
+        val translationYPx = 9
+
+        var position = IntOffset.Zero
+
+        rule.setContent {
+            ConstraintLayout(
+                Modifier.size(rootSizePx.toDp())
+            ) {
+                val boxRef = createRef()
+                Box(
+                    Modifier
+                        .constrainAs(boxRef) {
+                            width = boxSizePx.toDp().asDimension
+                            height = boxSizePx.toDp().asDimension
+                            centerTo(parent)
+
+                            translationX = translationXPx.toDp()
+                            translationY = translationYPx.toDp()
+                        }
+                        .onPlaced {
+                            // TODO: Figure out a way to test `translationZ` i.e.: `shadowElevation`
+                            position = it.boundsInParent().topLeft.round()
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(
+                Offset(
+                    (rootSizePx - boxSizePx) / 2f + translationXPx,
+                    (rootSizePx - boxSizePx) / 2f + translationYPx,
+                ).round(),
+                position
+            )
+        }
+    }
+
+    @Test
+    fun testTranslationXY_withJson() = with(rule.density) {
+        val rootSizePx = 100
+        val boxSizePx = 10
+        val translationXPx = 7
+        val translationYPx = 9
+
+        var position = IntOffset.Zero
+
+        rule.setContent {
+            ConstraintLayout(
+                constraintSet = ConstraintSet(
+                    """
+                    {
+                      box: {
+                        width: ${boxSizePx.toDp().value},
+                        height: ${boxSizePx.toDp().value},
+                        center: 'parent',
+                        translationX: ${translationXPx.toDp().value},
+                        translationY: ${translationYPx.toDp().value}
+                      }
+                    }
+                """.trimIndent()
+                ),
+                Modifier.size(rootSizePx.toDp())
+            ) {
+                Box(
+                    Modifier
+                        .layoutId("box")
+                        .onPlaced {
+                            // TODO: Figure out a way to test `translationZ` i.e.: `shadowElevation`
+                            position = it.boundsInParent().topLeft.round()
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(
+                Offset(
+                    (rootSizePx - boxSizePx) / 2f + translationXPx,
+                    (rootSizePx - boxSizePx) / 2f + translationYPx,
+                ).round(),
+                position
+            )
         }
     }
 
