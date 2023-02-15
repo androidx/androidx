@@ -124,7 +124,9 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
                 request.type,
                 FrameworkImplHelper.getFinalCreateCredentialData(request, activity),
                 request.candidateQueryData,
-                request.isSystemProviderRequired
+                request.isSystemProviderRequired,
+                // TODO("change to taking value from the request when ready")
+                /*alwaysSendAppInfoToProvider=*/true
             ),
             activity,
             cancellationSignal,
