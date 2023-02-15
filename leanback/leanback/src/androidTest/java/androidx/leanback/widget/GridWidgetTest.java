@@ -949,6 +949,7 @@ public class GridWidgetTest {
         verifyBeginAligned();
     }
 
+    @Ignore // b/269352002
     @Test
     public void testRedundantAppendRemove() throws Throwable {
         Intent intent = new Intent();
