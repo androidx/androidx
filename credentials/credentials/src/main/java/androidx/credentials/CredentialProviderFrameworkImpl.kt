@@ -26,14 +26,18 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialUnknownException
+import androidx.credentials.exceptions.ClearCredentialUnsupportedException
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
+import androidx.credentials.exceptions.CreateCredentialNoCreateOptionException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.exceptions.CreateCredentialUnsupportedException
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.exceptions.GetCredentialUnsupportedException
 import androidx.credentials.exceptions.NoCredentialException
 import androidx.credentials.internal.FrameworkImplHelper
 import java.util.concurrent.Executor
@@ -58,8 +62,13 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
     ) {
         Log.i(TAG, "In CredentialProviderFrameworkImpl onGetCredential")
-        if (isCredmanDisabled { -> callback.onError(GetCredentialUnknownException(
-                "Your device doesn't support credential manager")) }) return
+        if (isCredmanDisabled {
+                callback.onError(
+                    GetCredentialUnsupportedException(
+                        "Your device doesn't support credential manager"
+                    )
+                )
+            }) return
 
         val outcome = object : OutcomeReceiver<
             android.credentials.GetCredentialResponse, android.credentials.GetCredentialException> {
@@ -99,8 +108,13 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
     ) {
         Log.i(TAG, "In CredentialProviderFrameworkImpl onCreateCredential")
-        if (isCredmanDisabled { -> callback.onError(CreateCredentialUnknownException(
-                        "Your device doesn't support credential manager")) }) return
+        if (isCredmanDisabled {
+                callback.onError(
+                    CreateCredentialUnsupportedException(
+                        "Your device doesn't support credential manager"
+                    )
+                )
+            }) return
         val outcome = object : OutcomeReceiver<
             android.credentials.CreateCredentialResponse,
             android.credentials.CreateCredentialException> {
@@ -152,10 +166,10 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         android.credentials.ClearCredentialStateRequest {
         return android.credentials.ClearCredentialStateRequest(Bundle())
     }
+
     internal fun convertToJetpackGetException(error: android.credentials.GetCredentialException):
         GetCredentialException {
         return when (error.type) {
-            // TODO ("Change to NoCred exception when ready")
             android.credentials.GetCredentialException.TYPE_NO_CREDENTIAL ->
                 NoCredentialException(error.message)
 
@@ -173,9 +187,8 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         error: android.credentials.CreateCredentialException
     ): CreateCredentialException {
         return when (error.type) {
-            // TODO ("Change to NoCred exception when ready")
             android.credentials.CreateCredentialException.TYPE_NO_CREATE_OPTIONS ->
-                CreateCredentialUnknownException(error.message)
+                CreateCredentialNoCreateOptionException(error.message)
 
             android.credentials.CreateCredentialException.TYPE_USER_CANCELED ->
                 CreateCredentialCancellationException(error.message)
@@ -211,8 +224,13 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
     ) {
         Log.i(TAG, "In CredentialProviderFrameworkImpl onClearCredential")
 
-        if (isCredmanDisabled { -> callback.onError(ClearCredentialUnknownException(
-                "Your device doesn't support credential manager")) }) return
+        if (isCredmanDisabled { ->
+                callback.onError(
+                    ClearCredentialUnsupportedException(
+                        "Your device doesn't support credential manager"
+                    )
+                )
+            }) return
 
         val outcome = object : OutcomeReceiver<Void,
             android.credentials.ClearCredentialStateException> {
