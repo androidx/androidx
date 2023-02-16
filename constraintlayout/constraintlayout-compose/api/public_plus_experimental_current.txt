@@ -634,6 +634,7 @@ package androidx.constraintlayout.compose {
     method @Deprecated public int motionInt(String id, String name);
     method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties> motionProperties(String id);
     method @Deprecated public androidx.constraintlayout.compose.MotionLayoutScope.MotionProperties motionProperties(String id, String tag);
+    method @androidx.constraintlayout.compose.ExperimentalMotionApi public androidx.compose.ui.Modifier onStartEndBoundsChanged(androidx.compose.ui.Modifier, Object layoutId, kotlin.jvm.functions.Function2<? super androidx.compose.ui.geometry.Rect,? super androidx.compose.ui.geometry.Rect,kotlin.Unit> onBoundsChanged);
   }
 
   @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionLayoutScope.CustomProperties {
