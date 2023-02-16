@@ -20,10 +20,13 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
-import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrain
@@ -43,10 +46,14 @@ import androidx.compose.ui.unit.constrain
  * @sample androidx.compose.foundation.layout.samples.SameWidthTextBoxes
  */
 @Stable
-fun Modifier.width(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
-    IntrinsicSize.Min -> this.then(MinIntrinsicWidthModifier)
-    IntrinsicSize.Max -> this.then(MaxIntrinsicWidthModifier)
-}
+fun Modifier.width(intrinsicSize: IntrinsicSize) = this then IntrinsicWidthElement(
+    width = intrinsicSize,
+    enforceIncoming = true,
+    inspectorInfo = debugInspectorInfo {
+        name = "width"
+        properties["intrinsicSize"] = intrinsicSize
+    }
+)
 
 /**
  * Declare the preferred height of the content to be the same as the min or max intrinsic height of
@@ -63,10 +70,14 @@ fun Modifier.width(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
  * @sample androidx.compose.foundation.layout.samples.MatchParentDividerForAspectRatio
  */
 @Stable
-fun Modifier.height(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
-    IntrinsicSize.Min -> this.then(MinIntrinsicHeightModifier)
-    IntrinsicSize.Max -> this.then(MaxIntrinsicHeightModifier)
-}
+fun Modifier.height(intrinsicSize: IntrinsicSize) = this then IntrinsicHeightElement(
+    height = intrinsicSize,
+    enforceIncoming = true,
+    inspectorInfo = debugInspectorInfo {
+        name = "height"
+        properties["intrinsicSize"] = intrinsicSize
+    }
+)
 
 /**
  * Declare the width of the content to be exactly the same as the min or max intrinsic width of
@@ -81,10 +92,14 @@ fun Modifier.height(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
  * See [requiredWidth] and [requiredWidthIn] for other options to set the required width.
  */
 @Stable
-fun Modifier.requiredWidth(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
-    IntrinsicSize.Min -> this.then(RequiredMinIntrinsicWidthModifier)
-    IntrinsicSize.Max -> this.then(RequiredMaxIntrinsicWidthModifier)
-}
+fun Modifier.requiredWidth(intrinsicSize: IntrinsicSize) = this then IntrinsicWidthElement(
+    width = intrinsicSize,
+    enforceIncoming = false,
+    inspectorInfo = debugInspectorInfo {
+        name = "requiredWidth"
+        properties["intrinsicSize"] = intrinsicSize
+    }
+)
 
 /**
  * Declare the height of the content to be exactly the same as the min or max intrinsic height of
@@ -99,153 +114,140 @@ fun Modifier.requiredWidth(intrinsicSize: IntrinsicSize) = when (intrinsicSize) 
  * See [requiredHeight] and [requiredHeightIn] for other options to set the required height.
  */
 @Stable
-fun Modifier.requiredHeight(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
-    IntrinsicSize.Min -> this.then(RequiredMinIntrinsicHeightModifier)
-    IntrinsicSize.Max -> this.then(RequiredMaxIntrinsicHeightModifier)
-}
+fun Modifier.requiredHeight(intrinsicSize: IntrinsicSize) = this then IntrinsicHeightElement(
+    height = intrinsicSize,
+    enforceIncoming = false,
+    inspectorInfo = debugInspectorInfo {
+        name = "requiredHeight"
+        properties["intrinsicSize"] = intrinsicSize
+    }
+)
 
 /**
  * Intrinsic size used in [width] or [height] which can refer to width or height.
  */
 enum class IntrinsicSize { Min, Max }
 
-private object MinIntrinsicWidthModifier : IntrinsicSizeModifier {
-    override fun MeasureScope.calculateContentConstraints(
-        measurable: Measurable,
-        constraints: Constraints
-    ): Constraints {
-        val width = measurable.minIntrinsicWidth(constraints.maxHeight)
-        return Constraints.fixedWidth(width)
+private class IntrinsicWidthElement(
+    val width: IntrinsicSize,
+    val enforceIncoming: Boolean,
+    val inspectorInfo: InspectorInfo.() -> Unit
+) : ModifierNodeElement<IntrinsicWidthNode>() {
+    override fun create() = IntrinsicWidthNode(width, enforceIncoming)
+
+    override fun update(node: IntrinsicWidthNode) {
+        node.width = width
+        node.enforceIncoming = enforceIncoming
     }
 
-    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: Int
-    ) = measurable.minIntrinsicWidth(height)
-}
-
-private object MinIntrinsicHeightModifier : IntrinsicSizeModifier {
-    override fun MeasureScope.calculateContentConstraints(
-        measurable: Measurable,
-        constraints: Constraints
-    ): Constraints {
-        val height = measurable.minIntrinsicHeight(constraints.maxWidth)
-        return Constraints.fixedHeight(height)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherModifierElement = other as? IntrinsicWidthElement ?: return false
+        return width == otherModifierElement.width &&
+            enforceIncoming == otherModifierElement.enforceIncoming
     }
 
-    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: Int
-    ) = measurable.minIntrinsicHeight(width)
-}
+    override fun hashCode() = 31 * width.hashCode() + enforceIncoming.hashCode()
 
-private object MaxIntrinsicWidthModifier : IntrinsicSizeModifier {
-    override fun MeasureScope.calculateContentConstraints(
-        measurable: Measurable,
-        constraints: Constraints
-    ): Constraints {
-        val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
-        return Constraints.fixedWidth(width)
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
     }
-
-    override fun IntrinsicMeasureScope.minIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: Int
-    ) = measurable.maxIntrinsicWidth(height)
 }
 
-private object MaxIntrinsicHeightModifier : IntrinsicSizeModifier {
+private class IntrinsicWidthNode(
+    var width: IntrinsicSize,
+    override var enforceIncoming: Boolean
+) : IntrinsicSizeModifier() {
     override fun MeasureScope.calculateContentConstraints(
         measurable: Measurable,
         constraints: Constraints
     ): Constraints {
-        val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
-        return Constraints.fixedHeight(height)
-    }
-
-    override fun IntrinsicMeasureScope.minIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: Int
-    ) = measurable.maxIntrinsicHeight(width)
-}
-
-private object RequiredMinIntrinsicWidthModifier : IntrinsicSizeModifier {
-    override val enforceIncoming: Boolean = false
-
-    override fun MeasureScope.calculateContentConstraints(
-        measurable: Measurable,
-        constraints: Constraints
-    ): Constraints {
-        val width = measurable.minIntrinsicWidth(constraints.maxHeight)
-        return Constraints.fixedWidth(width)
-    }
-
-    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: Int
-    ) = measurable.minIntrinsicWidth(height)
-}
-
-private object RequiredMinIntrinsicHeightModifier : IntrinsicSizeModifier {
-    override val enforceIncoming: Boolean = false
-
-    override fun MeasureScope.calculateContentConstraints(
-        measurable: Measurable,
-        constraints: Constraints
-    ): Constraints {
-        val height = measurable.minIntrinsicHeight(constraints.maxWidth)
-        return Constraints.fixedHeight(height)
-    }
-
-    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: Int
-    ) = measurable.minIntrinsicHeight(width)
-}
-
-private object RequiredMaxIntrinsicWidthModifier : IntrinsicSizeModifier {
-    override val enforceIncoming: Boolean = false
-
-    override fun MeasureScope.calculateContentConstraints(
-        measurable: Measurable,
-        constraints: Constraints
-    ): Constraints {
-        val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
-        return Constraints.fixedWidth(width)
+        val measuredWidth = if (width == IntrinsicSize.Min) {
+            measurable.minIntrinsicWidth(constraints.maxHeight)
+        } else {
+            measurable.maxIntrinsicWidth(constraints.maxHeight)
+        }
+        return Constraints.fixedWidth(measuredWidth)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: Int
-    ) = measurable.maxIntrinsicWidth(height)
+    ) = if (width == IntrinsicSize.Min) measurable.minIntrinsicWidth(height) else
+        measurable.maxIntrinsicWidth(height)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int
+    ) = if (width == IntrinsicSize.Min) measurable.minIntrinsicWidth(height) else
+        measurable.maxIntrinsicWidth(height)
 }
 
-private object RequiredMaxIntrinsicHeightModifier : IntrinsicSizeModifier {
-    override val enforceIncoming: Boolean = false
+private class IntrinsicHeightElement(
+    val height: IntrinsicSize,
+    val enforceIncoming: Boolean,
+    val inspectorInfo: InspectorInfo.() -> Unit
+) : ModifierNodeElement<IntrinsicHeightNode>() {
+    override fun create() = IntrinsicHeightNode(height, enforceIncoming)
 
+    override fun update(node: IntrinsicHeightNode) {
+        node.height = height
+        node.enforceIncoming = enforceIncoming
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherModifierElement = other as? IntrinsicHeightElement ?: return false
+        return height == otherModifierElement.height &&
+            enforceIncoming == otherModifierElement.enforceIncoming
+    }
+
+    override fun hashCode() = 31 * height.hashCode() + enforceIncoming.hashCode()
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+}
+
+private class IntrinsicHeightNode(
+    var height: IntrinsicSize,
+    override var enforceIncoming: Boolean
+) : IntrinsicSizeModifier() {
     override fun MeasureScope.calculateContentConstraints(
         measurable: Measurable,
         constraints: Constraints
     ): Constraints {
-        val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
-        return Constraints.fixedHeight(height)
+        val measuredHeight = if (height == IntrinsicSize.Min) {
+            measurable.minIntrinsicHeight(constraints.maxWidth)
+        } else {
+            measurable.maxIntrinsicHeight(constraints.maxWidth)
+        }
+        return Constraints.fixedHeight(measuredHeight)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: Int
-    ) = measurable.maxIntrinsicHeight(width)
+    ) = if (height == IntrinsicSize.Min) measurable.minIntrinsicHeight(width) else
+        measurable.maxIntrinsicHeight(width)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int
+    ) = if (height == IntrinsicSize.Min) measurable.minIntrinsicHeight(width) else
+        measurable.maxIntrinsicHeight(width)
 }
 
-private interface IntrinsicSizeModifier : LayoutModifier {
-    val enforceIncoming: Boolean get() = true
+private abstract class IntrinsicSizeModifier : LayoutModifierNode, Modifier.Node() {
 
-    fun MeasureScope.calculateContentConstraints(
+    abstract val enforceIncoming: Boolean
+
+    abstract fun MeasureScope.calculateContentConstraints(
         measurable: Measurable,
         constraints: Constraints
     ): Constraints
 
-    override fun MeasureScope.measure(
+    final override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
