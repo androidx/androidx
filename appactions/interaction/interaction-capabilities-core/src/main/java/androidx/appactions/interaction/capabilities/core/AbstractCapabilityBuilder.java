@@ -124,7 +124,7 @@ public abstract class AbstractCapabilityBuilder<
                         @Override
                         public ListenableFuture<ExecutionResult<OutputT>> onFinishAsync(
                                 ArgumentT argument) {
-                            return mActionExecutor.execute(argument);
+                            return mActionExecutor.executeAsync(argument);
                         }
                     });
         }
