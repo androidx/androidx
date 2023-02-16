@@ -53,14 +53,14 @@ abstract class CreateCredentialRequest internal constructor(
      * Information that may be used for display purposes when rendering UIs to collect the user
      * consent and choice.
      *
-     * @property userId the user id of the created credential
+     * @property userId the user identifier of the created credential
      * @property userDisplayName an optional display name in addition to the [userId] that may be
      * displayed next to the `userId` during the user consent to help your user better understand
      * the credential being created.
      */
     class DisplayInfo internal /** @hide */ constructor(
-        val userId: String,
-        val userDisplayName: String?,
+        val userId: CharSequence,
+        val userDisplayName: CharSequence?,
         /** @hide */
         val credentialTypeIcon: Icon?
     ) {
@@ -74,7 +74,10 @@ abstract class CreateCredentialRequest internal constructor(
          * understand the credential being created.
          * @throws IllegalArgumentException If [userId] is empty
          */
-        @JvmOverloads constructor(userId: String, userDisplayName: String? = null) : this(
+        @JvmOverloads constructor(
+            userId: CharSequence,
+            userDisplayName: CharSequence? = null,
+        ) : this(
             userId,
             userDisplayName,
             null
@@ -88,9 +91,9 @@ abstract class CreateCredentialRequest internal constructor(
         @RequiresApi(23)
         fun toBundle(): Bundle {
             val bundle = Bundle()
-            bundle.putString(BUNDLE_KEY_USER_ID, userId)
+            bundle.putCharSequence(BUNDLE_KEY_USER_ID, userId)
             if (!TextUtils.isEmpty(userDisplayName)) {
-                bundle.putString(BUNDLE_KEY_USER_DISPLAY_NAME, userDisplayName)
+                bundle.putCharSequence(BUNDLE_KEY_USER_DISPLAY_NAME, userDisplayName)
             }
             // Today the type icon is determined solely within this library right before the
             // request is passed into the framework. Later if needed a new API can be added for
@@ -130,8 +133,9 @@ abstract class CreateCredentialRequest internal constructor(
             fun parseFromCredentialDataBundle(from: Bundle): DisplayInfo? {
                 return try {
                     val displayInfoBundle = from.getBundle(BUNDLE_KEY_REQUEST_DISPLAY_INFO)!!
-                    val userId = displayInfoBundle.getString(BUNDLE_KEY_USER_ID)
-                    val displayName = displayInfoBundle.getString(BUNDLE_KEY_USER_DISPLAY_NAME)
+                    val userId = displayInfoBundle.getCharSequence(BUNDLE_KEY_USER_ID)
+                    val displayName =
+                        displayInfoBundle.getCharSequence(BUNDLE_KEY_USER_DISPLAY_NAME)
                     val icon: Icon? =
                         displayInfoBundle.getParcelable(BUNDLE_KEY_CREDENTIAL_TYPE_ICON)
                     DisplayInfo(userId!!, displayName, icon)

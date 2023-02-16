@@ -23,7 +23,6 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * A privileged request to get passkeys from the user's public key credential provider. The caller
  * can modify the RP. Only callers with privileged permission (e.g. user's public browser or caBLE)
  * can use this. These permissions will be introduced in an upcoming release.
- * TODO("Add specific permission info/annotation")
  *
  * @property requestJson the request in JSON format in the standard webauthn web json
  * shown [here](https://w3c.github.io/webauthn/#dictdef-publickeycredentialrequestoptionsjson).
