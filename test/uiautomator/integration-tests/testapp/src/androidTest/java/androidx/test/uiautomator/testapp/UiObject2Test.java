@@ -27,12 +27,14 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.ViewConfiguration;
+import android.view.accessibility.AccessibilityEvent;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.Direction;
+import androidx.test.uiautomator.EventCondition;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
@@ -631,6 +633,97 @@ public class UiObject2Test extends BaseTest {
         while (scrollView.scroll(Direction.DOWN, 1.0f)) {
             // Continue until bottom.
         }
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+    }
+
+    @Test
+    public void testScrollUntil_conditionSatisfied() {
+        launchTestActivity(VerticalScrollTestActivity.class);
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+
+        // Scroll until end
+        UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
+        scrollView.setGestureMargin(SCROLL_MARGIN); // Avoid touching too close to the edges.
+        assertNotNull(scrollView.scrollUntil(Direction.DOWN,
+                Until.findObject(By.res(TEST_APP, "bottom_text"))));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+    }
+
+    @Test
+    public void testScrollUntil_conditionNotSatisfied() {
+        launchTestActivity(VerticalScrollTestActivity.class);
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+
+        UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
+        scrollView.setGestureMargin(SCROLL_MARGIN); // Avoid touching too close to the edges.
+        // fail to find text that doesn't exist.
+        assertNull(scrollView.scrollUntil(Direction.DOWN,
+                Until.findObject(By.res(TEST_APP, "nonexistent_text"))));
+        // We still scroll to the end.
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+    }
+
+    @Test
+    public void testScrollUntil_eventConditionSatisfied() {
+        launchTestActivity(VerticalScrollTestActivity.class);
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+
+        UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
+        scrollView.setGestureMargin(SCROLL_MARGIN); // Avoid touching too close to the edges.
+        // Scroll for the event condition that occurs early before scrolling to the end.
+        Integer result = scrollView.scrollUntil(Direction.DOWN,
+                new EventCondition<Integer>() {
+                    private Integer mResult = null;
+                    @Override
+                    public Integer getResult() {
+                        return mResult;
+                    }
+
+                    @Override
+                    public boolean accept(AccessibilityEvent event) {
+                        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+                            mResult = event.getEventType();
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+        assertEquals(result, (Integer) AccessibilityEvent.TYPE_VIEW_SCROLLED);
+        // We haven't scrolled to the end.
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+    }
+
+    @Test
+    public void testScrollUntil_eventConditionNotSatisfied() {
+        launchTestActivity(VerticalScrollTestActivity.class);
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
+        assertFalse(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
+
+        UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
+        scrollView.setGestureMargin(SCROLL_MARGIN); // Avoid touching too close to the edges.
+        // Scroll for the event condition that doesn't occur.
+        Integer result = scrollView.scrollUntil(Direction.DOWN,
+                new EventCondition<Integer>() {
+                    private Integer mResult = null;
+                    @Override
+                    public Integer getResult() {
+                        return mResult;
+                    }
+
+                    @Override
+                    public boolean accept(AccessibilityEvent event) {
+                        if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_LONG_CLICKED) {
+                            mResult = event.getEventType();
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+        assertNull(result);
+        // We still scroll to the end when event condition never occurs.
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
     }
 
