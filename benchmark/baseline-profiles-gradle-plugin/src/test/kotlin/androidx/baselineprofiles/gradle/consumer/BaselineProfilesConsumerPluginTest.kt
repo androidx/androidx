@@ -86,7 +86,7 @@ class BaselineProfilesConsumerPluginTest {
     private fun readBaselineProfileFileContent(variantName: String) =
         File(
             consumerProjectSetup.rootDir,
-            "src/$variantName/generatedBaselineProfiles/baseline-prof.txt"
+            "src/$variantName/generated/baselineProfiles/baseline-prof.txt"
         ).readLines()
 
     @Test

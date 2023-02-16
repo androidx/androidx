@@ -57,13 +57,6 @@ open class BaselineProfilesConsumerExtension {
     var onDemandGeneration = false
 
     /**
-     * When [onDemandGeneration] is off, baseline profiles are stored in the source folders, by
-     * default `src/<variant>/baselineProfiles`. The inner folder can be customized through this
-     * parameter.
-     */
-    var baselineProfileDir = "generatedBaselineProfiles"
-
-    /**
      * Specifies if and how baseline profile rule files should be merged when generated from
      * multiple variants. This can either be:
      *  - `all` to merge all the generated profiles for each variant in a single profile. When

@@ -1,10 +1,12 @@
+import org.gradle.work.DisableCachingByDefault
+
 import static androidx.baselineprofiles.gradle.utils.UtilsKt.camelCase
 
 // To trigger the baseline profile generation using the different modules the test will call
 // the base generation task `generateBaselineProfiles`. The `AssertEqualsAndCleanUpTask` asserts
 // that the final output is the expected one and if there are no failures cleans up the
 // generated baseline-prof.txt.
-@CacheableTask
+@DisableCachingByDefault(because = "Integration test task")
 abstract class AssertEqualsAndCleanUpTask extends DefaultTask {
 
     @InputFile
@@ -61,7 +63,7 @@ def registerAssertTask(ArrayList<TaskProvider<Task>> testTaskProviders, String v
     def expectedFile = project
             .layout
             .projectDirectory
-            .file("src/$variantName/generatedBaselineProfiles/expected-baseline-prof.txt")
+            .file("src/$variantName/generated/baselineProfiles/expected-baseline-prof.txt")
 
     // If there is no expected file then skip testing this variant.
     if (!expectedFile.asFile.exists()) {
@@ -76,7 +78,7 @@ def registerAssertTask(ArrayList<TaskProvider<Task>> testTaskProviders, String v
         it.actualFilePath.set(project
                 .layout
                 .projectDirectory
-                .file("src/$variantName/generatedBaselineProfiles/baseline-prof.txt")
+                .file("src/$variantName/generated/baselineProfiles/baseline-prof.txt")
                 .getAsFile()
                 .absolutePath)
 

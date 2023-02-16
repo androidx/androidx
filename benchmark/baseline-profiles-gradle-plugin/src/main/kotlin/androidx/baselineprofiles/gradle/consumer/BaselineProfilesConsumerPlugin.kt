@@ -47,6 +47,7 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
 
     companion object {
         private const val GENERATE_TASK_NAME = "generate"
+        private const val BASELINE_PROFILE_DIR = "generated/baselineProfiles"
     }
 
     override fun apply(project: Project) {
@@ -402,31 +403,31 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
                 }
             }
     }
-}
 
-fun BaselineProfilesConsumerExtension.baselineProfileOutputDir(
-    project: Project,
-    variantName: String
-): Provider<Directory> =
-    if (onDemandGeneration) {
+    fun BaselineProfilesConsumerExtension.baselineProfileOutputDir(
+        project: Project,
+        variantName: String
+    ): Provider<Directory> =
+        if (onDemandGeneration) {
 
-        // In on demand mode, the baseline profile is regenerated when building
-        // release and it's not saved in the module sources. To achieve this
-        // we can create an intermediate folder for the profile and add the
-        // generation task to src sets.
-        project
-            .layout
-            .buildDirectory
-            .dir("$INTERMEDIATES_BASE_FOLDER/$variantName/")
-    } else {
-
-        // In periodic mode the baseline profile generation is manually triggered.
-        // The baseline profile is stored in the baseline profile sources for
-        // the variant.
-        project.providers.provider {
+            // In on demand mode, the baseline profile is regenerated when building
+            // release and it's not saved in the module sources. To achieve this
+            // we can create an intermediate folder for the profile and add the
+            // generation task to src sets.
             project
                 .layout
-                .projectDirectory
-                .dir("src/$variantName/$baselineProfileDir/")
+                .buildDirectory
+                .dir("$INTERMEDIATES_BASE_FOLDER/$variantName/$BASELINE_PROFILE_DIR")
+        } else {
+
+            // In periodic mode the baseline profile generation is manually triggered.
+            // The baseline profile is stored in the baseline profile sources for
+            // the variant.
+            project.providers.provider {
+                project
+                    .layout
+                    .projectDirectory
+                    .dir("src/$variantName/$BASELINE_PROFILE_DIR/")
+            }
         }
-    }
+}
