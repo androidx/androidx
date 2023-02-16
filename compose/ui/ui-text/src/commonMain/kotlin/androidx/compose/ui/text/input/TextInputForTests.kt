@@ -44,13 +44,4 @@ interface TextInputForTests {
      * @param text Text to send.
      */
     fun inputTextForTest(text: String)
-
-    /**
-     * Performs the submit action configured on the current node, if any.
-     *
-     * On Android, this is the IME action.
-     */
-    // TODO(b/269633168, b/269633506) Remove and implement using semantics instead.
-    @ExperimentalTextApi
-    fun submitTextForTest()
 }

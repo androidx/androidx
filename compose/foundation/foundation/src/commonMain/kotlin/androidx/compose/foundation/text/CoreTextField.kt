@@ -82,6 +82,7 @@ import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.imeAction
+import androidx.compose.ui.semantics.performImeAction
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.password
@@ -476,6 +477,13 @@ internal fun CoreTextField(
                 manager.exitSelectionMode()
                 false
             }
+        }
+        performImeAction {
+            // This will perform the appropriate default action if no handler has been specified, so
+            // as far as the platform is concerned, we always handle the action and never want to
+            // defer to the default _platform_ implementation.
+            state.onImeActionPerformed(imeOptions.imeAction)
+            true
         }
         onClick {
             // according to the documentation, we still need to provide proper semantics actions
