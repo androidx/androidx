@@ -52,5 +52,11 @@ configurations.all {
     resolutionStrategy.dependencySubstitution {
         substitute(module("androidx.lifecycle:lifecycle-livedata-core:")).
                 using project(":lifecycle:lifecycle-livedata-core")
+        substitute(module("androidx.lifecycle:lifecycle-common:")).
+                using project(":lifecycle:lifecycle-common")
+        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
+                using project(":lifecycle:lifecycle-runtime")
+        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
+                using project(":lifecycle:lifecycle-runtime-ktx")
     }
 }

@@ -30,7 +30,7 @@ dependencies {
     api("androidx.navigation:navigation-runtime:2.5.3")
     api(project(":wear:compose:compose-material"))
     api(project(":activity:activity-compose"))
-    api(project(":lifecycle:lifecycle-viewmodel-compose"))
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0-rc01")
 
     implementation(libs.kotlinStdlib)
     implementation(project(":navigation:navigation-common"))
