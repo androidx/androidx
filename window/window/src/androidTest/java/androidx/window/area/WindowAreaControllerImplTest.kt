@@ -29,9 +29,9 @@ import androidx.window.extensions.area.ExtensionWindowAreaPresentation
 import androidx.window.extensions.area.ExtensionWindowAreaStatus
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.extensions.core.util.function.Consumer
+import androidx.window.WindowTestUtils.Companion.assumeAtLeastVendorApiLevel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertFailsWith
@@ -52,7 +52,7 @@ class WindowAreaControllerImplTest {
     @TargetApi(Build.VERSION_CODES.N)
     @Test
     public fun testRearDisplayStatus(): Unit = testScope.runTest {
-        assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
+        assumeAtLeastVendorApiLevel(2)
         activityScenario.scenario.onActivity {
             val extensionComponent = FakeWindowAreaComponent()
             val repo = WindowAreaControllerImpl(extensionComponent)
@@ -93,7 +93,7 @@ class WindowAreaControllerImplTest {
     @TargetApi(Build.VERSION_CODES.N)
     @Test
     public fun testRearDisplayMode(): Unit = testScope.runTest {
-        assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
+        assumeAtLeastVendorApiLevel(2)
         val extensions = FakeWindowAreaComponent()
         val repo = WindowAreaControllerImpl(extensions)
         extensions.currentStatus = WindowAreaComponent.STATUS_AVAILABLE
@@ -125,7 +125,7 @@ class WindowAreaControllerImplTest {
     @TargetApi(Build.VERSION_CODES.N)
     @Test
     public fun testRearDisplayModeReturnsError(): Unit = testScope.runTest {
-        assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
+        assumeAtLeastVendorApiLevel(2)
         val extensionComponent = FakeWindowAreaComponent()
         extensionComponent.currentStatus = WindowAreaComponent.STATUS_UNAVAILABLE
         val repo = WindowAreaControllerImpl(extensionComponent)
@@ -141,7 +141,6 @@ class WindowAreaControllerImplTest {
     @TargetApi(Build.VERSION_CODES.N)
     @Test
     public fun testRearDisplayModeNullComponent(): Unit = testScope.runTest {
-        assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.N)
         val repo = EmptyWindowAreaControllerImpl()
         val callback = TestWindowAreaSessionCallback()
         activityScenario.scenario.onActivity { testActivity ->
