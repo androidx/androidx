@@ -33,18 +33,22 @@ import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import java.util.concurrent.Executor
 
 /**
- * Provides an adapter created from the supplied Bundle which acts as a proxy between the host app
- * and Binder provided by the provider of content.
- * @throws IllegalArgumentException if CoreLibInfo does not contain a Binder with the key
- * uiAdapterBinder
+ * Provides an adapter created from a supplied Bundle which acts as a proxy between the host app and
+ * the Binder provided by the provider of content.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 object SandboxedUiAdapterFactory {
+
     // Bundle key is a binary compatibility requirement
     private const val UI_ADAPTER_BINDER = "uiAdapterBinder"
+
+    /**
+     * @throws IllegalArgumentException if {@code coreLibInfo} does not contain a Binder with the
+     * key UI_ADAPTER_BINDER
+     */
     fun createFromCoreLibInfo(coreLibInfo: Bundle): SandboxedUiAdapter {
         val uiAdapterBinder = requireNotNull(coreLibInfo.getBinder(UI_ADAPTER_BINDER)) {
-            "Invalid CoreLibInfo bundle, missing $UI_ADAPTER_BINDER."
+            "Invalid bundle, missing $UI_ADAPTER_BINDER."
         }
         val adapterInterface = ISandboxedUiAdapter.Stub.asInterface(
             uiAdapterBinder
