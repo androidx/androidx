@@ -94,6 +94,7 @@ class MediaRouter2Utils {
 
         if (BuildCompat.isAtLeastU()) {
             Api34Impl.setDeduplicationIds(builder, descriptor.getDeduplicationIds());
+            Api34Impl.copyDescriptorVisibilityToBuilder(builder, descriptor);
         }
 
         switch (descriptor.getDeviceType()) {
@@ -302,6 +303,16 @@ class MediaRouter2Utils {
         @DoNotInline
         public static Set<String> getDeduplicationIds(MediaRoute2Info fwkMediaRoute2Info) {
             return fwkMediaRoute2Info.getDeduplicationIds();
+        }
+
+        @DoNotInline
+        public static void copyDescriptorVisibilityToBuilder(MediaRoute2Info.Builder builder,
+                MediaRouteDescriptor descriptor) {
+            if (descriptor.isVisibilityRestricted()) {
+                builder.setVisibilityRestricted(descriptor.getAllowedPackages());
+            } else {
+                builder.setVisibilityPublic();
+            }
         }
     }
 }

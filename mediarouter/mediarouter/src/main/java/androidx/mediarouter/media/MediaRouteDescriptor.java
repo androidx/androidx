@@ -17,8 +17,10 @@ package androidx.mediarouter.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.annotation.SuppressLint;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.media.RouteDiscoveryPreference;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -68,6 +70,8 @@ public final class MediaRouteDescriptor {
     static final String KEY_MIN_CLIENT_VERSION = "minClientVersion";
     static final String KEY_MAX_CLIENT_VERSION = "maxClientVersion";
     static final String KEY_DEDUPLICATION_IDS = "deduplicationIds";
+    static final String KEY_IS_VISIBILITY_RESTRICTED = "isVisibilityRestricted";
+    static final String KEY_ALLOWED_PACKAGES = "allowedPackages";
 
     final Bundle mBundle;
     List<String> mGroupMemberIds;
@@ -353,6 +357,27 @@ public final class MediaRouteDescriptor {
     }
 
     /**
+     * Gets whether the route visibility is restricted or not.
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public boolean isVisibilityRestricted() {
+        return mBundle.getBoolean(KEY_IS_VISIBILITY_RESTRICTED, /* defaultValue= */ false);
+    }
+
+    /**
+     * Gets the set of allowed packages which are able to see the route or an empty set if only
+     * the route provider's package is allowed to see this route. This applies only when
+     * {@link #isVisibilityRestricted} returns {@code true}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @NonNull
+    public Set<String> getAllowedPackages() {
+        return new HashSet<>(mBundle.getStringArrayList(KEY_ALLOWED_PACKAGES));
+    }
+
+    /**
      * Returns true if the route descriptor has all of the required fields.
      */
     public boolean isValid() {
@@ -388,6 +413,8 @@ public final class MediaRouteDescriptor {
                 + ", isValid=" + isValid()
                 + ", minClientVersion=" + getMinClientVersion()
                 + ", maxClientVersion=" + getMaxClientVersion()
+                + ", isVisibilityRestricted=" + isVisibilityRestricted()
+                + ", allowedPackages=" + Arrays.toString(getAllowedPackages().toArray())
                 + " }";
     }
 
@@ -419,6 +446,7 @@ public final class MediaRouteDescriptor {
         private final Bundle mBundle;
         private ArrayList<String> mGroupMemberIds;
         private ArrayList<IntentFilter> mControlFilters;
+        private Set<String> mAllowedPackages = new HashSet<>();
 
         /**
          * Creates a media route descriptor builder.
@@ -450,6 +478,8 @@ public final class MediaRouteDescriptor {
             if (!descriptor.getControlFilters().isEmpty()) {
                 mControlFilters = new ArrayList<IntentFilter>(descriptor.mControlFilters);
             }
+
+            mAllowedPackages = descriptor.getAllowedPackages();
         }
 
         /**
@@ -624,6 +654,7 @@ public final class MediaRouteDescriptor {
             mBundle.putBoolean(IS_DYNAMIC_GROUP_ROUTE, isDynamicGroupRoute);
             return this;
         }
+
         /**
          * Sets whether the route is in the process of connecting and is not yet
          * ready for use.
@@ -847,6 +878,47 @@ public final class MediaRouteDescriptor {
         }
 
         /**
+         * Sets the visibility of this route to public.
+         *
+         * <p>By default, unless you call {@link #setVisibilityRestricted}, the new route will be
+         * public.
+         *
+         * <p>Public routes are visible to any application with a matching {@link
+         * RouteDiscoveryPreference#getPreferredFeatures feature}.
+         *
+         * <p>Calls to this method override previous calls to {@link #setVisibilityPublic} and
+         * {@link #setVisibilityRestricted}.
+         */
+        @NonNull
+        @SuppressLint({"MissingGetterMatchingBuilder"})
+        public Builder setVisibilityPublic() {
+            mBundle.putBoolean(KEY_IS_VISIBILITY_RESTRICTED, false);
+            mAllowedPackages.clear();
+            return this;
+        }
+
+        /**
+         * Sets the visibility of this route to restricted.
+         *
+         * <p>Routes with restricted visibility are only visible to its publisher application and
+         * applications whose package name is included in the provided {@code allowedPackages} set
+         * with a matching {@link RouteDiscoveryPreference#getPreferredFeatures feature}.
+         *
+         * <p>Calls to this method override previous calls to {@link #setVisibilityPublic} and
+         * {@link #setVisibilityRestricted}.
+         *
+         * @see #setVisibilityPublic
+         * @param allowedPackages set of package names which are allowed to see this route.
+         */
+        @NonNull
+        @SuppressLint({"MissingGetterMatchingBuilder"})
+        public Builder setVisibilityRestricted(@NonNull Set<String> allowedPackages) {
+            mBundle.putBoolean(KEY_IS_VISIBILITY_RESTRICTED, true);
+            mAllowedPackages = new HashSet<>(allowedPackages);
+            return this;
+        }
+
+        /**
          * Builds the {@link MediaRouteDescriptor media route descriptor}.
          */
         @NonNull
@@ -857,6 +929,7 @@ public final class MediaRouteDescriptor {
             if (mGroupMemberIds != null) {
                 mBundle.putStringArrayList(KEY_GROUP_MEMBER_IDS, mGroupMemberIds);
             }
+            mBundle.putStringArrayList(KEY_ALLOWED_PACKAGES, new ArrayList<>(mAllowedPackages));
             return new MediaRouteDescriptor(mBundle);
         }
     }

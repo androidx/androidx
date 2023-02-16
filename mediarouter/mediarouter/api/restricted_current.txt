@@ -215,6 +215,8 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setPlaybackType(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setPresentationDisplayId(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setSettingsActivity(android.content.IntentSender?);
+    method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVisibilityPublic();
+    method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVisibilityRestricted(java.util.Set<java.lang.String!>);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVolume(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVolumeHandling(int);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder setVolumeMax(int);
