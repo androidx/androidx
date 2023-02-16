@@ -63,6 +63,12 @@ package androidx.window.embedding {
     method public androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
   }
 
+  public final class ActivityEmbeddingOptions {
+    method @androidx.window.core.ExperimentalWindowApi public static boolean isSetLaunchingActivityStackSupported(android.app.ActivityOptions);
+    method @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.content.Context context, androidx.window.embedding.ActivityStack activityStack);
+    method @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.app.Activity activity);
+  }
+
   public final class ActivityFilter {
     ctor public ActivityFilter(android.content.ComponentName componentName, String? intentAction);
     method public android.content.ComponentName getComponentName();
@@ -71,12 +77,6 @@ package androidx.window.embedding {
     method public boolean matchesIntent(android.content.Intent intent);
     property public final android.content.ComponentName componentName;
     property public final String? intentAction;
-  }
-
-  public final class ActivityOptionsCompat {
-    method @androidx.window.core.ExperimentalWindowApi public static boolean isSetLaunchingActivityStackSupported(android.app.ActivityOptions);
-    method @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.content.Context context, androidx.window.embedding.ActivityStack activityStack);
-    method @androidx.window.core.ExperimentalWindowApi public static android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.app.Activity activity);
   }
 
   public final class ActivityRule extends androidx.window.embedding.EmbeddingRule {

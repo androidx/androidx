@@ -41,8 +41,8 @@ import androidx.core.util.Consumer;
 import androidx.window.demo.R;
 import androidx.window.demo.databinding.ActivitySplitActivityLayoutBinding;
 import androidx.window.embedding.ActivityEmbeddingController;
+import androidx.window.embedding.ActivityEmbeddingOptions;
 import androidx.window.embedding.ActivityFilter;
-import androidx.window.embedding.ActivityOptionsCompat;
 import androidx.window.embedding.ActivityRule;
 import androidx.window.embedding.EmbeddingRule;
 import androidx.window.embedding.RuleController;
@@ -96,7 +96,7 @@ public class SplitActivityBase extends AppCompatActivity
             Bundle bundle = null;
             if (mViewBinding.setLaunchingEInActivityStack.isChecked()) {
                 try {
-                    final ActivityOptions options = ActivityOptionsCompat
+                    final ActivityOptions options = ActivityEmbeddingOptions
                             .setLaunchingActivityStack(ActivityOptions.makeBasic(), this);
                     bundle = options.toBundle();
                 } catch (UnsupportedOperationException ex) {
@@ -105,7 +105,7 @@ public class SplitActivityBase extends AppCompatActivity
             }
             startActivity(new Intent(this, SplitActivityE.class), bundle);
         });
-        if (!ActivityOptionsCompat.isSetLaunchingActivityStackSupported(
+        if (!ActivityEmbeddingOptions.isSetLaunchingActivityStackSupported(
                 ActivityOptions.makeBasic())) {
             mViewBinding.setLaunchingEInActivityStack.setEnabled(false);
         }

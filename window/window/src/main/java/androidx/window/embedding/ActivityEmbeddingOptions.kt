@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("ActivityOptionsCompat")
+@file:JvmName("ActivityEmbeddingOptions")
 
 package androidx.window.embedding
 
@@ -23,8 +23,6 @@ import android.content.Context
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensions
-
-private const val TAG = "ActivityOptionsCompat"
 
 /**
  * Sets the launching [ActivityStack] to the given [android.app.ActivityOptions].
