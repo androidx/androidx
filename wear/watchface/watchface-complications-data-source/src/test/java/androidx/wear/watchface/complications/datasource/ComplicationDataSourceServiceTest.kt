@@ -53,7 +53,6 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
-import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowLog
 import org.robolectric.shadows.ShadowLooper.runUiThreadTasks
@@ -110,6 +109,8 @@ class ComplicationDataSourceServiceTest {
         /** Last type provided to [previewData]. */
         var lastPreviewType: ComplicationType? = null
 
+        override var wearPlatformVersion = Build.VERSION.SDK_INT
+
         override fun createMainThreadHandler(): Handler = mPretendMainThreadHandler
 
         override fun onComplicationRequest(
@@ -163,7 +164,7 @@ class ComplicationDataSourceServiceTest {
                 .build()
         val id = 123
         mProvider.onUpdate(id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager)
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        runUiThreadTasksWhileAwaitingDataLatch(1000)
 
         val data = argumentCaptor<WireComplicationData>()
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture())
@@ -190,15 +191,16 @@ class ComplicationDataSourceServiceTest {
             mLocalManager
         )
 
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        runUiThreadTasksWhileAwaitingDataLatch(1000)
         @Suppress("NewApi") // isForSafeWatchFace
         assertThat(mService.lastRequest!!.isForSafeWatchFace)
             .isEqualTo(TargetWatchFaceSafety.SAFE)
     }
 
     @Test
-    @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
     fun testOnComplicationRequestWithExpression_doesNotEvaluateExpression() {
+        // TODO(b/257422920): Set this to the exact platform version.
+        mService.wearPlatformVersion = Build.VERSION_CODES.TIRAMISU + 1
         mService.responseData =
             LongTextComplicationData.Builder(
                     ComplicationTextExpression(
@@ -214,7 +216,7 @@ class ComplicationDataSourceServiceTest {
             mLocalManager
         )
 
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        runUiThreadTasksWhileAwaitingDataLatch(1000)
         verify(mRemoteManager)
             .updateComplicationData(
                 eq(123),
@@ -233,8 +235,9 @@ class ComplicationDataSourceServiceTest {
     }
 
     @Test
-    @Config(sdk = [Build.VERSION_CODES.S])
-    fun testOnComplicationRequestWithExpressionPreT_evaluatesExpression() {
+    fun testOnComplicationRequestWithExpressionBeforePlatformSupport_evaluatesExpression() {
+        // TODO(b/257422920): Set this to the exact platform version.
+        mService.wearPlatformVersion = Build.VERSION_CODES.TIRAMISU
         mService.responseData =
             LongTextComplicationData.Builder(
                     ComplicationTextExpression(
@@ -290,7 +293,7 @@ class ComplicationDataSourceServiceTest {
 
         val id = 123
         mProvider.onUpdate(id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager)
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        runUiThreadTasksWhileAwaitingDataLatch(1000)
 
         val data = argumentCaptor<WireComplicationData>()
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture())
@@ -422,7 +425,7 @@ class ComplicationDataSourceServiceTest {
 
         val id = 123
         mProvider.onUpdate(id, ComplicationType.LONG_TEXT.toWireComplicationType(), mLocalManager)
-        assertThat(mUpdateComplicationDataLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        runUiThreadTasksWhileAwaitingDataLatch(1000)
         val data = argumentCaptor<WireComplicationData>()
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture())
         assertThat(data.firstValue.longText!!.getTextAt(Resources.getSystem(), 0))

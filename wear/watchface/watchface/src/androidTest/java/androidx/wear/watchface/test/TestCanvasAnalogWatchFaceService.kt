@@ -89,7 +89,7 @@ internal class TestCanvasAnalogWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
-    override val wearSdkVersion =
+    override val wearPlatformVersion =
         when (preRInitFlow) {
             true -> Build.VERSION_CODES.O_MR1
             false -> Build.VERSION_CODES.R

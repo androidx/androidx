@@ -717,7 +717,7 @@ public abstract class WatchFaceService : WallpaperService() {
      *
      * Note that this cannot override platform-dependent versioning, which means inconsistency.
      */
-    @VisibleForTesting internal open val wearSdkVersion = Build.VERSION.SDK_INT
+    @VisibleForTesting internal open val wearPlatformVersion = Build.VERSION.SDK_INT
 
     /** [Choreographer] isn't supposed to be mocked, so we use a thin wrapper. */
     internal interface ChoreographerWrapper {
@@ -1232,7 +1232,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         private lateinit var choreographer: ChoreographerWrapper
         override val systemTimeProvider = getSystemTimeProvider()
-        override val wearSdkVersion = this@WatchFaceService.wearSdkVersion
+        override val wearSdkVersion = this@WatchFaceService.wearPlatformVersion
 
         /**
          * Whether we already have a [frameCallback] posted and waiting in the [Choreographer]

@@ -42,5 +42,5 @@ open class SimpleWatchFaceTestService : WatchFaceService() {
     ) = throw NotImplementedError("Should not reach this step")
 
     // Set this to `true` so that the whole setup is skipped for this test
-    override val wearSdkVersion = Build.VERSION_CODES.O_MR1
+    override val wearPlatformVersion = Build.VERSION_CODES.O_MR1
 }
