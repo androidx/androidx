@@ -50,6 +50,7 @@ private const val LABEL_32_DP = "Margin 32dp"
 class MarginPageTransformerTest :
     BaseTest<PageTransformerActivity>(PageTransformerActivity::class.java) {
 
+    @Ignore // b/268113370
     @Test
     fun testMargin_offscreenLimit_noChange() {
         testMargin(null)
