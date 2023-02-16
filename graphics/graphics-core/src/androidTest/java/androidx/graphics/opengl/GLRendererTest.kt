@@ -808,7 +808,7 @@ class GLRendererTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/268117579
     fun testFrontBufferedRenderer() {
         val width = 10
         val height = 10
