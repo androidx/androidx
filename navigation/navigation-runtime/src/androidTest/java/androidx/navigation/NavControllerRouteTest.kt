@@ -461,6 +461,183 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testGetBackStackEntryWithPartialExactRoute_missingNullableQueryParams() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start_test?{arg}"
+            ) {
+                test("start_test?{arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // getBackStack with a route that has clipped all arg segments
+        val entry1 = navController.getBackStackEntry("start_test")
+        assertThat(entry1).isEqualTo(navigator.backStack.first())
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithPartialExactRoute_nullNullableQueryParams() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start_test?opt={arg}"
+            ) {
+                test("start_test?opt={arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // getBackStack with a route with null args
+        val entry1 = navController.getBackStackEntry("start_test?opt=null")
+        assertThat(entry1).isEqualTo(navigator.backStack.first())
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithPartialExactRoute_nullNullableArgs() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start_test/{arg}"
+            ) {
+                test("start_test/{arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        // getBackStack with a route with null args
+        val entry1 = navController.getBackStackEntry("start_test/null")
+        assertThat(entry1).isEqualTo(navigator.backStack.first())
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithPartialExactRoute_incorrectNullQueryParams() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start_test"
+            ) {
+                test("start_test")
+                test("second_test?opt={arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+
+        // navigate with query param
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test?opt=13")
+        navController.navigate(deepLink)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val route = "second_test?opt=null"
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(route)
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route $route is on the NavController's " +
+                "back stack. The current destination is ${navController.currentDestination}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithPartialExactRoute_multiQueryParams() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start_test"
+            ) {
+                test("start_test")
+                test("second_test?opt={arg}&opt2={arg2}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                    argument("arg2") { type = NavType.StringType }
+                }
+            }
+
+        // navigate with query params
+        val deepLink = Uri.parse(
+            "android-app://androidx.navigation/second_test?opt=null&opt2=13")
+        navController.navigate(deepLink)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.getBackStackEntry("second_test?opt=null&opt2=13")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithPartialExactRoute_missingNonNullableQueryParams() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start_test?{arg}"
+            ) {
+                test("start_test?{arg}") {
+                    argument("arg") { type = NavType.StringType }
+                }
+            }
+
+        // getBackStack with a route that has clipped all arg segments
+        val route = "start_test"
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(route)
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route $route is on the NavController's " +
+                "back stack. The current destination is ${navController.currentDestination}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithPartialExactRoute_nullNonNullableQueryParams() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start_test?opt={arg}"
+            ) {
+                test("start_test?opt={arg}") {
+                    argument("arg") { type = NavType.StringType }
+                }
+            }
+
+        // getBackStack with a route that has null arguments
+        val route = "start_test?opt=null"
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(route)
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route $route is on the NavController's " +
+                "back stack. The current destination is ${navController.currentDestination}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
     fun testGetBackStackEntryWithIncorrectExactRoute() {
         val navController = createNavController()
         navController.graph = nav_singleArg_graph
@@ -640,6 +817,64 @@ class NavControllerRouteTest {
         val popped = navController.popBackStack("second_test/13/{arg2}", true)
         assertThat(popped).isTrue()
         assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithPartialExactRoute_missingNullableQueryParams() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start_test"
+            ) {
+                test("start_test")
+                test("second_test?{arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+
+        // navigate without filling query param
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test?{arg}")
+        navController.navigate(deepLink)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        // popBackStack with a route that has clipped all arg segments
+        val popped = navController.popBackStack("second_test", true)
+        assertThat(popped).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithPartialExactRoute_nullNullableQueryParams() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start_test?opt={arg}"
+            ) {
+                test("start_test")
+                test("second_test?opt={arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+
+        // navigate without query param
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test?opt={arg}")
+        navController.navigate(deepLink)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        // popBackStack with a null query param
+        val popped = navController.popBackStack("second_test?opt=null", true)
+        assertThat(popped).isTrue()
     }
 
     @UiThreadTest
@@ -905,6 +1140,68 @@ class NavControllerRouteTest {
 
         navController.popBackStack("second_test/13/{arg2}", true, true)
         val cleared = navController.clearBackStack("second_test/13/{arg2}")
+        assertThat(cleared).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testClearBackStackWithPartialExactRoute_missingNullableQueryParams() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start_test"
+            ) {
+                test("start_test")
+                test("second_test?{arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+
+        // navigate without filling query param
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test?{arg}")
+        navController.navigate(deepLink)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.popBackStack("second_test?{arg}", true, true)
+
+        // clearBackStack with a route that has clipped all arg segments
+        val cleared = navController.clearBackStack("second_test")
+        assertThat(cleared).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testClearBackStackWithPartialExactRoute_nullNullableQueryParams() {
+        val navController = createNavController()
+        navController.graph =
+            createNavController().createGraph(
+                route = "nav_root", startDestination = "start_test"
+            ) {
+                test("start_test")
+                test("second_test?opt={arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                }
+            }
+
+        // navigate without filling query param
+        val deepLink = Uri.parse("android-app://androidx.navigation/second_test?opt={arg}")
+        navController.navigate(deepLink)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.popBackStack("second_test?opt={arg}", true, true)
+
+        // clearBackStack with a route that has clipped all arg segments
+        val cleared = navController.clearBackStack("second_test?opt=null")
         assertThat(cleared).isTrue()
     }
 
