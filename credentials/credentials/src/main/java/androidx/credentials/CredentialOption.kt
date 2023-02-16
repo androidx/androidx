@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -39,9 +40,25 @@ abstract class CredentialOption internal constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val isSystemProviderRequired: Boolean,
+    /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open val isAutoSelectAllowed: Boolean,
 ) {
+
+    init {
+        @Suppress("UNNECESSARY_SAFE_CALL")
+        requestData?.let {
+            it.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
+        }
+    }
+
     /** @hide */
     companion object {
+        /** @hide */
+        @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+        const val BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED =
+            "androidx.credentials.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED"
+
         /** @hide */
         @JvmStatic
         fun createFrom(
@@ -70,7 +87,12 @@ abstract class CredentialOption internal constructor(
                 // Parsing failed but don't crash the process. Instead just output a request with
                 // the raw framework values.
                 GetCustomCredentialOption(
-                    type, requestData, candidateQueryData, requireSystemProvider)
+                    type,
+                    requestData,
+                    candidateQueryData,
+                    requireSystemProvider,
+                    requestData.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
+                )
             }
         }
     }

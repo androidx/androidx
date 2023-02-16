@@ -47,8 +47,19 @@ abstract class CreateCredentialRequest internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val isSystemProviderRequired: Boolean,
     /** @hide */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open val isAutoSelectAllowed: Boolean,
+    /** @hide */
     val displayInfo: DisplayInfo,
 ) {
+
+    init {
+        @Suppress("UNNECESSARY_SAFE_CALL")
+        credentialData?.let {
+            credentialData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
+        }
+    }
+
     /**
      * Information that may be used for display purposes when rendering UIs to collect the user
      * consent and choice.
@@ -144,6 +155,10 @@ abstract class CreateCredentialRequest internal constructor(
 
     /** @hide */
     companion object {
+        /** @hide */
+        const val BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED =
+            "androidx.credentials.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED"
+
         /**
          * Attempts to parse the raw data into one of [CreatePasswordRequest],
          * [CreatePublicKeyCredentialRequest], [CreatePublicKeyCredentialRequestPrivileged], and
@@ -189,7 +204,8 @@ abstract class CreateCredentialRequest internal constructor(
                     requireSystemProvider,
                     DisplayInfo.parseFromCredentialDataBundle(
                         credentialData
-                    ) ?: return null
+                    ) ?: return null,
+                    credentialData.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
                 )
             }
         }

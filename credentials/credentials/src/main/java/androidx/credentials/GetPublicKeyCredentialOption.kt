@@ -38,7 +38,8 @@ class GetPublicKeyCredentialOption @JvmOverloads constructor(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     requestData = toRequestDataBundle(requestJson, preferImmediatelyAvailableCredentials),
     candidateQueryData = toRequestDataBundle(requestJson, preferImmediatelyAvailableCredentials),
-    isSystemProviderRequired = false
+    isSystemProviderRequired = false,
+    isAutoSelectAllowed = true,
 ) {
     init {
         require(requestJson.isNotEmpty()) { "requestJson must not be empty" }

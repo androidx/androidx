@@ -53,6 +53,7 @@ class CreatePublicKeyCredentialRequestPrivileged private constructor(
         requestJson, relyingParty, clientDataHash, preferImmediatelyAvailableCredentials
     ),
     isSystemProviderRequired = false,
+    isAutoSelectAllowed = false,
     displayInfo,
 ) {
 

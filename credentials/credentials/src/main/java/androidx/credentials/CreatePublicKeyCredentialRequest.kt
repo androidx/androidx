@@ -41,7 +41,8 @@ class CreatePublicKeyCredentialRequest private constructor(
     // The whole request data should be passed during the query phase.
     candidateQueryData = toCredentialDataBundle(requestJson, preferImmediatelyAvailableCredentials),
     isSystemProviderRequired = false,
-    displayInfo,
+    isAutoSelectAllowed = false,
+    displayInfo
 ) {
 
     /**

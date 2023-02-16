@@ -25,13 +25,10 @@ package androidx.credentials
  *
  * @property credentialOptions the list of [CredentialOption] from which the user can choose
  * one to authenticate to the app
- * @property isAutoSelectAllowed defines if a credential entry will be automatically chosen if it is
- * the only one, false by default
  * @throws IllegalArgumentException If [credentialOptions] is empty
  */
-class GetCredentialRequest @JvmOverloads constructor(
+class GetCredentialRequest constructor(
     val credentialOptions: List<CredentialOption>,
-    val isAutoSelectAllowed: Boolean = false,
 ) {
 
     init {
@@ -41,7 +38,6 @@ class GetCredentialRequest @JvmOverloads constructor(
     /** A builder for [GetCredentialRequest]. */
     class Builder {
         private var credentialOptions: MutableList<CredentialOption> = mutableListOf()
-        private var autoSelectAllowed: Boolean = false
 
         /** Adds a specific type of [CredentialOption]. */
         fun addCredentialOption(credentialOption: CredentialOption): Builder {
@@ -56,22 +52,12 @@ class GetCredentialRequest @JvmOverloads constructor(
         }
 
         /**
-         * Sets [autoSelectAllowed], which by default, is false.
-         */
-        @Suppress("MissingGetterMatchingBuilder")
-        fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
-            this.autoSelectAllowed = autoSelectAllowed
-            return this
-        }
-
-        /**
          * Builds a [GetCredentialRequest].
          *
          * @throws IllegalArgumentException If [credentialOptions] is empty
          */
         fun build(): GetCredentialRequest {
-            return GetCredentialRequest(credentialOptions.toList(),
-                autoSelectAllowed)
+            return GetCredentialRequest(credentialOptions.toList())
         }
     }
 }
