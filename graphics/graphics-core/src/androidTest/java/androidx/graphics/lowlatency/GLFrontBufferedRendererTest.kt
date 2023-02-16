@@ -157,7 +157,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testDoubleBufferedLayerRender() {
         val renderLatch = CountDownLatch(1)
@@ -281,7 +281,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testRenderDoubleBufferLayer() {
         val squareSize = 100f
@@ -396,7 +396,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testBufferRetargetingFrontBufferLayer() {
         val squareSize = 100f
@@ -491,7 +491,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testBufferRetargetingDoubleBufferedLayer() {
         val squareSize = 100f
@@ -590,7 +590,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testCancelFrontBufferLayerRender() {
         val squareSize = 100f
@@ -865,7 +865,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testDoubleBufferedContentsNotPersisted() {
         val mOrthoMatrix = FloatArray(16)
