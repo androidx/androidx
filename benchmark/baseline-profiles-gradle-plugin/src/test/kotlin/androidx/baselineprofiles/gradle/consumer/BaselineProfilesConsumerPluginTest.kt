@@ -101,7 +101,7 @@ class BaselineProfilesConsumerPluginTest {
                     namespace 'com.example.namespace'
                 }
                 dependencies {
-                    baselineprofiles(project(":$producerModuleName"))
+                    baselineProfiles(project(":$producerModuleName"))
                 }
             """.trimIndent(),
             suffix = ""
@@ -163,7 +163,7 @@ class BaselineProfilesConsumerPluginTest {
                     }
                 }
                 dependencies {
-                    baselineprofiles(project(":$producerModuleName"))
+                    baselineProfiles(project(":$producerModuleName"))
                 }
             """.trimIndent(),
             suffix = ""
@@ -242,7 +242,7 @@ class BaselineProfilesConsumerPluginTest {
                     }
                 }
                 dependencies {
-                    baselineprofiles(project(":$producerModuleName"))
+                    baselineProfiles(project(":$producerModuleName"))
                 }
                 baselineProfilesProfileConsumer {
                     merge = "all"
@@ -318,7 +318,7 @@ class BaselineProfilesConsumerPluginTest {
                     }
                 }
                 dependencies {
-                    baselineprofiles(project(":$producerModuleName"))
+                    baselineProfiles(project(":$producerModuleName"))
                 }
                 baselineProfilesProfileConsumer {
                     merge = "flavor"
@@ -394,7 +394,7 @@ class BaselineProfilesConsumerPluginTest {
                     namespace 'com.example.namespace'
                 }
                 dependencies {
-                    baselineprofiles(project(":$producerModuleName"))
+                    baselineProfiles(project(":$producerModuleName"))
                 }
             """.trimIndent(),
             suffix = ""
@@ -422,7 +422,7 @@ class BaselineProfilesConsumerPluginTest {
                     namespace 'com.example.namespace'
                 }
                 dependencies {
-                    baselineprofiles(project(":$producerModuleName"))
+                    baselineProfiles(project(":$producerModuleName"))
                 }
             """.trimIndent(),
             suffix = ""
@@ -450,7 +450,7 @@ class BaselineProfilesConsumerPluginTest {
                     namespace 'com.example.namespace'
                 }
                 dependencies {
-                    baselineprofiles(project(":$producerModuleName"))
+                    baselineProfiles(project(":$producerModuleName"))
                 }
             """.trimIndent(),
             suffix = ""
@@ -476,7 +476,7 @@ class BaselineProfilesConsumerPluginTest {
                     namespace 'com.example.namespace'
                 }
                 dependencies {
-                    baselineprofiles(project(":$producerModuleName"))
+                    baselineProfiles(project(":$producerModuleName"))
                 }
                 baselineProfilesProfileConsumer {
                     buildTypeName = "nonExisting"
@@ -504,7 +504,7 @@ class BaselineProfilesConsumerPluginTest {
                     namespace 'com.example.namespace'
                 }
                 dependencies {
-                    baselineprofiles(project(":$producerModuleName"))
+                    baselineProfiles(project(":$producerModuleName"))
                 }
                 baselineProfilesProfileConsumer {
                     buildTypeName = "nonExisting"
@@ -581,7 +581,7 @@ class BaselineProfilesConsumerPluginTest {
                     }
                 }
                 dependencies {
-                    baselineprofiles(project(":$producerModuleName"))
+                    baselineProfiles(project(":$producerModuleName"))
                 }
                 baselineProfilesProfileConsumer {
                     merge = "all"
@@ -668,7 +668,7 @@ private class MockProducerBuildGrade {
                 canBeConsumed = true
                 canBeResolved = false
                 attributes {
-                    attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, "baselineprofile"))
+                    attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, "baselineProfiles"))
                     attribute(Attribute.of("androidx.baselineprofiles.gradle.attributes.BuildType", String), "$buildType")
                     attribute(Attribute.of("androidx.baselineprofiles.gradle.attributes.Flavor", String), "$flavor")
                 }

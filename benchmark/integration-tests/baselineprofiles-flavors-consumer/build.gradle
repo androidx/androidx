@@ -50,7 +50,7 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
 
-    baselineprofiles(project(":benchmark:integration-tests:baselineprofiles-flavors-producer"))
+    baselineProfiles(project(":benchmark:integration-tests:baselineprofiles-flavors-producer"))
 }
 
 baselineProfilesProfileConsumer {
