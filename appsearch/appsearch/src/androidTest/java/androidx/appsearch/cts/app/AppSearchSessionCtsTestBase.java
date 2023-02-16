@@ -3907,6 +3907,27 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testQuery_advancedQueryFeatures_notSupported() throws Exception {
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.NUMERIC_SEARCH));
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.VERBATIM_SEARCH));
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
+
+        // UnsupportedOperationException will be thrown with these queries so no need to
+        // define a schema and index document.
+        SearchSpec.Builder builder = new SearchSpec.Builder();
+        SearchSpec searchSpec1 = builder.setNumericSearchEnabled(true).build();
+        SearchSpec searchSpec2 = builder.setVerbatimSearchEnabled(true).build();
+        SearchSpec searchSpec3 = builder.setListFilterQueryLanguageEnabled(true).build();
+
+        assertThrows(UnsupportedOperationException.class, () ->
+                mDb1.search("\"Hello, world!\"", searchSpec1));
+        assertThrows(UnsupportedOperationException.class, () ->
+                mDb1.search("\"Hello, world!\"", searchSpec2));
+        assertThrows(UnsupportedOperationException.class, () ->
+                mDb1.search("\"Hello, world!\"", searchSpec3));
+    }
+
+    @Test
     public void testQuery_propertyWeights() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SEARCH_SPEC_PROPERTY_WEIGHTS));
 
