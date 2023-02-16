@@ -678,13 +678,13 @@ public class AccessibilityNodeInfoCompat {
          * </p>
          */
         @NonNull
-        @RequiresApi(34)
+        @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
         public static final AccessibilityActionCompat ACTION_SCROLL_IN_DIRECTION =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 34
+                new AccessibilityActionCompat(BuildCompat.isAtLeastU()
                         ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_IN_DIRECTION
                         : null,
                         // TODO (267511848): update ID value once U resources are finalized.
-                        Build.VERSION.SDK_INT >= 34
+                        BuildCompat.isAtLeastU()
                                 ? android.R.id.accessibilityActionScrollInDirection : -1,
                         null, null, null);
 
