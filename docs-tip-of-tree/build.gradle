@@ -22,6 +22,7 @@ dependencies {
     docs(project(":appactions:interaction:interaction-capabilities-safety"))
     docs(project(":appactions:interaction:interaction-proto"))
     docs(project(":appactions:interaction:interaction-service"))
+    docs(project(":appactions:interaction:interaction-service-proto"))
     docs(project(":appcompat:appcompat"))
     docs(project(":appcompat:appcompat-resources"))
     docs(project(":appsearch:appsearch"))
