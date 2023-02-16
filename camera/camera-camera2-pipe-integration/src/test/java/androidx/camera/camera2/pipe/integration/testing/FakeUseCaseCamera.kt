@@ -31,7 +31,6 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.SessionConfig
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
@@ -71,8 +70,6 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         values: Map<CaptureRequest.Key<*>, Any>,
         optionPriority: Config.OptionPriority,
         tags: Map<String, Any>,
-        streams: Set<StreamId>?,
-        template: RequestTemplate?,
         listeners: Set<Request.Listener>
     ): Deferred<Unit> {
         addParameterCalls.add(values)
@@ -88,10 +85,6 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         listeners: Set<Request.Listener>
     ): Deferred<Unit> {
         setConfigCalls.add(RequestParameters(type, config, tags))
-        return CompletableDeferred(Unit)
-    }
-
-    override fun setSessionConfigAsync(sessionConfig: SessionConfig): Deferred<Unit> {
         return CompletableDeferred(Unit)
     }
 

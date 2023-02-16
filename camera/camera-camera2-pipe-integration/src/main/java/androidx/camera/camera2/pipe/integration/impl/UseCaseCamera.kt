@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
@@ -155,6 +156,24 @@ class UseCaseCameraImpl @Inject constructor(
     ): Deferred<Unit> = requestControl.addParametersAsync(
         values = values,
         optionPriority = priority
+    )
+
+    private fun UseCaseCameraRequestControl.setSessionConfigAsync(
+        sessionConfig: SessionConfig
+    ): Deferred<Unit> = setConfigAsync(
+        type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
+        config = sessionConfig.implementationOptions,
+        tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
+        listeners = setOf(
+            CameraCallbackMap.createFor(
+                sessionConfig.repeatingCameraCaptureCallbacks,
+                threads.backgroundExecutor
+            )
+        ),
+        template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
+        streams = useCaseGraphConfig.getStreamIdsFromSurfaces(
+            sessionConfig.repeatingCaptureConfig.surfaces
+        ),
     )
 
     override fun toString(): String = "UseCaseCamera-$debugId"

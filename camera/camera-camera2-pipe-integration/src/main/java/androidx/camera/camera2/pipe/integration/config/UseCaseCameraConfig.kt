@@ -173,7 +173,19 @@ data class UseCaseGraphConfig(
     val graph: CameraGraph,
     val surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
     val cameraStateAdapter: CameraStateAdapter,
-)
+) {
+    fun getStreamIdsFromSurfaces(
+        deferrableSurfaces: Collection<DeferrableSurface>
+    ): Set<StreamId> {
+        val streamIds = mutableSetOf<StreamId>()
+        deferrableSurfaces.forEach {
+            surfaceToStreamMap[it]?.let { streamId ->
+                streamIds.add(streamId)
+            }
+        }
+        return streamIds
+    }
+}
 
 /** Dagger subcomponent for a single [UseCaseCamera] instance. */
 @UseCaseCameraScope
