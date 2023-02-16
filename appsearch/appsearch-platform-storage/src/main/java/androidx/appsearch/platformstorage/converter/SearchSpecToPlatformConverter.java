@@ -76,8 +76,6 @@ public final class SearchSpecToPlatformConverter {
                 .setSnippetCount(jetpackSearchSpec.getSnippetCount())
                 .setSnippetCountPerProperty(jetpackSearchSpec.getSnippetCountPerProperty())
                 .setMaxSnippetSize(jetpackSearchSpec.getMaxSnippetSize());
-        //TODO(b/262512396): add the enabledFeatures set from the SearchSpec once it is synced
-        // across to platform.
         if (jetpackSearchSpec.getResultGroupingTypeFlags() != 0) {
             platformBuilder.setResultGrouping(
                     jetpackSearchSpec.getResultGroupingTypeFlags(),
@@ -94,6 +92,18 @@ public final class SearchSpecToPlatformConverter {
             throw new UnsupportedOperationException(
                     "Property weights are not supported with this backend/Android API level "
                             + "combination.");
+        }
+
+        if (!jetpackSearchSpec.getEnabledFeatures().isEmpty()) {
+            if (jetpackSearchSpec.isNumericSearchEnabled()
+                    || jetpackSearchSpec.isVerbatimSearchEnabled()
+                    || jetpackSearchSpec.isListFilterQueryLanguageEnabled()) {
+                // TODO(b/262512396) : add isAtLeastU check to allow these after Android U.
+                throw new UnsupportedOperationException(
+                        "Advanced query features (NUMERIC_SEARCH, VERBATIM_SEARCH and "
+                                + "LIST_FILTER_QUERY_LANGUAGE) are not supported with this "
+                                + "backend/Android API level combination.");
+            }
         }
 
         if (jetpackSearchSpec.getJoinSpec() != null) {
