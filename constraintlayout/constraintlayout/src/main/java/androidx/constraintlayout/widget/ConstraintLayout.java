@@ -101,11 +101,7 @@ import java.util.HashMap;
  * <p>
  * The general concept is to constrain a given side of a widget to another side of any other widget.
  * <p>
- * For example, in order to position button B to the right of button A (Fig. 1):
- * <br><div align="center">
- * <img width="300px" src="resources/images/relative-positioning.png">
- * <br><b><i>Fig. 1 - Relative Positioning Example</i></b>
- * </div>
+ * For example, in order to position button B to the right of button A:
  * </p>
  * <p>
  * you would need to do:
@@ -120,12 +116,8 @@ import java.util.HashMap;
  * B to be constrained to the right side of button A.
  * Such a position constraint means that the system will try to have
  * both sides share the same location.
- * <br><div align="center" >
- * <img width="350px" src="resources/images/relative-positioning-constraints.png">
- * <br><b><i>Fig. 2 - Relative Positioning Constraints</i></b>
- * </div>
  *
- * <p>Here is the list of available constraints (Fig. 2):</p>
+ * <p>Here is the list of available constraints:</p>
  * <ul>
  * <li>{@code layout_constraintLeft_toLeftOf}</li>
  * <li>{@code layout_constraintLeft_toRightOf}</li>
@@ -153,14 +145,9 @@ import java.util.HashMap;
  * </p>
  *
  * <h3 id="Margins"> Margins </h3>
- * <p>
- * <div align="center" >
- * <img width="325px" src="resources/images/relative-positioning-margin.png">
- * <br><b><i>Fig. 3 - Relative Positioning Margins</i></b>
- * </div>
  * <p>If side margins are set, they will be applied to the corresponding constraints
- * (if they exist) (Fig. 3), enforcing the margin as a space between
- * the target and the source side. The usual layout margin attributes can be used to this effect:
+ * (if they exist), enforcing the margin as a space between the target and the source side.
+ * The usual layout margin attributes can be used to this effect:</p>
  * <ul>
  * <li>{@code android:layout_marginStart}</li>
  * <li>{@code android:layout_marginEnd}</li>
@@ -206,13 +193,10 @@ import java.util.HashMap;
  * Unless the {@code ConstraintLayout} happens to have the exact same size as the
  * {@code Button}, both constraints
  * cannot be satisfied at the same time (both sides cannot be where we want them to be).
- * <p><div align="center" >
- * <img width="325px" src="resources/images/centering-positioning.png">
- * <br><b><i>Fig. 4 - Centering Positioning</i></b>
- * </div>
+ * </p>
  * <p>
  * What happens in this case is that the constraints act like opposite forces
- * pulling the widget apart equally (Fig. 4); such that the widget will end up being centered
+ * pulling the widget apart equally; such that the widget will end up being centered
  * in the parent container.
  * This will apply similarly for vertical constraints.
  * </p>
@@ -225,14 +209,10 @@ import java.util.HashMap;
  * <li>{@code layout_constraintHorizontal_bias}</li>
  * <li>{@code layout_constraintVertical_bias}</li>
  * </ul>
- * <p><div align="center" >
- * <img width="325px" src="resources/images/centering-positioning-bias.png">
- * <br><b><i>Fig. 5 - Centering Positioning with Bias</i></b>
- * </div>
  * <p>
  * For example the following will make the left side with a 30% bias instead of the default 50%,
  * such that the left side will be
- * shorter, with the widget leaning more toward the left side (Fig. 5):
+ * shorter, with the widget leaning more toward the left side:
  * </p>
  * <pre>{@code
  *         <androidx.constraintlayout.widget.ConstraintLayout ...>
@@ -251,19 +231,13 @@ import java.util.HashMap;
  * <p>
  * You can constrain a widget center relative to another widget center,
  * at an angle and a distance. This allows
- * you to position a widget on a circle (see Fig. 6). The following attributes can be used:
+ * you to position a widget on a circle. The following attributes can be used:
  * <ul>
  * <li>{@code layout_constraintCircle} : references another widget id</li>
  * <li>{@code layout_constraintCircleRadius} : the distance to the other widget center</li>
  * <li>{@code layout_constraintCircleAngle} : which angle the widget should be at
  * (in degrees, from 0 to 360)</li>
  * </ul>
- * <p><div align="center" >
- * <img width="325px" src="resources/images/circle1.png">
- * <img width="325px" src="resources/images/circle2.png">
- * <br><b><i>Fig. 6 - Circular Positioning</i></b>
- * </div>
- * <br><br>
  * <pre>{@code
  *  <Button android:id="@+id/buttonA" ... />
  *  <Button android:id="@+id/buttonB" ...
@@ -289,16 +263,12 @@ import java.util.HashMap;
  * but any margins will be as if equals to zero</li>
  * </ul>
  *
- * <p><div align="center" >
- * <img width="350px" src="resources/images/visibility-behavior.png">
- * <br><b><i>Fig. 7 - Visibility Behavior</i></b>
- * </div>
  * <p>This specific behavior allows to build layouts where you can
  * temporarily mark widgets as being {@code GONE},
- * without breaking the layout (Fig. 7), which can be particularly useful
- * when doing simple layout animations.
+ * without breaking the layout, which can be particularly useful
+ * when doing simple layout animations.</p>
  * <p><b>Note: </b>The margin used will be the margin that B had
- * defined when connecting to A (see Fig. 7 for an example).
+ * defined when connecting to A.
  * In some cases, this might not be the margin you want
  * (e.g. A had a 100dp margin to the side of its container,
  * B only a 16dp to A, marking
@@ -332,15 +302,10 @@ import java.util.HashMap;
  * <li>Using {@code WRAP_CONTENT}, which will ask the widget to compute its own size</li>
  * <li>Using {@code 0dp}, which is the equivalent of "{@code MATCH_CONSTRAINT}"</li>
  * </ul>
- * <p><div align="center" >
- * <img width="325px" src="resources/images/dimension-match-constraints.png">
- * <br><b><i>Fig. 8 - Dimension Constraints</i></b>
- * </div>
- * The first two works in a similar fashion as other layouts.
+ * <p> The first two works in a similar fashion as other layouts.
  * The last one will resize the widget in such a way as
- * matching the constraints that are set (see Fig. 8, (a) is wrap_content,
- * (b) is 0dp). If margins are set, they will be taken in account
- * in the computation (Fig. 8, (c) with 0dp).
+ * matching the constraints that are set. If margins are set, they will be taken in account
+ * in the computation.</p>
  * <p>
  * <b>Important: </b> {@code MATCH_PARENT} is not recommended for widgets
  * contained in a {@code ConstraintLayout}. Similar behavior can
@@ -446,22 +411,13 @@ import java.util.HashMap;
  * <b>Creating a chain</b>
  * <p>
  * A set of widgets are considered a chain if they are linked together via a
- * bi-directional connection (see Fig. 9, showing a minimal chain, with two widgets).
+ * bi-directional connection.
  * </p>
- * <p><div align="center" >
- * <img width="325px" src="resources/images/chains.png">
- * <br><b><i>Fig. 9 - Chain</i></b>
- * </div>
- * <p>
  * <b>Chain heads</b>
  * <p>
  * Chains are controlled by attributes set on the first element of the chain
  * (the "head" of the chain):
  * </p>
- * <p><div align="center" >
- * <img width="400px" src="resources/images/chains-head.png">
- * <br><b><i>Fig. 10 - Chain Head</i></b>
- * </div>
  * <p>The head is the left-most widget for horizontal chains,
  * and the top-most widget for vertical chains.</p>
  * <b>Margins in chains</b>
@@ -482,11 +438,6 @@ import java.util.HashMap;
  * The horizontal or vertical
  * bias attribute of the child will then affect the positioning of the packed elements</li>
  * </ul>
- * <p><div align="center" >
- * <img width="600px" src="resources/images/chains-styles.png">
- * <br><b><i>Fig. 11 - Chains Styles</i></b>
- * </div>
- * </p>
  * <b>Weighted chains</b>
  * <p>The default behavior of a chain is to spread the elements equally in the available space.
  * If one or more elements are using {@code MATCH_CONSTRAINT}, they
