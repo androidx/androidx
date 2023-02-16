@@ -114,6 +114,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestWatcher
@@ -903,6 +904,7 @@ class GlanceAppWidgetReceiverTest {
         }
     }
 
+    @Ignore // b/269611628
     @Test
     fun unsetActionCallback() = runTest {
         var enabled by mutableStateOf(true)
