@@ -74,8 +74,6 @@ public final class MediaRouteDescriptor {
     static final String KEY_ALLOWED_PACKAGES = "allowedPackages";
 
     final Bundle mBundle;
-    List<String> mGroupMemberIds;
-    List<IntentFilter> mControlFilters;
 
     MediaRouteDescriptor(Bundle bundle) {
         mBundle = bundle;
@@ -105,17 +103,10 @@ public final class MediaRouteDescriptor {
     @RestrictTo(LIBRARY)
     @NonNull
     public List<String> getGroupMemberIds() {
-        ensureGroupMemberIds();
-        return mGroupMemberIds;
-    }
-
-    void ensureGroupMemberIds() {
-        if (mGroupMemberIds == null) {
-            mGroupMemberIds = mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS);
-            if (mGroupMemberIds == null) {
-                mGroupMemberIds = Collections.emptyList();
-            }
+        if (!mBundle.containsKey(KEY_GROUP_MEMBER_IDS)) {
+            return new ArrayList<>();
         }
+        return new ArrayList<>(mBundle.getStringArrayList(KEY_GROUP_MEMBER_IDS));
     }
 
     /**
@@ -237,17 +228,10 @@ public final class MediaRouteDescriptor {
      */
     @NonNull
     public List<IntentFilter> getControlFilters() {
-        ensureControlFilters();
-        return mControlFilters;
-    }
-
-    void ensureControlFilters() {
-        if (mControlFilters == null) {
-            mControlFilters = mBundle.getParcelableArrayList(KEY_CONTROL_FILTERS);
-            if (mControlFilters == null) {
-                mControlFilters = Collections.emptyList();
-            }
+        if (!mBundle.containsKey(KEY_CONTROL_FILTERS)) {
+            return new ArrayList<>();
         }
+        return new ArrayList<>(mBundle.getParcelableArrayList(KEY_CONTROL_FILTERS));
     }
 
     /**
@@ -374,6 +358,9 @@ public final class MediaRouteDescriptor {
     @RestrictTo(LIBRARY)
     @NonNull
     public Set<String> getAllowedPackages() {
+        if (!mBundle.containsKey(KEY_ALLOWED_PACKAGES)) {
+            return new HashSet<>();
+        }
         return new HashSet<>(mBundle.getStringArrayList(KEY_ALLOWED_PACKAGES));
     }
 
@@ -381,10 +368,9 @@ public final class MediaRouteDescriptor {
      * Returns true if the route descriptor has all of the required fields.
      */
     public boolean isValid() {
-        ensureControlFilters();
         if (TextUtils.isEmpty(getId())
                 || TextUtils.isEmpty(getName())
-                || mControlFilters.contains(null)) {
+                || getControlFilters().contains(null)) {
             return false;
         }
         return true;
@@ -444,8 +430,9 @@ public final class MediaRouteDescriptor {
      */
     public static final class Builder {
         private final Bundle mBundle;
-        private ArrayList<String> mGroupMemberIds;
-        private ArrayList<IntentFilter> mControlFilters;
+
+        private List<String> mGroupMemberIds = new ArrayList<>();
+        private List<IntentFilter> mControlFilters = new ArrayList<>();
         private Set<String> mAllowedPackages = new HashSet<>();
 
         /**
@@ -471,14 +458,8 @@ public final class MediaRouteDescriptor {
 
             mBundle = new Bundle(descriptor.mBundle);
 
-            if (!descriptor.getGroupMemberIds().isEmpty()) {
-                mGroupMemberIds = new ArrayList<String>(descriptor.getGroupMemberIds());
-            }
-
-            if (!descriptor.getControlFilters().isEmpty()) {
-                mControlFilters = new ArrayList<IntentFilter>(descriptor.mControlFilters);
-            }
-
+            mGroupMemberIds = descriptor.getGroupMemberIds();
+            mControlFilters = descriptor.getControlFilters();
             mAllowedPackages = descriptor.getAllowedPackages();
         }
 
@@ -506,9 +487,7 @@ public final class MediaRouteDescriptor {
         @RestrictTo(LIBRARY)
         @NonNull
         public Builder clearGroupMemberIds() {
-            if (mGroupMemberIds != null) {
-                mGroupMemberIds.clear();
-            }
+            mGroupMemberIds.clear();
             return this;
         }
 
@@ -527,9 +506,6 @@ public final class MediaRouteDescriptor {
                 throw new IllegalArgumentException("groupMemberId must not be empty");
             }
 
-            if (mGroupMemberIds == null) {
-                mGroupMemberIds = new ArrayList<>();
-            }
             if (!mGroupMemberIds.contains(groupMemberId)) {
                 mGroupMemberIds.add(groupMemberId);
             }
@@ -573,10 +549,7 @@ public final class MediaRouteDescriptor {
             if (TextUtils.isEmpty(memberRouteId)) {
                 throw new IllegalArgumentException("memberRouteId must not be empty");
             }
-
-            if (mGroupMemberIds != null) {
-                mGroupMemberIds.remove(memberRouteId);
-            }
+            mGroupMemberIds.remove(memberRouteId);
             return this;
         }
 
@@ -705,9 +678,7 @@ public final class MediaRouteDescriptor {
          */
         @NonNull
         public Builder clearControlFilters() {
-            if (mControlFilters != null) {
-                mControlFilters.clear();
-            }
+            mControlFilters.clear();
             return this;
         }
 
@@ -720,9 +691,6 @@ public final class MediaRouteDescriptor {
                 throw new IllegalArgumentException("filter must not be null");
             }
 
-            if (mControlFilters == null) {
-                mControlFilters = new ArrayList<IntentFilter>();
-            }
             if (!mControlFilters.contains(filter)) {
                 mControlFilters.add(filter);
             }
@@ -923,12 +891,8 @@ public final class MediaRouteDescriptor {
          */
         @NonNull
         public MediaRouteDescriptor build() {
-            if (mControlFilters != null) {
-                mBundle.putParcelableArrayList(KEY_CONTROL_FILTERS, mControlFilters);
-            }
-            if (mGroupMemberIds != null) {
-                mBundle.putStringArrayList(KEY_GROUP_MEMBER_IDS, mGroupMemberIds);
-            }
+            mBundle.putParcelableArrayList(KEY_CONTROL_FILTERS, new ArrayList<>(mControlFilters));
+            mBundle.putStringArrayList(KEY_GROUP_MEMBER_IDS, new ArrayList<>(mGroupMemberIds));
             mBundle.putStringArrayList(KEY_ALLOWED_PACKAGES, new ArrayList<>(mAllowedPackages));
             return new MediaRouteDescriptor(mBundle);
         }
