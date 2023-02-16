@@ -20,8 +20,7 @@ import androidx.compose.material.Text as ComposeText
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.widget.Toast
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
@@ -108,7 +107,6 @@ class ScrollableAppWidget : GlanceAppWidget() {
 
 @Composable
 private fun ScrollColumn(modifier: GlanceModifier) {
-    val context = LocalContext.current
     LazyColumn(modifier) {
         item {
             SectionHeading(
@@ -159,13 +157,7 @@ private fun ScrollColumn(modifier: GlanceModifier) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .clickable {
-                        Handler(context.mainLooper).post {
-                            Toast.makeText(
-                                context,
-                                "Click from list item $index",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        Log.i("ScrollableAppWidget", "Click from list item $index")
                     }
             )
         }
