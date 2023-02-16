@@ -870,6 +870,7 @@ package androidx.wear.tiles {
   }
 
   public static final class RequestBuilders.ResourcesRequest {
+    method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters getDeviceConfiguration();
     method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
     method public java.util.List<java.lang.String!> getResourceIds();
     method public String getVersion();
@@ -879,11 +880,14 @@ package androidx.wear.tiles {
     ctor public RequestBuilders.ResourcesRequest.Builder();
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder addResourceId(String);
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest build();
+    method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setDeviceConfiguration(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setVersion(String);
   }
 
   public static final class RequestBuilders.TileRequest {
+    method public androidx.wear.protolayout.StateBuilders.State getCurrentState();
+    method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters getDeviceConfiguration();
     method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
     method public androidx.wear.tiles.StateBuilders.State? getState();
   }
@@ -891,6 +895,8 @@ package androidx.wear.tiles {
   public static final class RequestBuilders.TileRequest.Builder {
     ctor public RequestBuilders.TileRequest.Builder();
     method public androidx.wear.tiles.RequestBuilders.TileRequest build();
+    method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setCurrentState(androidx.wear.protolayout.StateBuilders.State);
+    method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setDeviceConfiguration(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setState(androidx.wear.tiles.StateBuilders.State);
   }
