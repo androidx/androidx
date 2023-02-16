@@ -31,6 +31,7 @@ import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.Checkable;
@@ -41,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +58,9 @@ import java.util.List;
 public class UiObject2 implements Searchable {
 
     private static final String TAG = UiObject2.class.getSimpleName();
+
+    // default percentage of each scroll in scrollUntil().
+    private static final float DEFAULT_SCROLL_UNTIL_PERCENT = 0.8f;
 
     // Default gesture speeds and timeouts.
     private static final int DEFAULT_SWIPE_SPEED = 5_000; // dp/s
@@ -650,6 +655,95 @@ public class UiObject2 implements Searchable {
     }
 
     /**
+     * Perform scroll actions in certain direction until a {@code condition} is satisfied or scroll
+     * has finished, e.g. to scroll until an object contain certain text is found:
+     * <pre> mScrollableUiObject2.scrollUntil(Direction.DOWN, Until.findObject(By.textContains
+     * ("sometext"))); </pre>
+     *
+     * @param direction The direction in which to scroll.
+     * @param condition The {@link Condition} to evaluate.
+     * @return If the condition is satisfied.
+     */
+    public <U> U scrollUntil(@NonNull Direction direction,
+            @NonNull Condition<? super UiObject2, U> condition) {
+        Rect bounds = getVisibleBoundsForGestures();
+        int speed = (int) (DEFAULT_SCROLL_SPEED * mDisplayDensity);
+
+        EventCondition<Boolean> scrollFinished = Until.scrollFinished(direction);
+
+        // To scroll, we swipe in the opposite direction
+        final Direction swipeDirection = Direction.reverse(direction);
+        while (true) {
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+                // b/267804786: clearing cache on API 28 before applying the condition.
+                clearCache();
+            }
+            U result = condition.apply(this);
+            if (result != null && !Boolean.FALSE.equals(result)) {
+                // given condition is satisfied.
+                return result;
+            }
+            PointerGesture swipe = Gestures.swipeRect(bounds, swipeDirection,
+                    DEFAULT_SCROLL_UNTIL_PERCENT, speed, getDisplayId()).pause(250);
+            if (mGestureController.performGestureAndWait(scrollFinished, SCROLL_TIMEOUT, swipe)) {
+                // Scroll has finished.
+                break;
+            }
+        }
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            // b/267804786: clearing cache on API 28 before applying the condition.
+            clearCache();
+        }
+        return condition.apply(this);
+    }
+
+    /**
+     * Perform scroll actions in certain direction until a {@code condition} is satisfied or scroll
+     * has finished, e.g. to scroll until a new window has appeared:
+     * <pre> mScrollableUiObject2.scrollUntil(Direction.DOWN, Until.newWindow()); </pre>
+     *
+     * @param direction The direction in which to scroll.
+     * @param condition The {@link EventCondition} to wait for.
+     * @return The value obtained after applying the condition.
+     */
+    public <U> U scrollUntil(@NonNull Direction direction, @NonNull EventCondition<U> condition) {
+        Rect bounds = getVisibleBoundsForGestures();
+        int speed = (int) (DEFAULT_SCROLL_SPEED * mDisplayDensity);
+
+        // combine the input condition with scroll finished condition.
+        EventCondition<Boolean> scrollFinished = Until.scrollFinished(direction);
+        EventCondition<Boolean> combinedEventCondition = new EventCondition<Boolean>() {
+            @Override
+            public Boolean getResult() {
+                if (scrollFinished.getResult()) {
+                    // scroll has finished.
+                    return true;
+                }
+                U result = condition.getResult();
+                return result != null && !Boolean.FALSE.equals(result);
+            }
+
+            @Override
+            public boolean accept(AccessibilityEvent event) {
+                return condition.accept(event) || scrollFinished.accept(event);
+            }
+        };
+
+        // To scroll, we swipe in the opposite direction
+        final Direction swipeDirection = Direction.reverse(direction);
+        while (true) {
+            PointerGesture swipe = Gestures.swipeRect(bounds, swipeDirection,
+                    DEFAULT_SCROLL_UNTIL_PERCENT, speed, getDisplayId()).pause(250);
+            if (mGestureController.performGestureAndWait(combinedEventCondition, SCROLL_TIMEOUT,
+                    swipe)) {
+                // Either scroll has finished or the accessibility event has appeared.
+                break;
+            }
+        }
+        return condition.getResult();
+    }
+
+    /**
      * Performs a fling gesture on this object.
      *
      * @param direction The direction in which to fling.
@@ -784,6 +878,32 @@ public class UiObject2 implements Searchable {
             }
         }
         return mCachedNode;
+    }
+
+    /**
+     * Clear the a11y cache.
+     * @throws Exception
+     */
+    @SuppressLint("SoonBlockedPrivateApi") // Only used in API 28
+    private void clearCache() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Log.d(TAG, String.format("clearCache() reflection is not available on API >= 33,"
+                    + " current API: %d", Build.VERSION.SDK_INT));
+            return;
+        }
+        try {
+            Class<?> clazz = Class.forName(
+                    "android.view.accessibility.AccessibilityInteractionClient");
+            Method getInstance = clazz.getDeclaredMethod("getInstance");
+            Object instance = getInstance.invoke(null);
+            if (instance != null) {
+                Method clearCache = instance.getClass().getDeclaredMethod("clearCache");
+                clearCache.invoke(instance);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Fail to call AccessibilityInteractionClient#clearCache() reflection", e);
+        }
+
     }
 
     UiDevice getDevice() {
