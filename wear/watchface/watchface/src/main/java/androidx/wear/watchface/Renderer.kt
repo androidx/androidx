@@ -33,6 +33,7 @@ import android.opengl.EGLSurface
 import android.opengl.GLES20
 import android.os.Build
 import android.util.Log
+import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.CallSuper
 import androidx.annotation.IntDef
@@ -367,6 +368,23 @@ constructor(
     ): Bitmap
 
     /**
+     * Renders the watch face into a [Surface] with the user style specified by the
+     * [currentUserStyleRepository].
+     *
+     * @param zonedDateTime The [ZonedDateTime] to use when rendering the watch face
+     * @param renderParameters The [RenderParameters] to use when rendering the watch face
+     * @param surface The [Surface] to render into. This is assumed to have the same dimensions as
+     * the screen.
+     */
+    @Suppress("HiddenAbstractMethod")
+    @UiThread
+    internal abstract fun renderScreenshotToSurface(
+        zonedDateTime: ZonedDateTime,
+        renderParameters: RenderParameters,
+        surface: Surface
+    )
+
+    /**
      * Called when the [RenderParameters] has been updated. Will always be called before the first
      * call to [CanvasRenderer.render] or [GlesRenderer.render].
      */
@@ -597,6 +615,23 @@ constructor(
 
                 return bitmap
             }
+
+        internal override fun renderScreenshotToSurface(
+            zonedDateTime: ZonedDateTime,
+            renderParameters: RenderParameters,
+            surface: Surface
+        ) {
+            val prevRenderParameters = this.renderParameters
+            val originalIsForScreenshot = renderParameters.isForScreenshot
+
+            renderParameters.isForScreenshot = true
+            this.renderParameters = renderParameters
+            val canvas = surface.lockHardwareCanvas()
+            renderAndComposite(canvas, zonedDateTime)
+            surface.unlockCanvasAndPost(canvas)
+            this.renderParameters = prevRenderParameters
+            renderParameters.isForScreenshot = originalIsForScreenshot
+        }
 
         private fun renderAndComposite(canvas: Canvas, zonedDateTime: ZonedDateTime) {
             // Usually renderParameters.watchFaceWatchFaceLayers will be non-empty.
@@ -1381,14 +1416,77 @@ constructor(
                             pixelBuf
                         )
                         // The image is flipped when using read pixels because the first pixel in
-                        // the
-                        // OpenGL buffer is in bottom left.
+                        // the OpenGL buffer is in bottom left.
                         verticalFlip(pixelBuf, width, height)
                         bitmap.copyPixelsFromBuffer(pixelBuf)
                     }
                 }
                 return bitmap
             }
+
+        internal override fun renderScreenshotToSurface(
+            zonedDateTime: ZonedDateTime,
+            renderParameters: RenderParameters,
+            surface: Surface
+        ) {
+            val prevRenderParameters = this.renderParameters
+            val originalIsForScreenshot = renderParameters.isForScreenshot
+
+            renderParameters.isForScreenshot = true
+            this.renderParameters = renderParameters
+
+            runBlocking {
+                glContextLock.withLock {
+                    val tempEglSurface = EGL14.eglCreateWindowSurface(
+                        eglDisplay,
+                        eglConfig,
+                        surface,
+                        eglSurfaceAttribList,
+                        0
+                    )
+
+                    if (
+                        !EGL14.eglMakeCurrent(
+                            eglDisplay,
+                            tempEglSurface,
+                            tempEglSurface,
+                            eglUiThreadContext
+                        )
+                    ) {
+                        throw IllegalStateException(
+                            "eglMakeCurrent failed, eglGetError() = " + EGL14.eglGetError()
+                        )
+                    }
+
+                    try {
+                        // NB we assume the surface has the same dimensions as the screen.
+                        GLES20.glViewport(
+                            0,
+                            0,
+                            surfaceHolder.surfaceFrame.width(),
+                            surfaceHolder.surfaceFrame.height()
+                        )
+
+                        renderAndComposite(zonedDateTime)
+
+                        if (!EGL14.eglSwapBuffers(eglDisplay, tempEglSurface)) {
+                            Log.w(TAG, "eglSwapBuffers failed")
+                        }
+                    } finally {
+                        EGL14.eglMakeCurrent(
+                            eglDisplay,
+                            EGL14.EGL_NO_SURFACE,
+                            EGL14.EGL_NO_SURFACE,
+                            EGL14.EGL_NO_CONTEXT
+                        )
+                        EGL14.eglDestroySurface(eglDisplay, tempEglSurface)
+                    }
+                }
+            }
+
+            this.renderParameters = prevRenderParameters
+            renderParameters.isForScreenshot = originalIsForScreenshot
+        }
 
         private fun renderAndComposite(zonedDateTime: ZonedDateTime) {
             GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ZERO)
