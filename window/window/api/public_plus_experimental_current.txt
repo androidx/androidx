@@ -90,7 +90,7 @@ package androidx.window.embedding {
     ctor public ActivityRule.Builder(java.util.Set<androidx.window.embedding.ActivityFilter> filters);
     method public androidx.window.embedding.ActivityRule build();
     method public androidx.window.embedding.ActivityRule.Builder setAlwaysExpand(boolean alwaysExpand);
-    method public androidx.window.embedding.ActivityRule.Builder setTag(String tag);
+    method public androidx.window.embedding.ActivityRule.Builder setTag(String? tag);
   }
 
   public final class ActivityStack {
