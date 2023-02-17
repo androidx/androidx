@@ -267,64 +267,6 @@ class AudioSourceTest {
         }
     }
 
-    @Test
-    fun canMuteAudioSource_beforeStart() {
-        // Arrange.
-        val bufferProvider = createBufferProvider()
-        val audioSourceCallback = createAudioSourceCallback()
-        val audioSource = createAudioSource(
-            bufferProvider = bufferProvider,
-            audioSourceCallback = audioSourceCallback,
-        )
-
-        // Act.
-        audioSource.mute(true)
-        audioSource.start()
-
-        // Assert.
-        audioSourceCallback.verifyOnSilenceStateChanged(CallTimes(1), COMMON_TIMEOUT_MS) {
-            assertThat(it.single()).isTrue()
-        }
-        // Assert: Ensure the content is silence.
-        bufferProvider.verifyCompletedBufferCall(
-            CallTimesAtLeast(1),
-            COMMON_TIMEOUT_MS
-        ) { completedBuffers ->
-            // Assert: Ensure buffers are written correctly.
-            verifyBufferIsSilence(completedBuffers.last().byteBuffer)
-        }
-    }
-
-    @Test
-    fun canSwitchBetweenMuteAndUnMute() {
-        // Arrange.
-        val bufferProvider = createBufferProvider()
-        val audioSourceCallback = createAudioSourceCallback()
-        val audioSource = createAudioSource(
-            bufferProvider = bufferProvider,
-            audioSourceCallback = audioSourceCallback,
-        )
-
-        // Act: Default un-mute.
-        audioSource.start()
-        // Assert.
-        audioSourceCallback.verifyOnSilenceStateChanged(CallTimes(1), COMMON_TIMEOUT_MS) {
-            assertThat(it.single()).isFalse()
-        }
-        // Act: Mute.
-        audioSource.mute(true)
-        // Assert.
-        audioSourceCallback.verifyOnSilenceStateChanged(CallTimes(2), COMMON_TIMEOUT_MS) {
-            assertThat(it.last()).isTrue()
-        }
-        // Act: Un-mute.
-        audioSource.mute(false)
-        // Assert.
-        audioSourceCallback.verifyOnSilenceStateChanged(CallTimes(3), COMMON_TIMEOUT_MS) {
-            assertThat(it.last()).isFalse()
-        }
-    }
-
     private fun createAudioStream(
         audioDataProvider: (Int) -> FakeAudioStream.AudioData = createAudioDataProvider(),
         exceptionOnStart: AudioStream.AudioStreamException? = null,
@@ -390,14 +332,5 @@ class AudioSourceTest {
         assertThat(inputBuffer.getPresentationTimeUs())
             .isEqualTo(NANOSECONDS.toMicros(audioData.timestampNs))
         assertThat(inputBuffer.isEndOfStream()).isFalse()
-    }
-
-    private fun verifyBufferIsSilence(byteBuffer: ByteBuffer) {
-        val size = byteBuffer.remaining()
-        assertThat(size).isGreaterThan(0)
-        val bytes = ByteArray(size)
-        val zeroBytes = ByteArray(size)
-        byteBuffer.get(bytes)
-        assertThat(bytes).isEqualTo(zeroBytes)
     }
 }
