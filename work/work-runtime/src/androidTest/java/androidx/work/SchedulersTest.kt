@@ -23,7 +23,9 @@ import androidx.work.impl.Scheduler
 import androidx.work.impl.StartStopTokens
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.WorkLauncherImpl
 import androidx.work.impl.background.greedy.GreedyScheduler
+import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.testutils.TrackingWorkerFactory
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
@@ -43,6 +45,9 @@ class SchedulersTest {
     val taskExecutor = WorkManagerTaskExecutor(configuration.taskExecutor)
     val db = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
     val processor = Processor(context, configuration, taskExecutor, db)
+    val launcher = WorkLauncherImpl(processor, taskExecutor)
+    val trackers = Trackers(context, taskExecutor)
+    val greedyScheduler = GreedyScheduler(context, configuration, trackers, processor, launcher)
 
     @Test
     fun runDependency() {
@@ -55,9 +60,8 @@ class SchedulersTest {
 
             override fun hasLimitedSchedulingSlots() = false
         }
-        val schedulers = mutableListOf<Scheduler>(trackingScheduler)
-        val wm = WorkManagerImpl(context, configuration, taskExecutor, db, schedulers, processor)
-        schedulers.add(GreedyScheduler(context, configuration, wm.trackers, wm))
+        val wm = WorkManagerImpl(context, configuration, taskExecutor, db,
+            listOf(trackingScheduler, greedyScheduler), processor, trackers)
 
         val workRequest = OneTimeWorkRequest.from(TestWorker::class.java)
         val dependency = OneTimeWorkRequest.from(TestWorker::class.java)
@@ -83,9 +87,8 @@ class SchedulersTest {
 
             override fun hasLimitedSchedulingSlots() = false
         }
-        val schedulers = mutableListOf<Scheduler>(trackingScheduler)
-        val wm = WorkManagerImpl(context, configuration, taskExecutor, db, schedulers, processor)
-        schedulers.add(GreedyScheduler(context, configuration, wm.trackers, wm))
+        val wm = WorkManagerImpl(context, configuration, taskExecutor, db,
+            listOf(trackingScheduler, greedyScheduler), processor, trackers)
 
         val workRequest = OneTimeWorkRequest.from(FailureWorker::class.java)
         wm.enqueue(workRequest)
@@ -110,7 +113,7 @@ class SchedulersTest {
             override fun schedule(vararg workSpecs: WorkSpec) {
                 scheduledSpecs.addAll(workSpecs)
                 workSpecs.forEach {
-                    if (it.runAttemptCount == 0) wm.startWork(tokens.tokenFor(it))
+                    if (it.runAttemptCount == 0) launcher.startWork(tokens.tokenFor(it))
                 }
             }
 
@@ -130,7 +133,7 @@ class SchedulersTest {
             wm.getWorkInfoByIdLiveData(request.id).observeForever {
                 when (it.state) {
                     WorkInfo.State.RUNNING -> {
-                        wm.stopWork(scheduler.tokens.remove(request.stringId).first())
+                        launcher.stopWork(scheduler.tokens.remove(request.stringId).first())
                         running = true
                     }
                     WorkInfo.State.ENQUEUED -> {
@@ -159,7 +162,7 @@ class SchedulersTest {
             override fun schedule(vararg workSpecs: WorkSpec) {
                 scheduledSpecs.addAll(workSpecs)
                 workSpecs.forEach {
-                    if (it.periodCount == 0) wm.startWork(tokens.tokenFor(it))
+                    if (it.periodCount == 0) launcher.startWork(tokens.tokenFor(it))
                 }
             }
 
