@@ -23,7 +23,7 @@ import kotlin.concurrent.withLock
 
 /** A singleton controller that allows checking the current [Activity] embedding status. */
 class ActivityEmbeddingController private constructor(applicationContext: Context) {
-    private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend
+    private val embeddingBackend: EmbeddingBackend = EmbeddingBackend
         .getInstance(applicationContext)
 
     /**

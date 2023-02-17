@@ -17,11 +17,17 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.content.Context
+import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
+import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
 
-// TODO(b/191164045): Move to window-testing or adapt for testing otherwise.
-internal interface EmbeddingBackend {
+/**
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+interface EmbeddingBackend {
     fun setRules(rules: Set<EmbeddingRule>)
 
     fun getRules(): Set<EmbeddingRule>
@@ -51,4 +57,40 @@ internal interface EmbeddingBackend {
     fun clearSplitAttributesCalculator()
 
     fun isSplitAttributesCalculatorSupported(): Boolean
+
+    companion object {
+
+        private var decorator: (EmbeddingBackend) -> EmbeddingBackend =
+            { it }
+
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun getInstance(applicationContext: Context): EmbeddingBackend {
+            return decorator(ExtensionEmbeddingBackend.getInstance(applicationContext))
+        }
+
+        @ExperimentalWindowApi
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmStatic
+        fun overrideDecorator(overridingDecorator: EmbeddingBackendDecorator) {
+            decorator = overridingDecorator::decorate
+        }
+
+        @ExperimentalWindowApi
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmStatic
+        fun reset() {
+            decorator = { it }
+        }
+    }
+}
+
+@ExperimentalWindowApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+interface EmbeddingBackendDecorator {
+
+    /**
+     * Returns an instance of [EmbeddingBackend]
+     */
+    fun decorate(embeddingBackend: EmbeddingBackend): EmbeddingBackend
 }

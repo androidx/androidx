@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.window.testing.embedding {
 
+  @androidx.window.core.ExperimentalWindowApi public final class ActivityEmbeddingTestRule implements org.junit.rules.TestRule {
+    ctor public ActivityEmbeddingTestRule();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
+    method public void overrideIsActivityEmbedded(android.app.Activity activity, boolean isActivityEmbedded);
+  }
+
   public final class TestSplitAttributesCalculatorParams {
     method public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo, optional androidx.window.embedding.SplitAttributes defaultSplitAttributes, optional boolean areDefaultConstraintsSatisfied, optional String? splitRuleTag);
     method public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo, optional androidx.window.embedding.SplitAttributes defaultSplitAttributes, optional boolean areDefaultConstraintsSatisfied);

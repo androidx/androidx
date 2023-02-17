@@ -41,7 +41,7 @@ class WindowMetrics internal constructor(
      * An internal constructor for [WindowMetrics]
      * @suppress
      */
-    @RestrictTo(RestrictTo.Scope.TESTS)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(
         bounds: Rect,
         insets: WindowInsetsCompat = WindowInsetsCompat.Builder().build()
