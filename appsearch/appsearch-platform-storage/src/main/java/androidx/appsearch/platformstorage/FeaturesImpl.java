@@ -72,6 +72,10 @@ final class FeaturesImpl implements Features {
             case Features.LIST_FILTER_QUERY_LANGUAGE:
                 // TODO(b/208654892) : Update to reflect support in Android U+ once this feature is
                 // synced over into service-appsearch.
+                // fall through
+            case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
+                // TODO(b/258715421) : Update to reflect support in Android U+ once this feature is
+                // synced over into service-appsearch.
                 return false;
             default:
                 return false;

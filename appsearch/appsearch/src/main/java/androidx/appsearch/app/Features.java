@@ -119,6 +119,12 @@ public interface Features {
      */
     String LIST_FILTER_QUERY_LANGUAGE = FeatureConstants.LIST_FILTER_QUERY_LANGUAGE;
 
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SearchSpec#GROUPING_TYPE_PER_SCHEMA}
+     */
+    String SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA = "SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA";
+
     /** Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link SearchSpec.Builder#setPropertyWeights}.
      */

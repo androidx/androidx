@@ -318,7 +318,8 @@ public class SearchSpecToProtoConverterTest {
                 /*namespaceMap=*/ImmutableMap.of(),
                 /*schemaMap=*/ImmutableMap.of());
         ResultSpecProto resultSpecProto = convert.toResultSpecProto(
-                /*namespaceMap=*/ImmutableMap.of());
+                /*namespaceMap=*/ImmutableMap.of(),
+                /*schemaMap=*/ImmutableMap.of());
 
         assertThat(resultSpecProto.getNumPerPage()).isEqualTo(123);
         assertThat(resultSpecProto.getSnippetSpec().getNumToSnippet()).isEqualTo(234);
@@ -348,7 +349,8 @@ public class SearchSpecToProtoConverterTest {
                                 prefix1 + "namespaceB"),
                         prefix2, ImmutableSet.of(
                                 prefix2 + "namespaceA",
-                                prefix2 + "namespaceB")));
+                                prefix2 + "namespaceB")),
+                /*schemaMap=*/ImmutableMap.of());
 
         assertThat(resultSpecProto.getResultGroupingsCount()).isEqualTo(2);
         // First grouping should have same package name.
@@ -392,7 +394,9 @@ public class SearchSpecToProtoConverterTest {
                 /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
                 namespaceMap,
                 /*schemaMap=*/ImmutableMap.of());
-        ResultSpecProto resultSpecProto = converter.toResultSpecProto(namespaceMap);
+        ResultSpecProto resultSpecProto = converter.toResultSpecProto(
+                namespaceMap,
+                /*schemaMap=*/ImmutableMap.of());
 
         assertThat(resultSpecProto.getResultGroupingsCount()).isEqualTo(2);
         // First grouping should have same namespace.
@@ -413,10 +417,56 @@ public class SearchSpecToProtoConverterTest {
     }
 
     @Test
+    public void testToResultSpecProto_groupBySchema() throws Exception {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_SCHEMA, 5)
+                .build();
+
+        String prefix1 = PrefixUtil.createPrefix("package1", "database");
+        String prefix2 = PrefixUtil.createPrefix("package2", "database");
+
+        SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
+        Map<String, Map<String, SchemaTypeConfigProto>> schemaMap = ImmutableMap.of(
+                prefix1, ImmutableMap.of(
+                    prefix1 + "typeA", configProto,
+                    prefix1 + "typeB", configProto),
+                prefix2, ImmutableMap.of(
+                    prefix2 + "typeA", configProto,
+                    prefix2 + "typeB", configProto));
+
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
+                /*namespaceMap=*/ImmutableMap.of(),
+                schemaMap);
+        ResultSpecProto resultSpecProto = converter.toResultSpecProto(
+                /*namespaceMap=*/ImmutableMap.of(),
+                schemaMap);
+
+        assertThat(resultSpecProto.getResultGroupingsCount()).isEqualTo(2);
+        // First grouping should have the same schema type.
+        ResultSpecProto.ResultGrouping grouping1 = resultSpecProto.getResultGroupings(0);
+        assertThat(grouping1.getEntryGroupingsList()).hasSize(2);
+        assertThat(
+                PrefixUtil.removePrefix(grouping1.getEntryGroupings(0).getSchema()))
+                .isEqualTo(
+                    PrefixUtil.removePrefix(grouping1.getEntryGroupings(1).getSchema()));
+
+        // Second grouping should have the same schema type.
+        ResultSpecProto.ResultGrouping grouping2 = resultSpecProto.getResultGroupings(1);
+        assertThat(grouping2.getEntryGroupingsList()).hasSize(2);
+        assertThat(
+                PrefixUtil.removePrefix(grouping2.getEntryGroupings(0).getSchema()))
+                .isEqualTo(
+                    PrefixUtil.removePrefix(grouping2.getEntryGroupings(1).getSchema()));
+    }
+
+    @Test
     public void testToResultSpecProto_groupByNamespaceAndPackage() throws Exception {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setResultGrouping(GROUPING_TYPE_PER_PACKAGE
-                        | SearchSpec.GROUPING_TYPE_PER_NAMESPACE, 5)
+                    | SearchSpec.GROUPING_TYPE_PER_NAMESPACE, 5)
                 .build();
 
         String prefix1 = PrefixUtil.createPrefix("package1", "database");
@@ -434,7 +484,9 @@ public class SearchSpecToProtoConverterTest {
                 searchSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
                 namespaceMap, /*schemaMap=*/ImmutableMap.of());
-        ResultSpecProto resultSpecProto = converter.toResultSpecProto(namespaceMap);
+        ResultSpecProto resultSpecProto = converter.toResultSpecProto(
+                namespaceMap,
+                /*schemaMap=*/ImmutableMap.of());
 
         // All namespace should be separated.
         assertThat(resultSpecProto.getResultGroupingsCount()).isEqualTo(4);
@@ -442,6 +494,241 @@ public class SearchSpecToProtoConverterTest {
         assertThat(resultSpecProto.getResultGroupings(1).getEntryGroupingsList()).hasSize(1);
         assertThat(resultSpecProto.getResultGroupings(2).getEntryGroupingsList()).hasSize(1);
         assertThat(resultSpecProto.getResultGroupings(3).getEntryGroupingsList()).hasSize(1);
+    }
+
+    @Test
+    public void testToResultSpecProto_groupBySchemaAndPackage() throws Exception {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setResultGrouping(GROUPING_TYPE_PER_PACKAGE
+                    | SearchSpec.GROUPING_TYPE_PER_SCHEMA, 5)
+                .build();
+
+        String prefix1 = PrefixUtil.createPrefix("package1", "database");
+        String prefix2 = PrefixUtil.createPrefix("package2", "database");
+        SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
+        Map<String, Map<String, SchemaTypeConfigProto>> schemaMap = ImmutableMap.of(
+                prefix1, ImmutableMap.of(
+                    prefix1 + "typeA", configProto,
+                    prefix1 + "typeB", configProto),
+                prefix2, ImmutableMap.of(
+                    prefix2 + "typeA", configProto,
+                    prefix2 + "typeB", configProto));
+
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
+                /*namespaceMap=*/ImmutableMap.of(),
+                schemaMap);
+        ResultSpecProto resultSpecProto = converter.toResultSpecProto(
+                /*namespaceMap=*/ImmutableMap.of(),
+                schemaMap);
+
+        // All schema should be separated.
+        assertThat(resultSpecProto.getResultGroupingsCount()).isEqualTo(4);
+        assertThat(resultSpecProto.getResultGroupings(0).getEntryGroupingsList()).hasSize(1);
+        assertThat(resultSpecProto.getResultGroupings(1).getEntryGroupingsList()).hasSize(1);
+        assertThat(resultSpecProto.getResultGroupings(2).getEntryGroupingsList()).hasSize(1);
+        assertThat(resultSpecProto.getResultGroupings(3).getEntryGroupingsList()).hasSize(1);
+    }
+
+    @Test
+    public void testToResultSpecProto_groupByNamespaceAndSchema() throws Exception {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_NAMESPACE
+                    | SearchSpec.GROUPING_TYPE_PER_SCHEMA, 5)
+                .build();
+
+        String prefix1 = PrefixUtil.createPrefix("package1", "database");
+        String prefix2 = PrefixUtil.createPrefix("package2", "database");
+        Map<String, Set<String>> namespaceMap = /*namespaceMap=*/ImmutableMap.of(
+                prefix1, ImmutableSet.of(
+                    prefix1 + "namespaceA",
+                    prefix1 + "namespaceB"),
+                prefix2, ImmutableSet.of(
+                    prefix2 + "namespaceA",
+                    prefix2 + "namespaceB"));
+        SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
+        Map<String, Map<String, SchemaTypeConfigProto>> schemaMap = ImmutableMap.of(
+                prefix1, ImmutableMap.of(
+                    prefix1 + "typeA", configProto,
+                    prefix1 + "typeB", configProto),
+                prefix2, ImmutableMap.of(
+                    prefix2 + "typeA", configProto,
+                    prefix2 + "typeB", configProto));
+
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
+                namespaceMap,
+                schemaMap);
+        ResultSpecProto resultSpecProto = converter.toResultSpecProto(namespaceMap, schemaMap);
+
+        assertThat(resultSpecProto.getResultGroupingsCount()).isEqualTo(4);
+        ResultSpecProto.ResultGrouping grouping1 = resultSpecProto.getResultGroupings(0);
+        // Each grouping should have a size of 2.
+        assertThat(grouping1.getEntryGroupingsList()).hasSize(2);
+        // Each grouping should have the same namespace and schema type.
+        // Each entry should have the same package and database.
+        assertThat(grouping1.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package1$database/namespaceA");
+        assertThat(grouping1.getEntryGroupings(0).getSchema())
+                .isEqualTo("package1$database/typeA");
+        assertThat(grouping1.getEntryGroupings(1).getNamespace())
+                .isEqualTo("package2$database/namespaceA");
+        assertThat(grouping1.getEntryGroupings(1).getSchema())
+                .isEqualTo("package2$database/typeA");
+
+        ResultSpecProto.ResultGrouping grouping2 = resultSpecProto.getResultGroupings(1);
+        // Each grouping should have a size of 2.
+        assertThat(grouping2.getEntryGroupingsList()).hasSize(2);
+        // Each grouping should have the same namespace and schema type.
+        // Each entry should have the same package and database.
+        assertThat(grouping2.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package1$database/namespaceA");
+        assertThat(grouping2.getEntryGroupings(0).getSchema())
+                .isEqualTo("package1$database/typeB");
+        assertThat(grouping2.getEntryGroupings(1).getNamespace())
+                .isEqualTo("package2$database/namespaceA");
+        assertThat(grouping2.getEntryGroupings(1).getSchema())
+                .isEqualTo("package2$database/typeB");
+
+        ResultSpecProto.ResultGrouping grouping3 = resultSpecProto.getResultGroupings(2);
+        // Each grouping should have a size of 2.
+        assertThat(grouping3.getEntryGroupingsList()).hasSize(2);
+        // Each grouping should have the same namespace and schema type.
+        // Each entry should have the same package and database.
+        assertThat(grouping3.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package1$database/namespaceB");
+        assertThat(grouping3.getEntryGroupings(0).getSchema())
+                .isEqualTo("package1$database/typeA");
+        assertThat(grouping3.getEntryGroupings(1).getNamespace())
+                .isEqualTo("package2$database/namespaceB");
+        assertThat(grouping3.getEntryGroupings(1).getSchema())
+                .isEqualTo("package2$database/typeA");
+
+        ResultSpecProto.ResultGrouping grouping4 = resultSpecProto.getResultGroupings(3);
+        // Each grouping should have a size of 2.
+        assertThat(grouping4.getEntryGroupingsList()).hasSize(2);
+        // Each grouping should have the same namespace and schema type.
+        // Each entry should have the same package and database.
+        assertThat(grouping4.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package1$database/namespaceB");
+        assertThat(grouping4.getEntryGroupings(0).getSchema())
+                .isEqualTo("package1$database/typeB");
+        assertThat(grouping4.getEntryGroupings(1).getNamespace())
+                .isEqualTo("package2$database/namespaceB");
+        assertThat(grouping4.getEntryGroupings(1).getSchema())
+                .isEqualTo("package2$database/typeB");
+    }
+
+    @Test
+    public void testToResultSpecProto_groupByNamespaceAndSchemaAndPackage() throws Exception {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE
+                    | SearchSpec.GROUPING_TYPE_PER_NAMESPACE
+                    | SearchSpec.GROUPING_TYPE_PER_SCHEMA, 5)
+                .build();
+        String prefix1 = PrefixUtil.createPrefix("package1", "database");
+        String prefix2 = PrefixUtil.createPrefix("package2", "database");
+        Map<String, Set<String>> namespaceMap = /*namespaceMap=*/ImmutableMap.of(
+                prefix1, ImmutableSet.of(
+                    prefix1 + "namespaceA",
+                    prefix1 + "namespaceB"),
+                prefix2, ImmutableSet.of(
+                    prefix2 + "namespaceA",
+                    prefix2 + "namespaceB"));
+        SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
+        Map<String, Map<String, SchemaTypeConfigProto>> schemaMap = ImmutableMap.of(
+                prefix1, ImmutableMap.of(
+                    prefix1 + "typeA", configProto,
+                    prefix1 + "typeB", configProto),
+                prefix2, ImmutableMap.of(
+                    prefix2 + "typeA", configProto,
+                    prefix2 + "typeB", configProto));
+
+        SearchSpecToProtoConverter converter = new SearchSpecToProtoConverter(
+                /*queryExpression=*/"query",
+                searchSpec,
+                /*prefixes=*/ImmutableSet.of(prefix1, prefix2),
+                namespaceMap,
+                schemaMap);
+        ResultSpecProto resultSpecProto = converter.toResultSpecProto(namespaceMap, schemaMap);
+
+        assertThat(resultSpecProto.getResultGroupingsCount()).isEqualTo(8);
+        ResultSpecProto.ResultGrouping grouping1 = resultSpecProto.getResultGroupings(0);
+        //assertThat(grouping1.getEntryGroupingsList()).containsExactly();
+        // Each grouping should have the size of 1.
+        assertThat(grouping1.getEntryGroupingsList()).hasSize(1);
+        // Each entry should have the same package.
+        assertThat(grouping1.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package2$database/namespaceA");
+        assertThat(grouping1.getEntryGroupings(0).getSchema())
+                .isEqualTo("package2$database/typeA");
+
+        ResultSpecProto.ResultGrouping grouping2 = resultSpecProto.getResultGroupings(1);
+        // Each grouping should have the size of 1.
+        assertThat(grouping2.getEntryGroupingsList()).hasSize(1);
+        // Each entry should have the same package.
+        assertThat(grouping2.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package2$database/namespaceA");
+        assertThat(grouping2.getEntryGroupings(0).getSchema())
+                .isEqualTo("package2$database/typeB");
+
+        ResultSpecProto.ResultGrouping grouping3 = resultSpecProto.getResultGroupings(2);
+        // Each grouping should have the size of 1.
+        assertThat(grouping3.getEntryGroupingsList()).hasSize(1);
+        // Each entry should have the same package.
+        assertThat(grouping3.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package2$database/namespaceB");
+        assertThat(grouping3.getEntryGroupings(0).getSchema())
+                .isEqualTo("package2$database/typeA");
+
+        ResultSpecProto.ResultGrouping grouping4 = resultSpecProto.getResultGroupings(3);
+        // Each grouping should have the size of 1.
+        assertThat(grouping4.getEntryGroupingsList()).hasSize(1);
+        // Each entry should have the same package.
+        assertThat(grouping4.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package2$database/namespaceB");
+        assertThat(grouping4.getEntryGroupings(0).getSchema())
+                .isEqualTo("package2$database/typeB");
+
+        ResultSpecProto.ResultGrouping grouping5 = resultSpecProto.getResultGroupings(4);
+        // Each grouping should have the size of 1.
+        assertThat(grouping5.getEntryGroupingsList()).hasSize(1);
+        // Each entry should have the same package.
+        assertThat(grouping5.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package1$database/namespaceA");
+        assertThat(grouping5.getEntryGroupings(0).getSchema())
+                .isEqualTo("package1$database/typeA");
+
+        ResultSpecProto.ResultGrouping grouping6 = resultSpecProto.getResultGroupings(5);
+        // Each grouping should have the size of 1.
+        assertThat(grouping6.getEntryGroupingsList()).hasSize(1);
+        // Each entry should have the same package.
+        assertThat(grouping6.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package1$database/namespaceA");
+        assertThat(grouping6.getEntryGroupings(0).getSchema())
+                .isEqualTo("package1$database/typeB");
+
+        ResultSpecProto.ResultGrouping grouping7 = resultSpecProto.getResultGroupings(6);
+        // Each grouping should have the size of 1.
+        assertThat(grouping7.getEntryGroupingsList()).hasSize(1);
+        // Each entry should have the same package.
+        assertThat(grouping7.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package1$database/namespaceB");
+        assertThat(grouping7.getEntryGroupings(0).getSchema())
+                .isEqualTo("package1$database/typeA");
+
+        ResultSpecProto.ResultGrouping grouping8 = resultSpecProto.getResultGroupings(7);
+        // Each grouping should have the size of 1.
+        assertThat(grouping8.getEntryGroupingsList()).hasSize(1);
+        // Each entry should have the same package.
+        assertThat(grouping8.getEntryGroupings(0).getNamespace())
+                .isEqualTo("package1$database/namespaceB");
+        assertThat(grouping8.getEntryGroupings(0).getSchema())
+                .isEqualTo("package1$database/typeB");
     }
 
     @Test
