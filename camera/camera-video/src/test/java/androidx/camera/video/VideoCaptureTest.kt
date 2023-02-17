@@ -153,8 +153,8 @@ class VideoCaptureTest {
         setupCamera()
         val videoCapture = createVideoCapture(createVideoOutput())
         videoCapture.effect = createFakeEffect()
+        camera.hasTransform = false
         // Act: set no transform and create pipeline.
-        videoCapture.hasCameraTransform = false
         videoCapture.bindToCamera(camera, null, null)
         videoCapture.updateSuggestedStreamSpec(StreamSpec.builder(Size(640, 480)).build())
         videoCapture.onStateAttached()
@@ -1007,7 +1007,6 @@ class VideoCaptureTest {
 
     private fun createVideoCapture(
         videoOutput: VideoOutput = createVideoOutput(),
-        hasCameraTransform: Boolean = true,
         targetRotation: Int? = null,
         targetResolution: Size? = null,
         videoEncoderInfoFinder: Function<VideoEncoderConfig, VideoEncoderInfo> =
@@ -1018,9 +1017,7 @@ class VideoCaptureTest {
             targetRotation?.let { setTargetRotation(it) }
             targetResolution?.let { setTargetResolution(it) }
             setVideoEncoderInfoFinder(videoEncoderInfoFinder)
-        }.build().apply {
-            setHasCameraTransform(hasCameraTransform)
-        }
+        }.build()
 
     private fun createFakeEffect(
         processor: FakeSurfaceProcessorInternal = FakeSurfaceProcessorInternal(

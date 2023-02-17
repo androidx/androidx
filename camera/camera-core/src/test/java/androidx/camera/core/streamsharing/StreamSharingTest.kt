@@ -171,6 +171,15 @@ class StreamSharingTest {
     }
 
     @Test
+    fun bindChildToCamera_virtualCameraHasNoTransform() {
+        // Act.
+        streamSharing.bindToCamera(camera, null, null)
+        // Assert.
+        assertThat(child1.camera!!.hasTransform).isFalse()
+        assertThat(child2.camera!!.hasTransform).isFalse()
+    }
+
+    @Test
     fun bindAndUnbindParent_propagatesToChildren() {
         // Assert: children not bound to camera by default.
         assertThat(child1.camera).isNull()

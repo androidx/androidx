@@ -364,10 +364,10 @@ class PreviewTest {
     @Test
     fun noCameraTransform_rotationDegreesFlipped() {
         // Act: create preview with hasCameraTransform == false
+        frontCamera.hasTransform = false
         val preview = createPreview(
             effect,
             frontCamera,
-            hasCameraTransform = false,
             targetRotation = Surface.ROTATION_90
         )
         // Assert: rotationDegrees is flipped
@@ -377,9 +377,10 @@ class PreviewTest {
     @Test
     fun setNoCameraTransform_propagatesToCameraEdge() {
         // Act: create preview with hasCameraTransform == false
+        frontCamera.hasTransform = false
         val preview = createPreview(
             effect,
-            hasCameraTransform = false,
+            frontCamera,
             targetRotation = Surface.ROTATION_90
         )
         // Assert
@@ -390,10 +391,10 @@ class PreviewTest {
     @Test
     fun frontCameraWithoutCameraTransform_noMirroring() {
         // Act: create preview with hasCameraTransform == false
+        frontCamera.hasTransform = false
         val preview = createPreview(
             effect,
             frontCamera,
-            hasCameraTransform = false,
             targetRotation = Surface.ROTATION_90
         )
         // Assert
@@ -644,13 +645,11 @@ class PreviewTest {
     private fun createPreview(
         effect: CameraEffect? = null,
         camera: FakeCamera = backCamera,
-        hasCameraTransform: Boolean = true,
         targetRotation: Int = Surface.ROTATION_0
     ): Preview {
         previewToDetach = Preview.Builder()
             .setTargetRotation(targetRotation)
             .build()
-        previewToDetach.hasCameraTransform = hasCameraTransform
         previewToDetach.effect = effect
         previewToDetach.setSurfaceProvider(CameraXExecutors.directExecutor()) {}
         val previewConfig = PreviewConfig(

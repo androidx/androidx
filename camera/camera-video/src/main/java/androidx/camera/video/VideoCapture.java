@@ -397,7 +397,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             } else {
                 surfaceRequest.updateTransformationInfo(
                         SurfaceRequest.TransformationInfo.of(cropRect, relativeRotation,
-                                targetRotation, getHasCameraTransform()));
+                                targetRotation, cameraInternal.getHasTransform()));
             }
         }
     }
@@ -465,7 +465,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     VIDEO_CAPTURE,
                     streamSpec,
                     getSensorToBufferTransformMatrix(),
-                    getHasCameraTransform(),
+                    camera.getHasTransform(),
                     mCropRect,
                     getRelativeRotation(camera),
                     /*mirroring=*/false);
