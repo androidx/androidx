@@ -1511,15 +1511,15 @@ class XTypeElementTest(
                         contains("x")
                         containsNoneOf("VAL1", "VAL2")
                     }
-                assertWithMessage("$qName  does not report enum constants in declared fields")
+                assertWithMessage("$qName does not report enum constants in declared fields")
                     .that(typeElement.getDeclaredFields().map { it.name })
                     .containsExactly("x")
-                typeElement.getEnclosedElements().let { elements ->
-                    assertThat(elements.filter { it.name == "VAL1" }.all { it is XEnumEntry })
-                        .isTrue()
-                    assertThat(elements.filter { it.name == "VAL2" }.all { it is XEnumEntry })
-                        .isTrue()
-                }
+                assertWithMessage("$qName enum entries are XEnumEntry")
+                    .that(typeElement.getEnclosedElements().filter { it.isEnumEntry() })
+                    .hasSize(2)
+                assertWithMessage("$qName  enum entries are not type elements")
+                    .that(typeElement.getEnclosedElements().filter { it.isTypeElement() })
+                    .isEmpty()
             }
         }
     }

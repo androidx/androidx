@@ -31,6 +31,7 @@ import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSType
@@ -115,6 +116,7 @@ internal class KspProcessingEnv(
     override fun getTypeElementsFromPackage(packageName: String): List<XTypeElement> {
         return resolver.getDeclarationsFromPackage(packageName)
             .filterIsInstance<KSClassDeclaration>()
+            .filterNot { it.classKind == ClassKind.ENUM_ENTRY }
             .map { KspTypeElement.create(this, it) }
             .toList()
     }
