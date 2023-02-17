@@ -45,7 +45,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
-import org.junit.Ignore
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
@@ -81,7 +80,6 @@ class AppWidgetSessionTest {
         assertThat(widget.provideGlanceCalled.get()).isTrue()
     }
 
-    @Ignore("b/266518169")
     @Test
     fun provideGlanceEmitsIgnoreResultForNullContent() = runTest {
         // The session starts out with null content, so we can check that here.
