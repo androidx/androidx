@@ -1641,7 +1641,7 @@ public final class Recorder implements VideoOutput {
                         mAudioSource.setAudioSourceCallback(mSequentialExecutor,
                                 new AudioSource.AudioSourceCallback() {
                                     @Override
-                                    public void onSilenceStateChanged(boolean silenced) {
+                                    public void onSilenced(boolean silenced) {
                                         if (mIsAudioSourceSilenced != silenced) {
                                             mIsAudioSourceSilenced = silenced;
                                             mAudioErrorCause = silenced ? new IllegalStateException(
