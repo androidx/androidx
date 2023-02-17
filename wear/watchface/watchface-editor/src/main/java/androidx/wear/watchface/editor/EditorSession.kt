@@ -609,21 +609,6 @@ internal constructor(
             ?.key
     }
 
-    override fun getComplicationSlotIdAt(@Px x: Int, @Px y: Int): Int? {
-        requireNotClosed()
-        return complicationSlotsState.value.entries
-            .firstOrNull {
-                it.value.isEnabled &&
-                    when (it.value.boundsType) {
-                        ComplicationSlotBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
-                        ComplicationSlotBoundsType.BACKGROUND -> false
-                        ComplicationSlotBoundsType.EDGE -> false
-                        else -> false
-                    }
-            }
-            ?.key
-    }
-
     /**
      * Returns the complication data source's preview [ComplicationData] if possible or fallback
      * preview data based on complication data source icon and name if not. If the slot is
@@ -996,6 +981,11 @@ internal class OnWatchFaceEditorSessionImpl(
 
     override val showComplicationRationaleDialogIntent
         get() = editorDelegate.complicationRationaleDialogIntent
+
+    override fun getComplicationSlotIdAt(@Px x: Int, @Px y: Int): Int? {
+        requireNotClosed()
+        return editorDelegate.complicationSlotsManager.getComplicationSlotAt(x, y)?.id
+    }
 }
 
 @RequiresApi(27)
@@ -1064,6 +1054,21 @@ internal class HeadlessEditorSession(
 
     init {
         fetchComplicationsData(coroutineScope)
+    }
+
+    override fun getComplicationSlotIdAt(@Px x: Int, @Px y: Int): Int? {
+        requireNotClosed()
+        return complicationSlotsState.value.entries
+            .firstOrNull {
+                it.value.isEnabled &&
+                    when (it.value.boundsType) {
+                        ComplicationSlotBoundsType.ROUND_RECT -> it.value.bounds.contains(x, y)
+                        ComplicationSlotBoundsType.BACKGROUND -> false
+                        ComplicationSlotBoundsType.EDGE -> false
+                        else -> false
+                    }
+            }
+            ?.key
     }
 }
 
