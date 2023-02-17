@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThrows;
 import android.content.Context;
 import android.net.Uri;
 
+import androidx.annotation.RequiresApi;
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig;
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager;
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome;
@@ -65,7 +66,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@SdkSuppress(minSdkVersion = 31)
+@SdkSuppress(minSdkVersion = 26)
 public class FledgeCtsDebuggableTest {
     protected static final Context sContext = ApplicationProvider.getApplicationContext();
     private static final String TAG = "FledgeCtsDebuggableTest";
@@ -117,28 +118,9 @@ public class FledgeCtsDebuggableTest {
     private static final long FLEDGE_CUSTOM_AUDIENCE_MAX_ACTIVATION_DELAY_IN_MS =
             60L * 24L * 60L * 60L * 1000L; // 60 days
 
-    private static final Duration CUSTOM_AUDIENCE_MAX_ACTIVATION_DELAY_IN =
-            Duration.ofMillis(FLEDGE_CUSTOM_AUDIENCE_MAX_ACTIVATION_DELAY_IN_MS);
-    private static final Duration CUSTOM_AUDIENCE_DEFAULT_EXPIRE_IN =
-            Duration.ofMillis(FLEDGE_CUSTOM_AUDIENCE_DEFAULT_EXPIRE_IN_MS);
     private static final long DAY_IN_SECONDS = 60 * 60 * 24;
 
     private static final String VALID_NAME = "testCustomAudienceName";
-
-    private static final Instant FIXED_NOW = Instant.now();
-    private static final Instant FIXED_NOW_TRUNCATED_TO_MILLI =
-            FIXED_NOW.truncatedTo(ChronoUnit.MILLIS);
-    private static final Instant VALID_ACTIVATION_TIME =
-            FIXED_NOW_TRUNCATED_TO_MILLI;
-    private static final Instant VALID_DELAYED_ACTIVATION_TIME =
-            FIXED_NOW_TRUNCATED_TO_MILLI.plus(
-                    CUSTOM_AUDIENCE_MAX_ACTIVATION_DELAY_IN.dividedBy(2));
-
-    private static final Instant VALID_EXPIRATION_TIME =
-            VALID_ACTIVATION_TIME.plus(CUSTOM_AUDIENCE_DEFAULT_EXPIRE_IN);
-    private static final Instant VALID_DELAYED_EXPIRATION_TIME =
-            VALID_DELAYED_ACTIVATION_TIME.plusSeconds(DAY_IN_SECONDS);
-
 
     private static final String AD_URI_PREFIX = "/adverts/123/";
 
@@ -391,8 +373,8 @@ public class FledgeCtsDebuggableTest {
         CustomAudience customAudience2 = createCustomAudience(
                 BUYER_2,
                 bidsForBuyer2,
-                VALID_ACTIVATION_TIME,
-                VALID_EXPIRATION_TIME,
+                getValidActivationTime(),
+                getValidExpirationTime(),
                 BUYER_MALFORMED_BIDDING_LOGIC_URI_PATH);
 
 
@@ -491,8 +473,8 @@ public class FledgeCtsDebuggableTest {
         CustomAudience customAudience2 = createCustomAudience(
                 BUYER_2,
                 bidsForBuyer2,
-                VALID_ACTIVATION_TIME,
-                VALID_EXPIRATION_TIME,
+                getValidActivationTime(),
+                getValidExpirationTime(),
                 "/invalid/bidding/logic/uri");
 
         // Joining custom audiences, no result to do assertion on. Failures will generate an
@@ -596,8 +578,8 @@ public class FledgeCtsDebuggableTest {
                 createCustomAudience(
                         BUYER_2,
                         bidsForBuyer2,
-                        VALID_DELAYED_ACTIVATION_TIME,
-                        VALID_DELAYED_EXPIRATION_TIME,
+                        getValidDelayedActivationTime(),
+                        getValidDelayedExpirationTime(),
                         BUYER_BIDDING_LOGIC_URI_PATH);
 
         // Joining custom audiences, no result to do assertion on. Failures will generate an
@@ -650,7 +632,7 @@ public class FledgeCtsDebuggableTest {
                 createCustomAudience(
                         BUYER_2,
                         bidsForBuyer2,
-                        VALID_ACTIVATION_TIME,
+                        getValidActivationTime(),
                         Instant.now().plusSeconds(caTimeToExpireSeconds),
                         BUYER_BIDDING_LOGIC_URI_PATH);
 
@@ -701,8 +683,8 @@ public class FledgeCtsDebuggableTest {
         CustomAudience customAudience2 = createCustomAudience(
                 BUYER_2,
                 bidsForBuyer2,
-                VALID_ACTIVATION_TIME,
-                VALID_EXPIRATION_TIME,
+                getValidActivationTime(),
+                getValidExpirationTime(),
                 BUYER_BIDDING_LOGIC_URI_PATH + "?delay=" + 5000);
 
         // Joining custom audiences, no result to do assertion on. Failures will generate an
@@ -812,6 +794,34 @@ public class FledgeCtsDebuggableTest {
                 getValidTrustedBiddingKeys());
     }
 
+    @RequiresApi(26)
+    private Instant getValidDelayedActivationTime() {
+        Duration maxActivationDelayIn =
+                Duration.ofMillis(FLEDGE_CUSTOM_AUDIENCE_MAX_ACTIVATION_DELAY_IN_MS);
+
+        return Instant.now()
+                .truncatedTo(ChronoUnit.MILLIS)
+                .plus(maxActivationDelayIn.dividedBy(2));
+    }
+
+    @RequiresApi(26)
+    private Instant getValidDelayedExpirationTime() {
+        return getValidDelayedActivationTime().plusSeconds(DAY_IN_SECONDS);
+    }
+
+    @RequiresApi(26)
+    private Instant getValidActivationTime() {
+        return Instant.now()
+                .truncatedTo(ChronoUnit.MILLIS);
+    }
+
+    @RequiresApi(26)
+    private Instant getValidExpirationTime() {
+        return getValidActivationTime()
+                .plus(Duration.ofMillis(FLEDGE_CUSTOM_AUDIENCE_DEFAULT_EXPIRE_IN_MS));
+    }
+
+
     /**
      * @param buyer The name of the buyer for this Custom Audience
      * @param bids these bids, are added to its metadata. Our JS logic then picks this value and
@@ -822,8 +832,8 @@ public class FledgeCtsDebuggableTest {
         return createCustomAudience(
                 buyer,
                 bids,
-                VALID_ACTIVATION_TIME,
-                VALID_EXPIRATION_TIME,
+                getValidActivationTime(),
+                getValidExpirationTime(),
                 BUYER_BIDDING_LOGIC_URI_PATH);
     }
 
