@@ -16,31 +16,15 @@
 
 package androidx.baselineprofiles.gradle.utils
 
-import org.gradle.api.attributes.Attribute
 import org.gradle.configurationcache.extensions.capitalized
 
-internal fun camelCase(vararg strings: String): String {
+fun camelCase(vararg strings: String): String {
     if (strings.isEmpty()) return ""
-    return StringBuilder()
-        .apply {
-            var shouldCapitalize = false
-            for (str in strings.filter { it.isNotBlank() }) {
-                append(if (shouldCapitalize) str.capitalized() else str)
-                shouldCapitalize = true
-            }
-        }.toString()
+    return StringBuilder().apply {
+        var shouldCapitalize = false
+        for (str in strings.filter { it.isNotBlank() }) {
+            append(if (shouldCapitalize) str.capitalized() else str)
+            shouldCapitalize = true
+        }
+    }.toString()
 }
-
-// Prefix for the build type baseline profiles
-internal const val BUILD_TYPE_BASELINE_PROFILE_PREFIX = "nonObfuscated"
-
-// Configuration consumed by this plugin that carries the baseline profile HRF file.
-internal const val CONFIGURATION_NAME_BASELINE_PROFILES = "baselineprofiles"
-
-// Custom category attribute to match the baseline profile configuration
-internal const val ATTRIBUTE_CATEGORY_BASELINE_PROFILE = "baselineprofile"
-
-internal val ATTRIBUTE_FLAVOR =
-    Attribute.of("androidx.baselineprofiles.gradle.attributes.Flavor", String::class.java)
-internal val ATTRIBUTE_BUILD_TYPE =
-    Attribute.of("androidx.baselineprofiles.gradle.attributes.BuildType", String::class.java)
