@@ -72,7 +72,7 @@ class AudioSourceTest {
         fakeBufferProvider.setActive(true)
 
         audioSource = AudioSource(
-            AudioSettings.builder()
+            AudioSource.Settings.builder()
                 .setAudioSource(AUDIO_SOURCE)
                 .setSampleRate(SAMPLE_RATE)
                 .setChannelCount(CHANNEL_COUNT)

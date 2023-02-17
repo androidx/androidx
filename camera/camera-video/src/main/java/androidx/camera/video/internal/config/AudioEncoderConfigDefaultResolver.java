@@ -23,13 +23,13 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.AudioSpec;
-import androidx.camera.video.internal.audio.AudioSettings;
+import androidx.camera.video.internal.audio.AudioSource;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
 import androidx.core.util.Supplier;
 
 /**
  * An {@link AudioEncoderConfig} supplier that resolves requested encoder settings from a
- * {@link AudioSpec} for the given {@link AudioSettings} using pre-defined default values.
+ * {@link AudioSpec} for the given {@link AudioSource.Settings} using pre-defined default values.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AudioEncoderConfigDefaultResolver implements Supplier<AudioEncoderConfig> {
@@ -39,7 +39,7 @@ public final class AudioEncoderConfigDefaultResolver implements Supplier<AudioEn
     private final String mMimeType;
     private final int mAudioProfile;
     private final AudioSpec mAudioSpec;
-    private final AudioSettings mAudioSettings;
+    private final AudioSource.Settings mAudioSourceSettings;
     private final Timebase mInputTimeBase;
 
     // Base config based on generic 720p AAC(LC) quality will be scaled by actual source settings.
@@ -56,16 +56,16 @@ public final class AudioEncoderConfigDefaultResolver implements Supplier<AudioEn
      * @param inputTimebase       The timebase of the input frame.
      * @param audioSpec           The {@link AudioSpec} which defines the settings that should be
      *                            used with the audio encoder.
-     * @param audioSettings       The settings used to configure the source of audio.
+     * @param audioSourceSettings The settings used to configure the source of audio.
      */
     public AudioEncoderConfigDefaultResolver(@NonNull String mimeType,
             int audioProfile, @NonNull Timebase inputTimebase, @NonNull AudioSpec audioSpec,
-            @NonNull AudioSettings audioSettings) {
+            @NonNull AudioSource.Settings audioSourceSettings) {
         mMimeType = mimeType;
         mAudioProfile = audioProfile;
         mInputTimeBase = inputTimebase;
         mAudioSpec = audioSpec;
-        mAudioSettings = audioSettings;
+        mAudioSourceSettings = audioSourceSettings;
     }
 
     @Override
@@ -76,16 +76,16 @@ public final class AudioEncoderConfigDefaultResolver implements Supplier<AudioEn
         // We have no other information to go off of. Scale based on fallback defaults.
         int resolvedBitrate = AudioConfigUtil.scaleAndClampBitrate(
                 AUDIO_BITRATE_BASE,
-                mAudioSettings.getChannelCount(), AUDIO_CHANNEL_COUNT_BASE,
-                mAudioSettings.getSampleRate(), AUDIO_SAMPLE_RATE_BASE,
+                mAudioSourceSettings.getChannelCount(), AUDIO_CHANNEL_COUNT_BASE,
+                mAudioSourceSettings.getSampleRate(), AUDIO_SAMPLE_RATE_BASE,
                 audioSpecBitrateRange);
 
         return AudioEncoderConfig.builder()
                 .setMimeType(mMimeType)
                 .setProfile(mAudioProfile)
                 .setInputTimebase(mInputTimeBase)
-                .setChannelCount(mAudioSettings.getChannelCount())
-                .setSampleRate(mAudioSettings.getSampleRate())
+                .setChannelCount(mAudioSourceSettings.getChannelCount())
+                .setSampleRate(mAudioSourceSettings.getSampleRate())
                 .setBitrate(resolvedBitrate)
                 .build();
     }

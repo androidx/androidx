@@ -39,7 +39,8 @@ class AudioEncoderConfigDefaultResolverTest {
     }
 
     private val defaultAudioSpec = AudioSpec.builder().build()
-    private val defaultAudioSettings = AudioSettingsDefaultResolver(defaultAudioSpec).get()
+    private val defaultAudioSourceSettings =
+        AudioSourceSettingsDefaultResolver(defaultAudioSpec).get()
 
     @Test
     fun defaultAudioSpecProducesValidSettings() {
@@ -48,14 +49,14 @@ class AudioEncoderConfigDefaultResolverTest {
             ENCODER_PROFILE,
             TIMEBASE,
             defaultAudioSpec,
-            defaultAudioSettings
+            defaultAudioSourceSettings
         ).get()
 
         assertThat(resolvedAudioConfig.mimeType).isEqualTo(MIME_TYPE)
         assertThat(resolvedAudioConfig.profile).isEqualTo(ENCODER_PROFILE)
         assertThat(resolvedAudioConfig.channelCount)
-            .isEqualTo(defaultAudioSettings.channelCount)
-        assertThat(resolvedAudioConfig.sampleRate).isEqualTo(defaultAudioSettings.sampleRate)
+            .isEqualTo(defaultAudioSourceSettings.channelCount)
+        assertThat(resolvedAudioConfig.sampleRate).isEqualTo(defaultAudioSourceSettings.sampleRate)
         assertThat(resolvedAudioConfig.bitrate).isGreaterThan(0)
     }
 
@@ -68,19 +69,19 @@ class AudioEncoderConfigDefaultResolverTest {
                 ENCODER_PROFILE,
                 TIMEBASE,
                 defaultAudioSpec,
-                defaultAudioSettings
+                defaultAudioSourceSettings
             ).get()
         val defaultChannelCount = defaultConfig.channelCount
 
-        val higherChannelCountAudioSettings =
-            defaultAudioSettings.toBuilder().setChannelCount(defaultChannelCount * 2).build()
+        val higherChannelCountSourceSettings =
+            defaultAudioSourceSettings.toBuilder().setChannelCount(defaultChannelCount * 2).build()
 
         val higherChannelCountConfig = AudioEncoderConfigDefaultResolver(
             MIME_TYPE,
             ENCODER_PROFILE,
             TIMEBASE,
             defaultAudioSpec,
-            higherChannelCountAudioSettings
+            higherChannelCountSourceSettings
         ).get()
 
         assertThat(higherChannelCountConfig.bitrate).isGreaterThan(defaultConfig.bitrate)
@@ -95,19 +96,19 @@ class AudioEncoderConfigDefaultResolverTest {
                 ENCODER_PROFILE,
                 TIMEBASE,
                 defaultAudioSpec,
-                defaultAudioSettings
+                defaultAudioSourceSettings
             ).get()
         val defaultSampleRate = defaultConfig.sampleRate
 
-        val higherSampleRateAudioSettings =
-            defaultAudioSettings.toBuilder().setSampleRate(defaultSampleRate * 2).build()
+        val higherSampleRateSourceSettings =
+            defaultAudioSourceSettings.toBuilder().setSampleRate(defaultSampleRate * 2).build()
 
         val higherSampleRateConfig = AudioEncoderConfigDefaultResolver(
             MIME_TYPE,
             ENCODER_PROFILE,
             TIMEBASE,
             defaultAudioSpec,
-            higherSampleRateAudioSettings
+            higherSampleRateSourceSettings
         ).get()
 
         assertThat(higherSampleRateConfig.bitrate).isGreaterThan(defaultConfig.bitrate)
@@ -121,7 +122,7 @@ class AudioEncoderConfigDefaultResolverTest {
                 ENCODER_PROFILE,
                 TIMEBASE,
                 defaultAudioSpec,
-                defaultAudioSettings
+                defaultAudioSourceSettings
             ).get()
         val defaultBitrate = defaultConfig.bitrate
 
@@ -140,7 +141,7 @@ class AudioEncoderConfigDefaultResolverTest {
                 ENCODER_PROFILE,
                 TIMEBASE,
                 higherAudioSpec,
-                defaultAudioSettings
+                defaultAudioSourceSettings
             ).get().bitrate
         ).isEqualTo(higherBitrate)
 
@@ -150,7 +151,7 @@ class AudioEncoderConfigDefaultResolverTest {
                 ENCODER_PROFILE,
                 TIMEBASE,
                 lowerAudioSpec,
-                defaultAudioSettings
+                defaultAudioSourceSettings
             ).get().bitrate
         ).isEqualTo(lowerBitrate)
     }
