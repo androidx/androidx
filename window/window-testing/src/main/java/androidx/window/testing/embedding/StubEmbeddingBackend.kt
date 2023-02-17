@@ -27,7 +27,6 @@ import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
 import java.util.concurrent.Executor
 
-// TODO(b/269360931): Support RuleController.
 // TODO(b/269360912): Support SplitController.
 /**
  * A stub implementation of [EmbeddingBackend] that's intended to be used by Robolectric.
@@ -35,6 +34,12 @@ import java.util.concurrent.Executor
 internal class StubEmbeddingBackend : EmbeddingBackend {
 
     private val embeddedActivities = HashSet<Activity>()
+    private val embeddingRules = HashSet<EmbeddingRule>()
+
+    fun reset() {
+        embeddedActivities.clear()
+        embeddingRules.clear()
+    }
 
     fun overrideIsActivityEmbedded(activity: Activity, isActivityEmbedded: Boolean) {
         if (isActivityEmbedded) {
@@ -45,19 +50,35 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     }
 
     override fun setRules(rules: Set<EmbeddingRule>) {
-        TODO("Not yet implemented")
+        validateRules(rules)
+        embeddingRules.clear()
+        embeddingRules.addAll(rules)
     }
 
     override fun getRules(): Set<EmbeddingRule> {
-        TODO("Not yet implemented")
+        return embeddingRules
     }
 
     override fun addRule(rule: EmbeddingRule) {
-        TODO("Not yet implemented")
+        if (rule in embeddingRules) {
+            return
+        }
+        val tag = rule.tag
+        if (tag != null) {
+            // Check if there is duplicate tag
+            for (existingRule in embeddingRules) {
+                if (tag == existingRule.tag) {
+                    // Remove the duplicate to update with the new rule.
+                    embeddingRules.remove(existingRule)
+                    break
+                }
+            }
+        }
+        embeddingRules.add(rule)
     }
 
     override fun removeRule(rule: EmbeddingRule) {
-        TODO("Not yet implemented")
+        embeddingRules.remove(rule)
     }
 
     override fun addSplitListenerForActivity(
@@ -91,5 +112,18 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
 
     override fun isSplitAttributesCalculatorSupported(): Boolean {
         TODO("Not yet implemented")
+    }
+
+    private fun validateRules(rules: Set<EmbeddingRule>) {
+        val tags = HashSet<String>()
+        rules.forEach { rule ->
+            val tag = rule.tag
+            if (tag != null && !tags.add(tag)) {
+                // Duplicated tag is not allowed.
+                throw IllegalArgumentException(
+                    "Duplicated tag: $tag. Tag must be unique among all registered rules"
+                )
+            }
+        }
     }
 }

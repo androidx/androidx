@@ -62,7 +62,7 @@ class ActivityRule internal constructor(
          *
          * @param tag unique string to identify this [ActivityRule].
          */
-        fun setTag(tag: String): Builder =
+        fun setTag(tag: String?): Builder =
             apply { this.tag = tag }
 
         /**
