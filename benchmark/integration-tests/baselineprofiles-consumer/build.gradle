@@ -41,7 +41,6 @@ dependencies {
 
 baselineProfilesProfileConsumer {
     onDemandGeneration = false
-    merge = "none"
     filter {
         include "androidx.benchmark.integration.baselineprofiles.consumer.**"
     }

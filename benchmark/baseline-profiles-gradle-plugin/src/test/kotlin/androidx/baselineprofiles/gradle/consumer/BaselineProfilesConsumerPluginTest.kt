@@ -198,23 +198,22 @@ class BaselineProfilesConsumerPluginTest {
             .build()
             .output
             .also {
-                assertThat(it).contains("generateBaselineProfiles - ")
-                assertThat(it).contains("generateFreeBaselineProfiles - ")
-                assertThat(it).contains("generatePaidBaselineProfiles - ")
                 assertThat(it).contains("generateReleaseBaselineProfiles - ")
+                assertThat(it).contains("generateFreeReleaseBaselineProfiles - ")
+                assertThat(it).contains("generatePaidReleaseBaselineProfiles - ")
             }
 
         gradleRunner
-            .withArguments("generateBaselineProfiles", "--stacktrace")
+            .withArguments("generateReleaseBaselineProfiles", "--stacktrace")
             .build()
 
-        assertThat(readBaselineProfileFileContent("free"))
+        assertThat(readBaselineProfileFileContent("freeRelease"))
             .containsExactly(
                 Fixtures.CLASS_1,
                 Fixtures.CLASS_1_METHOD_1,
             )
 
-        assertThat(readBaselineProfileFileContent("paid"))
+        assertThat(readBaselineProfileFileContent("paidRelease"))
             .containsExactly(
                 Fixtures.CLASS_2,
                 Fixtures.CLASS_2_METHOD_1,
@@ -245,7 +244,7 @@ class BaselineProfilesConsumerPluginTest {
                     baselineProfiles(project(":$producerModuleName"))
                 }
                 baselineProfilesProfileConsumer {
-                    merge = "all"
+                    mergeIntoMain = true
                 }
             """.trimIndent(),
             suffix = ""
@@ -281,7 +280,9 @@ class BaselineProfilesConsumerPluginTest {
             .output
             .also {
                 assertThat(it).contains("generateBaselineProfiles - ")
-                assertThat(it).contains("generateMainBaselineProfiles - ")
+                assertThat(it).doesNotContain("generateReleaseBaselineProfiles - ")
+                assertThat(it).doesNotContain("generateFreeReleaseBaselineProfiles - ")
+                assertThat(it).doesNotContain("generatePaidReleaseBaselineProfiles - ")
             }
 
         gradleRunner
@@ -292,87 +293,6 @@ class BaselineProfilesConsumerPluginTest {
             .containsExactly(
                 Fixtures.CLASS_1,
                 Fixtures.CLASS_1_METHOD_1,
-                Fixtures.CLASS_2,
-                Fixtures.CLASS_2_METHOD_1,
-            )
-    }
-
-    @Test
-    fun testGenerateBaselineProfilesTaskWithFlavorsAndMergePerFlavor() {
-        consumerProjectSetup.writeDefaultBuildGradle(
-            prefix = """
-                plugins {
-                    id("com.android.application")
-                    id("androidx.baselineprofiles.consumer")
-                }
-                android {
-                    namespace 'com.example.namespace'
-                    productFlavors {
-                        flavorDimensions = ["version"]
-                        free {
-                            dimension "version"
-                        }
-                        paid {
-                            dimension "version"
-                        }
-                    }
-                }
-                dependencies {
-                    baselineProfiles(project(":$producerModuleName"))
-                }
-                baselineProfilesProfileConsumer {
-                    merge = "flavor"
-                }
-            """.trimIndent(),
-            suffix = ""
-        )
-        producerProjectSetup.writeDefaultBuildGradle(
-            prefix = MockProducerBuildGrade()
-                .withConfiguration(flavor = "free", buildType = "release")
-                .withConfiguration(flavor = "paid", buildType = "release")
-                .withProducedBaselineProfiles(
-                    lines = listOf(
-                        Fixtures.CLASS_1_METHOD_1,
-                        Fixtures.CLASS_1,
-                    ),
-                    flavor = "free",
-                    buildType = "release"
-                )
-                .withProducedBaselineProfiles(
-                    lines = listOf(
-                        Fixtures.CLASS_2_METHOD_1,
-                        Fixtures.CLASS_2,
-                    ),
-                    flavor = "paid",
-                    buildType = "release"
-                )
-                .build(),
-            suffix = ""
-        )
-
-        // Asserts that all per-variant, per-flavor and per-build type tasks are being generated.
-        gradleRunner
-            .withArguments("tasks", "--stacktrace")
-            .build()
-            .output
-            .also {
-                assertThat(it).contains("generateBaselineProfiles - ")
-                assertThat(it).contains("generateFreeBaselineProfiles - ")
-                assertThat(it).contains("generatePaidBaselineProfiles - ")
-            }
-
-        gradleRunner
-            .withArguments("generateBaselineProfiles", "--stacktrace")
-            .build()
-
-        assertThat(readBaselineProfileFileContent("free"))
-            .containsExactly(
-                Fixtures.CLASS_1,
-                Fixtures.CLASS_1_METHOD_1,
-            )
-
-        assertThat(readBaselineProfileFileContent("paid"))
-            .containsExactly(
                 Fixtures.CLASS_2,
                 Fixtures.CLASS_2_METHOD_1,
             )
@@ -401,7 +321,7 @@ class BaselineProfilesConsumerPluginTest {
         )
 
         gradleRunner
-            .withArguments("generateBaselineProfiles", "--stacktrace")
+            .withArguments("generateReleaseBaselineProfiles", "--stacktrace")
             .build()
 
         // This should not fail.
@@ -457,71 +377,8 @@ class BaselineProfilesConsumerPluginTest {
         )
 
         gradleRunner
-            .withArguments("generateBaselineProfiles", "--stacktrace")
+            .withArguments("generateReleaseBaselineProfiles", "--stacktrace")
             .buildAndFail()
-    }
-
-    @Test
-    fun testExtendNonExistingBuildTypeWhenNotSyncing() {
-        // For this test the producer is not important
-        writeDefaultProducerProject()
-
-        consumerProjectSetup.writeDefaultBuildGradle(
-            prefix = """
-                plugins {
-                    id("com.android.application")
-                    id("androidx.baselineprofiles.consumer")
-                }
-                android {
-                    namespace 'com.example.namespace'
-                }
-                dependencies {
-                    baselineProfiles(project(":$producerModuleName"))
-                }
-                baselineProfilesProfileConsumer {
-                    buildTypeName = "nonExisting"
-                }
-            """.trimIndent(),
-            suffix = ""
-        )
-
-        gradleRunner
-            .withArguments("generateBaselineProfiles", "--stacktrace")
-            .buildAndFail()
-    }
-
-    @Test
-    fun testExtendNonExistingBuildTypeWhenSyncing() {
-        // For this test the producer is not important
-        writeDefaultProducerProject()
-        consumerProjectSetup.writeDefaultBuildGradle(
-            prefix = """
-                plugins {
-                    id("com.android.application")
-                    id("androidx.baselineprofiles.consumer")
-                }
-                android {
-                    namespace 'com.example.namespace'
-                }
-                dependencies {
-                    baselineProfiles(project(":$producerModuleName"))
-                }
-                baselineProfilesProfileConsumer {
-                    buildTypeName = "nonExisting"
-                }
-            """.trimIndent(),
-            suffix = ""
-        )
-
-        // There is no sync task but any task will do since the check is on the injected property.
-        gradleRunner
-            .withArguments(
-                "tasks",
-                "--stacktrace",
-                "-Pandroid.injected.build.model.only=true")
-            .build()
-
-        // This test should not fail as we don't throw exceptions when syncing.
     }
 
     @Test
@@ -584,7 +441,6 @@ class BaselineProfilesConsumerPluginTest {
                     baselineProfiles(project(":$producerModuleName"))
                 }
                 baselineProfilesProfileConsumer {
-                    merge = "all"
                     filter { include("com.sample.Utils") }
                 }
             """.trimIndent(),

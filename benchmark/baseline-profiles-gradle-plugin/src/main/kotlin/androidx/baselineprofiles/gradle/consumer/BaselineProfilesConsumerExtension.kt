@@ -39,14 +39,6 @@ open class BaselineProfilesConsumerExtension {
     }
 
     /**
-     * Specifies what build type should be used to generate baseline profiles. By default this build
-     * type is `release`. In general, this should be a build type used for distribution. Note that
-     * this will be deprecated when b/265438201 is fixed, as all the build types will be used to
-     * generate baseline profiles.
-     */
-    var buildTypeName: String = "release"
-
-    /**
      * Enables on-demand baseline profile generation. Baseline profiles can be generated
      * periodically or on-demand. Setting this flag to true will enable on-demand generation.
      * When on-demand generation is enabled the baseline profile is regenerated before building the
@@ -57,21 +49,19 @@ open class BaselineProfilesConsumerExtension {
     var onDemandGeneration = false
 
     /**
-     * Specifies if and how baseline profile rule files should be merged when generated from
-     * multiple variants. This can either be:
-     *  - `all` to merge all the generated profiles for each variant in a single profile. When
-     *      generation is not `onDemand`, a single output file is generated in
+     * Specifies if baseline profile files should be merged into a single one when generating for
+     * multiple variants:
+     *  - When `true` all the generated baseline profiles for each variant are merged into
      *      `src/main/generatedBaselineProfiles`'.
-     *  - `flavor` to merge all the generated profiles for each variant per flavor. When generation
-     *      is not `onDemand`, one profile per flavor is generated in
-     *      `src/<flavor>/generatedBaselineProfiles`.
-     *  - `none`, to disable merging. When generation is not `onDemand` one profile per
-     *      variant is generated in `src/<variant>/generatedBaselineProfiles`.
-     *  Note that when generation is onDemand the output folder is always in the generated build
-     *  files but this setting still determines how is merged the profile included in the built
-     *  apk or aar.
+     *  - When `false` each variant will have its own baseline profile in
+     *      `src/<variant>/generated/baselineProfiles`'.
+     *  If this is not specified, by default it will be true for library modules and false for
+     *  application modules.
+     *  Note that when generation is onDemand the output folder is always in the build output
+     *  folder but this setting still determines whether the profile included in the built apk or
+     *  aar is merged into a single one.
      */
-    var merge: String = "flavor"
+    var mergeIntoMain: Boolean? = null
 
     /**
      * Specifies a filtering rule to decide which profiles rules should be included in this
@@ -188,7 +178,3 @@ enum class RuleType {
     INCLUDE,
     EXCLUDE
 }
-
-const val MERGE_ALL = "all"
-const val MERGE_PER_FLAVOR = "flavor"
-const val MERGE_NONE = "none"

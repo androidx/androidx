@@ -54,9 +54,7 @@ dependencies {
 }
 
 baselineProfilesProfileConsumer {
-    buildTypeName = "release"
     onDemandGeneration = false
-    merge = "none"
     filter {
         include "androidx.benchmark.integration.baselineprofiles.flavors.consumer.*"
     }
