@@ -18,16 +18,16 @@
 package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.NonNull
-import androidx.appactions.interaction.capabilities.core.ExecutionResult
+import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.FutureCallback
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
+import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.FulfillmentValue
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
-
-import androidx.annotation.RestrictTo
 
 /**
  * ActionCapabilitySession implementation for executing single-turn fulfillment requests.
@@ -38,10 +38,21 @@ import androidx.annotation.RestrictTo
 internal class SingleTurnCapabilitySession<
     ArgumentT,
     OutputT,
->(
+    >(
     val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
     val externalSession: BaseSession<ArgumentT, OutputT>,
 ) : ActionCapabilitySession {
+    // single-turn capability does not have state
+    override val state: AppAction
+        get() {
+            throw UnsupportedOperationException()
+        }
+
+    // single-turn capability does not have touch events
+    override fun setTouchEventCallback(callback: TouchEventCallback) {
+        throw UnsupportedOperationException()
+    }
+
     override fun execute(
         @NonNull argumentsWrapper: ArgumentsWrapper,
         @NonNull callback: CallbackInternal,

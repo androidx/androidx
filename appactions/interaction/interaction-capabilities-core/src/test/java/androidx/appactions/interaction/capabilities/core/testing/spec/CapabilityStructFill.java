@@ -17,12 +17,14 @@
 package androidx.appactions.interaction.capabilities.core.testing.spec;
 
 import androidx.annotation.NonNull;
+import androidx.appactions.interaction.capabilities.core.BaseSession;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
+import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver;
 import androidx.appactions.interaction.capabilities.core.values.ListItem;
 
 import com.google.auto.value.AutoValue;
@@ -39,15 +41,14 @@ public final class CapabilityStructFill {
                     .setArgument(Argument.class, Argument::newBuilder)
                     .bindStructParameter(
                             "listItem",
-                            Property::itemList,
+                            Property::listItem,
                             Argument.Builder::setListItem,
                             TypeConverters::toListItem)
                     .bindOptionalStringParameter(
                             "string", Property::anyString, Argument.Builder::setAnyString)
                     .build();
 
-    private CapabilityStructFill() {
-    }
+    private CapabilityStructFill() {}
 
     /** Two required strings */
     @AutoValue
@@ -82,7 +83,7 @@ public final class CapabilityStructFill {
             return new AutoValue_CapabilityStructFill_Property.Builder();
         }
 
-        public abstract Optional<SimpleProperty> itemList();
+        public abstract Optional<SimpleProperty> listItem();
 
         public abstract Optional<StringProperty> anyString();
 
@@ -91,7 +92,7 @@ public final class CapabilityStructFill {
         public abstract static class Builder {
 
             @NonNull
-            public abstract Builder setItemList(@NonNull SimpleProperty value);
+            public abstract Builder setListItem(@NonNull SimpleProperty value);
 
             @NonNull
             public abstract Builder setAnyString(@NonNull StringProperty value);
@@ -99,5 +100,10 @@ public final class CapabilityStructFill {
             @NonNull
             public abstract Property build();
         }
+    }
+
+    public interface Session extends BaseSession<Argument, Void> {
+        @NonNull
+        AppEntityResolver<ListItem> getListItemListener();
     }
 }

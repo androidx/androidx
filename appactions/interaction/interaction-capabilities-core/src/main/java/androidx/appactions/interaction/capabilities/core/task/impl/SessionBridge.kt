@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core
+package androidx.appactions.interaction.capabilities.core.task.impl
+
+import androidx.annotation.RestrictTo
 
 /**
- * Interface to be implemented for creating SessionT instances.
+ * converts an external Session into TaskHandler instance.
+ *
+ * @hide
  */
-fun interface SessionBuilder<SessionT> {
-    /**
-     * Implement this method to create session for handling assistant requests.\
-     *
-     * @param hostProperties only applicable while used with AppInteractionService. Contains the
-     *   dimensions of the UI area. Null when used without AppInteractionService.
-     *
-     * @return A new SessionT instance for handling a task.
-     */
-    fun createSession(
-        hostProperties: HostProperties?,
-    ): SessionT
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun interface SessionBridge<
+    SessionT,
+    ConfirmationT
+> {
+    fun createTaskHandler(externalSession: SessionT): TaskHandler<ConfirmationT>
 }

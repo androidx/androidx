@@ -14,43 +14,59 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.impl
-
+package androidx.appactions.interaction.capabilities.core.task.impl
 import androidx.appactions.interaction.capabilities.core.ActionCapability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.SessionBuilder
+import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.TaskInfo
+import java.util.function.Supplier
 
-import androidx.annotation.RestrictTo
-
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class SingleTurnCapabilityImpl<
+/**
+ * @param id a unique id for this capability, can be null
+ * @param supportsMultiTurnTask whether this is a single-turn capability or a multi-turn capability
+ * @param actionSpec the ActionSpec for this capability
+ * @param sessionBuilder the SessionBuilder provided by the library user
+ * @param sessionBridge a SessionBridge object that converts SessionT into TaskHandler instance
+ * @param sessionUpdaterSupplier a Supplier of SessionUpdaterT instances
+ */
+internal class TaskCapabilityImpl<
     PropertyT,
     ArgumentT,
     OutputT,
+    SessionT : BaseSession<ArgumentT, OutputT>,
+    ConfirmationT,
+    SessionUpdaterT,
     > constructor(
     override val id: String?,
     val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
     val property: PropertyT,
-    val sessionBuilder: SessionBuilder<BaseSession<ArgumentT, OutputT>>,
+    val sessionBuilder: SessionBuilder<SessionT>,
+    val sessionBridge: SessionBridge<SessionT, ConfirmationT>,
+    val sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
 ) : ActionCapability {
-    override val supportsMultiTurnTask = false
+
+    override val supportsMultiTurnTask = true
 
     override fun getAppAction(): AppAction {
         val appActionBuilder = actionSpec.convertPropertyToProto(property).toBuilder()
-            .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
+            .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(true))
         id?.let(appActionBuilder::setIdentifier)
         return appActionBuilder.build()
     }
 
     override fun createSession(hostProperties: HostProperties): ActionCapabilitySession {
-        return SingleTurnCapabilitySession(
+        val externalSession = sessionBuilder.createSession(
+            hostProperties,
+        )
+        return TaskCapabilitySession(
             actionSpec,
-            sessionBuilder.createSession(hostProperties),
+            getAppAction(),
+            sessionBridge.createTaskHandler(externalSession),
+            externalSession,
         )
     }
 }
