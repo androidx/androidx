@@ -19,11 +19,8 @@ package androidx.camera.video.internal.audio;
 import static androidx.camera.video.internal.audio.AudioSource.InternalState.CONFIGURED;
 import static androidx.camera.video.internal.audio.AudioSource.InternalState.RELEASED;
 import static androidx.camera.video.internal.audio.AudioSource.InternalState.STARTED;
-import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import android.Manifest;
 import android.content.Context;
@@ -41,7 +38,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.BufferProvider;
-import androidx.camera.video.internal.SilentAudioStream;
 import androidx.camera.video.internal.encoder.InputBuffer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
@@ -51,6 +47,7 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -72,14 +69,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AudioSource {
     private static final String TAG = "AudioSource";
-
-    /**
-     * The default start retry interval in milliseconds.
-     *
-     * @see #start()
-     */
-    @VisibleForTesting
-    static final long DEFAULT_START_RETRY_INTERVAL_MS = 3000L;
 
     enum InternalState {
         /** The initial state or when {@link #stop} is called after started. */
@@ -103,10 +92,6 @@ public final class AudioSource {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final AudioStream mAudioStream;
-
-    final SilentAudioStream mSilentAudioStream;
-
-    private final long mStartRetryIntervalNs;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @NonNull
@@ -135,8 +120,6 @@ public final class AudioSource {
     private FutureCallback<InputBuffer> mAcquireBufferCallback;
     @Nullable
     private Observable.Observer<BufferProvider.State> mStateObserver;
-    boolean mInSilentStartState;
-    private long mLatestFailedStartTimeNs;
 
     /**
      * Creates an AudioSource for the given settings.
@@ -165,24 +148,21 @@ public final class AudioSource {
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public AudioSource(@NonNull AudioSettings settings, @NonNull Executor executor,
             @Nullable Context attributionContext) throws AudioSourceAccessException {
-        this(settings, executor, attributionContext, AudioStreamImpl::new,
-                DEFAULT_START_RETRY_INTERVAL_MS);
+        this(settings, executor, attributionContext, AudioStreamImpl::new);
     }
 
     @VisibleForTesting
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     AudioSource(@NonNull AudioSettings settings, @NonNull Executor executor,
-            @Nullable Context attributionContext, @NonNull AudioStreamFactory audioStreamFactory,
-            long startRetryIntervalMs) throws AudioSourceAccessException {
+            @Nullable Context attributionContext, @NonNull AudioStreamFactory audioStreamFactory)
+            throws AudioSourceAccessException {
         mExecutor = CameraXExecutors.newSequentialExecutor(executor);
-        mStartRetryIntervalNs = MILLISECONDS.toNanos(startRetryIntervalMs);
         try {
             mAudioStream = audioStreamFactory.create(settings, attributionContext);
         } catch (IllegalArgumentException | AudioStream.AudioStreamException e) {
             throw new AudioSourceAccessException("Unable to create AudioStream", e);
         }
         mAudioStream.setCallback(new AudioStreamCallback(), mExecutor);
-        mSilentAudioStream = new SilentAudioStream(settings);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -227,14 +207,6 @@ public final class AudioSource {
      *
      * <p>Audio data will start being sent to the {@link BufferProvider} when
      * {@link BufferProvider}'s state is {@link BufferProvider.State#ACTIVE}.
-     *
-     * <p>If the AudioSource fails to start, instead of firing
-     * {@link AudioSourceCallback#onError(Throwable)}, it will
-     * <li>Retry internally with a fixed interval.</li>
-     * <li>Write silent audio to the BufferProvider until a successful retry or {@link #stop()}
-     * is called.
-     * <li>Trigger {@link AudioSourceCallback#onSilenceStateChanged(boolean)} with {@code true}
-     * on the first failure and {@code false} on the successful retry.</li>
      */
     public void start() {
         mExecutor.execute(() -> {
@@ -291,7 +263,6 @@ public final class AudioSource {
                             // Fall-through
                         case CONFIGURED:
                             resetBufferProvider(null);
-                            mSilentAudioStream.release();
                             mAudioStream.release();
                             stopSendingAudio();
                             setState(RELEASED);
@@ -380,20 +351,13 @@ public final class AudioSource {
                         inputBuffer.cancel();
                         return;
                     }
-                    if (mInSilentStartState && isStartRetryIntervalReached()) {
-                        retryStartAudioStream();
-                        // TODO(b/269393269): when a retry succeed, there will be a small time gap
-                        //  between silence and real audio. The gap should be filled with
-                        //  silence audio.
-                    }
-                    // If the audio stream fails to start, SilentAudioStream will be used.
-                    AudioStream audioStream = getCurrentAudioStream();
                     ByteBuffer byteBuffer = inputBuffer.getByteBuffer();
-                    AudioStream.PacketInfo packetInfo = audioStream.read(byteBuffer);
+
+                    AudioStream.PacketInfo packetInfo = mAudioStream.read(byteBuffer);
                     if (packetInfo.getSizeInBytes() > 0) {
                         byteBuffer.limit(byteBuffer.position() + packetInfo.getSizeInBytes());
                         inputBuffer.setPresentationTimeUs(
-                                NANOSECONDS.toMicros(packetInfo.getTimestampNs()));
+                                TimeUnit.NANOSECONDS.toMicros(packetInfo.getTimestampNs()));
                         inputBuffer.submit();
                     } else {
                         Logger.w(TAG, "Unable to read data from AudioRecord.");
@@ -426,32 +390,6 @@ public final class AudioSource {
             }
             mBufferProvider.addObserver(mExecutor, mStateObserver);
         }
-    }
-
-    @ExecutedBy("mExecutor")
-    @NonNull
-    AudioStream getCurrentAudioStream() {
-        return mInSilentStartState ? mSilentAudioStream : mAudioStream;
-    }
-
-    @ExecutedBy("mExecutor")
-    void retryStartAudioStream() {
-        checkState(mInSilentStartState);
-        try {
-            mAudioStream.start();
-            Logger.d(TAG, "Retry start AudioStream succeed");
-            mSilentAudioStream.stop();
-            mInSilentStartState = false;
-        } catch (AudioStream.AudioStreamException e) {
-            Logger.w(TAG, "Retry start AudioStream failed", e);
-            mLatestFailedStartTimeNs = getCurrentSystemTimeNs();
-        }
-    }
-
-    @ExecutedBy("mExecutor")
-    boolean isStartRetryIntervalReached() {
-        checkState(mLatestFailedStartTimeNs > 0);
-        return getCurrentSystemTimeNs() - mLatestFailedStartTimeNs >= mStartRetryIntervalNs;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -513,10 +451,9 @@ public final class AudioSource {
             mAudioStream.start();
         } catch (AudioStream.AudioStreamException e) {
             Logger.w(TAG, "Failed to start AudioStream", e);
-            mInSilentStartState = true;
-            mSilentAudioStream.start();
-            mLatestFailedStartTimeNs = getCurrentSystemTimeNs();
-            notifySilenced(true);
+            setState(CONFIGURED);
+            notifyError(new AudioSourceAccessException("Unable to start the audio stream.", e));
+            return;
         }
         mIsSendingAudio = true;
         sendNextAudio();
@@ -562,10 +499,6 @@ public final class AudioSource {
     /** Check if the combination of sample rate, channel count and audio format is supported. */
     public static boolean isSettingsSupported(int sampleRate, int channelCount, int audioFormat) {
         return AudioStreamImpl.isSettingsSupported(sampleRate, channelCount, audioFormat);
-    }
-
-    private static long getCurrentSystemTimeNs() {
-        return System.nanoTime();
     }
 
     /**
