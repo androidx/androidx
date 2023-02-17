@@ -456,11 +456,21 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 videoCapabilities, mediaSpec, resolution, targetFpsRange);
         mCropRect = calculateCropRect(resolution, videoEncoderInfo);
         mNode = createNodeIfNeeded(isCropNeeded(mCropRect, resolution));
+        // Choose Timebase based on the whether the buffer is copied.
         Timebase timebase;
+        if (mNode != null || !camera.getHasTransform()) {
+            timebase = camera.getCameraInfoInternal().getTimebase();
+        } else {
+            // When camera buffers from a REALTIME device are passed directly to a video encoder
+            // from the camera, automatic compensation is done to account for differing timebases
+            // of the audio and camera subsystems. See the document of
+            // CameraMetadata#SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME. So the timebase is always
+            // UPTIME when encoder surface is directly sent to camera.
+            timebase = Timebase.UPTIME;
+        }
         if (mNode != null) {
             // Make sure the previously created camera edge is cleared before creating a new one.
             checkState(mCameraEdge == null);
-            timebase = camera.getCameraInfoInternal().getTimebase();
             SurfaceEdge cameraEdge = new SurfaceEdge(
                     VIDEO_CAPTURE,
                     streamSpec,
@@ -494,12 +504,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             mSurfaceRequest = new SurfaceRequest(resolution, camera, targetFpsRange,
                     onSurfaceInvalidated);
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
-            // When camera buffers from a REALTIME device are passed directly to a video encoder
-            // from the camera, automatic compensation is done to account for differing timebases
-            // of the audio and camera subsystems. See the document of
-            // CameraMetadata#SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME. So the timebase is always
-            // UPTIME when encoder surface is directly sent to camera.
-            timebase = Timebase.UPTIME;
         }
 
         config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, timebase);
