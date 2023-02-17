@@ -36,10 +36,10 @@ import androidx.appactions.interaction.proto.CurrentValue.Status;
 import androidx.appactions.interaction.proto.DisambiguationData;
 import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.ParamValue;
+import androidx.appactions.interaction.protobuf.Struct;
+import androidx.appactions.interaction.protobuf.Value;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.protobuf.Struct;
-import com.google.protobuf.Value;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -18,8 +18,7 @@ package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
-
-import com.google.protobuf.Struct;
+import androidx.appactions.interaction.protobuf.Struct;
 
 /**
  * TypeSpec is used to convert between java objects in capabilities/values and Struct proto.
