@@ -17,14 +17,50 @@ import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
+    id("java-library")
+    id("com.github.johnrengelman.shadow")
     id("com.google.protobuf")
 }
 
+configurations {
+    shadowed
+    compileOnly.extendsFrom(shadowed)
+    testCompile.extendsFrom(shadowed)
+
+    // Make sure that only the shadowJar is included in the outgoing artifacts.
+    apiElements.outgoing.artifacts.clear()
+    apiElements.outgoing.artifact(shadowJar) {
+        builtBy shadowJar
+    }
+    runtimeElements.outgoing.artifacts.clear()
+    runtimeElements.outgoing.artifact(shadowJar) {
+        builtBy shadowJar
+    }
+}
+
 dependencies {
-    implementation(libs.protobufLite)
+    shadowed(libs.protobufLite)
+
     implementation("androidx.annotation:annotation:1.1.0")
 }
+
+// Move standard JAR to have another suffix. We will then build a shadowJar with
+// no classifier (where archiveClassifier = '') so it's picked up as the primary artifact.
+jar {
+    archiveClassifier = 'before-shadow'
+}
+
+// Classifier differentiates between different artifacts built from the same project.
+// The default is an empty string when using the Java plugin. Building shadowJar with an empty
+// classifier causes the shadow Jar file to be picked up as the primary artifact.
+shadowJar {
+    archiveClassifier = ''
+    configurations = [project.configurations.shadowed]
+    relocate "com.google.protobuf", "androidx.appactions.interaction.protobuf"
+    exclude("**/*.proto")
+}
+
+assemble.dependsOn(shadowJar)
 
 protobuf {
     protoc {
@@ -34,6 +70,11 @@ protobuf {
     // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
     // for more information.
     generateProtoTasks {
+        // Add any additional directories specified in the "main" source set to the Java
+        // source directories of the main source set.
+        ofSourceSet("main").each { task ->
+            sourceSets.main.java.srcDir(task)
+        }
         all().each { task ->
             task.builtins {
                 java {
@@ -44,8 +85,24 @@ protobuf {
     }
 }
 
-android {
-    namespace "androidx.appactions.interaction.proto"
+afterEvaluate {
+    lint {
+        lintOptions {
+            // protobuf generates unannotated and synthetic accessor methods
+            disable("UnknownNullness", "SyntheticAccessor")
+        }
+    }
+    // Explicitly declares generateProto as a dependency for generateApi so
+    // API task can run normally.
+    project.tasks.getByName("generateApi") {
+        dependsOn(":appactions:interaction:interaction-proto:generateProto")
+    }
+    // Explicitly declares generateTestProto as a dependency for some of the lint tasks
+    // run on regular AndroidX libraries.
+    project.tasks.getByName("generateTestProto") {
+        mustRunAfter(":appactions:interaction:interaction-proto:lintReport")
+        mustRunAfter(":appactions:interaction:interaction-proto:lintAnalyze")
+    }
 }
 
 androidx {

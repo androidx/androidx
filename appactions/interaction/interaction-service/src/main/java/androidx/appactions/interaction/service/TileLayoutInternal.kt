@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.service.proto.AppActionsServiceProto
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.ResourceBuilders
-import com.google.protobuf.ByteString
+import androidx.appactions.interaction.protobuf.ByteString
 
 /** Holder for TileLayout response. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
