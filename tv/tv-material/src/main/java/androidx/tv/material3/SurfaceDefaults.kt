@@ -37,7 +37,7 @@ object ClickableSurfaceDefaults {
             pressed && enabled -> shape.pressedShape
             focused && enabled -> shape.focusedShape
             focused && !enabled -> shape.focusedDisabledShape
-            enabled -> shape.defaultShape
+            enabled -> shape.shape
             else -> shape.disabledShape
         }
     }
@@ -46,7 +46,7 @@ object ClickableSurfaceDefaults {
      * Creates a [ClickableSurfaceShape] that represents the default container shapes used in a
      * Surface.
      *
-     * @param defaultShape the shape used when the Surface is enabled, and has no other
+     * @param shape the shape used when the Surface is enabled, and has no other
      * [Interaction]s.
      * @param focusedShape the shape used when the Surface is enabled and focused.
      * @param pressedShape the shape used when the Surface is enabled pressed.
@@ -56,13 +56,13 @@ object ClickableSurfaceDefaults {
     @ReadOnlyComposable
     @Composable
     fun shape(
-        defaultShape: Shape = MaterialTheme.shapes.medium,
-        focusedShape: Shape = defaultShape,
-        pressedShape: Shape = defaultShape,
-        disabledShape: Shape = defaultShape,
+        shape: Shape = MaterialTheme.shapes.medium,
+        focusedShape: Shape = shape,
+        pressedShape: Shape = shape,
+        disabledShape: Shape = shape,
         focusedDisabledShape: Shape = disabledShape
     ) = ClickableSurfaceShape(
-        defaultShape = defaultShape,
+        shape = shape,
         focusedShape = focusedShape,
         pressedShape = pressedShape,
         disabledShape = disabledShape,
@@ -78,7 +78,7 @@ object ClickableSurfaceDefaults {
         return when {
             pressed && enabled -> color.pressedColor
             focused && enabled -> color.focusedColor
-            enabled -> color.defaultColor
+            enabled -> color.color
             else -> color.disabledColor
         }
     }
@@ -87,7 +87,7 @@ object ClickableSurfaceDefaults {
      * Creates a [ClickableSurfaceColor] that represents the default container colors used in a
      * Surface.
      *
-     * @param defaultColor the container color of this Surface when enabled
+     * @param color the container color of this Surface when enabled
      * @param focusedColor the container color of this Surface when enabled and focused
      * @param pressedColor the container color of this Surface when enabled and pressed
      * @param disabledColor the container color of this Surface when not enabled
@@ -95,14 +95,14 @@ object ClickableSurfaceDefaults {
     @ReadOnlyComposable
     @Composable
     fun color(
-        defaultColor: Color = MaterialTheme.colorScheme.surface,
+        color: Color = MaterialTheme.colorScheme.surface,
         focusedColor: Color = MaterialTheme.colorScheme.inverseSurface,
         pressedColor: Color = MaterialTheme.colorScheme.inverseSurface,
         disabledColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(
             alpha = DisabledBackgroundAlpha
         )
     ) = ClickableSurfaceColor(
-        defaultColor = defaultColor,
+        color = color,
         focusedColor = focusedColor,
         pressedColor = pressedColor,
         disabledColor = disabledColor
@@ -112,7 +112,7 @@ object ClickableSurfaceDefaults {
      * Creates a [ClickableSurfaceColor] that represents the default content colors used in a
      * Surface.
      *
-     * @param defaultColor the content color of this Surface when enabled
+     * @param color the content color of this Surface when enabled
      * @param focusedColor the content color of this Surface when enabled and focused
      * @param pressedColor the content color of this Surface when enabled and pressed
      * @param disabledColor the content color of this Surface when not enabled
@@ -120,15 +120,50 @@ object ClickableSurfaceDefaults {
     @ReadOnlyComposable
     @Composable
     fun contentColor(
-        defaultColor: Color = MaterialTheme.colorScheme.onSurface,
+        color: Color = MaterialTheme.colorScheme.onSurface,
         focusedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
         pressedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
         disabledColor: Color = MaterialTheme.colorScheme.onSurface
     ) = ClickableSurfaceColor(
-        defaultColor = defaultColor,
+        color = color,
         focusedColor = focusedColor,
         pressedColor = pressedColor,
         disabledColor = disabledColor
+    )
+
+    internal fun glow(
+        enabled: Boolean,
+        focused: Boolean,
+        pressed: Boolean,
+        glow: ClickableSurfaceGlow
+    ): Glow {
+        return if (enabled) {
+            when {
+                pressed -> glow.pressedGlow
+                focused -> glow.focusedGlow
+                else -> glow.glow
+            }
+        } else {
+            Glow.None
+        }
+    }
+
+    /**
+     * Creates a [ClickableSurfaceGlow] that represents the default [Glow]s used in a
+     * Surface.
+     *
+     * @param glow the Glow behind this Surface when enabled
+     * @param focusedGlow the Glow behind this Surface when focused
+     * @param pressedGlow the Glow behind this Surface when pressed
+     */
+    fun glow(
+        glow: Glow = Glow.None,
+        focusedGlow: Glow = glow,
+        pressedGlow: Glow = glow
+    ) = ClickableSurfaceGlow(
+        glow = glow,
+        focusedGlow = focusedGlow,
+        pressedGlow = pressedGlow
     )
 }
 

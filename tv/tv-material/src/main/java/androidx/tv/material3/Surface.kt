@@ -16,16 +16,16 @@
 
 package androidx.tv.material3
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.NonRestartableComposable
@@ -37,22 +37,24 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 
 /**
@@ -69,14 +71,10 @@ import kotlinx.coroutines.launch
  * clickable or focusable.
  * @param tonalElevation When [color] is [ColorScheme.surface], a higher the elevation will result
  * in a darker color in light theme and lighter color in dark theme.
- * @param shadowElevation The size of the shadow below the surface. Note that It will not affect z
- * index of the Surface. If you want to change the drawing order you can use `Modifier.zIndex`.
- * @param role The type of user interface element. Accessibility services might use this to describe
- * the element or do customizations.
  * @param shape Defines the surface's shape.
  * @param color Color to be used on background of the Surface
  * @param contentColor The preferred content color provided by this Surface to its children.
- * @param border Optional border to draw on top of the surface
+ * @param glow Diffused shadow to be shown behind the Surface.
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this Surface. You can create and pass in your own remembered [MutableInteractionSource] if
  * you want to observe [Interaction]s and customize the appearance / behavior of this Surface in
@@ -90,15 +88,13 @@ fun Surface(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    tonalElevation: Dp = 0.dp,
     shape: ClickableSurfaceShape = ClickableSurfaceDefaults.shape(),
     color: ClickableSurfaceColor = ClickableSurfaceDefaults.color(),
     contentColor: ClickableSurfaceColor = ClickableSurfaceDefaults.contentColor(),
-    border: BorderStroke? = null,
-    tonalElevation: Dp = 0.dp,
-    role: Role? = null,
-    shadowElevation: Dp = 0.dp,
+    glow: ClickableSurfaceGlow = ClickableSurfaceDefaults.glow(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    content: @Composable () -> Unit
+    content: @Composable (BoxScope.() -> Unit)
 ) {
     val focused by interactionSource.collectIsFocusedAsState()
     val pressed by interactionSource.collectIsPressedAsState()
@@ -106,9 +102,10 @@ fun Surface(
         modifier = modifier.tvClickable(
             enabled = enabled,
             onClick = onClick,
-            interactionSource = interactionSource,
-            role = role
+            interactionSource = interactionSource
         ),
+        enabled = enabled,
+        tonalElevation = tonalElevation,
         shape = ClickableSurfaceDefaults.shape(
             enabled = enabled,
             focused = focused,
@@ -127,9 +124,13 @@ fun Surface(
             pressed = pressed,
             color = contentColor
         ),
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        border = border,
+        glow = ClickableSurfaceDefaults.glow(
+            enabled = enabled,
+            focused = focused,
+            pressed = pressed,
+            glow = glow
+        ),
+        interactionSource = interactionSource,
         content = content
     )
 }
@@ -138,47 +139,91 @@ fun Surface(
 @Composable
 private fun SurfaceImpl(
     modifier: Modifier = Modifier,
+    selected: Boolean = false,
+    enabled: Boolean,
     shape: Shape = RectangleShape,
-    color: Color = MaterialTheme.colorScheme.surface,
-    contentColor: Color = contentColorFor(color),
+    color: Color,
+    contentColor: Color,
+    glow: Glow,
     tonalElevation: Dp = 0.dp,
-    shadowElevation: Dp = 0.dp,
-    border: BorderStroke? = null,
-    content: @Composable () -> Unit
+    interactionSource: MutableInteractionSource,
+    content: @Composable (BoxScope.() -> Unit)
 ) {
+    val focused by interactionSource.collectIsFocusedAsState()
+    val pressed by interactionSource.collectIsPressedAsState()
+
+    val surfaceAlpha = stateAlpha(
+        enabled = enabled,
+        focused = focused,
+        pressed = pressed,
+        selected = selected
+    )
+
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
+
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
+        val zIndex by animateFloatAsState(
+            targetValue = if (focused) FocusedZIndex else NonFocusedZIndex
+        )
+
+        val backgroundColorByState = surfaceColorAtElevation(
+            color = color,
+            elevation = LocalAbsoluteTonalElevation.current
+        )
+
         Box(
             modifier = modifier
-                .surface(
-                    shape = shape,
-                    backgroundColor = surfaceColorAtElevation(
-                        color = color,
-                        elevation = absoluteElevation
-                    ),
-                    border = border,
-                    shadowElevation = shadowElevation
-                ),
+                .indication(
+                    interactionSource = interactionSource,
+                    indication = rememberGlowIndication(
+                        color = surfaceColorAtElevation(
+                            color = glow.elevationColor,
+                            elevation = glow.elevation
+                        ),
+                        shape = shape,
+                        glowBlurRadius = glow.elevation
+                    )
+                )
+                // Increasing the zIndex of this Surface when it is in the focused state to
+                // avoid the glowIndication from being overlapped by subsequent items if
+                // this Surface is inside a list composable (like a Row/Column).
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0, zIndex = zIndex)
+                    }
+                }
+                .drawWithCache {
+                    onDrawBehind {
+                        drawOutline(
+                            outline = shape.createOutline(
+                                size = size,
+                                layoutDirection = layoutDirection,
+                                density = Density(density, fontScale)
+                            ),
+                            color = backgroundColorByState
+                        )
+                    }
+                }
+                .graphicsLayer {
+                    this.alpha = surfaceAlpha
+                    this.shape = shape
+                    this.clip = true
+                },
             propagateMinConstraints = true
         ) {
-            content()
+            Box(
+                modifier = Modifier.graphicsLayer {
+                    this.alpha = if (!enabled) DisabledContentAlpha else EnabledContentAlpha
+                },
+                content = content
+            )
         }
     }
 }
-
-private fun Modifier.surface(
-    shape: Shape,
-    backgroundColor: Color,
-    border: BorderStroke?,
-    shadowElevation: Dp
-) = this
-    .shadow(shadowElevation, shape, clip = false)
-    .then(if (border != null) Modifier.border(border, shape) else Modifier)
-    .background(color = backgroundColor, shape = shape)
-    .clip(shape)
 
 /**
  * This modifier handles click, press, and focus events for a TV composable.
@@ -187,15 +232,13 @@ private fun Modifier.surface(
  * @param value differentiates whether the current item is selected or unselected
  * @param onValueChanged executes the provided lambda while returning the inverse state of [value]
  * @param interactionSource used to emit [PressInteraction] events
- * @param role used to define this composable's semantic role (for Accessibility purposes)
  */
 private fun Modifier.tvClickable(
     enabled: Boolean,
     onClick: (() -> Unit)? = null,
     value: Boolean = false,
     onValueChanged: ((Boolean) -> Unit)? = null,
-    interactionSource: MutableInteractionSource,
-    role: Role?
+    interactionSource: MutableInteractionSource
 ) = this
     .handleDPadEnter(
         enabled = enabled,
@@ -216,7 +259,6 @@ private fun Modifier.tvClickable(
             }
             false
         }
-        role?.let { nnRole -> this.role = nnRole }
         if (!enabled) {
             disabled()
         }
@@ -281,6 +323,36 @@ private fun surfaceColorAtElevation(color: Color, elevation: Dp): Color {
         color
     }
 }
+
+/**
+ * Returns the alpha value for Surface's background based on its current indication state. The
+ * value ranges between 0f and 1f.
+ */
+private fun stateAlpha(
+    enabled: Boolean,
+    focused: Boolean,
+    pressed: Boolean,
+    selected: Boolean
+): Float {
+    return when {
+        enabled -> EnabledContentAlpha
+        !enabled && pressed -> DisabledPressedStateAlpha
+        !enabled && focused -> DisabledFocusedStateAlpha
+        !enabled && selected -> DisabledSelectedStateAlpha
+        else -> DisabledDefaultStateAlpha
+    }
+}
+
+private const val DisabledPressedStateAlpha = 0.8f
+private const val DisabledFocusedStateAlpha = 0.8f
+private const val DisabledSelectedStateAlpha = 0.8f
+private const val DisabledDefaultStateAlpha = 0.6f
+
+private const val FocusedZIndex = 0.5f
+private const val NonFocusedZIndex = 0f
+
+private const val DisabledContentAlpha = 0.8f
+internal const val EnabledContentAlpha = 1f
 
 /**
  * CompositionLocal containing the current absolute elevation provided by Surface components. This
