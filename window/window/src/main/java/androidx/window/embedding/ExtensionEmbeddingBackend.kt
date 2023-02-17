@@ -55,7 +55,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         private val globalLock = ReentrantLock()
         private const val TAG = "EmbeddingBackend"
 
-        fun getInstance(applicationContext: Context): ExtensionEmbeddingBackend {
+        fun getInstance(applicationContext: Context): EmbeddingBackend {
             if (globalInstance == null) {
                 globalLock.withLock {
                     if (globalInstance == null) {
