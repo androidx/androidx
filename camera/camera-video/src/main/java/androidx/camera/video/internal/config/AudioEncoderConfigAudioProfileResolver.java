@@ -25,13 +25,13 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.AudioSpec;
-import androidx.camera.video.internal.AudioSource;
+import androidx.camera.video.internal.audio.AudioSettings;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
 import androidx.core.util.Supplier;
 
 /**
  * An {@link AudioEncoderConfig} supplier that resolves requested encoder settings from an
- * {@link AudioSpec} for the given {@link AudioSource.Settings} using the provided
+ * {@link AudioSpec} for the given {@link AudioSettings} using the provided
  * {@link AudioProfileProxy}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -44,7 +44,7 @@ public final class AudioEncoderConfigAudioProfileResolver implements
     private final Timebase mInputTimebase;
     private final int mAudioProfile;
     private final AudioSpec mAudioSpec;
-    private final AudioSource.Settings mAudioSourceSettings;
+    private final AudioSettings mAudioSettings;
     private final AudioProfileProxy mAudioProfileProxy;
 
     /**
@@ -55,19 +55,19 @@ public final class AudioEncoderConfigAudioProfileResolver implements
      * @param inputTimebase       The timebase of the input frame
      * @param audioSpec           The {@link AudioSpec} which defines the settings that should be
      *                            used with the audio encoder.
-     * @param audioSourceSettings The settings used to configure the source of audio.
+     * @param audioSettings       The settings used to configure the source of audio.
      * @param audioProfileProxy   The {@link AudioProfileProxy} used to resolve automatic and
      *                            range settings.
      */
     public AudioEncoderConfigAudioProfileResolver(@NonNull String mimeType,
             int audioProfile, @NonNull Timebase inputTimebase, @NonNull AudioSpec audioSpec,
-            @NonNull AudioSource.Settings audioSourceSettings,
+            @NonNull AudioSettings audioSettings,
             @NonNull AudioProfileProxy audioProfileProxy) {
         mMimeType = mimeType;
         mAudioProfile = audioProfile;
         mInputTimebase = inputTimebase;
         mAudioSpec = audioSpec;
-        mAudioSourceSettings = audioSourceSettings;
+        mAudioSettings = audioSettings;
         mAudioProfileProxy = audioProfileProxy;
     }
 
@@ -78,16 +78,16 @@ public final class AudioEncoderConfigAudioProfileResolver implements
         Range<Integer> audioSpecBitrateRange = mAudioSpec.getBitrate();
         int resolvedBitrate = AudioConfigUtil.scaleAndClampBitrate(
                 mAudioProfileProxy.getBitrate(),
-                mAudioSourceSettings.getChannelCount(), mAudioProfileProxy.getChannels(),
-                mAudioSourceSettings.getSampleRate(), mAudioProfileProxy.getSampleRate(),
+                mAudioSettings.getChannelCount(), mAudioProfileProxy.getChannels(),
+                mAudioSettings.getSampleRate(), mAudioProfileProxy.getSampleRate(),
                 audioSpecBitrateRange);
 
         return AudioEncoderConfig.builder()
                 .setMimeType(mMimeType)
                 .setProfile(mAudioProfile)
                 .setInputTimebase(mInputTimebase)
-                .setChannelCount(mAudioSourceSettings.getChannelCount())
-                .setSampleRate(mAudioSourceSettings.getSampleRate())
+                .setChannelCount(mAudioSettings.getChannelCount())
+                .setSampleRate(mAudioSettings.getSampleRate())
                 .setBitrate(resolvedBitrate)
                 .build();
     }

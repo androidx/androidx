@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal;
+package androidx.camera.video.internal.audio;
 
+import android.content.Context;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-/** An exception thrown to indicate an error has occurred during configuring an audio source. */
+/** Factory class to create {@link AudioStream}. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class AudioSourceAccessException extends Exception {
+interface AudioStreamFactory {
 
-    public AudioSourceAccessException(@Nullable String message) {
-        super(message);
-    }
-
-    public AudioSourceAccessException(@Nullable String message, @Nullable Throwable cause) {
-        super(message, cause);
-    }
-
-    public AudioSourceAccessException(@Nullable Throwable cause) {
-        super(cause);
-    }
+    /**
+     * Factory method to create the AudioStream.
+     *
+     * @param audioSettings      the audio settings.
+     * @param attributionContext the attribution context.
+     * @return AudioStream
+     * @throws AudioStream.AudioStreamException if it fails to create the AudioStream.
+     */
+    @NonNull
+    AudioStream create(@NonNull AudioSettings audioSettings, @Nullable Context attributionContext)
+            throws AudioStream.AudioStreamException;
 }

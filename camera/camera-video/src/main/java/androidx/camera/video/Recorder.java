@@ -29,7 +29,7 @@ import static androidx.camera.video.VideoRecordEvent.Finalize.VideoRecordError;
 import static androidx.camera.video.internal.DebugUtils.readableUs;
 import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioEncoderConfig;
 import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioMimeInfo;
-import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioSourceSettings;
+import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioSettings;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -71,9 +71,10 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.utils.ArrayRingBuffer;
 import androidx.camera.core.internal.utils.RingBuffer;
 import androidx.camera.video.StreamInfo.StreamState;
-import androidx.camera.video.internal.AudioSource;
-import androidx.camera.video.internal.AudioSourceAccessException;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
+import androidx.camera.video.internal.audio.AudioSettings;
+import androidx.camera.video.internal.audio.AudioSource;
+import androidx.camera.video.internal.audio.AudioSourceAccessException;
 import androidx.camera.video.internal.compat.Api26Impl;
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
@@ -1241,19 +1242,19 @@ public final class Recorder implements VideoOutput {
         Timebase audioSourceTimebase = Timebase.UPTIME;
 
         // Select and create the audio source
-        AudioSource.Settings audioSourceSettings =
-                resolveAudioSourceSettings(audioMimeInfo, mediaSpec.getAudioSpec());
+        AudioSettings audioSettings =
+                resolveAudioSettings(audioMimeInfo, mediaSpec.getAudioSpec());
         if (mAudioSource != null) {
             releaseCurrentAudioSource();
         }
         // TODO: set audioSourceTimebase to AudioSource. Currently AudioSource hard code
         //  AudioTimestamp.TIMEBASE_MONOTONIC.
-        mAudioSource = setupAudioSource(recordingToStart, audioSourceSettings);
+        mAudioSource = setupAudioSource(recordingToStart, audioSettings);
         Logger.d(TAG, String.format("Set up new audio source: 0x%x", mAudioSource.hashCode()));
 
         // Select and create the audio encoder
         AudioEncoderConfig audioEncoderConfig = resolveAudioEncoderConfig(audioMimeInfo,
-                audioSourceTimebase, audioSourceSettings, mediaSpec.getAudioSpec());
+                audioSourceTimebase, audioSettings, mediaSpec.getAudioSpec());
         mAudioEncoder = mAudioEncoderFactory.createEncoder(mExecutor, audioEncoderConfig);
 
         // Connect the audio source to the audio encoder
@@ -1267,10 +1268,9 @@ public final class Recorder implements VideoOutput {
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @NonNull
     private AudioSource setupAudioSource(@NonNull RecordingRecord recordingToStart,
-            @NonNull AudioSource.Settings audioSourceSettings)
+            @NonNull AudioSettings audioSettings)
             throws AudioSourceAccessException {
-        return recordingToStart.performOneTimeAudioSourceCreation(audioSourceSettings,
-                AUDIO_EXECUTOR);
+        return recordingToStart.performOneTimeAudioSourceCreation(audioSettings, AUDIO_EXECUTOR);
     }
 
     private void releaseCurrentAudioSource() {
@@ -1641,7 +1641,7 @@ public final class Recorder implements VideoOutput {
                         mAudioSource.setAudioSourceCallback(mSequentialExecutor,
                                 new AudioSource.AudioSourceCallback() {
                                     @Override
-                                    public void onSilenced(boolean silenced) {
+                                    public void onSilenceStateChanged(boolean silenced) {
                                         if (mIsAudioSourceSilenced != silenced) {
                                             mIsAudioSourceSilenced = silenced;
                                             mAudioErrorCause = silenced ? new IllegalStateException(
@@ -2738,7 +2738,7 @@ public final class Recorder implements VideoOutput {
                         @NonNull
                         @Override
                         @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-                        public AudioSource get(@NonNull AudioSource.Settings settings,
+                        public AudioSource get(@NonNull AudioSettings settings,
                                 @NonNull Executor executor)
                                 throws AudioSourceAccessException {
                             // Context will only be held in local scope of the supplier so it will
@@ -2755,7 +2755,7 @@ public final class Recorder implements VideoOutput {
                         @NonNull
                         @Override
                         @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-                        public AudioSource get(@NonNull AudioSource.Settings settings,
+                        public AudioSource get(@NonNull AudioSettings settings,
                                 @NonNull Executor executor)
                                 throws AudioSourceAccessException {
                             // Do not set (or retain) context on other API levels
@@ -2870,7 +2870,7 @@ public final class Recorder implements VideoOutput {
         @NonNull
         @RequiresPermission(Manifest.permission.RECORD_AUDIO)
         AudioSource performOneTimeAudioSourceCreation(
-                @NonNull AudioSource.Settings settings, @NonNull Executor audioSourceExecutor)
+                @NonNull AudioSettings settings, @NonNull Executor audioSourceExecutor)
                 throws AudioSourceAccessException {
             if (!hasAudioEnabled()) {
                 throw new AssertionError("Recording does not have audio enabled. Unable to create"
@@ -2984,7 +2984,7 @@ public final class Recorder implements VideoOutput {
         private interface AudioSourceSupplier {
             @RequiresPermission(Manifest.permission.RECORD_AUDIO)
             @NonNull
-            AudioSource get(@NonNull AudioSource.Settings settings,
+            AudioSource get(@NonNull AudioSettings settings,
                     @NonNull Executor audioSourceExecutor) throws AudioSourceAccessException;
         }
     }
