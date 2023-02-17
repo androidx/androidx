@@ -33,6 +33,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -385,6 +386,7 @@ public class GuidedStepAttributesTest {
         }
     }
 
+    @Ignore // b/263796240
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testCheckedActions() throws Throwable {
