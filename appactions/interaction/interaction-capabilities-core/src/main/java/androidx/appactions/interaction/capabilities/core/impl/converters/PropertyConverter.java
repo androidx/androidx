@@ -143,9 +143,9 @@ public final class PropertyConverter {
 
         switch (possibleValue.getKind()) {
             case STRING_VALUE:
-                return possibleValueToProto(possibleValue.stringValue());
+                return possibleValueToProto(possibleValue.getStringValue());
             case ENUM_VALUE:
-                return enumToProto(possibleValue.enumValue());
+                return enumToProto(possibleValue.getEnumValue());
         }
         throw new IllegalStateException("unreachable");
     }

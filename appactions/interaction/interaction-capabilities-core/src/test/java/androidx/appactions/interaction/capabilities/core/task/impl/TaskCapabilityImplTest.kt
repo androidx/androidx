@@ -241,8 +241,8 @@ class TaskCapabilityImplTest {
         val onFinishInvocationCount = AtomicInteger(0)
         val property: CapabilityTwoEntityValues.Property =
             CapabilityTwoEntityValues.Property.newBuilder()
-                .setSlotA(EntityProperty.newBuilder().setIsRequired(true).build())
-                .setSlotB(EntityProperty.newBuilder().setIsRequired(false).build())
+                .setSlotA(EntityProperty.Builder().setRequired(true).build())
+                .setSlotB(EntityProperty.Builder().setRequired(false).build())
                 .build()
         val sessionBuilder = SessionBuilder<CapabilityTwoEntityValues.Session> {
             object : CapabilityTwoEntityValues.Session {}
@@ -311,12 +311,12 @@ class TaskCapabilityImplTest {
     fun slotFilling_assistantRemovedParam_clearInSdkState() {
         val property: Property = Property.newBuilder()
             .setRequiredEntityField(
-                EntityProperty.newBuilder().setIsRequired(true).build(),
+                EntityProperty.Builder().setRequired(true).build(),
             )
             .setEnumField(
-                EnumProperty.newBuilder(TestEnum::class.java)
+                EnumProperty.Builder(TestEnum::class.java)
                     .addSupportedEnumValues(TestEnum.VALUE_1, TestEnum.VALUE_2)
-                    .setIsRequired(true)
+                    .setRequired(true)
                     .build(),
             )
             .build()
@@ -534,8 +534,8 @@ class TaskCapabilityImplTest {
     @Suppress("DEPRECATION") // TODO(b/269638788) migrate session state to AppDialogState message
     fun identifierOnly_refillsStruct() {
         val property: CapabilityStructFill.Property = CapabilityStructFill.Property.newBuilder()
-            .setListItem(SimpleProperty.REQUIRED)
-            .setAnyString(StringProperty.newBuilder().setIsRequired(true).build())
+            .setListItem(SimpleProperty.Builder().setRequired(true).build())
+            .setAnyString(StringProperty.Builder().setRequired(true).build())
             .build()
         val item1: ListItem = ListItem.newBuilder().setName("red apple").setId("item1").build()
         val item2: ListItem = ListItem.newBuilder().setName("green apple").setId("item2").build()
@@ -874,7 +874,7 @@ class TaskCapabilityImplTest {
                 .build()
 
         private val SINGLE_REQUIRED_FIELD_PROPERTY: Property = Property.newBuilder()
-            .setRequiredEntityField(EntityProperty.newBuilder().setIsRequired(true).build())
+            .setRequiredEntityField(EntityProperty.Builder().setRequired(true).build())
             .build()
 
         private fun groundingPredicate(paramValue: ParamValue): Boolean {
