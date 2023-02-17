@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal.compat
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.util.Size
+import androidx.camera.camera2.internal.compat.workaround.OutputSizesCorrector
 import androidx.camera.core.impl.ImageFormatConstants
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -27,6 +28,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 /**
@@ -55,8 +57,18 @@ class StreamConfigurationMapCompatTest {
                 addOutputSize(FORMAT_PRIVATE, size)
             }
         }
+        val cameraId = "0"
+        val characteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+            ShadowCameraCharacteristics.newCameraCharacteristics(),
+            cameraId
+        )
+
+        // **** Camera 0 characteristics ****//
         streamConfigurationMapCompat =
-            StreamConfigurationMapCompat.toStreamConfigurationMapCompat(builder.build())
+            StreamConfigurationMapCompat.toStreamConfigurationMapCompat(
+                builder.build(),
+                OutputSizesCorrector(cameraId, characteristicsCompat)
+            )
     }
 
     @Test

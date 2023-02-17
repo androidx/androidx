@@ -38,6 +38,7 @@ import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
@@ -56,7 +57,6 @@ import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
-import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
 import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
@@ -65,6 +65,7 @@ import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -100,12 +101,10 @@ final class SupportedSurfaceCombination {
     private final String mCameraId;
     private final CamcorderProfileHelper mCamcorderProfileHelper;
     private final CameraCharacteristicsCompat mCharacteristics;
-    private final ExcludedSupportedSizesContainer mExcludedSupportedSizesContainer;
     private final ExtraSupportedSurfaceCombinationsContainer
             mExtraSupportedSurfaceCombinationsContainer;
     private final int mHardwareLevel;
     private final boolean mIsSensorLandscapeResolution;
-    private final Map<Integer, List<Size>> mExcludedSizeListCache = new HashMap<>();
     private boolean mIsRawSupported = false;
     private boolean mIsBurstCaptureSupported = false;
     @VisibleForTesting
@@ -125,7 +124,6 @@ final class SupportedSurfaceCombination {
             throws CameraUnavailableException {
         mCameraId = Preconditions.checkNotNull(cameraId);
         mCamcorderProfileHelper = Preconditions.checkNotNull(camcorderProfileHelper);
-        mExcludedSupportedSizesContainer = new ExcludedSupportedSizesContainer(cameraId);
         mExtraSupportedSurfaceCombinationsContainer =
                 new ExtraSupportedSurfaceCombinationsContainer();
         mDisplayInfoManager = DisplayInfoManager.getInstance(context);
@@ -603,7 +601,10 @@ final class SupportedSurfaceCombination {
         if (outputSizes == null) {
             outputSizes = getAllOutputSizesByFormat(imageFormat);
         }
-        outputSizes = excludeProblematicSizesAndSort(outputSizes, imageFormat);
+
+        // Sort the result sizes. The Comparator result must be reversed to have a descending
+        // order result.
+        Arrays.sort(outputSizes, new CompareSizesByArea(true));
 
         List<Size> outputSizeCandidates = new ArrayList<>();
         Size maxSize = imageOutputConfig.getMaxResolution(null);
@@ -798,21 +799,6 @@ final class SupportedSurfaceCombination {
         return allPossibleSizeArrangements;
     }
 
-    @NonNull
-    private Size[] excludeProblematicSizesAndSort(@NonNull Size[] outputSizes, int imageFormat) {
-        List<Size> excludedSizes = fetchExcludedSizes(imageFormat);
-        List<Size> resultSizesList = new ArrayList<>(Arrays.asList(outputSizes));
-        resultSizesList.removeAll(excludedSizes);
-
-        Size[] resultSizes = resultSizesList.toArray(new Size[0]);
-
-        // Sort the result sizes. The Comparator result must be reversed to have a descending
-        // order result.
-        Arrays.sort(resultSizes, new CompareSizesByArea(true));
-
-        return resultSizes;
-    }
-
     @Nullable
     private Size[] getCustomizedSupportSizesFromConfig(int imageFormat,
             @NonNull ImageOutputConfig config) {
@@ -847,15 +833,7 @@ final class SupportedSurfaceCombination {
 
     @NonNull
     private Size[] doGetAllOutputSizesByFormat(int imageFormat) {
-        StreamConfigurationMap map =
-                mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-
-        if (map == null) {
-            throw new IllegalArgumentException("Can not retrieve SCALER_STREAM_CONFIGURATION_MAP");
-        }
-
-        StreamConfigurationMapCompat mapCompat =
-                StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
+        StreamConfigurationMapCompat mapCompat = mCharacteristics.getStreamConfigurationMapCompat();
         Size[] outputSizes = mapCompat.getOutputSizes(imageFormat);
         if (outputSizes == null) {
             throw new IllegalArgumentException(
@@ -872,8 +850,21 @@ final class SupportedSurfaceCombination {
      * @return the max supported output size for the image format
      */
     Size getMaxOutputSizeByFormat(int imageFormat) {
-        Size[] outputSizes = getAllOutputSizesByFormat(imageFormat);
-
+        // Needs to retrieve the output size from the original stream configuration map without
+        // quirks applied.
+        StreamConfigurationMap map =
+                mCharacteristics.getStreamConfigurationMapCompat().toStreamConfigurationMap();
+        Size[] outputSizes;
+        if (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
+            // This is a little tricky that 0x22 that is internal defined in
+            // StreamConfigurationMap.java to be equal to ImageFormat.PRIVATE that is public
+            // after Android level 23 but not public in Android L. Use {@link SurfaceTexture}
+            // or {@link MediaCodec} will finally mapped to 0x22 in StreamConfigurationMap to
+            // retrieve the output sizes information.
+            outputSizes = map.getOutputSizes(SurfaceTexture.class);
+        } else {
+            outputSizes = map.getOutputSizes(imageFormat);
+        }
         return Collections.max(Arrays.asList(outputSizes), new CompareSizesByArea());
     }
 
@@ -960,17 +951,11 @@ final class SupportedSurfaceCombination {
      */
     @NonNull
     private Size getRecordSizeFromStreamConfigurationMap() {
-        StreamConfigurationMap map =
-                mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-
-        if (map == null) {
-            throw new IllegalArgumentException("Can not retrieve SCALER_STREAM_CONFIGURATION_MAP");
-        }
-
-        StreamConfigurationMapCompat mapCompat =
-                StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
-
-        Size[] videoSizeArr = mapCompat.getOutputSizes(MediaRecorder.class);
+        // Determining the record size needs to retrieve the output size from the original stream
+        // configuration map without quirks applied.
+        StreamConfigurationMapCompat mapCompat = mCharacteristics.getStreamConfigurationMapCompat();
+        Size[] videoSizeArr = mapCompat.toStreamConfigurationMap().getOutputSizes(
+                MediaRecorder.class);
 
         if (videoSizeArr == null) {
             return RESOLUTION_480P;
@@ -1021,17 +1006,5 @@ final class SupportedSurfaceCombination {
         }
 
         return recordSize;
-    }
-
-    @NonNull
-    private List<Size> fetchExcludedSizes(int imageFormat) {
-        List<Size> excludedSizes = mExcludedSizeListCache.get(imageFormat);
-
-        if (excludedSizes == null) {
-            excludedSizes = mExcludedSupportedSizesContainer.get(imageFormat);
-            mExcludedSizeListCache.put(imageFormat, excludedSizes);
-        }
-
-        return excludedSizes;
     }
 }

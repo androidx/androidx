@@ -60,6 +60,7 @@ import java.util.Map;
 public class StreamUseCaseTest {
 
     private CameraCharacteristics mCameraCharacteristics;
+    private static final String CAMERA_ID_0 = "0";
 
     DeferrableSurface mMockSurface = new DeferrableSurface() {
         private final ListenableFuture<Surface> mSurfaceFuture = ResolvableFuture.create();
@@ -208,8 +209,8 @@ public class StreamUseCaseTest {
         sessionConfigs.add(sessionConfig);
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
                 sessionConfigs, streamUseCaseMap,
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCameraCharacteristics),
-                true);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCameraCharacteristics,
+                        CAMERA_ID_0), true);
         assertTrue(streamUseCaseMap.isEmpty());
     }
 
@@ -278,7 +279,7 @@ public class StreamUseCaseTest {
             shadowCharacteristics0.set(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES, uc);
         }
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                mCameraCharacteristics);
+                mCameraCharacteristics, CAMERA_ID_0);
     }
 
     private CameraCharacteristicsCompat getCameraCharacteristicsCompatWithEmptyUseCases() {
@@ -288,6 +289,6 @@ public class StreamUseCaseTest {
                     new long[]{});
         }
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                mCameraCharacteristics);
+                mCameraCharacteristics, CAMERA_ID_0);
     }
 }
