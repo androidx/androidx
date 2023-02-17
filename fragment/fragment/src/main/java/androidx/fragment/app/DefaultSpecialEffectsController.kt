@@ -15,6 +15,8 @@
  */
 package androidx.fragment.app
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.graphics.Rect
 import android.util.Log
@@ -22,7 +24,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import androidx.collection.ArrayMap
-import androidx.core.animation.doOnEnd
 import androidx.core.os.CancellationSignal
 import androidx.core.view.OneShotPreDrawListener
 import androidx.core.view.ViewCompat
@@ -181,19 +182,21 @@ internal class DefaultSpecialEffectsController(
             }
             val viewToAnimate = fragment.mView
             container.startViewTransition(viewToAnimate)
-            animator.doOnEnd {
-                container.endViewTransition(viewToAnimate)
-                if (isHideOperation) {
-                    // Specifically for hide operations with Animator, we can't
-                    // applyState until the Animator finishes
-                    operation.finalState.applyState(viewToAnimate)
+            animator.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(anim: Animator) {
+                    container.endViewTransition(viewToAnimate)
+                    if (isHideOperation) {
+                        // Specifically for hide operations with Animator, we can't
+                        // applyState until the Animator finishes
+                        operation.finalState.applyState(viewToAnimate)
+                    }
+                    animationInfo.completeSpecialEffect()
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG,
+                            "Animator from operation $operation has ended.")
+                    }
                 }
-                animationInfo.completeSpecialEffect()
-                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                    Log.v(FragmentManager.TAG,
-                        "Animator from operation $operation has ended.")
-                }
-            }
+            })
             animator.setTarget(viewToAnimate)
             animator.start()
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
