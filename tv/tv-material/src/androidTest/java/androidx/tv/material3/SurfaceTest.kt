@@ -17,6 +17,7 @@
 package androidx.tv.material3
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -32,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -42,13 +44,9 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
@@ -62,8 +60,10 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.Dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.tv.material3.tokens.Elevation
 import com.google.common.truth.Truth
 import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
@@ -102,10 +102,10 @@ class SurfaceTest {
                 Surface(
                     onClick = {},
                     shape = ClickableSurfaceDefaults.shape(
-                        defaultShape = RectangleShape
+                        shape = RectangleShape
                     ),
                     color = ClickableSurfaceDefaults.color(
-                        defaultColor = Color.Yellow
+                        color = Color.Yellow
                     )
                 ) {
                     Box(Modifier.fillMaxSize())
@@ -113,10 +113,10 @@ class SurfaceTest {
                 Surface(
                     onClick = {},
                     shape = ClickableSurfaceDefaults.shape(
-                        defaultShape = RectangleShape
+                        shape = RectangleShape
                     ),
                     color = ClickableSurfaceDefaults.color(
-                        defaultColor = Color.Green
+                        color = Color.Green
                     )
                 ) {
                     Box(Modifier.fillMaxSize())
@@ -172,7 +172,7 @@ class SurfaceTest {
                     },
                     onClick = {},
                     tonalElevation = 2.toDp(),
-                    contentColor = ClickableSurfaceDefaults.color(defaultColor = expectedColor)
+                    contentColor = ClickableSurfaceDefaults.color(color = expectedColor)
                 ) {}
             }
         }
@@ -213,7 +213,6 @@ class SurfaceTest {
                 modifier = Modifier
                     .testTag("surface"),
                 onClick = { count.value += 1 },
-                role = Role.Checkbox
             ) {
                 Text("${count.value}")
                 Spacer(Modifier.size(30.toDp()))
@@ -222,7 +221,6 @@ class SurfaceTest {
         rule.onNodeWithTag("surface")
             .performSemanticsAction(SemanticsActions.RequestFocus)
             .assertHasClickAction()
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsEnabled()
             // since we merge descendants we should have text on the same node
             .assertTextEquals("0")
@@ -395,5 +393,43 @@ class SurfaceTest {
         rule.waitUntil(condition = { isPressed })
 
         Truth.assertThat(isPressed).isTrue()
+    }
+
+    @FlakyTest(bugId = 269229262)
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun clickableSurface_onFocus_changesGlowColor() {
+        rule.setContent {
+            Surface(
+                modifier = Modifier
+                    .testTag("surface")
+                    .size(100.toDp()),
+                onClick = {},
+                color = ClickableSurfaceDefaults.color(
+                    color = Color.Transparent,
+                    focusedColor = Color.Transparent
+                ),
+                glow = ClickableSurfaceDefaults.glow(
+                    glow = Glow(
+                        elevationColor = Color.Magenta,
+                        elevation = Elevation.Level5
+                    ),
+                    focusedGlow = Glow(
+                        elevationColor = Color.Green,
+                        elevation = Elevation.Level5
+                    )
+                )
+            ) {}
+        }
+        rule.onNodeWithTag("surface")
+            .captureToImage()
+            .assertContainsColor(Color.Magenta)
+
+        rule.onNodeWithTag("surface")
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+
+        rule.onNodeWithTag("surface")
+            .captureToImage()
+            .assertContainsColor(Color.Green)
     }
 }
