@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,37 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.camera.video.internal.encoder
 
-import androidx.annotation.RequiresApi
 import androidx.concurrent.futures.ResolvableFuture
 import com.google.common.util.concurrent.ListenableFuture
 import java.nio.ByteBuffer
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class FakeInputBuffer : InputBuffer {
-    private val byteBuffer = ByteBuffer.allocateDirect(1024)
+class FakeInputBuffer(capacity: Int = 16) : InputBuffer {
+    private val byteBuffer = ByteBuffer.allocate(capacity)
     private val terminationFuture = ResolvableFuture.create<Void>()
+    private var presentationTimeUs = 0L
+    private var isEndOfStream = false
+    var isCanceled = false
+        private set
+    var isSubmitted = false
+        private set
 
     override fun getByteBuffer(): ByteBuffer {
-        throwIfTerminated()
         return byteBuffer
     }
 
     override fun setPresentationTimeUs(presentationTimeUs: Long) {
         throwIfTerminated()
+        this.presentationTimeUs = presentationTimeUs
     }
+
+    fun getPresentationTimeUs() = presentationTimeUs
 
     override fun setEndOfStream(isEndOfStream: Boolean) {
         throwIfTerminated()
+        this.isEndOfStream = isEndOfStream
     }
 
+    fun isEndOfStream() = isEndOfStream
+
     override fun submit(): Boolean {
-        return terminationFuture.set(null)
+        if (terminationFuture.set(null)) {
+            isSubmitted = true
+            return true
+        }
+        return false
     }
 
     override fun cancel(): Boolean {
-        return terminationFuture.set(null)
+        if (terminationFuture.set(null)) {
+            isCanceled = true
+            return true
+        }
+        return false
     }
 
     override fun getTerminationFuture(): ListenableFuture<Void> {

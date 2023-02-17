@@ -22,33 +22,33 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.video.AudioSpec;
-import androidx.camera.video.internal.AudioSource;
+import androidx.camera.video.internal.audio.AudioSettings;
 import androidx.core.util.Supplier;
 
 /**
- * An {@link AudioSource.Settings} supplier that resolves requested source settings from an
+ * An {@link AudioSettings} supplier that resolves requested source settings from an
  * {@link AudioSpec} using pre-defined default values.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public final class AudioSourceSettingsDefaultResolver implements Supplier<AudioSource.Settings> {
+public final class AudioSettingsDefaultResolver implements Supplier<AudioSettings> {
 
-    private static final String TAG = "DefAudioSrcResolver";
+    private static final String TAG = "DefAudioResolver";
 
     private final AudioSpec mAudioSpec;
 
     /**
-     * Constructor for an AudioSourceSettingsDefaultResolver.
+     * Constructor for an AudioSettingsDefaultResolver.
      *
      * @param audioSpec The {@link AudioSpec} which defines the settings that should be used with
      *                  the audio source.
      */
-    public AudioSourceSettingsDefaultResolver(@NonNull AudioSpec audioSpec) {
+    public AudioSettingsDefaultResolver(@NonNull AudioSpec audioSpec) {
         mAudioSpec = audioSpec;
     }
 
     @Override
     @NonNull
-    public AudioSource.Settings get() {
+    public AudioSettings get() {
         // Resolve audio source
         int resolvedAudioSource = AudioConfigUtil.resolveAudioSource(mAudioSpec);
 
@@ -81,7 +81,7 @@ public final class AudioSourceSettingsDefaultResolver implements Supplier<AudioS
                     + "Hz");
         }
 
-        return AudioSource.Settings.builder()
+        return AudioSettings.builder()
                 .setAudioSource(resolvedAudioSource)
                 .setAudioFormat(resolvedSourceFormat)
                 .setChannelCount(resolvedChannelCount)
