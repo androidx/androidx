@@ -158,6 +158,64 @@ public class TestUtil {
         runShellCommand("setprop log.tag.adservices VERBOSE");
     }
 
+    public void overrideFledgeSelectAdsKillSwitch(boolean override) {
+        if (override) {
+            runShellCommand("setprop debug.adservices.fledge_select_ads_kill_switch " + false);
+        } else {
+            runShellCommand("setprop debug.adservices.fledge_select_ads_kill_switch " + null);
+        }
+    }
+
+    public void overrideFledgeCustomAudienceServiceKillSwitch(boolean override) {
+        if (override) {
+            runShellCommand("setprop debug.adservices.fledge_custom_audience_service_kill_switch "
+                    + false);
+        } else {
+            runShellCommand("setprop debug.adservices.fledge_custom_audience_service_kill_switch "
+                    + null);
+        }
+    }
+
+    public void overrideSdkRequestPermitsPerSecond(long maxRequests) {
+        runShellCommand("setprop debug.adservices.sdk_request_permits_per_second " + maxRequests);
+    }
+
+    public void disableDeviceConfigSyncForTests(boolean disabled) {
+        if (disabled) {
+            runShellCommand("device_config set_sync_disabled_for_tests persistent");
+        } else {
+            runShellCommand("device_config set_sync_disabled_for_tests none");
+        }
+    }
+
+    public void disableFledgeEnrollmentCheck(boolean disabled) {
+        if (disabled) {
+            runShellCommand("device_config put adservices disable_fledge_enrollment_check true");
+        } else {
+            runShellCommand("device_config put adservices disable_fledge_enrollment_check false");
+        }
+    }
+
+    public void enableAdServiceSystemService(boolean enabled) {
+        if (enabled) {
+            runShellCommand("device_config put adservices adservice_system_service_enabled "
+                    + "\"true\"");
+        } else {
+            runShellCommand("device_config put adservices adservice_system_service_enabled "
+                    + "\"false\"");
+        }
+    }
+
+    public void enforceFledgeJsIsolateMaxHeapSize(boolean enforce) {
+        if (enforce) {
+            runShellCommand("device_config put adservices fledge_js_isolate_enforce_max_heap_size"
+                    + " true");
+        } else {
+            runShellCommand("device_config put adservices fledge_js_isolate_enforce_max_heap_size"
+                    + " false");
+        }
+    }
+
     @SuppressWarnings("deprecation")
     // Used to get the package name. Copied over from com.android.adservices.AndroidServiceBinder
     public String getAdServicesPackageName() {
