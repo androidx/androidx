@@ -553,7 +553,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
 
     /** Returns the {@link DynamicString} to be evaluated to display this text. */
     @Nullable
-    public DynamicString getStringExpression() {
+    public DynamicString getExpression() {
         return mExpression;
     }
 

@@ -161,11 +161,11 @@ class ComplicationDataExpressionEvaluator(
     private fun WireComplicationText.buildReceiver(
         setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder
     ) =
-        stringExpression?.let { stringExpression ->
+        expression?.let { expression ->
             ComplicationEvaluationResultReceiver<String>(
-                setter = { setter(WireComplicationText(it, stringExpression)) },
+                setter = { setter(WireComplicationText(it, expression)) },
                 binder = { receiver ->
-                    evaluator.bind(stringExpression, ULocale.getDefault(), receiver)
+                    evaluator.bind(expression, ULocale.getDefault(), receiver)
                 },
             )
         }
@@ -251,11 +251,11 @@ class ComplicationDataExpressionEvaluator(
         fun hasExpression(data: WireComplicationData): Boolean =
             data.run {
                 (hasRangedValueExpression() && rangedValueExpression != null) ||
-                    (hasLongText() && longText?.stringExpression != null) ||
-                    (hasLongTitle() && longTitle?.stringExpression != null) ||
-                    (hasShortText() && shortText?.stringExpression != null) ||
-                    (hasShortTitle() && shortTitle?.stringExpression != null) ||
-                    (hasContentDescription() && contentDescription?.stringExpression != null)
+                    (hasLongText() && longText?.expression != null) ||
+                    (hasLongTitle() && longTitle?.expression != null) ||
+                    (hasShortText() && shortText?.expression != null) ||
+                    (hasShortTitle() && shortTitle?.expression != null) ||
+                    (hasContentDescription() && contentDescription?.expression != null)
             }
     }
 }
