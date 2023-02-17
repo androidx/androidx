@@ -23,15 +23,16 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
 import androidx.camera.video.AudioSpec;
-import androidx.camera.video.internal.audio.AudioSettings;
+import androidx.camera.video.internal.AudioSource;
 import androidx.core.util.Supplier;
 
 /**
- * An {@link AudioSettings} supplier that resolves requested audio settings from an
+ * An {@link AudioSource.Settings} supplier that resolves requested source settings from an
  * {@link AudioSpec} using an {@link AudioProfileProxy}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public final class AudioSettingsAudioProfileResolver implements Supplier<AudioSettings> {
+public final class AudioSourceSettingsAudioProfileResolver implements
+        Supplier<AudioSource.Settings> {
 
     private static final String TAG = "AudioSrcAdPrflRslvr";
 
@@ -39,14 +40,14 @@ public final class AudioSettingsAudioProfileResolver implements Supplier<AudioSe
     private final AudioProfileProxy mAudioProfile;
 
     /**
-     * Constructor for an AudioSettingsAudioProfileResolver.
+     * Constructor for an AudioSourceSettingsAudioProfileResolver.
      *
      * @param audioProfile  The {@link AudioProfileProxy} used to resolve automatic and range
      *                      settings.
      * @param audioSpec     The {@link AudioSpec} which defines the settings that should be used
      *                      with the audio source.
      */
-    public AudioSettingsAudioProfileResolver(@NonNull AudioSpec audioSpec,
+    public AudioSourceSettingsAudioProfileResolver(@NonNull AudioSpec audioSpec,
             @NonNull AudioProfileProxy audioProfile) {
         mAudioSpec = audioSpec;
         mAudioProfile = audioProfile;
@@ -54,12 +55,13 @@ public final class AudioSettingsAudioProfileResolver implements Supplier<AudioSe
 
     @Override
     @NonNull
-    public AudioSettings get() {
+    public AudioSource.Settings get() {
         // Resolve audio source
         int resolvedAudioSource = AudioConfigUtil.resolveAudioSource(mAudioSpec);
 
         // Resolve source format
-        int resolvedSourceFormat = AudioConfigUtil.resolveAudioSourceFormat(mAudioSpec);
+        int resolvedSourceFormat = AudioConfigUtil.resolveAudioSourceFormat(
+                mAudioSpec);
 
         int audioSpecChannelCount = mAudioSpec.getChannelCount();
         Range<Integer> audioSpecSampleRate = mAudioSpec.getSampleRate();
@@ -85,7 +87,7 @@ public final class AudioSettingsAudioProfileResolver implements Supplier<AudioSe
                 + "AudioProfile: " + resolvedSampleRate + "Hz. [AudioProfile sample rate: "
                 + audioProfileSampleRate + "Hz]");
 
-        return AudioSettings.builder()
+        return AudioSource.Settings.builder()
                 .setAudioSource(resolvedAudioSource)
                 .setAudioFormat(resolvedSourceFormat)
                 .setChannelCount(resolvedChannelCount)

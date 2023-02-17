@@ -152,8 +152,8 @@ class VideoRecordingTest(
     private lateinit var mockVideoRecordEventConsumer: MockConsumer<VideoRecordEvent>
     private lateinit var videoCapture: VideoCapture<Recorder>
 
-    private val audioStreamAvailable by lazy {
-        AudioChecker.canAudioStreamBeStarted(
+    private val audioSourceAvailable by lazy {
+        AudioChecker.canAudioSourceBeStarted(
             context, cameraSelector, Recorder.DEFAULT_QUALITY_SELECTOR
         )
     }
@@ -566,17 +566,17 @@ class VideoRecordingTest(
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
         val file1 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        performRecording(videoCapture, file1, includeAudio = audioStreamAvailable)
+        performRecording(videoCapture, file1, includeAudio = audioSourceAvailable)
 
         val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        performRecording(videoCapture, file2, includeAudio = audioStreamAvailable)
+        performRecording(videoCapture, file2, includeAudio = audioSourceAvailable)
 
         val file3 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        performRecording(videoCapture, file3, includeAudio = audioStreamAvailable)
+        performRecording(videoCapture, file3, includeAudio = audioSourceAvailable)
 
-        verifyRecordingResult(file1, audioStreamAvailable)
-        verifyRecordingResult(file2, audioStreamAvailable)
-        verifyRecordingResult(file3, audioStreamAvailable)
+        verifyRecordingResult(file1, audioSourceAvailable)
+        verifyRecordingResult(file2, audioSourceAvailable)
+        verifyRecordingResult(file3, audioSourceAvailable)
 
         file1.delete()
         file2.delete()
@@ -586,7 +586,7 @@ class VideoRecordingTest(
     @Test
     fun canRecordMultipleFilesWithThenWithoutAudio() {
         // This test requires that audio is available
-        assumeTrue("Audio stream is not available", audioStreamAvailable)
+        assumeTrue(audioSourceAvailable)
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
@@ -606,7 +606,7 @@ class VideoRecordingTest(
     @Test
     fun canRecordMultipleFilesWithoutThenWithAudio() {
         // This test requires that audio is available
-        assumeTrue(audioStreamAvailable)
+        assumeTrue(audioSourceAvailable)
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
@@ -632,13 +632,13 @@ class VideoRecordingTest(
         // Start and stop a recording to ensure recorder is idling
         val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
 
-        performRecording(videoCapture, file1, audioStreamAvailable)
+        performRecording(videoCapture, file1, audioSourceAvailable)
 
         // First recording is now finalized. Try starting second recording paused.
         val file2 = File.createTempFile("CameraX2", ".tmp").apply { deleteOnExit() }
         videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file2).build())
             .apply {
-                if (audioStreamAvailable) {
+                if (audioSourceAvailable) {
                     withAudioEnabled()
                 }
             }.start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer).use {
@@ -684,7 +684,7 @@ class VideoRecordingTest(
 
     @Test
     fun canSwitchAudioOnOff() {
-        assumeTrue("Audio stream is not available", audioStreamAvailable)
+        assumeTrue("Audio source is not available", audioSourceAvailable)
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
