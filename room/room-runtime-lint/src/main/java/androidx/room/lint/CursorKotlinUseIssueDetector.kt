@@ -64,7 +64,9 @@ class CursorKotlinUseIssueDetector : Detector(), SourceCodeScanner {
         }
         // If the call is within an SDK_INT check, then its OK
         if (
+            @Suppress("DEPRECATION") // b/262915639
             VersionChecks.isWithinVersionCheckConditional(context, node, 16) ||
+            @Suppress("DEPRECATION") // b/262915639
             VersionChecks.isPrecededByVersionCheckExit(context, node, 16)
         ) {
             return
