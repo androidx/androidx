@@ -597,14 +597,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         private static final VideoCaptureConfig<?> DEFAULT_CONFIG;
 
         private static final Function<VideoEncoderConfig, VideoEncoderInfo>
-                DEFAULT_VIDEO_ENCODER_INFO_FINDER = encoderConfig -> {
-                    try {
-                        return VideoEncoderInfoImpl.from(encoderConfig);
-                    } catch (InvalidConfigException e) {
-                        Logger.w(TAG, "Unable to find VideoEncoderInfo", e);
-                        return null;
-                    }
-                };
+                DEFAULT_VIDEO_ENCODER_INFO_FINDER = createFinder();
 
         static final Range<Integer> DEFAULT_FPS_RANGE = new Range<>(30, 30);
 
@@ -614,6 +607,18 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     .setVideoEncoderInfoFinder(DEFAULT_VIDEO_ENCODER_INFO_FINDER);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
+        }
+
+        @NonNull
+        private static Function<VideoEncoderConfig, VideoEncoderInfo> createFinder() {
+            return encoderConfig -> {
+                try {
+                    return VideoEncoderInfoImpl.from(encoderConfig);
+                } catch (InvalidConfigException e) {
+                    Logger.w(TAG, "Unable to find VideoEncoderInfo", e);
+                    return null;
+                }
+            };
         }
 
         @NonNull
