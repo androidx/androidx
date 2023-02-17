@@ -1032,6 +1032,25 @@ public class ConstraintSetParser {
                     grid.setPaddingRight(paddingRight);
                     grid.setPaddingBottom(paddingBottom);
                     break;
+                case "flags":
+                    String flags = element.get(param).content();
+                    if (flags != null && flags.length() > 0) {
+                        grid.setFlags(flags);
+                    } else {
+                        CLArray flagArray = element.getArrayOrNull(param);
+                        flags = "";
+                        if (flagArray != null) {
+                            for (int i = 0; i < flagArray.size(); i++) {
+                                String flag = flagArray.get(i).content();
+                                flags += flag;
+                                if (i != flagArray.size() - 1) {
+                                    flags += "|";
+                                }
+                            }
+                            grid.setFlags(flags);
+                        }
+                    }
+                    break;
                 default:
                     ConstraintReference reference = state.constraints(name);
                     applyAttribute(state, layoutVariables, reference, element, param);

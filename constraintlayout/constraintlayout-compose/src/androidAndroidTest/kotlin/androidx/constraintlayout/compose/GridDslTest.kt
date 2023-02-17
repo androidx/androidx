@@ -76,6 +76,7 @@ class GridDslTest {
                 gridSkips = "",
                 gridRowWeights = intArrayOf(),
                 gridColumnWeights = intArrayOf(),
+                gridFlags = arrayOf(),
             )
         }
         var leftX = 0.dp
@@ -114,7 +115,8 @@ class GridDslTest {
                 gridSpans = "",
                 gridSkips = "",
                 gridRowWeights = intArrayOf(),
-                gridColumnWeights = intArrayOf()
+                gridColumnWeights = intArrayOf(),
+                gridFlags = arrayOf(),
             )
         }
         var leftX = 0.dp
@@ -153,7 +155,8 @@ class GridDslTest {
                 gridSpans = "",
                 gridSkips = "",
                 gridRowWeights = intArrayOf(),
-                gridColumnWeights = intArrayOf()
+                gridColumnWeights = intArrayOf(),
+                gridFlags = arrayOf(),
             )
         }
         var expectedX = 0.dp
@@ -192,7 +195,8 @@ class GridDslTest {
                 gridSpans = "",
                 gridSkips = "",
                 gridRowWeights = intArrayOf(),
-                gridColumnWeights = intArrayOf()
+                gridColumnWeights = intArrayOf(),
+                gridFlags = arrayOf(),
             )
         }
         var expectedX = 0.dp
@@ -231,7 +235,8 @@ class GridDslTest {
                 gridSpans = "",
                 gridSkips = "0:1x1",
                 gridRowWeights = intArrayOf(),
-                gridColumnWeights = intArrayOf()
+                gridColumnWeights = intArrayOf(),
+                gridFlags = arrayOf(),
             )
         }
         var leftX = 0.dp
@@ -252,6 +257,44 @@ class GridDslTest {
     }
 
     @Test
+    fun testReversedDirectionSkips() {
+        val rootSize = 200.dp
+        val boxesCount = 2
+        val rows = 2
+        val columns = 2
+        rule.setContent {
+            gridComposableTest(
+                modifier = Modifier.size(rootSize),
+                boxesCount = boxesCount,
+                gridOrientation = 0,
+                numRows = rows,
+                numColumns = columns,
+                hGap = 0,
+                vGap = 0,
+                gridSpans = "",
+                gridSkips = "0:2x1",
+                gridRowWeights = intArrayOf(),
+                gridColumnWeights = intArrayOf(),
+                gridFlags = arrayOf(GridFlag.SpansRespectWidgetOrder, GridFlag.SubGridByColRow)
+            )
+        }
+        var leftX = 0.dp
+        var topY = 0.dp
+        var rightX: Dp
+        var bottomY: Dp
+
+        // 10.dp is the size of a singular box
+        val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
+        rule.waitForIdle()
+        leftX += gapSize
+        topY += gapSize
+        rightX = leftX + 10.dp + gapSize + gapSize
+        bottomY = topY + 10.dp + gapSize + gapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(leftX, bottomY)
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(rightX, bottomY)
+    }
+
+    @Test
     fun testSpans() {
         val rootSize = 200.dp
         val boxesCount = 3
@@ -269,7 +312,88 @@ class GridDslTest {
                 gridSpans = "0:1x2",
                 gridSkips = "",
                 gridRowWeights = intArrayOf(),
-                gridColumnWeights = intArrayOf()
+                gridColumnWeights = intArrayOf(),
+                gridFlags = arrayOf(),
+            )
+        }
+        var leftX = 0.dp
+        var topY = 0.dp
+        var rightX: Dp
+        var bottomY: Dp
+
+        // 10.dp is the size of a singular box
+        var spanLeft = (rootSize - 10.dp) / 2f
+        val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
+        rule.waitForIdle()
+        leftX += gapSize
+        topY += gapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(spanLeft, topY)
+        rightX = leftX + 10.dp + gapSize + gapSize
+        bottomY = topY + 10.dp + gapSize + gapSize
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(leftX, bottomY)
+        rule.onNodeWithTag("box2").assertPositionInRootIsEqualTo(rightX, bottomY)
+    }
+
+    @Test
+    fun testOrderFirstSpans() {
+        val rootSize = 200.dp
+        val boxesCount = 3
+        val rows = 2
+        val columns = 2
+        rule.setContent {
+            gridComposableTest(
+                modifier = Modifier.size(rootSize),
+                boxesCount = boxesCount,
+                gridOrientation = 0,
+                numRows = rows,
+                numColumns = columns,
+                hGap = 0,
+                vGap = 0,
+                gridSpans = "1:2x1",
+                gridSkips = "",
+                gridRowWeights = intArrayOf(),
+                gridColumnWeights = intArrayOf(),
+                gridFlags = arrayOf(GridFlag.SpansRespectWidgetOrder),
+            )
+        }
+        var leftX = 0.dp
+        var topY = 0.dp
+        var rightX: Dp
+        var bottomY: Dp
+
+        // 10.dp is the size of a singular box
+        var spanTop = (rootSize - 10.dp) / 2f
+        val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
+        rule.waitForIdle()
+        leftX += gapSize
+        topY += gapSize
+        rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(leftX, topY)
+        rightX = leftX + 10.dp + gapSize + gapSize
+        rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(rightX, spanTop)
+        bottomY = topY + 10.dp + gapSize + gapSize
+        rule.onNodeWithTag("box2").assertPositionInRootIsEqualTo(leftX, bottomY)
+    }
+
+    @Test
+    fun testReversedDirectionSpans() {
+        val rootSize = 200.dp
+        val boxesCount = 3
+        val rows = 2
+        val columns = 2
+        rule.setContent {
+            gridComposableTest(
+                modifier = Modifier.size(rootSize),
+                boxesCount = boxesCount,
+                gridOrientation = 0,
+                numRows = rows,
+                numColumns = columns,
+                hGap = 0,
+                vGap = 0,
+                gridSpans = "0:2x1",
+                gridSkips = "",
+                gridRowWeights = intArrayOf(),
+                gridColumnWeights = intArrayOf(),
+                gridFlags = arrayOf(GridFlag.SubGridByColRow),
             )
         }
         var leftX = 0.dp
@@ -309,7 +433,8 @@ class GridDslTest {
                 gridSpans = "",
                 gridSkips = "",
                 gridRowWeights = weights,
-                gridColumnWeights = intArrayOf()
+                gridColumnWeights = intArrayOf(),
+                gridFlags = arrayOf(),
             )
         }
         var expectedLeft = (rootSize - 10.dp) / 2f
@@ -346,7 +471,8 @@ class GridDslTest {
                 gridSpans = "",
                 gridSkips = "",
                 gridRowWeights = intArrayOf(),
-                gridColumnWeights = weights
+                gridColumnWeights = weights,
+                gridFlags = arrayOf(),
             )
         }
         var expectedLeft = 0.dp
@@ -405,6 +531,7 @@ class GridDslTest {
         gridOrientation: Int,
         vGap: Int,
         hGap: Int,
+        gridFlags: Array<GridFlag>,
     ) {
         ConstraintLayout(
             ConstraintSet {
@@ -425,6 +552,7 @@ class GridDslTest {
                     horizontalGap = hGap.dp,
                     rowWeights = gridRowWeights,
                     columnWeights = gridColumnWeights,
+                    flags = gridFlags,
                 )
                 constrain(g1) {
                     width = Dimension.matchParent
