@@ -28,6 +28,7 @@ import androidx.room.compiler.processing.testcode.JavaEnum
 import androidx.room.compiler.processing.testcode.MainAnnotation
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.testcode.RepeatableJavaAnnotation
+import androidx.room.compiler.processing.testcode.RepeatableKotlinAnnotation
 import androidx.room.compiler.processing.testcode.TestSuppressWarnings
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -833,7 +834,7 @@ class XAnnotationTest(
     }
 
     @Test
-    fun javaRepeatableAnnotation() {
+    fun repeatableAnnotation() {
         val javaSrc = Source.java(
             "JavaSubject",
             """
@@ -847,14 +848,10 @@ class XAnnotationTest(
         val kotlinSrc = Source.kotlin(
             "KotlinSubject.kt",
             """
-            import ${RepeatableJavaAnnotation::class.qualifiedName}
-            // TODO update when https://youtrack.jetbrains.com/issue/KT-12794 is fixed.
-            // right now, kotlin does not support repeatable annotations.
-            @RepeatableJavaAnnotation.List(
-                RepeatableJavaAnnotation("x"),
-                RepeatableJavaAnnotation("y"),
-                RepeatableJavaAnnotation("z")
-            )
+            import ${RepeatableKotlinAnnotation::class.qualifiedName}
+            @RepeatableKotlinAnnotation("x")
+            @RepeatableKotlinAnnotation("y")
+            @RepeatableKotlinAnnotation("z")
             public class KotlinSubject
             """.trimIndent()
         )
@@ -865,7 +862,8 @@ class XAnnotationTest(
                 .map(invocation.processingEnv::requireTypeElement)
                 .forEach { subject ->
                     val annotations = subject.getAllAnnotations().filter {
-                        it.name == "RepeatableJavaAnnotation"
+                        it.name == "RepeatableJavaAnnotation" ||
+                            it.name == "RepeatableKotlinAnnotation"
                     }
                     val values = annotations.map { it.get<String>("value") }
                     assertWithMessage(subject.qualifiedName)
@@ -901,6 +899,33 @@ class XAnnotationTest(
                 .forEach { subject ->
                     val annotations = subject.getAllAnnotations().filter {
                         it.name == "RepeatableJavaAnnotation"
+                    }
+                    val values = annotations.map { it.get<String>("value") }
+                    assertWithMessage(subject.qualifiedName)
+                        .that(values)
+                        .containsExactly("x")
+                }
+        }
+    }
+
+    @Test
+    fun kotlinRepeatableAnnotation_notRepeated() {
+        val kotlinSrc = Source.kotlin(
+            "KotlinSubject.kt",
+            """
+            import ${RepeatableKotlinAnnotation::class.qualifiedName}
+            @RepeatableKotlinAnnotation("x")
+            public class KotlinSubject
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(kotlinSrc)
+        ) { invocation ->
+            listOf("KotlinSubject")
+                .map(invocation.processingEnv::requireTypeElement)
+                .forEach { subject ->
+                    val annotations = subject.getAllAnnotations().filter {
+                        it.name == "RepeatableKotlinAnnotation"
                     }
                     val values = annotations.map { it.get<String>("value") }
                     assertWithMessage(subject.qualifiedName)
