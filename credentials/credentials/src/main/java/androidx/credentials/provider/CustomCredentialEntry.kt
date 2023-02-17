@@ -181,9 +181,6 @@ class CustomCredentialEntry internal constructor(
                     listOf(SLICE_HINT_SUBTITLE))
                 .addText(autoSelectAllowed, /*subType=*/null,
                     listOf(SLICE_HINT_AUTO_ALLOWED))
-                .addBundle(beginGetCredentialOption.candidateQueryData,
-                    /*subType=*/null,
-                    listOf(SLICE_HINT_OPTION_BUNDLE))
                 .addText(
                     beginGetCredentialOption.id,
                     /*subType=*/null,
@@ -225,7 +222,6 @@ class CustomCredentialEntry internal constructor(
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
-            var beginGetCredentialOptionBundle: Bundle? = null
             var beginGetCredentialOptionId: CharSequence? = null
 
             slice.items.forEach {
@@ -239,8 +235,6 @@ class CustomCredentialEntry internal constructor(
                     icon = it.icon
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
-                } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
-                    beginGetCredentialOptionBundle = it.bundle
                 } else if (it.hasHint(SLICE_HINT_OPTION_ID)) {
                     beginGetCredentialOptionId = it.text
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
@@ -266,7 +260,7 @@ class CustomCredentialEntry internal constructor(
                     BeginGetCredentialOption(
                         beginGetCredentialOptionId!!.toString(),
                         type,
-                        beginGetCredentialOptionBundle!!
+                        Bundle()
                     )
                 )
             } catch (e: Exception) {

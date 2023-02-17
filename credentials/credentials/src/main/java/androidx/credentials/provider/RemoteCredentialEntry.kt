@@ -69,9 +69,6 @@ class RemoteCredentialEntry constructor(
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.remoteEntry.SLICE_HINT_PENDING_INTENT"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_OPTION_BUNDLE =
-            "androidx.credentials.provider.remoteEntry.SLICE_HINT_OPTION_BUNDLE"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_OPTION_ID =
             "androidx.credentials.provider.remoteEntry.SLICE_HINT_OPTION_ID"
 
@@ -88,9 +85,6 @@ class RemoteCredentialEntry constructor(
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(), /*subType=*/null)
-                .addBundle(beginGetPublicKeyCredentialOption.candidateQueryData,
-                    /*subType=*/null,
-                    listOf(SLICE_HINT_OPTION_BUNDLE))
                 .addText(beginGetPublicKeyCredentialOption.id,
                     /*subType=*/null,
                     listOf(SLICE_HINT_OPTION_ID))
@@ -107,14 +101,11 @@ class RemoteCredentialEntry constructor(
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): RemoteCredentialEntry? {
-            var beginGetPublicKeyCredentialOptionBundle: Bundle? = null
             var beginGetPublicKeyCredentialOptionId: CharSequence? = null
             var pendingIntent: PendingIntent? = null
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
-                } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
-                    beginGetPublicKeyCredentialOptionBundle = it.bundle
                 } else if (it.hasHint(SLICE_HINT_OPTION_ID)) {
                     beginGetPublicKeyCredentialOptionId = it.text
                 }
@@ -122,7 +113,7 @@ class RemoteCredentialEntry constructor(
             return try {
                 RemoteCredentialEntry(pendingIntent!!,
                     BeginGetPublicKeyCredentialOption.createFrom(
-                        beginGetPublicKeyCredentialOptionBundle!!,
+                        Bundle(),
                         beginGetPublicKeyCredentialOptionId!!.toString()
                     )
                 )

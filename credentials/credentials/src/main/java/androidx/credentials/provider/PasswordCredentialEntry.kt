@@ -143,11 +143,6 @@ class PasswordCredentialEntry internal constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
-
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_OPTION_BUNDLE =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_BUNDLE"
-
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_OPTION_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
@@ -202,11 +197,6 @@ class PasswordCredentialEntry internal constructor(
                     autoSelectAllowed, /*subType=*/null,
                     listOf(SLICE_HINT_AUTO_ALLOWED)
                 )
-                .addBundle(
-                    beginGetPasswordCredentialOption.candidateQueryData,
-                    /*subType=*/null,
-                    listOf(SLICE_HINT_OPTION_BUNDLE)
-                )
                 .addText(
                     beginGetPasswordCredentialOption.id,
                     /*subType=*/null,
@@ -252,7 +242,6 @@ class PasswordCredentialEntry internal constructor(
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
-            var beginGetPasswordOptionBundle: Bundle? = null
             var beginGetPasswordOptionId: CharSequence? = null
 
             slice.items.forEach {
@@ -268,8 +257,6 @@ class PasswordCredentialEntry internal constructor(
                     pendingIntent = it.action
                 } else if (it.hasHint(SLICE_HINT_OPTION_ID)) {
                     beginGetPasswordOptionId = it.text
-                } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
-                    beginGetPasswordOptionBundle = it.bundle
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_AUTO_ALLOWED)) {
@@ -290,7 +277,7 @@ class PasswordCredentialEntry internal constructor(
                     icon!!,
                     autoSelectAllowed,
                     BeginGetPasswordOption.createFrom(
-                        beginGetPasswordOptionBundle!!,
+                        Bundle(),
                         beginGetPasswordOptionId!!.toString()
                     )
                 )
