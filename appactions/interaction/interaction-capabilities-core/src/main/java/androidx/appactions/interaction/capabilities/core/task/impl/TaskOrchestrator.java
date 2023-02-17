@@ -23,8 +23,10 @@ import static androidx.appactions.interaction.capabilities.core.impl.utils.Immut
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appactions.interaction.capabilities.core.BaseSession;
 import androidx.appactions.interaction.capabilities.core.ConfirmationOutput;
 import androidx.appactions.interaction.capabilities.core.ExecutionResult;
+import androidx.appactions.interaction.capabilities.core.InitArg;
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper;
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
@@ -35,8 +37,6 @@ import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructC
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLogger;
 import androidx.appactions.interaction.capabilities.core.impl.utils.LoggerInternal;
-import androidx.appactions.interaction.capabilities.core.task.OnDialogFinishListener;
-import androidx.appactions.interaction.capabilities.core.task.OnInitListener;
 import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.MissingRequiredArgException;
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
@@ -58,49 +58,34 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
- * TaskOrchestrator is responsible for holding task state, and processing assistant / manual input
- * updates to update task state.
+ * TaskOrchestrator is responsible for holding session state, and processing assistant / manual
+ * input updates to update session state.
  *
  * <p>TaskOrchestrator is also responsible to communicating state updates to developer provided
  * listeners.
  *
  * <p>Only one request can be processed at a time.
  */
-final class TaskOrchestrator<
-        PropertyT, ArgumentT, OutputT, ConfirmationT, TaskUpdaterT extends AbstractTaskUpdater> {
+final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
 
     private static final String LOG_TAG = "TaskOrchestrator";
-    private final String mIdentifier;
-    private final ActionSpec<PropertyT, ArgumentT, OutputT> mActionSpec;
-    private final PropertyT mProperty;
-    private final TaskParamRegistry mParamRegistry;
-    private final Optional<OnInitListener<TaskUpdaterT>> mOnInitListener;
-    private final Optional<OnReadyToConfirmListenerInternal<ConfirmationT>>
-            mOnReadyToConfirmListener;
-
-    private final OnDialogFinishListener<ArgumentT, OutputT> mOnFinishListener;
+    private final ActionSpec<?, ArgumentT, OutputT> mActionSpec;
+    private final AppAction mAppAction;
+    private final TaskHandler<ConfirmationT> mTaskHandler;
     private final Executor mExecutor;
+    private final BaseSession<ArgumentT, OutputT> mExternalSession;
 
     /**
-     * Map of argument name to the {@link CurrentValue} which wraps the argument name and status
-     * .
+     * Map of argument name to the {@link CurrentValue} which wraps the argument name and status .
      */
     private final Map<String, List<CurrentValue>> mCurrentValuesMap;
-    /**
-     * Map of confirmation data name to a function that converts confirmation data to ParamValue
-     * .
-     */
-    private final Map<String, Function<ConfirmationT, List<ParamValue>>>
-            mConfirmationOutputBindings;
-    /** Map of execution output name to a function that converts execution output to ParamValue. */
-    private final Map<String, Function<OutputT, List<ParamValue>>> mExecutionOutputBindings;
     /**
      * Internal lock to enable synchronization while processing update requests. Also used for
      * synchronization of Task orchestrator state. ie indicate whether it is idle or not
@@ -109,56 +94,32 @@ final class TaskOrchestrator<
     /**
      * The callback that should be invoked when manual input processing finishes. This sends the
      * processing results to the AppInteraction SDKs. Note, this field is not provided on
-     * construction
-     * because the callback is not available at the time when the developer creates the capability.
+     * construction because the callback is not available at the time when the developer creates the
+     * capability.
      */
-    @Nullable
-    TouchEventCallback mTouchEventCallback;
+    @Nullable TouchEventCallback mTouchEventCallback;
     /** Current status of the overall task (i.e. status of the task). */
     private TaskStatus mTaskStatus;
-    /** Supplies new instances of TaskUpdaterT to give to onInitListener. */
-    private Supplier<TaskUpdaterT> mTaskUpdaterSupplier;
 
-    /**
-     * The current TaskUpdaterT instance. Should only be non-null when taskStatus is IN_PROGRESS.
-     */
-    @Nullable
-    private TaskUpdaterT mTaskUpdater;
     /** True if an UpdateRequest is currently being processed, false otherwise. */
     @GuardedBy("mTaskOrchestratorLock")
     private boolean mIsIdle = true;
 
     TaskOrchestrator(
-            String identifier,
-            ActionSpec<PropertyT, ArgumentT, OutputT> actionSpec,
-            PropertyT property,
-            TaskParamRegistry paramRegistry,
-            Optional<OnInitListener<TaskUpdaterT>> onInitListener,
-            Optional<OnReadyToConfirmListenerInternal<ConfirmationT>> onReadyToConfirmListener,
-            OnDialogFinishListener<ArgumentT, OutputT> onFinishListener,
-            Map<String, Function<ConfirmationT, List<ParamValue>>> confirmationOutputBindings,
-            Map<String, Function<OutputT, List<ParamValue>>> executionOutputBindings,
+            ActionSpec<?, ArgumentT, OutputT> actionSpec,
+            AppAction appAction,
+            TaskHandler<ConfirmationT> taskHandler,
+            BaseSession<ArgumentT, OutputT> externalSession,
             Executor executor) {
-        this.mIdentifier = identifier;
         this.mActionSpec = actionSpec;
-        this.mProperty = property;
-        this.mParamRegistry = paramRegistry;
-        this.mOnInitListener = onInitListener;
-        this.mOnReadyToConfirmListener = onReadyToConfirmListener;
-        this.mOnFinishListener = onFinishListener;
-        this.mConfirmationOutputBindings = confirmationOutputBindings;
-        this.mExecutionOutputBindings = executionOutputBindings;
+        this.mAppAction = appAction;
+        this.mTaskHandler = taskHandler;
+        this.mExternalSession = externalSession;
         this.mExecutor = executor;
 
         this.mCurrentValuesMap = Collections.synchronizedMap(new HashMap<>());
         this.mTaskStatus = TaskStatus.UNINITIATED;
-        this.mTaskUpdater = null;
     }
-
-    void setTaskUpdaterSupplier(Supplier<TaskUpdaterT> taskUpdaterSupplier) {
-        this.mTaskUpdaterSupplier = taskUpdaterSupplier;
-    }
-
     // Set a TouchEventCallback instance. This callback is invoked when state changes from manual
     // input.
     void setTouchEventCallback(@Nullable TouchEventCallback touchEventCallback) {
@@ -179,8 +140,7 @@ final class TaskOrchestrator<
      * completed.
      *
      * <p>An unhandled exception when handling an UpdateRequest will cause all future update
-     * requests
-     * to fail.
+     * requests to fail.
      *
      * <p>This method should never be called when isIdle() returns false.
      */
@@ -194,12 +154,12 @@ final class TaskOrchestrator<
             ListenableFuture<Void> requestProcessingFuture;
             switch (updateRequest.getKind()) {
                 case ASSISTANT:
-                    requestProcessingFuture = processAssistantUpdateRequest(
-                            updateRequest.assistant());
+                    requestProcessingFuture =
+                            processAssistantUpdateRequest(updateRequest.assistant());
                     break;
                 case TOUCH_EVENT:
-                    requestProcessingFuture = processTouchEventUpdateRequest(
-                            updateRequest.touchEvent());
+                    requestProcessingFuture =
+                            processTouchEventUpdateRequest(updateRequest.touchEvent());
                     break;
                 default:
                     throw new IllegalArgumentException("unknown UpdateRequest type");
@@ -239,7 +199,7 @@ final class TaskOrchestrator<
                 return handleConfirm(callback);
             case CANCEL:
             case TERMINATE:
-                clearState();
+                terminate();
                 callback.onSuccess(FulfillmentResponse.getDefaultInstance());
                 break;
         }
@@ -248,7 +208,7 @@ final class TaskOrchestrator<
 
     public ListenableFuture<Void> processTouchEventUpdateRequest(
             TouchEventUpdateRequest touchEventUpdateRequest) {
-        Map<String, List<ParamValue>> paramValuesMap = touchEventUpdateRequest.paramValuesMap();
+        Map<String, List<ParamValue>> paramValuesMap = touchEventUpdateRequest.getParamValuesMap();
         if (mTouchEventCallback == null
                 || paramValuesMap.isEmpty()
                 || mTaskStatus != TaskStatus.IN_PROGRESS) {
@@ -259,8 +219,10 @@ final class TaskOrchestrator<
             mCurrentValuesMap.put(
                     argName,
                     entry.getValue().stream()
-                            .map(paramValue -> TaskCapabilityUtils.toCurrentValue(paramValue,
-                                    Status.ACCEPTED))
+                            .map(
+                                    paramValue ->
+                                            TaskCapabilityUtils.toCurrentValue(
+                                                    paramValue, Status.ACCEPTED))
                             .collect(toImmutableList()));
         }
         ListenableFuture<Void> argumentsProcessingFuture;
@@ -293,7 +255,8 @@ final class TaskOrchestrator<
                                 @Override
                                 public void onSuccess(FulfillmentResponse fulfillmentResponse) {
                                     LoggerInternal.log(
-                                            CapabilityLogger.LogLevel.INFO, LOG_TAG,
+                                            CapabilityLogger.LogLevel.INFO,
+                                            LOG_TAG,
                                             "Manual input success");
                                     if (mTouchEventCallback != null) {
                                         mTouchEventCallback.onSuccess(
@@ -301,7 +264,8 @@ final class TaskOrchestrator<
                                                 TouchEventMetadata.getDefaultInstance());
                                     } else {
                                         LoggerInternal.log(
-                                                CapabilityLogger.LogLevel.ERROR, LOG_TAG,
+                                                CapabilityLogger.LogLevel.ERROR,
+                                                LOG_TAG,
                                                 "Manual input null callback");
                                     }
                                     completer.set(null);
@@ -309,14 +273,17 @@ final class TaskOrchestrator<
 
                                 @Override
                                 public void onFailure(@NonNull Throwable t) {
-                                    LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG,
+                                    LoggerInternal.log(
+                                            CapabilityLogger.LogLevel.ERROR,
+                                            LOG_TAG,
                                             "Manual input fail");
                                     if (mTouchEventCallback != null) {
                                         mTouchEventCallback.onError(
                                                 ErrorStatusInternal.TOUCH_EVENT_REQUEST_FAILURE);
                                     } else {
                                         LoggerInternal.log(
-                                                CapabilityLogger.LogLevel.ERROR, LOG_TAG,
+                                                CapabilityLogger.LogLevel.ERROR,
+                                                LOG_TAG,
                                                 "Manual input null callback");
                                     }
                                     completer.set(null);
@@ -327,15 +294,8 @@ final class TaskOrchestrator<
                 });
     }
 
-    /** Remove any state that may affect the #getAppAction() call. */
-    private void clearState() {
-        if (this.mTaskUpdater != null) {
-            this.mTaskUpdater.destroy();
-            this.mTaskUpdater = null;
-        }
-        this.mCurrentValuesMap.clear();
-        this.mTaskStatus = TaskStatus.UNINITIATED;
-    }
+    // TODO: add cleanup logic if any
+    private void terminate() {}
 
     /**
      * If slot filling is incomplete, the future contains default FulfillmentResponse.
@@ -344,23 +304,20 @@ final class TaskOrchestrator<
      */
     private ListenableFuture<FulfillmentResponse> maybeConfirmOrFinish() {
         Map<String, List<ParamValue>> finalArguments = getCurrentAcceptedArguments();
-        AppAction appAction = mActionSpec.convertPropertyToProto(mProperty);
         if (anyParamsOfStatus(Status.REJECTED)
-                || !TaskCapabilityUtils.isSlotFillingComplete(finalArguments,
-                appAction.getParamsList())) {
+                || !TaskCapabilityUtils.isSlotFillingComplete(
+                        finalArguments, mAppAction.getParamsList())) {
             return Futures.immediateFuture(FulfillmentResponse.getDefaultInstance());
         }
-        if (mOnReadyToConfirmListener.isPresent()) {
+        if (mTaskHandler.getOnReadyToConfirmListener() != null) {
             return getFulfillmentResponseForConfirmation(finalArguments);
         }
         return getFulfillmentResponseForExecution(finalArguments);
     }
 
     private ListenableFuture<Void> maybeInitializeTask() {
-        if (this.mTaskStatus == TaskStatus.UNINITIATED && mOnInitListener.isPresent()) {
-            this.mTaskUpdater = mTaskUpdaterSupplier.get();
-            this.mTaskStatus = TaskStatus.IN_PROGRESS;
-            return mOnInitListener.get().onInit(this.mTaskUpdater);
+        if (this.mTaskStatus == TaskStatus.UNINITIATED) {
+            mExternalSession.onInit(new InitArg());
         }
         this.mTaskStatus = TaskStatus.IN_PROGRESS;
         return Futures.immediateVoidFuture();
@@ -397,7 +354,9 @@ final class TaskOrchestrator<
                             new FutureCallback<FulfillmentResponse>() {
                                 @Override
                                 public void onSuccess(FulfillmentResponse fulfillmentResponse) {
-                                    LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG,
+                                    LoggerInternal.log(
+                                            CapabilityLogger.LogLevel.INFO,
+                                            LOG_TAG,
                                             "Task sync success");
                                     callback.onSuccess(fulfillmentResponse);
                                     completer.set(null);
@@ -405,8 +364,11 @@ final class TaskOrchestrator<
 
                                 @Override
                                 public void onFailure(@NonNull Throwable t) {
-                                    LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG,
-                                            "Task sync fail", t);
+                                    LoggerInternal.log(
+                                            CapabilityLogger.LogLevel.ERROR,
+                                            LOG_TAG,
+                                            "Task sync fail",
+                                            t);
                                     callback.onError(ErrorStatusInternal.SYNC_REQUEST_FAILURE);
                                     completer.set(null);
                                 }
@@ -430,7 +392,8 @@ final class TaskOrchestrator<
                                 @Override
                                 public void onSuccess(FulfillmentResponse fulfillmentResponse) {
                                     LoggerInternal.log(
-                                            CapabilityLogger.LogLevel.INFO, LOG_TAG,
+                                            CapabilityLogger.LogLevel.INFO,
+                                            LOG_TAG,
                                             "Task confirm success");
                                     callback.onSuccess(fulfillmentResponse);
                                     completer.set(null);
@@ -438,7 +401,9 @@ final class TaskOrchestrator<
 
                                 @Override
                                 public void onFailure(@NonNull Throwable t) {
-                                    LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG,
+                                    LoggerInternal.log(
+                                            CapabilityLogger.LogLevel.ERROR,
+                                            LOG_TAG,
                                             "Task confirm fail");
                                     callback.onError(
                                             ErrorStatusInternal.CONFIRMATION_REQUEST_FAILURE);
@@ -478,8 +443,8 @@ final class TaskOrchestrator<
                     Futures.transformAsync(
                             currentFuture,
                             (previousResult) ->
-                                    maybeProcessSlotAndUpdateCurrentValues(previousResult, name,
-                                            fulfillmentValues),
+                                    maybeProcessSlotAndUpdateCurrentValues(
+                                            previousResult, name, fulfillmentValues),
                             mExecutor,
                             "maybeProcessSlotAndUpdateCurrentValues");
         }
@@ -488,7 +453,8 @@ final class TaskOrchestrator<
     }
 
     private ListenableFuture<SlotProcessingResult> maybeProcessSlotAndUpdateCurrentValues(
-            SlotProcessingResult previousResult, String slotKey,
+            SlotProcessingResult previousResult,
+            String slotKey,
             List<FulfillmentValue> newSlotValues) {
         List<CurrentValue> currentSlotValues =
                 mCurrentValuesMap.getOrDefault(slotKey, Collections.emptyList());
@@ -498,8 +464,8 @@ final class TaskOrchestrator<
             return Futures.immediateFuture(previousResult);
         }
         List<CurrentValue> pendingArgs =
-                TaskCapabilityUtils.fulfillmentValuesToCurrentValues(modifiedSlotValues,
-                        Status.PENDING);
+                TaskCapabilityUtils.fulfillmentValuesToCurrentValues(
+                        modifiedSlotValues, Status.PENDING);
         return Futures.transform(
                 processSlot(slotKey, previousResult, pendingArgs),
                 currentResult -> {
@@ -521,7 +487,8 @@ final class TaskOrchestrator<
         if (!previousResult.isSuccessful()) {
             return Futures.immediateFuture(SlotProcessingResult.create(false, pendingArgs));
         }
-        return TaskSlotProcessor.processSlot(name, pendingArgs, mParamRegistry, mExecutor);
+        return TaskSlotProcessor.processSlot(
+                name, pendingArgs, mTaskHandler.getTaskParamRegistry(), mExecutor);
     }
 
     /**
@@ -534,8 +501,10 @@ final class TaskOrchestrator<
                 .filter(
                         entry ->
                                 entry.getValue().stream()
-                                        .allMatch(currentValue -> currentValue.getStatus()
-                                                == Status.ACCEPTED))
+                                        .allMatch(
+                                                currentValue ->
+                                                        currentValue.getStatus()
+                                                                == Status.ACCEPTED))
                 .collect(
                         toImmutableMap(
                                 Map.Entry::getKey,
@@ -555,8 +524,9 @@ final class TaskOrchestrator<
                 .filter(
                         entry ->
                                 entry.getValue().stream()
-                                        .anyMatch(currentValue -> currentValue.getStatus()
-                                                == Status.PENDING))
+                                        .anyMatch(
+                                                currentValue ->
+                                                        currentValue.getStatus() == Status.PENDING))
                 .collect(
                         toImmutableMap(
                                 Map.Entry::getKey,
@@ -572,14 +542,16 @@ final class TaskOrchestrator<
                 .anyMatch(
                         entry ->
                                 entry.getValue().stream()
-                                        .anyMatch(currentValue -> currentValue.getStatus()
-                                                == status));
+                                        .anyMatch(
+                                                currentValue ->
+                                                        currentValue.getStatus() == status));
     }
 
     private ListenableFuture<ConfirmationOutput<ConfirmationT>> executeOnTaskReadyToConfirm(
             Map<String, List<ParamValue>> finalArguments) {
         try {
-            return mOnReadyToConfirmListener.get().onReadyToConfirm(finalArguments);
+            return Objects.requireNonNull(mTaskHandler.getOnReadyToConfirmListener())
+                    .onReadyToConfirm(finalArguments);
         } catch (StructConversionException | MissingRequiredArgException e) {
             return Futures.immediateFailedFuture(e);
         }
@@ -587,14 +559,15 @@ final class TaskOrchestrator<
 
     private ListenableFuture<ExecutionResult<OutputT>> executeOnTaskFinish(
             Map<String, List<ParamValue>> finalArguments) {
-        ListenableFuture<ExecutionResult<OutputT>> finishListener;
+        ListenableFuture<ExecutionResult<OutputT>> executionResultFuture;
         try {
-            finishListener = mOnFinishListener.onFinish(mActionSpec.buildArgument(finalArguments));
+            executionResultFuture =
+                    mExternalSession.onFinishAsync(mActionSpec.buildArgument(finalArguments));
         } catch (StructConversionException e) {
             return Futures.immediateFailedFuture(e);
         }
         return Futures.transform(
-                finishListener,
+                executionResultFuture,
                 executionResult -> {
                     this.mTaskStatus = TaskStatus.COMPLETED;
                     return executionResult;
@@ -610,8 +583,8 @@ final class TaskOrchestrator<
                 result -> {
                     FulfillmentResponse.Builder fulfillmentResponse =
                             FulfillmentResponse.newBuilder();
-                    convertToConfirmationOutput(result).ifPresent(
-                            fulfillmentResponse::setConfirmationData);
+                    convertToConfirmationOutput(result)
+                            .ifPresent(fulfillmentResponse::setConfirmationData);
                     return fulfillmentResponse.build();
                 },
                 mExecutor,
@@ -626,8 +599,8 @@ final class TaskOrchestrator<
                     FulfillmentResponse.Builder fulfillmentResponse =
                             FulfillmentResponse.newBuilder();
                     if (mTaskStatus == TaskStatus.COMPLETED) {
-                        convertToExecutionOutput(result).ifPresent(
-                                fulfillmentResponse::setExecutionOutput);
+                        convertToExecutionOutput(result)
+                                .ifPresent(fulfillmentResponse::setExecutionOutput);
                     }
                     return fulfillmentResponse.build();
                 },
@@ -643,8 +616,10 @@ final class TaskOrchestrator<
                             List<CurrentValue> vals = mCurrentValuesMap.get(param.getName());
                             if (vals != null) {
                                 updatedList.add(
-                                        param.toBuilder().clearCurrentValue().addAllCurrentValue(
-                                                vals).build());
+                                        param.toBuilder()
+                                                .clearCurrentValue()
+                                                .addAllCurrentValue(vals)
+                                                .build());
                             } else {
                                 updatedList.add(param);
                             }
@@ -653,12 +628,10 @@ final class TaskOrchestrator<
     }
 
     AppAction getAppAction() {
-        AppAction appActionWithoutState = mActionSpec.convertPropertyToProto(mProperty);
-        return appActionWithoutState.toBuilder()
+        return mAppAction.toBuilder()
                 .clearParams()
-                .addAllParams(addStateToParamsContext(appActionWithoutState.getParamsList()))
+                .addAllParams(addStateToParamsContext(mAppAction.getParamsList()))
                 .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(true))
-                .setIdentifier(mIdentifier)
                 .build();
     }
 
@@ -666,20 +639,11 @@ final class TaskOrchestrator<
     private Optional<StructuredOutput> convertToExecutionOutput(
             ExecutionResult<OutputT> executionResult) {
         OutputT output = executionResult.getOutput();
-        if (output == null || output instanceof Void) {
+        if (output == null) {
             return Optional.empty();
         }
 
-        StructuredOutput.Builder executionOutputBuilder = StructuredOutput.newBuilder();
-        for (Map.Entry<String, Function<OutputT, List<ParamValue>>> entry :
-                mExecutionOutputBindings.entrySet()) {
-            executionOutputBuilder.addOutputValues(
-                    StructuredOutput.OutputValue.newBuilder()
-                            .setName(entry.getKey())
-                            .addAllValues(entry.getValue().apply(output))
-                            .build());
-        }
-        return Optional.of(executionOutputBuilder.build());
+        return Optional.of(mActionSpec.convertOutputToProto(output));
     }
 
     /**
@@ -694,7 +658,7 @@ final class TaskOrchestrator<
 
         StructuredOutput.Builder confirmationOutputBuilder = StructuredOutput.newBuilder();
         for (Map.Entry<String, Function<ConfirmationT, List<ParamValue>>> entry :
-                mConfirmationOutputBindings.entrySet()) {
+                mTaskHandler.getConfirmationDataBindings().entrySet()) {
             confirmationOutputBuilder.addOutputValues(
                     StructuredOutput.OutputValue.newBuilder()
                             .setName(entry.getKey())
