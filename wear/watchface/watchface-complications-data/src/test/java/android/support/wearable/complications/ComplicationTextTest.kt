@@ -680,7 +680,7 @@ public class ComplicationTextTest {
     }
 
     @Test
-    public fun stringExpressionToParcelRoundTrip() {
+    public fun expressionToParcelRoundTrip() {
         val text = ComplicationText(DynamicString.constant("hello"))
 
         Truth.assertThat(text.toParcelRoundTrip()).isEqualTo(text)

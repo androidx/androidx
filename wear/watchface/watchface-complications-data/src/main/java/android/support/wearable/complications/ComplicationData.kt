@@ -1209,9 +1209,9 @@ class ComplicationData : Parcelable, Serializable {
         if (this == null && other == null) return true
         if (this == null || other == null) return false
         // Both are non-null.
-        if (stringExpression == null) return equals(other)
-        return stringExpression?.toDynamicStringByteArray() contentEquals
-            other.stringExpression?.toDynamicStringByteArray()
+        if (expression == null) return equals(other)
+        return expression?.toDynamicStringByteArray() contentEquals
+            other.expression?.toDynamicStringByteArray()
     }
 
     private fun equalsWithoutExpressions(other: ComplicationData): Boolean =
