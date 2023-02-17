@@ -131,6 +131,10 @@
             android:process=":dataDirectorySuffixActivity"
             android:exported="true" />
         <activity
+            android:name=".DirectoryBasePathActivity"
+            android:process=":directoryBasePathActivity"
+            android:exported="true" />
+        <activity
             android:name=".RequestedWithHeaderActivity"
             android:exported="true" />
         <activity android:name=".CookieManagerActivity"

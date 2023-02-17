@@ -114,6 +114,7 @@ public class WebViewFeature {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value = {
             STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
+            STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -530,6 +531,17 @@ public class WebViewFeature {
      */
     public static final String STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX =
             "STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX";
+
+    /**
+     * Feature for {@link #isStartupFeatureSupported(Context, String)}.
+     * This feature covers
+     * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePath(String, String)}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH =
+            "STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
