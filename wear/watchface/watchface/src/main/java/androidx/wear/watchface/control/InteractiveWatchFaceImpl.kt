@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.wear.watchface.TapEvent
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
+import androidx.wear.watchface.control.data.WatchFaceSurfaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.data.WatchFaceOverlayStyleWireFormat
@@ -105,6 +106,15 @@ internal class InteractiveWatchFaceImpl(
             "InteractiveWatchFaceImpl.renderWatchFaceToBitmap"
         ) { watchFaceImpl ->
             watchFaceImpl.renderWatchFaceToBitmap(params)
+        }
+    }
+
+    override fun renderWatchFaceToSurface(params: WatchFaceSurfaceRenderParams) {
+         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            engine,
+            "InteractiveWatchFaceImpl.renderWatchFaceToSurface"
+        ) { watchFaceImpl ->
+            watchFaceImpl.renderWatchFaceToSurface(params)
         }
     }
 

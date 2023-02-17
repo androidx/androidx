@@ -627,6 +627,15 @@ public class EditorSessionTest {
                     slotIdToComplicationData: Map<Int, ComplicationData>?
                 ) = fakeBitmap
 
+                override fun renderWatchFaceToSurface(
+                    renderParameters: RenderParameters,
+                    instant: Instant,
+                    slotIdToComplicationData: Map<Int, ComplicationData>?,
+                    surface: Surface
+                ) {
+                    TODO("Not yet implemented")
+                }
+
                 override fun onDestroy() {
                     onDestroyLatch.countDown()
                     backgroundHandlerThread.quitSafely()

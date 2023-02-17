@@ -48,6 +48,7 @@ import androidx.wear.watchface.control.HeadlessWatchFaceImpl
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
+import androidx.wear.watchface.control.data.WatchFaceSurfaceRenderParams
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
@@ -249,6 +250,17 @@ public class WatchFace(
             instant: Instant,
             slotIdToComplicationData: Map<Int, ComplicationData>?
         ): Bitmap
+
+        /**
+         * Renders the watchface to the [Surface] with the [CurrentUserStyleRepository]'s
+         * [UserStyle].
+         */
+        public fun renderWatchFaceToSurface(
+            renderParameters: RenderParameters,
+            instant: Instant,
+            slotIdToComplicationData: Map<Int, ComplicationData>?,
+            surface: Surface
+        )
 
         /** Signals that the activity is going away and resources should be released. */
         public fun onDestroy()
@@ -845,6 +857,44 @@ constructor(
                 return screenShot
             }
 
+        override fun renderWatchFaceToSurface(
+            renderParameters: RenderParameters,
+            instant: Instant,
+            slotIdToComplicationData: Map<Int, ComplicationData>?,
+            surface: Surface
+        ): Unit =
+            TraceEvent("WFEditorDelegate.takeScreenshot").use {
+                val oldComplicationData =
+                    complicationSlotsManager.complicationSlots.values.associateBy(
+                        { it.id },
+                        { it.renderer.getData() }
+                    )
+                slotIdToComplicationData?.let {
+                    for ((id, complicationData) in it) {
+                        complicationSlotsManager.setComplicationDataUpdateSync(
+                            id,
+                            complicationData,
+                            instant
+                        )
+                    }
+                }
+                renderer.renderScreenshotToSurface(
+                    ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
+                    renderParameters,
+                    surface
+                )
+                slotIdToComplicationData?.let {
+                    val now = getNow()
+                    for ((id, complicationData) in oldComplicationData) {
+                        complicationSlotsManager.setComplicationDataUpdateSync(
+                            id,
+                            complicationData,
+                            now
+                        )
+                    }
+                }
+            }
+
         override fun setComplicationSlotConfigExtrasChangeCallback(
             callback: WatchFace.ComplicationSlotConfigExtrasChangeCallback?
         ) {
@@ -1126,6 +1176,57 @@ constructor(
             }
 
             return SharedMemoryImage.ashmemWriteImageBundle(bitmap)
+        }
+
+    @UiThread
+    internal fun renderWatchFaceToSurface(params: WatchFaceSurfaceRenderParams): Unit =
+        TraceEvent("WatchFaceImpl.renderWatchFaceToBitmap").use {
+            val oldStyle = currentUserStyleRepository.userStyle.value
+            val instant = Instant.ofEpochMilli(params.calendarTimeMillis)
+
+            params.userStyle?.let {
+                currentUserStyleRepository.updateUserStyle(
+                    UserStyle(UserStyleData(it), currentUserStyleRepository.schema)
+                )
+            }
+
+            val oldComplicationData =
+                complicationSlotsManager.complicationSlots.values.associateBy(
+                    { it.id },
+                    { it.renderer.getData() }
+                )
+
+            params.idAndComplicationDatumWireFormats?.let {
+                for (idAndData in it) {
+                    complicationSlotsManager.setComplicationDataUpdateSync(
+                        idAndData.id,
+                        idAndData.complicationData.toApiComplicationData(),
+                        instant
+                    )
+                }
+            }
+
+            renderer.renderScreenshotToSurface(
+                ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
+                RenderParameters(params.renderParametersWireFormat),
+                params.surface,
+            )
+
+            // Restore previous style & complicationSlots if required.
+            if (params.userStyle != null) {
+                currentUserStyleRepository.updateUserStyle(oldStyle)
+            }
+
+            if (params.idAndComplicationDatumWireFormats != null) {
+                val now = getNow()
+                for ((id, complicationData) in oldComplicationData) {
+                    complicationSlotsManager.setComplicationDataUpdateSync(
+                        id,
+                        complicationData,
+                        now
+                    )
+                }
+            }
         }
 
     @UiThread

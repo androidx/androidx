@@ -21,6 +21,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.RemoteException
 import android.support.wearable.watchface.SharedMemoryImage
+import android.view.Surface
 import androidx.annotation.AnyThread
 import androidx.annotation.IntDef
 import androidx.annotation.Px
@@ -42,6 +43,7 @@ import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IWatchfaceListener
 import androidx.wear.watchface.control.IWatchfaceReadyListener
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
+import androidx.wear.watchface.control.data.WatchFaceSurfaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchFaceColorsWireFormat
 import androidx.wear.watchface.data.WatchUiState
@@ -102,7 +104,8 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     public fun updateComplicationData(slotIdToComplicationData: Map<Int, ComplicationData>)
 
     /**
-     * Renders the watchface to a shared memory backed [Bitmap] with the given settings.
+     * Renders the watchface to a shared memory backed [Bitmap] with the given settings. Note this
+     * will be fairly slow since either software canvas or glReadPixels will be invoked.
      *
      * @param renderParameters The [RenderParameters] to draw with.
      * @param instant The [Instant] render with.
@@ -120,6 +123,37 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
+
+    /** Whether or not the watch face supports [renderWatchFaceToSurface]. */
+    public val isRenderWatchFaceToSurfaceSupported: Boolean
+        @get:JvmName("isRenderWatchFaceToSurfaceSupported")
+        get() = false
+
+    /**
+     * Renders the watchface (once) to a [Surface] with the given settings. This is more efficient
+     * than renderWatchFaceToBitmap since typically a hardware canvas will be used for rendering
+     * canvas based watchface, and for OpenGL ones this method avoids glReadPixels.
+     *
+     * Requires a watch face built with a compatible library to operate or it will throw an
+     * [UnsupportedOperationException]. You can check if it's supported via
+     * [isRenderWatchFaceToSurfaceSupported].
+     *
+     * @param renderParameters The [RenderParameters] to draw with.
+     * @param instant The [Instant] render with.
+     * @param userStyle Optional [UserStyle] to render with, if null the current style is used.
+     * @param idAndComplicationData Map of complication ids to [ComplicationData] to render with, or
+     *   if null then the existing complication data if any is used.
+     * @param surface The [Surface] to render into. This is assumed to have the same dimensions as
+     *   the screen.
+     */
+    @Throws(RemoteException::class)
+    public fun renderWatchFaceToSurface(
+        renderParameters: RenderParameters,
+        instant: Instant,
+        userStyle: UserStyle?,
+        idAndComplicationData: Map<Int, ComplicationData>?,
+        surface: Surface
+    ) { }
 
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
     @get:Throws(RemoteException::class) public val previewReferenceInstant: Instant
@@ -148,7 +182,9 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
      * from the old ID but that's not a requirement). Sets the current [UserStyle] represented as a
-     * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a side effect of enabling or disabling complicationSlots, which will be visible via [ComplicationSlotState.isEnabled].
+     * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a side
+     * effect of enabling or disabling complicationSlots, which will be visible via
+     * [ComplicationSlotState.isEnabled].
      */
     @Throws(RemoteException::class)
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyleData)
@@ -441,6 +477,35 @@ internal constructor(
                 )
             )
         }
+
+    override val isRenderWatchFaceToSurfaceSupported = iInteractiveWatchFace.apiVersion >= 9
+
+    override fun renderWatchFaceToSurface(
+        renderParameters: RenderParameters,
+        instant: Instant,
+        userStyle: UserStyle?,
+        idAndComplicationData: Map<Int, ComplicationData>?,
+        surface: Surface
+    ): Unit = TraceEvent("InteractiveWatchFaceClientImpl.renderWatchFaceToSurface").use {
+        if (iInteractiveWatchFace.apiVersion < 8) {
+            throw UnsupportedOperationException()
+        }
+
+        iInteractiveWatchFace.renderWatchFaceToSurface(
+            WatchFaceSurfaceRenderParams(
+                renderParameters.toWireFormat(),
+                surface,
+                instant.toEpochMilli(),
+                userStyle?.toWireFormat(),
+                idAndComplicationData?.map {
+                    IdAndComplicationDataWireFormat(
+                        it.key,
+                        it.value.asWireComplicationData()
+                    )
+                }
+            )
+        )
+    }
 
     override val previewReferenceInstant: Instant
         get() = Instant.ofEpochMilli(iInteractiveWatchFace.previewReferenceTimeMillis)

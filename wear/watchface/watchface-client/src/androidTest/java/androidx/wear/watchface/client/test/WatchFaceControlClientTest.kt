@@ -36,6 +36,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -1414,5 +1415,76 @@ class WatchFaceControlClientScreenshotTest : WatchFaceControlClientTestBase() {
 
         headlessInstance.close()
         interactiveInstance.close()
+    }
+}
+
+@RunWith(AndroidJUnit4::class)
+@MediumTest
+@RequiresApi(Build.VERSION_CODES.O_MR1)
+// TODO(b/269641074): These tests on the bots are producing images larger than 400x400 and they look
+// weird. We should refactor the tests.  The underlying API seems sound however.
+class SurfaceRenderingTest : WatchFaceControlClientTestBase() {
+    @get:Rule
+    val screenshotRule: AndroidXScreenshotTestRule =
+        AndroidXScreenshotTestRule("wear/wear-watchface-client")
+
+    @get:Rule
+    val activityScenarioRule = ActivityScenarioRule(SurfaceRenderingTestActivity::class.java)
+
+    @Test
+    fun renderWatchFaceToSurface() {
+        val interactiveInstance = getOrCreateTestSubject()
+        try {
+            SurfaceRenderingView.interactiveInstance = interactiveInstance
+            SurfaceRenderingView.complications = complications
+            SurfaceRenderingView.renderDoneLatch = CountDownLatch(1)
+            SurfaceRenderingView.view!!.renderToSurface()
+            assertTrue(SurfaceRenderingView.renderDoneLatch!!
+                .await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
+
+            SurfaceRenderingView.view!!.bitmap!!.assertAgainstGolden(
+                screenshotRule,
+                "render_to_surface_canvas"
+            )
+        } finally {
+            interactiveInstance.close()
+            SurfaceRenderingView.interactiveInstance = null
+            SurfaceRenderingView.complications = null
+            SurfaceRenderingView.view = null
+        }
+    }
+
+    @Test
+    fun renderOpenGlWatchFaceToSurface() {
+        val surfaceTexture = SurfaceTexture(false)
+        surfaceTexture.setDefaultBufferSize(400, 400)
+        Mockito.`when`(surfaceHolder2.surface).thenReturn(Surface(surfaceTexture))
+        Mockito.`when`(surfaceHolder2.surfaceFrame).thenReturn(Rect(0, 0, 400, 400))
+        val interactiveInstance = getOrCreateTestSubject(
+            watchFaceService = TestExampleOpenGLBackgroundInitWatchFaceService(
+                context,
+                surfaceHolder2
+            ),
+            complications = emptyMap()
+        )
+
+        try {
+            SurfaceRenderingView.interactiveInstance = interactiveInstance
+            SurfaceRenderingView.complications = emptyMap()
+            SurfaceRenderingView.renderDoneLatch = CountDownLatch(1)
+            SurfaceRenderingView.view!!.renderToSurface()
+            assertTrue(SurfaceRenderingView.renderDoneLatch!!
+                .await(UPDATE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
+
+            SurfaceRenderingView.view!!.bitmap!!.assertAgainstGolden(
+                screenshotRule,
+                "render_to_surface_opengl"
+            )
+        } finally {
+            interactiveInstance.close()
+            SurfaceRenderingView.interactiveInstance = null
+            SurfaceRenderingView.complications = null
+            SurfaceRenderingView.view = null
+        }
     }
 }

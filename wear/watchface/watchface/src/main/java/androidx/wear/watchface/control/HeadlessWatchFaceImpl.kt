@@ -22,6 +22,7 @@ import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
+import androidx.wear.watchface.control.data.WatchFaceSurfaceRenderParams
 import androidx.wear.watchface.utility.TraceEvent
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -77,6 +78,13 @@ internal class HeadlessWatchFaceImpl(
         ) {
             it.renderWatchFaceToBitmap(params)
         }
+
+    override fun renderWatchFaceToSurface(params: WatchFaceSurfaceRenderParams) {
+        WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+            engine,
+            "HeadlessWatchFaceImpl.renderWatchFaceToSurface"
+        ) { it.renderWatchFaceToSurface(params) }
+    }
 
     override fun getPreviewReferenceTimeMillis() =
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(

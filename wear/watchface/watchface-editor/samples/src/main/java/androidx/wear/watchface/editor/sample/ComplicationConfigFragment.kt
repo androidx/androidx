@@ -17,12 +17,15 @@
 package androidx.wear.watchface.editor.sample
 
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.SurfaceTexture
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.Surface
+import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -36,7 +39,6 @@ import androidx.wear.watchface.editor.ChosenComplicationDataSource
 import androidx.wear.watchface.style.WatchFaceLayer
 import androidx.wear.widget.SwipeDismissFrameLayout
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /** This fragment lets the user select a non-background complication to configure. */
@@ -77,6 +79,8 @@ internal class ConfigView(
 
     private lateinit var previewComplicationData: StateFlow<Map<Int, ComplicationData>?>
     private val drawRect = Rect()
+    private val watchFacePreviewView = TextureView(context)
+    private var surface: Surface? = null
 
     // One invisible button per complication.
     private val complicationButtons =
@@ -84,8 +88,8 @@ internal class ConfigView(
             // TODO(alexclarke): This button is a Rect which makes the tap animation look bad.
             if (
                 entry.value.fixedComplicationDataSource ||
-                    !entry.value.isEnabled ||
-                    entry.key == watchFaceConfigActivity.editorSession.backgroundComplicationSlotId
+                !entry.value.isEnabled ||
+                entry.key == watchFaceConfigActivity.editorSession.backgroundComplicationSlotId
             ) {
                 // Do not create a button for fixed complicationSlots, disabled complicationSlots,
                 // or background complicationSlots.
@@ -124,6 +128,47 @@ internal class ConfigView(
         }
 
     init {
+        background = ColorDrawable(Color.BLACK)
+        addView(watchFacePreviewView)
+
+        watchFacePreviewView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+            override fun onSurfaceTextureAvailable(
+                surfaceTexture: SurfaceTexture,
+                width: Int,
+                height: Int
+            ) {
+                surface = Surface(surfaceTexture)
+
+                val editingSession = watchFaceConfigActivity.editorSession
+                editingSession.renderWatchFaceToSurface(
+                    RenderParameters(
+                        DrawMode.INTERACTIVE,
+                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                        HighlightLayer(
+                            RenderParameters.HighlightedElement.AllComplicationSlots,
+                            Color.RED, // Red complication highlight.
+                            Color.argb(128, 0, 0, 0) // Darken everything else.
+                        )
+                    ),
+                    editingSession.previewReferenceInstant,
+                    previewComplicationData.value,
+                    surface!!
+                )
+            }
+
+            override fun onSurfaceTextureSizeChanged(
+                surfaceTexture: SurfaceTexture,
+                width: Int,
+                height: Int
+            ) {
+            }
+
+            override fun onSurfaceTextureDestroyed(surfaceTexture: SurfaceTexture) = true
+
+            override fun onSurfaceTextureUpdated(surfaceTexture: SurfaceTexture) {
+            }
+        }
+
         watchFaceConfigActivity.coroutineScope.launch {
             previewComplicationData = watchFaceConfigActivity.editorSession.complicationsPreviewData
             setWillNotDraw(false)
@@ -158,25 +203,6 @@ internal class ConfigView(
 
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
         drawRect.set(0, 0, width, height)
-    }
-
-    override fun onDraw(canvas: Canvas) {
-        val editingSession = watchFaceConfigActivity.editorSession
-        val bitmap =
-            editingSession.renderWatchFaceToBitmap(
-                RenderParameters(
-                    DrawMode.INTERACTIVE,
-                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                    HighlightLayer(
-                        RenderParameters.HighlightedElement.AllComplicationSlots,
-                        Color.RED, // Red complication highlight.
-                        Color.argb(128, 0, 0, 0) // Darken everything else.
-                    )
-                ),
-                editingSession.previewReferenceInstant,
-                previewComplicationData.value
-            )
-        canvas.drawBitmap(bitmap, drawRect, drawRect, null)
     }
 
     private fun updateUi(
