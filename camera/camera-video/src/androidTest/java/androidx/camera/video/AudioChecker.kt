@@ -22,7 +22,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
-import androidx.camera.video.internal.audio.AudioSource
+import androidx.camera.video.internal.AudioSource
 import androidx.camera.video.internal.FakeBufferProvider
 import androidx.camera.video.internal.config.AudioSourceSettingsAudioProfileResolver
 import androidx.camera.video.internal.encoder.FakeInputBuffer

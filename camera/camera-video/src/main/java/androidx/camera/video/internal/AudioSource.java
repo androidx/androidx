@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal.audio;
+package androidx.camera.video.internal;
 
 import static android.media.AudioFormat.ENCODING_PCM_16BIT;
 import static android.media.AudioFormat.ENCODING_PCM_24BIT_PACKED;
@@ -22,9 +22,9 @@ import static android.media.AudioFormat.ENCODING_PCM_32BIT;
 import static android.media.AudioFormat.ENCODING_PCM_8BIT;
 import static android.media.AudioFormat.ENCODING_PCM_FLOAT;
 
-import static androidx.camera.video.internal.audio.AudioSource.InternalState.CONFIGURED;
-import static androidx.camera.video.internal.audio.AudioSource.InternalState.RELEASED;
-import static androidx.camera.video.internal.audio.AudioSource.InternalState.STARTED;
+import static androidx.camera.video.internal.AudioSource.InternalState.CONFIGURED;
+import static androidx.camera.video.internal.AudioSource.InternalState.RELEASED;
+import static androidx.camera.video.internal.AudioSource.InternalState.STARTED;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -47,7 +47,6 @@ import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.camera.video.internal.BufferProvider;
 import androidx.camera.video.internal.compat.Api23Impl;
 import androidx.camera.video.internal.compat.Api24Impl;
 import androidx.camera.video.internal.compat.Api29Impl;

@@ -20,7 +20,7 @@ import android.media.AudioFormat
 import android.media.MediaRecorder
 import android.util.Range
 import androidx.camera.video.AudioSpec
-import androidx.camera.video.internal.audio.AudioSource
+import androidx.camera.video.internal.AudioSource
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

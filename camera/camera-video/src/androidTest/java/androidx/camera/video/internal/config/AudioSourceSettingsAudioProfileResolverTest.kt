@@ -32,7 +32,7 @@ import androidx.camera.testing.CameraXUtil
 import androidx.camera.video.AudioSpec
 import androidx.camera.video.Quality
 import androidx.camera.video.VideoCapabilities
-import androidx.camera.video.internal.audio.AudioSource
+import androidx.camera.video.internal.AudioSource
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

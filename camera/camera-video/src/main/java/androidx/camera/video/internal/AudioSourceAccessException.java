@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal.audio;
+package androidx.camera.video.internal;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
