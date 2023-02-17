@@ -63,11 +63,14 @@ class CreatePasswordRequestTest {
         val idExpected = "id"
         val passwordExpected = "pwd"
         val expectedCredentialData = Bundle()
+        val expectedAutoSelect = false
         expectedCredentialData.putString(CreatePasswordRequest.BUNDLE_KEY_ID, idExpected)
         expectedCredentialData.putString(
             CreatePasswordRequest.BUNDLE_KEY_PASSWORD,
             passwordExpected
         )
+        expectedCredentialData.putBoolean(CreateCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+            expectedAutoSelect)
 
         val request = CreatePasswordRequest(idExpected, passwordExpected)
 

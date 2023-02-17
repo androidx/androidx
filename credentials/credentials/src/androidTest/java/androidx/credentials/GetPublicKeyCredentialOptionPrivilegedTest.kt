@@ -131,6 +131,7 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
         val relyingPartyExpected = "RelyingParty"
         val clientDataHashExpected = "X342%4dfd7&"
         val preferImmediatelyAvailableCredentialsExpected = false
+        val expectedIsAutoSelect = true
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -149,6 +150,8 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
             GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH,
             clientDataHashExpected
         )
+        expectedData.putBoolean(CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+        expectedIsAutoSelect)
         expectedData.putBoolean(
             GetPublicKeyCredentialOptionPrivileged
                 .BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
@@ -162,6 +165,7 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
 
         assertThat(option.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(option.requestData, expectedData)).isTrue()
+        expectedData.remove(CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED)
         assertThat(equals(option.candidateQueryData, expectedData)).isTrue()
         assertThat(option.isSystemProviderRequired).isFalse()
     }

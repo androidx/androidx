@@ -30,10 +30,15 @@ class GetPasswordOptionTest {
     @Test
     fun getter_frameworkProperties() {
         val option = GetPasswordOption()
+        val expectedRequestDataBundle = Bundle()
+        expectedRequestDataBundle.putBoolean(
+            CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+            false
+        )
 
         assertThat(option.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
-        assertThat(equals(option.requestData, Bundle.EMPTY)).isTrue()
-        assertThat(equals(option.requestData, Bundle.EMPTY)).isTrue()
+        assertThat(equals(option.requestData, expectedRequestDataBundle)).isTrue()
+        assertThat(equals(option.candidateQueryData, Bundle.EMPTY)).isTrue()
         assertThat(option.isSystemProviderRequired).isFalse()
     }
 
