@@ -24,29 +24,38 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.webkit.ProcessGlobalConfig;
 import androidx.webkit.WebViewFeature;
 
+import java.io.File;
 
 /**
  * An {@link Activity} which makes use of
- * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(Context, String)}.
+ * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePath(Context, String, String)}.
  */
-public class DataDirectorySuffixActivity extends AppCompatActivity {
+public class DirectoryBasePathActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(R.string.data_directory_suffix_activity_title);
+        setTitle(R.string.directory_base_path_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         if (!WebViewFeature.isStartupFeatureSupported(this,
-                WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX)) {
+                WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH)) {
             WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
             return;
         }
+
+        File dataBasePath =
+                new File(ContextCompat.getDataDir(this),
+                        "data_dir");
+        File cacheBasePath =
+                new File(ContextCompat.getDataDir(this),
+                        "cache_dir");
         ProcessGlobalConfig config = new ProcessGlobalConfig();
-        config.setDataDirectorySuffix(this,
-                "data_directory_suffix_activity_suffix");
+        config.setDirectoryBasePath(this, dataBasePath.getPath(), cacheBasePath.getPath());
+        config.setDataDirectorySuffix(this, "directory_base_path_activity_suffix");
         ProcessGlobalConfig.apply(config);
         setContentView(R.layout.activity_data_directory_config);
         WebView wv = findViewById(R.id.data_directory_config_webview);
