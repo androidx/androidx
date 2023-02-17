@@ -972,6 +972,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val j = createRefFor("0")
      *      val k = createRefFor("box")
      *      val weights = intArrayOf(3, 3, 2, 2)
+     *      val flags = arrayOf("SubGridByColRow", "SpansRespectWidgetOrder")
      *      val g1 = createGrid(
      *          k, a, b, c, d, e, f, g, h, i, j, k,
      *          rows = 5,
@@ -983,6 +984,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *          rowWeights = weights,
      *          paddingHorizontal = 10.dp,
      *          paddingVertical = 10.dp,
+     *          flags = flags,
      *      )
      *      constrain(g1) {
      *          width = Dimension.matchParent
@@ -1026,6 +1028,17 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *        row - the number of rows to span
      *        col- the number of columns to span
      * @param padding sets padding around the content
+     * @param flags set different flags to be enabled (not case-sensitive), including
+     *          SubGridByColRow: reverse the width and height specification for spans/skips.
+     *              Original - Position:HeightxWidth; with the flag - Position:WidthxHeight
+     *          SpansRespectWidgetOrder: spans would respect the order of the widgets.
+     *              Original - the widgets in the front of the widget list would be
+     *              assigned to the spanned area; with the flag - all the widges will be arranged
+     *              based on the given order. For example, for a layout with 1 row and 3 columns.
+     *              If we have two widgets: w1, w2 with a span as 1:1x2, the original layout would
+     *              be [w2 w1 w1]. Since w1 is in the front of the list, it would be assigned to
+     *              the spanned area. With the flag, the layout would be [w1 w2 w2] that respects
+     *              the order of the widget list.
      */
     fun createGrid(
         vararg elements: LayoutReference,
@@ -1039,6 +1052,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         skips: String = "",
         spans: String = "",
         padding: Dp = 0.dp,
+        flags: Array<GridFlag> = arrayOf(),
     ): ConstrainedLayoutReference {
         return createGrid(
             elements = elements,
@@ -1055,6 +1069,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
             paddingTop = padding,
             paddingRight = padding,
             paddingBottom = padding,
+            flags = flags,
         )
     }
 
@@ -1075,6 +1090,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val j = createRefFor("0")
      *      val k = createRefFor("box")
      *      val weights = intArrayOf(3, 3, 2, 2)
+     *      val flags = arrayOf("SubGridByColRow", "SpansRespectWidgetOrder")
      *      val g1 = createGrid(
      *          k, a, b, c, d, e, f, g, h, i, j, k,
      *          rows = 5,
@@ -1086,6 +1102,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *          rowWeights = weights,
      *          paddingHorizontal = 10.dp,
      *          paddingVertical = 10.dp,
+     *          flags = flags,
      *      )
      *      constrain(g1) {
      *          width = Dimension.matchParent
@@ -1130,6 +1147,17 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *        col- the number of columns to span
      * @param paddingHorizontal sets paddingLeft and paddingRight of the content
      * @param paddingVertical sets paddingTop and paddingBottom of the content
+     * @param flags set different flags to be enabled (not case-sensitive), including
+     *          SubGridByColRow: reverse the width and height specification for spans/skips.
+     *              Original - Position:HeightxWidth; with the flag - Position:WidthxHeight
+     *          SpansRespectWidgetOrder: spans would respect the order of the widgets.
+     *              Original - the widgets in the front of the widget list would be
+     *              assigned to the spanned area; with the flag - all the widges will be arranged
+     *              based on the given order. For example, for a layout with 1 row and 3 columns.
+     *              If we have two widgets: w1, w2 with a span as 1:1x2, the original layout would
+     *              be [w2 w1 w1]. Since w1 is in the front of the list, it would be assigned to
+     *              the spanned area. With the flag, the layout would be [w1 w2 w2] that respects
+     *              the order of the widget list.
      */
     fun createGrid(
         vararg elements: LayoutReference,
@@ -1144,6 +1172,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         spans: String = "",
         paddingHorizontal: Dp = 0.dp,
         paddingVertical: Dp = 0.dp,
+        flags: Array<GridFlag> = arrayOf(),
     ): ConstrainedLayoutReference {
         return createGrid(
             elements = elements,
@@ -1160,6 +1189,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
             paddingTop = paddingVertical,
             paddingRight = paddingHorizontal,
             paddingBottom = paddingVertical,
+            flags = flags
         )
     }
 
@@ -1180,6 +1210,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *      val j = createRefFor("0")
      *      val k = createRefFor("box")
      *      val weights = intArrayOf(3, 3, 2, 2)
+     *      val flags = arrayOf("SubGridByColRow", "SpansRespectWidgetOrder")
      *      val g1 = createGrid(
      *          k, a, b, c, d, e, f, g, h, i, j, k,
      *          rows = 5,
@@ -1193,6 +1224,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *          paddingTop = 10.dp,
      *          paddingRight = 10.dp,
      *          paddingBottom = 10.dp,
+     *          flags = flags,
      *      )
      *      constrain(g1) {
      *          width = Dimension.matchParent
@@ -1239,6 +1271,17 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      * @param paddingTop sets paddingTop of the content
      * @param paddingRight sets paddingRight of the content
      * @param paddingBottom sets paddingBottom of the content
+     * @param flags set different flags to be enabled (not case-sensitive), including
+     *          SubGridByColRow: reverse the width and height specification for spans/skips.
+     *              Original - Position:HeightxWidth; with the flag - Position:WidthxHeight
+     *          SpansRespectWidgetOrder: spans would respect the order of the widgets.
+     *              Original - the widgets in the front of the widget list would be
+     *              assigned to the spanned area; with the flag - all the widges will be arranged
+     *              based on the given order. For example, for a layout with 1 row and 3 columns.
+     *              If we have two widgets: w1, w2 with a span as 1:1x2, the original layout would
+     *              be [w2 w1 w1]. Since w1 is in the front of the list, it would be assigned to
+     *              the spanned area. With the flag, the layout would be [w1 w2 w2] that respects
+     *              the order of the widget list.
      */
     fun createGrid(
         vararg elements: LayoutReference,
@@ -1255,9 +1298,11 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         paddingTop: Dp = 0.dp,
         paddingRight: Dp = 0.dp,
         paddingBottom: Dp = 0.dp,
+        flags: Array<GridFlag> = arrayOf(),
     ): ConstrainedLayoutReference {
         val ref = ConstrainedLayoutReference(createHelperId())
         val elementArray = CLArray(charArrayOf())
+        val flagArray = CLArray(charArrayOf())
         elements.forEach {
             elementArray.add(CLString.from(it.id.toString()))
         }
@@ -1266,6 +1311,9 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
             add(CLNumber(paddingTop.value))
             add(CLNumber(paddingRight.value))
             add(CLNumber(paddingBottom.value))
+        }
+        flags.forEach {
+            flagArray.add(CLString.from(it.name))
         }
         var strRowWeights = ""
         var strColumnWeights = ""
@@ -1289,6 +1337,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
             putString("columnWeights", strColumnWeights)
             putString("skips", skips)
             putString("spans", spans)
+            put("flags", flagArray)
         }
 
         return ref
@@ -1808,6 +1857,29 @@ class Visibility internal constructor(
          */
         @Stable
         val Gone = Visibility("gone")
+    }
+}
+
+/**
+ * GridFlag defines the available flags of Grid
+ * SubGridByColRow: reverse the width and height specification for spans/skips.
+ *   Original - Position:HeightxWidth; with the flag - Position:WidthxHeight
+ * SpansRespectWidgetOrder: spans would respect the order of the widgets.
+ *   Original - the widgets in the front of the widget list would be
+ *              assigned to the spanned area; with the flag - all the widges will be arranged
+ *              based on the given order. For example, for a layout with 1 row and 3 columns.
+ *              If we have two widgets: w1, w2 with a span as 1:1x2, the original layout would
+ *              be [w2 w1 w1]. Since w1 is in the front of the list, it would be assigned to
+ *              the spanned area. With the flag, the layout would be [w1 w2 w2] that respects
+ *              the order of the widget list.
+ */
+@Immutable
+class GridFlag internal constructor(
+    internal val name: String
+) {
+    companion object {
+        val SpansRespectWidgetOrder = GridFlag("spansrespectwidgetorder")
+        val SubGridByColRow = GridFlag("subgridbycolrow")
     }
 }
 

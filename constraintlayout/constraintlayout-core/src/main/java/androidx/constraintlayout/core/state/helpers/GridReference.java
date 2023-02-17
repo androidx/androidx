@@ -23,10 +23,15 @@ import androidx.constraintlayout.core.state.State;
 import androidx.constraintlayout.core.utils.GridCore;
 import androidx.constraintlayout.core.widgets.HelperWidget;
 
+import java.util.ArrayList;
+
 /**
  * A HelperReference of a Grid Helper that helps enable Grid in Compose
  */
 public class GridReference extends HelperReference {
+
+    private static final String SPANS_RESPECT_WIDGET_ORDER = "spansrespectwidgetorder";
+    private static final String SUB_GRID_BY_COL_ROW = "subgridbycolrow";
 
     public GridReference(@NonNull State state, @NonNull State.Helper type) {
         super(state, type);
@@ -108,6 +113,11 @@ public class GridReference extends HelperReference {
     private String mSkips;
 
     /**
+     * All the flags of a Grid
+     */
+    private int[] mFlags;
+
+    /**
      * get padding left
      * @return padding left
      */
@@ -169,6 +179,53 @@ public class GridReference extends HelperReference {
      */
     public void setPaddingBottom(int paddingBottom) {
         mPaddingBottom = paddingBottom;
+    }
+
+    /**
+     * Get all the flags of a Grid
+     * @return a String array containing all the flags
+     */
+    @NonNull
+    public int[] getFlags() {
+        return mFlags;
+    }
+
+    /**
+     * Set flags of a Grid
+     * @param flags a String array containing all the flags
+     */
+    public void setFlags(@NonNull int[] flags) {
+        mFlags = flags;
+    }
+
+    /**
+     * Set flags of a Grid
+     * @param flags a String containing all the flags
+     */
+    public void setFlags(@NonNull String flags) {
+        if (flags.length() == 0) {
+            return;
+        }
+
+        String[] strArr = flags.split("\\|");
+        ArrayList<Integer> flagList = new ArrayList<>();
+        for (String flag: strArr) {
+            switch (flag.toLowerCase()) {
+                case SUB_GRID_BY_COL_ROW:
+                    flagList.add(0);
+                    break;
+                case SPANS_RESPECT_WIDGET_ORDER:
+                    flagList.add(1);
+                    break;
+            }
+        }
+        int[] flagArr = new int[flagList.size()];
+        int i = 0;
+        for (int flag: flagList) {
+            flagArr[i++] = flag;
+        }
+
+        mFlags = flagArr;
     }
 
     /**
@@ -391,6 +448,10 @@ public class GridReference extends HelperReference {
 
         if (mSkips != null && !mSkips.equals("")) {
             mGrid.setSkips(mSkips);
+        }
+
+        if (mFlags != null && mFlags.length > 0) {
+            mGrid.setFlags(mFlags);
         }
 
         // General attributes of a widget
