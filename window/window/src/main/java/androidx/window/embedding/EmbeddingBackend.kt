@@ -46,7 +46,7 @@ interface EmbeddingBackend {
         consumer: Consumer<List<SplitInfo>>
     )
 
-    fun isSplitSupported(): Boolean
+    val splitSupportStatus: SplitController.SplitSupportStatus
 
     fun isActivityEmbedded(activity: Activity): Boolean
 
@@ -66,8 +66,8 @@ interface EmbeddingBackend {
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun getInstance(applicationContext: Context): EmbeddingBackend {
-            return decorator(ExtensionEmbeddingBackend.getInstance(applicationContext))
+        fun getInstance(context: Context): EmbeddingBackend {
+            return decorator(ExtensionEmbeddingBackend.getInstance(context))
         }
 
         @ExperimentalWindowApi

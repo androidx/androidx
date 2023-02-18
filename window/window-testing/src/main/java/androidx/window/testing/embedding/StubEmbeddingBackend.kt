@@ -23,6 +23,7 @@ import androidx.window.embedding.EmbeddingBackend
 import androidx.window.embedding.EmbeddingRule
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributesCalculatorParams
+import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
 import java.util.concurrent.Executor
 
@@ -71,9 +72,8 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
         TODO("Not yet implemented")
     }
 
-    override fun isSplitSupported(): Boolean {
-        TODO("Not yet implemented")
-    }
+    override val splitSupportStatus: SplitController.SplitSupportStatus
+        get() = TODO("Not yet implemented")
 
     override fun isActivityEmbedded(activity: Activity): Boolean =
         embeddedActivities.contains(activity)

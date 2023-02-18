@@ -18,11 +18,10 @@ package androidx.window.embedding
 
 import android.content.Context
 import androidx.annotation.XmlRes
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import androidx.window.embedding.RuleController.Companion.parseRules
 
 /**
- * The singleton controller to manage [EmbeddingRule]s. It supports:
+ * The controller to manage [EmbeddingRule]s. It supports:
  * - [addRule]
  * - [removeRule]
  * - [setRules]
@@ -34,9 +33,7 @@ import kotlin.concurrent.withLock
  * startup before any activities complete initialization. The rule updates only apply to future
  * [android.app.Activity] launches and do not apply to already running activities.
  */
-class RuleController private constructor(private val applicationContext: Context) {
-    private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend
-        .getInstance(applicationContext)
+class RuleController private constructor(private val embeddingBackend: EmbeddingBackend) {
 
     // TODO(b/258356512): Make this API a make this a coroutine API that returns
     //  Flow<Set<EmbeddingRule>>.
@@ -109,23 +106,16 @@ class RuleController private constructor(private val applicationContext: Context
     }
 
     companion object {
-        @Volatile
-        private var globalInstance: RuleController? = null
-        private val globalLock = ReentrantLock()
-
         /**
-         * Obtains the singleton instance of [RuleController].
+         * Obtains an instance of [RuleController].
          *
          * @param context the [Context] to initialize the controller with
          */
         @JvmStatic
         fun getInstance(context: Context): RuleController {
-            globalLock.withLock {
-                if (globalInstance == null) {
-                    globalInstance = RuleController(context.applicationContext)
-                }
-                return globalInstance!!
-            }
+            val applicationContext = context.applicationContext
+            val backend = EmbeddingBackend.getInstance(applicationContext)
+            return RuleController(backend)
         }
 
         /**
