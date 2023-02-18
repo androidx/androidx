@@ -21,14 +21,9 @@ import android.app.ActivityOptions
 import android.content.Context
 import android.os.IBinder
 import androidx.window.core.ExperimentalWindowApi
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
-/** A singleton controller that allows checking the current [Activity] embedding status. */
-class ActivityEmbeddingController private constructor(applicationContext: Context) {
-    private val embeddingBackend: EmbeddingBackend = EmbeddingBackend
-        .getInstance(applicationContext)
-
+/** The controller that allows checking the current [Activity] embedding status. */
+class ActivityEmbeddingController private constructor(private val backend: EmbeddingBackend) {
     /**
      * Checks if the [activity] is embedded and its presentation may be customized by the host
      * process of the task this [activity] is associated with.
@@ -37,7 +32,7 @@ class ActivityEmbeddingController private constructor(applicationContext: Contex
      */
     // TODO(b/204399167) Migrate to a Flow
     fun isActivityEmbedded(activity: Activity): Boolean =
-        embeddingBackend.isActivityEmbedded(activity)
+        backend.isActivityEmbedded(activity)
 
     /**
      * Returns the [ActivityStack] that this [activity] is part of when it is being organized in the
@@ -50,7 +45,7 @@ class ActivityEmbeddingController private constructor(applicationContext: Contex
      */
     @ExperimentalWindowApi
     fun getActivityStack(activity: Activity): ActivityStack? =
-        embeddingBackend.getActivityStack(activity)
+        backend.getActivityStack(activity)
 
     /**
      * Sets the launching [ActivityStack] to the given [android.app.ActivityOptions].
@@ -62,7 +57,7 @@ class ActivityEmbeddingController private constructor(applicationContext: Contex
         options: ActivityOptions,
         token: IBinder
     ): ActivityOptions {
-        return embeddingBackend.setLaunchingActivityStack(options, token)
+        return backend.setLaunchingActivityStack(options, token)
     }
 
     /**
@@ -90,7 +85,7 @@ class ActivityEmbeddingController private constructor(applicationContext: Contex
      */
     @ExperimentalWindowApi
     fun finishActivityStacks(activityStacks: Set<ActivityStack>) =
-        embeddingBackend.finishActivityStacks(activityStacks)
+        backend.finishActivityStacks(activityStacks)
 
     /**
      * Checks whether [finishActivityStacks] is supported.
@@ -99,26 +94,18 @@ class ActivityEmbeddingController private constructor(applicationContext: Contex
      */
     @ExperimentalWindowApi
     fun isFinishingActivityStacksSupported(): Boolean =
-        embeddingBackend.isFinishActivityStacksSupported()
+        backend.isFinishActivityStacksSupported()
 
     companion object {
-        @Volatile
-        private var globalInstance: ActivityEmbeddingController? = null
-        private val globalLock = ReentrantLock()
-
         /**
-         * Obtains the singleton instance of [ActivityEmbeddingController].
+         * Obtains an instance of [ActivityEmbeddingController].
          *
          * @param context the [Context] to initialize the controller with
          */
         @JvmStatic
         fun getInstance(context: Context): ActivityEmbeddingController {
-            globalLock.withLock {
-                if (globalInstance == null) {
-                    globalInstance = ActivityEmbeddingController(context.applicationContext)
-                }
-                return globalInstance!!
-            }
+            val backend = EmbeddingBackend.getInstance(context)
+            return ActivityEmbeddingController(backend)
         }
     }
 }
