@@ -354,6 +354,15 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun addUseCasesWithoutCameraTransform_cameraIsRealtime_requestIsRealtime() {
+        testTimebase(
+            cameraTimebase = Timebase.REALTIME,
+            expectedTimebase = Timebase.REALTIME,
+            hasTransform = false
+        )
+    }
+
+    @Test
     fun addUseCasesWithSurfaceProcessor_cameraIsUptime_requestIsUptime() {
         testTimebase(
             effect = createFakeEffect(),
@@ -374,10 +383,11 @@ class VideoCaptureTest {
     private fun testTimebase(
         effect: CameraEffect? = null,
         cameraTimebase: Timebase,
-        expectedTimebase: Timebase
+        expectedTimebase: Timebase,
+        hasTransform: Boolean = true,
     ) {
         // Arrange.
-        setupCamera(timebase = cameraTimebase)
+        setupCamera(timebase = cameraTimebase, hasTransform = hasTransform)
         createCameraUseCaseAdapter()
 
         var timebase: Timebase? = null
@@ -1044,6 +1054,7 @@ class VideoCaptureTest {
     private fun setupCamera(
         cameraId: String = CAMERA_ID_0,
         sensorRotation: Int = 0,
+        hasTransform: Boolean = true,
         supportedResolutions: Map<Int, List<Size>> = CAMERA_0_SUPPORTED_RESOLUTION_MAP,
         profiles: Map<Int, EncoderProfilesProxy> = CAMERA_0_PROFILES,
         timebase: Timebase = Timebase.UPTIME,
@@ -1056,6 +1067,7 @@ class VideoCaptureTest {
             setTimebase(timebase)
         }
         camera = FakeCamera(cameraId, null, cameraInfo)
+        camera.hasTransform = hasTransform
 
         cameraFactory = FakeCameraFactory().apply {
             insertDefaultBackCamera(cameraId) { camera }
