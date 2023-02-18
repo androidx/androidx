@@ -47,8 +47,7 @@ import java.util.concurrent.Executor;
  */
 final class TaskSlotProcessor {
 
-    private TaskSlotProcessor() {
-    }
+    private TaskSlotProcessor() {}
 
     /** perform an in-app search for an ungrounded ParamValue */
     private static <T> ListenableFuture<AppGroundingResult> ground(
@@ -67,8 +66,8 @@ final class TaskSlotProcessor {
         DisambigEntityConverter<T> entityConverter = binding.entityConverter().get();
         SearchActionConverter<T> searchActionConverter = binding.searchActionConverter().get();
         try {
-            SearchAction<T> searchAction = searchActionConverter.toSearchAction(
-                    ungroundedParamValue);
+            SearchAction<T> searchAction =
+                    searchActionConverter.toSearchAction(ungroundedParamValue);
             // Note, transformAsync is needed to catch checked exceptions. See
             // https://yaqs.corp.google.com/eng/q/2565415714299052032.
             return Futures.transformAsync(
@@ -77,7 +76,8 @@ final class TaskSlotProcessor {
                         try {
                             return Futures.immediateFuture(
                                     processEntitySearchResult(
-                                            entitySearchResult, entityConverter,
+                                            entitySearchResult,
+                                            entityConverter,
                                             ungroundedParamValue));
                         } catch (StructConversionException e) {
                             return Futures.immediateFailedFuture(e);
@@ -139,8 +139,8 @@ final class TaskSlotProcessor {
                 // assistant-driven disambiguation
                 groundingFuture =
                         consumeGroundingResult(
-                                chainAssistantGrounding(groundingFuture, pendingValue,
-                                        taskParamBinding, executor),
+                                chainAssistantGrounding(
+                                        groundingFuture, pendingValue, taskParamBinding, executor),
                                 groundedValues,
                                 ungroundedValues,
                                 executor);
@@ -148,8 +148,8 @@ final class TaskSlotProcessor {
                 // app-driven disambiguation
                 groundingFuture =
                         consumeGroundingResult(
-                                chainAppGrounding(groundingFuture, pendingValue, taskParamBinding,
-                                        executor),
+                                chainAppGrounding(
+                                        groundingFuture, pendingValue, taskParamBinding, executor),
                                 groundedValues,
                                 ungroundedValues,
                                 executor);
@@ -169,8 +169,8 @@ final class TaskSlotProcessor {
                     return Futures.transform(
                             invokeValueChange(groundedValues, taskParamBinding),
                             validationResult ->
-                                    processValidationResult(validationResult, groundedValues,
-                                            ungroundedValues),
+                                    processValidationResult(
+                                            validationResult, groundedValues, ungroundedValues),
                             executor,
                             "validation");
                 },
@@ -223,8 +223,9 @@ final class TaskSlotProcessor {
                                             pendingValue.getDisambiguationData(), taskParamBinding),
                                     unused ->
                                             AppGroundingResult.ofFailure(
-                                                    CurrentValue.newBuilder(pendingValue).setStatus(
-                                                            Status.DISAMBIG).build()),
+                                                    CurrentValue.newBuilder(pendingValue)
+                                                            .setStatus(Status.DISAMBIG)
+                                                            .build()),
                                     executor,
                                     "renderAssistantDisambigData");
                         case FAILURE:
@@ -263,26 +264,28 @@ final class TaskSlotProcessor {
      * Processes the EntitySearchResult from performing an entity search.
      *
      * @param entitySearchResult the EntitySearchResult returned from the app resolver.
-     * @param ungroundedValue    the original ungrounded ParamValue.
+     * @param ungroundedValue the original ungrounded ParamValue.
      */
     private static <T> AppGroundingResult processEntitySearchResult(
             EntitySearchResult<T> entitySearchResult,
             DisambigEntityConverter<T> entityConverter,
             ParamValue ungroundedValue)
             throws StructConversionException {
-        switch (entitySearchResult.possibleValues().size()) {
+        switch (entitySearchResult.getPossibleValues().size()) {
             case 0:
                 return AppGroundingResult.ofFailure(
                         TaskCapabilityUtils.toCurrentValue(ungroundedValue, Status.REJECTED));
             case 1:
                 Entity groundedEntity =
                         entityConverter.convert(
-                                Objects.requireNonNull(entitySearchResult.possibleValues().get(0)));
+                                Objects.requireNonNull(
+                                        entitySearchResult.getPossibleValues().get(0)));
                 return AppGroundingResult.ofSuccess(
                         TaskCapabilityUtils.groundedValueToParamValue(groundedEntity));
             default:
                 List<Entity> disambigEntities =
-                        getDisambigEntities(entitySearchResult.possibleValues(), entityConverter);
+                        getDisambigEntities(
+                                entitySearchResult.getPossibleValues(), entityConverter);
                 return AppGroundingResult.ofFailure(
                         TaskCapabilityUtils.getCurrentValueForDisambiguation(
                                 ungroundedValue, disambigEntities));
@@ -303,7 +306,7 @@ final class TaskSlotProcessor {
      * Processes the ValidationResult from sending argument updates to onReceived.
      *
      * @param validationResult the ValidationResult returned from value listener.
-     * @param groundedValues   a List of all grounded ParamValue.
+     * @param groundedValues a List of all grounded ParamValue.
      * @param ungroundedValues a List of all ungrounded CurrentValue.
      */
     private static SlotProcessingResult processValidationResult(
@@ -314,13 +317,13 @@ final class TaskSlotProcessor {
         switch (validationResult.getKind()) {
             case ACCEPTED:
                 combinedValues.addAll(
-                        TaskCapabilityUtils.paramValuesToCurrentValue(groundedValues,
-                                Status.ACCEPTED));
+                        TaskCapabilityUtils.paramValuesToCurrentValue(
+                                groundedValues, Status.ACCEPTED));
                 break;
             case REJECTED:
                 combinedValues.addAll(
-                        TaskCapabilityUtils.paramValuesToCurrentValue(groundedValues,
-                                Status.REJECTED));
+                        TaskCapabilityUtils.paramValuesToCurrentValue(
+                                groundedValues, Status.REJECTED));
                 break;
         }
         combinedValues.addAll(ungroundedValues);

@@ -14,37 +14,35 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task;
+package androidx.appactions.interaction.capabilities.core.task
 
-import androidx.annotation.NonNull;
-
-import com.google.auto.value.AutoOneOf;
-
+import java.util.Objects
 /** Result from validating a single argument value. */
-@AutoOneOf(ValidationResult.Kind.class)
-public abstract class ValidationResult {
-    /** Creates a new ACCEPTED ValidationResult. */
-    @NonNull
-    public static ValidationResult newAccepted() {
-        return AutoOneOf_ValidationResult.accepted("accepted");
+class ValidationResult internal constructor(
+    val kind: Kind
+) {
+    override fun toString() =
+        "ValidationResult(kind=$kind)"
+
+    override fun equals(other: Any?): Boolean {
+        return other is ValidationResult && kind == other.kind
     }
 
-    /** Creates a new REJECTED ValidationResult. */
-    @NonNull
-    public static ValidationResult newRejected() {
-        return AutoOneOf_ValidationResult.rejected("rejected");
-    }
-
-    @NonNull
-    public abstract Kind getKind();
-
-    abstract String accepted();
-
-    abstract String rejected();
+    override fun hashCode() = Objects.hash(kind)
 
     /** The state of the argument value after performing validation. */
-    public enum Kind {
+    enum class Kind {
         ACCEPTED,
         REJECTED,
+    }
+
+    companion object {
+        /** Creates a new ACCEPTED ValidationResult. */
+        @JvmStatic
+        fun newAccepted() = ValidationResult(Kind.ACCEPTED)
+
+        /** Creates a new REJECTED ValidationResult. */
+        @JvmStatic
+        fun newRejected() = ValidationResult(Kind.REJECTED)
     }
 }
