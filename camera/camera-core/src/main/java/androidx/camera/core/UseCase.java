@@ -21,7 +21,6 @@ import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import android.annotation.SuppressLint;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
 import android.util.Size;
 import android.view.Surface;
@@ -49,7 +48,6 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
-import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -128,17 +126,6 @@ public abstract class UseCase {
      */
     @Nullable
     private Rect mViewPortCropRect;
-
-    /**
-     * Whether the producer writes camera transform to the {@link Surface}.
-     *
-     * <p> Camera2 writes the camera transform to the {@link Surface}, which can be used to
-     * correct the output. However, if the producer is not the camera, for example, a OpenGL
-     * renderer in {@link StreamSharing}, then this field will be false.
-     *
-     * @see SurfaceTexture#getTransformMatrix
-     */
-    private boolean mHasCameraTransform = true;
 
     /**
      * The sensor to image buffer transform matrix.
@@ -373,7 +360,7 @@ public abstract class UseCase {
         // Parent UseCase always mirror the stream if the child requires it. No camera transform
         // means that the stream is copied by a parent, and if the child also requires mirroring,
         // we know that the stream has been mirrored.
-        boolean inputStreamMirrored = !mHasCameraTransform && requireMirroring;
+        boolean inputStreamMirrored = !cameraInternal.getHasTransform() && requireMirroring;
         if (inputStreamMirrored) {
             // Flip rotation if the stream has been mirrored.
             rotation = within360(-rotation);
@@ -814,28 +801,6 @@ public abstract class UseCase {
     @Nullable
     public CameraEffect getEffect() {
         return mEffect;
-    }
-
-    /**
-     * Sets whether the producer writes camera transform to the {@link Surface}.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @CallSuper
-    public void setHasCameraTransform(boolean hasCameraTransform) {
-        mHasCameraTransform = hasCameraTransform;
-    }
-
-    /**
-     * Gets whether the producer writes camera transform to the {@link Surface}.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @CallSuper
-    public boolean getHasCameraTransform() {
-        return mHasCameraTransform;
     }
 
     /**
