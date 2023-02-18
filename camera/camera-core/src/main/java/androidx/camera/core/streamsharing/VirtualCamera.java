@@ -125,7 +125,6 @@ class VirtualCamera implements CameraInternal {
 
     void bindChildren() {
         for (UseCase useCase : mChildren) {
-            useCase.setHasCameraTransform(false);
             useCase.bindToCamera(this, null,
                     useCase.getDefaultConfig(true, mUseCaseConfigFactory));
         }
@@ -262,6 +261,12 @@ class VirtualCamera implements CameraInternal {
     }
 
     // --- Forward parent camera properties and events ---
+
+    @Override
+    public boolean getHasTransform() {
+        return false;
+    }
+
     @NonNull
     @Override
     public CameraControlInternal getCameraControlInternal() {

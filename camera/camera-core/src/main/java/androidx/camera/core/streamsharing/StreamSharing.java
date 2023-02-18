@@ -178,7 +178,7 @@ public class StreamSharing extends UseCase {
                 /*targets=*/PREVIEW | VIDEO_CAPTURE,
                 streamSpec,
                 getSensorToBufferTransformMatrix(),
-                getHasCameraTransform(),
+                camera.getHasTransform(),
                 requireNonNull(getCropRect(streamSpec.getResolution())),
                 /*rotationDegrees=*/0, // Rotation are handled by each child.
                 /*mirroring=*/false); // Mirroring will be decided by each child.

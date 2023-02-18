@@ -66,6 +66,7 @@ public class FakeCamera implements CameraInternal {
     private State mState = State.CLOSED;
     private int mAvailableCameraCount = 1;
     private List<UseCase> mUseCaseResetHistory = new ArrayList<>();
+    private boolean mHasTransform = true;
 
     @Nullable
     private SessionConfig mSessionConfig;
@@ -308,6 +309,18 @@ public class FakeCamera implements CameraInternal {
     @NonNull
     public List<UseCase> getUseCaseResetHistory() {
         return mUseCaseResetHistory;
+    }
+
+    @Override
+    public boolean getHasTransform() {
+        return mHasTransform;
+    }
+
+    /**
+     * Sets whether the camera has a transform.
+     */
+    public void setHasTransform(boolean hasCameraTransform) {
+        mHasTransform = hasCameraTransform;
     }
 
     private void checkNotReleased() {

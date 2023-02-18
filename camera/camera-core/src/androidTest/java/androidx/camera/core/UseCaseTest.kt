@@ -62,7 +62,7 @@ class UseCaseTest {
         // Arrange.
         val testUseCase = createFakeUseCase(targetRotation = Surface.ROTATION_90)
         val fakeCamera = FakeCamera()
-        testUseCase.hasCameraTransform = false
+        fakeCamera.hasTransform = false
         // Act/Assert:
         assertThat(testUseCase.getRelativeRotation(fakeCamera, true)).isEqualTo(90)
         assertThat(testUseCase.getRelativeRotation(fakeCamera, false)).isEqualTo(270)
