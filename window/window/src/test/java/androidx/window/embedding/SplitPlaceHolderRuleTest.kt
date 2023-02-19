@@ -17,6 +17,7 @@
 package androidx.window.embedding
 
 import android.content.ComponentName
+import android.content.Intent
 import android.graphics.Rect
 import androidx.window.core.ActivityComponentInfo
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
@@ -34,145 +35,125 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /**
- * Unit test for [SplitPairRule] to check the construction is correct by using it's builder.
+ * Unit test for [SplitPlaceholderRule] to check the construction is correct by using it's builder.
  */
 @RunWith(RobolectricTestRunner::class)
-internal class SplitPairRuleTest {
-
-    @Test
-    fun test_builderMatchesConstruction() {
-        val splitAttributes = SplitAttributes()
-        val filterSet = setOf(createSplitPairFilter())
-        val expected = SplitPairRule(
-            filterSet,
-            splitAttributes
-        )
-
-        val actual = SplitPairRule.Builder(filterSet).build()
-
-        assertEquals(expected, actual)
-    }
-
-    private fun createSplitPairFilter(): SplitPairFilter {
-        return SplitPairFilter(
-            ActivityComponentInfo("package", "class"),
-            ActivityComponentInfo("otherPackage", "otherClass"),
-            null
-        )
-    }
+internal class SplitPlaceHolderRuleTest {
 
     /*------------------------------Class Test------------------------------*/
     /**
-     * Test hashcode and equals are properly calculated for 2 equal [SplitPairRule]
+     * Test hashcode and equals are properly calculated for 2 equal [SplitPlaceholderRule]
      */
     @Test
     fun equalsImpliesHashCode() {
-        val filter = SplitPairFilter(
-            ComponentName("a", "b"),
-            ComponentName("c", "d"),
-            "ACTION"
-        )
-        val firstRule = SplitPairRule.Builder(setOf(filter)).build()
-        val secondRule = SplitPairRule.Builder(setOf(filter)).build()
+        val filter = ActivityFilter(ActivityComponentInfo("a", "b"), "ACTION")
+        val placeholderIntent = Intent()
+        val firstRule = SplitPlaceholderRule.Builder(setOf(filter), placeholderIntent).build()
+        val secondRule = SplitPlaceholderRule.Builder(setOf(filter), placeholderIntent).build()
         assertEquals(firstRule, secondRule)
         assertEquals(firstRule.hashCode(), secondRule.hashCode())
     }
 
     /*------------------------------Builder Test------------------------------*/
     /**
-     * Verifies that default params are set correctly when creating [SplitPairRule] with a
-     * builder.
+     * Verifies that default params are set correctly when creating [SplitPlaceholderRule]
+     * with a builder.
      */
     @Test
-    fun testDefaults_SplitPairRule_Builder() {
-        val rule = SplitPairRule.Builder(HashSet()).build()
-        val expectedSplitLayout = SplitAttributes.Builder()
-            .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
-            .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-            .build()
+    fun testDefaults_SplitPlaceholderRule_Builder() {
+        val rule = SplitPlaceholderRule.Builder(HashSet(), Intent()).build()
         TestCase.assertNull(rule.tag)
         assertEquals(SPLIT_MIN_DIMENSION_DP_DEFAULT, rule.minWidthDp)
         assertEquals(SPLIT_MIN_DIMENSION_DP_DEFAULT, rule.minHeightDp)
         assertEquals(SPLIT_MIN_DIMENSION_DP_DEFAULT, rule.minSmallestWidthDp)
         assertEquals(SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT, rule.maxAspectRatioInPortrait)
         assertEquals(SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT, rule.maxAspectRatioInLandscape)
-        assertEquals(NEVER, rule.finishPrimaryWithSecondary)
-        assertEquals(ALWAYS, rule.finishSecondaryWithPrimary)
-        assertEquals(false, rule.clearTop)
+        assertEquals(ALWAYS, rule.finishPrimaryWithPlaceholder)
+        assertEquals(false, rule.isSticky)
+        val expectedSplitLayout = SplitAttributes.Builder()
+            .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
+            .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+            .build()
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertTrue(rule.checkParentBounds(density, validBounds))
         assertFalse(rule.checkParentBounds(density, invalidBounds))
     }
 
     /**
-     * Verifies that the params are set correctly when creating [SplitPairRule] with a
+     * Verifies that the params are set correctly when creating [SplitPlaceholderRule] with a
      * builder.
      */
     @Test
-    fun test_SplitPairRule_Builder() {
-        val filters = HashSet<SplitPairFilter>()
+    fun test_SplitPlaceholderRule_Builder() {
+        val filters = HashSet<ActivityFilter>()
+        filters.add(
+            ActivityFilter(
+                ComponentName("a", "b"),
+                "ACTION"
+            )
+        )
+        val intent = Intent("ACTION")
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
             .setLayoutDirection(SplitAttributes.LayoutDirection.LEFT_TO_RIGHT)
             .build()
-        filters.add(
-            SplitPairFilter(
-                ComponentName("a", "b"),
-                ComponentName("c", "d"),
-                "ACTION"
-            )
-        )
-        val rule = SplitPairRule.Builder(filters)
+        val rule = SplitPlaceholderRule.Builder(filters, intent)
             .setMinWidthDp(123)
             .setMinHeightDp(456)
             .setMinSmallestWidthDp(789)
             .setMaxAspectRatioInPortrait(EmbeddingAspectRatio.ratio(1.23f))
             .setMaxAspectRatioInLandscape(EmbeddingAspectRatio.ratio(4.56f))
-            .setFinishPrimaryWithSecondary(SplitRule.FinishBehavior.ADJACENT)
-            .setFinishSecondaryWithPrimary(SplitRule.FinishBehavior.ADJACENT)
-            .setClearTop(true)
+            .setFinishPrimaryWithPlaceholder(SplitRule.FinishBehavior.ADJACENT)
+            .setSticky(true)
             .setDefaultSplitAttributes(expectedSplitLayout)
             .setTag(TEST_TAG)
             .build()
-        assertEquals(SplitRule.FinishBehavior.ADJACENT, rule.finishPrimaryWithSecondary)
-        assertEquals(SplitRule.FinishBehavior.ADJACENT, rule.finishSecondaryWithPrimary)
-        assertEquals(true, rule.clearTop)
+        assertEquals(SplitRule.FinishBehavior.ADJACENT, rule.finishPrimaryWithPlaceholder)
+        assertEquals(true, rule.isSticky)
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
-        assertEquals(TEST_TAG, rule.tag)
         assertEquals(filters, rule.filters)
+        assertEquals(intent, rule.placeholderIntent)
         assertEquals(123, rule.minWidthDp)
         assertEquals(456, rule.minHeightDp)
         assertEquals(789, rule.minSmallestWidthDp)
+        assertEquals(TEST_TAG, rule.tag)
         assertEquals(1.23f, rule.maxAspectRatioInPortrait.value)
         assertEquals(4.56f, rule.maxAspectRatioInLandscape.value)
     }
 
-    /*------------------------------Functional Test------------------------------*/
     /**
-     * Verifies that illegal parameter values are not allowed when creating [SplitPairRule]
-     * with a builder.
+     * Verifies that illegal parameter values are not allowed when creating
+     * [SplitPlaceholderRule] with a builder.
      */
     @Test
-    fun test_SplitPairRule_Builder_illegalArguments() {
+    fun test_SplitPlaceholderRule_Builder_illegalArguments() {
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPairRule.Builder(HashSet())
+            SplitPlaceholderRule.Builder(HashSet(), Intent())
                 .setMinWidthDp(-1)
                 .setMinHeightDp(456)
                 .setMinSmallestWidthDp(789)
                 .build()
         }
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPairRule.Builder(HashSet())
+            SplitPlaceholderRule.Builder(HashSet(), Intent())
                 .setMinWidthDp(123)
                 .setMinHeightDp(-1)
                 .setMinSmallestWidthDp(789)
                 .build()
         }
         assertThrows(IllegalArgumentException::class.java) {
-            SplitPairRule.Builder(HashSet())
+            SplitPlaceholderRule.Builder(HashSet(), Intent())
                 .setMinWidthDp(123)
                 .setMinHeightDp(456)
                 .setMinSmallestWidthDp(-1)
+                .build()
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            SplitPlaceholderRule.Builder(HashSet(), Intent())
+                .setMinWidthDp(123)
+                .setMinHeightDp(456)
+                .setMinSmallestWidthDp(789)
+                .setFinishPrimaryWithPlaceholder(NEVER)
                 .build()
         }
         assertThrows(IllegalArgumentException::class.java) {
@@ -187,14 +168,15 @@ internal class SplitPairRuleTest {
         }
     }
 
+    /*------------------------------Functional Test------------------------------*/
     /**
-     * Verifies that the [SplitPairRule] verifies that the parent bounds satisfy
+     * Verifies that the [SplitPlaceholderRule] verifies that the parent bounds satisfy
      * maxAspectRatioInPortrait.
      */
     @Test
-    fun testSplitPairRule_maxAspectRatioInPortrait() {
+    fun testSplitPlaceholderRule_maxAspectRatioInPortrait() {
         // Always allow split
-        var rule = SplitPairRule.Builder(HashSet())
+        var rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
@@ -207,7 +189,7 @@ internal class SplitPairRuleTest {
         assertTrue(rule.checkParentBounds(density, bounds))
 
         // Always disallow split in portrait
-        rule = SplitPairRule.Builder(HashSet())
+        rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
@@ -223,7 +205,7 @@ internal class SplitPairRuleTest {
         assertTrue(rule.checkParentBounds(density, bounds))
 
         // Compare the aspect ratio in portrait
-        rule = SplitPairRule.Builder(HashSet())
+        rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
@@ -246,13 +228,13 @@ internal class SplitPairRuleTest {
     }
 
     /**
-     * Verifies that the [SplitPairRule] verifies that the parent bounds satisfy
+     * Verifies that the [SplitPlaceholderRule] verifies that the parent bounds satisfy
      * maxAspectRatioInLandscape.
      */
     @Test
-    fun testSplitPairRule_maxAspectRatioInLandscape() {
+    fun testSplitPlaceholderRule_maxAspectRatioInLandscape() {
         // Always allow split
-        var rule = SplitPairRule.Builder(HashSet())
+        var rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
@@ -263,9 +245,12 @@ internal class SplitPairRuleTest {
         var height = 100
         var bounds = Rect(0, 0, width, height)
         assertTrue(rule.checkParentBounds(density, bounds))
+        // Ignore if the bounds in portrait
+        bounds = Rect(0, 0, height, width)
+        assertTrue(rule.checkParentBounds(density, bounds))
 
         // Always disallow split in landscape
-        rule = SplitPairRule.Builder(HashSet())
+        rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
@@ -281,7 +266,7 @@ internal class SplitPairRuleTest {
         assertTrue(rule.checkParentBounds(density, bounds))
 
         // Compare the aspect ratio in landscape
-        rule = SplitPairRule.Builder(HashSet())
+        rule = SplitPlaceholderRule.Builder(HashSet(), Intent())
             .setMinWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinHeightDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
             .setMinSmallestWidthDp(SplitRule.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW)
