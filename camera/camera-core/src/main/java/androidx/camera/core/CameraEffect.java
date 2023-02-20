@@ -15,9 +15,12 @@
  */
 package androidx.camera.core;
 
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Objects.requireNonNull;
+
+import android.graphics.ImageFormat;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -87,6 +90,17 @@ public abstract class CameraEffect {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @IntDef(flag = true, value = {PREVIEW, VIDEO_CAPTURE, IMAGE_CAPTURE})
     public @interface Targets {
+    }
+
+    /**
+     * Bitmask options for the effect targets.
+     *
+     * @hide
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(flag = true, value = {INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, ImageFormat.JPEG})
+    public @interface Formats {
     }
 
     /**

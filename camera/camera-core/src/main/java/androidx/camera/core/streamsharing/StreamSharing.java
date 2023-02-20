@@ -18,6 +18,7 @@ package androidx.camera.core.streamsharing;
 
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.core.util.Preconditions.checkNotNull;
@@ -176,6 +177,7 @@ public class StreamSharing extends UseCase {
         // Create input edge and the node.
         mCameraEdge = new SurfaceEdge(
                 /*targets=*/PREVIEW | VIDEO_CAPTURE,
+                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                 streamSpec,
                 getSensorToBufferTransformMatrix(),
                 camera.getHasTransform(),

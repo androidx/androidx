@@ -27,7 +27,6 @@ import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.core.util.Preconditions.checkState;
 
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
@@ -97,6 +96,7 @@ import java.util.Set;
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class SurfaceEdge {
 
+    private final int mFormat;
     private final Matrix mSensorToBufferTransform;
     private final boolean mHasCameraTransform;
     private final Rect mCropRect;
@@ -135,6 +135,7 @@ public class SurfaceEdge {
      */
     public SurfaceEdge(
             @CameraEffect.Targets int targets,
+            @CameraEffect.Formats int format,
             @NonNull StreamSpec streamSpec,
             @NonNull Matrix sensorToBufferTransform,
             boolean hasCameraTransform,
@@ -142,13 +143,14 @@ public class SurfaceEdge {
             int rotationDegrees,
             boolean mirroring) {
         mTargets = targets;
+        mFormat = format;
         mStreamSpec = streamSpec;
         mSensorToBufferTransform = sensorToBufferTransform;
         mHasCameraTransform = hasCameraTransform;
         mCropRect = cropRect;
         mRotationDegrees = rotationDegrees;
         mMirroring = mirroring;
-        mSettableSurface = new SettableSurface(streamSpec.getResolution());
+        mSettableSurface = new SettableSurface(streamSpec.getResolution(), mFormat);
     }
 
     /**
@@ -311,7 +313,8 @@ public class SurfaceEdge {
     @MainThread
     @NonNull
     public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(@NonNull Size inputSize,
-            @NonNull Rect cropRect, int rotationDegrees, boolean mirroring) {
+            @CameraEffect.Formats int format, @NonNull Rect cropRect, int rotationDegrees,
+            boolean mirroring) {
         checkMainThread();
         checkNotClosed();
         checkAndSetHasConsumer();
@@ -325,7 +328,7 @@ public class SurfaceEdge {
                         return immediateFailedFuture(e);
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(surface,
-                            getTargets(), mStreamSpec.getResolution(), inputSize, cropRect,
+                            getTargets(), format, mStreamSpec.getResolution(), inputSize, cropRect,
                             rotationDegrees, mirroring);
                     surfaceOutputImpl.getCloseFuture().addListener(
                             settableSurface::decrementUseCount,
@@ -359,7 +362,7 @@ public class SurfaceEdge {
         }
         disconnectWithoutCheckingClosed();
         mHasConsumer = false;
-        mSettableSurface = new SettableSurface(mStreamSpec.getResolution());
+        mSettableSurface = new SettableSurface(mStreamSpec.getResolution(), mFormat);
         for (Runnable onInvalidated : mOnInvalidatedListeners) {
             onInvalidated.run();
         }
@@ -414,6 +417,14 @@ public class SurfaceEdge {
     @CameraEffect.Targets
     public int getTargets() {
         return mTargets;
+    }
+
+    /**
+     * Gets the buffer format of this edge.
+     */
+    @CameraEffect.Formats
+    public int getFormat() {
+        return mFormat;
     }
 
     /**
@@ -558,8 +569,8 @@ public class SurfaceEdge {
 
         private DeferrableSurface mProvider;
 
-        SettableSurface(@NonNull Size size) {
-            super(size, ImageFormat.PRIVATE);
+        SettableSurface(@NonNull Size size, @CameraEffect.Formats int format) {
+            super(size, format);
         }
 
         @NonNull
@@ -605,6 +616,8 @@ public class SurfaceEdge {
                     + "SurfaceEdge#setProvider");
             checkArgument(getPrescribedSize().equals(provider.getPrescribedSize()),
                     "The provider's size must match the parent");
+            checkArgument(getPrescribedStreamFormat() == provider.getPrescribedStreamFormat(),
+                    "The provider's format must match the parent");
             checkState(!isClosed(), "The parent is closed. Call SurfaceEdge#invalidate() before "
                     + "setting a new provider.");
             mProvider = provider;
