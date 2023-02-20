@@ -123,11 +123,12 @@ internal fun FocusComposableImpl(
     onFocusChanged: CoroutineScope.(Boolean) -> Unit,
     content: @Composable () -> Unit
 ) {
+    val updatedFocusEnabled by rememberUpdatedState(focusEnabled)
     val parent by rememberUpdatedState(LocalFocusNodeParent.current)
 
     // Node in our internal tree representation of the FocusComposableImpl
     val node = remember { FocusNode(focused = derivedStateOf {
-        (parent?.focused?.value ?: true) && focusEnabled()
+        (parent?.focused?.value ?: true) && updatedFocusEnabled()
     }) }
 
     // Attach our node to our parent's (and remove if we leave the composition).
