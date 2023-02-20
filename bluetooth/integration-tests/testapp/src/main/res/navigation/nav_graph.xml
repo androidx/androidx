@@ -18,18 +18,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/navigation_fwk">
+    app:startDestination="@id/navigation_home">
 
     <fragment
-        android:id="@+id/navigation_fwk"
-        android:name="androidx.bluetooth.integration.testapp.ui.framework.FwkFragment"
-        android:label="@string/title_fwk"
-        tools:layout="@layout/fragment_fwk" />
-
-    <fragment
-        android:id="@+id/navigation_btx"
-        android:name="androidx.bluetooth.integration.testapp.ui.bluetoothx.BtxFragment"
-        android:label="@string/title_btx"
-        tools:layout="@layout/fragment_btx" />
+        android:id="@+id/navigation_home"
+        android:name="androidx.bluetooth.integration.testapp.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
 
 </navigation>

@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.integration.testapp.ui.framework
+package androidx.bluetooth.integration.testapp.ui.home
 
 import android.bluetooth.le.ScanResult
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 
-class FwkViewModel(
-    private val coroutineScope: CoroutineScope =
-        CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-) : ViewModel() {
+class HomeViewModel : ViewModel() {
 
     companion object {
-        const val TAG = "FwkViewModel"
+        const val TAG = "HomeViewModel"
     }
 
     val scanResults = mutableMapOf<String, ScanResult>()
@@ -41,7 +34,5 @@ class FwkViewModel(
 
     override fun onCleared() {
         Log.d(TAG, "onCleared() called")
-
-        coroutineScope.cancel()
     }
 }

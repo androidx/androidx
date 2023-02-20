@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.integration.testapp.ui.bluetoothx
+package androidx.bluetooth.integration.testapp.ui.home
 
 import android.annotation.SuppressLint
 import android.bluetooth.le.AdvertiseData
@@ -29,12 +29,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 
 import androidx.bluetooth.integration.testapp.R
-import androidx.bluetooth.integration.testapp.databinding.FragmentBtxBinding
+import androidx.bluetooth.integration.testapp.data.SampleAdvertiseData
+import androidx.bluetooth.integration.testapp.databinding.FragmentHomeBinding
 import androidx.bluetooth.integration.testapp.experimental.AdvertiseResult
 import androidx.bluetooth.integration.testapp.experimental.BluetoothLe
 import androidx.bluetooth.integration.testapp.experimental.GattServerCallback
 import androidx.bluetooth.integration.testapp.ui.common.ScanResultAdapter
-import androidx.bluetooth.integration.testapp.ui.framework.FwkFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 
@@ -43,19 +43,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class BtxFragment : Fragment() {
+class HomeFragment : Fragment() {
 
     companion object {
-        const val TAG = "BtxFragment"
+        const val TAG = "HomeFragment"
     }
 
     private var scanResultAdapter: ScanResultAdapter? = null
 
     private lateinit var bluetoothLe: BluetoothLe
 
-    private lateinit var btxViewModel: BtxViewModel
+    private lateinit var mHomeViewModel: HomeViewModel
 
-    private var _binding: FragmentBtxBinding? = null
+    private var _binding: FragmentHomeBinding? = null
 
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
@@ -69,9 +69,9 @@ class BtxFragment : Fragment() {
             TAG, "onCreateView() called with: inflater = $inflater, " +
                 "container = $container, savedInstanceState = $savedInstanceState"
         )
-        btxViewModel = ViewModelProvider(this).get(BtxViewModel::class.java)
+        mHomeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
-        _binding = FragmentBtxBinding.inflate(inflater, container, false)
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -86,7 +86,7 @@ class BtxFragment : Fragment() {
         binding.buttonScan.setOnClickListener {
             if (scanJob?.isActive == true) {
                 scanJob?.cancel()
-                binding.buttonScan.text = getString(R.string.scan_using_btx)
+                binding.buttonScan.text = getString(R.string.scan_using_androidx_bluetooth)
             } else {
                 startScan()
             }
@@ -131,9 +131,9 @@ class BtxFragment : Fragment() {
                 .collect {
                     Log.d(TAG, "ScanResult collected: $it")
 
-                    btxViewModel.scanResults[it.device.address] = it
-                    scanResultAdapter?.submitList(btxViewModel.scanResults.values.toMutableList())
-                    scanResultAdapter?.notifyItemInserted(btxViewModel.scanResults.size)
+                    mHomeViewModel.scanResults[it.device.address] = it
+                    scanResultAdapter?.submitList(mHomeViewModel.scanResults.values.toMutableList())
+                    scanResultAdapter?.notifyItemInserted(mHomeViewModel.scanResults.size)
                 }
         }
     }
@@ -156,7 +156,7 @@ class BtxFragment : Fragment() {
             .build()
 
         val advertiseData = AdvertiseData.Builder()
-            .addServiceUuid(FwkFragment.ServiceUUID)
+            .addServiceUuid(SampleAdvertiseData.testUUID)
             .setIncludeDeviceName(true)
             .build()
 
