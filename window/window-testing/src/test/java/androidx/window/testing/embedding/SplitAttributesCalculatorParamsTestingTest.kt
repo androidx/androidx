@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.testing.emedding
+package androidx.window.testing.embedding
 
 import androidx.window.testing.layout.FoldingFeature as testFoldingFeature
 import android.content.res.Configuration
@@ -27,16 +27,18 @@ import androidx.window.embedding.SplitAttributesCalculatorParams
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
-import androidx.window.testing.embedding.TestSplitAttributesCalculatorParams
 import androidx.window.testing.layout.TestWindowLayoutInfo
 import java.util.Collections
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
 /** Test class to verify [TestSplitAttributesCalculatorParams]. */
 @OptIn(ExperimentalWindowApi::class)
+@RunWith(RobolectricTestRunner::class)
 class SplitAttributesCalculatorParamsTestingTest {
     /** Verifies if the default values of [TestSplitAttributesCalculatorParams] are as expected. */
     @Test

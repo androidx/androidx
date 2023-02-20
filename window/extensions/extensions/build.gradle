@@ -28,6 +28,7 @@ dependencies {
     implementation("androidx.annotation:annotation-experimental:1.1.0")
     implementation("androidx.window.extensions.core:core:1.0.0-alpha01")
 
+    testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
