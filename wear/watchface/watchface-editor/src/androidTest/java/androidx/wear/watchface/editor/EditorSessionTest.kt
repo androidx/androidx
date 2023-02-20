@@ -592,8 +592,30 @@ public class EditorSessionTest {
         previewScreenshotParams: PreviewScreenshotParams? = null
     ): ActivityScenario<OnWatchFaceEditingTestActivity> {
         val userStyleRepository = CurrentUserStyleRepository(UserStyleSchema(userStyleSettings))
+        val mockSurfaceHolder = `mock`(SurfaceHolder::class.java)
+        `when`(mockSurfaceHolder.surfaceFrame).thenReturn(screenBounds)
+        @Suppress("Deprecation")
+        val fakeRenderer = object : Renderer.CanvasRenderer(
+            mockSurfaceHolder,
+            userStyleRepository,
+            MutableWatchState().asWatchState(),
+            CanvasType.HARDWARE,
+            interactiveDrawModeUpdateDelayMillis = 16,
+            clearWithBackgroundTintBeforeRenderingHighlightLayer = false
+        ) {
+            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+            }
+
+            override fun renderHighlightLayer(
+                canvas: Canvas,
+                bounds: Rect,
+                zonedDateTime: ZonedDateTime
+            ) {
+            }
+        }
+
         val complicationSlotsManager =
-            ComplicationSlotsManager(complicationSlots, userStyleRepository)
+            ComplicationSlotsManager(complicationSlots, userStyleRepository, fakeRenderer)
         complicationSlotsManager.watchState = placeholderWatchState
         complicationSlotsManager.listenForStyleChanges(CoroutineScope(Dispatchers.Main.immediate))
 
