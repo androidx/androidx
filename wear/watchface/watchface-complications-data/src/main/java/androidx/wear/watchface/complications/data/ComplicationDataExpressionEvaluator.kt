@@ -28,9 +28,13 @@ import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
 import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway
 import java.util.concurrent.Executor
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -74,7 +78,7 @@ class ComplicationDataExpressionEvaluator(
          *   `coroutineScope`.
          */
         fun init(executor: Executor) {
-            evaluator.init()
+            evaluator.init(CoroutineScope(executor.asCoroutineDispatcher()))
             evaluator.data
                 .filterNotNull()
                 .onEach(listener::accept)
@@ -109,7 +113,7 @@ class ComplicationDataExpressionEvaluator(
     fun init(coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)) {
         // Add all the receivers before we start binding them because binding can synchronously
         // trigger the receiver, which would update the data before all the fields are evaluated.
-        initStateReceivers()
+        initStateReceivers(coroutineScope)
         initEvaluator()
         monitorState(coroutineScope)
     }
@@ -125,29 +129,37 @@ class ComplicationDataExpressionEvaluator(
     }
 
     /** Adds [ComplicationEvaluationResultReceiver]s to [state]. */
-    private fun initStateReceivers() {
+    private fun initStateReceivers(coroutineScope: CoroutineScope) {
         val receivers = mutableSetOf<ComplicationEvaluationResultReceiver<out Any>>()
 
         if (unevaluatedData.hasRangedValueExpression()) {
             unevaluatedData.rangedValueExpression
-                ?.buildReceiver { setRangedValue(it) }
+                ?.buildReceiver(coroutineScope) { setRangedValue(it) }
                 ?.let { receivers += it }
         }
         if (unevaluatedData.hasLongText()) {
-            unevaluatedData.longText?.buildReceiver { setLongText(it) }?.let { receivers += it }
+            unevaluatedData.longText
+                ?.buildReceiver(coroutineScope) { setLongText(it) }
+                ?.let { receivers += it }
         }
         if (unevaluatedData.hasLongTitle()) {
-            unevaluatedData.longTitle?.buildReceiver { setLongTitle(it) }?.let { receivers += it }
+            unevaluatedData.longTitle
+                ?.buildReceiver(coroutineScope) { setLongTitle(it) }
+                ?.let { receivers += it }
         }
         if (unevaluatedData.hasShortText()) {
-            unevaluatedData.shortText?.buildReceiver { setShortText(it) }?.let { receivers += it }
+            unevaluatedData.shortText
+                ?.buildReceiver(coroutineScope) { setShortText(it) }
+                ?.let { receivers += it }
         }
         if (unevaluatedData.hasShortTitle()) {
-            unevaluatedData.shortTitle?.buildReceiver { setShortTitle(it) }?.let { receivers += it }
+            unevaluatedData.shortTitle
+                ?.buildReceiver(coroutineScope) { setShortTitle(it) }
+                ?.let { receivers += it }
         }
         if (unevaluatedData.hasContentDescription()) {
             unevaluatedData.contentDescription
-                ?.buildReceiver { setContentDescription(it) }
+                ?.buildReceiver(coroutineScope) { setContentDescription(it) }
                 ?.let { receivers += it }
         }
 
@@ -155,21 +167,34 @@ class ComplicationDataExpressionEvaluator(
     }
 
     private fun DynamicFloat.buildReceiver(
+        coroutineScope: CoroutineScope,
         setter: WireComplicationData.Builder.(Float) -> WireComplicationData.Builder
     ) =
         ComplicationEvaluationResultReceiver(
             setter,
-            binder = { receiver -> evaluator.bind(this@buildReceiver, receiver) },
+            binder = { receiver ->
+                evaluator.bind(
+                    this@buildReceiver,
+                    coroutineScope.coroutineContext.asExecutor(),
+                    receiver
+                )
+            },
         )
 
     private fun WireComplicationText.buildReceiver(
+        coroutineScope: CoroutineScope,
         setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder
     ) =
         expression?.let { expression ->
             ComplicationEvaluationResultReceiver<String>(
                 setter = { setter(WireComplicationText(it, expression)) },
                 binder = { receiver ->
-                    evaluator.bind(expression, ULocale.getDefault(), receiver)
+                    evaluator.bind(
+                        expression,
+                        ULocale.getDefault(),
+                        coroutineScope.coroutineContext.asExecutor(),
+                        receiver
+                    )
                 },
             )
         }
@@ -268,3 +293,6 @@ class ComplicationDataExpressionEvaluator(
             }
     }
 }
+
+internal fun CoroutineContext.asExecutor(): Executor =
+    (get(ContinuationInterceptor) as CoroutineDispatcher).asExecutor()
