@@ -44,8 +44,8 @@ public class ResourceBuildersTest {
         ResourceProto.AndroidAnimatedImageResourceByResId avdProto = avd.toProto();
 
         assertThat(avdProto.getResourceId()).isEqualTo(RESOURCE_ID);
-        assertThat(avdProto.getFormat().getNumber()).isEqualTo(FORMAT);
-        assertThat(avdProto.getTrigger().hasOnLoadTrigger()).isTrue();
+        assertThat(avdProto.getAnimatedImageFormat().getNumber()).isEqualTo(FORMAT);
+        assertThat(avdProto.getStartTrigger().hasOnLoadTrigger()).isTrue();
     }
 
     @Test
@@ -61,7 +61,7 @@ public class ResourceBuildersTest {
         ResourceProto.AndroidSeekableAnimatedImageResourceByResId avdProto = avd.toProto();
 
         assertThat(avdProto.getResourceId()).isEqualTo(RESOURCE_ID);
-        assertThat(avdProto.getFormat().getNumber()).isEqualTo(FORMAT);
+        assertThat(avdProto.getAnimatedImageFormat().getNumber()).isEqualTo(FORMAT);
         assertThat(avdProto.getProgress().getStateSource().getSourceKey()).isEqualTo(stateKey);
     }
 }

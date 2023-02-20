@@ -66,34 +66,31 @@ enum AnimatedImageFormat {
 // resource ID. The animation is started with given trigger, fire and forget.
 message AndroidAnimatedImageResourceByResId {
   // The format for the animated image.
-  AnimatedImageFormat format = 1;
+  AnimatedImageFormat animated_image_format = 1;
 
   // The Android resource ID, e.g. R.drawable.foo.
   int32 resource_id = 2;
 
   // The trigger to start the animation.
-  Trigger trigger = 3;
+  Trigger start_trigger = 3;
 }
 
 // A seekable animated image resource that maps to an Android drawable by
 // resource ID. The animation progress is bound to the provided dynamic float.
 message AndroidSeekableAnimatedImageResourceByResId {
   // The format for the animated image.
-  AnimatedImageFormat format = 1;
+  AnimatedImageFormat animated_image_format = 1;
 
   // The Android resource ID, e.g. R.drawable.foo
   int32 resource_id = 2;
 
-  // A dynamic float, normally transformed from certain states with the data
-  // binding pipeline, controls the progress of the animation. Its value is
-  // required to fall in the range of [0.0, 1.0], any values outside this range
-  // would be clamped.
-  //
-  // Typically, AnimatableFixedFloat or AnimatableDynamicFloat is used for this
-  // progress. With AnimatableFixedFloat, the animation is played from progress
-  // of its from_value to to_value; with AnimatableDynamicFloat, the animation
-  // is set from progress 0 to its first value once it is available, it then
-  // plays from current progress to the new value on subsequent updates.
+  // A DynamicFloat, normally transformed from certain states with the data
+  // binding pipeline to control the progress of the animation. Its value is
+  // required to fall in the range of [0.0, 1.0]. Any values outside this range
+  // would be clamped. When the first value of the DynamicFloat arrives, the
+  // animation starts from progress 0 to that value. After that it plays from
+  // current progress to the new value on subsequent updates. If not set, the
+  // animation will play on load (similar to a non-seekable animated).
   androidx.wear.protolayout.expression.proto.DynamicFloat progress = 3;
 }
 
