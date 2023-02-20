@@ -50,6 +50,7 @@ interface EmbeddingBackend {
 
     fun isActivityEmbedded(activity: Activity): Boolean
 
+    @ExperimentalWindowApi
     fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     )

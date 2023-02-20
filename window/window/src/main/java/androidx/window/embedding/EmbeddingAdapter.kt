@@ -34,6 +34,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.LayoutDirection
 import android.view.WindowMetrics
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
@@ -128,12 +129,14 @@ internal class EmbeddingAdapter(
     private fun translate(splitRatio: OEMSplitType.RatioSplitType): SplitType.RatioSplitType =
         SplitType.ratio(splitRatio.ratio)
 
+    @OptIn(ExperimentalWindowApi::class)
     fun translateSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ): Function<OEMSplitAttributesCalculatorParams, OEMSplitAttributes> = Function { oemParams ->
             translateSplitAttributes(calculator.invoke(translate(oemParams)))
         }
 
+    @OptIn(ExperimentalWindowApi::class)
     @SuppressLint("NewApi")
     fun translate(
         params: OEMSplitAttributesCalculatorParams

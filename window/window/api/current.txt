@@ -154,26 +154,10 @@ package androidx.window.embedding {
     property public final float ratio;
   }
 
-  public final class SplitAttributesCalculatorParams {
-    method public boolean getAreDefaultConstraintsSatisfied();
-    method public androidx.window.embedding.SplitAttributes getDefaultSplitAttributes();
-    method public android.content.res.Configuration getParentConfiguration();
-    method public androidx.window.layout.WindowLayoutInfo getParentWindowLayoutInfo();
-    method public androidx.window.layout.WindowMetrics getParentWindowMetrics();
-    method public String? getSplitRuleTag();
-    property public final boolean areDefaultConstraintsSatisfied;
-    property public final androidx.window.embedding.SplitAttributes defaultSplitAttributes;
-    property public final android.content.res.Configuration parentConfiguration;
-    property public final androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo;
-    property public final androidx.window.layout.WindowMetrics parentWindowMetrics;
-    property public final String? splitRuleTag;
-  }
-
   public final class SplitController {
-    method public void addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
     method public static androidx.window.embedding.SplitController getInstance(android.content.Context context);
     method public androidx.window.embedding.SplitController.SplitSupportStatus getSplitSupportStatus();
-    method public void removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.embedding.SplitInfo>> splitInfoList(android.app.Activity activity);
     property public final androidx.window.embedding.SplitController.SplitSupportStatus splitSupportStatus;
     field public static final androidx.window.embedding.SplitController.Companion Companion;
   }

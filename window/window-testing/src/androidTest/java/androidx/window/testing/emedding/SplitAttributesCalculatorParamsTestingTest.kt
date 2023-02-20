@@ -34,6 +34,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** Test class to verify [TestSplitAttributesCalculatorParams]. */
+@OptIn(ExperimentalWindowApi::class)
 class SplitAttributesCalculatorParamsTestingTest {
     /** Verifies if the default values of [TestSplitAttributesCalculatorParams] are as expected. */
     @Test

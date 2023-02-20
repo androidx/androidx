@@ -24,6 +24,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.collection.ArraySet
 import androidx.core.util.Consumer
 import androidx.window.core.ConsumerAdapter
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
@@ -305,6 +306,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         return embeddingExtension?.isActivityEmbedded(activity) ?: false
     }
 
+    @ExperimentalWindowApi
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
