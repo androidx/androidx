@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,26 +25,44 @@ import androidx.wear.tiles.proto.EventProto;
 public final class EventBuilders {
     private EventBuilders() {}
 
-    /** Event fired when a tile has been added to the carousel. */
+    /**
+     * Event fired when a tile has been added to the carousel.
+     *
+     * @since 1.0
+     */
     public static final class TileAddEvent {
         private final EventProto.TileAddEvent mImpl;
 
-        private TileAddEvent(EventProto.TileAddEvent impl) {
+        TileAddEvent(EventProto.TileAddEvent impl) {
             this.mImpl = impl;
         }
 
-        /** @hide */
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         * @hide
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TileAddEvent fromProto(@NonNull EventProto.TileAddEvent proto) {
             return new TileAddEvent(proto);
         }
 
-        /** @hide */
+        /**
+         * Returns the internal proto instance.
+         *
+         * @hide
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public EventProto.TileAddEvent toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "TileAddEvent{" + "}";
         }
 
         /** Builder for {@link TileAddEvent} */
@@ -62,26 +80,44 @@ public final class EventBuilders {
         }
     }
 
-    /** Event fired when a tile has been removed from the carousel. */
+    /**
+     * Event fired when a tile has been removed from the carousel.
+     *
+     * @since 1.0
+     */
     public static final class TileRemoveEvent {
         private final EventProto.TileRemoveEvent mImpl;
 
-        private TileRemoveEvent(EventProto.TileRemoveEvent impl) {
+        TileRemoveEvent(EventProto.TileRemoveEvent impl) {
             this.mImpl = impl;
         }
 
-        /** @hide */
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         * @hide
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TileRemoveEvent fromProto(@NonNull EventProto.TileRemoveEvent proto) {
             return new TileRemoveEvent(proto);
         }
 
-        /** @hide */
+        /**
+         * Returns the internal proto instance.
+         *
+         * @hide
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public EventProto.TileRemoveEvent toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "TileRemoveEvent{" + "}";
         }
 
         /** Builder for {@link TileRemoveEvent} */
@@ -99,26 +135,44 @@ public final class EventBuilders {
         }
     }
 
-    /** Event fired when a tile is swiped to by the user (i.e. it's visible on screen). */
+    /**
+     * Event fired when a tile is swiped to by the user (i.e. it's visible on screen).
+     *
+     * @since 1.0
+     */
     public static final class TileEnterEvent {
         private final EventProto.TileEnterEvent mImpl;
 
-        private TileEnterEvent(EventProto.TileEnterEvent impl) {
+        TileEnterEvent(EventProto.TileEnterEvent impl) {
             this.mImpl = impl;
         }
 
-        /** @hide */
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         * @hide
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TileEnterEvent fromProto(@NonNull EventProto.TileEnterEvent proto) {
             return new TileEnterEvent(proto);
         }
 
-        /** @hide */
+        /**
+         * Returns the internal proto instance.
+         *
+         * @hide
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public EventProto.TileEnterEvent toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "TileEnterEvent{" + "}";
         }
 
         /** Builder for {@link TileEnterEvent} */
@@ -139,26 +193,42 @@ public final class EventBuilders {
     /**
      * Event fired when a tile is swiped away from by the user (i.e. it's no longer visible on
      * screen).
+     *
+     * @since 1.0
      */
     public static final class TileLeaveEvent {
         private final EventProto.TileLeaveEvent mImpl;
 
-        private TileLeaveEvent(EventProto.TileLeaveEvent impl) {
+        TileLeaveEvent(EventProto.TileLeaveEvent impl) {
             this.mImpl = impl;
         }
 
-        /** @hide */
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         * @hide
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TileLeaveEvent fromProto(@NonNull EventProto.TileLeaveEvent proto) {
             return new TileLeaveEvent(proto);
         }
 
-        /** @hide */
+        /**
+         * Returns the internal proto instance.
+         *
+         * @hide
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public EventProto.TileLeaveEvent toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "TileLeaveEvent{" + "}";
         }
 
         /** Builder for {@link TileLeaveEvent} */
