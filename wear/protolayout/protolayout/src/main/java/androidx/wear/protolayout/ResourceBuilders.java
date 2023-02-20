@@ -35,6 +35,7 @@ import androidx.wear.protolayout.protobuf.ByteString;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -117,16 +118,33 @@ public final class ResourceBuilders {
         public int getResourceId() {
             return mImpl.getResourceId();
         }
-
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static AndroidImageResourceByResId fromProto(
+        public static AndroidImageResourceByResId fromProto(
                 @NonNull ResourceProto.AndroidImageResourceByResId proto) {
             return new AndroidImageResourceByResId(proto);
         }
 
+        /**
+         * Returns the internal proto instance.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        ResourceProto.AndroidImageResourceByResId toProto() {
+        public ResourceProto.AndroidImageResourceByResId toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "AndroidImageResourceByResId{" + "resourceId=" + getResourceId() + "}";
         }
 
         /** Builder for {@link AndroidImageResourceByResId} */
@@ -213,15 +231,42 @@ public final class ResourceBuilders {
         public int getFormat() {
             return mImpl.getFormat().getNumber();
         }
-
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static InlineImageResource fromProto(@NonNull ResourceProto.InlineImageResource proto) {
+        public static InlineImageResource fromProto(
+                @NonNull ResourceProto.InlineImageResource proto) {
             return new InlineImageResource(proto);
         }
 
+        /**
+         * Returns the internal proto instance.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        ResourceProto.InlineImageResource toProto() {
+        public ResourceProto.InlineImageResource toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "InlineImageResource{"
+                    + "data="
+                    + Arrays.toString(getData())
+                    + ", widthPx="
+                    + getWidthPx()
+                    + ", heightPx="
+                    + getHeightPx()
+                    + ", format="
+                    + getFormat()
+                    + "}";
         }
 
         /** Builder for {@link InlineImageResource} */
@@ -309,7 +354,7 @@ public final class ResourceBuilders {
          */
         @AnimatedImageFormat
         public int getAnimatedImageFormat() {
-            return mImpl.getFormat().getNumber();
+            return mImpl.getAnimatedImageFormat().getNumber();
         }
 
         /**
@@ -329,22 +374,46 @@ public final class ResourceBuilders {
          */
         @Nullable
         public Trigger getStartTrigger() {
-            if (mImpl.hasTrigger()) {
-                return TriggerBuilders.triggerFromProto(mImpl.getTrigger());
+            if (mImpl.hasStartTrigger()) {
+                return TriggerBuilders.triggerFromProto(mImpl.getStartTrigger());
             } else {
                 return null;
             }
         }
-
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static AndroidAnimatedImageResourceByResId fromProto(
+        public static AndroidAnimatedImageResourceByResId fromProto(
                 @NonNull ResourceProto.AndroidAnimatedImageResourceByResId proto) {
             return new AndroidAnimatedImageResourceByResId(proto);
         }
 
+        /**
+         * Returns the internal proto instance.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        ResourceProto.AndroidAnimatedImageResourceByResId toProto() {
+        public ResourceProto.AndroidAnimatedImageResourceByResId toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "AndroidAnimatedImageResourceByResId{"
+                    + "animatedImageFormat="
+                    + getAnimatedImageFormat()
+                    + ", resourceId="
+                    + getResourceId()
+                    + ", startTrigger="
+                    + getStartTrigger()
+                    + "}";
         }
 
         /** Builder for {@link AndroidAnimatedImageResourceByResId} */
@@ -360,8 +429,9 @@ public final class ResourceBuilders {
              * @since 1.2
              */
             @NonNull
-            public Builder setAnimatedImageFormat(@AnimatedImageFormat int format) {
-                mImpl.setFormat(ResourceProto.AnimatedImageFormat.forNumber(format));
+            public Builder setAnimatedImageFormat(@AnimatedImageFormat int animatedImageFormat) {
+                mImpl.setAnimatedImageFormat(
+                        ResourceProto.AnimatedImageFormat.forNumber(animatedImageFormat));
                 return this;
             }
 
@@ -382,8 +452,8 @@ public final class ResourceBuilders {
              * @since 1.2
              */
             @NonNull
-            public Builder setStartTrigger(@NonNull Trigger trigger) {
-                mImpl.setTrigger(trigger.toTriggerProto());
+            public Builder setStartTrigger(@NonNull Trigger startTrigger) {
+                mImpl.setStartTrigger(startTrigger.toTriggerProto());
                 return this;
             }
 
@@ -416,7 +486,7 @@ public final class ResourceBuilders {
          */
         @AnimatedImageFormat
         public int getAnimatedImageFormat() {
-            return mImpl.getFormat().getNumber();
+            return mImpl.getAnimatedImageFormat().getNumber();
         }
 
         /**
@@ -430,13 +500,14 @@ public final class ResourceBuilders {
         }
 
         /**
-         * Gets a {@link DynamicFloat}, normally transformed from certain states with the data
-         * binding pipeline to control the progress of the animation. Its value is required to fall
-         * in the range of [0.0, 1.0]. Any values outside this range would be clamped. When the
-         * first value of the {@link DynamicFloat} arrives, the animation starts from progress 0 to
-         * that value. After that it plays from current progress to the new value on subsequent
-         * updates.
-         * If not set, the animation will play on load (similar to a non-seekable animated).
+         * Gets a {@link androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat},
+         * normally transformed from certain states with the data binding pipeline to control the
+         * progress of the animation. Its value is required to fall in the range of [0.0, 1.0]. Any
+         * values outside this range would be clamped. When the first value of the {@link
+         * androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat} arrives, the animation
+         * starts from progress 0 to that value. After that it plays from current progress to the
+         * new value on subsequent updates. If not set, the animation will play on load (similar to
+         * a non-seekable animated).
          *
          * @since 1.2
          */
@@ -448,16 +519,40 @@ public final class ResourceBuilders {
                 return null;
             }
         }
-
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static AndroidSeekableAnimatedImageResourceByResId fromProto(
+        public static AndroidSeekableAnimatedImageResourceByResId fromProto(
                 @NonNull ResourceProto.AndroidSeekableAnimatedImageResourceByResId proto) {
             return new AndroidSeekableAnimatedImageResourceByResId(proto);
         }
 
+        /**
+         * Returns the internal proto instance.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        ResourceProto.AndroidSeekableAnimatedImageResourceByResId toProto() {
+        public ResourceProto.AndroidSeekableAnimatedImageResourceByResId toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "AndroidSeekableAnimatedImageResourceByResId{"
+                    + "animatedImageFormat="
+                    + getAnimatedImageFormat()
+                    + ", resourceId="
+                    + getResourceId()
+                    + ", progress="
+                    + getProgress()
+                    + "}";
         }
 
         /** Builder for {@link AndroidSeekableAnimatedImageResourceByResId} */
@@ -473,8 +568,9 @@ public final class ResourceBuilders {
              * @since 1.2
              */
             @NonNull
-            public Builder setAnimatedImageFormat(@AnimatedImageFormat int format) {
-                mImpl.setFormat(ResourceProto.AnimatedImageFormat.forNumber(format));
+            public Builder setAnimatedImageFormat(@AnimatedImageFormat int animatedImageFormat) {
+                mImpl.setAnimatedImageFormat(
+                        ResourceProto.AnimatedImageFormat.forNumber(animatedImageFormat));
                 return this;
             }
 
@@ -490,13 +586,14 @@ public final class ResourceBuilders {
             }
 
             /**
-             * Sets a {@link DynamicFloat}, normally transformed from certain states with the data
-             * binding pipeline to control the progress of the animation. Its value is required to
-             * fall in the range of [0.0, 1.0]. Any values outside this range would be clamped. When
-             * the first value of the {@link DynamicFloat} arrives, the animation starts from
-             * progress 0 to that value. After that it plays from current progress to the new value
-             * on subsequent updates.
-             * If not set, the animation will play on load (similar to a non-seekable animated).
+             * Sets a {@link androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat},
+             * normally transformed from certain states with the data binding pipeline to control
+             * the progress of the animation. Its value is required to fall in the range of [0.0,
+             * 1.0]. Any values outside this range would be clamped. When the first value of the
+             * {@link androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat} arrives,
+             * the animation starts from progress 0 to that value. After that it plays from current
+             * progress to the new value on subsequent updates. If not set, the animation will play
+             * on load (similar to a non-seekable animated).
              *
              * @since 1.2
              */
@@ -587,15 +684,41 @@ public final class ResourceBuilders {
                 return null;
             }
         }
-
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static ImageResource fromProto(@NonNull ResourceProto.ImageResource proto) {
+        public static ImageResource fromProto(@NonNull ResourceProto.ImageResource proto) {
             return new ImageResource(proto);
         }
 
+        /**
+         * Returns the internal proto instance.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        ResourceProto.ImageResource toProto() {
+        public ResourceProto.ImageResource toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ImageResource{"
+                    + "androidResourceByResId="
+                    + getAndroidResourceByResId()
+                    + ", inlineResource="
+                    + getInlineResource()
+                    + ", androidAnimatedResourceByResId="
+                    + getAndroidAnimatedResourceByResId()
+                    + ", androidSeekableAnimatedResourceByResId="
+                    + getAndroidSeekableAnimatedResourceByResId()
+                    + "}";
         }
 
         /** Builder for {@link ImageResource} */
@@ -710,8 +833,14 @@ public final class ResourceBuilders {
             return Collections.unmodifiableMap(map);
         }
 
+        /**
+         * Creates a new wrapper instance from the proto.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static Resources fromProto(@NonNull ResourceProto.Resources proto) {
+        public static Resources fromProto(@NonNull ResourceProto.Resources proto) {
             return new Resources(proto);
         }
 
@@ -724,6 +853,17 @@ public final class ResourceBuilders {
         @NonNull
         public ResourceProto.Resources toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "Resources{"
+                    + "version="
+                    + getVersion()
+                    + ", idToImageMapping="
+                    + getIdToImageMapping()
+                    + "}";
         }
 
         /** Builder for {@link Resources} */
