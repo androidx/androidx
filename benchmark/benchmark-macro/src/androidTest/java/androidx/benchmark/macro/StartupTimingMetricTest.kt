@@ -22,9 +22,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
-import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
@@ -204,7 +204,7 @@ class StartupTimingMetricTest {
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
 
         metric.configure(packageName)
-        return PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
+        return PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             metric.getMetrics(
                 captureInfo = Metric.CaptureInfo(
                     targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
@@ -212,7 +212,7 @@ class StartupTimingMetricTest {
                     startupMode = StartupMode.WARM,
                     apiLevel = 32
                 ),
-                perfettoTraceProcessor = this
+                session = this
             )
         }
     }
@@ -228,7 +228,7 @@ class StartupTimingMetricTest {
         val metric = StartupTimingMetric()
         metric.configure(Packages.TEST)
 
-        val metrics = PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
+        val metrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             metric.getMetrics(
                 captureInfo = Metric.CaptureInfo(
                     targetPackageName = Packages.TEST,
@@ -236,7 +236,7 @@ class StartupTimingMetricTest {
                     startupMode = StartupMode.WARM,
                     apiLevel = 24
                 ),
-                perfettoTraceProcessor = this
+                session = this
             )
         }
 
@@ -300,7 +300,7 @@ internal fun measureStartup(
         block = measureBlock
     )!!
 
-    return PerfettoTraceProcessor.runServer(tracePath) {
+    return PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
         metric.getMetrics(
             captureInfo = Metric.CaptureInfo(
                 targetPackageName = packageName,
@@ -308,7 +308,7 @@ internal fun measureStartup(
                 startupMode = startupMode,
                 apiLevel = Build.VERSION.SDK_INT
             ),
-            perfettoTraceProcessor = this
+            session = this
         )
     }
 }

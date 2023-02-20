@@ -32,8 +32,9 @@ import androidx.benchmark.Shell
 import androidx.benchmark.UserspaceTracing
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
-import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
+import androidx.benchmark.perfetto.PerfettoTrace
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
 import androidx.benchmark.userspaceTrace
@@ -251,9 +252,7 @@ private fun macrobenchmark(
 
                 tracePaths.add(tracePath)
 
-                // Loads a new trace in the perfetto trace processor shell
-                loadTrace(tracePath)
-                val iterationResult =
+                val iterationResult = loadTrace(PerfettoTrace(tracePath)) {
                     // Extracts the metrics using the perfetto trace processor
                     userspaceTrace("extract metrics") {
                         metrics
@@ -272,6 +271,7 @@ private fun macrobenchmark(
                             // merge into one map
                             .reduce { sum, element -> sum + element }
                     }
+                }
 
                 // append UI state to trace, so tools opening trace will highlight relevant part in UI
                 val uiState = UiState(

@@ -19,6 +19,7 @@ package androidx.benchmark.macro.perfetto
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.createTempFileFromAsset
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import java.util.Locale
@@ -39,9 +40,11 @@ class StartupTimingQueryTest {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset(prefix = tracePrefix, suffix = ".perfetto-trace")
 
-        val startupSubMetrics = PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
+        val startupSubMetrics = PerfettoTraceProcessor.runSingleSessionServer(
+            traceFile.absolutePath
+        ) {
             StartupTimingQuery.getFrameSubMetrics(
-                perfettoTraceProcessor = this,
+                session = this,
                 captureApiLevel = api,
                 targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
                 startupMode = startupMode
