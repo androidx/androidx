@@ -27,13 +27,16 @@ import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
-import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,7 +66,7 @@ class SwipeDismissTransitionHelper {
 
     private final int mScreenWidth;
     private final SparseArray<ColorFilter> mDimmingColorFilterCache = new SparseArray<>();
-    private final View mScrimBackground;
+    private final Drawable mScrimBackground;
     private final boolean mIsScreenRound;
     private final Paint mCompositingPaint = new Paint();
 
@@ -76,18 +79,16 @@ class SwipeDismissTransitionHelper {
     private float mDimming;
     private SpringAnimation mDismissalSpring;
     private SpringAnimation mRecoverySpring;
+    // Variable to restore the parent's background which is added below mScrimBackground.
+    private Drawable mPrevParentBackground = null;
 
     SwipeDismissTransitionHelper(@NonNull Context context,
             @NonNull DismissibleFrameLayout layout) {
         mLayout = layout;
         mIsScreenRound = layout.getResources().getConfiguration().isScreenRound();
         mScreenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        mScrimBackground = new View(context);
-        clipOutline(mScrimBackground, mIsScreenRound);
-        mScrimBackground.setLayoutParams(
-                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT));
-        mScrimBackground.setBackgroundColor(Color.BLACK);
+        mScrimBackground = generateScrimBackgroundDrawable(mScreenWidth,
+                Resources.getSystem().getDisplayMetrics().heightPixels);
     }
 
     private static void clipOutline(@NonNull View view, boolean useRoundShape) {
@@ -208,22 +209,32 @@ class SwipeDismissTransitionHelper {
     }
 
     private void updateScrim() {
-        float alpha =  SCRIM_BACKGROUND_MAX * (1 - mProgress);
-        mScrimBackground.setAlpha(alpha);
+        float alpha = SCRIM_BACKGROUND_MAX * (1 - mProgress);
+        // Scaling alpha between 0 to 255, as Drawable.setAlpha expects it in range [0,255].
+        mScrimBackground.setAlpha((int) (alpha * 255));
     }
 
     private void initializeTransition() {
         mStarted = true;
         ViewGroup originalParentView = getOriginalParentView();
-        ViewParent scrimBackgroundParent = mScrimBackground.getParent();
 
-        if (originalParentView == null) return;
-
-        // Check if scrim background is already attached to the parent view.
-        if (scrimBackgroundParent != originalParentView) {
-            originalParentView.addView(mScrimBackground);
-            mLayout.bringToFront();
+        if (originalParentView == null) {
+            return;
         }
+
+        if (mPrevParentBackground == null) {
+            mPrevParentBackground = originalParentView.getBackground();
+        }
+
+        // Adding scrim over parent background if it exists.
+        Drawable parentBackgroundLayers;
+        if (mPrevParentBackground != null) {
+            parentBackgroundLayers = new LayerDrawable(new Drawable[]{mPrevParentBackground,
+                    mScrimBackground});
+        } else {
+            parentBackgroundLayers = mScrimBackground;
+        }
+        originalParentView.setBackground(parentBackgroundLayers);
 
         mCompositingPaint.setColorFilter(null);
         mLayout.setLayerType(View.LAYER_TYPE_HARDWARE, mCompositingPaint);
@@ -246,6 +257,15 @@ class SwipeDismissTransitionHelper {
         mCompositingPaint.setColorFilter(null);
         mLayout.setLayerType(View.LAYER_TYPE_NONE, null);
         mLayout.setClipToOutline(false);
+        getOriginalParentView().setBackground(mPrevParentBackground);
+        mPrevParentBackground = null;
+    }
+
+    private Drawable generateScrimBackgroundDrawable(int width, int height) {
+        ShapeDrawable shape = new ShapeDrawable(new RectShape());
+        shape.setBounds(0, 0, width, height);
+        shape.getPaint().setColor(Color.BLACK);
+        return shape;
     }
 
     /**
