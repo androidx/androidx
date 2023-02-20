@@ -159,7 +159,8 @@ class FocusMeteringControlTest {
             // "IllegalStateException: Dispatchers.Main is used concurrently with setting it"
             fakeUseCaseThreads.scope.cancel()
             fakeUseCaseThreads.sequentialScope.cancel()
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
     }
 
     @Test
@@ -686,31 +687,31 @@ class FocusMeteringControlTest {
     @Test
     fun startFocusMetering_cancelledBeforeCompletion_failsWithOperationCanceledOperation() =
         runBlocking {
-        // Arrange. Set a delay CompletableDeferred
-        fakeRequestControl.focusMeteringResult = CompletableDeferred<Result3A>().apply {
-            async(Dispatchers.Default) {
-                delay(500)
-                complete(
-                    Result3A(
-                        status = Result3A.Status.OK,
-                        frameMetadata = FakeFrameMetadata(
-                            extraMetadata = mapOf(
-                                CONTROL_AF_STATE to CONTROL_AF_STATE_FOCUSED_LOCKED
+            // Arrange. Set a delay CompletableDeferred
+            fakeRequestControl.focusMeteringResult = CompletableDeferred<Result3A>().apply {
+                async(Dispatchers.Default) {
+                    delay(500)
+                    complete(
+                        Result3A(
+                            status = Result3A.Status.OK,
+                            frameMetadata = FakeFrameMetadata(
+                                extraMetadata = mapOf(
+                                    CONTROL_AF_STATE to CONTROL_AF_STATE_FOCUSED_LOCKED
+                                )
                             )
                         )
                     )
-                )
+                }
             }
+            val action = FocusMeteringAction.Builder(point1).build()
+            val future = focusMeteringControl.startFocusAndMetering(action)
+
+            // Act.
+            focusMeteringControl.cancelFocusAndMeteringAsync()
+
+            // Assert.
+            assertFutureFailedWithOperationCancellation(future)
         }
-        val action = FocusMeteringAction.Builder(point1).build()
-        val future = focusMeteringControl.startFocusAndMetering(action)
-
-        // Act.
-        focusMeteringControl.cancelFocusAndMeteringAsync()
-
-        // Assert.
-        assertFutureFailedWithOperationCancellation(future)
-    }
 
     @Test
     fun startThenCancelThenStart_previous2FuturesFailsWithOperationCanceled() {
@@ -773,7 +774,7 @@ class FocusMeteringControlTest {
         val action = FocusMeteringAction.Builder(point1).build()
 
         val result = focusMeteringControl.startFocusAndMetering(action).apply {
-           get(3, TimeUnit.SECONDS)
+            get(3, TimeUnit.SECONDS)
         }
 
         // Act. Cancel it and then ensure the returned ListenableFuture still completes.
@@ -1104,6 +1105,22 @@ class FocusMeteringControlTest {
         assertThat(
             state3AControl.preferredFocusMode
         ).isEqualTo(null)
+    }
+
+    @Test
+    fun startFocusMetering_submitFailed_failsWithOperationCanceledOperation() = runBlocking {
+        fakeRequestControl.focusMeteringResult = CompletableDeferred(
+            Result3A(
+                status = Result3A.Status.SUBMIT_FAILED,
+                frameMetadata = null,
+            )
+        )
+
+        val result = focusMeteringControl.startFocusAndMetering(
+            FocusMeteringAction.Builder(point1).build()
+        )
+
+        assertFutureFailedWithOperationCancellation(result)
     }
 
     // TODO: Port the following tests once their corresponding logics have been implemented.
