@@ -14,7 +14,7 @@ message AnimationSpec {
 
   // The delay to start the animation in milliseconds. If not set, defaults to
   // 0.
-  uint32 delay_millis = 2;
+  uint32 start_delay_millis = 2;
 
   // The easing to be used for adjusting an animation's fraction. If not set,
   // defaults to Linear Interpolator.
@@ -68,6 +68,13 @@ message Repeatable {
   // The repeat mode to specify how animation will behave when repeated. If not
   // set, defaults to restart.
   RepeatMode repeat_mode = 2;
+
+  // The delay before the forward part of the repeat in milliseconds. If not set, defaults to 0.
+  uint32 forward_repeat_delay_millis = 3;
+
+  // The delay before the reversed part of the repeat in milliseconds. This delay will not be used
+  // when the repeat mode is restart. If not set, defaults to 0.
+  uint32 reverse_repeat_delay_millis = 4;
 }
 
 // The repeat mode to specify how animation will behave when repeated.

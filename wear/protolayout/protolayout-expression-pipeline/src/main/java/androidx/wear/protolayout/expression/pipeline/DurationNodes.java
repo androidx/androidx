@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.wear.protolayout.expression.pipeline;
 
 import java.time.Duration;

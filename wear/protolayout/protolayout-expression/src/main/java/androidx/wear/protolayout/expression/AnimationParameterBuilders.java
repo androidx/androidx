@@ -138,7 +138,7 @@ public final class AnimationParameterBuilders {
      * @since 1.2
      */
     public int getDelayMillis() {
-      return mImpl.getDelayMillis();
+      return mImpl.getStartDelayMillis();
     }
 
     /**
@@ -246,7 +246,7 @@ public final class AnimationParameterBuilders {
        */
       @NonNull
       public Builder setDelayMillis(int delayMillis) {
-        mImpl.setDelayMillis(delayMillis);
+        mImpl.setStartDelayMillis(delayMillis);
         mFingerprint.recordPropertyUpdate(2, delayMillis);
         return this;
       }

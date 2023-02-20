@@ -20,15 +20,20 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.robolectric.Shadows.shadowOf;
 
+import static java.lang.Integer.MAX_VALUE;
+
 import android.os.Looper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartOpNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
+import androidx.wear.protolayout.expression.proto.DynamicProto.DurationPartType;
+import androidx.wear.protolayout.expression.proto.DynamicProto.GetDurationPartOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
@@ -39,6 +44,7 @@ import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +60,96 @@ public class Int32NodesTest {
         node.init();
 
         assertThat(results).containsExactly(56);
+    }
+
+    @Test
+    public void testGetDurationPartOpNode_positiveDuration() {
+
+        // Equivalent to 1day and 10h:17m:36s
+        Duration duration = Duration.ofSeconds(123456);
+
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_DAYS))
+                .isEqualTo(1);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_HOURS))
+                .isEqualTo(10);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
+                .isEqualTo(17);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
+                .isEqualTo(36);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
+                .isEqualTo(1);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
+                .isEqualTo(34);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
+                .isEqualTo(2057);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
+                .isEqualTo(123456);
+    }
+
+    @Test
+    public void testGetDurationPartOpNode_negativeDuration() {
+
+        // Equivalent to negative 1day and 10h:17m:36s
+        Duration duration = Duration.ofSeconds(-123456);
+
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_DAYS))
+                .isEqualTo(1);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_HOURS))
+                .isEqualTo(10);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_MINUTES))
+                .isEqualTo(17);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_SECONDS))
+                .isEqualTo(36);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_DAYS))
+                .isEqualTo(-1);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_HOURS))
+                .isEqualTo(-34);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_MINUTES))
+                .isEqualTo(-2057);
+        assertThat(
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_TOTAL_SECONDS))
+                .isEqualTo(-123456);
+    }
+
+    private int createGetDurationPartOpNodeAndGetPart(Duration duration, DurationPartType part) {
+        List<Integer> results = new ArrayList<>();
+        GetDurationPartOpNode node =
+                new GetDurationPartOpNode(
+                        GetDurationPartOp.newBuilder().setDurationPart(part).build(),
+                        new AddToListCallback<>(results));
+        node.getIncomingCallback().onData(duration);
+        return results.get(0);
     }
 
     @Test
@@ -112,13 +208,15 @@ public class Int32NodesTest {
         int startValue = 3;
         int endValue = 33;
         List<Integer> results = new ArrayList<>();
-        QuotaManager quotaManager = new UnlimitedQuotaManager();
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
         AnimatableFixedInt32 protoNode =
-                AnimatableFixedInt32.newBuilder().setFromValue(startValue).setToValue(
-                        endValue).build();
+                AnimatableFixedInt32.newBuilder()
+                        .setFromValue(startValue)
+                        .setToValue(endValue)
+                        .build();
         AnimatableFixedInt32Node node =
-                new AnimatableFixedInt32Node(protoNode, new AddToListCallback<>(results),
-                        quotaManager);
+                new AnimatableFixedInt32Node(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
         node.init();
@@ -134,13 +232,15 @@ public class Int32NodesTest {
         int startValue = 3;
         int endValue = 33;
         List<Integer> results = new ArrayList<>();
-        QuotaManager quotaManager = new UnlimitedQuotaManager();
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
         AnimatableFixedInt32 protoNode =
-                AnimatableFixedInt32.newBuilder().setFromValue(startValue).setToValue(
-                        endValue).build();
+                AnimatableFixedInt32.newBuilder()
+                        .setFromValue(startValue)
+                        .setToValue(endValue)
+                        .build();
         AnimatableFixedInt32Node node =
-                new AnimatableFixedInt32Node(protoNode, new AddToListCallback<>(results),
-                        quotaManager);
+                new AnimatableFixedInt32Node(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(false);
 
         node.init();
@@ -155,13 +255,15 @@ public class Int32NodesTest {
         int startValue = 3;
         int endValue = 33;
         List<Integer> results = new ArrayList<>();
-        QuotaManager quotaManager = new TestNoQuotaManagerImpl();
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(0);
         AnimatableFixedInt32 protoNode =
-                AnimatableFixedInt32.newBuilder().setFromValue(startValue).setToValue(
-                        endValue).build();
+                AnimatableFixedInt32.newBuilder()
+                        .setFromValue(startValue)
+                        .setToValue(endValue)
+                        .build();
         AnimatableFixedInt32Node node =
-                new AnimatableFixedInt32Node(protoNode, new AddToListCallback<>(results),
-                        quotaManager);
+                new AnimatableFixedInt32Node(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
         node.init();
@@ -177,7 +279,7 @@ public class Int32NodesTest {
         int value2 = 11;
         int value3 = 17;
         List<Integer> results = new ArrayList<>();
-        QuotaManager quotaManager = new UnlimitedQuotaManager();
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
         ObservableStateStore oss =
                 new ObservableStateStore(
                         ImmutableMap.of(
@@ -188,7 +290,8 @@ public class Int32NodesTest {
                                         .build()));
         DynamicAnimatedInt32Node int32Node =
                 new DynamicAnimatedInt32Node(
-                        new AddToListCallback<>(results), AnimationSpec.getDefaultInstance(),
+                        new AddToListCallback<>(results),
+                        AnimationSpec.getDefaultInstance(),
                         quotaManager);
         int32Node.setVisibility(false);
         StateInt32SourceNode stateNode =

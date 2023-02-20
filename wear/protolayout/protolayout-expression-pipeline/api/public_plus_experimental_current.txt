@@ -3,6 +3,7 @@ package androidx.wear.protolayout.expression.pipeline {
 
   public interface BoundDynamicType extends java.lang.AutoCloseable {
     method @UiThread public void close();
+    method @UiThread public void startEvaluation();
   }
 
   public class DynamicTypeEvaluator implements java.lang.AutoCloseable {

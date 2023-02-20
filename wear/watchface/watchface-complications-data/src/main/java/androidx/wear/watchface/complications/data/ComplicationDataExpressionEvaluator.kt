@@ -184,6 +184,7 @@ class ComplicationDataExpressionEvaluator(
                 stateStore,
             )
         for (receiver in state.value.pending) receiver.bind()
+        for (receiver in state.value.pending) receiver.startEvaluation()
         evaluator.enablePlatformDataSources()
     }
 
@@ -227,6 +228,10 @@ class ComplicationDataExpressionEvaluator(
 
         fun bind() {
             boundDynamicType = binder(this)
+        }
+
+        fun startEvaluation() {
+            boundDynamicType.startEvaluation()
         }
 
         override fun close() {

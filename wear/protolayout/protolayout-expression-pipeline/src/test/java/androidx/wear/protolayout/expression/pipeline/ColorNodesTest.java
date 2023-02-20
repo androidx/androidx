@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.robolectric.Shadows.shadowOf;
 
+import static java.lang.Integer.MAX_VALUE;
+
 import android.os.Looper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -139,7 +141,7 @@ public class ColorNodesTest {
     @Test
     public void animatableFixedColor_animates() {
         List<Integer> results = new ArrayList<>();
-        QuotaManager quotaManager = new UnlimitedQuotaManager();
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
         AnimatableFixedColor protoNode =
                 AnimatableFixedColor.newBuilder()
                         .setFromArgb(FROM_COLOR)
@@ -147,8 +149,7 @@ public class ColorNodesTest {
                         .build();
         AnimatableFixedColorNode node =
                 new AnimatableFixedColorNode(
-                        protoNode, new AddToListCallback<>(results), quotaManager
-                );
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
         node.init();
@@ -162,18 +163,37 @@ public class ColorNodesTest {
     @Test
     public void animatableFixedColor_whenInvisible_skipsToEnd() {
         List<Integer> results = new ArrayList<>();
-        QuotaManager quotaManager = new UnlimitedQuotaManager();
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
         AnimatableFixedColor protoNode =
-                AnimatableFixedColor
-                        .newBuilder()
+                AnimatableFixedColor.newBuilder()
                         .setFromArgb(FROM_COLOR)
                         .setToArgb(TO_COLOR)
                         .build();
         AnimatableFixedColorNode node =
                 new AnimatableFixedColorNode(
-                        protoNode, new AddToListCallback<>(results), quotaManager
-                );
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(false);
+
+        node.init();
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertThat(results).hasSize(1);
+        assertThat(results).containsExactly(TO_COLOR);
+    }
+
+    @Test
+    public void animatableFixedColor_whenNoQuota_skipToEnd() {
+        List<Integer> results = new ArrayList<>();
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(0);
+        AnimatableFixedColor protoNode =
+                AnimatableFixedColor.newBuilder()
+                        .setFromArgb(FROM_COLOR)
+                        .setToArgb(TO_COLOR)
+                        .build();
+        AnimatableFixedColorNode node =
+                new AnimatableFixedColorNode(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
+        node.setVisibility(true);
 
         node.init();
         shadowOf(Looper.getMainLooper()).idle();
@@ -185,22 +205,20 @@ public class ColorNodesTest {
     @Test
     public void dynamicAnimatedColor_animatesWithStateChange() {
         List<Integer> results = new ArrayList<>();
-        QuotaManager quotaManager = new UnlimitedQuotaManager();
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
         ObservableStateStore oss =
                 new ObservableStateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()
                                         .setColorVal(
-                                                FixedColor.newBuilder().setArgb(FROM_COLOR).build()
-                                        )
+                                                FixedColor.newBuilder().setArgb(FROM_COLOR).build())
                                         .build()));
         DynamicAnimatedColorNode colorNode =
                 new DynamicAnimatedColorNode(
                         new AddToListCallback<>(results),
                         AnimationSpec.getDefaultInstance(),
-                        quotaManager
-                );
+                        quotaManager);
         colorNode.setVisibility(true);
         StateColorSourceNode stateNode =
                 new StateColorSourceNode(
@@ -219,9 +237,9 @@ public class ColorNodesTest {
                                 .build()));
         shadowOf(Looper.getMainLooper()).idle();
 
-        assertThat(results.size()).isGreaterThan(2);
         assertThat(results.get(0)).isEqualTo(FROM_COLOR);
         assertThat(Iterables.getLast(results)).isEqualTo(TO_COLOR);
+        assertThat(results.size()).isGreaterThan(2);
     }
 
     @Test
@@ -230,22 +248,20 @@ public class ColorNodesTest {
         int color2 = TO_COLOR;
         int color3 = 0xFFFFFFFF;
         List<Integer> results = new ArrayList<>();
-        QuotaManager quotaManager = new UnlimitedQuotaManager();
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(MAX_VALUE);
         ObservableStateStore oss =
                 new ObservableStateStore(
                         ImmutableMap.of(
                                 "foo",
                                 StateEntryValue.newBuilder()
                                         .setColorVal(
-                                                FixedColor.newBuilder().setArgb(color1).build()
-                                        )
+                                                FixedColor.newBuilder().setArgb(color1).build())
                                         .build()));
         DynamicAnimatedColorNode colorNode =
                 new DynamicAnimatedColorNode(
                         new AddToListCallback<>(results),
                         AnimationSpec.getDefaultInstance(),
-                        quotaManager
-                );
+                        quotaManager);
         colorNode.setVisibility(false);
         StateColorSourceNode stateNode =
                 new StateColorSourceNode(
@@ -280,9 +296,70 @@ public class ColorNodesTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         // Contains intermediate values besides the initial and last.
-        assertThat(results.size()).isGreaterThan(2);
         assertThat(results.get(0)).isEqualTo(color2);
         assertThat(Iterables.getLast(results)).isEqualTo(color3);
+        assertThat(results.size()).isGreaterThan(2);
+        assertThat(results).isInOrder();
+    }
+
+    @Test
+    public void dynamicAnimatedColor_animate_noQuota_then_withQuota() {
+        int color1 = FROM_COLOR;
+        int color2 = TO_COLOR;
+        int color3 = 0xFFFFFFFF;
+        List<Integer> results = new ArrayList<>();
+        QuotaManager quotaManager = new FixedQuotaManagerImpl(1);
+        ObservableStateStore oss =
+                new ObservableStateStore(
+                        ImmutableMap.of(
+                                "foo",
+                                StateEntryValue.newBuilder()
+                                        .setColorVal(
+                                                FixedColor.newBuilder().setArgb(color1).build())
+                                        .build()));
+        DynamicAnimatedColorNode colorNode =
+                new DynamicAnimatedColorNode(
+                        new AddToListCallback<>(results),
+                        AnimationSpec.getDefaultInstance(),
+                        quotaManager);
+        colorNode.setVisibility(true);
+        // Occupy the only quota
+        quotaManager.tryAcquireQuota(1);
+        StateColorSourceNode stateNode =
+                new StateColorSourceNode(
+                        oss,
+                        StateColorSource.newBuilder().setSourceKey("foo").build(),
+                        colorNode.getInputCallback());
+
+        stateNode.preInit();
+        stateNode.init();
+
+        results.clear();
+        oss.setStateEntryValuesProto(
+                ImmutableMap.of(
+                        "foo",
+                        StateEntryValue.newBuilder()
+                                .setColorVal(FixedColor.newBuilder().setArgb(color2))
+                                .build()));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertThat(results).containsExactly(TO_COLOR);
+
+        // Release the only quota
+        quotaManager.releaseQuota(1);
+
+        oss.setStateEntryValuesProto(
+                ImmutableMap.of(
+                        "foo",
+                        StateEntryValue.newBuilder()
+                                .setColorVal(FixedColor.newBuilder().setArgb(color3))
+                                .build()));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        // Contains intermediate values besides the initial and last.
+        assertThat(results.get(0)).isEqualTo(color2);
+        assertThat(Iterables.getLast(results)).isEqualTo(color3);
+        assertThat(results.size()).isGreaterThan(2);
         assertThat(results).isInOrder();
     }
 }

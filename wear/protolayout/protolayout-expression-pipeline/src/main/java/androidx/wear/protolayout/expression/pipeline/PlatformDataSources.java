@@ -31,6 +31,7 @@ import java.util.concurrent.Executor;
 
 /** Utility for various platform data sources. */
 class PlatformDataSources {
+
     private PlatformDataSources() {}
 
     interface PlatformDataSource {

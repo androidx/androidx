@@ -41,8 +41,7 @@ import java.util.stream.Stream;
  * must only be used from the UI thread.
  */
 public class ObservableStateStore {
-    @NonNull
-    private final Map<String, StateEntryValue> mCurrentState = new ArrayMap<>();
+    @NonNull private final Map<String, StateEntryValue> mCurrentState = new ArrayMap<>();
 
     @NonNull
     private final Map<String, Set<DynamicTypeValueReceiver<StateEntryValue>>> mRegisteredCallbacks =
@@ -84,12 +83,14 @@ public class ObservableStateStore {
         Map<String, StateEntryValue> changedEntries = getChangedEntries(newState);
 
         Stream.concat(removedKeys.stream(), changedEntries.keySet().stream())
-                .forEach(key -> {
-                    for (DynamicTypeValueReceiver<StateEntryValue> callback :
-                            mRegisteredCallbacks.getOrDefault(key, Collections.emptySet())) {
-                        callback.onPreUpdate();
-                    }
-                });
+                .forEach(
+                        key -> {
+                            for (DynamicTypeValueReceiver<StateEntryValue> callback :
+                                    mRegisteredCallbacks.getOrDefault(
+                                            key, Collections.emptySet())) {
+                                callback.onPreUpdate();
+                            }
+                        });
 
         mCurrentState.clear();
         mCurrentState.putAll(newState);

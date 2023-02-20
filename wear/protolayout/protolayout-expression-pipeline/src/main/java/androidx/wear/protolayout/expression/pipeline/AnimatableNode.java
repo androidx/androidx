@@ -16,17 +16,30 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import android.animation.ArgbEvaluator;
+import android.animation.TypeEvaluator;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
+import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 
 /** Data animatable source node within a dynamic data pipeline. */
 abstract class AnimatableNode {
+    static final ArgbEvaluator ARGB_EVALUATOR = new ArgbEvaluator();
+
     private boolean mIsVisible = false;
     @NonNull final QuotaAwareAnimator mQuotaAwareAnimator;
 
-    protected AnimatableNode(@NonNull QuotaManager quotaManager) {
-        mQuotaAwareAnimator = new QuotaAwareAnimator(null, quotaManager);
+    protected AnimatableNode(@NonNull QuotaManager quotaManager, @NonNull AnimationSpec spec) {
+        mQuotaAwareAnimator = new QuotaAwareAnimator(quotaManager, spec);
+    }
+
+    protected AnimatableNode(
+            @NonNull QuotaManager quotaManager,
+            @NonNull AnimationSpec spec,
+            @NonNull TypeEvaluator<?> evaluator) {
+        mQuotaAwareAnimator = new QuotaAwareAnimator(quotaManager, spec, evaluator);
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
@@ -63,7 +76,7 @@ abstract class AnimatableNode {
         mIsVisible = visible;
         if (mIsVisible) {
             startOrResumeAnimator();
-        } else if (mQuotaAwareAnimator.hasRunningOrStartedAnimation()) {
+        } else if (mQuotaAwareAnimator.isRunning()) {
             stopOrPauseAnimator();
         }
     }
@@ -77,8 +90,8 @@ abstract class AnimatableNode {
     }
 
     /** Returns whether this node has a running animation. */
-    boolean hasRunningOrStartedAnimation() {
-        return mQuotaAwareAnimator.hasRunningOrStartedAnimation();
+    boolean hasRunningAnimation() {
+        return mQuotaAwareAnimator.isRunning();
     }
 
     /** Returns whether the animator in this node has an infinite duration. */
