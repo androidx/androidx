@@ -366,12 +366,13 @@ public class ProtoLayoutDynamicDataPipeline {
                             node -> {
                                 AnimatedVisibility animatedVisibility =
                                         node.getAnimatedVisibility();
-                                return animatedVisibility != null && animatedVisibility.hasExit();
+                                return animatedVisibility != null
+                                        && animatedVisibility.hasExitTransition();
                             });
             for (NodeInfo affectedNode : nodesAffectedBy) {
                 animatingNodes.putIfAbsent(
                         affectedNode.getPosId(),
-                        checkNotNull(affectedNode.getAnimatedVisibility()).getExit());
+                        checkNotNull(affectedNode.getAnimatedVisibility()).getExitTransition());
             }
         }
 
@@ -434,12 +435,13 @@ public class ProtoLayoutDynamicDataPipeline {
                                     AnimatedVisibility animatedVisibility =
                                             node.getAnimatedVisibility();
                                     return animatedVisibility != null
-                                            && animatedVisibility.hasEnter();
+                                            && animatedVisibility.hasEnterTransition();
                                 });
                 for (NodeInfo affectedNode : nodesAffectedBy) {
                     animatingNodes.putIfAbsent(
                             affectedNode.getPosId(),
-                            checkNotNull(affectedNode.getAnimatedVisibility()).getEnter());
+                            checkNotNull(affectedNode.getAnimatedVisibility())
+                                    .getEnterTransition());
                 }
             }
             for (Map.Entry<String, EnterTransition> animatingNode : animatingNodes.entrySet()) {
