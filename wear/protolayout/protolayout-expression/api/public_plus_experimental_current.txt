@@ -8,20 +8,20 @@ package androidx.wear.protolayout.expression {
   }
 
   public static final class AnimationParameterBuilders.AnimationSpec {
-    method public int getDelayMillis();
     method public int getDurationMillis();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing? getEasing();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable? getRepeatable();
+    method public int getStartDelayMillis();
   }
 
   public static final class AnimationParameterBuilders.AnimationSpec.Builder {
     ctor public AnimationParameterBuilders.AnimationSpec.Builder();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec build();
-    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setDelayMillis(int);
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setDurationMillis(int);
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setEasing(androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing);
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setInfiniteRepeatable(int);
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setRepeatable(androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setStartDelayMillis(int);
   }
 
   public static final class AnimationParameterBuilders.CubicBezierEasing implements androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing {
@@ -52,16 +52,20 @@ package androidx.wear.protolayout.expression {
   }
 
   public static final class AnimationParameterBuilders.Repeatable {
+    method public int getForwardRepeatDelayMillis();
     method public int getIterations();
     method public int getRepeatMode();
+    method public int getReverseRepeatDelayMillis();
     method public boolean hasInfiniteIteration();
   }
 
   public static final class AnimationParameterBuilders.Repeatable.Builder {
     ctor public AnimationParameterBuilders.Repeatable.Builder();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable build();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setForwardRepeatDelayMillis(int);
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setIterations(@IntRange(from=1) int);
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setRepeatMode(int);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setReverseRepeatDelayMillis(int);
   }
 
   public class ConditionScopes {
