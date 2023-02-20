@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import android.content.IntentFilter;
+import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -145,5 +146,76 @@ public class MediaRouteDescriptorTest {
 
         assertEquals(sampleAllowedPackages, allowedPackages);
         assertNotSame(sampleAllowedPackages, allowedPackages);
+    }
+
+    @Test
+    @SmallTest
+    public void testGetControlFiltersReturnsNewInstance() {
+        IntentFilter f1 = new IntentFilter();
+        f1.addCategory("com.example.androidx.media.CATEGORY_SAMPLE_ROUTE");
+        f1.addAction("com.example.androidx.media.action.TAKE_SNAPSHOT");
+
+        IntentFilter f2 = new IntentFilter();
+        f2.addCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK);
+        f2.addAction(MediaControlIntent.ACTION_PLAY);
+        f2.addDataScheme("http");
+        f2.addDataScheme("https");
+        f2.addDataScheme("rtsp");
+        f2.addDataScheme("file");
+
+        IntentFilter f3 = new IntentFilter();
+        f3.addCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK);
+        f3.addAction(MediaControlIntent.ACTION_SEEK);
+        f3.addAction(MediaControlIntent.ACTION_GET_STATUS);
+        f3.addAction(MediaControlIntent.ACTION_PAUSE);
+        f3.addAction(MediaControlIntent.ACTION_RESUME);
+        f3.addAction(MediaControlIntent.ACTION_STOP);
+
+        List<IntentFilter> sampleControlFilters = new ArrayList<>();
+        sampleControlFilters.add(f1);
+        sampleControlFilters.add(f2);
+        sampleControlFilters.add(f3);
+
+        MediaRouteDescriptor routeDescriptor = new MediaRouteDescriptor.Builder(
+                FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME)
+                .addControlFilter(f1)
+                .addControlFilter(f2)
+                .addControlFilter(f3)
+                .build();
+
+        List<IntentFilter> controlFilters = routeDescriptor.getControlFilters();
+
+        assertEquals(sampleControlFilters, controlFilters);
+        assertNotSame(sampleControlFilters, controlFilters);
+    }
+
+    @Test
+    @SmallTest
+    public void testGetGroupMemberIdsReturnsNewInstance() {
+        List<String> sampleGroupMemberIds = new ArrayList<>();
+        sampleGroupMemberIds.add(FAKE_MEDIA_ROUTE_ID_2);
+        sampleGroupMemberIds.add(FAKE_MEDIA_ROUTE_ID_3);
+        sampleGroupMemberIds.add(FAKE_MEDIA_ROUTE_ID_4);
+        MediaRouteDescriptor routeDescriptor = new MediaRouteDescriptor.Builder(
+                FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME)
+                .addGroupMemberId(FAKE_MEDIA_ROUTE_ID_2)
+                .addGroupMemberId(FAKE_MEDIA_ROUTE_ID_3)
+                .addGroupMemberId(FAKE_MEDIA_ROUTE_ID_4)
+                .build();
+
+        List<String> groupMemberIds = routeDescriptor.getGroupMemberIds();
+
+        assertEquals(sampleGroupMemberIds, groupMemberIds);
+        assertNotSame(sampleGroupMemberIds, groupMemberIds);
+    }
+
+    @Test
+    @SmallTest
+    public void testConstructorUsingBundleReturnsEmptyCollections() {
+        MediaRouteDescriptor routeDescriptor = new MediaRouteDescriptor(new Bundle());
+
+        assertTrue(routeDescriptor.getAllowedPackages().isEmpty());
+        assertTrue(routeDescriptor.getControlFilters().isEmpty());
+        assertTrue(routeDescriptor.getGroupMemberIds().isEmpty());
     }
 }
