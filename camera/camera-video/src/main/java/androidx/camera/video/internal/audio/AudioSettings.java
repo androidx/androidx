@@ -87,6 +87,11 @@ public abstract class AudioSettings {
     AudioSettings() {
     }
 
+    /** Gets the size in bytes per frame. */
+    public int getBytesPerFrame() {
+        return AudioUtils.getBytesPerFrame(getAudioFormat(), getChannelCount());
+    }
+
     /**
      * A Builder for {@link AudioSettings}.
      */
