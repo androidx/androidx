@@ -19,6 +19,7 @@ package androidx.privacysandbox.ui.client.test
 import android.content.Context
 import android.os.Build
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
@@ -32,6 +33,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -148,7 +150,6 @@ class SandboxedSdkViewTest {
         val testSandboxedUiAdapter = FailingTestSandboxedUiAdapter()
         val testErrorConsumer = TestErrorConsumer(latch)
         view.setSdkErrorConsumer(testErrorConsumer)
-        view.layoutParams = LinearLayout.LayoutParams(100, 100)
         view.setAdapter(testSandboxedUiAdapter)
 
         activity.runOnUiThread(Runnable {
@@ -191,5 +192,23 @@ class SandboxedSdkViewTest {
             testSandboxedUiAdapter.internalClient!!.onSessionError(Exception())
             assertTrue(view.childCount == 0)
         })
+    }
+
+    @Test
+    fun sandboxedSdkViewIsTransitionGroup() {
+        val view = SandboxedSdkView(context)
+        assertTrue("SandboxedSdkView isTransitionGroup by default", view.isTransitionGroup)
+    }
+
+    @Test
+    fun sandboxedSdkViewInflatesTransitionGroup() {
+        val activity = activityScenarioRule.withActivity { this }
+        val view = activity.layoutInflater.inflate(
+            R.layout.sandboxedsdkview_transition_group_false,
+            null
+        ) as ViewGroup
+        assertFalse(
+            "XML overrides SandboxedSdkView.isTransitionGroup", view.isTransitionGroup
+        )
     }
 }
