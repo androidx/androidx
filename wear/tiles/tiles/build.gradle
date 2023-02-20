@@ -29,6 +29,7 @@ dependencies {
     api(libs.guavaListenableFuture)
 
     implementation("androidx.annotation:annotation-experimental:1.2.0")
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation(project(path: ":wear:tiles:tiles-proto"))
 
     compileOnly(libs.kotlinStdlib) // For annotation-experimental
@@ -38,7 +39,6 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
-    testImplementation("androidx.concurrent:concurrent-futures:1.1.0")
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
 }
