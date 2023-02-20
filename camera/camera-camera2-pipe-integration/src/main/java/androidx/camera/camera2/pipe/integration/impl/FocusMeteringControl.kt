@@ -154,10 +154,16 @@ class FocusMeteringControl @Inject constructor(
                         afRegions = afRectangles,
                         awbRegions = awbRectangles,
                         afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON)
-                    ).await().toFocusMeteringResult(true)
-                }.let { focusMeteringResult ->
-                    if (focusMeteringResult != null) {
-                        signal.complete(focusMeteringResult)
+                    ).await()
+                }.let { result3A ->
+                    if (result3A != null) {
+                        if (result3A.status == Result3A.Status.SUBMIT_FAILED) {
+                            signal.completeExceptionally(
+                                OperationCanceledException("Camera is not active.")
+                            )
+                        } else {
+                            signal.complete(result3A.toFocusMeteringResult(true))
+                        }
                     } else {
                         if (isCancelEnabled) {
                             if (signal.isActive) {
