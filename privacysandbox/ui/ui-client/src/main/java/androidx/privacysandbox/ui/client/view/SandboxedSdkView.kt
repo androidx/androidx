@@ -38,6 +38,7 @@ class SandboxedSdkView @JvmOverloads constructor(
     private var isZOrderOnTop = true
     private var errorConsumer: Consumer<Throwable>? = null
     private var contentView: View? = null
+    private var isTransitionGroupSet = false
 
     fun setAdapter(sandboxedUiAdapter: SandboxedUiAdapter) {
         if (this.adapter === sandboxedUiAdapter) return
@@ -49,6 +50,13 @@ class SandboxedSdkView @JvmOverloads constructor(
 
     fun setSdkErrorConsumer(errorConsumer: Consumer<Throwable>?) {
         this.errorConsumer = errorConsumer
+    }
+
+    override fun isTransitionGroup(): Boolean = !isTransitionGroupSet || super.isTransitionGroup()
+
+    override fun setTransitionGroup(isTransitionGroup: Boolean) {
+        super.setTransitionGroup(isTransitionGroup)
+        isTransitionGroupSet = true
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -65,16 +73,6 @@ class SandboxedSdkView @JvmOverloads constructor(
         client?.close()
         client = null
         super.onDetachedFromWindow()
-    }
-
-    override fun onSizeChanged(
-        width: Int,
-        height: Int,
-        oldWidth: Int,
-        oldHeight: Int
-    ) {
-        super.onSizeChanged(width, height, oldWidth, oldHeight)
-        checkClientOpenSession()
     }
 
     private fun checkClientOpenSession() {
