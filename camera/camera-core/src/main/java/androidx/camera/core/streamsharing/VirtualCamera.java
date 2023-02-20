@@ -167,6 +167,7 @@ class VirtualCamera implements CameraInternal {
             boolean mirroring = useCase instanceof Preview && isFrontFacing();
             outConfigs.put(useCase, OutConfig.of(
                     target,
+                    INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, // TODO: use JPEG for ImageCapture
                     cameraEdge.getCropRect(),
                     rectToSize(cameraEdge.getCropRect()),
                     mirroring));

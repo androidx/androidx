@@ -23,6 +23,7 @@ import android.os.Build
 import android.util.Size
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.defaultEmptySessionConfig
 import androidx.camera.core.impl.StreamSpec
@@ -151,7 +152,14 @@ class VirtualCameraTest {
 
     private fun createSurfaceEdge(): SurfaceEdge {
         return SurfaceEdge(
-            PREVIEW, StreamSpec.builder(INPUT_SIZE).build(), Matrix(), true, Rect(), 0, false
+            PREVIEW,
+            INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+            StreamSpec.builder(INPUT_SIZE).build(),
+            Matrix(),
+            true,
+            Rect(),
+            0,
+            false
         )
     }
 

@@ -17,6 +17,7 @@
 package androidx.camera.video;
 
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
@@ -473,6 +474,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             checkState(mCameraEdge == null);
             SurfaceEdge cameraEdge = new SurfaceEdge(
                     VIDEO_CAPTURE,
+                    INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                     streamSpec,
                     getSensorToBufferTransformMatrix(),
                     camera.getHasTransform(),
