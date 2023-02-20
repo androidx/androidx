@@ -133,8 +133,10 @@ public class ComplicationSlotsManager(
     public var configExtrasChangeCallback: WatchFace.ComplicationSlotConfigExtrasChangeCallback? =
         null
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
-    internal constructor(
+    public constructor(
         complicationSlotCollection: Collection<ComplicationSlot>,
         currentUserStyleRepository: CurrentUserStyleRepository,
         renderer: Renderer
