@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.integration.testapp.ui.bluetoothx
+package androidx.bluetooth.integration.testapp.data
 
-import android.bluetooth.le.ScanResult
-import android.util.Log
-import androidx.lifecycle.ViewModel
+import android.os.ParcelUuid
 
-class BtxViewModel : ViewModel() {
-
-    companion object {
-        const val TAG = "BtxViewModel"
-    }
-
-    val scanResults = mutableMapOf<String, ScanResult>()
-
-    init {
-        Log.d(TAG, "init called")
-    }
-
-    override fun onCleared() {
-        Log.d(TAG, "onCleared() called")
-    }
+object SampleAdvertiseData {
+    val testUUID: ParcelUuid =
+        ParcelUuid.fromString("00000000-0000-0000-0000-000000000001")
 }
