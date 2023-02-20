@@ -29,8 +29,9 @@ import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.AudioSpec;
 import androidx.camera.video.MediaSpec;
-import androidx.camera.video.internal.AudioSource;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
+import androidx.camera.video.internal.audio.AudioSettings;
+import androidx.camera.video.internal.audio.AudioSource;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
 import androidx.core.util.Supplier;
 
@@ -120,22 +121,22 @@ public final class AudioConfigUtil {
     }
 
     /**
-     * Resolves the audio source settings into a {@link AudioSource.Settings}.
+     * Resolves the audio source settings into an {@link AudioSettings}.
      *
      * @param audioMimeInfo the audio mime info.
      * @param audioSpec     the audio spec.
-     * @return a AudioSource.Settings.
+     * @return an AudioSettings.
      */
     @NonNull
-    public static AudioSource.Settings resolveAudioSourceSettings(@NonNull MimeInfo audioMimeInfo,
+    public static AudioSettings resolveAudioSettings(@NonNull MimeInfo audioMimeInfo,
             @NonNull AudioSpec audioSpec) {
-        Supplier<AudioSource.Settings> settingsSupplier;
+        Supplier<AudioSettings> settingsSupplier;
         VideoValidatedEncoderProfilesProxy profiles = audioMimeInfo.getCompatibleEncoderProfiles();
         if (profiles != null) {
             AudioProfileProxy audioProfile = requireNonNull(profiles.getDefaultAudioProfile());
-            settingsSupplier = new AudioSourceSettingsAudioProfileResolver(audioSpec, audioProfile);
+            settingsSupplier = new AudioSettingsAudioProfileResolver(audioSpec, audioProfile);
         } else {
-            settingsSupplier = new AudioSourceSettingsDefaultResolver(audioSpec);
+            settingsSupplier = new AudioSettingsDefaultResolver(audioSpec);
         }
 
         return settingsSupplier.get();
@@ -146,13 +147,13 @@ public final class AudioConfigUtil {
      *
      * @param audioMimeInfo       the audio mime info.
      * @param inputTimebase       the timebase of the input frame.
-     * @param audioSourceSettings the audio source settings.
+     * @param audioSettings       the audio settings.
      * @param audioSpec           the audio spec.
      * @return a AudioEncoderConfig.
      */
     @NonNull
     public static AudioEncoderConfig resolveAudioEncoderConfig(@NonNull MimeInfo audioMimeInfo,
-            @NonNull Timebase inputTimebase, @NonNull AudioSource.Settings audioSourceSettings,
+            @NonNull Timebase inputTimebase, @NonNull AudioSettings audioSettings,
             @NonNull AudioSpec audioSpec) {
         Supplier<AudioEncoderConfig> configSupplier;
         VideoValidatedEncoderProfilesProxy profiles = audioMimeInfo.getCompatibleEncoderProfiles();
@@ -160,10 +161,10 @@ public final class AudioConfigUtil {
             AudioProfileProxy audioProfile = requireNonNull(profiles.getDefaultAudioProfile());
             configSupplier = new AudioEncoderConfigAudioProfileResolver(
                     audioMimeInfo.getMimeType(), audioMimeInfo.getProfile(), inputTimebase,
-                    audioSpec, audioSourceSettings, audioProfile);
+                    audioSpec, audioSettings, audioProfile);
         } else {
             configSupplier = new AudioEncoderConfigDefaultResolver(audioMimeInfo.getMimeType(),
-                    audioMimeInfo.getProfile(), inputTimebase, audioSpec, audioSourceSettings);
+                    audioMimeInfo.getProfile(), inputTimebase, audioSpec, audioSettings);
         }
 
         return configSupplier.get();
@@ -224,7 +225,7 @@ public final class AudioConfigUtil {
                 Logger.d(TAG,
                         "Trying common sample rates in proximity order to target "
                                 + initialTargetSampleRate + "Hz");
-                sortedCommonSampleRates = new ArrayList<>(AudioSource.COMMON_SAMPLE_RATES);
+                sortedCommonSampleRates = new ArrayList<>(AudioSettings.COMMON_SAMPLE_RATES);
                 Collections.sort(sortedCommonSampleRates, (x, y) -> {
                     int relativeDifference = Math.abs(x - initialTargetSampleRate) - Math.abs(
                             y - initialTargetSampleRate);

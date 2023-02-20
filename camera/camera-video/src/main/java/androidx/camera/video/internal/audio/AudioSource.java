@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal;
+package androidx.camera.video.internal.audio;
 
 import static android.media.AudioFormat.ENCODING_PCM_16BIT;
 import static android.media.AudioFormat.ENCODING_PCM_24BIT_PACKED;
@@ -22,12 +22,11 @@ import static android.media.AudioFormat.ENCODING_PCM_32BIT;
 import static android.media.AudioFormat.ENCODING_PCM_8BIT;
 import static android.media.AudioFormat.ENCODING_PCM_FLOAT;
 
-import static androidx.camera.video.internal.AudioSource.InternalState.CONFIGURED;
-import static androidx.camera.video.internal.AudioSource.InternalState.RELEASED;
-import static androidx.camera.video.internal.AudioSource.InternalState.STARTED;
+import static androidx.camera.video.internal.audio.AudioSource.InternalState.CONFIGURED;
+import static androidx.camera.video.internal.audio.AudioSource.InternalState.RELEASED;
+import static androidx.camera.video.internal.audio.AudioSource.InternalState.STARTED;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -36,7 +35,6 @@ import android.media.AudioRecordingConfiguration;
 import android.media.AudioTimestamp;
 import android.os.Build;
 
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -47,6 +45,7 @@ import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.video.internal.BufferProvider;
 import androidx.camera.video.internal.compat.Api23Impl;
 import androidx.camera.video.internal.compat.Api24Impl;
 import androidx.camera.video.internal.compat.Api29Impl;
@@ -57,12 +56,9 @@ import androidx.camera.video.internal.encoder.InputBuffer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -72,7 +68,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * AudioSource is used to obtain audio raw data and write to the buffer from {@link BufferProvider}.
  *
  * <p>The audio raw data could be one of sources from the device. The target source can be
- * specified with {@link Settings.Builder#setAudioSource(int)}.
+ * specified with {@link AudioSettings.Builder#setAudioSource(int)}.
  *
  * <p>Calling {@link #start} will start reading audio data from the target source and then write
  * the data into the buffer from {@link BufferProvider}. Calling {@link #stop} will stop sending
@@ -86,9 +82,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AudioSource {
     private static final String TAG = "AudioSource";
-    // Common sample rate options to choose from in descending order.
-    public static final List<Integer> COMMON_SAMPLE_RATES = Collections.unmodifiableList(
-            Arrays.asList(48000, 44100, 22050, 11025, 8000, 4800));
 
     enum InternalState {
         /** The initial state or when {@link #stop} is called after started. */
@@ -168,7 +161,7 @@ public final class AudioSource {
      *                                       initialized with the given settings.
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    public AudioSource(@NonNull Settings settings, @NonNull Executor executor,
+    public AudioSource(@NonNull AudioSettings settings, @NonNull Executor executor,
             @Nullable Context attributionContext)
             throws AudioSourceAccessException {
         if (!isSettingsSupported(settings.getSampleRate(), settings.getChannelCount(),
@@ -601,137 +594,6 @@ public final class AudioSource {
                 return channelCount * 4;
             default:
                 throw new IllegalArgumentException("Invalid audio format: " + audioFormat);
-        }
-    }
-
-    /**
-     * Settings required to configure the audio source.
-     */
-    @AutoValue
-    public abstract static class Settings {
-
-        /** Creates a builder for these settings. */
-        @SuppressLint("Range") // Need to initialize as invalid values
-        @NonNull
-        public static Settings.Builder builder() {
-            return new AutoValue_AudioSource_Settings.Builder()
-                    .setAudioSource(-1)
-                    .setSampleRate(-1)
-                    .setChannelCount(-1)
-                    .setAudioFormat(-1);
-        }
-
-        /** Creates a {@link Builder} initialized with the same settings as this instance. */
-        @NonNull
-        public abstract Builder toBuilder();
-
-        /**
-         * Gets the device audio source.
-         *
-         * @see android.media.MediaRecorder.AudioSource#MIC
-         * @see android.media.MediaRecorder.AudioSource#CAMCORDER
-         */
-        public abstract int getAudioSource();
-
-        /**
-         * Gets the audio sample rate.
-         */
-        @IntRange(from = 1)
-        public abstract int getSampleRate();
-
-        /**
-         * Gets the channel count.
-         */
-        @IntRange(from = 1)
-        public abstract int getChannelCount();
-
-        /**
-         * Sets the audio format.
-         *
-         * @see AudioFormat#ENCODING_PCM_16BIT
-         */
-        public abstract int getAudioFormat();
-
-        // Should not be instantiated directly
-        Settings() {
-        }
-
-        /**
-         * A Builder for {@link AudioSource.Settings}
-         */
-        @AutoValue.Builder
-        public abstract static class Builder {
-            /**
-             * Sets the device audio source.
-             *
-             * @see android.media.MediaRecorder.AudioSource#MIC
-             * @see android.media.MediaRecorder.AudioSource#CAMCORDER
-             */
-            @NonNull
-            public abstract Builder setAudioSource(int audioSource);
-
-            /**
-             * Sets the audio sample rate in Hertz.
-             */
-            @NonNull
-            public abstract Builder setSampleRate(@IntRange(from = 1) int sampleRate);
-
-            /**
-             * Sets the channel count.
-             */
-            @NonNull
-            public abstract Builder setChannelCount(@IntRange(from = 1) int channelCount);
-
-            /**
-             * Sets the audio format.
-             *
-             * @see AudioFormat#ENCODING_PCM_16BIT
-             */
-            @NonNull
-            public abstract Builder setAudioFormat(int audioFormat);
-
-            abstract Settings autoBuild(); // Actual build method. Not public.
-
-            /**
-             * Returns the built config after performing settings validation.
-             *
-             * <p>It should be verified that combination of sample rate, channel count and audio
-             * format is supported by {@link AudioSource#isSettingsSupported(int, int, int)} or
-             * an {@link UnsupportedOperationException} will be thrown when passing the settings
-             * to the
-             * {@linkplain AudioSource#AudioSource(Settings, Executor, Context) AudioSource
-             * constructor}.
-             *
-             * @throws IllegalArgumentException if a setting is missing or invalid.
-             */
-            @NonNull
-            public final Settings build() {
-                Settings settings = autoBuild();
-                String missingOrInvalid = "";
-                if (settings.getAudioSource() == -1) {
-                    missingOrInvalid += " audioSource";
-                }
-                if (settings.getSampleRate() <= 0) {
-                    missingOrInvalid += " sampleRate";
-                }
-                if (settings.getChannelCount() <= 0) {
-                    missingOrInvalid += " channelCount";
-                }
-                if (settings.getAudioFormat() == -1) {
-                    missingOrInvalid += " audioFormat";
-                }
-
-                if (!missingOrInvalid.isEmpty()) {
-                    throw new IllegalArgumentException("Required settings missing or "
-                            + "non-positive:" + missingOrInvalid);
-                }
-
-                return settings;
-            }
-
-            // Should not be instantiated directly
-            Builder() {
-            }
         }
     }
 
