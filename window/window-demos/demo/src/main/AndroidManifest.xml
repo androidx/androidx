@@ -227,6 +227,27 @@
             android:configChanges="orientation|screenSize|screenLayout|screenSize"
             android:label="@string/ime"/>
 
+        <!-- The demo app to show IME usages in ActivityEmbedding split. -->
+
+        <activity
+            android:name=".embedding.SplitImeActivityMain"
+            android:exported="true"
+            android:label="Split with IME"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.split_ime">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".embedding.SplitImeActivityPlaceholder"
+            android:exported="false"
+            android:label="Split with IME Placeholder"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.split_ime">
+        </activity>
+
         <!-- Activity embedding initializer -->
 
         <provider android:name="androidx.startup.InitializationProvider"
