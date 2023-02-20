@@ -36,6 +36,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureMetaData;
 import androidx.camera.core.impl.CaptureConfig;
@@ -47,6 +48,7 @@ import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeCameraControl;
+import androidx.camera.testing.fakes.FakeCameraCoordinator;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
@@ -87,6 +89,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 21)
 public class ImageCaptureTest {
+    private CameraCoordinator mCameraCoordinator;
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Matrix mSensorToBufferTransformMatrix;
@@ -102,9 +105,10 @@ public class ImageCaptureTest {
                 StreamSpec.builder(new Size(640, 480)).build());
 
         UseCaseConfigFactory useCaseConfigFactory = new FakeUseCaseConfigFactory();
-
+        mCameraCoordinator = new FakeCameraCoordinator();
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(fakeCamera)),
+                mCameraCoordinator,
                 fakeCameraDeviceSurfaceManager,
                 useCaseConfigFactory);
 

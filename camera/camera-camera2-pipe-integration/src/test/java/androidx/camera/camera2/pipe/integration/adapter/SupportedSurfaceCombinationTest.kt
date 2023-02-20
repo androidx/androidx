@@ -16,6 +16,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
@@ -34,6 +35,7 @@ import android.view.Surface
 import android.view.WindowManager
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.camera2.pipe.integration.adapter.GuaranteedConfigurationsUtil.getConcurrentSupportedCombinationList
 import androidx.camera.camera2.pipe.integration.adapter.GuaranteedConfigurationsUtil.getFullSupportedCombinationList
 import androidx.camera.camera2.pipe.integration.adapter.GuaranteedConfigurationsUtil.getLegacySupportedCombinationList
 import androidx.camera.camera2.pipe.integration.adapter.GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList
@@ -53,6 +55,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCase
+import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
@@ -65,12 +68,15 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.internal.utils.SizeUtil
+import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1440P
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.Configs
 import androidx.camera.testing.EncoderProfilesUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeCameraCoordinator
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
@@ -159,6 +165,7 @@ class SupportedSurfaceCombinationTest {
     private var cameraFactory: FakeCameraFactory? = null
     private var useCaseConfigFactory: UseCaseConfigFactory = mock()
     private lateinit var fakeCameraMetadata: FakeCameraMetadata
+    private lateinit var cameraCoordinator: CameraCoordinator
 
     private val mockCameraAppComponent: CameraAppComponent = mock()
     private val mockEncoderProfilesAdapter: EncoderProfilesProviderAdapter = mock()
@@ -179,6 +186,7 @@ class SupportedSurfaceCombinationTest {
         whenever(mockEncoderProfilesProxy.videoProfiles).thenReturn(listOf(mockVideoProfileProxy))
         whenever(mockEncoderProfilesAdapter.getAll(ArgumentMatchers.anyInt()))
             .thenReturn(mockEncoderProfilesProxy)
+        cameraCoordinator = FakeCameraCoordinator()
     }
 
     @After
@@ -196,7 +204,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getLegacySupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isTrue()
         }
     }
@@ -209,7 +218,8 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val combinationList = getLegacySupportedCombinationList()
-        val isSupported = isAllSubConfigListSupported(supportedSurfaceCombination, combinationList)
+        val isSupported = isAllSubConfigListSupported(
+            false, supportedSurfaceCombination, combinationList)
         assertThat(isSupported).isTrue()
     }
 
@@ -223,7 +233,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getLimitedSupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isFalse()
         }
     }
@@ -238,7 +249,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getFullSupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isFalse()
         }
     }
@@ -253,7 +265,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getLevel3SupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isFalse()
         }
     }
@@ -268,7 +281,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getLimitedSupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isTrue()
         }
     }
@@ -281,7 +295,8 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val combinationList = getLimitedSupportedCombinationList()
-        val isSupported = isAllSubConfigListSupported(supportedSurfaceCombination, combinationList)
+        val isSupported = isAllSubConfigListSupported(
+            false, supportedSurfaceCombination, combinationList)
         assertThat(isSupported).isTrue()
     }
 
@@ -295,7 +310,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getFullSupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isFalse()
         }
     }
@@ -310,7 +326,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getLevel3SupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isFalse()
         }
     }
@@ -325,7 +342,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getFullSupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isTrue()
         }
     }
@@ -338,7 +356,8 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val combinationList = getFullSupportedCombinationList()
-        val isSupported = isAllSubConfigListSupported(supportedSurfaceCombination, combinationList)
+        val isSupported = isAllSubConfigListSupported(
+            false, supportedSurfaceCombination, combinationList)
         assertThat(isSupported).isTrue()
     }
 
@@ -352,7 +371,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getLevel3SupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isFalse()
         }
     }
@@ -371,7 +391,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getLimitedSupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isTrue()
         }
     }
@@ -390,7 +411,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getLegacySupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isTrue()
         }
     }
@@ -409,7 +431,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getFullSupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isTrue()
         }
     }
@@ -428,7 +451,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getRAWSupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isTrue()
         }
     }
@@ -443,7 +467,8 @@ class SupportedSurfaceCombinationTest {
         val combinationList = getLevel3SupportedCombinationList()
         for (combination in combinationList) {
             val isSupported =
-                supportedSurfaceCombination.checkSupported(combination.surfaceConfigList)
+                supportedSurfaceCombination.checkSupported(
+                    false, combination.surfaceConfigList)
             assertThat(isSupported).isTrue()
         }
     }
@@ -456,7 +481,41 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val combinationList = getLevel3SupportedCombinationList()
-        val isSupported = isAllSubConfigListSupported(supportedSurfaceCombination, combinationList)
+        val isSupported = isAllSubConfigListSupported(
+            false, supportedSurfaceCombination, combinationList)
+        assertThat(isSupported).isTrue()
+    }
+
+    @Test
+    fun checkConcurrentSurfaceCombinationSupportedInConcurrentCameraMode() {
+        Shadows.shadowOf(context.packageManager).setSystemFeature(
+            PackageManager.FEATURE_CAMERA_CONCURRENT, true)
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3)
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val combinationList = getConcurrentSupportedCombinationList()
+        for (combination in combinationList) {
+            val isSupported =
+                supportedSurfaceCombination.checkSupported(
+                    true, combination.surfaceConfigList)
+            assertThat(isSupported).isTrue()
+        }
+    }
+
+    @Test
+    fun checkConcurrentSurfaceCombinationSubListSupportedInConcurrentCameraMode() {
+        Shadows.shadowOf(context.packageManager).setSystemFeature(
+            PackageManager.FEATURE_CAMERA_CONCURRENT, true)
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3)
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val combinationList = getConcurrentSupportedCombinationList()
+        val isSupported = isAllSubConfigListSupported(
+            true, supportedSurfaceCombination, combinationList)
         assertThat(isSupported).isTrue()
     }
 
@@ -478,6 +537,7 @@ class SupportedSurfaceCombinationTest {
             useCaseConfigFactory
         )
         val suggestedStreamSpecMap = supportedSurfaceCombination.getSuggestedStreamSpecifications(
+            false,
             emptyList(),
             ArrayList(useCaseToConfigMap.values)
         )
@@ -511,6 +571,7 @@ class SupportedSurfaceCombinationTest {
         val cameraUseCaseAdapter = CameraUtil
             .createCameraUseCaseAdapter(
                 context,
+                cameraCoordinator,
                 CameraSelector.DEFAULT_BACK_CAMERA
             )
         cameraUseCaseAdapter.addUseCases(listOf(preview, imageCapture, imageAnalysis))
@@ -556,6 +617,7 @@ class SupportedSurfaceCombinationTest {
         // default aspect ratio will be selected.
         val cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             context,
+            cameraCoordinator,
             CameraSelector.DEFAULT_BACK_CAMERA
         )
         cameraUseCaseAdapter.addUseCases(
@@ -574,6 +636,7 @@ class SupportedSurfaceCombinationTest {
             useCaseConfigFactory
         )
         val suggestedStreamSpecMap = supportedSurfaceCombination.getSuggestedStreamSpecifications(
+            false,
             emptyList(),
             ArrayList(useCaseToConfigMap.values)
         )
@@ -634,6 +697,7 @@ class SupportedSurfaceCombinationTest {
             useCaseConfigFactory
         )
         val suggestedStreamSpecMap = supportedSurfaceCombination.getSuggestedStreamSpecifications(
+            false,
             emptyList(),
             ArrayList(useCaseToConfigMap.values)
         )
@@ -672,6 +736,7 @@ class SupportedSurfaceCombinationTest {
             ).setTargetRotation(Surface.ROTATION_90).build()
             val suggestedStreamSpecMap =
                 supportedSurfaceCombination.getSuggestedStreamSpecifications(
+                    false,
                     emptyList(),
                     listOf(imageCapture.currentConfig)
                 )
@@ -697,6 +762,7 @@ class SupportedSurfaceCombinationTest {
             targetResolution
         ).setTargetRotation(Surface.ROTATION_90).build()
         val suggestedStreamSpecMap = supportedSurfaceCombination.getSuggestedStreamSpecifications(
+            false,
             emptyList(),
             listOf(imageCapture.currentConfig)
         )
@@ -730,6 +796,7 @@ class SupportedSurfaceCombinationTest {
         )
         assertThrows(IllegalArgumentException::class.java) {
             supportedSurfaceCombination.getSuggestedStreamSpecifications(
+                false,
                 emptyList(),
                 ArrayList(useCaseToConfigMap.values)
             )
@@ -763,6 +830,7 @@ class SupportedSurfaceCombinationTest {
         )
         assertThrows(IllegalArgumentException::class.java) {
             supportedSurfaceCombination.getSuggestedStreamSpecifications(
+                false,
                 emptyList(),
                 ArrayList(useCaseToConfigMap.values)
             )
@@ -795,6 +863,7 @@ class SupportedSurfaceCombinationTest {
         )
         val suggestedStreamSpecMap: Map<UseCaseConfig<*>, StreamSpec> =
             supportedSurfaceCombination.getSuggestedStreamSpecifications(
+                false,
                 emptyList(),
                 ArrayList(useCaseToConfigMap.values)
             )
@@ -844,6 +913,7 @@ class SupportedSurfaceCombinationTest {
         )
         val suggestedStreamSpecMap: Map<UseCaseConfig<*>, StreamSpec> =
             supportedSurfaceCombination.getSuggestedStreamSpecifications(
+                false,
                 emptyList(),
                 ArrayList(useCaseToConfigMap.values)
             )
@@ -894,6 +964,7 @@ class SupportedSurfaceCombinationTest {
         )
         val suggestedStreamSpecMap: Map<UseCaseConfig<*>, StreamSpec> =
             supportedSurfaceCombination.getSuggestedStreamSpecifications(
+                false,
                 emptyList(),
                 ArrayList(useCaseToConfigMap.values)
             )
@@ -949,6 +1020,7 @@ class SupportedSurfaceCombinationTest {
         )
         val suggestedStreamSpecMap: Map<UseCaseConfig<*>, StreamSpec> =
             supportedSurfaceCombination.getSuggestedStreamSpecifications(
+                false,
                 emptyList(),
                 ArrayList(useCaseToConfigMap.values)
             )
@@ -1036,6 +1108,7 @@ class SupportedSurfaceCombinationTest {
         )
         val suggestedStreamSpecMap: Map<UseCaseConfig<*>, StreamSpec> =
             supportedSurfaceCombination.getSuggestedStreamSpecifications(
+                false,
                 emptyList(),
                 ArrayList(useCaseToConfigMap.values)
             )
@@ -1063,6 +1136,7 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.YUV_420_888, vgaSize
         )
         val expectedSurfaceConfig =
@@ -1078,6 +1152,7 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.YUV_420_888, previewSize
         )
         val expectedSurfaceConfig =
@@ -1093,6 +1168,7 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.YUV_420_888, recordSize
         )
         val expectedSurfaceConfig =
@@ -1108,6 +1184,7 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.YUV_420_888, maximumSize
         )
         val expectedSurfaceConfig =
@@ -1123,6 +1200,7 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.JPEG, vgaSize
         )
         val expectedSurfaceConfig =
@@ -1138,6 +1216,7 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.JPEG, previewSize
         )
         val expectedSurfaceConfig =
@@ -1153,6 +1232,7 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.JPEG, recordSize
         )
         val expectedSurfaceConfig =
@@ -1168,10 +1248,119 @@ class SupportedSurfaceCombinationTest {
             mockEncoderProfilesAdapter
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.JPEG, maximumSize
         )
         val expectedSurfaceConfig =
             SurfaceConfig.create(SurfaceConfig.ConfigType.JPEG, SurfaceConfig.ConfigSize.MAXIMUM)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithPRIVS720PSizeInConcurrentMode() {
+        Shadows.shadowOf(context.packageManager)
+            .setSystemFeature(PackageManager.FEATURE_CAMERA_CONCURRENT, true)
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.PRIVATE, SizeUtil.RESOLUTION_720P
+        )
+        val expectedSurfaceConfig =
+            SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV, SurfaceConfig.ConfigSize.s720p)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithYUVS720PSizeInConcurrentMode() {
+        Shadows.shadowOf(context.packageManager)
+            .setSystemFeature(PackageManager.FEATURE_CAMERA_CONCURRENT, true)
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.YUV_420_888, SizeUtil.RESOLUTION_720P
+        )
+        val expectedSurfaceConfig =
+            SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, SurfaceConfig.ConfigSize.s720p)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithJPEGS720PSizeInConcurrentMode() {
+        Shadows.shadowOf(context.packageManager)
+            .setSystemFeature(PackageManager.FEATURE_CAMERA_CONCURRENT, true)
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.JPEG, SizeUtil.RESOLUTION_720P
+        )
+        val expectedSurfaceConfig =
+            SurfaceConfig.create(SurfaceConfig.ConfigType.JPEG, SurfaceConfig.ConfigSize.s720p)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithPRIVS1440PSizeInConcurrentMode() {
+        Shadows.shadowOf(context.packageManager)
+            .setSystemFeature(PackageManager.FEATURE_CAMERA_CONCURRENT, true)
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.PRIVATE, RESOLUTION_1440P
+        )
+        val expectedSurfaceConfig =
+            SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV, SurfaceConfig.ConfigSize.s1440p)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithYUVS1440PSizeInConcurrentMode() {
+        Shadows.shadowOf(context.packageManager)
+            .setSystemFeature(PackageManager.FEATURE_CAMERA_CONCURRENT, true)
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.YUV_420_888, RESOLUTION_1440P
+        )
+        val expectedSurfaceConfig =
+            SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, SurfaceConfig.ConfigSize.s1440p)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithJPEGS1440PSizeInConcurrentMode() {
+        Shadows.shadowOf(context.packageManager)
+            .setSystemFeature(PackageManager.FEATURE_CAMERA_CONCURRENT, true)
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.JPEG, RESOLUTION_1440P
+        )
+        val expectedSurfaceConfig =
+            SurfaceConfig.create(SurfaceConfig.ConfigType.JPEG, SurfaceConfig.ConfigSize.s1440p)
         assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
     }
 
@@ -1215,6 +1404,7 @@ class SupportedSurfaceCombinationTest {
         )
         val suggestedStreamSpecMap: Map<UseCaseConfig<*>, StreamSpec> =
             supportedSurfaceCombination.getSuggestedStreamSpecifications(
+                false,
                 emptyList(),
                 ArrayList(useCaseToConfigMap.values)
             )
@@ -2211,6 +2401,7 @@ class SupportedSurfaceCombinationTest {
             vgaSize
         ).setTargetRotation(Surface.ROTATION_90).build()
         val suggestedStreamSpecMap = supportedSurfaceCombination.getSuggestedStreamSpecifications(
+            false,
             emptyList(),
             listOf(useCase.currentConfig)
         )
@@ -2236,6 +2427,7 @@ class SupportedSurfaceCombinationTest {
         // Sets the max resolution as 720x1280
         val useCase = FakeUseCaseConfig.Builder().setMaxResolution(displaySize).build()
         val suggestedStreamSpecMap = supportedSurfaceCombination.getSuggestedStreamSpecifications(
+            false,
             emptyList(),
             listOf(useCase.currentConfig)
         )
@@ -2287,6 +2479,7 @@ class SupportedSurfaceCombinationTest {
             useCaseConfigFactory
         )
         val suggestedStreamSpecMap = supportedSurfaceCombination.getSuggestedStreamSpecifications(
+            false,
             emptyList(),
             ArrayList(useCaseToConfigMap.values)
         )
@@ -2339,6 +2532,7 @@ class SupportedSurfaceCombinationTest {
             useCaseConfigFactory
         )
         val suggestedStreamSpecMap = supportedSurfaceCombination.getSuggestedStreamSpecifications(
+            false,
             emptyList(),
             ArrayList(useCaseToConfigMap.values)
         )
@@ -2479,6 +2673,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     private fun isAllSubConfigListSupported(
+        isConcurrentCameraModeOn: Boolean,
         supportedSurfaceCombination: SupportedSurfaceCombination,
         combinationList: List<SurfaceCombination>
     ): Boolean {
@@ -2491,7 +2686,8 @@ class SupportedSurfaceCombinationTest {
             for (index in 0 until length) {
                 val subConfigurationList: MutableList<SurfaceConfig> = ArrayList(configList)
                 subConfigurationList.removeAt(index)
-                val isSupported = supportedSurfaceCombination.checkSupported(subConfigurationList)
+                val isSupported = supportedSurfaceCombination.checkSupported(
+                    isConcurrentCameraModeOn, subConfigurationList)
                 if (!isSupported) {
                     return false
                 }

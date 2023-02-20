@@ -89,7 +89,7 @@ class CameraFactoryAdapter(
         // Use a LinkedHashSet to preserve order
         LinkedHashSet(mAvailableCameraIds)
 
-    override fun getCameraCoordinator(): CameraCoordinator? {
+    override fun getCameraCoordinator(): CameraCoordinator {
         // TODO(b/262772650): camera-pipe support for concurrent camera.
         return object : CameraCoordinator {
             override fun getConcurrentCameraSelectors(): MutableList<MutableList<CameraSelector>> {

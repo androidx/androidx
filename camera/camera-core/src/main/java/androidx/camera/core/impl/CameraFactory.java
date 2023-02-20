@@ -79,7 +79,7 @@ public interface CameraFactory {
      *
      * @return the instance of {@link CameraCoordinator}.
      */
-    @Nullable
+    @NonNull
     CameraCoordinator getCameraCoordinator();
 
     /**

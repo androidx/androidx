@@ -21,6 +21,7 @@ import android.util.LayoutDirection
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ImageOutputConfig
@@ -29,6 +30,7 @@ import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeCameraCoordinator
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeUseCase
@@ -284,8 +286,10 @@ class UseCaseTest {
             TEST_STREAM_SPEC
         )
         val useCaseConfigFactory: UseCaseConfigFactory = FakeUseCaseConfigFactory()
+        val cameraCoordinator: CameraCoordinator = FakeCameraCoordinator()
         return CameraUseCaseAdapter(
             LinkedHashSet(setOf(fakeCamera)),
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
