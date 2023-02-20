@@ -25,6 +25,7 @@ import android.hardware.camera2.params.MeteringRectangle
 import android.util.Rational
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
@@ -162,7 +163,9 @@ class FocusMeteringControl @Inject constructor(
                                 OperationCanceledException("Camera is not active.")
                             )
                         } else {
-                            signal.complete(result3A.toFocusMeteringResult(true))
+                            signal.complete(result3A.toFocusMeteringResult(
+                                shouldTriggerAf = afRectangles.isNotEmpty()
+                            ))
                         }
                     } else {
                         if (isCancelEnabled) {
@@ -267,13 +270,40 @@ class FocusMeteringControl @Inject constructor(
         if (this.status != Result3A.Status.OK) {
             return FocusMeteringResult.create(false)
         }
-        val isFocusSuccessful =
-            if (shouldTriggerAf)
-                this.frameMetadata?.get(CaptureResult.CONTROL_AF_STATE) ==
-                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
-            else true
+
+        val resultAfState = frameMetadata?.get(CaptureResult.CONTROL_AF_STATE)
+
+        /**
+         * The sequence in which the conditions for isFocusSuccessful are checked is important,
+         * since they represent the priorities for the conditions.
+         *
+         * For example, if isAfModeSupported is false, CameraX documentation dictates that
+         * isFocusSuccessful will be true in result. However, CameraPipe will set
+         * frameMetadata = null in this case as a kind of operation not allowed by camera.
+         *
+         * So we have to check isAfModeSupported first as it is a more specific case and higher
+         * in priority. On the other hand, resultAfState == null matters only if the result comes
+         * from a submitted request, so it should be checked after frameMetadata == null.
+         *
+         * Ref: [FocusMeteringAction] and [Controller3A.lock3A] documentations.
+         */
+        val isFocusSuccessful = when {
+            !shouldTriggerAf -> false
+            !cameraProperties.isAfModeSupported(AfMode.AUTO) -> true
+            frameMetadata == null -> false
+            resultAfState == null -> true
+            else -> resultAfState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+        }
 
         return FocusMeteringResult.create(isFocusSuccessful)
+    }
+
+    private fun CameraProperties.isAfModeSupported(afMode: AfMode): Boolean {
+        val modes = metadata[CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES]?.map {
+            AfMode.fromIntOrNull(it)
+        } ?: return false
+
+        return modes.contains(afMode)
     }
 
     companion object {
