@@ -219,9 +219,11 @@ class VideoRecordingTest(
     @Test
     fun getMetadataRotation_when_setTargetRotation() {
         // Arrange.
-        // Just set one Surface.ROTATION_90 to verify the function work or not.
-        val targetRotation = Surface.ROTATION_90
-        videoCapture.targetRotation = targetRotation
+        // Set Surface.ROTATION_90 for the 1st recording and update to Surface.ROTATION_180
+        // for the 2nd recording.
+        val targetRotation1 = Surface.ROTATION_90
+        val targetRotation2 = Surface.ROTATION_180
+        videoCapture.targetRotation = targetRotation1
 
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         latchForVideoSaved = CountDownLatch(1)
@@ -235,10 +237,32 @@ class VideoRecordingTest(
         completeVideoRecording(videoCapture, file)
 
         // Verify.
-        verifyMetadataRotation(getExpectedRotation(videoCapture).metadataRotation, file)
+        val (videoContentRotation, metadataRotation) = getExpectedRotation(videoCapture)
+        verifyMetadataRotation(metadataRotation, file)
 
         // Cleanup.
         file.delete()
+
+        // Arrange: Prepare for 2nd recording
+        val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        latchForVideoSaved = CountDownLatch(1)
+        latchForVideoRecording = CountDownLatch(5)
+
+        // Act: Update targetRotation.
+        videoCapture.targetRotation = targetRotation2
+        completeVideoRecording(videoCapture, file2)
+
+        // Verify.
+        val metadataRotation2 = cameraInfo.getSensorRotationDegrees(targetRotation2).let {
+            if (videoCapture.node != null) {
+                // If effect is enabled, the rotation should eliminate the video content rotation.
+                it - videoContentRotation
+            } else it
+        }
+        verifyMetadataRotation(metadataRotation2, file2)
+
+        // Cleanup.
+        file2.delete()
     }
 
     @Test
