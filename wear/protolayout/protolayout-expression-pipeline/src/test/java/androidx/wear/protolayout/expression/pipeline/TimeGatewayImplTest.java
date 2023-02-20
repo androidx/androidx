@@ -143,15 +143,14 @@ public class TimeGatewayImplTest {
 
     @Test
     public void missedUpdate_schedulesAgainInFuture() throws Exception {
-        // This test is a tad fragile, and needs to know about the implementation details of
-        // Looper and ShadowLooper. Looper will call SystemClock.uptimeMillis internally to see what
-        // is schedulable. ShadowLooper also uses this in idleFor; it will do something similar
-        // to runFor; find the next time, advance SystemClock.setCurrentTimeMillis by that
-        // amount, call idle(), then keep going. Note though that it pulls the current time via
-        // SystemClock.uptimeMillis, but sets the current time via SystemClock
-        // .setCurrentTimeMillis. It appears that to Robolectric, the two are aliased (and
-        // getting the current time using System.getCurrentTimeMillis() gets the **actual**
-        // current time).
+        // This test is a tad fragile, and needs to know about the implementation details of Looper
+        // and ShadowLooper. Looper will call SystemClock.uptimeMillis internally to see what is
+        // schedulable. ShadowLooper also uses this in idleFor; it will do something similar to
+        // runFor; find the next time, advance SystemClock.setCurrentTimeMillis by that amount, call
+        // idle(), then keep going. Note though that it pulls the current time via
+        // SystemClock.uptimeMillis, but sets the current time via SystemClock.setCurrentTimeMillis.
+        // It appears that to Robolectric, the two are aliased (and getting the current time using
+        // System.getCurrentTimeMillis() gets the **actual** current time).
         //
         // This means that we can fake this behaviour to simulate a "missed" call; just advance the
         // system clock, then call ShadowLooper#idle() to trigger any tasks that should have been

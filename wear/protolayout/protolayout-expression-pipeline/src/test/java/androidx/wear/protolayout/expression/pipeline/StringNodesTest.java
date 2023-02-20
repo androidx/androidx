@@ -61,8 +61,7 @@ public class StringNodesTest {
                                 .setGroupingUsed(true)
                                 .setMinIntegerDigits(4)
                                 .build(),
-                        ULocale.UK
-                );
+                        ULocale.UK);
         Int32FormatNode node = new Int32FormatNode(formatter, new AddToListCallback<>(results));
         node.getIncomingCallback().onPreUpdate();
         node.getIncomingCallback().onData(32);

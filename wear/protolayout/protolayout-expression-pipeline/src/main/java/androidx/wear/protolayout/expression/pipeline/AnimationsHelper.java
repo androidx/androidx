@@ -69,8 +69,8 @@ public class AnimationsHelper {
     /** Returns the delay from the given {@link AnimationSpec} or default value if not set. */
     @NonNull
     public static Duration getDelayOrDefault(@NonNull AnimationSpec spec) {
-        return spec.getDelayMillis() > 0
-                ? Duration.ofMillis(spec.getDelayMillis())
+        return spec.getStartDelayMillis() > 0
+                ? Duration.ofMillis(spec.getStartDelayMillis())
                 : DEFAULT_ANIM_DELAY;
     }
 

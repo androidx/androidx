@@ -53,8 +53,7 @@ public class ObservableStateStoreTest {
         mStateStoreUnderTest.setStateEntryValues(
                 ImmutableMap.of("foo", StateEntryBuilders.StateEntryValue.fromString("baz")));
 
-        mExpect
-                .that(mStateStoreUnderTest.getStateEntryValuesProto("foo"))
+        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto("foo"))
                 .isEqualTo(buildStateEntry("baz"));
     }
 
@@ -62,8 +61,7 @@ public class ObservableStateStoreTest {
     public void canReadInitialState() {
         mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto("foo"))
                 .isEqualTo(buildStateEntry("bar"));
-        mExpect
-                .that(mStateStoreUnderTest.getStateEntryValuesProto("baz"))
+        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto("baz"))
                 .isEqualTo(buildStateEntry("foobar"));
     }
 
@@ -81,8 +79,7 @@ public class ObservableStateStoreTest {
 
         mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto("foo"))
                 .isEqualTo(buildStateEntry("test"));
-        mExpect
-                .that(mStateStoreUnderTest.getStateEntryValuesProto("newKey"))
+        mExpect.that(mStateStoreUnderTest.getStateEntryValuesProto("newKey"))
                 .isEqualTo(buildStateEntry("testNewKey"));
 
         // This should have been cleared...
@@ -142,8 +139,10 @@ public class ObservableStateStoreTest {
     public void removeStateFiresInvalidated() {
         mStateStoreUnderTest.setStateEntryValuesProto(
                 ImmutableMap.of(
-                        "invalidated", buildStateEntry("value"),
-                        "notInvalidated", buildStateEntry("value")));
+                        "invalidated",
+                        buildStateEntry("value"),
+                        "notInvalidated",
+                        buildStateEntry("value")));
         DynamicTypeValueReceiver<StateEntryValue> invalidated = buildStateUpdateCallbackMock();
         DynamicTypeValueReceiver<StateEntryValue> notInvalidated = buildStateUpdateCallbackMock();
         mStateStoreUnderTest.registerCallback("invalidated", invalidated);
@@ -171,8 +170,7 @@ public class ObservableStateStoreTest {
         mStateStoreUnderTest.unregisterCallback("foo", cb);
 
         mStateStoreUnderTest.setStateEntryValuesProto(
-                ImmutableMap.of("foo", buildStateEntry("testAgain"))
-        );
+                ImmutableMap.of("foo", buildStateEntry("testAgain")));
 
         verifyNoInteractions(cb);
     }

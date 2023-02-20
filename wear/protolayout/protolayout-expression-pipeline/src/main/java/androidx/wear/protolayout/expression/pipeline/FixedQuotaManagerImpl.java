@@ -16,9 +16,25 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-/** Default, unlimited quota manager implementation that always returns true. */
-public class UnlimitedQuotaManager implements QuotaManager {
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
+
+/**
+ * Quota manager with fixed quota cap. This class is not thread safe.
+ *
+ * @hide
+ */
+@RestrictTo(Scope.LIBRARY_GROUP)
+public class FixedQuotaManagerImpl implements QuotaManager {
+    private final int mQuotaCap;
+
     private int mQuotaCounter = 0;
+
+    /** Creates a {@link FixedQuotaManagerImpl} with the given quota cap. */
+    public FixedQuotaManagerImpl(int quotaCap) {
+        this.mQuotaCap = quotaCap;
+    }
 
     /**
      * @see QuotaManager#tryAcquireQuota
@@ -26,8 +42,12 @@ public class UnlimitedQuotaManager implements QuotaManager {
      */
     @Override
     public boolean tryAcquireQuota(int quota) {
-        mQuotaCounter += quota;
-        return true;
+        if (mQuotaCounter + quota <= mQuotaCap) {
+            mQuotaCounter += quota;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -36,10 +56,20 @@ public class UnlimitedQuotaManager implements QuotaManager {
      */
     @Override
     public void releaseQuota(int quota) {
+        if (mQuotaCounter - quota < 0) {
+            throw new IllegalArgumentException(
+                    "Trying to release more quota than it was acquired!");
+        }
         mQuotaCounter -= quota;
     }
 
-    /** Returns true if all quota has been released. */
+    /**
+     * Returns true if all quota has been released.
+     *
+     * @hide
+     */
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @RestrictTo(Scope.TESTS)
     public boolean isAllQuotaReleased() {
         return mQuotaCounter == 0;
     }

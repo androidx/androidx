@@ -34,7 +34,7 @@ import androidx.annotation.UiThread;
  */
 public interface DynamicTypeValueReceiver<T> {
     /**
-     * Called when evaluation result for the expression that this callback was registered for is
+     * Called when evaluation result for the dynamic type that this callback was registered for is
      * about to be updated. This allows a downstream consumer to properly synchronize updates if it
      * depends on two or more evaluation result items. In that case, it should use this call to
      * figure out how many of its dependencies are going to be updated, and wait for all of them to
@@ -47,14 +47,15 @@ public interface DynamicTypeValueReceiver<T> {
     void onPreUpdate();
 
     /**
-     * Called when the expression that this callback was registered for has a new evaluation result.
+     * Called when the dynamic type that this callback was registered for has a new evaluation
+     * result.
      *
      * @see DynamicTypeValueReceiver#onPreUpdate()
      */
     @UiThread
     void onData(@NonNull T newData);
 
-    /** Called when the expression that this callback was registered for has an invalid result. */
+    /** Called when the dynamic type that this callback was registered for has an invalid result. */
     @UiThread
     void onInvalidated();
 }

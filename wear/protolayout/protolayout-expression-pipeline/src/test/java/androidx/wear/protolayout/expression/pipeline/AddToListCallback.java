@@ -16,6 +16,7 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public class AddToListCallback<T> implements DynamicTypeValueReceiver<T> {
     public void onPreUpdate() {}
 
     @Override
-    public void onData(T newData) {
+    public void onData(@NonNull T newData) {
         mListToUpdate.add(newData);
     }
 
