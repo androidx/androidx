@@ -20,6 +20,8 @@ import android.content.Context
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper.getMainLooper
 import android.util.Rational
 import android.util.Size
@@ -87,6 +89,8 @@ class PreviewTest {
     private lateinit var processor: FakeSurfaceProcessorInternal
     private lateinit var effect: CameraEffect
 
+    private val handlersToRelease = mutableListOf<Handler>()
+
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
@@ -129,6 +133,9 @@ class PreviewTest {
         }
         processor.release()
         CameraXUtil.shutdown().get()
+        for (handler in handlersToRelease) {
+            handler.looper.quitSafely()
+        }
     }
 
     @Test
@@ -295,6 +302,25 @@ class PreviewTest {
 
         // Act: update target rotation again.
         preview.targetRotation = Surface.ROTATION_180
+        shadowOf(getMainLooper()).idle()
+        // Assert: the rotation of the SettableFuture is updated based on ROTATION_90.
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(180)
+    }
+
+    @Test
+    fun setTargetRotationWithProcessorOnBackground_rotationChangesOnSurfaceEdge() {
+        // Act: create pipeline
+        val preview = createPreview(effect)
+        // Act: update target rotation
+        preview.targetRotation = Surface.ROTATION_0
+        shadowOf(getMainLooper()).idle()
+        // Assert that the rotation of the SettableFuture is updated based on ROTATION_0.
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(0)
+
+        // Act: update target rotation again.
+        val backgroundHandler = createBackgroundHandler()
+        backgroundHandler.post { preview.targetRotation = Surface.ROTATION_180 }
+        shadowOf(backgroundHandler.looper).idle()
         shadowOf(getMainLooper()).idle()
         // Assert: the rotation of the SettableFuture is updated based on ROTATION_90.
         assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(180)
@@ -663,5 +689,14 @@ class PreviewTest {
         val streamSpec = StreamSpec.builder(Size(640, 480)).build()
         previewToDetach.onSuggestedStreamSpecUpdated(streamSpec)
         return previewToDetach
+    }
+
+    private fun createBackgroundHandler(): Handler {
+        val handler = Handler(HandlerThread("PreviewTest").run {
+            start()
+            looper
+        })
+        handlersToRelease.add(handler)
+        return handler
     }
 }

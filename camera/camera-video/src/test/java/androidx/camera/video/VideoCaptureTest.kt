@@ -25,6 +25,8 @@ import android.media.CamcorderProfile.QUALITY_720P
 import android.media.CamcorderProfile.QUALITY_HIGH
 import android.media.CamcorderProfile.QUALITY_LOW
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper
 import android.util.Range
 import android.util.Size
@@ -125,6 +127,7 @@ class VideoCaptureTest {
     private lateinit var surfaceManager: FakeCameraDeviceSurfaceManager
     private lateinit var camera: FakeCamera
     private var surfaceRequestsToRelease = mutableListOf<SurfaceRequest>()
+    private val handlersToRelease = mutableListOf<Handler>()
 
     @Before
     fun setup() {
@@ -145,6 +148,9 @@ class VideoCaptureTest {
             it.willNotProvideSurface()
         }
         CameraXUtil.shutdown().get(10, TimeUnit.SECONDS)
+        for (handler in handlersToRelease) {
+            handler.looper.quitSafely()
+        }
     }
 
     @Test
@@ -713,6 +719,53 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun setTargetRotationWithEffect_rotationChangesOnSurfaceEdge() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoCapture = createVideoCapture()
+        cameraUseCaseAdapter.setEffects(listOf(createFakeEffect()))
+        addAndAttachUseCases(videoCapture)
+
+        // Act: update target rotation
+        videoCapture.targetRotation = Surface.ROTATION_0
+        shadowOf(Looper.getMainLooper()).idle()
+        // Assert that the rotation of the SettableFuture is updated based on ROTATION_0.
+        assertThat(videoCapture.cameraEdge!!.rotationDegrees).isEqualTo(0)
+
+        // Act: update target rotation again.
+        videoCapture.targetRotation = Surface.ROTATION_180
+        shadowOf(Looper.getMainLooper()).idle()
+        // Assert: the rotation of the SettableFuture is updated based on ROTATION_90.
+        assertThat(videoCapture.cameraEdge!!.rotationDegrees).isEqualTo(180)
+    }
+
+    @Test
+    fun setTargetRotationWithEffectOnBackground_rotationChangesOnSurfaceEdge() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoCapture = createVideoCapture()
+        cameraUseCaseAdapter.setEffects(listOf(createFakeEffect()))
+        addAndAttachUseCases(videoCapture)
+        val backgroundHandler = createBackgroundHandler()
+
+        // Act: update target rotation
+        backgroundHandler.post { videoCapture.targetRotation = Surface.ROTATION_0 }
+        shadowOf(backgroundHandler.looper).idle()
+        shadowOf(Looper.getMainLooper()).idle()
+        // Assert that the rotation of the SettableFuture is updated based on ROTATION_0.
+        assertThat(videoCapture.cameraEdge!!.rotationDegrees).isEqualTo(0)
+
+        // Act: update target rotation again.
+        backgroundHandler.post { videoCapture.targetRotation = Surface.ROTATION_180 }
+        shadowOf(backgroundHandler.looper).idle()
+        shadowOf(Looper.getMainLooper()).idle()
+        // Assert: the rotation of the SettableFuture is updated based on ROTATION_90.
+        assertThat(videoCapture.cameraEdge!!.rotationDegrees).isEqualTo(180)
+    }
+
+    @Test
     fun addUseCases_transformationInfoUpdated() {
         // Arrange.
         setupCamera()
@@ -1038,6 +1091,15 @@ class VideoCaptureTest {
             VIDEO_CAPTURE,
             processor
         )
+
+    private fun createBackgroundHandler(): Handler {
+        val handler = Handler(HandlerThread("VideoCaptureTest").run {
+            start()
+            looper
+        })
+        handlersToRelease.add(handler)
+        return handler
+    }
 
     private fun setSuggestedStreamSpec(quality: Quality) {
         setSuggestedStreamSpec(StreamSpec.builder(CAMERA_0_QUALITY_SIZE[quality]!!).build())
