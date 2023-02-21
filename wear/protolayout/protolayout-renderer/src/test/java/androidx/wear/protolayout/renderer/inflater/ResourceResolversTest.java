@@ -347,7 +347,6 @@ public class ResourceResolversTest {
         assertThat(resolvers.hasPlaceholderDrawable(ANDROID_AVD_BY_RES_ID_RESOURCE_ID)).isFalse();
     }
 
-
     @Test
     public void contentUriCantHavePlaceholder() {
         ResourceResolvers resolvers =
