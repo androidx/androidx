@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -83,14 +84,14 @@ internal class DataStoreImpl<T>(
         }
 
         emitAll(
-            downstreamFlow.dropWhile {
-                if (currentDownStreamFlowState is Data<T>) {
+            downstreamFlow.takeWhile {
+                // end the flow if we reach the final value
+                it !is Final
+            }.dropWhile {
+                if (currentDownStreamFlowState is Data<T> && it is Data) {
                     // we need to drop until initTasks are completed and set to null, and data
                     // version >= the current version when entering flow
-                    (it !is Data) || (it.version < latestVersionAtRead)
-                } else if (currentDownStreamFlowState is Final<T>) {
-                    // We don't need to drop Final values.
-                    false
+                    it.version < latestVersionAtRead
                 } else {
                     // we need to drop the last seen state since it was either an exception or
                     // wasn't yet initialized. Since we sent a message to actor, we *will* see a
@@ -100,9 +101,8 @@ internal class DataStoreImpl<T>(
             }.map {
                 when (it) {
                     is ReadException<T> -> throw it.readException
-                    is Final<T> -> throw it.finalException
                     is Data<T> -> it.value
-                    is UnInitialized -> error(
+                    is Final<T>, is UnInitialized -> error(
                         BUG_MESSAGE
                     )
                 }
@@ -129,7 +129,9 @@ internal class DataStoreImpl<T>(
     private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
         initTasksList.toList()
 
-    private val storageConnection: StorageConnection<T> by lazy {
+    // TODO(b/269772127): make this private after we allow multiple instances of DataStore on the
+    //  same file
+    internal val storageConnection: StorageConnection<T> by lazy {
         storage.createConnection()
     }
     private val coordinator: InterProcessCoordinator by lazy { storageConnection.coordinator }
@@ -178,7 +180,7 @@ internal class DataStoreImpl<T>(
     private suspend fun handleRead(read: Message.Read<T>) {
         when (val currentState = downstreamFlow.value) {
             is Data -> {
-                readData()
+                readDataAndUpdateCache()
             }
             is ReadException -> {
                 if (currentState === read.lastState) {
@@ -365,7 +367,7 @@ internal class DataStoreImpl<T>(
     }
 
     // It handles the read when the current state is Data
-    private suspend fun readData(): T {
+    private suspend fun readDataAndUpdateCache() {
         // Check if the cached version matches with shared memory counter
         val currentState = downstreamFlow.value
         val version = coordinator.getVersion()
@@ -373,18 +375,25 @@ internal class DataStoreImpl<T>(
 
         // Return cached value if cached version is latest
         if (currentState is Data && version == cachedVersion) {
-            return currentState.value
+            return
         }
         var latestVersion = INVALID_VERSION
-        val data = coordinator.tryLock {
-            val result = readDataFromFileOrDefault()
-            if (it) {
-                latestVersion = coordinator.getVersion()
+        try {
+            val data = coordinator.tryLock { locked ->
+                val result = readDataFromFileOrDefault()
+                if (locked) {
+                    latestVersion = coordinator.getVersion()
+                }
+                result
             }
-            result
+            downstreamFlow.value = Data(data, data.hashCode(), latestVersion)
+        } catch (throwable: Throwable) {
+            downstreamFlow.value = ReadException(throwable)
+            if (throwable is CancellationException) {
+                // let cancellation propagate
+                throw throwable
+            }
         }
-        downstreamFlow.value = Data(data, data.hashCode(), latestVersion)
-        return data
     }
 
     // Caller is responsible for (try to) getting file lock. It reads from the file directly without
