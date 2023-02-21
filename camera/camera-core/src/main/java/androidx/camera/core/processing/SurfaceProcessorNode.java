@@ -203,7 +203,8 @@ public class SurfaceProcessorNode implements
                 output.getKey().getFormat(),
                 output.getKey().getCropRect(),
                 input.getRotationDegrees(),
-                output.getKey().getMirroring());
+                output.getKey().getMirroring(),
+                mCameraInternal);
         Futures.addCallback(future, new FutureCallback<SurfaceOutput>() {
             @Override
             public void onSuccess(@Nullable SurfaceOutput output) {

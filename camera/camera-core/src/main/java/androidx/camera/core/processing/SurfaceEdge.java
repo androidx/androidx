@@ -315,7 +315,7 @@ public class SurfaceEdge {
     @NonNull
     public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(@NonNull Size inputSize,
             @CameraEffect.Formats int format, @NonNull Rect cropRect, int rotationDegrees,
-            boolean mirroring) {
+            boolean mirroring, @NonNull CameraInternal cameraInternal) {
         checkMainThread();
         checkNotClosed();
         checkAndSetHasConsumer();
@@ -330,7 +330,7 @@ public class SurfaceEdge {
                     }
                     SurfaceOutputImpl surfaceOutputImpl = new SurfaceOutputImpl(surface,
                             getTargets(), format, mStreamSpec.getResolution(), inputSize, cropRect,
-                            rotationDegrees, mirroring);
+                            rotationDegrees, mirroring, cameraInternal);
                     surfaceOutputImpl.getCloseFuture().addListener(
                             settableSurface::decrementUseCount,
                             directExecutor());
