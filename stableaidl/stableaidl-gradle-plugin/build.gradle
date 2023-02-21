@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.androidToolsRepository)
     implementation(libs.androidToolsSdkCommon)
     implementation(libs.apacheCommonIo)
+    implementation(libs.apacheAnt)
     implementation(libs.guava)
     implementation(libs.kotlinStdlib)
 

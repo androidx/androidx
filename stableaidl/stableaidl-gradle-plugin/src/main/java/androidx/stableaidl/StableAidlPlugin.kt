@@ -17,6 +17,7 @@
 package androidx.stableaidl
 
 import androidx.stableaidl.tasks.StableAidlCompile
+import com.android.build.api.dsl.SdkComponents
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.DslExtension
 import com.android.build.gradle.AppExtension
@@ -27,11 +28,13 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 
-private const val PLUGIN_DIRNAME = "stable-aidl"
+private const val PLUGIN_DIRNAME = "stable_aidl"
 private const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
+private const val INTERMEDIATES_PATH = "intermediates/${PLUGIN_DIRNAME}_parcelable"
 
 @Suppress("unused", "UnstableApiUsage")
 abstract class StableAidlPlugin : Plugin<Project> {
@@ -41,6 +44,8 @@ abstract class StableAidlPlugin : Plugin<Project> {
             ?: throw GradleException("Stable AIDL plugin requires Android Gradle Plugin")
         val base = project.extensions.getByType(BaseExtension::class.java)
             ?: throw GradleException("Stable AIDL plugin requires Android Gradle Plugin")
+        val aidlExecutable = androidComponents.sdkComponents.aidl(base)
+        val aidlFramework = androidComponents.sdkComponents.aidlFramework(base)
 
         // Extend the android sourceSet.
         androidComponents.registerSourceType(SOURCE_TYPE_STABLE_AIDL)
@@ -74,7 +79,11 @@ abstract class StableAidlPlugin : Plugin<Project> {
         androidComponents.onVariants { variant ->
             val sourceDir = variant.sources.getByName(SOURCE_TYPE_STABLE_AIDL)
             val importsDir = variant.sources.getByName(SOURCE_TYPE_STABLE_AIDL_IMPORTS)
-            val outputDir = project.layout.buildDirectory.dir("$GENERATED_PATH/${variant.name}")
+            val outputDir = project.layout.buildDirectory.dir(
+                "$GENERATED_PATH/${variant.name}")
+            val packagedDir = project.layout.buildDirectory.dir(
+                "$INTERMEDIATES_PATH/${variant.name}/out")
+
             val apiDirName = "$API_DIR/aidl${variant.name.usLocaleCapitalize()}"
             val builtApiDir = project.layout.buildDirectory.dir(apiDirName)
             val lastReleasedApiDir =
@@ -84,16 +93,28 @@ abstract class StableAidlPlugin : Plugin<Project> {
 
             val compileAidlApiTask = registerCompileAidlApi(
                 project,
-                base,
                 variant,
+                aidlExecutable,
+                aidlFramework,
                 sourceDir,
+                packagedDir,
                 importsDir,
                 outputDir
             )
+
+            // To avoid using the same output directory as AGP's AidlCompile task, we need to
+            // register a post-processing task to copy packaged parcelable headers into the AAR.
+            registerPackageAidlApi(
+                project,
+                variant,
+                compileAidlApiTask
+            )
+
             val generateAidlApiTask = registerGenerateAidlApi(
                 project,
-                base,
                 variant,
+                aidlExecutable,
+                aidlFramework,
                 sourceDir,
                 importsDir,
                 builtApiDir,
@@ -101,16 +122,18 @@ abstract class StableAidlPlugin : Plugin<Project> {
             )
             val checkAidlApiReleaseTask = registerCheckApiAidlRelease(
                 project,
-                base,
                 variant,
+                aidlExecutable,
+                aidlFramework,
                 importsDir,
                 lastReleasedApiDir,
                 generateAidlApiTask
             )
             registerCheckAidlApi(
                 project,
-                base,
                 variant,
+                aidlExecutable,
+                aidlFramework,
                 importsDir,
                 lastCheckedInApiDir,
                 generateAidlApiTask,
@@ -172,3 +195,21 @@ internal fun BaseExtension.onVariants(
         "androidx.stableaidl plugin must be used with Android app, library or feature plugin"
     )
 }
+
+internal fun SdkComponents.aidl(baseExtension: BaseExtension): Provider<RegularFile> =
+    sdkDirectory.map {
+        it.dir("build-tools").dir(baseExtension.buildToolsVersion).file(
+            if (java.lang.System.getProperty("os.name").startsWith("Windows")) {
+                "aidl.exe"
+            } else {
+                "aidl"
+            }
+        )
+    }
+
+internal fun SdkComponents.aidlFramework(baseExtension: BaseExtension): Provider<RegularFile> =
+    sdkDirectory.map {
+        it.dir("platforms")
+            .dir(baseExtension.compileSdkVersion!!)
+            .file("framework.aidl")
+    }

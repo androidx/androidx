@@ -16,17 +16,19 @@
 
 package androidx.stableaidl
 
+import androidx.stableaidl.tasks.StableAidlPackageApi
 import androidx.stableaidl.tasks.StableAidlCheckApi
 import androidx.stableaidl.tasks.StableAidlCompile
 import androidx.stableaidl.tasks.UpdateStableAidlApiTask
+import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.SourceDirectories
 import com.android.build.api.variant.Variant
-import com.android.build.gradle.BaseExtension
 import com.android.utils.usLocaleCapitalize
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 
@@ -35,9 +37,11 @@ private const val TASK_GROUP_API = "API"
 @Suppress("UnstableApiUsage") // SourceDirectories.Flat
 fun registerCompileAidlApi(
     project: Project,
-    baseExtension: BaseExtension,
     variant: Variant,
+    aidlExecutable: Provider<RegularFile>,
+    aidlFramework: Provider<RegularFile>,
     sourceDir: SourceDirectories.Flat,
+    packagedDir: Provider<Directory>,
     importsDir: SourceDirectories.Flat,
     outputDir: Provider<Directory>
 ): TaskProvider<StableAidlCompile> = project.tasks.register(
@@ -47,10 +51,11 @@ fun registerCompileAidlApi(
     task.group = TASK_GROUP_API
     task.description = "Compiles AIDL source code"
     task.variantName = variant.name
-    task.configureBuildToolsFrom(baseExtension)
-    task.configurePackageDirFrom(project, variant)
+    task.aidlExecutable.set(aidlExecutable)
+    task.aidlFrameworkProvider.set(aidlFramework)
     task.sourceDirs.set(sourceDir.all)
     task.sourceOutputDir.set(outputDir)
+    task.packagedDir.set(packagedDir)
     task.importDirs.set(importsDir.all)
     task.extraArgs.set(
         listOf(
@@ -59,11 +64,30 @@ fun registerCompileAidlApi(
     )
 }
 
+fun registerPackageAidlApi(
+    project: Project,
+    variant: Variant,
+    compileAidlApiTask: TaskProvider<StableAidlCompile>
+): TaskProvider<StableAidlPackageApi> = project.tasks.register(
+    computeTaskName("package", variant, "AidlApi"),
+    StableAidlPackageApi::class.java
+) { task ->
+    task.packagedDir.set(compileAidlApiTask.flatMap { it.packagedDir })
+}.also { taskProvider ->
+    variant.artifacts.use(taskProvider)
+        .wiredWithFiles(
+            StableAidlPackageApi::aarFile,
+            StableAidlPackageApi::updatedAarFile,
+        )
+        .toTransform(SingleArtifact.AAR)
+}
+
 @Suppress("UnstableApiUsage") // SourceDirectories.Flat
 fun registerGenerateAidlApi(
     project: Project,
-    baseExtension: BaseExtension,
     variant: Variant,
+    aidlExecutable: Provider<RegularFile>,
+    aidlFramework: Provider<RegularFile>,
     sourceDir: SourceDirectories.Flat,
     importsDir: SourceDirectories.Flat,
     builtApiDir: Provider<Directory>,
@@ -75,8 +99,8 @@ fun registerGenerateAidlApi(
     task.group = TASK_GROUP_API
     task.description = "Generates API files from AIDL source code"
     task.variantName = variant.name
-    task.configureBuildToolsFrom(baseExtension)
-    task.configurePackageDirFrom(project, variant)
+    task.aidlExecutable.set(aidlExecutable)
+    task.aidlFrameworkProvider.set(aidlFramework)
     task.sourceDirs.set(sourceDir.all)
     task.sourceOutputDir.set(builtApiDir)
     task.importDirs.set(importsDir.all)
@@ -95,8 +119,9 @@ fun registerGenerateAidlApi(
 @Suppress("UnstableApiUsage") // SourceDirectories.Flat
 fun registerCheckApiAidlRelease(
     project: Project,
-    baseExtension: BaseExtension,
     variant: Variant,
+    aidlExecutable: Provider<RegularFile>,
+    aidlFramework: Provider<RegularFile>,
     importsDir: SourceDirectories.Flat,
     lastReleasedApiDir: Directory,
     generateAidlTask: Provider<StableAidlCompile>
@@ -108,7 +133,8 @@ fun registerCheckApiAidlRelease(
     task.description = "Checks the AIDL source code API surface against the " +
         "stabilized AIDL API files"
     task.variantName = variant.name
-    task.configureBuildToolsFrom(baseExtension)
+    task.aidlExecutable.set(aidlExecutable)
+    task.aidlFrameworkProvider.set(aidlFramework)
     task.importDirs.set(importsDir.all)
     task.checkApiMode.set(StableAidlCheckApi.MODE_COMPATIBLE)
     task.expectedApiDir.set(lastReleasedApiDir)
@@ -123,8 +149,9 @@ fun registerCheckApiAidlRelease(
 @Suppress("UnstableApiUsage") // SourceDirectories.Flat
 fun registerCheckAidlApi(
     project: Project,
-    baseExtension: BaseExtension,
     variant: Variant,
+    aidlExecutable: Provider<RegularFile>,
+    aidlFramework: Provider<RegularFile>,
     importsDir: SourceDirectories.Flat,
     lastCheckedInApiFile: Directory,
     generateAidlTask: Provider<StableAidlCompile>,
@@ -137,7 +164,8 @@ fun registerCheckAidlApi(
     task.description = "Checks the AIDL source code API surface against the checked-in " +
         "AIDL API files"
     task.variantName = variant.name
-    task.configureBuildToolsFrom(baseExtension)
+    task.aidlExecutable.set(aidlExecutable)
+    task.aidlFrameworkProvider.set(aidlFramework)
     task.importDirs.set(importsDir.all)
     task.checkApiMode.set(StableAidlCheckApi.MODE_EQUAL)
     task.expectedApiDir.set(lastCheckedInApiFile)
