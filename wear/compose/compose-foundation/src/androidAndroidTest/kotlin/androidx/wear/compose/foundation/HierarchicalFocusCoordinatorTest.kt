@@ -33,6 +33,7 @@ import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalWearFoundationApi::class)
 class HierarchicalFocusCoordinatorTest {
     @get:Rule
     val rule = createComposeRule()
