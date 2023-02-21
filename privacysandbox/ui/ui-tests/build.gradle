@@ -23,8 +23,21 @@ plugins {
 }
 
 dependencies {
+    implementation project(path: ':privacysandbox:ui:ui-core')
+    implementation project(path: ':privacysandbox:ui:ui-client')
+    implementation project(path: ':privacysandbox:ui:ui-provider')
+    androidTestImplementation(project(":internal-testutils-runtime"))
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation project(path: ':appcompat:appcompat')
+    def multidex_version = "2.0.1"
+    implementation "androidx.multidex:multidex:$multidex_version"
 }
 
 android {
