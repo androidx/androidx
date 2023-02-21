@@ -91,6 +91,5 @@
     <attr name="protoLayoutFallbackTextAppearance" format="reference" />
     <attr name="protoLayoutTitleFont" format="reference" />
     <attr name="protoLayoutBodyFont" format="reference" />
-    <attr name="protoLayoutVendor1Font" format="reference" />
   </declare-styleable>
 </resources>
