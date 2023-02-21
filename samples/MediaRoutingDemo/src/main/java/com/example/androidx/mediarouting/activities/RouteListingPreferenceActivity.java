@@ -16,9 +16,9 @@
 
 package com.example.androidx.mediarouting.activities;
 
-import static com.example.androidx.mediarouting.RoutesManager.RouteListingPreferenceItem.FLAG_ONGOING_SESSION;
-import static com.example.androidx.mediarouting.RoutesManager.RouteListingPreferenceItem.FLAG_ONGOING_SESSION_MANAGED;
-import static com.example.androidx.mediarouting.RoutesManager.RouteListingPreferenceItem.FLAG_SUGGESTED;
+import static androidx.mediarouter.media.RouteListingPreference.Item.FLAG_ONGOING_SESSION;
+import static androidx.mediarouter.media.RouteListingPreference.Item.FLAG_ONGOING_SESSION_MANAGED;
+import static androidx.mediarouter.media.RouteListingPreference.Item.FLAG_SUGGESTED;
 
 import android.annotation.SuppressLint;
 import android.media.MediaRoute2Info;
@@ -41,12 +41,14 @@ import androidx.annotation.OptIn;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.os.BuildCompat;
+import androidx.mediarouter.media.RouteListingPreference;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.androidx.mediarouting.R;
 import com.example.androidx.mediarouting.RoutesManager;
+import com.example.androidx.mediarouting.RoutesManager.RouteListingPreferenceItemHolder;
 import com.example.androidx.mediarouting.ui.UiUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -121,7 +123,7 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
     // This method won't run before U due to checks in onCreate().
     @SuppressLint({"NewApi", "ClassVerificationFailure"})
     private void setUpRouteListingPreferenceItemEditionDialog(int itemPositionInList) {
-        List<RoutesManager.RouteListingPreferenceItem> routeListingPreference =
+        List<RouteListingPreferenceItemHolder> routeListingPreference =
                 mRoutesManager.getRouteListingPreferenceItems();
         List<MediaRoute2Info> routesWithNoAssociatedListingPreferenceItem =
                 getRoutesWithNoAssociatedListingPreferenceItem();
@@ -136,7 +138,7 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                         .inflate(R.layout.route_listing_preference_item_dialog, /* root= */ null);
 
         Spinner routeSpinner = dialogView.findViewById(R.id.rlp_item_dialog_route_name_spinner);
-        List<RoutesManager.RouteListingPreferenceItem> spinnerEntries = new ArrayList<>();
+        List<RouteListingPreferenceItemHolder> spinnerEntries = new ArrayList<>();
 
         CheckBox ongoingSessionCheckBox =
                 dialogView.findViewById(R.id.rlp_item_dialog_ongoing_session_checkbox);
@@ -149,25 +151,23 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
         UiUtils.setUpEnumBasedSpinner(
                 this,
                 subtextSpinner,
-                RoutesManager.RouteListingPreferenceItemSubtext.SUBTEXT_NONE,
+                RouteListingPreferenceItemSubtext.SUBTEXT_NONE,
                 (unused) -> {});
 
         if (itemPositionInList < routeListingPreference.size()) {
-            RoutesManager.RouteListingPreferenceItem itemToEdit =
+            RouteListingPreferenceItemHolder itemToEdit =
                     routeListingPreference.get(itemPositionInList);
             spinnerEntries.add(itemToEdit);
-            ongoingSessionCheckBox.setChecked((itemToEdit.mFlags & FLAG_ONGOING_SESSION) != 0);
-            sessionManagedCheckBox.setChecked(
-                    (itemToEdit.mFlags & FLAG_ONGOING_SESSION_MANAGED) != 0);
-            suggestedRouteCheckBox.setChecked((itemToEdit.mFlags & FLAG_SUGGESTED) != 0);
+            ongoingSessionCheckBox.setChecked(itemToEdit.hasFlag(FLAG_ONGOING_SESSION));
+            sessionManagedCheckBox.setChecked(itemToEdit.hasFlag(FLAG_ONGOING_SESSION_MANAGED));
+            suggestedRouteCheckBox.setChecked(itemToEdit.hasFlag(FLAG_SUGGESTED));
         }
         for (MediaRoute2Info mediaRoute2Info : routesWithNoAssociatedListingPreferenceItem) {
             spinnerEntries.add(
-                    new RoutesManager.RouteListingPreferenceItem(
-                            mediaRoute2Info.getId(),
-                            String.valueOf(mediaRoute2Info.getName()),
-                            /* flags= */ 0,
-                            RoutesManager.RouteListingPreferenceItemSubtext.SUBTEXT_NONE));
+                    new RouteListingPreferenceItemHolder(
+                            new RouteListingPreference.Item.Builder(mediaRoute2Info.getId())
+                                    .build(),
+                            String.valueOf(mediaRoute2Info.getName())));
         }
         routeSpinner.setAdapter(
                 new ArrayAdapter<>(
@@ -179,8 +179,8 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                         .setPositiveButton(
                                 "Accept",
                                 (unusedDialog, unusedWhich) -> {
-                                    RoutesManager.RouteListingPreferenceItem item =
-                                            (RoutesManager.RouteListingPreferenceItem)
+                                    RouteListingPreferenceItemHolder item =
+                                            (RouteListingPreferenceItemHolder)
                                                     routeSpinner.getSelectedItem();
                                     int flags = 0;
                                     flags |=
@@ -193,11 +193,14 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                                                     : 0;
                                     flags |=
                                             suggestedRouteCheckBox.isChecked() ? FLAG_SUGGESTED : 0;
-                                    RoutesManager.RouteListingPreferenceItemSubtext subtext =
-                                            (RoutesManager.RouteListingPreferenceItemSubtext)
+                                    RouteListingPreferenceItemSubtext subtext =
+                                            (RouteListingPreferenceItemSubtext)
                                                     subtextSpinner.getSelectedItem();
                                     onEditRlpItemDialogAccepted(
-                                            item.copyWithFlags(flags).copyWithSubtext(subtext),
+                                            item.mItem.getRouteId(),
+                                            item.mRouteName,
+                                            flags,
+                                            subtext.mConstant,
                                             itemPositionInList);
                                 })
                         .setNegativeButton("Dismiss", (unusedDialog, unusedWhich) -> {})
@@ -207,16 +210,22 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
     }
 
     private void onEditRlpItemDialogAccepted(
-            RoutesManager.RouteListingPreferenceItem routeListingPreferenceItem,
-            int itemPositionInList) {
-        ArrayList<RoutesManager.RouteListingPreferenceItem> newRouteListingPreference =
+            String routeId, String routeName, int flags, int subtext, int itemPositionInList) {
+        ArrayList<RouteListingPreferenceItemHolder> newRouteListingPreference =
                 new ArrayList<>(mRoutesManager.getRouteListingPreferenceItems());
         RecyclerView.Adapter<?> adapter = mRouteListingPreferenceRecyclerView.getAdapter();
+        RouteListingPreference.Item newItem =
+                new RouteListingPreference.Item.Builder(routeId)
+                        .setFlags(flags)
+                        .setSubText(subtext)
+                        .build();
+        RouteListingPreferenceItemHolder newItemAndNamePair =
+                new RouteListingPreferenceItemHolder(newItem, routeName);
         if (itemPositionInList < newRouteListingPreference.size()) {
-            newRouteListingPreference.set(itemPositionInList, routeListingPreferenceItem);
+            newRouteListingPreference.set(itemPositionInList, newItemAndNamePair);
             adapter.notifyItemChanged(itemPositionInList);
         } else {
-            newRouteListingPreference.add(routeListingPreferenceItem);
+            newRouteListingPreference.add(newItemAndNamePair);
             adapter.notifyItemInserted(itemPositionInList);
         }
         mRoutesManager.setRouteListingPreferenceItems(newRouteListingPreference);
@@ -231,7 +240,7 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
         }
         Set<String> routesWithAssociatedRouteListingPreferenceItem =
                 mRoutesManager.getRouteListingPreferenceItems().stream()
-                        .map(item -> item.mRouteId)
+                        .map(element -> element.mItem.getRouteId())
                         .collect(Collectors.toSet());
         List<MediaRoute2Info> availableRoutes =
                 MediaRouter2.getInstance(/* context= */ this).getRoutes();
@@ -277,7 +286,7 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            ArrayList<RoutesManager.RouteListingPreferenceItem> newRouteListingPreference =
+            ArrayList<RouteListingPreferenceItemHolder> newRouteListingPreference =
                     new ArrayList<>(mRoutesManager.getRouteListingPreferenceItems());
             int itemPosition = viewHolder.getBindingAdapterPosition();
             newRouteListingPreference.remove(itemPosition);
@@ -290,7 +299,7 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                 @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
             super.clearView(recyclerView, viewHolder);
             if (mDraggingFromPosition != INDEX_UNSET) {
-                ArrayList<RoutesManager.RouteListingPreferenceItem> newRouteListingPreference =
+                ArrayList<RouteListingPreferenceItemHolder> newRouteListingPreference =
                         new ArrayList<>(mRoutesManager.getRouteListingPreferenceItems());
                 newRouteListingPreference.add(
                         mDraggingToPosition,
@@ -343,6 +352,37 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             setUpRouteListingPreferenceItemEditionDialog(getBindingAdapterPosition());
+        }
+    }
+
+    private enum RouteListingPreferenceItemSubtext {
+        SUBTEXT_NONE(RouteListingPreference.Item.SUBTEXT_NONE, "None"),
+        SUBTEXT_ERROR_UNKNOWN(RouteListingPreference.Item.SUBTEXT_ERROR_UNKNOWN, "Unknown error"),
+        SUBTEXT_SUBSCRIPTION_REQUIRED(
+                RouteListingPreference.Item.SUBTEXT_SUBSCRIPTION_REQUIRED, "Subscription required"),
+        SUBTEXT_DOWNLOADED_CONTENT_ROUTING_DISALLOWED(
+                RouteListingPreference.Item.SUBTEXT_DOWNLOADED_CONTENT_ROUTING_DISALLOWED,
+                "Downloaded content disallowed"),
+        SUBTEXT_AD_ROUTING_DISALLOWED(
+                RouteListingPreference.Item.SUBTEXT_AD_ROUTING_DISALLOWED, "Ad in progress"),
+        SUBTEXT_DEVICE_LOW_POWER(
+                RouteListingPreference.Item.SUBTEXT_DEVICE_LOW_POWER, "Device in low power mode"),
+        SUBTEXT_UNAUTHORIZED(RouteListingPreference.Item.SUBTEXT_UNAUTHORIZED, "Unauthorized"),
+        SUBTEXT_TRACK_UNSUPPORTED(
+                RouteListingPreference.Item.SUBTEXT_TRACK_UNSUPPORTED, "Track unsupported");
+
+        public final int mConstant;
+        @NonNull public final String mHumanReadableString;
+
+        RouteListingPreferenceItemSubtext(int constant, @NonNull String humanReadableString) {
+            mConstant = constant;
+            mHumanReadableString = humanReadableString;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return mHumanReadableString;
         }
     }
 }
