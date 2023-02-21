@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.testing.emedding;
+package androidx.window.testing.embedding;
 
 import static androidx.window.embedding.SplitAttributes.SplitType.SPLIT_TYPE_HINGE;
 
@@ -26,7 +26,6 @@ import android.content.res.Configuration;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.window.core.ExperimentalWindowApi;
 import androidx.window.embedding.SplitAttributes;
@@ -35,11 +34,14 @@ import androidx.window.layout.DisplayFeature;
 import androidx.window.layout.FoldingFeature;
 import androidx.window.layout.WindowLayoutInfo;
 import androidx.window.layout.WindowMetrics;
-import androidx.window.testing.embedding.TestSplitAttributesCalculatorParams;
 import androidx.window.testing.layout.DisplayFeatureTesting;
 import androidx.window.testing.layout.WindowLayoutInfoTesting;
 
+import kotlin.OptIn;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +49,7 @@ import java.util.List;
 
 /** Test class to verify {@link TestSplitAttributesCalculatorParams} in Java. */
 @OptIn(markerClass = ExperimentalWindowApi.class)
+@RunWith(RobolectricTestRunner.class)
 public class SplitAttributesCalculatorParamsTestingJavaTest {
     private static final Rect TEST_BOUNDS = new Rect(0, 0, 2000, 2000);
     private static final WindowMetrics TEST_METRICS = new WindowMetrics(TEST_BOUNDS,
