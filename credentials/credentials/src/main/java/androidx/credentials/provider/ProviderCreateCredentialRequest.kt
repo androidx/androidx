@@ -34,9 +34,12 @@ import androidx.credentials.CreateCredentialRequest
  *
  * @throws NullPointerException If [callingRequest] is null
  * @throws NullPointerException If [callingAppInfo] is null
+ *
+ * Note : Credential providers are not expected to utilize the constructor in this class for any
+ * production flow. This constructor must only be used for testing purposes.
  */
 @RequiresApi(34)
-class ProviderCreateCredentialRequest internal constructor(
+class ProviderCreateCredentialRequest constructor(
     val callingRequest: CreateCredentialRequest,
     val callingAppInfo: CallingAppInfo
 )

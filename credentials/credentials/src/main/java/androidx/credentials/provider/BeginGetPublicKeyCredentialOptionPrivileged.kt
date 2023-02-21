@@ -42,9 +42,12 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * is null
  * @throws IllegalArgumentException If any of [requestJson], [relyingParty], or [clientDataHash]
  * is empty
+ *
+ * Note : Credential providers are not expected to utilize the constructor in this class for
+ * any production flow. This constructor must only be used for testing purposes.
  */
 @RequiresApi(34)
-class BeginGetPublicKeyCredentialOptionPrivileged internal constructor(
+class BeginGetPublicKeyCredentialOptionPrivileged constructor(
     candidateQueryData: Bundle,
     id: String,
     val requestJson: String,
