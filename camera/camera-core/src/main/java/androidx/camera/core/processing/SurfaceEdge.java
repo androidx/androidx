@@ -18,6 +18,7 @@ package androidx.camera.core.processing;
 
 import static androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
+import static androidx.camera.core.impl.utils.Threads.runOnMain;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.camera.core.impl.utils.futures.Futures.immediateFailedFuture;
@@ -485,14 +486,16 @@ public class SurfaceEdge {
      * returned SurfaceRequest will receive the rotation update by
      * {@link SurfaceRequest.TransformationInfoListener}.
      */
-    @MainThread
     public void setRotationDegrees(int rotationDegrees) {
-        checkMainThread();
-        if (mRotationDegrees == rotationDegrees) {
-            return;
-        }
-        mRotationDegrees = rotationDegrees;
-        notifyTransformationInfoUpdate();
+        // This method is not limited to the main thread because UseCase#setTargetRotation calls
+        // this method and can be called from a background thread.
+        runOnMain(() -> {
+            if (mRotationDegrees == rotationDegrees) {
+                return;
+            }
+            mRotationDegrees = rotationDegrees;
+            notifyTransformationInfoUpdate();
+        });
     }
 
     @MainThread
