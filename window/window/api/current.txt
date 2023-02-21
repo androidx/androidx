@@ -126,32 +126,16 @@ package androidx.window.embedding {
   public static final class SplitAttributes.LayoutDirection.Companion {
   }
 
-  public static class SplitAttributes.SplitType {
-    method public static final androidx.window.embedding.SplitAttributes.SplitType.ExpandContainersSplitType expandContainers();
-    method public static final androidx.window.embedding.SplitAttributes.SplitType.RatioSplitType ratio(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float ratio);
-    method public static final androidx.window.embedding.SplitAttributes.SplitType.HingeSplitType splitByHinge(optional androidx.window.embedding.SplitAttributes.SplitType fallbackSplitType);
-    method public static final androidx.window.embedding.SplitAttributes.SplitType.RatioSplitType splitEqually();
+  public static final class SplitAttributes.SplitType {
+    method public static androidx.window.embedding.SplitAttributes.SplitType ratio(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float ratio);
     field public static final androidx.window.embedding.SplitAttributes.SplitType.Companion Companion;
+    field public static final androidx.window.embedding.SplitAttributes.SplitType SPLIT_TYPE_EQUAL;
+    field public static final androidx.window.embedding.SplitAttributes.SplitType SPLIT_TYPE_EXPAND;
+    field public static final androidx.window.embedding.SplitAttributes.SplitType SPLIT_TYPE_HINGE;
   }
 
   public static final class SplitAttributes.SplitType.Companion {
-    method public androidx.window.embedding.SplitAttributes.SplitType.ExpandContainersSplitType expandContainers();
-    method public androidx.window.embedding.SplitAttributes.SplitType.RatioSplitType ratio(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float ratio);
-    method public androidx.window.embedding.SplitAttributes.SplitType.HingeSplitType splitByHinge(optional androidx.window.embedding.SplitAttributes.SplitType fallbackSplitType);
-    method public androidx.window.embedding.SplitAttributes.SplitType.RatioSplitType splitEqually();
-  }
-
-  public static final class SplitAttributes.SplitType.ExpandContainersSplitType extends androidx.window.embedding.SplitAttributes.SplitType {
-  }
-
-  public static final class SplitAttributes.SplitType.HingeSplitType extends androidx.window.embedding.SplitAttributes.SplitType {
-    method public androidx.window.embedding.SplitAttributes.SplitType getFallbackSplitType();
-    property public final androidx.window.embedding.SplitAttributes.SplitType fallbackSplitType;
-  }
-
-  public static final class SplitAttributes.SplitType.RatioSplitType extends androidx.window.embedding.SplitAttributes.SplitType {
-    method public float getRatio();
-    property public final float ratio;
+    method public androidx.window.embedding.SplitAttributes.SplitType ratio(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float ratio);
   }
 
   public final class SplitController {
