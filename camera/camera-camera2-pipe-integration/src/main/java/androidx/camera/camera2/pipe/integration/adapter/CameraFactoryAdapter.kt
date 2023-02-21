@@ -91,37 +91,7 @@ class CameraFactoryAdapter(
 
     override fun getCameraCoordinator(): CameraCoordinator? {
         // TODO(b/262772650): camera-pipe support for concurrent camera.
-        return object : CameraCoordinator {
-            override fun getConcurrentCameraSelectors(): MutableList<MutableList<CameraSelector>> {
-                return mutableListOf()
-            }
-
-            override fun getActiveConcurrentCameraSelectors(): MutableList<CameraSelector> {
-                return mutableListOf()
-            }
-
-            override fun setActiveConcurrentCameraSelectors(
-                cameraSelectors: MutableList<CameraSelector>
-            ) {
-            }
-
-            override fun getPairedConcurrentCameraId(cameraId: String): String? {
-                return null
-            }
-
-            override fun getCameraOperatingMode(): Int {
-                return CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
-            }
-
-            override fun setCameraOperatingMode(cameraOperatingMode: Int) {
-            }
-
-            override fun addListener(listener: CameraCoordinator.ConcurrentCameraModeListener) {
-            }
-
-            override fun removeListener(listener: CameraCoordinator.ConcurrentCameraModeListener) {
-            }
-        }
+        return null
     }
 
     override fun getCameraManager(): Any? = appComponent

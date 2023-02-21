@@ -16,17 +16,13 @@
 
 package androidx.camera.lifecycle;
 
-import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static java.util.Collections.emptyList;
 
-import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraCoordinator;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCase;
@@ -51,7 +47,6 @@ import java.util.Map;
 @SdkSuppress(minSdkVersion = 21)
 public final class LifecycleCameraRepositoryTest {
 
-    private CameraCoordinator mCameraCoordinator;
     private FakeLifecycleOwner mLifecycle;
     private LifecycleCameraRepository mRepository;
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
@@ -60,7 +55,6 @@ public final class LifecycleCameraRepositoryTest {
 
     @Before
     public void setUp() {
-        mCameraCoordinator = new FakeCameraCoordinator();
         mLifecycle = new FakeLifecycleOwner();
         mRepository = new LifecycleCameraRepository();
         CameraInternal camera = new FakeCamera(String.valueOf(mCameraId));
@@ -125,7 +119,7 @@ public final class LifecycleCameraRepositoryTest {
         LifecycleCamera lifecycleCamera = mRepository.createLifecycleCamera(mLifecycle,
                 mCameraUseCaseAdapter);
         mRepository.bindToLifecycleCamera(lifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
         // LifecycleCamera is inactive before the lifecycle state becomes ON_START.
         assertThat(lifecycleCamera.isActive()).isFalse();
     }
@@ -135,7 +129,7 @@ public final class LifecycleCameraRepositoryTest {
         LifecycleCamera lifecycleCamera = mRepository.createLifecycleCamera(mLifecycle,
                 mCameraUseCaseAdapter);
         mRepository.bindToLifecycleCamera(lifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
         mLifecycle.start();
         // LifecycleCamera is active after the lifecycle state becomes ON_START.
         assertThat(lifecycleCamera.isActive()).isTrue();
@@ -147,7 +141,7 @@ public final class LifecycleCameraRepositoryTest {
                 mCameraUseCaseAdapter);
         mLifecycle.start();
         mRepository.bindToLifecycleCamera(lifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
 
         // LifecycleCamera is active after binding a use case when lifecycle state is ON_START.
         assertThat(lifecycleCamera.isActive()).isTrue();
@@ -159,13 +153,13 @@ public final class LifecycleCameraRepositoryTest {
         LifecycleCamera lifecycleCamera0 = mRepository.createLifecycleCamera(
                 mLifecycle, mCameraUseCaseAdapter);
         mRepository.bindToLifecycleCamera(lifecycleCamera0, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
 
         // Creates second LifecycleCamera with use case bound to the same Lifecycle.
         LifecycleCamera lifecycleCamera1 = mRepository.createLifecycleCamera(mLifecycle,
                 createNewCameraUseCaseAdapter());
         mRepository.bindToLifecycleCamera(lifecycleCamera1, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
     }
 
     @Test
@@ -176,7 +170,7 @@ public final class LifecycleCameraRepositoryTest {
         mLifecycle.start();
         FakeUseCase useCase = new FakeUseCase();
         mRepository.bindToLifecycleCamera(lifecycleCamera, null, emptyList(),
-                Collections.singletonList(useCase), mCameraCoordinator);
+                Collections.singletonList(useCase));
 
         // Unbinds the use case that was bound previously.
         mRepository.unbind(Collections.singletonList(useCase));
@@ -195,7 +189,7 @@ public final class LifecycleCameraRepositoryTest {
         FakeUseCase useCase0 = new FakeUseCase();
         FakeUseCase useCase1 = new FakeUseCase();
         mRepository.bindToLifecycleCamera(lifecycleCamera, null, emptyList(),
-                Arrays.asList(useCase0, useCase1), mCameraCoordinator);
+                Arrays.asList(useCase0, useCase1));
 
         // Only unbinds one use case but another one is kept in the LifecycleCamera.
         mRepository.unbind(Collections.singletonList(useCase0));
@@ -212,7 +206,7 @@ public final class LifecycleCameraRepositoryTest {
                 mCameraUseCaseAdapter);
         mLifecycle.start();
         mRepository.bindToLifecycleCamera(lifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
 
         // Unbinds all use cases from all LifecycleCamera by the unbindAll() API.
         mRepository.unbindAll();
@@ -228,7 +222,7 @@ public final class LifecycleCameraRepositoryTest {
                 mCameraUseCaseAdapter);
         mLifecycle.start();
         mRepository.bindToLifecycleCamera(lifecycleCamera0, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
 
         // Starts second lifecycle with use case bound.
         FakeLifecycleOwner lifecycle1 = new FakeLifecycleOwner();
@@ -236,7 +230,7 @@ public final class LifecycleCameraRepositoryTest {
                 createNewCameraUseCaseAdapter());
         lifecycle1.start();
         mRepository.bindToLifecycleCamera(lifecycleCamera1, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
 
         // The previous LifecycleCamera becomes inactive after new LifecycleCamera becomes active.
         assertThat(lifecycleCamera0.isActive()).isFalse();
@@ -251,7 +245,7 @@ public final class LifecycleCameraRepositoryTest {
                 mCameraUseCaseAdapter);
         mLifecycle.start();
         mRepository.bindToLifecycleCamera(lifecycleCamera0, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
 
         // Starts second lifecycle with use case bound.
         FakeLifecycleOwner lifecycle1 = new FakeLifecycleOwner();
@@ -259,11 +253,11 @@ public final class LifecycleCameraRepositoryTest {
                 createNewCameraUseCaseAdapter());
         lifecycle1.start();
         mRepository.bindToLifecycleCamera(lifecycleCamera1, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
 
         // Binds new use case to the next most recent active LifecycleCamera.
         mRepository.bindToLifecycleCamera(lifecycleCamera0, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
 
         // The next most recent active LifecycleCamera becomes active after binding new use case.
         assertThat(lifecycleCamera0.isActive()).isTrue();
@@ -279,7 +273,7 @@ public final class LifecycleCameraRepositoryTest {
                 mCameraUseCaseAdapter);
         mLifecycle.start();
         mRepository.bindToLifecycleCamera(lifecycleCamera0, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
 
         // Starts second lifecycle with use case bound.
         FakeLifecycleOwner lifecycle1 = new FakeLifecycleOwner();
@@ -288,7 +282,7 @@ public final class LifecycleCameraRepositoryTest {
         lifecycle1.start();
         FakeUseCase useCase = new FakeUseCase();
         mRepository.bindToLifecycleCamera(lifecycleCamera1, null, emptyList(),
-                Collections.singletonList(useCase), mCameraCoordinator);
+                Collections.singletonList(useCase));
 
         // Unbinds use case from the most recent active LifecycleCamera.
         mRepository.unbind(Collections.singletonList(useCase));
@@ -307,7 +301,7 @@ public final class LifecycleCameraRepositoryTest {
                 mLifecycle, mCameraUseCaseAdapter);
         FakeUseCase useCase = new FakeUseCase();
         mRepository.bindToLifecycleCamera(lifecycleCamera, null, emptyList(),
-                Collections.singletonList(useCase), mCameraCoordinator);
+                Collections.singletonList(useCase));
 
         assertThat(useCase.isDetached()).isFalse();
 
@@ -330,7 +324,7 @@ public final class LifecycleCameraRepositoryTest {
         LifecycleCamera firstLifecycleCamera = mRepository.createLifecycleCamera(
                 mLifecycle, mCameraUseCaseAdapter);
         mRepository.bindToLifecycleCamera(firstLifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
         mLifecycle.start();
         assertThat(firstLifecycleCamera.isActive()).isTrue();
 
@@ -339,7 +333,7 @@ public final class LifecycleCameraRepositoryTest {
         LifecycleCamera secondLifecycleCamera = mRepository.createLifecycleCamera(secondLifecycle,
                 createNewCameraUseCaseAdapter());
         mRepository.bindToLifecycleCamera(secondLifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
         secondLifecycle.start();
         assertThat(secondLifecycleCamera.isActive()).isTrue();
         assertThat(firstLifecycleCamera.isActive()).isFalse();
@@ -351,7 +345,7 @@ public final class LifecycleCameraRepositoryTest {
         LifecycleCamera firstLifecycleCamera = mRepository.createLifecycleCamera(
                 mLifecycle, mCameraUseCaseAdapter);
         mRepository.bindToLifecycleCamera(firstLifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
         mLifecycle.start();
         assertThat(firstLifecycleCamera.isActive()).isTrue();
 
@@ -360,7 +354,7 @@ public final class LifecycleCameraRepositoryTest {
         LifecycleCamera secondLifecycleCamera = mRepository.createLifecycleCamera(secondLifecycle,
                 createNewCameraUseCaseAdapter());
         mRepository.bindToLifecycleCamera(secondLifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
         secondLifecycle.start();
         assertThat(secondLifecycleCamera.isActive()).isTrue();
         assertThat(firstLifecycleCamera.isActive()).isFalse();
@@ -377,7 +371,7 @@ public final class LifecycleCameraRepositoryTest {
         LifecycleCamera firstLifecycleCamera = mRepository.createLifecycleCamera(
                 mLifecycle, mCameraUseCaseAdapter);
         mRepository.bindToLifecycleCamera(firstLifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
         mLifecycle.start();
         assertThat(firstLifecycleCamera.isActive()).isTrue();
 
@@ -404,7 +398,7 @@ public final class LifecycleCameraRepositoryTest {
         LifecycleCamera lifecycleCamera1 = mRepository.createLifecycleCamera(
                 mLifecycle, createNewCameraUseCaseAdapter());
         mRepository.bindToLifecycleCamera(lifecycleCamera1, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
 
         // Starts third LifecycleCamera with no use case bound to the same Lifecycle.
         LifecycleCamera lifecycleCamera2 = mRepository.createLifecycleCamera(
@@ -459,7 +453,7 @@ public final class LifecycleCameraRepositoryTest {
         LifecycleCamera lifecycleCamera = mRepository.createLifecycleCamera(
                 mLifecycle, mCameraUseCaseAdapter);
         mRepository.bindToLifecycleCamera(lifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+                Collections.singletonList(new FakeUseCase()));
         mLifecycle.start();
         assertThat(lifecycleCamera.isActive()).isTrue();
 
@@ -468,113 +462,6 @@ public final class LifecycleCameraRepositoryTest {
 
         // This will be called when an ON_STOP event is received.
         mRepository.setInactive(mLifecycle);
-    }
-
-    @Test
-    public void concurrentModeOn_twoLifecycleCamerasControlledByOneLifecycle_start() {
-        mCameraCoordinator.setCameraOperatingMode(CAMERA_OPERATING_MODE_CONCURRENT);
-
-        // Starts first lifecycle camera
-        LifecycleCamera lifecycleCamera0 = mRepository.createLifecycleCamera(mLifecycle,
-                mCameraUseCaseAdapter);
-        mRepository.bindToLifecycleCamera(lifecycleCamera0, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
-
-        // Starts second lifecycle camera
-        LifecycleCamera lifecycleCamera1 = mRepository.createLifecycleCamera(mLifecycle,
-                createNewCameraUseCaseAdapter());
-        mRepository.bindToLifecycleCamera(lifecycleCamera1, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
-
-        // Starts lifecycle
-        mLifecycle.start();
-
-        // Both cameras are active in concurrent mode
-        assertThat(lifecycleCamera0.isActive()).isTrue();
-        assertThat(lifecycleCamera1.isActive()).isTrue();
-    }
-
-    @Test
-    public void concurrentModeOn_twoLifecycleCamerasControlledByTwoLifecycles_start() {
-        mCameraCoordinator.setCameraOperatingMode(CAMERA_OPERATING_MODE_CONCURRENT);
-
-        // Starts first lifecycle camera
-        LifecycleCamera lifecycleCamera0 = mRepository.createLifecycleCamera(mLifecycle,
-                mCameraUseCaseAdapter);
-        mRepository.bindToLifecycleCamera(lifecycleCamera0, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
-
-        // Starts lifecycle
-        mLifecycle.start();
-
-        // Starts second lifecycle camera
-        FakeLifecycleOwner lifecycle1 = new FakeLifecycleOwner();
-        LifecycleCamera lifecycleCamera1 = mRepository.createLifecycleCamera(lifecycle1,
-                createNewCameraUseCaseAdapter());
-        mRepository.bindToLifecycleCamera(lifecycleCamera1, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
-
-        // Starts lifecycle1
-        lifecycle1.start();
-
-        // Both cameras are active in concurrent mode
-        assertThat(lifecycleCamera0.isActive()).isTrue();
-        assertThat(lifecycleCamera1.isActive()).isTrue();
-    }
-
-    @Test
-    public void concurrentModeOn_twoLifecycleCamerasControlledByOneLifecycle_stop() {
-        mCameraCoordinator.setCameraOperatingMode(CAMERA_OPERATING_MODE_CONCURRENT);
-
-        // Starts first lifecycle camera
-        LifecycleCamera firstLifecycleCamera = mRepository.createLifecycleCamera(
-                mLifecycle, mCameraUseCaseAdapter);
-        mRepository.bindToLifecycleCamera(firstLifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
-
-        // Starts second lifecycle camera
-        LifecycleCamera secondLifecycleCamera = mRepository.createLifecycleCamera(mLifecycle,
-                createNewCameraUseCaseAdapter());
-        mRepository.bindToLifecycleCamera(secondLifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
-
-        // Starts lifecycle
-        mLifecycle.start();
-        assertThat(secondLifecycleCamera.isActive()).isTrue();
-        assertThat(firstLifecycleCamera.isActive()).isTrue();
-
-        // Stops lifecycle
-        mLifecycle.stop();
-        assertThat(secondLifecycleCamera.isActive()).isFalse();
-        assertThat(firstLifecycleCamera.isActive()).isFalse();
-    }
-
-    @Test
-    public void concurrentModeOn_twoLifecycleCamerasControlledByTwoLifecycles_stop() {
-        mCameraCoordinator.setCameraOperatingMode(CAMERA_OPERATING_MODE_CONCURRENT);
-
-        // Starts first lifecycle camera
-        LifecycleCamera firstLifecycleCamera = mRepository.createLifecycleCamera(
-                mLifecycle, mCameraUseCaseAdapter);
-        mRepository.bindToLifecycleCamera(firstLifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
-        mLifecycle.start();
-        assertThat(firstLifecycleCamera.isActive()).isTrue();
-
-        // Starts second lifecycle camera
-        FakeLifecycleOwner secondLifecycle = new FakeLifecycleOwner();
-        LifecycleCamera secondLifecycleCamera = mRepository.createLifecycleCamera(secondLifecycle,
-                createNewCameraUseCaseAdapter());
-        mRepository.bindToLifecycleCamera(secondLifecycleCamera, null, emptyList(),
-                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
-        secondLifecycle.start();
-        assertThat(secondLifecycleCamera.isActive()).isTrue();
-        assertThat(firstLifecycleCamera.isActive()).isTrue();
-
-        // Stops lifecycle
-        secondLifecycle.stop();
-        assertThat(secondLifecycleCamera.isActive()).isFalse();
-        assertThat(firstLifecycleCamera.isActive()).isTrue();
     }
 
     private CameraUseCaseAdapter createNewCameraUseCaseAdapter() {
