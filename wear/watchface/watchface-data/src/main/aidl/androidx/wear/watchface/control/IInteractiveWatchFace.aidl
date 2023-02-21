@@ -17,10 +17,10 @@
 package androidx.wear.watchface.control;
 
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
+import androidx.wear.watchface.control.IRemoteWatchFaceView;
 import androidx.wear.watchface.control.IWatchfaceListener;
 import androidx.wear.watchface.control.IWatchfaceReadyListener;
 import androidx.wear.watchface.control.data.WatchFaceRenderParams;
-import androidx.wear.watchface.control.data.WatchFaceSurfaceRenderParams;
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
 import androidx.wear.watchface.data.WatchFaceOverlayStyleWireFormat;
@@ -225,10 +225,14 @@ interface IInteractiveWatchFace {
     long getComplicationIdAt(in int xPos, in int yPos) = 23;
 
     /**
-     * Request to render the watch face into a surface.
+     * Request to create a RemoteWatchFaceView which can be used to render screenshots to a
+     * view in the caller.
      *
      * @since API version 9.
-     * @param params The {@link WatchFaceSurfaceRenderParams} for this screenshot.
+     * @param hostToken The return value of {@link View#getHostToken()}.
+     * @param width The width of the view in pixels
+     * @param height The height of the view in pixels
      */
-    oneway void renderWatchFaceToSurface(in WatchFaceSurfaceRenderParams params) = 24;
+    IRemoteWatchFaceView createRemoteWatchFaceView(
+        in IBinder hostToken, in int width, in int height) = 24;
 }
