@@ -259,6 +259,46 @@ class LibraryVersionsServiceTest {
     }
 
     @Test
+    fun duplicateGroupIdsWithoutOverrideInclude() {
+        val service = createLibraryVersionsService(
+            """
+            [versions]
+            V1 = "1.2.3"
+            [groups]
+            G1 = { group = "g.g1", atomicGroupVersion = "versions.V1" }
+            G2 = { group = "g.g1", atomicGroupVersion = "versions.V1" }
+            """
+        )
+
+        assertThrows<Exception> {
+            service.libraryGroupsByGroupId["g.g1"]
+        }.hasMessageThat().contains(
+            "Duplicate library group g.g1 defined in G2 does not set overrideInclude. Declarations beyond the first can only have an effect if they set overrideInclude"
+        )
+    }
+
+    @Test
+    fun duplicateGroupIdsWithOverrideInclude() {
+        val service = createLibraryVersionsService(
+            """
+            [versions]
+            V1 = "1.2.3"
+            [groups]
+            G1 = { group = "g.g1", atomicGroupVersion = "versions.V1" }
+            G2 = { group = "g.g1", atomicGroupVersion = "versions.V1", overrideInclude = ["sample"] }
+            """
+        )
+
+        assertThat(
+            service.libraryGroupsByGroupId["g.g1"]
+        ).isEqualTo(
+            LibraryGroup(
+                group = "g.g1", atomicGroupVersion = Version("1.2.3")
+            )
+        )
+    }
+
+    @Test
     fun androidxExtension_noAtomicGroup() {
         runAndroidExtensionTest(
             projectPath = "myGroup:project1",
