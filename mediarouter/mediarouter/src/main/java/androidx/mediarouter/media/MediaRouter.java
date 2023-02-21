@@ -45,12 +45,14 @@ import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.hardware.display.DisplayManagerCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.VolumeProviderCompat;
@@ -1019,6 +1021,41 @@ public final class MediaRouter {
     public void setRouterParams(@Nullable MediaRouterParams params) {
         checkCallingThread();
         getGlobalRouter().setRouterParams(params);
+    }
+
+    /**
+     * Sets the {@link RouteListingPreference} of the app associated to this media router.
+     *
+     * <p>This method does nothing on devices running API 33 or older.
+     *
+     * <p>Use this method to inform the system UI of the routes that you would like to list for
+     * media routing, via the Output Switcher.
+     *
+     * <p>You should call this method immediately after creating an instance and immediately after
+     * receiving any {@link Callback route list changes} in order to keep the system UI in a
+     * consistent state. You can also call this method at any other point to update the listing
+     * preference dynamically (which reflect in the system's Output Switcher).
+     *
+     * <p>Notes:
+     *
+     * <ul>
+     *   <li>You should not include the ids of two or more routes with a match in their {@link
+     *       MediaRouteDescriptor#getDeduplicationIds() deduplication ids}. If you do, the system
+     *       will deduplicate them using its own criteria.
+     *   <li>You can use this method to rank routes in the output switcher, placing the more
+     *       important routes first. The system might override the proposed ranking.
+     *   <li>You can use this method to change how routes are listed using dynamic criteria. For
+     *       example, you can disable routing while an {@link
+     *       RouteListingPreference.Item#SUBTEXT_AD_ROUTING_DISALLOWED ad is playing}).
+     * </ul>
+     *
+     * @param routeListingPreference The {@link RouteListingPreference} for the system to use for
+     *     route listing. When null, the system uses its default listing criteria.
+     */
+    @MainThread
+    public void setRouteListingPreference(@Nullable RouteListingPreference routeListingPreference) {
+        checkCallingThread();
+        getGlobalRouter().setRouteListingPreference(routeListingPreference);
     }
 
     /**
@@ -2645,6 +2682,8 @@ public final class MediaRouter {
             mRegisteredProviderWatcher.stop();
             mActiveScanThrottlingHelper.reset();
 
+            setRouteListingPreference(null);
+
             setMediaSessionCompat(null);
             for (RemoteControlClientRecord record : mRemoteControlClients) {
                 record.disconnect();
@@ -2787,6 +2826,14 @@ public final class MediaRouter {
                 }
             }
             mCallbackHandler.post(CallbackHandler.MSG_ROUTER_PARAMS_CHANGED, params);
+        }
+
+        @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+        public void setRouteListingPreference(
+                @Nullable RouteListingPreference routeListingPreference) {
+            if (mMr2Provider != null && BuildCompat.isAtLeastU()) {
+                mMr2Provider.setRouteListingPreference(routeListingPreference);
+            }
         }
 
         @Nullable

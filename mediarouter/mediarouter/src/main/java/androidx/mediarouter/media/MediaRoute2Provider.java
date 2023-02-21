@@ -44,6 +44,7 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -83,7 +84,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
     private List<MediaRoute2Info> mRoutes = new ArrayList<>();
     private Map<String, String> mRouteIdToOriginalRouteIdMap = new ArrayMap<>();
 
-    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"SyntheticAccessor"})
     MediaRoute2Provider(@NonNull Context context, @NonNull Callback callback) {
         super(context);
@@ -361,6 +362,16 @@ class MediaRoute2Provider extends MediaRouteProvider {
                 .addControlCategories(controlCategories)
                 .build();
         return new MediaRouteDiscoveryRequest(selector, request.isActiveScan());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    /* package */ void setRouteListingPreference(
+            @Nullable RouteListingPreference routeListingPreference) {
+        Api34Impl.setPlatformRouteListingPreference(
+                mMediaRouter2,
+                routeListingPreference != null
+                        ? routeListingPreference.toPlatformRouteListingPreference()
+                        : null);
     }
 
     abstract static class Callback {
@@ -711,6 +722,20 @@ class MediaRoute2Provider extends MediaRouteProvider {
                         break;
                 }
             }
+        }
+    }
+
+    @RequiresApi(34)
+    private static class Api34Impl {
+        private Api34Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setPlatformRouteListingPreference(
+                @NonNull MediaRouter2 mediaRouter2,
+                @Nullable android.media.RouteListingPreference routeListingPreference) {
+            mediaRouter2.setRouteListingPreference(routeListingPreference);
         }
     }
 }
