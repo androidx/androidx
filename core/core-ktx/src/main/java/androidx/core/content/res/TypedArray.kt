@@ -26,6 +26,9 @@ import androidx.annotation.Dimension
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.StyleableRes
+import kotlin.contracts.contract
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 
 private fun TypedArray.checkAttribute(@StyleableRes index: Int) {
     if (!hasValue(index)) {
@@ -229,7 +232,12 @@ public fun TypedArray.getTextArrayOrThrow(@StyleableRes index: Int): Array<CharS
  *
  * @see kotlin.io.use
  */
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
 public inline fun <R> TypedArray.use(block: (TypedArray) -> R): R {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
     return block(this).also {
         recycle()
     }

@@ -16,7 +16,11 @@
 
 package androidx.core.content.res
 
+import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.Color
+import android.util.AttributeSet
+import android.view.View
 import androidx.core.getAttributeSet
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -30,7 +34,7 @@ import org.junit.Test
 
 @SmallTest
 class TypedArrayTest {
-    private val context = ApplicationProvider.getApplicationContext() as android.content.Context
+    private val context = ApplicationProvider.getApplicationContext() as Context
 
     @Test fun boolean() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
@@ -214,15 +218,23 @@ class TypedArrayTest {
     @SdkSuppress(minSdkVersion = 21) // No easy way to verify pre-21.
     @Test fun useRecyclesArray() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
-        val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
+        val customView = CustomView(context, attrs)
 
-        val result = array.use {
-            it.getBoolean(R.styleable.TypedArrayTypes_boolean_present, false)
-        }
-        assertTrue(result)
+        assertTrue(customView.result)
 
         assertThrows<RuntimeException> {
-            array.recycle()
+            customView.array.recycle()
+        }
+    }
+
+    class CustomView(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
+        val array: TypedArray = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
+        val result: Boolean
+
+        init {
+            array.use {
+                result = it.getBoolean(R.styleable.TypedArrayTypes_boolean_present, false)
+            }
         }
     }
 }
