@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import kotlin.math.roundToInt
@@ -73,6 +74,7 @@ import kotlinx.coroutines.coroutineScope
  * The integer parameter to the composable depicts the index where it will be kept. For example, 0
  * would represent the separator between the first and second picker.
  */
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 public fun PickerGroup(
     vararg pickers: PickerGroupItem,
