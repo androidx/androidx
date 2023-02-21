@@ -22,6 +22,9 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.core.concurrent.CameraCoordinator
+import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT
+import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_SINGLE
+import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -60,11 +63,11 @@ class Camera2CameraCoordinatorTest {
         fakeCameraImpl.addCamera("0", cameraCharacteristics0)
         fakeCameraImpl.addCamera("1", cameraCharacteristics1)
         cameraCoordinator = Camera2CameraCoordinator(CameraManagerCompat.from(fakeCameraImpl))
-        cameraCoordinator.init()
     }
 
     @Test
     fun getConcurrentCameraSelectors() {
+        cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
         assertThat(cameraCoordinator.concurrentCameraSelectors).isNotEmpty()
         assertThat(cameraCoordinator.concurrentCameraSelectors[0]).isNotEmpty()
         assertThat(cameraCoordinator.concurrentCameraSelectors[0][0].lensFacing)
@@ -81,26 +84,30 @@ class Camera2CameraCoordinatorTest {
 
     @Test
     fun setAndIsConcurrentCameraMode() {
-        assertThat(cameraCoordinator.isConcurrentCameraModeOn).isFalse()
-        cameraCoordinator.setConcurrentCameraMode(true)
-        assertThat(cameraCoordinator.isConcurrentCameraModeOn).isTrue()
-        cameraCoordinator.setConcurrentCameraMode(false)
-        assertThat(cameraCoordinator.isConcurrentCameraModeOn).isFalse()
+        assertThat(cameraCoordinator.cameraOperatingMode).isEqualTo(
+            CAMERA_OPERATING_MODE_UNSPECIFIED)
+        cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        assertThat(cameraCoordinator.cameraOperatingMode).isEqualTo(
+            CAMERA_OPERATING_MODE_CONCURRENT)
+        cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
+        assertThat(cameraCoordinator.cameraOperatingMode).isEqualTo(
+            CAMERA_OPERATING_MODE_SINGLE)
     }
 
     @Test
     fun addAndRemoveListener() {
         val listener = mock(CameraCoordinator.ConcurrentCameraModeListener::class.java)
         cameraCoordinator.addListener(listener)
-        cameraCoordinator.setConcurrentCameraMode(true)
-        verify(listener).notifyConcurrentCameraModeUpdated(true)
-        cameraCoordinator.setConcurrentCameraMode(false)
-        verify(listener).notifyConcurrentCameraModeUpdated(false)
+        cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        verify(listener).notifyConcurrentCameraModeUpdated(CAMERA_OPERATING_MODE_CONCURRENT)
+        cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
+        verify(listener).notifyConcurrentCameraModeUpdated(CAMERA_OPERATING_MODE_SINGLE)
 
         reset(listener)
         cameraCoordinator.removeListener(listener)
-        cameraCoordinator.setConcurrentCameraMode(true)
-        verify(listener, never()).notifyConcurrentCameraModeUpdated(true)
+        cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        verify(listener, never()).notifyConcurrentCameraModeUpdated(
+            CAMERA_OPERATING_MODE_CONCURRENT)
     }
 
     private class FakeCameraManagerImpl : CameraManagerCompat.CameraManagerCompatImpl {
