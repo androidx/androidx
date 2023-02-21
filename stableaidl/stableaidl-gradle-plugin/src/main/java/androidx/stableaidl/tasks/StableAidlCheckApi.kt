@@ -18,9 +18,6 @@ package androidx.stableaidl.tasks
 
 import androidx.stableaidl.internal.LoggerWrapper
 import androidx.stableaidl.internal.process.GradleProcessExecutor
-import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.internal.BuildToolsExecutableInput
-import com.android.build.gradle.internal.services.getBuildService
 import com.android.ide.common.process.LoggedProcessOutputHandler
 import com.google.common.annotations.VisibleForTesting
 import java.io.File
@@ -33,14 +30,12 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -66,10 +61,13 @@ abstract class StableAidlCheckApi : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val importDirs: ListProperty<Directory>
 
-    @InputFile
-    @PathSensitive(PathSensitivity.NONE)
-    fun getAidlFrameworkProvider(): Provider<File> =
-        buildTools.aidlFrameworkProvider()
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val aidlFrameworkProvider: RegularFileProperty
+
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val aidlExecutable: RegularFileProperty
 
     // We cannot use InputDirectory here because the directory may not exist yet.
     @get:InputFiles
@@ -83,9 +81,6 @@ abstract class StableAidlCheckApi : DefaultTask() {
     @get:Input
     abstract val checkApiMode: Property<String>
 
-    @get:Nested
-    abstract val buildTools: BuildToolsExecutableInput
-
     @get:Input
     @get:Optional
     abstract val failOnMissingExpected: Property<Boolean>
@@ -97,23 +92,8 @@ abstract class StableAidlCheckApi : DefaultTask() {
     @get:Inject
     abstract val workerExecutor: WorkerExecutor
 
-    /**
-     * Configures build tools based on AGP's [BaseExtension].
-     */
-    fun configureBuildToolsFrom(baseExtension: BaseExtension) {
-        buildTools.buildToolsRevision.set(baseExtension.buildToolsRevision)
-        buildTools.compileSdkVersion.set(baseExtension.compileSdkVersion)
-        buildTools.sdkBuildService.set(getBuildService(project.gradle.sharedServices))
-    }
-
     @TaskAction
     fun checkApi() {
-        val aidlExecutable = buildTools
-            .aidlExecutableProvider()
-            .get()
-            .absoluteFile
-        val frameworkLocation = getAidlFrameworkProvider().get().absoluteFile
-
         val checkApiMode = checkApiMode.get()
         val expectedApiDir = expectedApiDir.get()
         val actualApiDir = actualApiDir.get()
@@ -133,8 +113,8 @@ abstract class StableAidlCheckApi : DefaultTask() {
 
         aidlCheckApiDelegate(
             workerExecutor,
-            aidlExecutable,
-            frameworkLocation,
+            aidlExecutable.get().asFile,
+            aidlFrameworkProvider.get().asFile,
             extraArgs,
             importDirs.get()
         )
