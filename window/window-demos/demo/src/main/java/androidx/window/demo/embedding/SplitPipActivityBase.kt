@@ -35,6 +35,7 @@ import androidx.window.embedding.ActivityFilter
 import androidx.window.embedding.EmbeddingRule
 import androidx.window.embedding.RuleController
 import androidx.window.embedding.SplitAttributes
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitPairFilter
 import androidx.window.embedding.SplitPairRule
@@ -109,8 +110,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                         var isInSplit = false
                         for (info in newSplitInfos) {
                             if (info.contains(this@SplitPipActivityBase) &&
-                                info.splitAttributes.splitType !is
-                                    SplitAttributes.SplitType.ExpandContainersSplitType
+                                info.splitAttributes.splitType == SPLIT_TYPE_EXPAND
                             ) {
                                 isInSplit = true
                                 break

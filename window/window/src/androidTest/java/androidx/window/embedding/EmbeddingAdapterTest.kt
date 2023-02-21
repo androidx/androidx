@@ -29,8 +29,10 @@ import androidx.window.core.PredicateAdapter
 import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_ACTIVITY_STACK_TOKEN
 import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_SPLIT_INFO_TOKEN
 import androidx.window.embedding.SplitAttributes.SplitType
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
+import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Assert.assertEquals
@@ -61,7 +63,7 @@ class EmbeddingAdapterTest {
             ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
             ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
             SplitAttributes.Builder()
-                .setSplitType(SplitType.splitEqually())
+                .setSplitType(SplitType.SPLIT_TYPE_EQUAL)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
                 .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.DEFAULT)
                 .build(),
@@ -85,7 +87,7 @@ class EmbeddingAdapterTest {
             ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
             ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
             SplitAttributes.Builder()
-                .setSplitType(SplitType.expandContainers())
+                .setSplitType(SplitType.SPLIT_TYPE_EXPAND)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
                 .build(),
             INVALID_SPLIT_INFO_TOKEN,
@@ -127,11 +129,8 @@ class EmbeddingAdapterTest {
             createTestOEMActivityStack(ArrayList(), true),
             createTestOEMActivityStack(ArrayList(), true),
             OEMSplitAttributes.Builder()
-                .setSplitType(
-                    OEMSplitAttributes.SplitType.HingeSplitType(
-                        OEMSplitAttributes.SplitType.RatioSplitType(0.3f)
-                    )
-                ).setLayoutDirection(TOP_TO_BOTTOM)
+                .setSplitType(OEMSplitAttributes.SplitType.HingeSplitType(RatioSplitType(0.5f)))
+                .setLayoutDirection(TOP_TO_BOTTOM)
                 .setAnimationBackgroundColor(Color.YELLOW)
                 .build(),
         )
@@ -139,7 +138,7 @@ class EmbeddingAdapterTest {
             ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
             ActivityStack(ArrayList(), isEmpty = true, INVALID_ACTIVITY_STACK_TOKEN),
             SplitAttributes.Builder()
-                .setSplitType(SplitType.splitByHinge(SplitType.ratio(0.3f)))
+                .setSplitType(SPLIT_TYPE_HINGE)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
                 .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.YELLOW))
                 .build(),
@@ -157,11 +156,8 @@ class EmbeddingAdapterTest {
             createTestOEMActivityStack(ArrayList(), true, testStackToken),
             createTestOEMActivityStack(ArrayList(), true, testStackToken),
             OEMSplitAttributes.Builder()
-                .setSplitType(
-                    OEMSplitAttributes.SplitType.HingeSplitType(
-                        OEMSplitAttributes.SplitType.RatioSplitType(0.3f)
-                    )
-                ).setLayoutDirection(TOP_TO_BOTTOM)
+                .setSplitType(OEMSplitAttributes.SplitType.HingeSplitType(RatioSplitType(0.5f)))
+                .setLayoutDirection(TOP_TO_BOTTOM)
                 .setAnimationBackgroundColor(Color.YELLOW)
                 .build(),
             testSplitInfoToken,
@@ -170,7 +166,7 @@ class EmbeddingAdapterTest {
             ActivityStack(ArrayList(), isEmpty = true, testStackToken),
             ActivityStack(ArrayList(), isEmpty = true, testStackToken),
             SplitAttributes.Builder()
-                .setSplitType(SplitType.splitByHinge(SplitType.ratio(0.3f)))
+                .setSplitType(SPLIT_TYPE_HINGE)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
                 .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.YELLOW))
                 .build(),

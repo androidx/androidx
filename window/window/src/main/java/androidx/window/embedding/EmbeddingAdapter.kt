@@ -43,9 +43,14 @@ import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCAL
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.RIGHT_TO_LEFT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.TOP_TO_BOTTOM
 import androidx.window.embedding.SplitAttributes.SplitType
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.ratio
 import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.core.util.function.Function
 import androidx.window.extensions.core.util.function.Predicate
+import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ADJACENT
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ALWAYS
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_NEVER
@@ -93,8 +98,14 @@ internal class EmbeddingAdapter(
 
     internal fun translate(splitAttributes: OEMSplitAttributes): SplitAttributes =
         SplitAttributes.Builder()
-            .setSplitType(translate(splitAttributes.splitType))
-            .setLayoutDirection(
+            .setSplitType(
+                when (val splitType = splitAttributes.splitType) {
+                    is OEMSplitType.HingeSplitType -> SPLIT_TYPE_HINGE
+                    is OEMSplitType.ExpandContainersSplitType -> SPLIT_TYPE_EXPAND
+                    is OEMSplitType.RatioSplitType -> ratio(splitType.ratio)
+                    else -> throw IllegalArgumentException("Unknown split type: $splitType")
+                }
+            ).setLayoutDirection(
                 when (val layoutDirection = splitAttributes.layoutDirection) {
                     OEMSplitAttributes.LayoutDirection.LEFT_TO_RIGHT -> LEFT_TO_RIGHT
                     OEMSplitAttributes.LayoutDirection.RIGHT_TO_LEFT -> RIGHT_TO_LEFT
@@ -110,26 +121,6 @@ internal class EmbeddingAdapter(
                 splitAttributes.animationBackgroundColor)
             )
             .build()
-
-    private fun translate(splitType: OEMSplitType): SplitType =
-        when (splitType) {
-            is OEMSplitType.RatioSplitType -> translate(splitType)
-            is OEMSplitType.ExpandContainersSplitType -> SplitType.expandContainers()
-            is OEMSplitType.HingeSplitType -> translate(splitType)
-            else -> throw IllegalArgumentException("Unsupported split type: $splitType")
-        }
-
-    private fun translate(hinge: OEMSplitType.HingeSplitType): SplitType.HingeSplitType =
-        SplitType.splitByHinge(
-            when (val splitType = hinge.fallbackSplitType) {
-                is OEMSplitType.ExpandContainersSplitType -> SplitType.expandContainers()
-                is OEMSplitType.RatioSplitType -> translate(splitType)
-                else -> throw IllegalArgumentException("Unsupported split type: $splitType")
-            }
-        )
-
-    private fun translate(splitRatio: OEMSplitType.RatioSplitType): SplitType.RatioSplitType =
-        SplitType.ratio(splitRatio.ratio)
 
     fun translateSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
@@ -205,7 +196,7 @@ internal class EmbeddingAdapter(
         }
     }
 
-    internal fun translateSplitAttributes(splitAttributes: SplitAttributes): OEMSplitAttributes {
+    fun translateSplitAttributes(splitAttributes: SplitAttributes): OEMSplitAttributes {
         require(vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2)
         // To workaround the "unused" error in ktlint. It is necessary to translate SplitAttributes
         // from WM Jetpack version to WM extension version.
@@ -230,24 +221,21 @@ internal class EmbeddingAdapter(
     private fun translateSplitType(splitType: SplitType): OEMSplitType {
         require(vendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2)
         return when (splitType) {
-            is SplitType.HingeSplitType -> translateHinge(splitType)
-            is SplitType.ExpandContainersSplitType -> OEMSplitType.ExpandContainersSplitType()
-            is SplitType.RatioSplitType -> translateRatio(splitType)
-            else -> throw IllegalArgumentException("Unsupported splitType: $splitType")
+            SPLIT_TYPE_HINGE -> OEMSplitType.HingeSplitType(
+                translateSplitType(SPLIT_TYPE_EQUAL)
+            )
+            SPLIT_TYPE_EXPAND -> OEMSplitType.ExpandContainersSplitType()
+            else -> {
+                val ratio = splitType.value
+                if (ratio > 0.0 && ratio < 1.0) {
+                    RatioSplitType(ratio)
+                } else {
+                    throw IllegalArgumentException("Unsupported SplitType: $splitType with value:" +
+                        " ${splitType.value}")
+                }
+            }
         }
     }
-
-    private fun translateHinge(hinge: SplitType.HingeSplitType): OEMSplitType.HingeSplitType =
-        OEMSplitType.HingeSplitType(
-            when (val splitType = hinge.fallbackSplitType) {
-                is SplitType.ExpandContainersSplitType -> OEMSplitType.ExpandContainersSplitType()
-                is SplitType.RatioSplitType -> translateRatio(splitType)
-                else -> throw IllegalArgumentException("Unsupported splitType: $splitType")
-            }
-        )
-
-    private fun translateRatio(splitRatio: SplitType.RatioSplitType): OEMSplitType.RatioSplitType =
-        OEMSplitType.RatioSplitType(splitRatio.ratio)
 
     private fun translateSplitPlaceholderRule(
         context: Context,
@@ -493,7 +481,7 @@ internal class EmbeddingAdapter(
          * higher.
          */
         private fun isSplitAttributesSupported(attrs: SplitAttributes) =
-            attrs.splitType is SplitType.RatioSplitType &&
+            attrs.splitType.value in 0.0..1.0 && attrs.splitType.value != 1.0f &&
                 attrs.layoutDirection in arrayOf(LEFT_TO_RIGHT, RIGHT_TO_LEFT, LOCALE)
 
         @SuppressLint("ClassVerificationFailure", "NewApi")
@@ -516,44 +504,20 @@ internal class EmbeddingAdapter(
                 splitRule.checkParentMetrics(context, windowMetrics)
             }
 
-        // TODO(b/267391190): Remove the NoSuchMethodError in EmbeddingAdapter
-        fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo {
-            val primaryActivityStack = splitInfo.primaryActivityStack
-            val isPrimaryStackEmpty = try {
-                primaryActivityStack.isEmpty
-            } catch (e: NoSuchMethodError) {
-                // Users may use older library which #isEmpty hasn't existed. Provide a fallback
-                // value for this case to avoid crash.
-                false
-            }
-            val primaryFragment = ActivityStack(
-                primaryActivityStack.activities,
-                isPrimaryStackEmpty,
-                INVALID_ACTIVITY_STACK_TOKEN,
-            )
-
-            val secondaryActivityStack = splitInfo.secondaryActivityStack
-            val isSecondaryStackEmpty = try {
-                secondaryActivityStack.isEmpty
-            } catch (e: NoSuchMethodError) {
-                // Users may use older library which #isEmpty hasn't existed. Provide a fallback
-                // value for this case to avoid crash.
-                false
-            }
-            val secondaryFragment = ActivityStack(
-                secondaryActivityStack.activities,
-                isSecondaryStackEmpty,
-                INVALID_ACTIVITY_STACK_TOKEN,
-            )
-
-            val splitAttributes = getSplitAttributesCompat(splitInfo)
-            return SplitInfo(
-                primaryFragment,
-                secondaryFragment,
-                splitAttributes,
+        fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo = SplitInfo(
+                ActivityStack(
+                    splitInfo.primaryActivityStack.activities,
+                    splitInfo.primaryActivityStack.isEmpty,
+                    INVALID_ACTIVITY_STACK_TOKEN,
+                ),
+                ActivityStack(
+                    splitInfo.secondaryActivityStack.activities,
+                    splitInfo.secondaryActivityStack.isEmpty,
+                    INVALID_ACTIVITY_STACK_TOKEN,
+                ),
+                getSplitAttributesCompat(splitInfo),
                 INVALID_SPLIT_INFO_TOKEN,
             )
-        }
     }
 
     internal companion object {

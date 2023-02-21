@@ -23,8 +23,9 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.core.VerificationMode
+import androidx.window.embedding.SplitAttributes.BackgroundColor
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
-import androidx.window.embedding.SplitAttributes.SplitType.Companion.splitEqually
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 
 /**
  * Attributes that describe how the parent window (typically the activity task
@@ -64,7 +65,7 @@ class SplitAttributes internal constructor(
      * The split type attribute. Defaults to an equal split of the parent window
      * for the primary and secondary containers.
      */
-    val splitType: SplitType = splitEqually(),
+    val splitType: SplitType = SPLIT_TYPE_EQUAL,
 
     /**
      * The layout direction attribute for the parent window split. The default
@@ -89,7 +90,7 @@ class SplitAttributes internal constructor(
      * The type of parent window split, which defines the proportion of the
      * parent window occupied by the primary and secondary activity containers.
      */
-    open class SplitType internal constructor(
+    class SplitType internal constructor(
 
         /**
          * The description of this `SplitType`.
@@ -134,53 +135,9 @@ class SplitAttributes internal constructor(
         override fun hashCode(): Int = description.hashCode() + 31 * value.hashCode()
 
         /**
-         * A window split that's based on the ratio of the size of the primary
-         * container to the size of the parent window.
-         *
-         * @see SplitAttributes.SplitType.ratio
-         */
-        class RatioSplitType internal constructor(
-
-            /**
-             * The proportion of the parent window occupied by the primary
-             * container of the split.
-             */
-            @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
-            val ratio: Float
-
-        ) : SplitType("ratio:$ratio", ratio)
-
-        /**
-         * A window split in which the primary and secondary activity containers
-         * each occupy the entire parent window.
-         *
-         * The secondary container overlays the primary container.
-         *
-         * @see SplitAttributes.SplitType.ExpandContainersSplitType
-         */
-        class ExpandContainersSplitType internal constructor() : SplitType("expandContainer", 0.0f)
-
-        /**
-         * A parent window split that conforms to a hinge or separating fold in
-         * the device display.
-         *
-         * @see SplitAttributes.SplitType.splitByHinge
-         */
-        class HingeSplitType internal constructor(
-
-            /**
-             * The split type to use if a split based on the device hinge or
-             * separating fold cannot be determined.
-             */
-            val fallbackSplitType: SplitType
-
-        ) : SplitType("hinge, fallback=$fallbackSplitType", -1.0f)
-
-        /**
          * Methods that create various split types.
          */
         companion object {
-
             /**
              * Creates a split type based on the proportion of the parent window
              * occupied by the primary container of the split.
@@ -196,13 +153,13 @@ class SplitAttributes internal constructor(
              *
              * @param ratio The proportion of the parent window occupied by the
              *     primary container of the split.
-             * @return An instance of [RatioSplitType] with the specified ratio.
+             * @return An instance of `SplitType` with the specified ratio.
              */
             @JvmStatic
             fun ratio(
                 @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
                 ratio: Float
-            ): RatioSplitType {
+            ): SplitType {
                 val checkedRatio = ratio.startSpecification(
                     TAG,
                     VerificationMode.STRICT
@@ -210,45 +167,37 @@ class SplitAttributes internal constructor(
                     "Use SplitType.expandContainers() instead of 0 or 1.") {
                     ratio in 0.0..1.0 && ratio !in arrayOf(0.0f, 1.0f)
                 }.compute()!!
-                return RatioSplitType(checkedRatio)
+                return SplitType("ratio:$checkedRatio", checkedRatio)
             }
 
-            private val EXPAND_CONTAINERS = ExpandContainersSplitType()
-
             /**
-             * Creates a split type in which the primary and secondary activity
-             * containers each expand to fill the parent window; the secondary
-             * container overlays the primary container.
+             * A split type in which the primary and secondary activity containers each expand to
+             * fill the parent window; the secondary container overlays the primary container.
              *
-             * Use this method with the function set in
+             * It is useful to use this `SplitType` with the function set in
              * [SplitController.setSplitAttributesCalculator] to expand the activity containers in
-             * some device states. The following sample shows how to always fill the parent bounds
-             * if the device is in portrait orientation:
+             * some device or window states. The following sample shows how to always fill the
+             * parent bounds if the device is in portrait orientation:
              *
              * @sample androidx.window.samples.embedding.expandContainersInPortrait
-             *
-             * @return An instance of [ExpandContainersSplitType].
              */
-            @JvmStatic
-            fun expandContainers(): ExpandContainersSplitType = EXPAND_CONTAINERS
+            @JvmField
+            val SPLIT_TYPE_EXPAND = SplitType("expandContainers", 0.0f)
 
             /**
-             * Creates a split type in which the primary and secondary
-             * containers occupy equal portions of the parent window.
+             * A split type in which the primary and secondary containers occupy equal portions of
+             * the parent window.
              *
              * Serves as the default [SplitType].
-             *
-             * @return A `RatioSplitType` in which the activity containers
-             *     occupy equal portions of the parent window.
              */
-            @JvmStatic
-            fun splitEqually(): RatioSplitType = ratio(0.5f)
+            @JvmField
+            val SPLIT_TYPE_EQUAL = ratio(0.5f)
 
             /**
-             * Creates a split type in which the split ratio conforms to the
+             * A split type in which the split ratio conforms to the
              * position of a hinge or separating fold in the device display.
              *
-             * The split type is created only if:
+             * The split type works only if:
              * <ul>
              *     <li>The host task is not in multi-window mode (e.g.,
              *         split-screen mode or picture-in-picture mode)</li>
@@ -267,40 +216,29 @@ class SplitAttributes internal constructor(
              *     </li>
              * </ul>
              *
-             * Otherwise, the method falls back to `fallbackSplitType`.
+             * Otherwise, this `SplitType` fallback to show the split with [SPLIT_TYPE_EQUAL].
              *
-             * @param fallbackSplitType The split type to use if a split based
-             *     on the device hinge or separating fold cannot be determined.
-             *     Can be a [RatioSplitType] or [ExpandContainersSplitType].
-             *     Defaults to [SplitType.splitEqually].
-             * @return An instance of [HingeSplitType] with a fallback split
-             *     type.
+             * If the app wants to have another fallback `SplitType` if [SPLIT_TYPE_HINGE] cannot
+             * be applied. It is suggested to use [SplitController.setSplitAttributesCalculator] to
+             * customize the fallback `SplitType`.
+             *
+             * The following sample shows how to fallback to [SPLIT_TYPE_EXPAND]
+             * if there's no hinge area in the parent window container bounds.
+             *
+             * @sample androidx.window.samples.embedding.fallbackToExpandContainersForSplitTypeHinge
              */
-            @JvmStatic
-            fun splitByHinge(
-                fallbackSplitType: SplitType = splitEqually()
-            ): HingeSplitType {
-                val checkedType = fallbackSplitType.startSpecification(
-                    TAG,
-                    VerificationMode.STRICT
-                ).require(
-                    "FallbackSplitType must be a RatioSplitType or ExpandContainerSplitType"
-                ) {
-                    fallbackSplitType is RatioSplitType ||
-                        fallbackSplitType is ExpandContainersSplitType
-                }.compute()!!
-                return HingeSplitType(checkedType)
-            }
+            @JvmField
+            val SPLIT_TYPE_HINGE = SplitType("hinge", -1.0f)
 
+            // TODO(b/241044092): add XML support to SPLIT_TYPE_HINGE
             /**
              * Returns a `SplitType` with the given `value`.
              */
             @SuppressLint("Range") // value = 0.0 is covered.
-            @JvmStatic
             internal fun buildSplitTypeFromValue(
                 @FloatRange(from = 0.0, to = 1.0, toInclusive = false) value: Float
-            ) = if (value == EXPAND_CONTAINERS.value) {
-                    expandContainers()
+            ) = if (value == SPLIT_TYPE_EXPAND.value) {
+                    SPLIT_TYPE_EXPAND
                 } else {
                     ratio(value)
                 }
@@ -557,7 +495,7 @@ class SplitAttributes internal constructor(
      *    window background color.
      */
     class Builder {
-        private var splitType: SplitType = splitEqually()
+        private var splitType = SPLIT_TYPE_EQUAL
         private var layoutDirection = LOCALE
         private var animationBackgroundColor = BackgroundColor.DEFAULT
 

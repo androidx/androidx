@@ -18,6 +18,7 @@ package androidx.window.demo.embedding;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 
+import static androidx.window.embedding.SplitController.SplitSupportStatus.SPLIT_AVAILABLE;
 import static androidx.window.embedding.SplitRule.FinishBehavior.ADJACENT;
 import static androidx.window.embedding.SplitRule.FinishBehavior.ALWAYS;
 import static androidx.window.embedding.SplitRule.FinishBehavior.NEVER;
@@ -181,7 +182,7 @@ public class SplitActivityBase extends AppCompatActivity
 
         final SplitController splitController = SplitController.getInstance(this);
         mSplitControllerAdapter = new SplitControllerCallbackAdapter(splitController);
-        if (!splitController.isSplitSupported()) {
+        if (splitController.getSplitSupportStatus() != SPLIT_AVAILABLE) {
             Toast.makeText(this, R.string.toast_split_not_support,
                     Toast.LENGTH_SHORT).show();
             finish();

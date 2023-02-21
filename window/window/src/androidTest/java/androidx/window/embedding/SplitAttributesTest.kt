@@ -24,6 +24,9 @@ import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCAL
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.RIGHT_TO_LEFT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.TOP_TO_BOTTOM
 import androidx.window.embedding.SplitAttributes.SplitType
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertThrows
@@ -34,27 +37,27 @@ class SplitAttributesTest {
     @Test
     fun testSplitAttributesEquals() {
         val attrs1 = SplitAttributes.Builder()
-            .setSplitType(SplitType.splitEqually())
+            .setSplitType(SPLIT_TYPE_EQUAL)
             .setLayoutDirection(LOCALE)
             .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.DEFAULT)
             .build()
         val attrs2 = SplitAttributes.Builder()
-            .setSplitType(SplitType.splitByHinge())
+            .setSplitType(SPLIT_TYPE_HINGE)
             .setLayoutDirection(LOCALE)
             .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.DEFAULT)
             .build()
         val attrs3 = SplitAttributes.Builder()
-            .setSplitType(SplitType.splitByHinge())
+            .setSplitType(SPLIT_TYPE_HINGE)
             .setLayoutDirection(TOP_TO_BOTTOM)
             .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.DEFAULT)
             .build()
         val attrs4 = SplitAttributes.Builder()
-            .setSplitType(SplitType.splitByHinge())
+            .setSplitType(SPLIT_TYPE_HINGE)
             .setLayoutDirection(TOP_TO_BOTTOM)
             .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GREEN))
             .build()
         val attrs5 = SplitAttributes.Builder()
-            .setSplitType(SplitType.splitByHinge())
+            .setSplitType(SPLIT_TYPE_HINGE)
             .setLayoutDirection(TOP_TO_BOTTOM)
             .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GREEN))
             .build()
@@ -78,20 +81,12 @@ class SplitAttributesTest {
     @Test
     fun testTypesEquals() {
         val splitTypes = arrayOf(
-            SplitType.splitEqually(),
-            SplitType.expandContainers(),
-            SplitType.splitByHinge(),
-            SplitType.splitByHinge(SplitType.expandContainers())
+            SPLIT_TYPE_EQUAL,
+            SPLIT_TYPE_EXPAND,
+            SPLIT_TYPE_HINGE,
         )
 
         for ((i, type1) in splitTypes.withIndex()) {
-            if (type1 is SplitType.RatioSplitType) {
-                assertEquals(
-                    "Two SplitTypes must regarded as equal if their ratios are the same.",
-                    type1, SplitType.ratio(type1.value)
-                )
-                assertEquals(type1.hashCode(), SplitType.ratio(type1.value).hashCode())
-            }
             for ((j, type2) in splitTypes.withIndex()) {
                 if (i == j) {
                     assertEquals(type1, type2)
@@ -102,6 +97,12 @@ class SplitAttributesTest {
                 }
             }
         }
+
+        assertEquals(
+            "Two SplitTypes must regarded as equal if their ratios are the same.",
+            SPLIT_TYPE_EQUAL, SplitType.ratio(0.5f)
+        )
+        assertEquals(SPLIT_TYPE_EQUAL.hashCode(), SplitType.ratio(0.5f).hashCode())
     }
 
     @Test
