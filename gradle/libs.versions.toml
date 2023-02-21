@@ -61,6 +61,7 @@ wire = "4.4.1"
 agpTestingPlatformCoreProto =  { module = "com.google.testing.platform:core-proto", version = "0.0.8-alpha08" }
 androidAccessibilityFramework = { module = "com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework", version = { strictly = "2.1" } }
 androidBuilderModelMin = { module = "com.android.tools.build:builder-model", version.ref = "androidGradlePluginMin" }
+androidGradlePluginApi = { module = "com.android.tools.build:gradle-api", version.ref = "androidGradlePlugin" }
 androidGradlePluginz = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
 androidLayoutlibApi = { module = "com.android.tools.layoutlib:layoutlib-api", version.ref = "androidLint" }
 androidLint = { module = "com.android.tools.lint:lint", version.ref = "androidLint" }
