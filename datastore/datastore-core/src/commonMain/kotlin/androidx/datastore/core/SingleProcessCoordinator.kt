@@ -27,7 +27,7 @@ import kotlinx.coroutines.sync.withLock
  */
 internal class SingleProcessCoordinator() : InterProcessCoordinator {
     private val mutex = Mutex()
-    private val VALID_VERSION = 0
+    private val version = AtomicInt(0)
 
     override val updateNotifications: Flow<Unit> = flow {}
 
@@ -47,8 +47,8 @@ internal class SingleProcessCoordinator() : InterProcessCoordinator {
     }
 
     // get the current version
-    override suspend fun getVersion(): Int = VALID_VERSION
+    override suspend fun getVersion(): Int = version.get()
 
     // increment version and return the new one
-    override suspend fun incrementAndGetVersion(): Int = VALID_VERSION
+    override suspend fun incrementAndGetVersion(): Int = version.incrementAndGet()
 }
