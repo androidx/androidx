@@ -30,6 +30,9 @@ import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpMeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.impl.State3AControl
@@ -81,11 +84,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.util.ReflectionHelpers
 
 private const val CAMERA_ID_0 = "0" // 640x480 sensor size
 private const val CAMERA_ID_1 = "1" // 1920x1080 sensor size
 private const val CAMERA_ID_2 = "2" // 640x480 sensor size, not support AF_AUTO.
 private const val CAMERA_ID_3 = "3" // camera that does not support 3A regions.
+private const val CAMERA_ID_4 = "4" // camera 0 with LENS_FACING_FRONT
 
 private const val SENSOR_WIDTH = 640
 private const val SENSOR_HEIGHT = 480
@@ -169,7 +174,9 @@ class FocusMeteringControlTest {
             listOf(meteringPoint),
             1,
             Rect(0, 0, 800, 600),
-            Rational(4, 3)
+            Rational(4, 3),
+            FocusMeteringAction.FLAG_AF,
+            NoOpMeteringRegionCorrection,
         )
         assertThat(meteringRectangles.size).isEqualTo(1)
         // Aspect ratio of crop region is same as default aspect ratio. So no padding is needed
@@ -185,7 +192,10 @@ class FocusMeteringControlTest {
             listOf(meteringPoint1),
             1,
             Rect(0, 0, 800, 600),
-            Rational(4, 3)
+            Rational(4, 3),
+            FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE
+                or FocusMeteringAction.FLAG_AWB,
+            NoOpMeteringRegionCorrection,
         )
         assertThat(meteringRectangles1.size).isEqualTo(1)
         // Aspect ratio of crop region is same as default aspect ratio. So no padding is needed
@@ -200,7 +210,9 @@ class FocusMeteringControlTest {
             listOf(meteringPoint2),
             1,
             Rect(0, 0, 800, 600),
-            Rational(4, 3)
+            Rational(4, 3),
+            FocusMeteringAction.FLAG_AF,
+            NoOpMeteringRegionCorrection,
         )
         assertThat(meteringRectangles2.size).isEqualTo(1)
         // Aspect ratio of crop region is same as default aspect ratio. So no padding is needed
@@ -219,7 +231,10 @@ class FocusMeteringControlTest {
             listOf(meteringPoint),
             1,
             Rect(0, 0, 400, 400),
-            Rational(4, 3)
+            Rational(4, 3),
+            FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE
+                or FocusMeteringAction.FLAG_AWB,
+            NoOpMeteringRegionCorrection,
         )
         assertThat(meteringRectangles.size).isEqualTo(1)
         // Default aspect ratio is greater than the aspect ratio of the crop region. So we need
@@ -234,7 +249,9 @@ class FocusMeteringControlTest {
             listOf(meteringPoint1),
             1,
             Rect(0, 0, 400, 400),
-            Rational(4, 3)
+            Rational(4, 3),
+            FocusMeteringAction.FLAG_AF,
+            NoOpMeteringRegionCorrection,
         )
         assertThat(meteringRectangles1.size).isEqualTo(1)
         val expectedMeteringRectangle1 = MeteringRectangle(
@@ -247,7 +264,9 @@ class FocusMeteringControlTest {
             listOf(meteringPoint2),
             1,
             Rect(0, 0, 400, 400),
-            Rational(4, 3)
+            Rational(4, 3),
+            FocusMeteringAction.FLAG_AF,
+            NoOpMeteringRegionCorrection,
         )
         assertThat(meteringRectangles2.size).isEqualTo(1)
         // Default aspect ratio is greater than the aspect ratio of the crop region. So we need
@@ -265,7 +284,9 @@ class FocusMeteringControlTest {
             listOf(meteringPoint),
             1,
             Rect(0, 0, 400, 400),
-            Rational(3, 4)
+            Rational(3, 4),
+            FocusMeteringAction.FLAG_AF,
+            NoOpMeteringRegionCorrection,
         )
         assertThat(meteringRectangles.size).isEqualTo(1)
         val expectedMeteringRectangle = MeteringRectangle(
@@ -278,7 +299,9 @@ class FocusMeteringControlTest {
             listOf(meteringPoint1),
             1,
             Rect(0, 0, 400, 400),
-            Rational(3, 4)
+            Rational(3, 4),
+            FocusMeteringAction.FLAG_AF,
+            NoOpMeteringRegionCorrection,
         )
         assertThat(meteringRectangles1.size).isEqualTo(1)
         val expectedMeteringRectangle1 = MeteringRectangle(
@@ -291,7 +314,9 @@ class FocusMeteringControlTest {
             listOf(meteringPoint2),
             1,
             Rect(0, 0, 400, 400),
-            Rational(3, 4)
+            Rational(3, 4),
+            FocusMeteringAction.FLAG_AF,
+            NoOpMeteringRegionCorrection,
         )
         assertThat(meteringRectangles2.size).isEqualTo(1)
         val expectedMeteringRectangle2 = MeteringRectangle(
@@ -354,6 +379,50 @@ class FocusMeteringControlTest {
             assertWithMessage("Wrong AF region").that(afRegions[0].rect).isEqualTo(M_RECT_1)
             assertWithMessage("Wrong AF region").that(afRegions[1].rect).isEqualTo(M_RECT_2)
             assertWithMessage("Wrong AF region").that(afRegions[2].rect).isEqualTo(M_RECT_3)
+
+            assertWithMessage("Wrong number of AWB regions").that(awbRegions.size).isEqualTo(1)
+            assertWithMessage("Wrong AWB region").that(awbRegions[0].rect).isEqualTo(M_RECT_1)
+        }
+    }
+
+    @Test
+    @Config(maxSdk = 32)
+    fun startFocusAndMetering_AfRegionCorrectedByQuirk() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "Samsung")
+
+        focusMeteringControl = initFocusMeteringControl(cameraId = CAMERA_ID_4)
+
+        startFocusMeteringAndAwait(
+            FocusMeteringAction.Builder(point1)
+                .addPoint(point2)
+                .addPoint(point3)
+                .build()
+        )
+
+        // after flipping horizontally, left / right will be swapped.
+        val flippedRect1 = Rect(
+            SENSOR_WIDTH - M_RECT_1.right, M_RECT_1.top,
+            SENSOR_WIDTH - M_RECT_1.left, M_RECT_1.bottom
+        )
+        val flippedRect2 = Rect(
+            SENSOR_WIDTH - M_RECT_2.right, M_RECT_2.top,
+            SENSOR_WIDTH - M_RECT_2.left, M_RECT_2.bottom
+        )
+        val flippedRect3 = Rect(
+            SENSOR_WIDTH - M_RECT_3.right, M_RECT_3.top,
+            SENSOR_WIDTH - M_RECT_3.left, M_RECT_3.bottom
+        )
+
+        with(fakeRequestControl.focusMeteringCalls.last()) {
+            assertWithMessage("Wrong number of AE regions").that(aeRegions.size).isEqualTo(3)
+            assertWithMessage("Wrong AE region").that(aeRegions[0].rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong AE region").that(aeRegions[1].rect).isEqualTo(M_RECT_2)
+            assertWithMessage("Wrong AE region").that(aeRegions[2].rect).isEqualTo(M_RECT_3)
+
+            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(3)
+            assertWithMessage("Wrong AF region").that(afRegions[0].rect).isEqualTo(flippedRect1)
+            assertWithMessage("Wrong AF region").that(afRegions[1].rect).isEqualTo(flippedRect2)
+            assertWithMessage("Wrong AF region").that(afRegions[2].rect).isEqualTo(flippedRect3)
 
             assertWithMessage("Wrong number of AWB regions").that(awbRegions.size).isEqualTo(1)
             assertWithMessage("Wrong AWB region").that(awbRegions[0].rect).isEqualTo(M_RECT_1)
@@ -490,8 +559,8 @@ class FocusMeteringControlTest {
     fun previewFovAdjusted_16by9_to_4by3() {
         // use 16:9 preview aspect ratio with sensor region of 4:3 (camera 0)
         focusMeteringControl = initFocusMeteringControl(
-            CAMERA_ID_0,
-            setOf(createPreview(Size(1920, 1080))),
+            cameraId = CAMERA_ID_0,
+            useCases = setOf(createPreview(Size(1920, 1080))),
         )
 
         startFocusMeteringAndAwait(
@@ -535,8 +604,8 @@ class FocusMeteringControlTest {
         val point = factory.createPoint(0f, 0f)
 
         focusMeteringControl = initFocusMeteringControl(
-            CAMERA_ID_0,
-            setOf(createPreview(Size(640, 480))),
+            cameraId = CAMERA_ID_0,
+            useCases = setOf(createPreview(Size(640, 480))),
         )
 
         startFocusMeteringAndAwait(
@@ -555,7 +624,7 @@ class FocusMeteringControlTest {
         // add 16:9 aspect ratio Preview with sensor region of 4:3 (camera 0), then remove Preview
         focusMeteringControl = initFocusMeteringControl(
             CAMERA_ID_0,
-            setOf(createPreview(Size(1920, 1080))),
+            useCases = setOf(createPreview(Size(1920, 1080))),
         )
         fakeUseCaseCamera.runningUseCases = emptySet()
         focusMeteringControl.onRunningUseCasesChanged()
@@ -1048,10 +1117,10 @@ class FocusMeteringControlTest {
         val action = FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF).build()
         val state3AControl = createState3AControl(CAMERA_ID_0)
         focusMeteringControl = initFocusMeteringControl(
-            CAMERA_ID_0,
-            setOf(createPreview(Size(1920, 1080))),
-            fakeUseCaseThreads,
-            state3AControl,
+            cameraId = CAMERA_ID_0,
+            useCases = setOf(createPreview(Size(1920, 1080))),
+            useCaseThreads = fakeUseCaseThreads,
+            state3AControl = state3AControl,
         )
 
         // Act.
@@ -1074,10 +1143,10 @@ class FocusMeteringControlTest {
         ).build()
         val state3AControl = createState3AControl(CAMERA_ID_0)
         focusMeteringControl = initFocusMeteringControl(
-            CAMERA_ID_0,
-            setOf(createPreview(Size(1920, 1080))),
-            fakeUseCaseThreads,
-            state3AControl,
+            cameraId = CAMERA_ID_0,
+            useCases = setOf(createPreview(Size(1920, 1080))),
+            useCaseThreads = fakeUseCaseThreads,
+            state3AControl = state3AControl,
         )
 
         // Act.
@@ -1097,10 +1166,10 @@ class FocusMeteringControlTest {
         val action = FocusMeteringAction.Builder(point1, FocusMeteringAction.FLAG_AF).build()
         val state3AControl = createState3AControl(CAMERA_ID_0)
         focusMeteringControl = initFocusMeteringControl(
-            CAMERA_ID_0,
-            setOf(createPreview(Size(1920, 1080))),
-            fakeUseCaseThreads,
-            state3AControl,
+            cameraId = CAMERA_ID_0,
+            useCases = setOf(createPreview(Size(1920, 1080))),
+            useCaseThreads = fakeUseCaseThreads,
+            state3AControl = state3AControl,
         )
 
         // Act.
@@ -1170,7 +1239,6 @@ class FocusMeteringControlTest {
     // TODO: Port the following tests once their corresponding logics have been implemented.
     //  - [b/255679866] triggerAfWithTemplate, triggerAePrecaptureWithTemplate,
     //          cancelAfAeTriggerWithTemplate
-    //  - startFocusAndMetering_AfRegionCorrectedByQuirk
 
     private fun assertFutureFocusCompleted(
         future: ListenableFuture<FocusMeteringResult>,
@@ -1268,6 +1336,9 @@ class FocusMeteringControlTest {
         zoomCompat: ZoomCompat = FakeZoomCompat()
     ) = FocusMeteringControl(
             cameraPropertiesMap[cameraId]!!,
+            MeteringRegionCorrection.Bindings.provideMeteringRegionCorrection(
+                CameraQuirks(cameraPropertiesMap[cameraId]!!.metadata)
+            ),
             state3AControl,
             useCaseThreads,
             zoomCompat
@@ -1377,6 +1448,16 @@ class FocusMeteringControlTest {
         cameraPropertiesMap[CAMERA_ID_3] = initCameraProperties(
             CAMERA_ID_3,
             characteristics3
+        )
+
+        // **** Camera 4 characteristics (same as Camera 0, but includes LENS_FACING_FRONT) **** //
+        val characteristics4 = characteristics0 + mapOf(
+            CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT
+        )
+
+        cameraPropertiesMap[CAMERA_ID_4] = initCameraProperties(
+            CAMERA_ID_4,
+            characteristics4
         )
     }
 
