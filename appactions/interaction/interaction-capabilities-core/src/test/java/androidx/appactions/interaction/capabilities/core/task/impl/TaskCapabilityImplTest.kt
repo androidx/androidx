@@ -21,7 +21,7 @@ import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.InitArg
 import androidx.appactions.interaction.capabilities.core.SessionBuilder
-import androidx.appactions.interaction.capabilities.core.AbstractCapabilityBuilder
+import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.DisambigEntityConverter
@@ -763,9 +763,9 @@ class TaskCapabilityImplTest {
     }
 
     /**
-     * an implementation of AbstractCapabilityBuilder using Argument. Output, etc. defined under testing/spec
+     * an implementation of CapabilityBuilderBase using Argument. Output, etc. defined under testing/spec
      */
-    class CapabilityBuilder : AbstractCapabilityBuilder<
+    class CapabilityBuilder : CapabilityBuilderBase<
         CapabilityBuilder,
         Property,
         Argument,

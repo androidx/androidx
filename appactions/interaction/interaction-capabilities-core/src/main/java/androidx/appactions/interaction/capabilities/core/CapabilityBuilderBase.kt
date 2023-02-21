@@ -23,13 +23,14 @@ import androidx.appactions.interaction.capabilities.core.task.impl.TaskCapabilit
 import androidx.appactions.interaction.capabilities.core.task.impl.SessionBridge
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.function.Supplier
+import androidx.annotation.RestrictTo
 
 /**
  * An abstract Builder class for ActionCapability.
  */
-public abstract class AbstractCapabilityBuilder<
+abstract class CapabilityBuilderBase<
     BuilderT :
-    AbstractCapabilityBuilder<
+    CapabilityBuilderBase<
         BuilderT,
         PropertyT,
         ArgumentT,
@@ -53,7 +54,10 @@ public abstract class AbstractCapabilityBuilder<
     /**
      * The SessionBridge object, which is used to normalize Session instances to TaskHandler.
      * see SessionBridge documentation for more information.
+     *
+     * @suppress
      */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected open val sessionBridge: SessionBridge<SessionT, ConfirmationT>? = null
     /** The supplier of SessionUpdaterT instances. */
     protected open val sessionUpdaterSupplier: Supplier<SessionUpdaterT>? = null
@@ -73,7 +77,7 @@ public abstract class AbstractCapabilityBuilder<
 
     /**
      * Sets the Property instance for this capability. Must be called before {@link
-     * AbstractCapabilityBuilder.build}.
+     * CapabilityBuilderBase.build}.
      */
     protected fun setProperty(property: PropertyT) = asBuilder().apply {
         this.property = property
