@@ -167,13 +167,6 @@ package androidx.wear.compose.foundation {
     property public final androidx.compose.ui.text.font.FontWeight? fontWeight;
   }
 
-  public final class HierarchicalFocusCoordinatorKt {
-    method @androidx.compose.runtime.Composable public static void HierarchicalFocusCoordinator(kotlin.jvm.functions.Function0<java.lang.Boolean> requiresFocus, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void OnFocusChange(kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super java.lang.Boolean,kotlin.Unit> onFocusChanged);
-    method @androidx.compose.runtime.Composable public static void RequestFocusWhenActive(androidx.compose.ui.focus.FocusRequester focusRequester);
-    method @androidx.compose.runtime.Composable public static androidx.compose.ui.focus.FocusRequester rememberActiveFocusRequester();
-  }
-
 }
 
 package androidx.wear.compose.foundation.lazy {
