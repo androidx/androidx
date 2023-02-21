@@ -49,20 +49,30 @@ public class Camera2CameraCoordinator implements CameraCoordinator {
     private static final String TAG = "Camera2CameraCoordinator";
 
     @NonNull private final CameraManagerCompat mCameraManager;
-    @NonNull private final List<ConcurrentCameraModeListener> mConcurrentCameraModeListeners;
-    @NonNull private final Map<String, String> mConcurrentCameraIdMap;
-    @NonNull private List<CameraSelector> mActiveConcurrentCameraSelectors;
+    @NonNull private Map<String, String> mConcurrentCameraIdMap;
     @NonNull private Set<Set<String>> mConcurrentCameraIds;
+    @NonNull private final List<ConcurrentCameraModeListener> mConcurrentCameraModeListeners;
 
-    @CameraOperatingMode private int mCameraOperatingMode = CAMERA_OPERATING_MODE_UNSPECIFIED;
+    private boolean mIsConcurrentCameraModeOn;
 
     public Camera2CameraCoordinator(@NonNull CameraManagerCompat cameraManager) {
         mCameraManager = cameraManager;
         mConcurrentCameraIdMap = new HashMap<>();
         mConcurrentCameraIds = new HashSet<>();
         mConcurrentCameraModeListeners = new ArrayList<>();
-        mActiveConcurrentCameraSelectors = new ArrayList<>();
-        retrieveConcurrentCameraIds();
+    }
+
+    @Override
+    public void init() {
+        mConcurrentCameraIds = retrieveConcurrentCameraIds(mCameraManager);
+        for (Set<String> concurrentCameraIdList: mConcurrentCameraIds) {
+            List<String> cameraIdList = new ArrayList<>(concurrentCameraIdList);
+
+            // TODO(b/268531569): enumerate concurrent camera ids and convert to a map for
+            //  paired camera id lookup.
+            mConcurrentCameraIdMap.put(cameraIdList.get(0), cameraIdList.get(1));
+            mConcurrentCameraIdMap.put(cameraIdList.get(1), cameraIdList.get(0));
+        }
     }
 
     @NonNull
@@ -79,17 +89,6 @@ public class Camera2CameraCoordinator implements CameraCoordinator {
         return concurrentCameraSelectorLists;
     }
 
-    @NonNull
-    @Override
-    public List<CameraSelector> getActiveConcurrentCameraSelectors() {
-        return mActiveConcurrentCameraSelectors;
-    }
-
-    @Override
-    public void setActiveConcurrentCameraSelectors(@NonNull List<CameraSelector> cameraSelectors) {
-        mActiveConcurrentCameraSelectors = cameraSelectors;
-    }
-
     @Nullable
     @Override
     public String getPairedConcurrentCameraId(@NonNull String cameraId) {
@@ -99,20 +98,19 @@ public class Camera2CameraCoordinator implements CameraCoordinator {
         return null;
     }
 
-    @CameraOperatingMode
     @Override
-    public int getCameraOperatingMode() {
-        return mCameraOperatingMode;
+    public boolean isConcurrentCameraModeOn() {
+        return mIsConcurrentCameraModeOn;
     }
 
     @Override
-    public void setCameraOperatingMode(@CameraOperatingMode int cameraOperatingMode) {
-        if (cameraOperatingMode != mCameraOperatingMode) {
+    public void setConcurrentCameraMode(boolean isConcurrentCameraModeOn) {
+        if (isConcurrentCameraModeOn != mIsConcurrentCameraModeOn) {
             for (ConcurrentCameraModeListener listener : mConcurrentCameraModeListeners) {
-                listener.notifyConcurrentCameraModeUpdated(cameraOperatingMode);
+                listener.notifyConcurrentCameraModeUpdated(isConcurrentCameraModeOn);
             }
         }
-        mCameraOperatingMode = cameraOperatingMode;
+        mIsConcurrentCameraModeOn = isConcurrentCameraModeOn;
     }
 
     @Override
@@ -125,21 +123,16 @@ public class Camera2CameraCoordinator implements CameraCoordinator {
         mConcurrentCameraModeListeners.remove(listener);
     }
 
-    private void retrieveConcurrentCameraIds() {
+    @NonNull
+    private static Set<Set<String>> retrieveConcurrentCameraIds(
+            @NonNull CameraManagerCompat cameraManager) {
+        Set<Set<String>> map = new HashSet<>();
         try {
-            mConcurrentCameraIds = mCameraManager.getConcurrentCameraIds();
+            map = cameraManager.getConcurrentCameraIds();
         } catch (CameraAccessExceptionCompat e) {
             Logger.e(TAG, "Failed to get concurrent camera ids");
         }
-
-        for (Set<String> concurrentCameraIdList: mConcurrentCameraIds) {
-            List<String> cameraIdList = new ArrayList<>(concurrentCameraIdList);
-
-            // TODO(b/268531569): enumerate concurrent camera ids and convert to a map for
-            //  paired camera id lookup.
-            mConcurrentCameraIdMap.put(cameraIdList.get(0), cameraIdList.get(1));
-            mConcurrentCameraIdMap.put(cameraIdList.get(1), cameraIdList.get(0));
-        }
+        return map;
     }
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)

@@ -19,7 +19,6 @@ package androidx.camera.core.concurrent;
 
 import android.hardware.camera2.CameraManager;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -27,8 +26,6 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.CameraStateRegistry;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
@@ -44,19 +41,10 @@ import java.util.List;
 @RequiresApi(21)
 public interface CameraCoordinator {
 
-    int CAMERA_OPERATING_MODE_UNSPECIFIED = 0;
-
-    int CAMERA_OPERATING_MODE_SINGLE = 1;
-
-    int CAMERA_OPERATING_MODE_CONCURRENT = 2;
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({CAMERA_OPERATING_MODE_UNSPECIFIED,
-            CAMERA_OPERATING_MODE_SINGLE,
-            CAMERA_OPERATING_MODE_CONCURRENT})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface CameraOperatingMode {
-    }
+    /**
+     * Initializes the map for concurrent camera ids and convert camera ids to camera selectors.
+     */
+    void init();
 
     /**
      * Returns concurrent camera selectors, which are converted from concurrent camera ids
@@ -69,21 +57,6 @@ public interface CameraCoordinator {
      */
     @NonNull
     List<List<CameraSelector>> getConcurrentCameraSelectors();
-
-    /**
-     * Gets active concurrent camera selectors.
-     *
-     * @return list of active concurrent camera selectors.
-     */
-    @NonNull
-    List<CameraSelector> getActiveConcurrentCameraSelectors();
-
-    /**
-     * Sets active concurrent camera selectors.
-     *
-     * @param cameraSelectors list of active concurrent camera selectors.
-     */
-    void setActiveConcurrentCameraSelectors(@NonNull List<CameraSelector> cameraSelectors);
 
     /**
      * Returns paired camera id in concurrent mode.
@@ -100,12 +73,11 @@ public interface CameraCoordinator {
     String getPairedConcurrentCameraId(@NonNull String cameraId);
 
     /**
-     * Returns camera operating mode.
+     * Returns concurrent camera mode.
      *
-     * @return camera operating mode including unspecific, single or concurrent.
+     * @return true if concurrent mode is on, otherwise returns false.
      */
-    @CameraOperatingMode
-    int getCameraOperatingMode();
+    boolean isConcurrentCameraModeOn();
 
     /**
      * Sets concurrent camera mode.
@@ -113,19 +85,19 @@ public interface CameraCoordinator {
      * <p>This internal API will be called when user binds user cases to cameras, which will
      * enable or disable concurrent camera mode based on the input config.
      *
-     * @param cameraOperatingMode camera operating mode including unspecific, single or concurrent.
+     * @param enabled true if concurrent camera mode is enabled, otherwise false.
      */
-    void setCameraOperatingMode(@CameraOperatingMode int cameraOperatingMode);
+    void setConcurrentCameraMode(boolean enabled);
 
     /**
      * Adds listener for concurrent camera mode update.
-     * @param listener {@link ConcurrentCameraModeListener}.
+     * @param listener
      */
     void addListener(@NonNull ConcurrentCameraModeListener listener);
 
     /**
      * Removes listener for concurrent camera mode update.
-     * @param listener {@link ConcurrentCameraModeListener}.
+     * @param listener
      */
     void removeListener(@NonNull ConcurrentCameraModeListener listener);
 
@@ -138,6 +110,6 @@ public interface CameraCoordinator {
      * allowed cameras if concurrent mode is set.
      */
     interface ConcurrentCameraModeListener {
-        void notifyConcurrentCameraModeUpdated(@CameraOperatingMode int cameraOperatingMode);
+        void notifyConcurrentCameraModeUpdated(boolean isConcurrentCameraModeOn);
     }
 }

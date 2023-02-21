@@ -22,7 +22,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 
@@ -61,8 +60,6 @@ public final class FakeAppConfig {
                     () -> new FakeCamera(CAMERA_ID_1, null,
                             new FakeCameraInfoInternal(CAMERA_ID_1, 0,
                                     CameraSelector.LENS_FACING_FRONT)));
-            final CameraCoordinator cameraCoordinator = new FakeCameraCoordinator();
-            cameraFactory.setCameraCoordinator(cameraCoordinator);
             return cameraFactory;
         };
 
