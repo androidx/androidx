@@ -40,9 +40,10 @@ import androidx.appactions.interaction.capabilities.core.values.properties.Recip
 import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.FulfillmentResponse;
 import androidx.appactions.interaction.proto.ParamValue;
-import androidx.appactions.interaction.protobuf.ListValue;
-import androidx.appactions.interaction.protobuf.Struct;
-import androidx.appactions.interaction.protobuf.Value;
+
+import com.google.protobuf.ListValue;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
 
 import java.time.Duration;
 import java.time.LocalDate;
