@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.integration.baselineprofiles.flavors.consumer
+package androidx.benchmark.integration.baselineprofiles.library.consumer
 
-import android.app.Activity
-import android.os.Bundle
-import android.widget.TextView
+import android.util.Log
 
-class EmptyActivity : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        findViewById<TextView>(R.id.txtNotice).text = callFlavorMethod()
+class IncludeClass {
+
+    fun doSomething() {
+        Log.d("IncludeClass", "Done.")
     }
+
+    fun doSomethingWithArgument(what: String) {
+        Log.d("IncludeClass", "Done $what")
+    }
+
+    fun doSomethingWithReturnType(a: Int, b: Int) = a + b
 }

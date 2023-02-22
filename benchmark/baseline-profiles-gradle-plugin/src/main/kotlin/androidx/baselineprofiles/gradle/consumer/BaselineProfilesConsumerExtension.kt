@@ -39,14 +39,6 @@ open class BaselineProfilesConsumerExtension {
     }
 
     /**
-     * Specifies what build type should be used to generate baseline profiles. By default this build
-     * type is `release`. In general, this should be a build type used for distribution. Note that
-     * this will be deprecated when b/265438201 is fixed, as all the build types will be used to
-     * generate baseline profiles.
-     */
-    var buildTypeName: String = "release"
-
-    /**
      * Enables on-demand baseline profile generation. Baseline profiles can be generated
      * periodically or on-demand. Setting this flag to true will enable on-demand generation.
      * When on-demand generation is enabled the baseline profile is regenerated before building the
@@ -57,11 +49,19 @@ open class BaselineProfilesConsumerExtension {
     var onDemandGeneration = false
 
     /**
-     * When [onDemandGeneration] is off, baseline profiles are stored in the source folders, by
-     * default `src/<variant>/baselineProfiles`. The inner folder can be customized through this
-     * parameter.
+     * Specifies if baseline profile files should be merged into a single one when generating for
+     * multiple variants:
+     *  - When `true` all the generated baseline profiles for each variant are merged into
+     *      `src/main/generatedBaselineProfiles`'.
+     *  - When `false` each variant will have its own baseline profile in
+     *      `src/<variant>/generated/baselineProfiles`'.
+     *  If this is not specified, by default it will be true for library modules and false for
+     *  application modules.
+     *  Note that when generation is onDemand the output folder is always in the build output
+     *  folder but this setting still determines whether the profile included in the built apk or
+     *  aar is merged into a single one.
      */
-    var baselineProfileDir = "generatedBaselineProfiles"
+    var mergeIntoMain: Boolean? = null
 
     /**
      * Specifies a filtering rule to decide which profiles rules should be included in this

@@ -46,9 +46,6 @@ abstract class GenerateBaselineProfileTask : DefaultTask() {
 
         // The output file for the HRF baseline profile file in `src/main`
         private const val BASELINE_PROFILE_FILENAME = "baseline-prof.txt"
-
-        // Regex to match profile rules according to go/jetpack-profile-inception
-        private val PROFILE_RULE_REGEX = "H?S?P?L([^;]*);.*".toRegex()
     }
 
     @get:InputFiles
@@ -93,21 +90,28 @@ abstract class GenerateBaselineProfileTask : DefaultTask() {
                 }.reversed()
             )
 
+        // The profile rules here are:
+        // - read from the configuration artifacts and merged in a single list
+        // - the list is sorted (since we group by class later, we want the input to the group by
+        //      operation not to be influenced by reading order)
+        // - group by class and method (ignoring flag) and for each group keep only the first value
+        // - apply the filters
+        // - sort with comparator
         val profileRules = baselineProfileFileCollection.files
             .flatMap { it.readLines() }
+            .sorted()
+            .asSequence()
+            .mapNotNull { ProfileRule.parse(it) }
+            .groupBy { it.classDescriptor + it.methodDescriptor }
+            .map { it.value[0] }
             .filter {
 
                 // If no rules are specified, always include this line.
                 if (rules.isEmpty()) return@filter true
 
                 // Otherwise rules are evaluated in the order they've been sorted previously.
-                val fullClassName = PROFILE_RULE_REGEX
-                    .replace(it) { res -> res.groupValues[1] }
-                    .split("/")
-                    .joinToString(".")
-
                 for (r in rules) {
-                    if (r.matches(fullClassName)) {
+                    if (r.matches(it.fullClassName)) {
                         return@filter r.isInclude()
                     }
                 }
@@ -116,7 +120,8 @@ abstract class GenerateBaselineProfileTask : DefaultTask() {
                 // otherwise exclude it.
                 return@filter !rules.any { r -> r.isInclude() }
             }
-            .toSet()
+            .sortedWith(ProfileRule.comparator)
+            .map { it.underlying }
 
         if (profileRules.isEmpty()) {
             throw GradleException(
@@ -132,11 +137,7 @@ abstract class GenerateBaselineProfileTask : DefaultTask() {
             .file(BASELINE_PROFILE_FILENAME)
             .get()
             .asFile
-            .writeText(
-                profileRules
-                    .sorted()
-                    .joinToString(System.lineSeparator())
-            )
+            .writeText(profileRules.joinToString(System.lineSeparator()))
     }
 
     private fun Pair<RuleType, String>.isInclude(): Boolean = first == RuleType.INCLUDE
@@ -164,5 +165,34 @@ abstract class GenerateBaselineProfileTask : DefaultTask() {
                 fullClassName == rule
             }
         }
+    }
+}
+
+// Implementation from:
+// benchmark/benchmark-macro/src/main/java/androidx/benchmark/macro/ProfileRule.kt
+private data class ProfileRule(
+    val underlying: String,
+    val flags: String,
+    val classDescriptor: String,
+    val methodDescriptor: String?,
+    val fullClassName: String,
+) {
+    companion object {
+
+        private val PROFILE_RULE_REGEX = "(H?S?P?)L([^;]*);(->)?(.*)".toRegex()
+
+        fun parse(rule: String): ProfileRule? = when (val result = PROFILE_RULE_REGEX.find(rule)) {
+            null -> null
+            else -> {
+                // Ignore `->`
+                val (flags, classDescriptor, _, methodDescriptor) = result.destructured
+                val fullClassName = classDescriptor.split("/").joinToString(".")
+                ProfileRule(rule, flags, classDescriptor, methodDescriptor, fullClassName)
+            }
+        }
+
+        internal val comparator: Comparator<ProfileRule> = compareBy(
+            { it.classDescriptor }, { it.methodDescriptor ?: "" }
+        )
     }
 }

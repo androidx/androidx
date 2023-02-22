@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.integration.baselineprofiles.flavors.consumer
+package androidx.benchmark.integration.baselineprofiles.library.consumer.exclude
 
-import android.app.Activity
-import android.os.Bundle
-import android.widget.TextView
+import android.util.Log
 
-class EmptyActivity : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        findViewById<TextView>(R.id.txtNotice).text = callFlavorMethod()
+class ExcludeClass {
+
+    companion object {
+        private const val TAG = "ExcludeClass"
+    }
+
+    fun doSomething() {
+        Log.d(TAG, "Done.")
     }
 }

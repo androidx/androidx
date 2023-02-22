@@ -50,11 +50,20 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
 
-    baselineprofiles(project(":benchmark:integration-tests:baselineprofiles-flavors-producer"))
+    baselineProfiles(project(":benchmark:integration-tests:baselineprofiles-flavors-producer"))
 }
 
 baselineProfilesProfileConsumer {
-    buildTypeName = "release"
+    onDemandGeneration = false
+    filter {
+        include "androidx.benchmark.integration.baselineprofiles.flavors.consumer.*"
+    }
+    filter("free") {
+        include "androidx.benchmark.integration.baselineprofiles.flavors.consumer.free.*"
+    }
+    filter("paid") {
+        include "androidx.benchmark.integration.baselineprofiles.flavors.consumer.paid.*"
+    }
 }
 
 apply(from: "../baselineprofiles-test-utils/utils.gradle")

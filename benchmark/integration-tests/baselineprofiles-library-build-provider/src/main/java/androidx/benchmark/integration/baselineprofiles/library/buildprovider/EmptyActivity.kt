@@ -19,11 +19,21 @@ package androidx.benchmark.integration.baselineprofiles.library.buildprovider
 import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
+import androidx.benchmark.integration.baselineprofiles.library.consumer.IncludeClass
+import androidx.benchmark.integration.baselineprofiles.library.consumer.exclude.ExcludeClass
 
 class EmptyActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<TextView>(R.id.txtNotice).setText(R.string.app_notice)
+
+        val includeClass = IncludeClass()
+        includeClass.doSomething()
+        includeClass.doSomethingWithArgument("a string")
+        includeClass.doSomethingWithReturnType(3, 5)
+
+        val excludeClass = ExcludeClass()
+        excludeClass.doSomething()
     }
 }
