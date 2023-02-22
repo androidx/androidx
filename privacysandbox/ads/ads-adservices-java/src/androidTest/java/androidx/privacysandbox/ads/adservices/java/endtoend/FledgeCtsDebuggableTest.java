@@ -53,7 +53,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -73,6 +72,10 @@ public class FledgeCtsDebuggableTest {
 
     // Configuration constants
     private static final int SDK_MAX_REQUEST_PERMITS_PER_SECOND = 1000;
+    // sleep time to prevent hitting rate limit, with a small tolerance to prevent edge
+    // case of max calls per second falling exactly within one second
+    private static final long DEFAULT_API_RATE_LIMIT_SLEEP_MS =
+            (long) (1000 / SDK_MAX_REQUEST_PERMITS_PER_SECOND) + 10L;
     private static final String DISABLE_MEASUREMENT_ENROLLMENT_CHECK = "1";
 
     // Time allowed by current test setup for APIs to respond
@@ -194,11 +197,14 @@ public class FledgeCtsDebuggableTest {
     }
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws Exception {
         mAdSelectionClient =
                 new AdSelectionClient(sContext);
         mCustomAudienceClient =
                 new CustomAudienceClient(sContext);
+
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
     }
 
     @Test
@@ -217,6 +223,9 @@ public class FledgeCtsDebuggableTest {
         mCustomAudienceClient
                 .joinCustomAudience(customAudience1)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -278,6 +287,9 @@ public class FledgeCtsDebuggableTest {
                 .joinCustomAudience(customAudience1)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -329,6 +341,9 @@ public class FledgeCtsDebuggableTest {
         mCustomAudienceClient
                 .joinCustomAudience(customAudience1)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -384,6 +399,9 @@ public class FledgeCtsDebuggableTest {
                 .joinCustomAudience(customAudience1)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -427,6 +445,9 @@ public class FledgeCtsDebuggableTest {
         mCustomAudienceClient
                 .joinCustomAudience(customAudience1)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -483,6 +504,9 @@ public class FledgeCtsDebuggableTest {
                 .joinCustomAudience(customAudience1)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -525,6 +549,9 @@ public class FledgeCtsDebuggableTest {
         mCustomAudienceClient
                 .joinCustomAudience(customAudience1)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
 
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
@@ -588,6 +615,9 @@ public class FledgeCtsDebuggableTest {
                 .joinCustomAudience(customAudience1)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -642,6 +672,9 @@ public class FledgeCtsDebuggableTest {
                 .joinCustomAudience(customAudience1)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -693,6 +726,9 @@ public class FledgeCtsDebuggableTest {
                 .joinCustomAudience(customAudience1)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -736,6 +772,10 @@ public class FledgeCtsDebuggableTest {
         mCustomAudienceClient
                 .joinCustomAudience(customAudience1)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+        // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
+        Thread.sleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
+
         mCustomAudienceClient
                 .joinCustomAudience(customAudience2)
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
