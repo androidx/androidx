@@ -21,9 +21,10 @@ import static androidx.appactions.interaction.capabilities.core.impl.utils.Immut
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.values.Thing;
-import androidx.appactions.interaction.protobuf.ListValue;
-import androidx.appactions.interaction.protobuf.Struct;
-import androidx.appactions.interaction.protobuf.Value;
+
+import com.google.protobuf.ListValue;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
