@@ -26,8 +26,7 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    implementation("androidx.activity:activity-compose:1.6.1")
-    implementation(project(":activity:activity"))
+    implementation(project(":activity:activity-compose"))
 
     implementation(project(":compose:material3:material3"))
     implementation(project(":navigation:navigation-runtime"))

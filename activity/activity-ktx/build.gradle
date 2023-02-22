@@ -24,10 +24,6 @@ plugins {
 }
 
 dependencies {
-    // Atomic group
-    constraints {
-        implementation(project(":activity:activity"))
-    }
 
     api(project(":activity:activity"))
     api("androidx.core:core-ktx:1.1.0") {
