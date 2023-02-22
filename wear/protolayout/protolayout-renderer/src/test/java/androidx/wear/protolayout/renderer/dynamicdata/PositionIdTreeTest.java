@@ -54,7 +54,7 @@ public class PositionIdTreeTest {
     private static final String NODE_3_1_1 = createNodePosId(NODE_3_1, FIRST_CHILD_INDEX);
     private static final String NODE_3_1_1_1 = createNodePosId(NODE_3_1_1, FIRST_CHILD_INDEX);
 
-    @Rule public final MockitoRule mMocks = MockitoJUnit.rule();
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
 
     @Mock TreeNode mNodeRoot;
     @Mock TreeNode mNode1;
@@ -173,7 +173,8 @@ public class PositionIdTreeTest {
         // Missing NODE_3_1
         mTree.addOrReplace(NODE_3_1_1, mNode3Child1Child1);
         mTree.addOrReplace(NODE_3_1_1_1, mNode3Child1Child1Child1);
-        List<TreeNode> nodesOfInterest = Arrays.asList(mNodeRoot, mNode1, mNode3Child1Child1, mNode3);
+        List<TreeNode> nodesOfInterest =
+                Arrays.asList(mNodeRoot, mNode1, mNode3Child1Child1, mNode3);
 
         assertThat(mTree.findAncestorsFor(NODE_3_1_1_1, nodesOfInterest::contains))
                 .containsExactly(mNodeRoot, mNode3Child1Child1, mNode3);
@@ -218,8 +219,8 @@ public class PositionIdTreeTest {
         mTree.addOrReplace(NODE_3_1, mNode3Child1);
         // Missing NODE_3_1_1
         mTree.addOrReplace(NODE_3_1_1_1, mNode3Child1Child1Child1);
-        List<TreeNode> nodesOfInterest = Arrays.asList(mNode3, mNode3Child1,
-                mNode3Child1Child1Child1);
+        List<TreeNode> nodesOfInterest =
+                Arrays.asList(mNode3, mNode3Child1, mNode3Child1Child1Child1);
 
         assertThat(mTree.findChildrenFor(NODE_3, nodesOfInterest::contains))
                 .containsExactly(mNode3Child1);

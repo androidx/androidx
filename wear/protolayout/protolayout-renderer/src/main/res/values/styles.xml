@@ -16,6 +16,5 @@
     <item name="protoLayoutFallbackTextAppearance">@style/ProtoLayoutFallbackTextAppearance</item>
     <item name="protoLayoutTitleFont">@style/ProtoLayoutBaseFont</item>
     <item name="protoLayoutBodyFont">@style/ProtoLayoutBaseFont</item>
-    <item name="protoLayoutVendor1Font">@style/ProtoLayoutBaseFont</item>
   </style>
 </resources>

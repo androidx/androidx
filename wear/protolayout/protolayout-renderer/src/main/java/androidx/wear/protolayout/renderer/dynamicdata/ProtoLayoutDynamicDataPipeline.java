@@ -232,9 +232,9 @@ public class ProtoLayoutDynamicDataPipeline {
     /**
      * PipelineMaker for a dynamic data pipeline.
      *
-     * <p>Given a dynamic ProtoLayout data source, this creates a sequence of
-     * {@link BoundDynamicType} instances, which can source the required data, and transform it
-     * into its final form.
+     * <p>Given a dynamic ProtoLayout data source, this creates a sequence of {@link
+     * BoundDynamicType} instances, which can source the required data, and transform it into its
+     * final form.
      *
      * <p>The nodes are accumulated and can be committed to the pipeline.
      *
