@@ -144,9 +144,6 @@ class PublicKeyCredentialEntry internal constructor(
         internal const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_OPTION_BUNDLE =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_BUNDLE"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_OPTION_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -185,9 +182,6 @@ class PublicKeyCredentialEntry internal constructor(
                     listOf(SLICE_HINT_SUBTITLE))
                 .addText(autoSelectAllowed, /*subType=*/null,
                     listOf(SLICE_HINT_AUTO_ALLOWED))
-                .addBundle(beginGetPublicKeyCredentialOption.candidateQueryData,
-                    /*subType=*/null,
-                    listOf(SLICE_HINT_OPTION_BUNDLE))
                 .addText(
                     beginGetPublicKeyCredentialOption.id,
                     /*subType=*/null,
@@ -227,7 +221,6 @@ class PublicKeyCredentialEntry internal constructor(
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
-            var beginGetPublicKeyCredentialOptionBundle: Bundle? = null
             var beginGetPublicKeyCredentialOptionId: CharSequence? = null
 
             slice.items.forEach {
@@ -241,8 +234,6 @@ class PublicKeyCredentialEntry internal constructor(
                     icon = it.icon
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
-                } else if (it.hasHint(SLICE_HINT_OPTION_BUNDLE)) {
-                    beginGetPublicKeyCredentialOptionBundle = it.bundle
                 } else if (it.hasHint(SLICE_HINT_OPTION_ID)) {
                     beginGetPublicKeyCredentialOptionId = it.text
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
@@ -265,7 +256,7 @@ class PublicKeyCredentialEntry internal constructor(
                     lastUsedTime,
                     autoSelectAllowed,
                     BeginGetPublicKeyCredentialOption.createFrom(
-                        beginGetPublicKeyCredentialOptionBundle!!,
+                        Bundle(),
                         beginGetPublicKeyCredentialOptionId!!.toString()
                     )
                 )
