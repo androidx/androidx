@@ -20,7 +20,6 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.javac.JavacType
-import androidx.room.compiler.processing.ksp.jvmDescriptor
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asKClassName
@@ -1957,7 +1956,7 @@ class XTypeElementTest(
             )
         ) { invocation ->
             val foo = invocation.processingEnv.requireTypeElement("test.Foo")
-            assertThat(foo.getDeclaredMethods().map { it.jvmDescriptor() }.toList())
+            assertThat(foo.getDeclaredMethods().map { it.jvmDescriptor }.toList())
                 .containsExactly(
                     "method()Ljava/lang/String;",
                     "method(Ljava/lang/String;)Ljava/lang/String;",
@@ -1967,6 +1966,55 @@ class XTypeElementTest(
                     "method(Ltest/Baz;Ljava/lang/Object;)V",
                     "method(Ltest/Baz;Ltest/Baz;)Ltest/Bar;"
                 ).inOrder()
+        }
+    }
+
+    @Test
+    fun jvmDescriptors() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "test.Foo.kt",
+                    """
+                    package test
+                    class Foo<T1: Bar, T2: Baz> {
+                        val field1: String = TODO()
+                        var field2: String? = TODO()
+                        val field3: T1 = TODO()
+                        fun method(): String = TODO()
+                        fun method(param: String): String = TODO()
+                        fun method(param: Any): String = TODO()
+                        fun method(param: T1): T2 = TODO()
+                    }
+                    interface Bar
+                    interface Baz
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("test.Foo")
+            assertThat(foo.getEnclosedElements().map {
+                when {
+                    it.isField() -> it.jvmDescriptor
+                    it.isMethod() -> it.jvmDescriptor
+                    it.isConstructor() -> it.jvmDescriptor
+                    else -> error("Unsupported element to describe.")
+                }
+            }.toList())
+                .containsExactly(
+                    "<init>()V",
+                    "field1:Ljava/lang/String;",
+                    "field2:Ljava/lang/String;",
+                    "field3:Ltest/Bar;",
+                    "getField1()Ljava/lang/String;",
+                    "getField2()Ljava/lang/String;",
+                    "setField2(Ljava/lang/String;)V",
+                    "getField3()Ltest/Bar;",
+                    "method()Ljava/lang/String;",
+                    "method(Ljava/lang/String;)Ljava/lang/String;",
+                    "method(Ljava/lang/Object;)Ljava/lang/String;",
+                    "method(Ltest/Bar;)Ltest/Baz;",
+                )
         }
     }
 
