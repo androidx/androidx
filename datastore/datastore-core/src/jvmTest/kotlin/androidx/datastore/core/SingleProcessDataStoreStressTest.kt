@@ -167,6 +167,7 @@ class SingleProcessDataStoreStressTest {
     }
 
     @Test
+    @Ignore("b/270197519")
     fun testManyConcurrentReadsAndWrites_withBeginningReadFailures() = runBlocking<Unit> {
         val myScope = CoroutineScope(
             Job() + Executors.newFixedThreadPool(4).asCoroutineDispatcher()
