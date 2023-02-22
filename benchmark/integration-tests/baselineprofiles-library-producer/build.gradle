@@ -35,7 +35,7 @@ android {
             systemImageSource = "aosp"
         }
     }
-    targetProjectPath = ":benchmark:integration-tests:baselineprofiles-library-build-provider"
+    targetProjectPath = ":benchmark:integration-tests:baselineprofiles-library-apk-provider"
     namespace "androidx.benchmark.integration.baselineprofiles.library.producer"
 }
 

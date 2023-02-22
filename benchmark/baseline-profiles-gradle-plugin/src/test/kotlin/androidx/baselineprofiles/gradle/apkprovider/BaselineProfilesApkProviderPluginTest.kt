@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.baselineprofiles.gradle.buildprovider
+package androidx.baselineprofiles.gradle.apkprovider
 
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BaselineProfilesBuildProviderPluginTest {
+class BaselineProfilesApkProviderPluginTest {
 
     @get:Rule
     val projectSetup = ProjectSetupRule()
@@ -46,7 +46,7 @@ class BaselineProfilesBuildProviderPluginTest {
             prefix = """
                 plugins {
                     id("com.android.application")
-                    id("androidx.baselineprofiles.buildprovider")
+                    id("androidx.baselineprofiles.apkprovider")
                 }
                 android {
                     namespace 'com.example.namespace'
