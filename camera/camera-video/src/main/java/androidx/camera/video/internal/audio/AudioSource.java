@@ -137,6 +137,10 @@ public final class AudioSource {
     private Observable.Observer<BufferProvider.State> mStateObserver;
     boolean mInSilentStartState;
     private long mLatestFailedStartTimeNs;
+    boolean mAudioStreamSilenced;
+    boolean mMuted;
+    @Nullable
+    private byte[] mZeroBytes;
 
     /**
      * Creates an AudioSource for the given settings.
@@ -190,7 +194,10 @@ public final class AudioSource {
         @ExecutedBy("mExecutor")
         @Override
         public void onSilenceStateChanged(boolean isSilenced) {
-            notifySilenced(isSilenced);
+            mAudioStreamSilenced = isSilenced;
+            if (mState == STARTED) {
+                notifySilenced();
+            }
         }
     }
 
@@ -335,6 +342,27 @@ public final class AudioSource {
         });
     }
 
+    /** Mutes or un-mutes the audio source. */
+    public void mute(boolean muted) {
+        mExecutor.execute(() -> {
+            switch (mState) {
+                case CONFIGURED:
+                    // Fall-through
+                case STARTED:
+                    if (mMuted == muted) {
+                        return;
+                    }
+                    mMuted = muted;
+                    if (mState == STARTED) {
+                        notifySilenced();
+                    }
+                    break;
+                case RELEASED:
+                    throw new AssertionError("AudioSource is released");
+            }
+        });
+    }
+
     @ExecutedBy("mExecutor")
     private void resetBufferProvider(
             @Nullable BufferProvider<? extends InputBuffer> bufferProvider) {
@@ -391,6 +419,9 @@ public final class AudioSource {
                     ByteBuffer byteBuffer = inputBuffer.getByteBuffer();
                     AudioStream.PacketInfo packetInfo = audioStream.read(byteBuffer);
                     if (packetInfo.getSizeInBytes() > 0) {
+                        if (mMuted) {
+                            overrideBySilence(byteBuffer, packetInfo.getSizeInBytes());
+                        }
                         byteBuffer.limit(byteBuffer.position() + packetInfo.getSizeInBytes());
                         inputBuffer.setPresentationTimeUs(
                                 NANOSECONDS.toMicros(packetInfo.getTimestampNs()));
@@ -465,10 +496,11 @@ public final class AudioSource {
     }
 
     @ExecutedBy("mExecutor")
-    void notifySilenced(boolean isSilenced) {
+    void notifySilenced() {
         Executor executor = mCallbackExecutor;
         AudioSourceCallback callback = mAudioSourceCallback;
         if (executor != null && callback != null) {
+            boolean isSilenced = mMuted || mInSilentStartState || mAudioStreamSilenced;
             if (!Objects.equals(mNotifiedSilenceState.getAndSet(isSilenced), isSilenced)) {
                 executor.execute(() -> callback.onSilenceStateChanged(isSilenced));
             }
@@ -484,6 +516,16 @@ public final class AudioSource {
                 executor.execute(() -> callback.onSuspendStateChanged(isSuspended));
             }
         }
+    }
+
+    @ExecutedBy("mExecutor")
+    void overrideBySilence(@NonNull ByteBuffer byteBuffer, int sizeInBytes) {
+        if (mZeroBytes == null || mZeroBytes.length < sizeInBytes) {
+            mZeroBytes = new byte[sizeInBytes];
+        }
+        int positionBeforePut = byteBuffer.position();
+        byteBuffer.put(mZeroBytes, 0, sizeInBytes);
+        byteBuffer.limit(byteBuffer.position()).position(positionBeforePut);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -511,12 +553,13 @@ public final class AudioSource {
         try {
             Logger.d(TAG, "startSendingAudio");
             mAudioStream.start();
+            mInSilentStartState = false;
         } catch (AudioStream.AudioStreamException e) {
             Logger.w(TAG, "Failed to start AudioStream", e);
             mInSilentStartState = true;
             mSilentAudioStream.start();
             mLatestFailedStartTimeNs = getCurrentSystemTimeNs();
-            notifySilenced(true);
+            notifySilenced();
         }
         mIsSendingAudio = true;
         sendNextAudio();
