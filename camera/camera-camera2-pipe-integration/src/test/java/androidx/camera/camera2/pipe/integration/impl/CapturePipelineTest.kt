@@ -38,6 +38,8 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
+import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsFlash
+import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlashImpl
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession
@@ -176,6 +178,11 @@ class CapturePipelineTest {
             mapOf(CameraCharacteristics.FLASH_INFO_AVAILABLE to true),
         )
     )
+    private val fakeUseCaseGraphConfig = UseCaseGraphConfig(
+        graph = FakeCameraGraph(fakeCameraGraphSession = fakeCameraGraphSession),
+        surfaceToStreamMap = emptyMap(),
+        cameraStateAdapter = CameraStateAdapter(),
+    )
     private var runningRepeatingStream: ScheduledFuture<*>? = null
         set(value) {
             runningRepeatingStream?.cancel(false)
@@ -210,12 +217,6 @@ class CapturePipelineTest {
             fakeRequestControl.torchUpdateEventList.clear()
         }
 
-        val fakeUseCaseGraphConfig = UseCaseGraphConfig(
-            graph = FakeCameraGraph(fakeCameraGraphSession = fakeCameraGraphSession),
-            surfaceToStreamMap = emptyMap(),
-            cameraStateAdapter = CameraStateAdapter(),
-        )
-
         fakeUseCaseCameraState = UseCaseCameraState(
             fakeUseCaseGraphConfig,
             fakeUseCaseThreads
@@ -226,6 +227,7 @@ class CapturePipelineTest {
             threads = fakeUseCaseThreads,
             requestListener = comboRequestListener,
             cameraProperties = fakeCameraProperties,
+            useTorchAsFlash = NotUseTorchAsFlash,
             useCaseGraphConfig = fakeUseCaseGraphConfig,
             useCaseCameraState = fakeUseCaseCameraState
         )
@@ -329,8 +331,59 @@ class CapturePipelineTest {
         ).isTrue()
     }
 
-    // TODO(wenhungteng@): Porting miniLatency_withTorchAsFlashQuirk_shouldOpenTorch,
-    //  maxQuality_withTorchAsFlashQuirk_shouldOpenTorch
+    @Test
+    fun miniLatency_withTorchAsFlashQuirk_shouldOpenTorch(): Unit = runBlocking {
+        withTorchAsFlashQuirk_shouldOpenTorch(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+    }
+
+    @Test
+    fun maxQuality_withTorchAsFlashQuirk_shouldOpenTorch(): Unit = runBlocking {
+        withTorchAsFlashQuirk_shouldOpenTorch(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+    }
+
+    private suspend fun withTorchAsFlashQuirk_shouldOpenTorch(imageCaptureMode: Int) {
+        // Arrange.
+        capturePipeline = CapturePipelineImpl(
+            torchControl = torchControl,
+            threads = fakeUseCaseThreads,
+            requestListener = comboRequestListener,
+            useTorchAsFlash = UseTorchAsFlashImpl,
+            cameraProperties = fakeCameraProperties,
+            useCaseGraphConfig = fakeUseCaseGraphConfig,
+            useCaseCameraState = fakeUseCaseCameraState,
+        )
+
+        val requestList = mutableListOf<Request>()
+        fakeCameraGraphSession.requestHandler = { requests ->
+            requestList.addAll(requests)
+        }
+
+        // Act.
+        capturePipeline.submitStillCaptures(
+            requests = listOf(singleRequest),
+            captureMode = imageCaptureMode,
+            flashMode = ImageCapture.FLASH_MODE_ON,
+            flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        )
+
+        // Assert 1, torch should be turned on.
+        assertThat(
+            fakeRequestControl.setTorchSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+        ).isTrue()
+        assertThat(fakeRequestControl.torchUpdateEventList.size).isEqualTo(1)
+        assertThat(fakeRequestControl.torchUpdateEventList.removeFirst()).isTrue()
+
+        // Complete the capture request.
+        assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+        requestList.complete()
+
+        // Assert 2, torch should be turned off.
+        assertThat(
+            fakeRequestControl.setTorchSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+        ).isTrue()
+        assertThat(fakeRequestControl.torchUpdateEventList.size).isEqualTo(1)
+        assertThat(fakeRequestControl.torchUpdateEventList.removeFirst()).isFalse()
+    }
 
     @Test
     @Ignore // b/216788724
