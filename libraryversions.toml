@@ -223,6 +223,7 @@ LEANBACK = { group = "androidx.leanback" }
 LEGACY = { group = "androidx.legacy" }
 LIBYUV = { group = "libyuv", atomicGroupVersion = "versions.LIBYUV" }
 LIFECYCLE = { group = "androidx.lifecycle", atomicGroupVersion = "versions.LIFECYCLE" }
+LIFECYCLE_EXTENSIONS = { group = "androidx.lifecycle", atomicGroupVersion = "versions.LIFECYCLE_EXTENSIONS", overrideInclude = [ ":lifecycle:lifecycle-extensions" ] }
 LOADER = { group = "androidx.loader", atomicGroupVersion = "versions.LOADER" }
 MEDIA = { group = "androidx.media" }
 MEDIA2 = { group = "androidx.media2", atomicGroupVersion = "versions.MEDIA2" }
