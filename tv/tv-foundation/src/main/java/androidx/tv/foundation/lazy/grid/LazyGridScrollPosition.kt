@@ -130,7 +130,7 @@ internal fun LazyGridItemProvider.findIndexByKey(
         return lastKnownIndex
     }
     val newIndex = keyToIndexMap[key]
-    if (newIndex != null) {
+    if (newIndex != -1) {
         return newIndex
     }
     // fallback to the previous index if we don't know the new index of the item

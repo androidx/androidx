@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
@@ -25,7 +26,7 @@ import androidx.compose.ui.unit.Constraints
  * Abstracts away the subcomposition from the measuring logic.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyMeasuredItemProvider @ExperimentalFoundationApi constructor(
+internal class LazyListMeasuredItemProvider @ExperimentalFoundationApi constructor(
     constraints: Constraints,
     isVertical: Boolean,
     private val itemProvider: LazyListItemProvider,
@@ -40,9 +41,9 @@ internal class LazyMeasuredItemProvider @ExperimentalFoundationApi constructor(
 
     /**
      * Used to subcompose items of lazy lists. Composed placeables will be measured with the
-     * correct constraints and wrapped into [LazyMeasuredItem].
+     * correct constraints and wrapped into [LazyListMeasuredItem].
      */
-    fun getAndMeasure(index: DataIndex): LazyMeasuredItem {
+    fun getAndMeasure(index: DataIndex): LazyListMeasuredItem {
         val key = itemProvider.getKey(index.value)
         val placeables = measureScope.measure(index.value, childConstraints)
         return measuredItemFactory.createItem(index, key, placeables)
@@ -52,7 +53,7 @@ internal class LazyMeasuredItemProvider @ExperimentalFoundationApi constructor(
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
      **/
-    val keyToIndexMap: Map<Any, Int> get() = itemProvider.keyToIndexMap
+    val keyToIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyToIndexMap
 }
 
 // This interface allows to avoid autoboxing on index param
@@ -61,5 +62,5 @@ internal fun interface MeasuredItemFactory {
         index: DataIndex,
         key: Any,
         placeables: List<Placeable>
-    ): LazyMeasuredItem
+    ): LazyListMeasuredItem
 }

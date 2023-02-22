@@ -22,11 +22,18 @@ import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyGridScopeImpl : LazyGridScope {
-    internal val intervals = MutableIntervalList<LazyGridIntervalContent>()
+internal class LazyGridIntervalContent(
+    content: LazyGridScope.() -> Unit
+) : LazyGridScope, LazyLayoutIntervalContent<LazyGridInterval>() {
+    internal val spanLayoutProvider: LazyGridSpanLayoutProvider = LazyGridSpanLayoutProvider(this)
+
+    override val intervals = MutableIntervalList<LazyGridInterval>()
+
     internal var hasCustomSpans = false
 
-    private val DefaultSpan: LazyGridItemSpanScope.(Int) -> GridItemSpan = { GridItemSpan(1) }
+    init {
+        apply(content)
+    }
 
     override fun item(
         key: Any?,
@@ -36,7 +43,7 @@ internal class LazyGridScopeImpl : LazyGridScope {
     ) {
         intervals.addInterval(
             1,
-            LazyGridIntervalContent(
+            LazyGridInterval(
                 key = key?.let { { key } },
                 span = span?.let { { span() } } ?: DefaultSpan,
                 type = { contentType },
@@ -55,7 +62,7 @@ internal class LazyGridScopeImpl : LazyGridScope {
     ) {
         intervals.addInterval(
             count,
-            LazyGridIntervalContent(
+            LazyGridInterval(
                 key = key,
                 span = span ?: DefaultSpan,
                 type = contentType,
@@ -64,12 +71,16 @@ internal class LazyGridScopeImpl : LazyGridScope {
         )
         if (span != null) hasCustomSpans = true
     }
+
+    private companion object {
+        val DefaultSpan: LazyGridItemSpanScope.(Int) -> GridItemSpan = { GridItemSpan(1) }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyGridIntervalContent(
+internal class LazyGridInterval(
     override val key: ((index: Int) -> Any)?,
     val span: LazyGridItemSpanScope.(Int) -> GridItemSpan,
     override val type: ((index: Int) -> Any?),
     val item: @Composable LazyGridItemScope.(Int) -> Unit
-) : LazyLayoutIntervalContent
+) : LazyLayoutIntervalContent.Interval

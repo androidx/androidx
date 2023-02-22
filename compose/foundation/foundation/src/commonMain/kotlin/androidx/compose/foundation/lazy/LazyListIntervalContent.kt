@@ -17,19 +17,22 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyListScopeImpl : LazyListScope {
-
-    private val _intervals = MutableIntervalList<LazyListIntervalContent>()
-    val intervals: IntervalList<LazyListIntervalContent> = _intervals
+internal class LazyListIntervalContent(
+    content: LazyListScope.() -> Unit,
+) : LazyLayoutIntervalContent<LazyListInterval>(), LazyListScope {
+    override val intervals: MutableIntervalList<LazyListInterval> = MutableIntervalList()
 
     private var _headerIndexes: MutableList<Int>? = null
     val headerIndexes: List<Int> get() = _headerIndexes ?: emptyList()
+
+    init {
+        apply(content)
+    }
 
     override fun items(
         count: Int,
@@ -37,9 +40,9 @@ internal class LazyListScopeImpl : LazyListScope {
         contentType: (index: Int) -> Any?,
         itemContent: @Composable LazyItemScope.(index: Int) -> Unit
     ) {
-        _intervals.addInterval(
+        intervals.addInterval(
             count,
-            LazyListIntervalContent(
+            LazyListInterval(
                 key = key,
                 type = contentType,
                 item = itemContent
@@ -48,9 +51,9 @@ internal class LazyListScopeImpl : LazyListScope {
     }
 
     override fun item(key: Any?, contentType: Any?, content: @Composable LazyItemScope.() -> Unit) {
-        _intervals.addInterval(
+        intervals.addInterval(
             1,
-            LazyListIntervalContent(
+            LazyListInterval(
                 key = if (key != null) { _: Int -> key } else null,
                 type = { contentType },
                 item = { content() }
@@ -67,15 +70,15 @@ internal class LazyListScopeImpl : LazyListScope {
         val headersIndexes = _headerIndexes ?: mutableListOf<Int>().also {
             _headerIndexes = it
         }
-        headersIndexes.add(_intervals.size)
+        headersIndexes.add(intervals.size)
 
         item(key, contentType, content)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyListIntervalContent(
+internal class LazyListInterval(
     override val key: ((index: Int) -> Any)?,
     override val type: ((index: Int) -> Any?),
     val item: @Composable LazyItemScope.(index: Int) -> Unit
-) : LazyLayoutIntervalContent
+) : LazyLayoutIntervalContent.Interval

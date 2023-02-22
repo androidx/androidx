@@ -29,7 +29,7 @@ import androidx.compose.ui.util.fastForEachIndexed
  */
 internal fun findOrComposeLazyListHeader(
     composedVisibleItems: MutableList<LazyListPositionedItem>,
-    itemProvider: LazyMeasuredItemProvider,
+    itemProvider: LazyListMeasuredItemProvider,
     headerIndexes: List<Int>,
     beforeContentPadding: Int,
     layoutWidth: Int,
