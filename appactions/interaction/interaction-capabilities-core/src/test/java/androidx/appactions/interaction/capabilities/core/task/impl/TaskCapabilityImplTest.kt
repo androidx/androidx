@@ -17,11 +17,12 @@ package androidx.appactions.interaction.capabilities.core.task.impl
 
 import android.util.SizeF
 import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.InitArg
 import androidx.appactions.interaction.capabilities.core.SessionBuilder
-import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
+import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.DisambigEntityConverter
@@ -61,6 +62,7 @@ import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
 import androidx.appactions.interaction.proto.Entity
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.SYNC
+import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.TERMINATE
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Type.UNKNOWN_TYPE
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
@@ -236,6 +238,81 @@ class TaskCapabilityImplTest {
     }
 
     @Test
+    fun slotFilling_getStatus_smokeTest() {
+        val property: CapabilityTwoEntityValues.Property =
+            CapabilityTwoEntityValues.Property.newBuilder()
+                .setSlotA(EntityProperty.Builder().setRequired(true).build())
+                .setSlotB(EntityProperty.Builder().setRequired(true).build())
+                .build()
+        val sessionBuilder = SessionBuilder<CapabilityTwoEntityValues.Session> {
+            object : CapabilityTwoEntityValues.Session {
+                override suspend fun onFinish(
+                    argument: CapabilityTwoEntityValues.Argument,
+                ): ExecutionResult<Void> = ExecutionResult.getDefaultInstance()
+            }
+        }
+        val sessionBridge = SessionBridge<CapabilityTwoEntityValues.Session, Void> {
+            TaskHandler.Builder<Void>().registerValueTaskParam(
+                "slotA",
+                AUTO_ACCEPT_ENTITY_VALUE,
+                TypeConverters::toEntityValue,
+            ).registerValueTaskParam(
+                "slotB",
+                AUTO_ACCEPT_ENTITY_VALUE,
+                TypeConverters::toEntityValue,
+            ).build()
+        }
+        val capability: ActionCapability = TaskCapabilityImpl(
+            "fakeId",
+            CapabilityTwoEntityValues.ACTION_SPEC,
+            property,
+            sessionBuilder,
+            sessionBridge,
+            ::EmptyTaskUpdater,
+        )
+
+        val session = capability.createSession(hostProperties)
+        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.UNINITIATED)
+
+        // turn 1
+        val turn1Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        session.execute(
+            buildRequestArgs(
+                SYNC,
+                "slotA",
+                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
+            ),
+            buildActionCallback(turn1Success),
+        )
+        assertThat(turn1Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.IN_PROGRESS)
+
+        // turn 2
+        val turn2Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        session.execute(
+            buildRequestArgs(
+                SYNC,
+                "slotA",
+                ParamValue.newBuilder().setIdentifier("foo").setStringValue("foo").build(),
+                "slotB",
+                ParamValue.newBuilder().setIdentifier("bar").setStringValue("bar").build(),
+            ),
+            buildActionCallback(turn2Success),
+        )
+        assertThat(turn2Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.COMPLETED)
+
+        // turn 3
+        val turn3Success: SettableFutureWrapper<Boolean> = SettableFutureWrapper()
+        session.execute(
+            buildRequestArgs(TERMINATE),
+            buildActionCallback(turn3Success),
+        )
+        assertThat(turn3Success.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
+        assertThat(session.status).isEqualTo(ActionCapabilitySession.Status.DESTROYED)
+    }
+
+    @Test
     @kotlin.Throws(Exception::class)
     fun slotFilling_optionalButRejectedParam_onFinishNotInvoked() {
         val onFinishInvocationCount = AtomicInteger(0)
@@ -245,7 +322,14 @@ class TaskCapabilityImplTest {
                 .setSlotB(EntityProperty.Builder().setRequired(false).build())
                 .build()
         val sessionBuilder = SessionBuilder<CapabilityTwoEntityValues.Session> {
-            object : CapabilityTwoEntityValues.Session {}
+            object : CapabilityTwoEntityValues.Session {
+                override suspend fun onFinish(
+                    argument: CapabilityTwoEntityValues.Argument,
+                ): ExecutionResult<Void> {
+                    onFinishInvocationCount.incrementAndGet()
+                    return ExecutionResult.getDefaultInstance()
+                }
+            }
         }
         val sessionBridge = SessionBridge<CapabilityTwoEntityValues.Session, Void> {
             TaskHandler.Builder<Void>().registerValueTaskParam(
