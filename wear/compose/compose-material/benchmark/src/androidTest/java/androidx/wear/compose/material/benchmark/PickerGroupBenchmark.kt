@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,89 +16,80 @@
 
 package androidx.wear.compose.material.benchmark
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkDrawPerf
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyColumn
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.rememberScalingLazyListState
+import androidx.wear.compose.material.PickerGroup
+import androidx.wear.compose.material.PickerGroupItem
+import androidx.wear.compose.material.PickerState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Benchmark for Wear Compose ScalingLazyColumn.
+ * Benchmark for Wear Compose PickerGroup.
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class ScalingLazyColumnBenchmark {
+class PickerGroupBenchmark {
 
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
-    private val scalingLazyColumnCaseFactory = { ScalingLazyColumnTestCase() }
+    private val pickerGroupCaseFactory = { PickerGroupTestCase() }
 
     @Test
     fun first_compose() {
-        benchmarkRule.benchmarkFirstCompose(scalingLazyColumnCaseFactory)
+        benchmarkRule.benchmarkFirstCompose(pickerGroupCaseFactory)
     }
 
     @Test
     fun first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(scalingLazyColumnCaseFactory)
+        benchmarkRule.benchmarkFirstMeasure(pickerGroupCaseFactory)
     }
 
     @Test
     fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(scalingLazyColumnCaseFactory)
+        benchmarkRule.benchmarkFirstLayout(pickerGroupCaseFactory)
     }
 
     @Test
     fun first_draw() {
-        benchmarkRule.benchmarkFirstDraw(scalingLazyColumnCaseFactory)
+        benchmarkRule.benchmarkFirstDraw(pickerGroupCaseFactory)
     }
 
     @Test
     fun layout() {
-        benchmarkRule.benchmarkLayoutPerf(scalingLazyColumnCaseFactory)
+        benchmarkRule.benchmarkLayoutPerf(pickerGroupCaseFactory)
     }
 
     @Test
     fun draw() {
-        benchmarkRule.benchmarkDrawPerf(scalingLazyColumnCaseFactory)
+        benchmarkRule.benchmarkDrawPerf(pickerGroupCaseFactory)
     }
 }
 
-@Suppress("DEPRECATION")
-internal class ScalingLazyColumnTestCase : LayeredComposeTestCase() {
-    private var itemSizeDp: Dp = 10.dp
-    private var defaultItemSpacingDp: Dp = 4.dp
+internal class PickerGroupTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
-        ScalingLazyColumn(
-            state = rememberScalingLazyListState(),
-            modifier = Modifier.requiredSize(
-                itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+        PickerGroup(
+            PickerGroupItem(
+                PickerState(20),
+                option = { optionIndex, _ -> Text("%02d".format(optionIndex)) }
             ),
-        ) {
-            items(10) { it ->
-                Box(Modifier.requiredSize(itemSizeDp)) {
-                    Text(text = "Item $it")
-                }
-            }
-        }
+            PickerGroupItem(
+                PickerState(20),
+                option = { optionIndex, _ -> Text("%02d".format(optionIndex)) }
+            ),
+        )
     }
 
     @Composable
