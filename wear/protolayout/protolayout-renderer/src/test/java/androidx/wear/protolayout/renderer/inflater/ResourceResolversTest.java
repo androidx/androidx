@@ -16,8 +16,6 @@
 
 package androidx.wear.protolayout.renderer.inflater;
 
-import static androidx.wear.protolayout.renderer.common.FuturesHelper.createImmediateFuture;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -51,6 +49,7 @@ import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.InlineImage
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.ResourceAccessException;
 import androidx.wear.protolayout.renderer.test.R;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Rule;
@@ -77,7 +76,8 @@ public class ResourceResolversTest {
     @Mock private AndroidImageResourceByContentUriResolver mContentUriResolver;
 
     private final Drawable mTestDrawable = new VectorDrawable();
-    private final ListenableFuture<Drawable> mFutureDrawable = createImmediateFuture(mTestDrawable);
+    private final ListenableFuture<Drawable> mFutureDrawable = Futures.immediateFuture(
+            mTestDrawable);
 
     private static final InlineImageResource INLINE_IMAGE =
             InlineImageResource.newBuilder().setHeightPx(123).setWidthPx(456).build();
