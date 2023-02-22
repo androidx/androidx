@@ -31,11 +31,13 @@ import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.DependencyConstraint
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.component.ComponentWithCoordinates
 import org.gradle.api.component.ComponentWithVariants
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency
+import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependencyConstraint
 import org.gradle.api.internal.artifacts.ivyservice.projectmodule.ProjectComponentPublication
 import org.gradle.api.internal.component.SoftwareComponentInternal
 import org.gradle.api.provider.ListProperty
@@ -108,6 +110,9 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
     @get:Input
     abstract val dependencyList: ListProperty<LibraryBuildInfoFile.Dependency>
 
+    @get:Input
+    abstract val dependencyConstraintList: ListProperty<LibraryBuildInfoFile.Dependency>
+
     /**
      * the local project directory without the full framework/support root directory path
      */
@@ -151,7 +156,9 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.projectZipPath = projectZipPath.get()
         libraryBuildInfoFile.kotlinVersion = kotlinVersion.orNull
         libraryBuildInfoFile.checks = ArrayList()
-        libraryBuildInfoFile.dependencies = ArrayList(dependencyList.get())
+        libraryBuildInfoFile.dependencies = ArrayList(
+            dependencyList.get() + dependencyConstraintList.get()
+        )
         return libraryBuildInfoFile
     }
 
@@ -214,6 +221,9 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
 
                 // lazily compute the task dependency list based on the variant dependencies.
                 task.dependencyList.set(variant.dependencies.map { it.asBuildInfoDependencies() })
+                task.dependencyConstraintList.set(variant.dependencyConstraints.map {
+                    it.asBuildInfoDependencies()
+                })
             }
         }
 
@@ -224,6 +234,19 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                     this.groupId = it.group.toString()
                     this.version = it.version.toString()
                     this.isTipOfTree = it is ProjectDependency || it is BuildInfoVariantDependency
+                }
+            }.toHashSet().sortedWith(
+                compareBy({ it.groupId }, { it.artifactId }, { it.version })
+            )
+
+        @JvmName("dependencyConstraintsasBuildInfoDependencies")
+        fun List<DependencyConstraint>.asBuildInfoDependencies() =
+            filter { it.group.isAndroidXDependency() }.map {
+                LibraryBuildInfoFile.Dependency().apply {
+                    this.artifactId = it.name.toString()
+                    this.groupId = it.group.toString()
+                    this.version = it.version.toString()
+                    this.isTipOfTree = it is DefaultProjectDependencyConstraint
                 }
             }.toHashSet().sortedWith(
                 compareBy({ it.groupId }, { it.artifactId }, { it.version })
@@ -287,7 +310,12 @@ private fun Project.createTaskForComponent(
                             component.usages.orEmpty().flatMap { it.dependencies }
                         usageDependencies + dependenciesOnKmpVariants(component)
                     }.orEmpty()
-                }),
+                },
+                dependencyConstraints = project.provider {
+                    pub.component?.let { component ->
+                            component.usages.orEmpty().flatMap { it.dependencyConstraints }
+                    }.orEmpty()
+            }),
             shaProvider = project.provider {
                 project.getFrameworksSupportCommitShaAtHead()
             }
