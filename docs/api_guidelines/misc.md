@@ -68,8 +68,9 @@ call. Experimental APIs do not maintain binary compatibility guarantees, and you
 will put external clients in a difficult situation.
 
 *Do* use `@RequiresOptIn` for API surfaces that must be publicly available and
-documented but need the flexibility to stay in `alpha` (and break compatibility)
-during the rest of the library's `beta`, `rc`, or stable cycles.
+documented but need the flexibility to stay in `alpha` during the rest of the
+library's `beta`, `rc`, or stable cycles, and continue to break compatibility in
+`beta`.
 
 #### How to mark an API surface as experimental
 
