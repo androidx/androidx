@@ -51,8 +51,8 @@ dependencies {
 }
 
 baselineProfilesProfileProducer {
-    managedDevices += "pixel6Api31"
-    useConnectedDevices = false
+    enableEmulatorDisplay = true
+    useConnectedDevices = true
 }
 
 androidx {
