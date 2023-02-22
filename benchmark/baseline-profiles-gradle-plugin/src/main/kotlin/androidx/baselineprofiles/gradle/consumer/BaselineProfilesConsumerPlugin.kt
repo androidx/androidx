@@ -49,7 +49,6 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
 
     companion object {
         private const val GENERATE_TASK_NAME = "generate"
-        private const val BASELINE_PROFILE_DIR = "generated/baselineProfiles"
     }
 
     override fun apply(project: Project) {
@@ -200,7 +199,8 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
                             task.baselineProfileDir.set(
                                 baselineProfilesExtension.baselineProfileOutputDir(
                                     project = project,
-                                    variantName = outputVariantFolder
+                                    variantName = outputVariantFolder,
+                                    outputDir = baselineProfilesExtension.baselineProfileOutputDir
                                 )
                             )
 
@@ -236,7 +236,8 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
                         val baselineProfileSourcesFile = baselineProfilesExtension
                             .baselineProfileOutputDir(
                                 project = project,
-                                variantName = outputVariantFolder
+                                variantName = outputVariantFolder,
+                                outputDir = baselineProfilesExtension.baselineProfileOutputDir
                             )
                             .get()
                             .asFile
@@ -358,8 +359,9 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
             }
     }
 
-    fun BaselineProfilesConsumerExtension.baselineProfileOutputDir(
+    private fun BaselineProfilesConsumerExtension.baselineProfileOutputDir(
         project: Project,
+        outputDir: String,
         variantName: String
     ): Provider<Directory> =
         if (onDemandGeneration) {
@@ -371,7 +373,7 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
             project
                 .layout
                 .buildDirectory
-                .dir("$INTERMEDIATES_BASE_FOLDER/$variantName/$BASELINE_PROFILE_DIR")
+                .dir("$INTERMEDIATES_BASE_FOLDER/$variantName/$outputDir")
         } else {
 
             // In periodic mode the baseline profile generation is manually triggered.
@@ -381,7 +383,7 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
                 project
                     .layout
                     .projectDirectory
-                    .dir("src/$variantName/$BASELINE_PROFILE_DIR/")
+                    .dir("src/$variantName/$outputDir/")
             }
         }
 }
