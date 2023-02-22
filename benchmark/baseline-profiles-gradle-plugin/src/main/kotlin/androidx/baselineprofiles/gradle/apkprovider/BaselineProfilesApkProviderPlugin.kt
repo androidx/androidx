@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.baselineprofiles.gradle.buildprovider
+package androidx.baselineprofiles.gradle.apkprovider
 
 import androidx.baselineprofiles.gradle.utils.checkAgpVersion
 import androidx.baselineprofiles.gradle.utils.createNonObfuscatedBuildTypes
@@ -24,15 +24,13 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * This is the build provider plugin for baseline profile generation. In order to generate baseline
+ * This is the apk provider plugin for baseline profile generation. In order to generate baseline
  * profiles three plugins are needed: one is applied to the app or the library that should consume
  * the baseline profile when building (consumer), one is applied to the project that should supply
- * the test apk (build provider) and the last one is applied to a test module containing the ui
+ * the test apk (apk provider) and the last one is applied to a test module containing the ui
  * test that generate the baseline profile on the device (producer).
- *
- * TODO (b/265438721): build provider should be changed to apk provider.
  */
-class BaselineProfilesBuildProviderPlugin : Plugin<Project> {
+class BaselineProfilesApkProviderPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         var foundAppPlugin = false
@@ -58,7 +56,7 @@ class BaselineProfilesBuildProviderPlugin : Plugin<Project> {
                         if (!foundLibraryPlugin) {
                             """
                     The module ${project.name} does not have the `com.android.application` plugin
-                    applied. The `androidx.baselineprofiles.buildprovider` plugin supports only
+                    applied. The `androidx.baselineprofiles.apkprovider` plugin supports only
                     android application modules. Please review your build.gradle to ensure this
                     plugin is applied to the correct module.
                     """.trimIndent()
@@ -67,7 +65,7 @@ class BaselineProfilesBuildProviderPlugin : Plugin<Project> {
                     The module ${project.name} does not have the `com.android.application` plugin
                     but has the `com.android.library` plugin. If you're trying to generate a
                     baseline profile for a library, you'll need to apply the
-                    `androidx.baselineprofiles.buildprovider` to an android application that
+                    `androidx.baselineprofiles.apkprovider` to an android application that
                     has the `com.android.application` plugin applied. This should be a sample app
                     running the code of the library for which you want to generate the profile.
                     Please review your build.gradle to ensure this plugin is applied to the
@@ -78,7 +76,7 @@ class BaselineProfilesBuildProviderPlugin : Plugin<Project> {
                 }
                 project.logger.debug(
                     """
-                    [BaselineProfilesBuildProviderPlugin] afterEvaluate check: app plugin was applied
+                    [BaselineProfilesApkProviderPlugin] afterEvaluate check: app plugin was applied
                     """.trimIndent()
                 )
             }

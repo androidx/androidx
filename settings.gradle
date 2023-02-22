@@ -409,7 +409,7 @@ includeProject(":benchmark:integration-tests:baselineprofiles-flavors-producer",
 includeProject(":benchmark:integration-tests:baselineprofiles-flavors-consumer", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:baselineprofiles-library-consumer", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:baselineprofiles-library-producer", [BuildType.MAIN])
-includeProject(":benchmark:integration-tests:baselineprofiles-library-build-provider", [BuildType.MAIN])
+includeProject(":benchmark:integration-tests:baselineprofiles-library-apk-provider", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:dry-run-benchmark", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:macrobenchmark", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:macrobenchmark-target", [BuildType.MAIN])
