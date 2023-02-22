@@ -49,6 +49,12 @@ open class BaselineProfilesConsumerExtension {
     var onDemandGeneration = false
 
     /**
+     * Specifies the output directory for generated baseline profiles when [onDemandGeneration] is
+     * off. Note that the dir specified here is created in the `src/<variant>/` folder.
+     */
+    var baselineProfileOutputDir = "generated/baselineProfiles"
+
+    /**
      * Specifies if baseline profile files should be merged into a single one when generating for
      * multiple variants:
      *  - When `true` all the generated baseline profiles for each variant are merged into
