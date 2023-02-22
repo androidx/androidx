@@ -57,6 +57,10 @@ package androidx.wear.compose.foundation {
     property public final float Outer;
   }
 
+  public final class CurvedBoxKt {
+    method public static void curvedBox(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional androidx.wear.compose.foundation.CurvedAlignment.Angular? angularAlignment, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
+  }
+
   public final class CurvedColumnKt {
     method public static void curvedColumn(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Radial? radialDirection, optional androidx.wear.compose.foundation.CurvedAlignment.Angular? angularAlignment, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
   }

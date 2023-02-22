@@ -38,6 +38,7 @@ val WearFoundationDemos = DemoCategory(
         DemoCategory("CurvedLayout", listOf(
             ComposableDemo("Curved Row") { CurvedWorldDemo() },
             ComposableDemo("Curved Row and Column") { CurvedRowAndColumn() },
+            ComposableDemo("Curved Box") { CurvedBoxDemo() },
             ComposableDemo("Simple") { SimpleCurvedWorld() },
             ComposableDemo("Alignment") { CurvedRowAlignmentDemo() },
             ComposableDemo("Curved Text") { BasicCurvedTextDemo() },

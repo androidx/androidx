@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,48 +16,55 @@
 
 package androidx.wear.compose.foundation
 
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.geometry.Offset
 
 /**
- * A layout composable that places its children in an arc, rotating them as needed. This is
- * similar to a [Row] layout, but curved into a segment of an annulus.
+ * A layout composable that places its children on top of each other and on an arc. This is
+ * similar to a [Box] layout, but curved into a segment of an annulus.
  *
  * The thickness of the layout (the difference between the outer and inner radius) will be the
- * same as the thickest child, and the total angle taken is the sum of the children's angles.
+ * same as the thickest child, and the angle taken will be the biggest angle of the
+ * children.
  *
  * Example usage:
- * @sample androidx.wear.compose.foundation.samples.CurvedRowAndColumn
+ * @sample androidx.wear.compose.foundation.samples.CurvedBoxSample
  *
  * @param modifier The [CurvedModifier] to apply to this curved row.
  * @param radialAlignment Radial alignment specifies where to lay down children that are thinner
- * than the CurvedRow, either closer to the center [CurvedAlignment.Radial.Inner], apart from
+ * than the CurvedBox, either closer to the center [CurvedAlignment.Radial.Inner], apart from
  * the center [CurvedAlignment.Radial.Outer] or in the
  * middle point [CurvedAlignment.Radial.Center]. If unspecified, they can choose for themselves.
- * @param angularDirection Specify if the children are laid out clockwise or anti-clockwise,
- * and if those needs to be reversed in a Rtl layout.
- * If not specified, it will be inherited from the enclosing [curvedRow] or [CurvedLayout]
- * See [CurvedDirection.Angular].
+ * @param angularAlignment Angular alignment specifies where to lay down children that are thinner
+ * than the CurvedBox, either at the [CurvedAlignment.Angular.Start] of the layout,
+ * at the [CurvedAlignment.Angular.End], or [CurvedAlignment.Angular.Center].
+ * If unspecified or null, they can choose for themselves.
+ * @param contentBuilder Specifies the content of this layout, currently there are 5 available
+ * elements defined in foundation for this DSL: the sub-layouts [curvedBox], [curvedRow]
+ * and [curvedColumn], [basicCurvedText] and [curvedComposable]
+ * (used to add normal composables to curved layouts)
  */
-public fun CurvedScope.curvedRow(
+public fun CurvedScope.curvedBox(
     modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial? = null,
-    angularDirection: CurvedDirection.Angular? = null,
+    angularAlignment: CurvedAlignment.Angular? = null,
     contentBuilder: CurvedScope.() -> Unit
 ) = add(
-    CurvedRowChild(
-        curvedLayoutDirection.copy(overrideAngular = angularDirection),
+    CurvedBoxChild(
+        curvedLayoutDirection,
         radialAlignment,
+        angularAlignment,
         contentBuilder
     ),
     modifier
 )
 
-internal class CurvedRowChild(
+internal class CurvedBoxChild(
     curvedLayoutDirection: CurvedLayoutDirection,
-    val radialAlignment: CurvedAlignment.Radial? = null,
+    private val radialAlignment: CurvedAlignment.Radial? = null,
+    private val angularAlignment: CurvedAlignment.Angular? = null,
     contentBuilder: CurvedScope.() -> Unit
-) : ContainerChild(curvedLayoutDirection, !curvedLayoutDirection.clockwise(), contentBuilder) {
+) : ContainerChild(curvedLayoutDirection, reverseLayout = false, contentBuilder) {
 
     override fun doEstimateThickness(maxRadius: Float) =
         children.maxOfOrNull { it.estimateThickness(maxRadius) } ?: 0f
@@ -66,8 +73,8 @@ internal class CurvedRowChild(
         parentOuterRadius: Float,
         parentThickness: Float,
     ): PartialLayoutInfo {
-        // position children, sum angles.
-        var totalSweep = children.sumOf { child ->
+        // position children, take max sweep.
+        val maxSweep = children.maxOfOrNull { child ->
             var childRadialPosition = parentOuterRadius
             var childThickness = parentThickness
             if (radialAlignment != null) {
@@ -81,10 +88,9 @@ internal class CurvedRowChild(
                 childThickness
             )
             child.sweepRadians
-        }
-
+        } ?: 0f
         return PartialLayoutInfo(
-            totalSweep,
+            maxSweep,
             parentOuterRadius,
             parentThickness,
             parentOuterRadius - parentThickness / 2
@@ -96,32 +102,20 @@ internal class CurvedRowChild(
         parentSweepRadians: Float,
         centerOffset: Offset
     ): Float {
-        val weights = childrenInLayoutOrder.map { node ->
-            (node.computeParentData() as? CurvedScopeParentData)?.weight ?: 0f
-        }
-        val sumWeights = weights.sum()
-        val extraSpace = parentSweepRadians - childrenInLayoutOrder.mapIndexed { ix, node ->
-            if (weights[ix] == 0f) {
-                node.sweepRadians
-            } else {
-                0f
+        children.forEach { child ->
+            var childAngularPosition = parentStartAngleRadians
+            var childSweep = parentSweepRadians
+            if (angularAlignment != null) {
+                childAngularPosition = parentStartAngleRadians + angularAlignment.ratio *
+                    (parentSweepRadians - child.sweepRadians)
+                childSweep = child.sweepRadians
             }
-        }.sum()
 
-        var currentStartAngle = parentStartAngleRadians
-        childrenInLayoutOrder.forEachIndexed { ix, node ->
-            val actualSweep = if (weights[ix] > 0f) {
-                    extraSpace * weights[ix] / sumWeights
-                } else {
-                    node.sweepRadians
-                }
-
-            node.angularPosition(
-                currentStartAngle,
-                actualSweep,
+            child.angularPosition(
+                childAngularPosition,
+                childSweep,
                 centerOffset
             )
-            currentStartAngle += actualSweep
         }
         return parentStartAngleRadians
     }
