@@ -32,6 +32,7 @@ package androidx.camera.core {
     method public int getTargets();
     field public static final int IMAGE_CAPTURE = 4; // 0x4
     field public static final int PREVIEW = 1; // 0x1
+    field public static final int VIDEO_CAPTURE = 2; // 0x2
   }
 
   @RequiresApi(21) public interface CameraFilter {

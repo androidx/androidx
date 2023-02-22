@@ -20,10 +20,11 @@ import androidx.camera.core.CameraEffect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 
 /**
- * A tone mapping effect for preview UseCase.
+ * A tone mapping effect for Preview/VideoCapture UseCase.
  */
-internal class ToneMappingPreviewEffect :
-    CameraEffect(PREVIEW, mainThreadExecutor(), ToneMappingSurfaceProcessor()) {
+internal class ToneMappingSurfaceEffect : CameraEffect(
+    PREVIEW or VIDEO_CAPTURE, mainThreadExecutor(), ToneMappingSurfaceProcessor()
+) {
 
     fun release() {
         (surfaceProcessor as? ToneMappingSurfaceProcessor)?.release()
