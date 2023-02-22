@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
@@ -88,7 +89,10 @@ class TorchControlTest {
         val fakeCameraProperties = FakeCameraProperties(metadata)
         torchControl = TorchControl(
             fakeCameraProperties,
-            State3AControl(fakeCameraProperties).apply {
+            State3AControl(
+                fakeCameraProperties,
+                NoOpAutoFlashAEModeDisabler,
+            ).apply {
                 useCaseCamera = fakeUseCaseCamera
             },
             fakeUseCaseThreads,
@@ -105,7 +109,7 @@ class TorchControlTest {
             // Without a flash unit, this Job will complete immediately with a IllegalStateException
             TorchControl(
                 fakeCameraProperties,
-                State3AControl(fakeCameraProperties).apply {
+                State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
                     useCaseCamera = fakeUseCaseCamera
                 },
                 fakeUseCaseThreads,
@@ -122,7 +126,8 @@ class TorchControlTest {
 
         val torchState = TorchControl(
             fakeCameraProperties,
-            State3AControl(fakeCameraProperties).apply {
+            State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
+
                 useCaseCamera = fakeUseCaseCamera
             },
             fakeUseCaseThreads,
@@ -141,7 +146,7 @@ class TorchControlTest {
 
             TorchControl(
                 fakeCameraProperties,
-                State3AControl(fakeCameraProperties).apply {
+                State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
                     useCaseCamera = fakeUseCaseCamera
                 },
                 fakeUseCaseThreads,

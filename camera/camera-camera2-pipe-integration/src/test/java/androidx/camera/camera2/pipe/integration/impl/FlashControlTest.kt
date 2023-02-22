@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
@@ -70,9 +71,10 @@ class FlashControlTest {
     )
     private val fakeRequestControl = FakeUseCaseCameraRequestControl()
     private val fakeUseCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
-    private val state3AControl = State3AControl(FakeCameraProperties(metadata)).apply {
-        useCaseCamera = fakeUseCaseCamera
-    }
+    private val state3AControl =
+        State3AControl(FakeCameraProperties(metadata), NoOpAutoFlashAEModeDisabler).apply {
+            useCaseCamera = fakeUseCaseCamera
+        }
     private lateinit var flashControl: FlashControl
 
     @Before
@@ -90,7 +92,7 @@ class FlashControlTest {
         val fakeCameraProperties = FakeCameraProperties()
 
         val flashControl = FlashControl(
-            State3AControl(fakeCameraProperties).apply {
+            State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
                 useCaseCamera = fakeUseCaseCamera
             },
             fakeUseCaseThreads,

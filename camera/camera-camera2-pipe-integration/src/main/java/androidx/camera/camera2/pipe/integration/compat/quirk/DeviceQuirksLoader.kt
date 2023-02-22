@@ -34,6 +34,10 @@ object DeviceQuirksLoader {
         val quirks: MutableList<Quirk> = mutableListOf()
 
         // Load all device specific quirks, preferably in lexicographical order
+        if (CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.isEnabled()) {
+            quirks.add(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk())
+        }
+
         if (FlashAvailabilityBufferUnderflowQuirk.isEnabled()) {
             quirks.add(FlashAvailabilityBufferUnderflowQuirk())
         }
