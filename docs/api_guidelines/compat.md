@@ -265,9 +265,10 @@ We recommend the following, in order of preference:
     compilation or compatibility checks. It is possible to use a Proto plug-in,
     but you will be responsible for bundling the runtime and maintaining
     compatibility on your own.
-3.  Bundle if you have a very simple data model that is unlikely to change in
-    the future. Bundle has the weakest type safety and compatibility guarantees
-    of any recommendation, and it has many caveats that make it a poor choice.
+3.  `Bundle` if you have a very simple data model that is unlikely to change in
+    the future. `Bundle` has the weakest type safety and compatibility
+    guarantees of any recommendation, and it has many caveats that make it a
+    poor choice.
 4.  `VersionedParcelable` if your project is already using Versioned Parcelable
     and is aware of its compatibility constraints.
 
@@ -282,6 +283,51 @@ is difficult and error-prone.
 
 In all cases, **do not** expose your serialization mechanism in your API
 surface. Neither Stable AIDL nor Protobuf generate stable language APIs.
+
+#### Annotating unstable IPC
+
+Once an API that relies on an IPC contract ships to production in an app, the
+contract is locked in and must maintain compatibility to prevent crashing either
+end of an inter-process communication channel.
+
+Developers **should** annotate unstable IPC classes with a `@RequiresOptIn`
+annotation explaining that they must not be used in production code. Libraries
+**must not** opt-in to these annotations when such classes are referenced
+internally, and should instead propagate the annotations to public API surfaces.
+
+A single annotation for this purpose may be defined per library or atomic group:
+
+```java
+/**
+ * Parcelables and AIDL-generated classes bearing this annotation are not
+ * guaranteed to be stable and must not be used for inter-process communication
+ * in production.
+ */
+@RequiresOptIn
+public @interface UnstableAidlDefinition {}
+```
+
+Generally speaking, at this point in time no libraries should have unstable
+`Parcelable` classes defined in source code, but for completeness:
+
+```java
+@UnstableAidlDefinition
+public class ResultReceiver implements Parcelable { ... }
+```
+
+AIDL definition files under `src/aidl` should use `@JavaPassthrough` with a
+fully-qualified class name to annotate generated classes:
+
+```java
+@JavaPassthrough(annotation="@androidx.core.util.UnstableAidlDefinition")
+oneway interface IResultReceiver {
+    void send(int resultCode, in Bundle resultData);
+}
+```
+
+For Stable AIDL, the build system enforces per-CL compatibility guarantees. No
+annotations are required for Stable AIDL definition files under
+`src/stableAidl`.
 
 #### Parcelable {#ipc-parcelable}
 
