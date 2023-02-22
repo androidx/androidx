@@ -777,6 +777,87 @@ class RecorderTest(
     }
 
     @Test
+    fun mute_outputWithAudioTrack() {
+        // Arrange.
+        val outputOptions = createFileOutputOptions()
+        val recording = createRecordingProcess(outputOptions = outputOptions)
+
+        recording.startAndVerify()
+        recording.mute(true)
+
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            val uri = finalize.outputResults.outputUri
+            assertThat(uri).isEqualTo(Uri.fromFile(outputOptions.file))
+            // The output file should contain audio track even it's muted at the beginning.
+            checkFileHasAudioAndVideo(uri)
+        }
+    }
+
+    @Test
+    fun mute_receiveCorrectAudioStats() {
+        // Arrange.
+        val recording = createRecordingProcess()
+
+        // Act.
+        recording.startAndVerify()
+        recording.mute(true)
+        // TODO(b/274862085): Change to verify the status events consecutively having MUTED state
+        //  by adding the utility to MockConsumer.
+        recording.verifyStatus(5) { statusList ->
+            // Assert.
+            assertThat(statusList.last().recordingStats.audioStats.audioState)
+                .isEqualTo(AudioStats.AUDIO_STATE_MUTED)
+        }
+
+        // Act.
+        recording.mute(false)
+        recording.verifyStatus(5) { statusList ->
+            // Assert.
+            assertThat(statusList.last().recordingStats.audioStats.audioState)
+                .isEqualTo(AudioStats.AUDIO_STATE_ACTIVE)
+        }
+        recording.stopAndVerify()
+    }
+
+    @Test
+    fun mute_noOpIfAudioDisabled() {
+        // Arrange.
+        val recording = createRecordingProcess(withAudio = false)
+
+        // Act.
+        recording.startAndVerify()
+
+        // Assert: muting or unmuting a recording without audio should be no-op.
+        recording.mute(true)
+        recording.mute(false)
+        recording.stopAndVerify()
+    }
+
+    @Test
+    fun mute_defaultToNotMuted() {
+        // Arrange.
+        val recorder = createRecorder()
+        val recording = createRecordingProcess(recorder = recorder)
+        val recording2 = createRecordingProcess(recorder = recorder)
+
+        // Act.
+        recording.startAndVerify()
+        recording.mute(true)
+        recording.stopAndVerify()
+
+        recording2.startAndVerify()
+        recording2.verifyStatus(5) { statusList ->
+            // Assert.
+            statusList.forEach {
+                assertThat(it.recordingStats.audioStats.audioState)
+                    .isEqualTo(AudioStats.AUDIO_STATE_ACTIVE)
+            }
+        }
+        recording2.stopAndVerify()
+    }
+
+    @Test
     fun optionsOverridesDefaults() {
         val qualitySelector = QualitySelector.from(Quality.HIGHEST)
         val recorder = createRecorder(qualitySelector = qualitySelector)
@@ -1064,6 +1145,8 @@ class RecorderTest(
                 verifyResume()
             }
         }
+
+        fun mute(muted: Boolean = false) = recording.mute(muted)
 
         private fun verifyResume() {
             listener.verifyResume()
