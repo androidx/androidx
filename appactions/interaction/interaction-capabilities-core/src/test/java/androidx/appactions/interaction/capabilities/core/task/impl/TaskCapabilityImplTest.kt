@@ -469,7 +469,7 @@ class TaskCapabilityImplTest {
                                 searchAction: SearchAction<EntityValue>,
                             ): ListenableFuture<EntitySearchResult<EntityValue>> {
                                 val result =
-                                    EntitySearchResult.newBuilder<EntityValue>()
+                                    EntitySearchResult.Builder<EntityValue>()
                                 return Futures.immediateFuture(
                                     result.addPossibleValue(EntityValue.ofId("valid1"))
                                         .addPossibleValue(EntityValue.ofId("valid2"))
@@ -650,7 +650,7 @@ class TaskCapabilityImplTest {
                     override fun lookupAndRender(
                         searchAction: SearchAction<ListItem>,
                     ): ListenableFuture<EntitySearchResult<ListItem>> = Futures.immediateFuture(
-                        EntitySearchResult.newBuilder<ListItem>()
+                        EntitySearchResult.Builder<ListItem>()
                             .addPossibleValue(item1)
                             .addPossibleValue(item2)
                             .build(),
@@ -886,7 +886,7 @@ class TaskCapabilityImplTest {
                     searchAction: SearchAction<EntityValue>,
                 ): ListenableFuture<EntitySearchResult<EntityValue>> {
                     val result: EntitySearchResult.Builder<EntityValue> =
-                        EntitySearchResult.newBuilder()
+                        EntitySearchResult.Builder()
                     return Futures.immediateFuture(
                         result.addPossibleValue(EntityValue.ofId("valid1")).build(),
                     )
@@ -902,7 +902,7 @@ class TaskCapabilityImplTest {
                     searchAction: SearchAction<EntityValue>,
                 ): ListenableFuture<EntitySearchResult<EntityValue>> {
                     val result: EntitySearchResult.Builder<EntityValue> =
-                        EntitySearchResult.newBuilder()
+                        EntitySearchResult.Builder()
                     return Futures.immediateFuture(
                         result.addPossibleValue(EntityValue.ofId("valid1")).build(),
                     )
