@@ -20,9 +20,6 @@ import static androidx.mediarouter.media.RouteListingPreference.Item.FLAG_ONGOIN
 import static androidx.mediarouter.media.RouteListingPreference.Item.FLAG_ONGOING_SESSION_MANAGED;
 import static androidx.mediarouter.media.RouteListingPreference.Item.FLAG_SUGGESTED;
 
-import android.annotation.SuppressLint;
-import android.media.MediaRoute2Info;
-import android.media.MediaRouter2;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -41,6 +38,7 @@ import androidx.annotation.OptIn;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.os.BuildCompat;
+import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.RouteListingPreference;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -51,12 +49,12 @@ import com.example.androidx.mediarouting.RoutesManager;
 import com.example.androidx.mediarouting.RoutesManager.RouteListingPreferenceItemHolder;
 import com.example.androidx.mediarouting.ui.UiUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /** Allows the user to manage the route listing preference of this app. */
 public class RouteListingPreferenceActivity extends AppCompatActivity {
@@ -120,12 +118,10 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                                 mRoutesManager.getRouteListingPreferenceItems().size()));
     }
 
-    // This method won't run before U due to checks in onCreate().
-    @SuppressLint({"NewApi", "ClassVerificationFailure"})
     private void setUpRouteListingPreferenceItemEditionDialog(int itemPositionInList) {
         List<RouteListingPreferenceItemHolder> routeListingPreference =
                 mRoutesManager.getRouteListingPreferenceItems();
-        List<MediaRoute2Info> routesWithNoAssociatedListingPreferenceItem =
+        List<MediaRouter.RouteInfo> routesWithNoAssociatedListingPreferenceItem =
                 getRoutesWithNoAssociatedListingPreferenceItem();
         if (itemPositionInList == routeListingPreference.size()
                 && routesWithNoAssociatedListingPreferenceItem.isEmpty()) {
@@ -162,12 +158,11 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
             sessionManagedCheckBox.setChecked(itemToEdit.hasFlag(FLAG_ONGOING_SESSION_MANAGED));
             suggestedRouteCheckBox.setChecked(itemToEdit.hasFlag(FLAG_SUGGESTED));
         }
-        for (MediaRoute2Info mediaRoute2Info : routesWithNoAssociatedListingPreferenceItem) {
+        for (MediaRouter.RouteInfo routeInfo : routesWithNoAssociatedListingPreferenceItem) {
             spinnerEntries.add(
                     new RouteListingPreferenceItemHolder(
-                            new RouteListingPreference.Item.Builder(mediaRoute2Info.getId())
-                                    .build(),
-                            String.valueOf(mediaRoute2Info.getName())));
+                            new RouteListingPreference.Item.Builder(routeInfo.getId()).build(),
+                            routeInfo.getName()));
         }
         routeSpinner.setAdapter(
                 new ArrayAdapter<>(
@@ -231,25 +226,25 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
         mRoutesManager.setRouteListingPreferenceItems(newRouteListingPreference);
     }
 
-    // This method won't run before U due to checks in onCreate().
-    @SuppressLint({"NewApi", "ClassVerificationFailure"})
     @NonNull
-    private List<MediaRoute2Info> getRoutesWithNoAssociatedListingPreferenceItem() {
+    private ImmutableList<MediaRouter.RouteInfo> getRoutesWithNoAssociatedListingPreferenceItem() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            return Collections.emptyList();
+            return ImmutableList.of();
         }
-        Set<String> routesWithAssociatedRouteListingPreferenceItem =
-                mRoutesManager.getRouteListingPreferenceItems().stream()
-                        .map(element -> element.mItem.getRouteId())
-                        .collect(Collectors.toSet());
-        List<MediaRoute2Info> availableRoutes =
-                MediaRouter2.getInstance(/* context= */ this).getRoutes();
-        return availableRoutes.stream()
-                .filter(
-                        route ->
-                                !routesWithAssociatedRouteListingPreferenceItem.contains(
-                                        route.getId()))
-                .collect(Collectors.toList());
+        Set<String> routesWithAssociatedRouteListingPreferenceItem = new HashSet<>();
+        for (RouteListingPreferenceItemHolder element :
+                mRoutesManager.getRouteListingPreferenceItems()) {
+            String routeId = element.mItem.getRouteId();
+            routesWithAssociatedRouteListingPreferenceItem.add(routeId);
+        }
+
+        ImmutableList.Builder<MediaRouter.RouteInfo> resultBuilder = ImmutableList.builder();
+        for (MediaRouter.RouteInfo route : MediaRouter.getInstance(this).getRoutes()) {
+            if (!routesWithAssociatedRouteListingPreferenceItem.contains(route.getId())) {
+                resultBuilder.add(route);
+            }
+        }
+        return resultBuilder.build();
     }
 
     private class RecyclerViewCallback extends ItemTouchHelper.SimpleCallback {
