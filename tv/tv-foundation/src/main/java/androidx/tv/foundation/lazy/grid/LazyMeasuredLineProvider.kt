@@ -46,6 +46,14 @@ internal class LazyMeasuredLineProvider(
         }
     }
 
+    fun itemConstraints(itemIndex: ItemIndex): Constraints {
+        val span = spanLayoutProvider.spanOf(
+            itemIndex.value,
+            spanLayoutProvider.slotsPerLine
+        )
+        return childConstraints(0, span)
+    }
+
     /**
      * Used to subcompose items on lines of lazy grids. Composed placeables will be measured
      * with the correct constraints and wrapped into [LazyMeasuredLine].
@@ -89,7 +97,6 @@ internal class LazyMeasuredLineProvider(
 }
 
 // This interface allows to avoid autoboxing on index param
-@OptIn(ExperimentalFoundationApi::class)
 internal fun interface MeasuredLineFactory {
     fun createLine(
         index: LineIndex,
