@@ -36,6 +36,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -148,6 +149,16 @@ class SessionWorkerTest {
             assertThat(text.text).isEqualTo("Hello Earth")
         }
         sessionManager.closeSession()
+    }
+
+    @Test
+    fun sessionWorkerTimeout() = runTest {
+        launch {
+            val result = worker.doWork()
+            assertThat(result).isEqualTo(Result.success())
+        }
+        sessionManager.startSession(context)
+        advanceTimeBy(SessionWorker.defaultTimeout.inWholeMilliseconds + 1)
     }
 }
 

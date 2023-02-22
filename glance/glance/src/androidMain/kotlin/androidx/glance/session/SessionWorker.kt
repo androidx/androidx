@@ -25,11 +25,12 @@ import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * [SessionWorker] handles composition for a particular Glanceable.
@@ -49,12 +50,15 @@ internal class SessionWorker(
     companion object {
         private const val TAG = "GlanceSessionWorker"
         private const val DEBUG = false
+        @VisibleForTesting
+        internal val defaultTimeout = 45.seconds
     }
 
-    override suspend fun doWork(): Result = coroutineScope {
+    override suspend fun doWork(): Result = withTimeoutOrNull(defaultTimeout) {
         val frameClock = InteractiveFrameClock(this)
         val key =
-            inputData.getString(sessionManager.keyParam) ?: return@coroutineScope Result.failure()
+            inputData.getString(sessionManager.keyParam)
+                ?: return@withTimeoutOrNull Result.failure()
         val session = requireNotNull(sessionManager.getSession(key)) {
             "No session available to key $key"
         }
@@ -107,6 +111,6 @@ internal class SessionWorker(
         frameClock.stopInteractive()
         recomposer.close()
         recomposer.join()
-        return@coroutineScope Result.success()
-    }
+        return@withTimeoutOrNull Result.success()
+    } ?: Result.success()
 }
