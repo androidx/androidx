@@ -48,7 +48,7 @@ public final class TaskCapabilityUtilsTest {
         List<IntentParameter> intentParameters = new ArrayList<>();
         intentParameters.add(
                 PropertyConverter.getIntentParameter(
-                        "required", StringProperty.newBuilder().setIsRequired(true).build()));
+                        "required", new StringProperty.Builder().setRequired(true).build()));
 
         assertThat(TaskCapabilityUtils.isSlotFillingComplete(args, intentParameters)).isTrue();
     }
@@ -58,7 +58,7 @@ public final class TaskCapabilityUtilsTest {
         List<IntentParameter> intentParameters = new ArrayList<>();
         intentParameters.add(
                 PropertyConverter.getIntentParameter(
-                        "required", StringProperty.newBuilder().setIsRequired(true).build()));
+                        "required", new StringProperty.Builder().setRequired(true).build()));
 
         assertThat(
                 TaskCapabilityUtils.isSlotFillingComplete(Collections.emptyMap(), intentParameters))

@@ -54,9 +54,9 @@ class SingleTurnCapabilityTest {
                 "capabilityId",
                 ACTION_SPEC,
                 Property.newBuilder().setRequiredEntityField(
-                    EntityProperty.EMPTY,
+                    EntityProperty.Builder().build(),
                 ).setOptionalStringField(
-                    StringProperty.PROHIBITED,
+                    StringProperty.Builder().setProhibited(true).build(),
                 ).build(),
                 {
                     object : Session {

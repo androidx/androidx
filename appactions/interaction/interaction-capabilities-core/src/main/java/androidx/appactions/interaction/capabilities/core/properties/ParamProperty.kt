@@ -14,27 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.properties;
-
-import androidx.annotation.NonNull;
-
-import java.util.List;
+package androidx.appactions.interaction.capabilities.core.properties
 
 /**
  * Base class for the property which describes a parameter for {@code ActionCapability}. This class
  * should not be used directly. Instead, use the typed property classes such as {@link
  * StringProperty}, etc.
  *
- * @param <V>
  */
-public abstract class ParamProperty<V> {
+sealed interface ParamProperty<V> {
 
     /** The list of added possible values for this parameter. */
-    @NonNull
-    public abstract List<V> getPossibleValues();
+    val possibleValues: List<V>
 
     /** Indicates that a value for this property is required to be present for fulfillment. */
-    public abstract boolean isRequired();
+    val isRequired: Boolean
 
     /**
      * Indicates that a match of possible value for the given property must be present. Defaults to
@@ -42,12 +36,12 @@ public abstract class ParamProperty<V> {
      *
      * <p>If true, Assistant skips the capability if there is no match.
      */
-    public abstract boolean isValueMatchRequired();
+    val isValueMatchRequired: Boolean
 
     /**
      * If true, the {@code ActionCapability} will be rejected by assistant if corresponding param is
      * set in argument. And the value of |isRequired| and |entityMatchRequired| will also be ignored
      * by assistant.
      */
-    public abstract boolean isProhibited();
+    val isProhibited: Boolean
 }
