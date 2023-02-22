@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout.renderer.inflater;
 
+import static androidx.wear.protolayout.renderer.common.FuturesHelper.createImmediateFuture;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -75,8 +77,7 @@ public class ResourceResolversTest {
     @Mock private AndroidImageResourceByContentUriResolver mContentUriResolver;
 
     private final Drawable mTestDrawable = new VectorDrawable();
-    private final ListenableFuture<Drawable> mFutureDrawable =
-            ResourceResolvers.createImmediateFuture(mTestDrawable);
+    private final ListenableFuture<Drawable> mFutureDrawable = createImmediateFuture(mTestDrawable);
 
     private static final InlineImageResource INLINE_IMAGE =
             InlineImageResource.newBuilder().setHeightPx(123).setWidthPx(456).build();
