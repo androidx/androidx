@@ -32,7 +32,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.SheetValue.Expanded
-import androidx.compose.material3.SheetValue.Collapsed
+import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,7 +55,6 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
@@ -95,7 +94,7 @@ import kotlinx.coroutines.launch
 fun ModalBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    sheetState: SheetState = rememberSheetState(),
+    sheetState: SheetState = rememberModalBottomSheetState(),
     shape: Shape = BottomSheetDefaults.ExpandedShape,
     containerColor: Color = BottomSheetDefaults.ContainerColor,
     contentColor: Color = contentColorFor(containerColor),
@@ -111,9 +110,9 @@ fun ModalBottomSheet(
         ModalBottomSheetAnchorChangeHandler(
             state = sheetState,
             animateTo = { target, velocity ->
-                scope.launch { sheetState.swipeableState.animateTo(target, velocity = velocity) }
+                scope.launch { sheetState.animateTo(target, velocity = velocity) }
             },
-            snapTo = { target -> scope.launch { sheetState.swipeableState.snapTo(target) } }
+            snapTo = { target -> scope.launch { sheetState.snapTo(target) } }
         )
     }
     val systemBarHeight = WindowInsets.systemBarsForVisualComponents.getBottom(LocalDensity.current)
@@ -194,6 +193,21 @@ fun ModalBottomSheet(
     }
 }
 
+/**
+ * Create and [remember] a [SheetState] for [ModalBottomSheet].
+ *
+ * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is tall enough,
+ * should be skipped. If true, the sheet will always expand to the [Expanded] state and move to the
+ * [Hidden] state when hiding the sheet, either programmatically or by user interaction.
+ * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
+ */
+@Composable
+@ExperimentalMaterial3Api
+fun rememberModalBottomSheetState(
+    skipPartiallyExpanded: Boolean = false,
+    confirmValueChange: (SheetValue) -> Boolean = { true },
+) = rememberSheetState(skipPartiallyExpanded, confirmValueChange, Hidden)
+
 @Composable
 private fun Scrim(
     color: Color,
@@ -249,13 +263,13 @@ private fun Modifier.modalBottomSheetSwipeable(
         .swipeAnchors(
             state = sheetState.swipeableState,
             anchorChangeHandler = anchorChangeHandler,
-            possibleValues = setOf(Hidden, Collapsed, Expanded),
+            possibleValues = setOf(Hidden, PartiallyExpanded, Expanded),
         ) { value, sheetSize ->
             when (value) {
                 Hidden -> screenHeight + bottomPadding
-                Collapsed -> when {
+                PartiallyExpanded -> when {
                     sheetSize.height < screenHeight / 2 -> null
-                    sheetState.skipCollapsed -> null
+                    sheetState.skipPartiallyExpanded -> null
                     else -> sheetSize.height / 2f
                 }
 
@@ -263,32 +277,27 @@ private fun Modifier.modalBottomSheetSwipeable(
                     max(0f, screenHeight - sheetSize.height)
                 } else null
             }
-        }
-        .semantics {
+        }.semantics {
             if (sheetState.isVisible) {
                 dismiss {
                     if (sheetState.swipeableState.confirmValueChange(Hidden)) {
-                        scope
-                            .launch { sheetState.hide() }
-                            .invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    onDismissRequest()
-                                }
-                            }
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) { onDismissRequest() }
+                        }
                     }
                     true
                 }
-                if (sheetState.swipeableState.currentValue == Collapsed) {
+                if (sheetState.swipeableState.currentValue == PartiallyExpanded) {
                     expand {
                         if (sheetState.swipeableState.confirmValueChange(Expanded)) {
                             scope.launch { sheetState.expand() }
                         }
                         true
                     }
-                } else if (sheetState.hasCollapsedState) {
+                } else if (sheetState.hasPartiallyExpandedState) {
                     collapse {
-                        if (sheetState.swipeableState.confirmValueChange(Collapsed)) {
-                            scope.launch { sheetState.collapse() }
+                        if (sheetState.swipeableState.confirmValueChange(PartiallyExpanded)) {
+                            scope.launch { sheetState.partialExpand() }
                         }
                         true
                     }
@@ -305,9 +314,9 @@ private fun ModalBottomSheetAnchorChangeHandler(
     val previousTargetOffset = previousAnchors[previousTarget]
     val newTarget = when (previousTarget) {
         Hidden -> Hidden
-        Collapsed, Expanded -> {
-            val hasCollapsedState = newAnchors.containsKey(Collapsed)
-            val newTarget = if (hasCollapsedState) Collapsed
+        PartiallyExpanded, Expanded -> {
+            val hasPartiallyExpandedState = newAnchors.containsKey(PartiallyExpanded)
+            val newTarget = if (hasPartiallyExpandedState) PartiallyExpanded
             else if (newAnchors.containsKey(Expanded)) Expanded else Hidden
             newTarget
         }
@@ -323,5 +332,3 @@ private fun ModalBottomSheetAnchorChangeHandler(
         }
     }
 }
-
-private val BottomSheetMaxWidth = 640.dp

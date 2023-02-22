@@ -85,12 +85,28 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getExpandedShape();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getMinimizedShape();
     method @androidx.compose.runtime.Composable public long getScrimColor();
+    method public float getSheetPeekHeight();
     property @androidx.compose.runtime.Composable public final long ContainerColor;
     property public final float Elevation;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape ExpandedShape;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape MinimizedShape;
     property @androidx.compose.runtime.Composable public final long ScrimColor;
+    property public final float SheetPeekHeight;
     field public static final androidx.compose.material3.BottomSheetDefaults INSTANCE;
+  }
+
+  public final class BottomSheetScaffoldKt {
+    method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void BottomSheetScaffold(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> sheetContent, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.BottomSheetScaffoldState scaffoldState, optional float sheetPeekHeight, optional androidx.compose.ui.graphics.Shape sheetShape, optional long sheetContainerColor, optional long sheetContentColor, optional float sheetTonalElevation, optional kotlin.jvm.functions.Function0<kotlin.Unit>? sheetDragHandle, optional boolean sheetSwipeEnabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? topBar, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SnackbarHostState,kotlin.Unit> snackbarHost, optional long containerColor, optional long contentColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.PaddingValues,kotlin.Unit> content);
+    method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.BottomSheetScaffoldState rememberBottomSheetScaffoldState(optional androidx.compose.material3.SheetState bottomSheetState, optional androidx.compose.material3.SnackbarHostState snackbarHostState);
+    method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.SheetState rememberStandardBottomSheetState(optional androidx.compose.material3.SheetValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange);
+  }
+
+  @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class BottomSheetScaffoldState {
+    ctor public BottomSheetScaffoldState(androidx.compose.material3.SheetState bottomSheetState, androidx.compose.material3.SnackbarHostState snackbarHostState);
+    method public androidx.compose.material3.SheetState getBottomSheetState();
+    method public androidx.compose.material3.SnackbarHostState getSnackbarHostState();
+    property public final androidx.compose.material3.SheetState bottomSheetState;
+    property public final androidx.compose.material3.SnackbarHostState snackbarHostState;
   }
 
   @androidx.compose.runtime.Immutable public final class ButtonColors {
@@ -667,6 +683,7 @@ package androidx.compose.material3 {
 
   public final class ModalBottomSheetKt {
     method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void ModalBottomSheet(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SheetState sheetState, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long contentColor, optional float tonalElevation, optional long scrimColor, optional kotlin.jvm.functions.Function0<kotlin.Unit>? dragHandle, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.SheetState rememberModalBottomSheetState(optional boolean skipPartiallyExpanded, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange);
   }
 
   public final class NavigationBarDefaults {
@@ -901,35 +918,36 @@ package androidx.compose.material3 {
     property public final androidx.compose.foundation.shape.CornerBasedShape small;
   }
 
-  public final class SheetDefaultsKt {
-    method @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.SheetState rememberSheetState(optional boolean skipHalfExpanded, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange);
-  }
-
   @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class SheetState {
-    ctor public SheetState(boolean skipCollapsed, optional androidx.compose.material3.SheetValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange);
-    method public suspend Object? collapse(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    ctor public SheetState(boolean skipPartiallyExpanded, optional androidx.compose.material3.SheetValue initialValue, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange);
+    method public suspend Object? expand(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.material3.SheetValue getCurrentValue();
+    method public boolean getHasExpandedState();
+    method public boolean getHasPartiallyExpandedState();
     method public androidx.compose.material3.SheetValue getTargetValue();
     method public suspend Object? hide(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public boolean isVisible();
+    method public suspend Object? partialExpand(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float requireOffset();
     method public suspend Object? show(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public final androidx.compose.material3.SheetValue currentValue;
+    property public final boolean hasExpandedState;
+    property public final boolean hasPartiallyExpandedState;
     property public final boolean isVisible;
     property public final androidx.compose.material3.SheetValue targetValue;
     field public static final androidx.compose.material3.SheetState.Companion Companion;
   }
 
   public static final class SheetState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.SheetState,androidx.compose.material3.SheetValue> Saver(boolean skipHalfExpanded, kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.SheetState,androidx.compose.material3.SheetValue> Saver(boolean skipPartiallyExpanded, kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange);
   }
 
   @androidx.compose.material3.ExperimentalMaterial3Api public enum SheetValue {
     method public static androidx.compose.material3.SheetValue valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.compose.material3.SheetValue[] values();
-    enum_constant public static final androidx.compose.material3.SheetValue Collapsed;
     enum_constant public static final androidx.compose.material3.SheetValue Expanded;
     enum_constant public static final androidx.compose.material3.SheetValue Hidden;
+    enum_constant public static final androidx.compose.material3.SheetValue PartiallyExpanded;
   }
 
   @androidx.compose.runtime.Immutable public final class SliderColors {
