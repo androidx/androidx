@@ -200,9 +200,9 @@
         <item>0</item>
         <item>false</item>
         <!--Whether GPS LatLong information exists-->
-        <item>false</item>
-        <item>0</item>
-        <item>0</item>
+        <item>true</item>
+        <item>584</item>
+        <item>24</item>
         <item>0.0</item>
         <item>0.0</item>
         <item>0.0</item>
@@ -217,17 +217,17 @@
         <item>0.0</item>
         <item>0</item>
         <item />
-        <item />
-        <item />
-        <item />
-        <item />
-        <item />
-        <item />
-        <item />
-        <item />
-        <item />
+        <item>0/1000</item>
         <item>0</item>
-        <item>0</item>
+        <item>1970:01:01</item>
+        <item>0/1,0/1,0/10000</item>
+        <item>N</item>
+        <item>0/1,0/1,0/10000</item>
+        <item>E</item>
+        <item>GPS</item>
+        <item>00:00:00</item>
+        <item>176</item>
+        <item>144</item>
         <item />
         <item>0</item>
         <item>0</item>
