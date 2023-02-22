@@ -592,6 +592,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
             lifecycleCameraToBind =
                     mLifecycleCameraRepository.createLifecycleCamera(lifecycleOwner,
                             new CameraUseCaseAdapter(cameraInternals,
+                                    mCameraX.getCameraFactory().getCameraCoordinator(),
                                     mCameraX.getCameraDeviceSurfaceManager(),
                                     mCameraX.getDefaultConfigFactory()));
         }
@@ -782,14 +783,14 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
 
     @CameraOperatingMode
     private int getCameraOperatingMode() {
-        if (mCameraX == null || mCameraX.getCameraFactory().getCameraCoordinator() == null) {
+        if (mCameraX == null) {
             return CAMERA_OPERATING_MODE_UNSPECIFIED;
         }
         return mCameraX.getCameraFactory().getCameraCoordinator().getCameraOperatingMode();
     }
 
     private void setCameraOperatingMode(@CameraOperatingMode int cameraOperatingMode) {
-        if (mCameraX == null || mCameraX.getCameraFactory().getCameraCoordinator() == null) {
+        if (mCameraX == null) {
             return;
         }
         mCameraX.getCameraFactory().getCameraCoordinator()
@@ -798,7 +799,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
 
     @NonNull
     private List<CameraSelector> getActiveConcurrentCameraSelectors() {
-        if (mCameraX == null || mCameraX.getCameraFactory().getCameraCoordinator() == null) {
+        if (mCameraX == null) {
             return new ArrayList<>();
         }
         return mCameraX.getCameraFactory().getCameraCoordinator()
@@ -806,7 +807,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     }
 
     private void setActiveConcurrentCameraSelectors(@NonNull List<CameraSelector> cameraSelectors) {
-        if (mCameraX == null || mCameraX.getCameraFactory().getCameraCoordinator() == null) {
+        if (mCameraX == null) {
             return;
         }
         mCameraX.getCameraFactory().getCameraCoordinator()

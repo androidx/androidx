@@ -69,14 +69,19 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
     }
 
     @Override
-    public boolean checkSupported(@NonNull String cameraId,
+    public boolean checkSupported(
+            boolean isConcurrentCameraModeOn,
+            @NonNull String cameraId,
             @Nullable List<SurfaceConfig> surfaceConfigList) {
         return false;
     }
 
     @Override
     @Nullable
-    public SurfaceConfig transformSurfaceConfig(@NonNull String cameraId, int imageFormat,
+    public SurfaceConfig transformSurfaceConfig(
+            boolean isConcurrentCameraModeOn,
+            @NonNull String cameraId,
+            int imageFormat,
             @NonNull Size size) {
 
         //returns a placeholder SurfaceConfig
@@ -87,6 +92,7 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
     @Override
     @NonNull
     public Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
+            boolean isConcurrentCameraModeOn,
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
