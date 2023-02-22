@@ -18,7 +18,6 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.UiThread;
 
 /**
  * Callback for an evaluation result. This is intended to support two-step updates; first a
@@ -42,7 +41,6 @@ public interface DynamicTypeValueReceiver<T> {
      *
      * @hide
      */
-    @UiThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     void onPreUpdate();
 
@@ -52,10 +50,8 @@ public interface DynamicTypeValueReceiver<T> {
      *
      * @see DynamicTypeValueReceiver#onPreUpdate()
      */
-    @UiThread
     void onData(@NonNull T newData);
 
     /** Called when the dynamic type that this callback was registered for has an invalid result. */
-    @UiThread
     void onInvalidated();
 }
