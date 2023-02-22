@@ -114,14 +114,15 @@ public open class NavDestination(
          * Returns true if all args from [DeepLinkMatch.matchingArgs] can be found within
          * the [arguments].
          *
-         * This returns true even if the [arguments] contain more args
-         * than [DeepLinkMatch.matchingArgs].
+         * This returns true in both edge cases:
+         * 1. If the [arguments] contain more args than [DeepLinkMatch.matchingArgs].
+         * 2. If [DeepLinkMatch.matchingArgs] is empty
          *
          * @param [arguments] The arguments to match with the matchingArgs stored in this
          * DeepLinkMatch.
          */
         public fun hasMatchingArgs(arguments: Bundle?): Boolean {
-            if (arguments == null || matchingArgs == null || matchingArgs.isEmpty) return false
+            if (arguments == null || matchingArgs == null) return false
 
             matchingArgs.keySet().forEach { key ->
                 // the arguments must at least contain every argument stored in this deep link
@@ -130,11 +131,8 @@ public open class NavDestination(
                 val type = destination.arguments[key]?.type
                 val matchingArgValue = type?.get(matchingArgs, key)
                 val entryArgValue = type?.get(arguments, key)
-                if (matchingArgValue == null || entryArgValue == null ||
-                    matchingArgValue != entryArgValue
-                ) {
-                    return false
-                }
+                // fine if both argValues are null, i.e. arguments/params with nullable values
+                if (matchingArgValue != entryArgValue) return false
             }
             return true
         }
@@ -463,6 +461,7 @@ public open class NavDestination(
      * 1. an exact route without arguments
      * 2. a route containing arguments where no arguments are filled in
      * 3. a route containing arguments where some or all arguments are filled in
+     * 4. a partial route
      *
      * In the case of 3., it will only match if the entry arguments
      * match exactly with the arguments that were filled in inside the route.
@@ -477,14 +476,15 @@ public open class NavDestination(
         // this matches based on routePattern
         if (this.route == route) return true
 
-        // if no match based on routePattern, this means route contains filled in args.
+        // if no match based on routePattern, this means route contains filled in args or query
+        // params
         val matchingDeepLink = matchDeepLink(route)
 
-        // If matchingDeepLink is null or it has no matching args, the route does not contain
-        // filled in args, we would return false since it didn't pattern-match earlier either.
-        // Any args (partially or completely filled in) must exactly match between
-        // the route and entry's route
+        // if no matchingDeepLink or mismatching destination, return false directly
         if (this != matchingDeepLink?.destination) return false
+
+        // Any args (partially or completely filled in) must exactly match between
+        // the route and entry's route.
         return matchingDeepLink.hasMatchingArgs(arguments)
     }
 
