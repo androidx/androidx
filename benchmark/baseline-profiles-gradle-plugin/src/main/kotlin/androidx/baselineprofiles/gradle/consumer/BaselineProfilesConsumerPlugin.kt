@@ -19,9 +19,9 @@ package androidx.baselineprofiles.gradle.consumer
 import androidx.baselineprofiles.gradle.utils.ATTRIBUTE_BUILD_TYPE
 import androidx.baselineprofiles.gradle.utils.ATTRIBUTE_CATEGORY_BASELINE_PROFILE
 import androidx.baselineprofiles.gradle.utils.ATTRIBUTE_FLAVOR
+import androidx.baselineprofiles.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
 import androidx.baselineprofiles.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
 import androidx.baselineprofiles.gradle.utils.INTERMEDIATES_BASE_FOLDER
-import androidx.baselineprofiles.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
 import androidx.baselineprofiles.gradle.utils.camelCase
 import androidx.baselineprofiles.gradle.utils.checkAgpVersion
 import androidx.baselineprofiles.gradle.utils.isGradleSyncRunning
@@ -29,6 +29,7 @@ import androidx.baselineprofiles.gradle.utils.maybeRegister
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -36,6 +37,8 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Category
 import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 
 /**
@@ -49,6 +52,7 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
 
     companion object {
         private const val GENERATE_TASK_NAME = "generate"
+        private const val RELEASE = "release"
     }
 
     override fun apply(project: Project) {
@@ -171,8 +175,14 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
                     // for apps.
                     val mergeIntoMain = baselineProfilesExtension.mergeIntoMain ?: !isApplication
 
+                    // TODO: When `mergeIntoMain` is true it lazily triggers the generation of all
+                    //  the variants for all the build types. Due to b/265438201, that fails when
+                    //  there are multiple build types. As temporary workaround, when `mergeIntoMain`
+                    //  is true, calling a generation task for a specific build type will merge
+                    //  profiles for all the variants of that build type and output it in the `main`
+                    //  folder.
                     val (taskName, outputVariantFolder) = if (mergeIntoMain) {
-                        listOf("", "main")
+                        listOf(variant.buildType ?: "", "main")
                     } else {
                         listOf(variant.name, variant.name)
                     }
@@ -251,16 +261,27 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
                         }
                     }
 
-                    // This creates a task hierarchy to trigger generations for all the variants of a
-                    // specific build type, flavor or all of them. If `mergeIntoMain` is true, only one
-                    // generation task exists. Also if there are no flavors the variant name contains
-                    // the build type only, so no need to create a parent task for the build type.
-                    // Note that we cannot create the other parent tasks for flavor and global due to
-                    // b/265438201.
+                    // Here we create a task hierarchy to trigger generations for all the variants
+                    // of a specific build type, flavor or all of them. If `mergeIntoMain` is true,
+                    // only one generation task exists so there is no need to create parent tasks.
                     if (!mergeIntoMain && variant.name != variant.buildType) {
-                        maybeCreateParentGenTask(
+                        maybeCreateParentGenTask<Task>(
                             project,
                             variant.buildType,
+                            genBaselineProfilesTaskProvider
+                        )
+                    }
+
+                    // TODO: Due to b/265438201 we cannot have a global task
+                    //  `generateBaselineProfiles` that triggers generation for all the
+                    //  variants when there are multiple build types. The temporary workaround
+                    //  is to generate baseline profiles only for variants with the `release`
+                    //  build type until that bug is fixed, when running the global task
+                    //  `generateBaselineProfiles`. This can be removed after fix.
+                    if (variant.buildType == RELEASE) {
+                        maybeCreateParentGenTask<MainGenerateBaselineProfileTask>(
+                            project,
+                            "",
                             genBaselineProfilesTaskProvider
                         )
                     }
@@ -268,13 +289,13 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
             }
     }
 
-    private fun maybeCreateParentGenTask(
+    private inline fun <reified T : Task> maybeCreateParentGenTask(
         project: Project,
         parentName: String?,
         childGenerationTaskProvider: TaskProvider<GenerateBaselineProfileTask>
     ) {
         if (parentName == null) return
-        project.tasks.maybeRegister<Task>(GENERATE_TASK_NAME, parentName, "baselineProfiles") {
+        project.tasks.maybeRegister<T>(GENERATE_TASK_NAME, parentName, "baselineProfiles") {
             it.group = "Baseline Profiles"
             it.description = "Generates baseline profiles."
             it.dependsOn(childGenerationTaskProvider)
@@ -386,4 +407,29 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
                     .dir("src/$variantName/$outputDir/")
             }
         }
+}
+
+@CacheableTask
+abstract class MainGenerateBaselineProfileTask : DefaultTask() {
+
+    @TaskAction
+    fun exec() {
+        this.logger.warn(
+            """
+                The task `generateBaselineProfiles` cannot currently support
+                generation for all the variants when there are multiple build
+                types without improvements planned for a future version of the
+                Android Gradle Plugin.
+                Until then, `generateBaselineProfiles` will only generate
+                baseline profiles for the variants of the release build type,
+                behaving like `generateReleaseBaselineProfiles`.
+                If you intend to generate profiles for multiple build types
+                you'll need to run separate gradle commands for each build type.
+                For example: `generateReleaseBaselineProfiles` and
+                `generateAnotherReleaseBaselineProfiles`.
+
+                Details on https://issuetracker.google.com/issue?id=270433400.
+                """.trimIndent()
+        )
+    }
 }

@@ -34,3 +34,17 @@ internal inline fun <reified T : Task?> TaskContainer.maybeRegister(
         register(name, T::class.java, configureBlock)
     }
 }
+
+internal inline fun <reified T : Task?> TaskContainer.namedOrNull(
+    vararg nameParts: String,
+    noinline configureBlock: ((T) -> (Unit))? = null
+): TaskProvider<T>? {
+    val name = camelCase(*nameParts)
+    return try {
+        val task = named(name, T::class.java)
+        if (configureBlock != null) task.configure(configureBlock)
+        task
+    } catch (e: UnknownTaskException) {
+        return null
+    }
+}
