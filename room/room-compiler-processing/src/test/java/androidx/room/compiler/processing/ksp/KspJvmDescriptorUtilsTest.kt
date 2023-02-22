@@ -500,9 +500,9 @@ class KspJvmDescriptorUtilsTest {
 
     private fun descriptor(element: XElement): String {
         return when {
-            element.isField() -> element.jvmDescriptor()
-            element.isMethod() -> element.jvmDescriptor()
-            element.isConstructor() -> element.jvmDescriptor()
+            element.isField() -> element.jvmDescriptor
+            element.isMethod() -> element.jvmDescriptor
+            element.isConstructor() -> element.jvmDescriptor
             else -> error("Unsupported element to describe.")
         }
     }

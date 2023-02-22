@@ -154,7 +154,7 @@ internal sealed class JavacTypeElement(
     override fun findPrimaryConstructor(): JavacConstructorElement? {
         val primarySignature = kotlinMetadata?.primaryConstructorSignature ?: return null
         return getConstructors().firstOrNull {
-            primarySignature == it.descriptor
+            primarySignature == it.jvmDescriptor
         }
     }
 
