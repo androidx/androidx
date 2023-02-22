@@ -49,7 +49,7 @@ class BaselineProfileTest {
 
     companion object {
         private const val PACKAGE_NAME =
-            "androidx.benchmark.integration.baselineprofiles.library.buildprovider"
+            "androidx.benchmark.integration.baselineprofiles.library.apkprovider"
         private const val ACTION =
             "androidx.benchmark.integration.baselineprofiles.EMPTY_ACTIVITY"
     }

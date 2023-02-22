@@ -18,7 +18,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("androidx.baselineprofiles.buildprovider")
+    id("androidx.baselineprofiles.apkprovider")
 }
 
 android {
@@ -29,7 +29,7 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
-    namespace "androidx.benchmark.integration.baselineprofiles.library.buildprovider"
+    namespace "androidx.benchmark.integration.baselineprofiles.library.apkprovider"
 }
 
 dependencies {

@@ -42,7 +42,7 @@ import org.gradle.api.tasks.TaskProvider
  * This is the consumer plugin for baseline profile generation. In order to generate baseline
  * profiles three plugins are needed: one is applied to the app or the library that should consume
  * the baseline profile when building (consumer), one is applied to the project that should supply
- * the apk under test (build provider) and the last one is applied to a test module containing
+ * the apk under test (apk provider) and the last one is applied to a test module containing
  * the ui test that generate the baseline profile on the device (producer).
  */
 class BaselineProfilesConsumerPlugin : Plugin<Project> {

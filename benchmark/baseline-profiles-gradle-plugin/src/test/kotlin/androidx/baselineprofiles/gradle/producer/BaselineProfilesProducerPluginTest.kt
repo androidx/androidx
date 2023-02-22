@@ -38,21 +38,21 @@ class BaselineProfilesProducerPluginTest {
     val producerProjectSetup = ProjectSetupRule(rootFolder.root)
 
     @get:Rule
-    val buildProviderProjectSetup = ProjectSetupRule(rootFolder.root)
+    val apkProviderProjectSetup = ProjectSetupRule(rootFolder.root)
 
     private lateinit var producerModuleName: String
-    private lateinit var buildProviderModuleName: String
+    private lateinit var apkProviderModuleName: String
     private lateinit var gradleRunner: GradleRunner
 
     @Before
     fun setUp() {
         producerModuleName = producerProjectSetup.rootDir.relativeTo(rootFolder.root).name
-        buildProviderModuleName = buildProviderProjectSetup.rootDir.relativeTo(rootFolder.root).name
+        apkProviderModuleName = apkProviderProjectSetup.rootDir.relativeTo(rootFolder.root).name
 
         rootFolder.newFile("settings.gradle").writeText(
             """
             include '$producerModuleName'
-            include '$buildProviderModuleName'
+            include '$apkProviderModuleName'
         """.trimIndent()
         )
         gradleRunner = GradleRunner.create()
@@ -62,11 +62,11 @@ class BaselineProfilesProducerPluginTest {
 
     @Test
     fun verifyTasksWithAndroidTestPlugin() {
-        buildProviderProjectSetup.writeDefaultBuildGradle(
+        apkProviderProjectSetup.writeDefaultBuildGradle(
             prefix = """
                 plugins {
                     id("com.android.application")
-                    id("androidx.baselineprofiles.buildprovider")
+                    id("androidx.baselineprofiles.apkprovider")
                 }
                 android {
                     namespace 'com.example.namespace'
@@ -81,7 +81,7 @@ class BaselineProfilesProducerPluginTest {
                     id("androidx.baselineprofiles.producer")
                 }
                 android {
-                    targetProjectPath = ":$buildProviderModuleName"
+                    targetProjectPath = ":$apkProviderModuleName"
                     namespace 'com.example.namespace.test'
                 }
                 tasks.register("mergeNonMinifiedReleaseTestResultProtos") { println("Stub") }
