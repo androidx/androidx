@@ -27,6 +27,7 @@ import androidx.appactions.interaction.capabilities.core.BaseSession;
 import androidx.appactions.interaction.capabilities.core.ConfirmationOutput;
 import androidx.appactions.interaction.capabilities.core.ExecutionResult;
 import androidx.appactions.interaction.capabilities.core.InitArg;
+import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession;
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper;
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
@@ -99,7 +100,7 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
      */
     @Nullable TouchEventCallback mTouchEventCallback;
     /** Current status of the overall task (i.e. status of the task). */
-    private TaskStatus mTaskStatus;
+    private ActionCapabilitySession.Status mTaskStatus;
 
     /** True if an UpdateRequest is currently being processed, false otherwise. */
     @GuardedBy("mTaskOrchestratorLock")
@@ -118,7 +119,7 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
         this.mExecutor = executor;
 
         this.mCurrentValuesMap = Collections.synchronizedMap(new HashMap<>());
-        this.mTaskStatus = TaskStatus.UNINITIATED;
+        this.mTaskStatus = ActionCapabilitySession.Status.UNINITIATED;
     }
     // Set a TouchEventCallback instance. This callback is invoked when state changes from manual
     // input.
@@ -131,6 +132,10 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
         synchronized (mTaskOrchestratorLock) {
             return mIsIdle;
         }
+    }
+
+    ActionCapabilitySession.Status getStatus() {
+        return mTaskStatus;
     }
 
     /**
@@ -211,7 +216,7 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
         Map<String, List<ParamValue>> paramValuesMap = touchEventUpdateRequest.getParamValuesMap();
         if (mTouchEventCallback == null
                 || paramValuesMap.isEmpty()
-                || mTaskStatus != TaskStatus.IN_PROGRESS) {
+                || mTaskStatus != ActionCapabilitySession.Status.IN_PROGRESS) {
             return Futures.immediateVoidFuture();
         }
         for (Map.Entry<String, List<ParamValue>> entry : paramValuesMap.entrySet()) {
@@ -295,7 +300,9 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
     }
 
     // TODO: add cleanup logic if any
-    private void terminate() {}
+    private void terminate() {
+        this.mTaskStatus = ActionCapabilitySession.Status.DESTROYED;
+    }
 
     /**
      * If slot filling is incomplete, the future contains default FulfillmentResponse.
@@ -316,10 +323,10 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
     }
 
     private ListenableFuture<Void> maybeInitializeTask() {
-        if (this.mTaskStatus == TaskStatus.UNINITIATED) {
+        if (this.mTaskStatus == ActionCapabilitySession.Status.UNINITIATED) {
             mExternalSession.onInit(new InitArg());
         }
-        this.mTaskStatus = TaskStatus.IN_PROGRESS;
+        this.mTaskStatus = ActionCapabilitySession.Status.IN_PROGRESS;
         return Futures.immediateVoidFuture();
     }
 
@@ -569,7 +576,7 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
         return Futures.transform(
                 executionResultFuture,
                 executionResult -> {
-                    this.mTaskStatus = TaskStatus.COMPLETED;
+                    this.mTaskStatus = ActionCapabilitySession.Status.COMPLETED;
                     return executionResult;
                 },
                 mExecutor,
@@ -598,7 +605,7 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
                 result -> {
                     FulfillmentResponse.Builder fulfillmentResponse =
                             FulfillmentResponse.newBuilder();
-                    if (mTaskStatus == TaskStatus.COMPLETED) {
+                    if (mTaskStatus == ActionCapabilitySession.Status.COMPLETED) {
                         convertToExecutionOutput(result)
                                 .ifPresent(fulfillmentResponse::setExecutionOutput);
                     }
@@ -666,12 +673,5 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
                             .build());
         }
         return Optional.of(confirmationOutputBuilder.build());
-    }
-
-    /** State of the task internal to this capability. */
-    private enum TaskStatus {
-        UNINITIATED,
-        IN_PROGRESS,
-        COMPLETED
     }
 }

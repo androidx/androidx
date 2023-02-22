@@ -42,8 +42,11 @@ internal class SingleTurnCapabilitySession<
     val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
     val externalSession: BaseSession<ArgumentT, OutputT>,
 ) : ActionCapabilitySession {
-    // single-turn capability does not have state
     override val state: AppAction
+        get() {
+            throw UnsupportedOperationException()
+        }
+    override val status: ActionCapabilitySession.Status
         get() {
             throw UnsupportedOperationException()
         }

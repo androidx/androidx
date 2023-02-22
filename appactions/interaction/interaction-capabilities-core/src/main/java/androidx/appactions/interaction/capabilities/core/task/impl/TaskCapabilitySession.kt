@@ -40,6 +40,11 @@ internal class TaskCapabilitySession<
 ) : ActionCapabilitySession, TaskUpdateHandler {
     override val state: AppAction
         get() = sessionOrchestrator.getAppAction()
+
+    // single-turn capability does not have status
+    override val status: ActionCapabilitySession.Status
+        get() = sessionOrchestrator.getStatus()
+
     /** synchronize on this lock to enqueue assistant/manual input requests. */
     private val requestLock = Any()
 

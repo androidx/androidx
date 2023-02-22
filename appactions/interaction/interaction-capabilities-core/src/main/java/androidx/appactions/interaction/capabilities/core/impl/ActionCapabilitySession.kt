@@ -45,4 +45,13 @@ interface ActionCapabilitySession {
     fun setTouchEventCallback(callback: TouchEventCallback)
 
     val state: AppAction
+
+    val status: Status
+
+    enum class Status {
+        UNINITIATED,
+        IN_PROGRESS,
+        COMPLETED,
+        DESTROYED,
+    }
 }
