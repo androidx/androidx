@@ -208,7 +208,10 @@ class GcmTaskConverterTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL)
+    @SdkSuppress(
+        minSdkVersion = 22, // b/269194015 for minSdkVersion = 22
+        maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL
+    )
     fun testPeriodicWorkRequest_withFlex_firstRun() {
         val request = PeriodicWorkRequestBuilder<TestWorker>(
             15L, TimeUnit.MINUTES, 5, TimeUnit.MINUTES
@@ -224,7 +227,10 @@ class GcmTaskConverterTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL)
+    @SdkSuppress(
+        minSdkVersion = 22, // b/269194015 for minSdkVersion = 22
+        maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL
+    )
     fun testPeriodicWorkRequest_withFlex_nextRun() {
         val now = System.currentTimeMillis()
         `when`(mTaskConverter.now()).thenReturn(now)
