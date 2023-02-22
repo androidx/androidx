@@ -175,6 +175,7 @@ public class UiObject2Test extends BaseTest {
         assertEquals("drag_received", dragDestination.getText());
     }
 
+    @Ignore // b/270210522
     @Test
     @SdkSuppress(minSdkVersion = 24)
     public void testDrag_destAndSpeed() {
