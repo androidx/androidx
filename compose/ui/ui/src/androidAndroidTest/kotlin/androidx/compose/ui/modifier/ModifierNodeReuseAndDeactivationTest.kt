@@ -27,12 +27,16 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.DrawModifier
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverNode
@@ -415,6 +419,266 @@ class ModifierNodeReuseAndDeactivationTest {
     }
 
     @Test
+    fun reusingModifierReadingStateInMeasureBlock() {
+        var active by mutableStateOf(true)
+        var counter by mutableStateOf(0)
+
+        var invalidations = 0
+        val measureBlock: () -> Unit = {
+            // state read
+            counter.toString()
+            invalidations++
+        }
+
+        rule.setContent {
+            ReusableContentHost(active) {
+                ReusableContent(0) {
+                    Layout(
+                        modifier = LayoutModifierElement(measureBlock),
+                        measurePolicy = MeasurePolicy
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            counter++
+        }
+
+        rule.runOnIdle {
+            active = true
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(2)
+            counter++
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun reusingModifierReadingStateInMeasureBlock_oldModifiers() {
+        var active by mutableStateOf(true)
+        var counter by mutableStateOf(0)
+
+        var invalidations = 0
+        val measureBlock: () -> Unit = {
+            // state read
+            counter.toString()
+            invalidations++
+        }
+
+        rule.setContent {
+            ReusableContentHost(active) {
+                ReusableContent(0) {
+                    Layout(
+                        modifier = OldLayoutModifier(measureBlock),
+                        measurePolicy = MeasurePolicy
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            counter++
+        }
+
+        rule.runOnIdle {
+            active = true
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(2)
+            counter++
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun reusingModifierWithoutDeactivation_ReadingStateInMeasurelock_oldModifiers() {
+        var key by mutableStateOf(0)
+        var counter by mutableStateOf(0)
+
+        var invalidations = 0
+        val drawBlock: () -> Unit = {
+            // state read
+            counter.toString()
+            invalidations++
+        }
+
+        rule.setContent {
+            ReusableContent(key) {
+                Layout(
+                    modifier = OldLayoutModifier(drawBlock),
+                    measurePolicy = MeasurePolicy
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            key = 1
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            counter++
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun reusingModifierReadingStateInDrawBlock() {
+        var active by mutableStateOf(true)
+        var counter by mutableStateOf(0)
+
+        var invalidations = 0
+        val drawBlock: () -> Unit = {
+            // state read
+            counter.toString()
+            invalidations++
+        }
+
+        rule.setContent {
+            ReusableContentHost(active) {
+                ReusableContent(0) {
+                    Layout(
+                        modifier = DrawModifierElement(drawBlock),
+                        measurePolicy = MeasurePolicy
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            counter++
+        }
+
+        rule.runOnIdle {
+            active = true
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(2)
+            counter++
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun reusingModifierReadingStateInDrawBlock_oldModifiers() {
+        var active by mutableStateOf(true)
+        var counter by mutableStateOf(0)
+
+        var invalidations = 0
+        val drawBlock: () -> Unit = {
+            // state read
+            counter.toString()
+            invalidations++
+        }
+
+        rule.setContent {
+            ReusableContentHost(active) {
+                ReusableContent(0) {
+                    Layout(
+                        modifier = OldDrawModifier(drawBlock),
+                        measurePolicy = MeasurePolicy
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            counter++
+        }
+
+        rule.runOnIdle {
+            active = true
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(2)
+            counter++
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun reusingModifierWithoutDeactivation_ReadingStateInDrawBlock_oldModifiers() {
+        var key by mutableStateOf(0)
+        var counter by mutableStateOf(0)
+
+        var invalidations = 0
+        val drawBlock: () -> Unit = {
+            // state read
+            counter.toString()
+            invalidations++
+        }
+
+        rule.setContent {
+                ReusableContent(key) {
+                    Layout(
+                        modifier = OldDrawModifier(drawBlock),
+                        measurePolicy = MeasurePolicy
+                    )
+                }
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            key = 1
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(1)
+            counter++
+        }
+
+        rule.runOnIdle {
+            assertThat(invalidations).isEqualTo(2)
+        }
+    }
+
+    @Test
     fun reusingModifierObservingState() {
         var active by mutableStateOf(true)
         var counter by mutableStateOf(0)
@@ -655,5 +919,68 @@ private data class ObserverModifierElement(
         override fun onObservedReadsChanged() {
             observe()
         }
+    }
+}
+
+private data class LayoutModifierElement(
+    private val measureBlock: () -> Unit,
+) : ModifierNodeElement<LayoutModifierElement.Node>() {
+    override fun create() = Node(measureBlock)
+
+    override fun update(node: Node) = node.also {
+        it.measureBlock = measureBlock
+    }
+
+    class Node(var measureBlock: () -> Unit) : Modifier.Node(), LayoutModifierNode {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints
+        ): MeasureResult {
+            val placeable = measurable.measure(constraints)
+            measureBlock.invoke()
+            return layout(placeable.width, placeable.height) {
+                placeable.place(0, 0)
+            }
+        }
+    }
+}
+
+private data class OldLayoutModifier(
+    private val measureBlock: () -> Unit,
+) : LayoutModifier {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        measureBlock.invoke()
+        return layout(placeable.width, placeable.height) {
+            placeable.place(0, 0)
+        }
+    }
+}
+
+private data class DrawModifierElement(
+    private val drawBlock: () -> Unit,
+) : ModifierNodeElement<DrawModifierElement.Node>() {
+    override fun create() = Node(drawBlock)
+
+    override fun update(node: Node) = node.also {
+        it.drawBlock = drawBlock
+    }
+
+    class Node(var drawBlock: () -> Unit) : Modifier.Node(), DrawModifierNode {
+        override fun ContentDrawScope.draw() {
+            drawBlock.invoke()
+        }
+    }
+}
+
+private data class OldDrawModifier(
+    private val measureBlock: () -> Unit,
+) : DrawModifier {
+
+    override fun ContentDrawScope.draw() {
+        measureBlock.invoke()
     }
 }
