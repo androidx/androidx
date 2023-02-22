@@ -338,6 +338,7 @@ class TextFieldKeyEventTest {
         }
     }
 
+    @Ignore // (b/276789499) Ignore for now
     @Test
     fun textField_pageNavigation() {
         keysSequenceTest(

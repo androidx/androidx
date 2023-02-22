@@ -20,12 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.modifier.ModifierLocalConsumer
+import androidx.compose.ui.modifier.ModifierLocalNode
 import androidx.compose.ui.modifier.ModifierLocalProvider
 import androidx.compose.ui.modifier.ModifierLocalReadScope
 import androidx.compose.ui.modifier.ProvidableModifierLocal
 import androidx.compose.ui.modifier.modifierLocalOf
+import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.platform.debugInspectorInfo
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -87,32 +88,46 @@ private class FocusedBoundsObserverModifier(
 
 /**
  * Modifier used by [Modifier.focusable] to publish the location of the focused element.
- * Should only be applied to the node when it is actually focused.
+ * Should only be applied to the node when it is actually focused. Right now this will keep
+ * this node around, but once the undelegate API lands we can remove this node entirely if it
+ * is not focused. (b/276790428)
  */
-@OptIn(ExperimentalFoundationApi::class)
-internal class FocusedBoundsModifier : ModifierLocalConsumer,
-    OnGloballyPositionedModifier {
-    private var observer: ((LayoutCoordinates?) -> Unit)? = null
+internal class FocusedBoundsNode : Modifier.Node(), ModifierLocalNode,
+    GlobalPositionAwareModifierNode {
+    private var isFocused: Boolean = false
+
+    private val observer: ((LayoutCoordinates?) -> Unit)?
+        get() = if (isAttached) {
+            ModifierLocalFocusedBoundsObserver.current
+        } else {
+            null
+        }
+
     private var layoutCoordinates: LayoutCoordinates? = null
+
+    /**
+     * This should be called from a [androidx.compose.ui.focus.FocusEventModifierNode.onFocusEvent]
+     * where it is guarantee that an event will be dispatched during the lifecycle of the node. This
+     * means that when the node is detached (and we should warn observers) we'll receive an event.
+     */
+    fun setFocus(focused: Boolean) {
+        if (focused == isFocused) return
+        if (!focused) {
+            observer?.invoke(null)
+        } else {
+            notifyObserverWhenAttached()
+        }
+        isFocused = focused
+    }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         layoutCoordinates = coordinates
+        if (!isFocused) return
         if (coordinates.isAttached) {
             notifyObserverWhenAttached()
         } else {
             observer?.invoke(null)
         }
-    }
-
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) {
-        val newObserver = with(scope) { ModifierLocalFocusedBoundsObserver.current }
-        if (newObserver == null) {
-            // We're being removed from the hierarchy. Inform the previous listener.
-            observer?.invoke(null)
-        }
-        observer = newObserver
-        // Don't need to explicitly notify observers here because onGloballyPositioned will get
-        // called after this method, and that will notify observers.
     }
 
     private fun notifyObserverWhenAttached() {
