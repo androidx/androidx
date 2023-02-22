@@ -24,7 +24,7 @@ dependencies {
     implementation(project(":lifecycle:lifecycle-common"))
     api(libs.kotlinStdlib)
 
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.4.0")
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
