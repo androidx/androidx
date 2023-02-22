@@ -20,7 +20,7 @@ import android.content.Context
 import android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED
 import android.content.pm.PackageManager.GET_PERMISSIONS
 import android.content.pm.PackageManager.PackageInfoFlags
-import android.health.connect.ChangeLogsRequest
+import android.health.connect.changelog.ChangeLogsRequest
 import android.health.connect.HealthConnectException
 import android.health.connect.HealthConnectManager
 import android.health.connect.ReadRecordsRequestUsingIds
