@@ -37,6 +37,18 @@ public class TargetUtils {
     }
 
     /**
+     * Returns the number of targets in the given target mask by counting the number of 1s.
+     */
+    public static int getNumberOfTargets(int targets) {
+        int count = 0;
+        while (targets != 0) {
+            count += (targets & 1);
+            targets >>= 1;
+        }
+        return count;
+    }
+
+    /**
      * Returns true if subset ⊆ superset.
      */
     public static boolean isSuperset(int superset, int subset) {
