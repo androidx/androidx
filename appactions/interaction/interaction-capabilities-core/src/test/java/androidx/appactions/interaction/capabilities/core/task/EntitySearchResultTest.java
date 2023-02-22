@@ -27,15 +27,15 @@ public final class EntitySearchResultTest {
 
     @Test
     public void emptyList() {
-        assertThat(EntitySearchResult.empty().possibleValues()).isEmpty();
+        assertThat(EntitySearchResult.empty().getPossibleValues()).isEmpty();
     }
 
     @Test
     public void test() {
-        EntitySearchResult.Builder<String> gr = EntitySearchResult.newBuilder();
-        gr.addPossibleValue("foo");
-        gr.addPossibleValue("bar");
+        EntitySearchResult.Builder<String> builder = new EntitySearchResult.Builder<String>();
+        builder.addPossibleValue("foo");
+        builder.addPossibleValue("bar");
 
-        assertThat(gr.build().possibleValues()).containsExactly("foo", "bar");
+        assertThat(builder.build().getPossibleValues()).containsExactly("foo", "bar");
     }
 }
