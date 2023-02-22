@@ -16,19 +16,31 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XEnumEntry
 import androidx.room.compiler.processing.XEnumTypeElement
+import androidx.room.compiler.processing.XHasModifiers
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 
 internal class KspEnumEntry(
     env: KspProcessingEnv,
-    element: KSClassDeclaration,
+    override val declaration: KSClassDeclaration,
     override val enclosingElement: XEnumTypeElement
-) : KspTypeElement(env, element), XEnumEntry {
+) : KspElement(env, declaration),
+    XHasModifiers by KspHasModifiers.create(declaration),
+    XAnnotated by KspAnnotated.create(env, declaration, KspAnnotated.UseSiteFilter.NO_USE_SITE),
+    XEnumEntry {
 
     override val name: String
         get() = declaration.simpleName.asString()
+
+    private val qualifiedName: String by lazy {
+        (declaration.qualifiedName ?: declaration.simpleName).asString()
+    }
+
+    override val fallbackLocationText: String
+        get() = qualifiedName
 
     override val closestMemberContainer: XEnumTypeElement
         get() = enclosingElement
@@ -41,7 +53,6 @@ internal class KspEnumEntry(
             require(declaration.classKind == ClassKind.ENUM_ENTRY) {
                 "Expected declaration to be an enum entry but was ${declaration.classKind}"
             }
-
             return KspEnumEntry(
                 env,
                 declaration,

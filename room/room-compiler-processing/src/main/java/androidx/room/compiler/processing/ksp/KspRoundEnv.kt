@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
@@ -50,7 +51,10 @@ internal class KspRoundEnv(
                         KspFieldElement.create(env, symbol)
                     }
                     is KSClassDeclaration -> {
-                        KspTypeElement.create(env, symbol)
+                        when (symbol.classKind) {
+                            ClassKind.ENUM_ENTRY -> KspEnumEntry.create(env, symbol)
+                            else -> KspTypeElement.create(env, symbol)
+                        }
                     }
                     is KSFunctionDeclaration -> {
                         KspExecutableElement.create(env, symbol)
