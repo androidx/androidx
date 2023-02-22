@@ -60,7 +60,7 @@ class CameraUseCaseAdapterTest {
         val builder = CaptureConfig.Builder()
 
         // Act
-        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.unpack(useCaseConfig, builder)
+        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE.unpack(useCaseConfig, builder)
 
         // Assert
         val config = builder.build()
@@ -239,7 +239,7 @@ class CameraUseCaseAdapterTest {
 
         // Act
         val captureBuilder = CaptureConfig.Builder()
-        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.unpack(
+        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE.unpack(
             imageCaptureBuilder.useCaseConfig,
             captureBuilder
         )
@@ -277,7 +277,9 @@ class CameraUseCaseAdapterTest {
         val captureBuilder = CaptureConfig.Builder()
 
         // Act
-        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.unpack(useCaseConfig, captureBuilder)
+        CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE.unpack(
+            useCaseConfig, captureBuilder
+        )
         val captureConfig = captureBuilder.build()
 
         // Assert
