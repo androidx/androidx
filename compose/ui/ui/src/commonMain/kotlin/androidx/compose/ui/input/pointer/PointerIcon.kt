@@ -111,9 +111,7 @@ fun Modifier.pointerHoverIcon(icon: PointerIcon, overrideDescendants: Boolean = 
                         while (true) {
                             val event = awaitPointerEvent(Main)
 
-                            if (event.type == PointerEventType.Enter &&
-                                !pointerIconModifierLocal.isPaused
-                            ) {
+                            if (event.type == PointerEventType.Enter) {
                                 pointerIconModifierLocal.enter()
                             } else if (event.type == PointerEventType.Exit) {
                                 pointerIconModifierLocal.exit()
@@ -154,11 +152,22 @@ private class PointerIconModifierLocal(
     // TODO: (b/267170292) Properly reset isPaused upon PointerIconModifierLocal disposal.
     var isPaused: Boolean = false
 
+    /* True if the cursor is within the surface area of this element's bounds. Otherwise, false. */
+    var isHovered: Boolean = false
+
     override val key: ProvidableModifierLocal<PointerIconModifierLocal?> = ModifierLocalPointerIcon
     override val value: PointerIconModifierLocal = this
 
     override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) = with(scope) {
+        val oldParentInfo = parentInfo
         parentInfo = ModifierLocalPointerIcon.current
+        if (oldParentInfo != null && parentInfo == null) {
+            // When the old parentInfo for this element is reassigned to null, we assume this
+            // element is being alienated for disposal. Exit out of our pointer icon logic for this
+            // element and then update onSetIcon to null so it will not change the icon any further.
+            exit(oldParentInfo)
+            onSetIcon = {}
+        }
     }
 
     fun shouldUpdatePointerIcon(): Boolean {
@@ -171,13 +180,39 @@ private class PointerIconModifierLocal(
     }
 
     fun enter() {
-        parentInfo?.pause()
-        onSetIcon(icon)
+        isHovered = true
+        if (!isPaused) {
+            parentInfo?.pause()
+            onSetIcon(icon)
+        }
     }
 
     fun exit() {
-        parentInfo?.unpause()
-        onSetIcon(parentInfo?.icon)
+        exit(parentInfo)
+    }
+
+    private fun exit(parent: PointerIconModifierLocal?) {
+        if (isHovered) {
+            if (parent == null) {
+                // Notify that oldest ancestor in hierarchy exited by passing null to onSetIcon().
+                onSetIcon(null)
+            } else {
+                parent.reassignIcon()
+            }
+        }
+        isHovered = false
+    }
+
+    private fun reassignIcon() {
+        isPaused = false
+        if (isHovered) {
+            onSetIcon(icon)
+        } else if (parentInfo == null) {
+            // Reassign the icon back to the default arrow by passing in a null PointerIcon
+            onSetIcon(null)
+        } else {
+            parentInfo?.reassignIcon()
+        }
     }
 
     private fun pause() {
@@ -185,16 +220,15 @@ private class PointerIconModifierLocal(
         parentInfo?.pause()
     }
 
-    private fun unpause() {
-        isPaused = false
-        parentInfo?.unpause()
-    }
-
     fun updateValues(
         icon: PointerIcon,
         overrideDescendants: Boolean,
         onSetIcon: (PointerIcon?) -> Unit
     ) {
+        if (this.icon != icon && isHovered && !isPaused) {
+            // Hovered element's icon has dynamically changed so we need to set the user facing icon
+            onSetIcon(icon)
+        }
         this.icon = icon
         this.overrideDescendants = overrideDescendants
         this.onSetIcon = onSetIcon

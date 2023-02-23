@@ -19,9 +19,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -38,6 +43,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -430,6 +436,233 @@ class PointerIconTest {
         verifyIconOnHover(parentIconTag, desiredParentIcon)
         // Verify Child Box is respecting Parent Box's icon
         verifyIconOnHover(childIconTag, desiredParentIcon)
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (no custom icon)
+     *      ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = TRUE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  Initially, the Child Box's [PointerIcon.Text] should win for its entire surface area
+     *  because it has no competition in the hierarchy for any other custom icons. After the Parent
+     *  Box dynamically has the pointerHoverIcon Modifier added to it, the Parent Box's
+     *  [PointerIcon.Crosshair] should win for the entire surface area of the Parent Box and Child
+     *  Box because the Parent Box has overrideDescendants = true.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Crosshair])
+     */
+    @Ignore("b/267170292 - not yet implemented")
+    @Test
+    fun parentChildPartialOverlap_parentModifierDynamicallyAdded() {
+        val isVisible = mutableStateOf(false)
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .then(
+                            if (isVisible.value) Modifier.pointerHoverIcon(
+                                desiredParentIcon,
+                                overrideDescendants = true
+                            ) else Modifier
+                        )
+
+                ) {
+                    Box(
+                        Modifier
+                            .padding(20.dp)
+                            .requiredSize(150.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                            .testTag(childIconTag)
+                            .pointerHoverIcon(desiredChildIcon, overrideDescendants = false)
+                    )
+                }
+            }
+        }
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Verify Child Box is the desired child icon
+        verifyIconOnHover(childIconTag, desiredChildIcon)
+        // Verify Parent Box's icon is the desired default icon
+        verifyIconOnHover(parentIconTag, desiredDefaultIcon)
+        // Dynamically add the pointerHoverIcon Modifier to the Parent Box
+        rule.runOnIdle {
+            isVisible.value = true
+        }
+        // Verify Parent Box's icon is the desired parent icon
+        verifyIconOnHover(parentIconTag, desiredParentIcon)
+        // Verify Child Box is respecting Parent Box's icon
+        verifyIconOnHover(childIconTag, desiredParentIcon)
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (no custom icon)
+     *      ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = TRUE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  Initially, the Child Box's [PointerIcon.Text] should win for its entire surface area
+     *  because it has no competition in the hierarchy for any other custom icons. After the Parent
+     *  Box dynamically has the pointerHoverIcon Modifier added to it, the Parent Box's
+     *  [PointerIcon.Crosshair] should win for the entire surface area of the Parent Box and Child
+     *  Box because the Parent Box has overrideDescendants = true.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Crosshair])
+     */
+    @Ignore("b/267170292 - not yet implemented")
+    @Test
+    fun parentChildPartialOverlap_parentModifierDynamicallyAddedWithMoveEvents() {
+        val isVisible = mutableStateOf(false)
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .then(
+                            if (isVisible.value) Modifier.pointerHoverIcon(
+                                desiredParentIcon,
+                                overrideDescendants = true
+                            ) else Modifier
+                        )
+
+                ) {
+                    Box(
+                        Modifier
+                            .padding(20.dp)
+                            .requiredSize(150.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                            .testTag(childIconTag)
+                            .pointerHoverIcon(desiredChildIcon, overrideDescendants = false)
+                    )
+                }
+            }
+        }
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over Child Box and verify it has the desired child icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            enter(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move to Parent Box and verify its icon is the desired default icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Move back to the Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically add the pointerHoverIcon Modifier to the Parent Box
+        rule.runOnIdle {
+            isVisible.value = true
+        }
+        // Verify the Child Box has updated to respect the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move within the Child Box and verify it is still respecting the desired parent icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        // Move to the Parent Box and verify it also has the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     *  The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *      ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = TRUE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  Initially, Child Box’s [PointerIcon.Hand] wins for the entire Child Box surface area because
+     *  there's no parent in its hierarchy that has overrideDescendants = true. Additionally, Parent
+     *  Box's [PointerIcon.Crosshair] would initially win for all remaining surface area of its Box
+     *  that doesn't overlap with Child Box. Once Parent Box's overrideDescendants parameter is
+     *  dynamically updated to true, the Parent Box's icon should win for its entire surface area,
+     *  including within Child Box.
+     */
+    @Ignore("b/266976920 - not yet implemented")
+    @Test
+    fun parentChildPartialOverlap_parentOverrideDescendantsDynamicallyUpdated() {
+        val parentOverrideState = mutableStateOf(false)
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(
+                            desiredParentIcon,
+                            overrideDescendants = parentOverrideState.value
+                        )
+                ) {
+                    Box(
+                        Modifier
+                            .padding(20.dp)
+                            .requiredSize(150.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                            .testTag(childIconTag)
+                            .pointerHoverIcon(desiredChildIcon, overrideDescendants = false)
+                    )
+                }
+            }
+        }
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Verify Child Box's icon is the desired child icon
+        verifyIconOnHover(childIconTag, desiredChildIcon)
+        // Verify remaining Parent Box's area is the desired parent icon
+        verifyIconOnHover(parentIconTag, desiredParentIcon)
+        rule.runOnIdle {
+            parentOverrideState.value = true
+        }
+        // Verify Child Box's icon is the desired parent icon
+        verifyIconOnHover(childIconTag, desiredParentIcon)
+        // Verify Parent Box also has the desired parent icon
+        verifyIconOnHover(parentIconTag, desiredParentIcon)
     }
 
     /**
@@ -2100,6 +2333,1703 @@ class PointerIconTest {
         verifyIconOnHover(childIconTag, desiredParentIcon)
         // Verify Grandchild Box is respecting Parent Box's icon
         verifyIconOnHover(grandchildIconTag, desiredParentIcon)
+    }
+
+    /**
+     * This test takes an existing Box with a custom icon and changes the custom icon to a different
+     * custom icon while the cursor is hovered over the box.
+     */
+    @Test
+    fun dynamicallyUpdatedIcon() {
+        val icon = mutableStateOf(desiredChildIcon)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = false)
+                ) {
+                    Box(
+                        Modifier
+                            .padding(20.dp)
+                            .requiredSize(100.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                            .testTag(childIconTag)
+                            .pointerHoverIcon(icon.value, overrideDescendants = false)
+                    )
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            enter(bottomRight)
+        }
+        // Verify Child Box has the desired child icon and dynamically update the icon assigned to
+        // the Child Box while hovering over Child Box
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+            icon.value = desiredGrandchildIcon
+        }
+        // Verify the icon has been updated to the desired grandchild icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor within Child Box and verify it still has the updated icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Exit hovering over Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  Initially, the Parent Box's [PointerIcon.Crosshair] should win for its entire surface area
+     *  because it has no competition in the hierarchy for any other custom icons. After the Child
+     *  Box is dynamically added under the cursor, the Child Box's [PointerIcon.Text] should win
+     *  for the entire surface area of the Child Box. This also requires updating the user facing
+     *  cursor icon to reflect the Child Box that was added under the cursor.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Text])
+     */
+    @Test
+    fun dynamicallyAddAndRemoveChild_noOverrideDescendants() {
+        val isChildVisible = mutableStateOf(false)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = false),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isChildVisible.value) {
+                        Box(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .requiredSize(100.dp)
+                                .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                                .testTag(childIconTag)
+                                .pointerHoverIcon(desiredChildIcon, overrideDescendants = false)
+                        )
+                    }
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over center of Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            enter(center)
+        }
+        // Verify Parent Box has the desired parent icon and dynamically add the Child Box under the
+        // cursor
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+            isChildVisible.value = true
+        }
+        // Verify the icon has been updated to the desired child icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor within Child Box and verify it still has the updated icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor outside Child Box and verify the icon is updated to the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomCenter)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor back to the center of the Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically remove the Child Box
+        rule.runOnIdle {
+            isChildVisible.value = false
+        }
+        // Verify the icon has been updated to the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = TRUE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = TRUE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  The Parent Box's [PointerIcon.Crosshair] should win for its entire surface area regardless
+     *  of whether the Child Box is visible or not. This is because the Parent Box's
+     *  overrideDescendants = true, so its children should always respect Parent Box's custom icon.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Crosshair])
+     */
+    @Test
+    fun dynamicallyAddAndRemoveChild_parentOverridesDescendants() {
+        val isChildVisible = mutableStateOf(false)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = true),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isChildVisible.value) {
+                        Box(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .requiredSize(100.dp)
+                                .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                                .testTag(childIconTag)
+                                .pointerHoverIcon(desiredChildIcon, overrideDescendants = false)
+                        )
+                    }
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over center of Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            enter(center)
+        }
+        // Verify Parent Box has the desired parent icon and dynamically add the Child Box under the
+        // cursor
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+            isChildVisible.value = true
+        }
+        // Verify the icon stays as the parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor within Child Box and verify it still is the parent icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor outside Child Box and verify the icon is updated to the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomCenter)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor back to the center of the Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically remove the Child Box
+        rule.runOnIdle {
+            isChildVisible.value = false
+        }
+        // Verify the icon still the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *      ⤷ Grandchild Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  Initially, the Parent Box's [PointerIcon.Crosshair] should win for its entire surface area
+     *  because it has no competition in the hierarchy for any other custom icons. After the Child
+     *  Box and the Grandchild Box are dynamically added under the cursor, the Grandchild Box's
+     *  [PointerIcon.Hand] should win for the entire surface area of the Grandchild Box. The Child
+     *  Box's [PointerIcon.Text] should win for the remaining surface area of the Child Box not
+     *  covered by the Grandchild Box. This also requires updating the user facing cursor icon to
+     *  reflect the Child Box and Grandchild Box that were added under the cursor.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Text])
+     *      ⤷ Grandchild Box (output icon = [PointerIcon.Hand])
+     */
+    @Test
+    fun dynamicallyAddAndRemoveChildAndGrandchild_noOverrideDescendants() {
+        val areDescendantsVisible = mutableStateOf(false)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = false),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (areDescendantsVisible.value) {
+                        Box(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .requiredSize(150.dp)
+                                .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                                .testTag(childIconTag)
+                                .pointerHoverIcon(desiredChildIcon, overrideDescendants = false),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(40.dp)
+                                    .requiredSize(100.dp)
+                                    .border(BorderStroke(2.dp, SolidColor(Color.Blue)))
+                                    .testTag(grandchildIconTag)
+                                    .pointerHoverIcon(
+                                        desiredGrandchildIcon,
+                                        overrideDescendants = false
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over center of Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            enter(center)
+        }
+        // Verify Parent Box has the desired parent icon and dynamically add the Child Box and
+        // Grandchild Box under the cursor
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+            areDescendantsVisible.value = true
+        }
+        // Verify the icon has been updated to the desired grandchild icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor within Grandchild Box and verify it still has the grandchild icon
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor outside Grandchild Box within Child Box and verify it has the child icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor outside Child Box and verify the icon is updated to the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomCenter)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor back to the center of the Grandchild Box
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically remove the Child Box and Grandchild Box
+        rule.runOnIdle {
+            areDescendantsVisible.value = false
+        }
+        // Verify the icon has been updated to the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *      ⤷ Grandchild Box (custom icon = [PointerIcon.Hand], overrideDescendants = TRUE)
+     *
+     *  Expected Output:
+     *  Initially, the Parent Box's [PointerIcon.Crosshair] should win for its entire surface area
+     *  because it has no competition in the hierarchy for any other custom icons. After the Child
+     *  Box and the Grandchild Box are dynamically added under the cursor, the Grandchild Box's
+     *  [PointerIcon.Hand] should win for the entire surface area of the Grandchild Box. Because the
+     *  Grandchild Box is the lowest level in the hierarchy, the outcome doesn't change whether it
+     *  has overrideDescendants = true or not. The Child Box's [PointerIcon.Text] should win for the
+     *  remaining surface area of the Child Box not covered by the Grandchild Box. This also
+     *  requires updating the user facing cursor icon to reflect the Child Box and Grandchild Box
+     *  that were added under the cursor.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Text])
+     *      ⤷ Grandchild Box (output icon = [PointerIcon.Hand])
+     */
+    @Test
+    fun dynamicallyAddAndRemoveChildAndGrandchild_grandchildOverridesDescendants() {
+        val areDescendantsVisible = mutableStateOf(false)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = false),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (areDescendantsVisible.value) {
+                        Box(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .requiredSize(150.dp)
+                                .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                                .testTag(childIconTag)
+                                .pointerHoverIcon(desiredChildIcon, overrideDescendants = false),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(40.dp)
+                                    .requiredSize(100.dp)
+                                    .border(BorderStroke(2.dp, SolidColor(Color.Blue)))
+                                    .testTag(grandchildIconTag)
+                                    .pointerHoverIcon(
+                                        desiredGrandchildIcon,
+                                        overrideDescendants = true
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over center of Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            enter(center)
+        }
+        // Verify Parent Box has the desired parent icon and dynamically add the Child Box and
+        // Grandchild Box under the cursor
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+            areDescendantsVisible.value = true
+        }
+        // Verify the icon has been updated to the desired grandchild icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor within Grandchild Box and verify it still has the grandchild icon
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor outside Grandchild Box within Child Box and verify it has the child icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor outside Child Box and verify the icon is updated to the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomCenter)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor back to the center of the Grandchild Box
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically remove the Child Box and Grandchild Box
+        rule.runOnIdle {
+            areDescendantsVisible.value = false
+        }
+        // Verify the icon has been updated to the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = TRUE)
+     *      ⤷ Grandchild Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  Initially, the Parent Box's [PointerIcon.Crosshair] should win for its entire surface area
+     *  because it has no competition in the hierarchy for any other custom icons. After the Child
+     *  Box and the Grandchild Box are dynamically added under the cursor, the Child Box's
+     *  [PointerIcon.Text] should win for the entire surface area of the Child Box. This includes
+     *  the Grandchild Box's [PointerIcon.Text] should win for the remaining surface area of the
+     *  Child Box not covered by the Grandchild Box. This also requires updating the user facing
+     *  cursor icon to reflect the Child Box and Grandchild Box that were added under the cursor.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Text])
+     *      ⤷ Grandchild Box (output icon = [PointerIcon.Hand])
+     */
+    @Test
+    fun dynamicallyAddAndRemoveChildAndGrandchild_childOverridesDescendants() {
+        val areDescendantsVisible = mutableStateOf(false)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = false),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (areDescendantsVisible.value) {
+                        Box(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .requiredSize(150.dp)
+                                .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                                .testTag(childIconTag)
+                                .pointerHoverIcon(desiredChildIcon, overrideDescendants = true),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(40.dp)
+                                    .requiredSize(100.dp)
+                                    .border(BorderStroke(2.dp, SolidColor(Color.Blue)))
+                                    .testTag(grandchildIconTag)
+                                    .pointerHoverIcon(
+                                        desiredGrandchildIcon,
+                                        overrideDescendants = false
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over center of Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            enter(center)
+        }
+        // Verify Parent Box has the desired parent icon, then dynamically add the Child Box and
+        // Grandchild Box under the cursor
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+            areDescendantsVisible.value = true
+        }
+        // Verify the icon has been updated to the desired child icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor within Grandchild Box and verify it still has the child icon
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor outside Grandchild Box within Child Box to verify it still has the child icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor outside Child Box and verify the icon is updated to the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomCenter)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor back to the center of the Grandchild Box
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically remove the Child Box and Grandchild Box
+        rule.runOnIdle {
+            areDescendantsVisible.value = false
+        }
+        // Verify the icon has been updated to the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  The Child Box's [PointerIcon.Text] should win for its entire surface area regardless of
+     *  whether there's a Parent Box present or not. This is because the Parent Box has
+     *  overrideDescendants = false and should therefore not have its custom icon take priority over
+     *  the Child Box's custom icon. The Parent Box's [PointerIcon.Crosshair] should win for its
+     *  remaining surface area not covered by the Child Box.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Text])
+     */
+    @Test
+    fun dynamicallyAddAndRemoveParent_noOverrideDescendants() {
+        val isParentVisible = mutableStateOf(false)
+        val child = movableContentOf {
+            Box(
+                modifier = Modifier
+                    .requiredSize(150.dp)
+                    .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                    .testTag(childIconTag)
+                    .pointerHoverIcon(desiredChildIcon, overrideDescendants = false)
+            )
+        }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                if (isParentVisible.value) {
+                    Box(
+                        modifier = Modifier
+                            .requiredSize(200.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                            .testTag(parentIconTag)
+                            .pointerHoverIcon(desiredParentIcon, overrideDescendants = false),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        child()
+                    }
+                } else {
+                    child()
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over center of Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            enter(center)
+        }
+        // Verify Child Box has the desired child icon and dynamically add the Parent Box under the
+        // cursor
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+            isParentVisible.value = true
+        }
+        // Verify the icon stays as the desired child icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor within Child Box and verify it still has the child icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor outside Child Box and verify the icon is updated to the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomCenter)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor back to the center of the Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically remove the Parent Box
+        rule.runOnIdle {
+            isParentVisible.value = false
+        }
+        // Verify the icon stays as the desired child icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Exit hovering over Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = TRUE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  The Child Box's [PointerIcon.Text] should win for its entire surface area when the Parent
+     *  Box isn't present. Once the Parent Box becomes visible, the Parent Box's
+     *  [PointerIcon.Crosshair] should win for its entire surface area. This is because the Parent
+     *  Box's overrideDescendants = true, so its children should always respect Parent Box's custom
+     *  icon. This also requires updating the user facing cursor icon to reflect the Parent Box that
+     *  was added under the cursor.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Crosshair])
+     */
+    @Test
+    fun dynamicallyAddAndRemoveParent_parentOverridesDescendants() {
+        val isParentVisible = mutableStateOf(false)
+        val child = movableContentOf {
+            Box(
+                modifier = Modifier
+                    .requiredSize(150.dp)
+                    .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                    .testTag(childIconTag)
+                    .pointerHoverIcon(desiredChildIcon, overrideDescendants = false)
+            )
+        }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                if (isParentVisible.value) {
+                    Box(
+                        modifier = Modifier
+                            .requiredSize(200.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                            .testTag(parentIconTag)
+                            .pointerHoverIcon(desiredParentIcon, overrideDescendants = true),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        child()
+                    }
+                } else {
+                    child()
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over center of Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            enter(center)
+        }
+        // Verify Child Box has the desired child icon and dynamically add the Parent Box under the
+        // cursor
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+            isParentVisible.value = true
+        }
+        // Verify the icon has been updated to the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor within Child Box and verify it still has the parent icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor outside Child Box and verify the icon is still the parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomCenter)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor back to the center of the Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically remove the Parent Box
+        rule.runOnIdle {
+            isParentVisible.value = false
+        }
+        // Verify the icon has been updated to the desired child icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Exit hovering over Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Grandchild Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *      ⤷ Grandchild Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  The Grandchild Box's [PointerIcon.Hand] should win for its entire surface area regardless of
+     *  whether there's a Child Box or Parent Box present. This is because the Parent Box and Child
+     *  Box have overrideDescendants = false and should therefore not have their custom icons take
+     *  priority over the Grandchild Box's custom icon. The Child Box should win for its remaining
+     *  surface area not covered by the Grandchild Box. The Parent Box's [PointerIcon.Crosshair]
+     *  should win for its remaining surface area not covered by the Child Box.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Text])
+     *      ⤷ Grandchild Box (output icon = [PointerIcon.Hand])
+     */
+    @Test
+    fun dynamicallyAddAndRemoveNestedChild_noOverrideDescendants() {
+        val isChildVisible = mutableStateOf(false)
+        val grandchild = movableContentOf {
+            Box(
+                modifier = Modifier
+                    .requiredSize(100.dp)
+                    .border(BorderStroke(2.dp, SolidColor(Color.Blue)))
+                    .testTag(grandchildIconTag)
+                    .pointerHoverIcon(desiredGrandchildIcon, overrideDescendants = false)
+            )
+        }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = false),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isChildVisible.value) {
+                        Box(
+                            modifier = Modifier
+                                .requiredSize(150.dp)
+                                .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                                .testTag(childIconTag)
+                                .pointerHoverIcon(desiredChildIcon, overrideDescendants = false),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            grandchild()
+                        }
+                    } else {
+                        grandchild()
+                    }
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over center of Grandchild Box
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            enter(center)
+        }
+        // Verify Grandchild Box has the desired grandchild icon and dynamically add the Child Box
+        // under the cursor
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+            isChildVisible.value = true
+        }
+        // Verify the icon stays as the desired grandchild icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor within Grandchild Box and verify it still has the grandchild icon
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor outside Grandchild Box within Child Box to verify icon is now the child icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor outside Child Box and verify the icon is updated to the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor back to the center of the Grandchild Box
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically remove the Child Box
+        rule.runOnIdle {
+            isChildVisible.value = false
+        }
+        // Verify the icon has been updated to the desired grandchild icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Grandchild Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  After hovering over the center of the screen, the hierarchy under the cursor updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = TRUE)
+     *      ⤷ Grandchild Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  The Grandchild Box's [PointerIcon.Hand] should win for its entire surface area regardless of
+     *  whether there's a Child Box or Parent Box present. This is because the Parent Box and Child
+     *  Box have overrideDescendants = false and should therefore not have thei custom icona take
+     *  priority over the Grandchild Box's custom icon. The Child Box should win for its remaining
+     *  surface area not covered by the Grandchild Box. The Parent Box's [PointerIcon.Crosshair]
+     *  should win for its remaining surface area not covered by the Child Box.
+     *  Initially, the Parent Box's [PointerIcon.Crosshair] should win for its entire surface area
+     *  because it has no competition in the hierarchy for any other custom icons. After the Child
+     *  Box and the Grandchild Box are dynamically added under the cursor, the Child Box's
+     *  [PointerIcon.Text] should win for the entire surface area of the Child Box. This includes
+     *  the Grandchild Box's [PointerIcon.Text] should win for the remaining surface area of the Child Box not
+     *  covered by the Grandchild Box. This also requires updating the user facing cursor icon to
+     *  reflect the Child Box and Grandchild Box that were added under the cursor.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Text])
+     *      ⤷ Grandchild Box (output icon = [PointerIcon.Hand])
+     */
+    @Test
+    fun dynamicallyAddAndRemoveNestedChild_ChildOverridesDescendants() {
+        val isChildVisible = mutableStateOf(false)
+        val grandchild = movableContentOf {
+            Box(
+                modifier = Modifier
+                    .requiredSize(100.dp)
+                    .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                    .testTag(grandchildIconTag)
+                    .pointerHoverIcon(desiredGrandchildIcon, overrideDescendants = false)
+            )
+        }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = false),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isChildVisible.value) {
+                        Box(
+                            modifier = Modifier
+                                .requiredSize(150.dp)
+                                .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                                .testTag(childIconTag)
+                                .pointerHoverIcon(desiredChildIcon, overrideDescendants = true),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            grandchild()
+                        }
+                    } else {
+                        grandchild()
+                    }
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over center of Grandchild Box
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            enter(center)
+        }
+        // Verify Grandchild Box has the desired grandchild icon and dynamically add the Child Box
+        // under the cursor
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+            isChildVisible.value = true
+        }
+        // Verify the icon has been updated to the desired child icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor within Grandchild Box and verify it still has the child icon
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor outside Grandchild Box within Child Box to verify it still has the child icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor outside Child Box and verify the icon is updated to the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomCenter)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor back to center of the Grandchild Box
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically remove the Child Box
+        rule.runOnIdle {
+            isChildVisible.value = false
+        }
+        // Verify the icon has been updated to the desired grandchild icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Grandparent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *      ⤷ Grandchild Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  After hovering over the corner of the Grandparent Box that doesn't overlap with any
+     *  descendant, the hierarchy of the screen updates to:
+     *  Grandparent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *      ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *         ⤷ Grandchild Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  The Grandchild Box's [PointerIcon.Hand] should win for its entire surface area regardless of
+     *  whether there's a Child, Parent, or Grandparent Box present. This is because the
+     *  Grandparent, Parent, and Child Boxes have overrideDescendants = false and should therefore
+     *  not have their custom icons take priority over the Grandchild Box's custom icon. The Child
+     *  Box should win for its remaining surface area not covered by the Grandchild Box. The Parent
+     *  Box's [PointerIcon.Crosshair] should win for its remaining surface area not covered by the
+     *  Child Box. And the Grandparent Box should win for its remaining surface area not covered by
+     *  the Parent Box.
+     *
+     *  Grandparent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Parent Box (output icon = [PointerIcon.Crosshair])
+     *      ⤷ Child Box (output icon = [PointerIcon.Text])
+     *        ⤷ Grandchild Box (output icon = [PointerIcon.Hand])
+     */
+    @Test
+    fun dynamicallyAddAndRemoveNestedChild_notHoveredOverChild() {
+        val grandparentIconTag = "myGrandparentIcon"
+        val desiredGrandparentIcon = desiredParentIcon
+        val isChildVisible = mutableStateOf(false)
+        val grandchild = movableContentOf {
+            Box(
+                modifier = Modifier
+                    .requiredSize(100.dp)
+                    .border(BorderStroke(2.dp, SolidColor(Color.Blue)))
+                    .testTag(grandchildIconTag)
+                    .pointerHoverIcon(desiredGrandchildIcon, overrideDescendants = false)
+            )
+        }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(grandparentIconTag)
+                        .pointerHoverIcon(desiredGrandparentIcon, overrideDescendants = false),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .requiredSize(175.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                            .testTag(parentIconTag)
+                            .pointerHoverIcon(desiredParentIcon, overrideDescendants = false),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isChildVisible.value) {
+                            Box(
+                                modifier = Modifier
+                                    .requiredSize(150.dp)
+                                    .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                                    .testTag(childIconTag)
+                                    .pointerHoverIcon(
+                                        desiredChildIcon,
+                                        overrideDescendants = false
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                grandchild()
+                            }
+                        } else {
+                            grandchild()
+                        }
+                    }
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over center of Grandchild Box
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            enter(center)
+        }
+        // Verify Grandchild Box has the desired grandchild icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move to corner of Grandparent Box where no descendants are under the cursor
+        rule.onNodeWithTag(grandparentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        // Verify the icon is the desired grandparent icon and dynamically add the Child Box
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandparentIcon)
+            isChildVisible.value = true
+        }
+        // Verify the icon stays as the desired grandparent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandparentIcon)
+        }
+        // Move cursor within Grandparent Box and verify it still has the grandparent icon
+        rule.onNodeWithTag(grandparentIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandparentIcon)
+        }
+        // Move cursor outside Grandparent Box to Parent Box to verify icon is now the parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor back to corner of Grandparent Box where no descendants are under the cursor
+        rule.onNodeWithTag(grandparentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        // Dynamically remove the Child Box
+        rule.runOnIdle {
+            isChildVisible.value = false
+        }
+        // Verify the icon stays as the grandparent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandparentIcon)
+        }
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After hovering over the corner of the Parent Box that doesn't overlap with any descendant,
+     *  the hierarchy of the screen updates to:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *      ⤷ Grandchild Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  The Grandchild Box's [PointerIcon.Hand] should win for its entire surface area regardless of
+     *  whether there's a Child or Parent Box present. This is because the Parent and Child Boxes
+     *  have overrideDescendants = false and should therefore not have their custom icons take
+     *  priority over the Grandchild Box's custom icon. The Child Box should win for its remaining
+     *  surface area not covered by the Grandchild Box. The Parent Box's [PointerIcon.Crosshair]
+     *  should win for its remaining surface area not covered by the Child Box.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Text])
+     *      ⤷ Grandchild Box (output icon = [PointerIcon.Hand])
+     */
+    @Test
+    fun dynamicallyAddAndRemoveGrandchild_notHoveredOverGrandchild() {
+        val isGrandchildVisible = mutableStateOf(false)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = false),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .requiredSize(150.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                            .testTag(childIconTag)
+                            .pointerHoverIcon(
+                                desiredChildIcon,
+                                overrideDescendants = false
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isGrandchildVisible.value) {
+                            Box(
+                                modifier = Modifier
+                                    .requiredSize(100.dp)
+                                    .border(BorderStroke(2.dp, SolidColor(Color.Blue)))
+                                    .testTag(grandchildIconTag)
+                                    .pointerHoverIcon(
+                                        desiredGrandchildIcon,
+                                        overrideDescendants = false
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over center of Child Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            enter(center)
+        }
+        // Verify Child Box has the desired child icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move to corner of Parent Box where no descendants are under the cursor
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        // Verify the icon is the desired parent icon and dynamically add the Grandchild Box
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+            isGrandchildVisible.value = true
+        }
+        // Verify the icon stays as the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor within Parent Box and verify it still has the grandparent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move cursor outside Parent Box to Child Box to verify icon is now the child icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor back to corner of Parent Box where no descendants are under the cursor
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        // Dynamically remove the Grandchild Box
+        rule.runOnIdle {
+            isGrandchildVisible.value = false
+        }
+        // Verify the icon stays as the parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Exit hovering over Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ ChildA Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After hovering over the area where ChildB will be, the hierarchy of the screen updates to:
+     *  Parent Box (no custom icon set)
+     *    ⤷ ChildA Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *    ⤷ ChildB Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  Regardless of the presence of ChildB Box, ChildA Box's [PointerIcon.Text] should win for
+     *  its entire surface area. Once ChildB Box appears, ChildB Box's [PointerIcon.Hand] should
+     *  win for its entire surface area. Initially, Parent Box's [PointerIcon.Crosshair] should win
+     *  for its entire surface area not covered by ChildA Box. Once ChildA Box appears, Parent Box
+     *  should win for its entire surface not covered by either ChildA or ChildB Boxes.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Text])
+     *    ⤷ Child Box (output icon = [PointerIcon.Hand])
+     */
+    @Ignore("b/271277248 - Remove Ignore annotation once input event bug is fixed")
+    @Test
+    fun dynamicallyAddAndRemoveSibling_hoveredOverAppearingSibling() {
+        val isChildBVisible = mutableStateOf(false)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(150.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = false)
+                ) {
+                    Column {
+                        Box(
+                            Modifier
+                                .requiredSize(50.dp)
+                                .border(BorderStroke(2.dp, SolidColor(Color.Blue)))
+                                .testTag(childIconTag)
+                                .pointerHoverIcon(
+                                    desiredChildIcon,
+                                    overrideDescendants = false
+                                )
+                        )
+                        if (isChildBVisible.value) {
+                            // Referencing grandchild tag/icon for ChildB in this test
+                            Box(
+                                Modifier
+                                    .requiredSize(50.dp)
+                                    .offset(y = 100.dp)
+                                    .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                                    .testTag(grandchildIconTag)
+                                    .pointerHoverIcon(
+                                        desiredGrandchildIcon,
+                                        overrideDescendants = false
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over corner of Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            enter(bottomRight)
+        }
+        // Verify Parent Box has the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move to center of ChildA Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Verify ChildA Box has the desired child icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move to left corner of Parent Box where ChildB will be added
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomLeft)
+        }
+        // Dynamically add the ChildB Box
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+            isChildBVisible.value = true
+        }
+        // Verify the icon is updated to the desired ChildB icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move to corner of ChildB Box
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        // Verify ChildB Box has the desired grandchild icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor back to the center of ChildA Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Verify that icon is updated to the desired ChildA icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor back to the location of ChildB
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically remove the ChildB Box
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+            isChildBVisible.value = false
+        }
+        // Verify the icon updates to the parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Exit hovering over ChildA Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for the initial setup of this test is:
+     *  Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *    ⤷ ChildA Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *
+     *  After hovering over ChildA, the hierarchy of the screen updates to:
+     *  Parent Box (no custom icon set)
+     *    ⤷ ChildA Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *    ⤷ ChildB Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  Regardless of the presence of ChildB Box, ChildA Box's [PointerIcon.Text] should win for
+     *  its entire surface area. Once ChildB Box appears, ChildB Box's [PointerIcon.Hand] should
+     *  win for its entire surface area. Initially, Parent Box's [PointerIcon.Crosshair] should win
+     *  for its entire surface area not covered by ChildA Box. Once ChildA Box appears, Parent Box
+     *  should win for its entire surface not covered by either ChildA or ChildB Boxes.
+     *
+     *  Parent Box (output icon = [PointerIcon.Crosshair])
+     *    ⤷ Child Box (output icon = [PointerIcon.Text])
+     *    ⤷ Child Box (output icon = [PointerIcon.Hand])
+     */
+    @Ignore("b/271277248 - Remove Ignore annotation once input event bug is fixed")
+    @Test
+    fun dynamicallyAddAndRemoveSibling_notHoveredOverAppearingSibling() {
+        val isChildBVisible = mutableStateOf(false)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(200.dp)
+                        .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                        .testTag(parentIconTag)
+                        .pointerHoverIcon(desiredParentIcon, overrideDescendants = false)
+                ) {
+                    Column {
+                        Box(
+                            Modifier
+                                .requiredSize(50.dp)
+                                .border(BorderStroke(2.dp, SolidColor(Color.Blue)))
+                                .testTag(childIconTag)
+                                .pointerHoverIcon(
+                                    desiredChildIcon,
+                                    overrideDescendants = false
+                                )
+                        )
+                        if (isChildBVisible.value) {
+                            // Referencing grandchild tag/icon for ChildB in this test
+                            Box(
+                                Modifier
+                                    .requiredSize(50.dp)
+                                    .offset(y = 100.dp)
+                                    .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                                    .testTag(grandchildIconTag)
+                                    .pointerHoverIcon(
+                                        desiredGrandchildIcon,
+                                        overrideDescendants = false
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over corner of Parent Box
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            enter(bottomRight)
+        }
+        // Verify Parent Box has the desired parent icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
+        // Move to center of ChildA Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Verify ChildA Box has the desired child icon and dynamically add the ChildB Box
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+            isChildBVisible.value = true
+        }
+        // Verify the icon stays as the desired child icon since the cursor hasn't moved
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move to corner of ChildB Box
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        // Verify ChildB Box has the desired grandchild icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor back to the center of ChildA Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(center)
+        }
+        // Dynamically remove the ChildB Box
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+            isChildBVisible.value = false
+        }
+        // Verify the icon stays as the desired child icon since the cursor hasn't moved
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Exit hovering over ChildA Box
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            exit()
+        }
+    }
+
+    /**
+     * Setup:
+     * The hierarchy for this test is setup as:
+     *  Default Box (no custom icon set)
+     *    ⤷ Parent Box (custom icon = [PointerIcon.Crosshair], overrideDescendants = FALSE)
+     *        ⤷ Child Box (custom icon = [PointerIcon.Text], overrideDescendants = FALSE)
+     *            ⤷ Grandchild Box (custom icon = [PointerIcon.Hand], overrideDescendants = FALSE)
+     *
+     *  Expected Output:
+     *  Grandchild Box's [PointerIcon.Hand] wins for the entire surface area of the Grandchild Box.
+     *  Child Box's [PointerIcon.Text] wins for the remaining surface area of the Child Box not
+     *  covered by the Grandchild Box. Parent Box’s [PointerIcon.Crosshair] wins for the remaining
+     *  surface area not covered by the Child Box. [PointerIcon.Default] wins for the remaining
+     *  surface area of
+     *
+     *  Default Box (output icon = [PointerIcon.Default]
+     *    ⤷ Parent Box (output icon = [PointerIcon.Crosshair])
+     *        ⤷ Child Box (output icon = [PointerIcon.Text])
+     *            ⤷ Grandchild Box (output icon = [PointerIcon.Hand])
+     */
+    @Test
+    fun childNotFullyContainedInParent_noOverrideDescendants() {
+        val defaultIconTag = "myDefaultWrapper"
+        rule.setContent {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .border(BorderStroke(2.dp, SolidColor(Color.Yellow)))
+                        .testTag(defaultIconTag)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .requiredSize(width = 200.dp, height = 150.dp)
+                            .border(BorderStroke(2.dp, SolidColor(Color.Red)))
+                            .testTag(parentIconTag)
+                            .pointerHoverIcon(desiredParentIcon, overrideDescendants = false)
+                    ) {
+                        Box(
+                            Modifier
+                                .requiredSize(width = 150.dp, height = 125.dp)
+                                .border(BorderStroke(2.dp, SolidColor(Color.Black)))
+                                .testTag(childIconTag)
+                                .pointerHoverIcon(desiredChildIcon, overrideDescendants = false)
+                        ) {
+                            Box(
+                                Modifier
+                                    .requiredSize(width = 300.dp, height = 100.dp)
+                                    .offset(x = 100.dp)
+                                    .border(BorderStroke(2.dp, SolidColor(Color.Blue)))
+                                    .testTag(grandchildIconTag)
+                                    .pointerHoverIcon(
+                                        desiredGrandchildIcon,
+                                        overrideDescendants = false
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Verify initial state of pointer icon
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Hover over the default wrapping box and verify the cursor is still the default icon
+        rule.onNodeWithTag(defaultIconTag).performMouseInput {
+            enter(center)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredDefaultIcon)
+        }
+        // Move cursor to the corner of the Grandchild Box and verify it has the desired grandchild
+        // icon
+        rule.onNodeWithTag(grandchildIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor to the center right of the Child Box and verify it still has the desired
+        // grandchild icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor to the corner of the Child Box and verify it has updated to the desired child
+        // icon
+        rule.onNodeWithTag(childIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredChildIcon)
+        }
+        // Move cursor to the center right of the Parent Box and verify it has the desired
+        // grandchild icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(centerRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredGrandchildIcon)
+        }
+        // Move cursor to the corner of the Parent Box and verify it has the desired parent icon
+        rule.onNodeWithTag(parentIconTag).performMouseInput {
+            moveTo(bottomRight)
+        }
+        rule.runOnIdle {
+            assertThat(iconService.getIcon()).isEqualTo(desiredParentIcon)
+        }
     }
 
     private fun verifyIconOnHover(tag: String, expectedIcon: PointerIcon) {

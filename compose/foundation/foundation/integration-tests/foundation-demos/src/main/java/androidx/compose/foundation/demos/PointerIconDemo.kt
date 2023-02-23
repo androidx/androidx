@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.width
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.runtime.Composable
 import androidx.compose.material.Text
@@ -203,27 +202,27 @@ fun PointerIconChildNotFullyOverlappedByParentDemo() {
         Text(text = "expected default arrow")
         Box(
             modifier = Modifier
-                .padding(20.dp)
-                .width(200.dp)
+                .padding(vertical = 20.dp)
+                .requiredSize(width = 200.dp, height = 150.dp)
                 .border(BorderStroke(2.dp, SolidColor(Color.Red)))
-                .pointerHoverIcon(PointerIcon.Crosshair)
+                .pointerHoverIcon(PointerIcon.Crosshair, overrideDescendants = false)
         ) {
             Text(text = "expected crosshair")
             Box(
                 Modifier
-                    .padding(40.dp)
-                    .width(300.dp)
+                    .padding(vertical = 40.dp)
+                    .requiredSize(width = 150.dp, height = 125.dp)
                     .border(BorderStroke(2.dp, SolidColor(Color.Black)))
-                    .pointerHoverIcon(PointerIcon.Text)
+                    .pointerHoverIcon(PointerIcon.Text, overrideDescendants = false)
             ) {
                 Text(text = "expected text")
                 Box(
                     Modifier
-                        .padding(0.dp, 60.dp)
-                        .width(800.dp)
+                        .padding(vertical = 80.dp)
+                        .requiredSize(width = 300.dp, height = 100.dp)
                         .offset(x = 100.dp)
                         .border(BorderStroke(2.dp, SolidColor(Color.Blue)))
-                        .pointerHoverIcon(PointerIcon.Hand)
+                        .pointerHoverIcon(PointerIcon.Hand, overrideDescendants = false)
                 ) {
                     Text(text = "expected hand")
                 }
