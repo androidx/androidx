@@ -469,7 +469,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 projectStructureMetadataFile = mergedProjectMetadata
                 // See go/dackka-source-link for details on this link.
                 baseSourceLink = "https://cs.android.com/search?" +
-                    "q=file:%s+class:%s&ss=androidx/platform/frameworks/support"
+                    "q=file:%s+class:%s"
                 annotationsNotToDisplay = hiddenAnnotations
                 annotationsNotToDisplayJava = hiddenAnnotationsJava
                 annotationsNotToDisplayKotlin = hiddenAnnotationsKotlin
