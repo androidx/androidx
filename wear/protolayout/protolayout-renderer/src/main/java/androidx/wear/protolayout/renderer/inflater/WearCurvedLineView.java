@@ -113,10 +113,11 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     }
 
     private void updatePathAndPaint() {
-        mPath = new Path();
         float insetPx = mThicknessPx / 2f;
 
         float clampedLineLength = resolveSweepAngleDegrees();
+        // Has to be below method call, otherwise it's not guaranteed that is not null.
+        mPath = new Path();
 
         if (clampedLineLength >= 360f) {
             // Android internally will take the modulus of the angle with 360, so drawing a full
@@ -252,6 +253,10 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
 
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
+        if (mPath == null || mPaint == null) {
+            return;
+        }
+
         canvas.drawPath(mPath, mPaint);
     }
 
