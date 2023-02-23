@@ -26,7 +26,7 @@ open class BaselineProfilesProducerExtension {
 
     companion object {
 
-        private const val EXTENSION_NAME = "baselineProfilesProfileProducer"
+        private const val EXTENSION_NAME = "baselineProfiles"
 
         internal fun registerExtension(project: Project): BaselineProfilesProducerExtension {
             val ext = project

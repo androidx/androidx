@@ -55,7 +55,7 @@ dependencies {
     implementation(libs.testExtTruth)
 }
 
-baselineProfilesProfileProducer {
+baselineProfiles {
     enableEmulatorDisplay = true
     useConnectedDevices = true
 }
