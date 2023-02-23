@@ -84,8 +84,11 @@ public class CreatePasswordRequestJavaTest {
         String idExpected = "id";
         String passwordExpected = "pwd";
         Bundle expectedData = new Bundle();
+        boolean expectedAutoSelect = false;
         expectedData.putString(CreatePasswordRequest.BUNDLE_KEY_ID, idExpected);
         expectedData.putString(CreatePasswordRequest.BUNDLE_KEY_PASSWORD, passwordExpected);
+        expectedData.putBoolean(CreatePasswordRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+                expectedAutoSelect);
 
         CreatePasswordRequest request = new CreatePasswordRequest(idExpected, passwordExpected);
 

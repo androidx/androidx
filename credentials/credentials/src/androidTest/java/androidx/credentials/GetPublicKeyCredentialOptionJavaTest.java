@@ -16,6 +16,7 @@
 
 package androidx.credentials;
 
+import static androidx.credentials.CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED;
 import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON;
 
@@ -93,6 +94,7 @@ public class GetPublicKeyCredentialOptionJavaTest {
     public void getter_frameworkProperties_success() {
         String requestJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
         boolean preferImmediatelyAvailableCredentialsExpected = false;
+        boolean expectedIsAutoSelect = true;
         Bundle expectedData = new Bundle();
         expectedData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -101,12 +103,14 @@ public class GetPublicKeyCredentialOptionJavaTest {
         expectedData.putBoolean(
                 BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
                 preferImmediatelyAvailableCredentialsExpected);
+        expectedData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, expectedIsAutoSelect);
 
         GetPublicKeyCredentialOption option = new GetPublicKeyCredentialOption(
                 requestJsonExpected, preferImmediatelyAvailableCredentialsExpected);
 
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedData)).isTrue();
+        expectedData.remove(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED);
         assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), expectedData)).isTrue();
         assertThat(option.isSystemProviderRequired()).isFalse();
     }

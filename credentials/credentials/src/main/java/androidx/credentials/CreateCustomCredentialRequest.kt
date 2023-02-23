@@ -44,20 +44,24 @@ import android.os.Bundle
  * reserved for internal library use)
  * @property isSystemProviderRequired true if must only be fulfilled by a system provider and
  * false otherwise
+ * @property isAutoSelectAllowed defines if a create entry will be automatically chosen if it is
+ * the only one available option, false by default
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [type], [credentialData], or [candidateQueryData] is null
  */
-open class CreateCustomCredentialRequest(
+open class CreateCustomCredentialRequest @JvmOverloads constructor(
     final override val type: String,
     final override val credentialData: Bundle,
     final override val candidateQueryData: Bundle,
     final override val isSystemProviderRequired: Boolean,
     displayInfo: DisplayInfo,
+    final override val isAutoSelectAllowed: Boolean = false,
 ) : CreateCredentialRequest(
     type,
     credentialData,
     candidateQueryData,
     isSystemProviderRequired,
+    isAutoSelectAllowed,
     displayInfo
 ) {
     init {

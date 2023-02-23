@@ -40,15 +40,12 @@ public class GetCredentialRequestJavaTest {
 
     @Test
     public void constructor() {
-        boolean expectedIsAutoSelectAllowed = true;
         ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
         expectedCredentialOptions.add(new GetPasswordOption());
         expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
 
-        GetCredentialRequest request = new GetCredentialRequest(expectedCredentialOptions,
-                expectedIsAutoSelectAllowed);
+        GetCredentialRequest request = new GetCredentialRequest(expectedCredentialOptions);
 
-        assertThat(request.isAutoSelectAllowed()).isEqualTo(expectedIsAutoSelectAllowed);
         assertThat(request.getCredentialOptions()).hasSize(expectedCredentialOptions.size());
         for (int i = 0; i < expectedCredentialOptions.size(); i++) {
             assertThat(request.getCredentialOptions().get(i)).isEqualTo(
@@ -63,12 +60,11 @@ public class GetCredentialRequestJavaTest {
 
         GetCredentialRequest request = new GetCredentialRequest(options);
 
-        assertThat(request.isAutoSelectAllowed()).isFalse();
+        assertThat(request.getCredentialOptions().get(0).isAutoSelectAllowed()).isFalse();
     }
 
     @Test
     public void builder_addCredentialOption() {
-        boolean expectedIsAutoSelectAllowed = true;
         ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
         expectedCredentialOptions.add(new GetPasswordOption());
         expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
@@ -76,10 +72,8 @@ public class GetCredentialRequestJavaTest {
         GetCredentialRequest request = new GetCredentialRequest.Builder()
                 .addCredentialOption(expectedCredentialOptions.get(0))
                 .addCredentialOption(expectedCredentialOptions.get(1))
-                .setAutoSelectAllowed(expectedIsAutoSelectAllowed)
                 .build();
 
-        assertThat(request.isAutoSelectAllowed()).isEqualTo(expectedIsAutoSelectAllowed);
         assertThat(request.getCredentialOptions()).hasSize(expectedCredentialOptions.size());
         for (int i = 0; i < expectedCredentialOptions.size(); i++) {
             assertThat(request.getCredentialOptions().get(i)).isEqualTo(
@@ -89,17 +83,14 @@ public class GetCredentialRequestJavaTest {
 
     @Test
     public void builder_setCredentialOptions() {
-        boolean expectedIsAutoSelectAllowed = true;
         ArrayList<CredentialOption> expectedCredentialOptions = new ArrayList<>();
         expectedCredentialOptions.add(new GetPasswordOption());
         expectedCredentialOptions.add(new GetPublicKeyCredentialOption("json"));
 
         GetCredentialRequest request = new GetCredentialRequest.Builder()
                 .setCredentialOptions(expectedCredentialOptions)
-                .setAutoSelectAllowed(expectedIsAutoSelectAllowed)
                 .build();
 
-        assertThat(request.isAutoSelectAllowed()).isEqualTo(expectedIsAutoSelectAllowed);
         assertThat(request.getCredentialOptions()).hasSize(expectedCredentialOptions.size());
         for (int i = 0; i < expectedCredentialOptions.size(); i++) {
             assertThat(request.getCredentialOptions().get(i)).isEqualTo(
@@ -113,6 +104,6 @@ public class GetCredentialRequestJavaTest {
                 .addCredentialOption(new GetPasswordOption())
                 .build();
 
-        assertThat(request.isAutoSelectAllowed()).isFalse();
+        assertThat(request.getCredentialOptions().get(0).isAutoSelectAllowed()).isFalse();
     }
 }

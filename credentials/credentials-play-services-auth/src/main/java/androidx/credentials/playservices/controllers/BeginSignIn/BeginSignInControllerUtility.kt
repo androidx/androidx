@@ -54,6 +54,7 @@ class BeginSignInControllerUtility {
             BeginSignInRequest {
             var isPublicKeyCredReqFound = false
             val requestBuilder = BeginSignInRequest.Builder()
+            var autoSelect = false
             for (option in request.credentialOptions) {
                 if (option is GetPasswordOption) {
                     requestBuilder.setPasswordRequestOptions(
@@ -61,6 +62,7 @@ class BeginSignInControllerUtility {
                             .setSupported(true)
                             .build()
                     )
+                    autoSelect = autoSelect || option.isAutoSelectAllowed
                 } else if (option is GetPublicKeyCredentialOption && !isPublicKeyCredReqFound) {
                     requestBuilder.setPasskeysSignInRequestOptions(
                         convertToPlayAuthPasskeyRequest(option)
@@ -70,10 +72,12 @@ class BeginSignInControllerUtility {
                 } else if (option is GetGoogleIdOption) {
                     requestBuilder.setGoogleIdTokenRequestOptions(
                         convertToGoogleIdTokenOption(option))
+                    // TODO(b/270239625) add this bit to GID
+                    // autoSelect = autoSelect || option.isAutoSelectEnabled
                 }
             }
             return requestBuilder
-                .setAutoSelectEnabled(request.isAutoSelectAllowed)
+                .setAutoSelectEnabled(autoSelect)
                 .build()
         }
 

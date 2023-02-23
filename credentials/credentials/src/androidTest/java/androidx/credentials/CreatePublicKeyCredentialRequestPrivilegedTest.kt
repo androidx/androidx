@@ -145,6 +145,7 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
         val relyingPartyExpected = "RelyingParty"
         val clientDataHashExpected = "X342%4dfd7&"
         val preferImmediatelyAvailableCredentialsExpected = false
+        val expectedAutoSelect = true
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -164,19 +165,29 @@ class CreatePublicKeyCredentialRequestPrivilegedTest {
             clientDataHashExpected
         )
         expectedData.putBoolean(
+            CreateCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+            expectedAutoSelect
+        )
+        expectedData.putBoolean(
             CreatePublicKeyCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
             preferImmediatelyAvailableCredentialsExpected
         )
+        val expectedCandidateQuery = expectedData.deepCopy()
+        expectedCandidateQuery.remove(CreateCredentialRequest
+            .BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED)
 
         val request = CreatePublicKeyCredentialRequestPrivileged(
-            requestJsonExpected,
-            relyingPartyExpected,
-            clientDataHashExpected,
+            requestJsonExpected, relyingPartyExpected, clientDataHashExpected,
             preferImmediatelyAvailableCredentialsExpected
         )
 
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
-        assertThat(equals(request.candidateQueryData, expectedData)).isTrue()
+        assertThat(
+            equals(
+                request.candidateQueryData,
+                expectedCandidateQuery
+            )
+        ).isTrue()
         assertThat(request.isSystemProviderRequired).isFalse()
         val credentialData = getFinalCreateCredentialData(
             request, mContext

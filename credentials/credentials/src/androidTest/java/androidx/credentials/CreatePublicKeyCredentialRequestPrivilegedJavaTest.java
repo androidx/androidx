@@ -18,6 +18,7 @@ package androidx.credentials;
 
 import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH;
+import static androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED;
 import static androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_RELYING_PARTY;
 import static androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.BUNDLE_KEY_REQUEST_JSON;
 import static androidx.credentials.internal.FrameworkImplHelper.getFinalCreateCredentialData;
@@ -146,6 +147,7 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
         String relyingPartyExpected = "relyingParty";
         String clientDataHashExpected = "X342%4dfd7&";
         boolean preferImmediatelyAvailableCredentialsExpected = false;
+        boolean expectedAutoSelect = true;
         Bundle expectedData = new Bundle();
         expectedData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -157,6 +159,11 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
         expectedData.putBoolean(
                 BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
                 preferImmediatelyAvailableCredentialsExpected);
+        expectedData.putBoolean(
+                BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+                expectedAutoSelect);
+        Bundle expectedCandidateQuery = expectedData.deepCopy();
+        expectedCandidateQuery.remove(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED);
 
         CreatePublicKeyCredentialRequestPrivileged request =
                 new CreatePublicKeyCredentialRequestPrivileged(
@@ -164,7 +171,8 @@ public class CreatePublicKeyCredentialRequestPrivilegedJavaTest {
                         preferImmediatelyAvailableCredentialsExpected);
 
         assertThat(request.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedData)).isTrue();
+        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(),
+                expectedCandidateQuery)).isTrue();
         assertThat(request.isSystemProviderRequired()).isFalse();
         Bundle credentialData = getFinalCreateCredentialData(
                 request, mContext);
