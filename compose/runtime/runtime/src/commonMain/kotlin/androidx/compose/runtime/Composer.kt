@@ -20,6 +20,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.Composer.Companion.equals
+import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.IntMap
@@ -1228,9 +1229,9 @@ internal class ComposerImpl(
 
     private val abandonSet: MutableSet<RememberObserver>,
 
-    private var changes: MutableList<Change>,
+    private var changes: ChangeList,
 
-    private var lateChanges: MutableList<Change>,
+    private var lateChanges: ChangeList,
 
     /**
      * The composition that owns this composer
@@ -1287,7 +1288,7 @@ internal class ComposerImpl(
     private var writer: SlotWriter = insertTable.openWriter().also { it.close() }
     private var writerHasAProvider = false
     private var providerCache: PersistentCompositionLocalMap? = null
-    internal var deferredChanges: MutableList<Change>? = null
+    internal var deferredChanges: ChangeList? = null
 
     private var insertAnchor: Anchor = insertTable.read { it.anchor(0) }
     private val insertFixups = mutableListOf<Change>()
@@ -3060,7 +3061,7 @@ internal class ComposerImpl(
                     to.slotTable.read { reader ->
                         reader.reposition(location)
                         writersReaderDelta = location
-                        val offsetChanges = mutableListOf<Change>()
+                        val offsetChanges = ChangeList()
                         recomposeMovableContent {
                             withChanges(offsetChanges) {
                                 withReader(reader) {
@@ -3077,9 +3078,11 @@ internal class ComposerImpl(
                             record { applier, slots, rememberManager ->
                                 val offsetApplier = if (effectiveNodeIndex > 0)
                                     OffsetApplier(applier, effectiveNodeIndex) else applier
-                                offsetChanges.fastForEach { change ->
-                                    change(offsetApplier, slots, rememberManager)
-                                }
+                                offsetChanges.executeAndFlushAllPendingChanges(
+                                    applier = offsetApplier,
+                                    slots = slots,
+                                    rememberManager = rememberManager
+                                )
                             }
                         }
                     }
@@ -3142,7 +3145,7 @@ internal class ComposerImpl(
                             val newLocation = fromTable.anchorIndex(fromAnchor)
                             reader.reposition(newLocation)
                             writersReaderDelta = newLocation
-                            val offsetChanges = mutableListOf<Change>()
+                            val offsetChanges = ChangeList()
 
                             withChanges(offsetChanges) {
                                 recomposeMovableContent(
@@ -3163,9 +3166,11 @@ internal class ComposerImpl(
                                 record { applier, slots, rememberManager ->
                                     val offsetApplier = if (effectiveNodeIndex > 0)
                                         OffsetApplier(applier, effectiveNodeIndex) else applier
-                                    offsetChanges.fastForEach { change ->
-                                        change(offsetApplier, slots, rememberManager)
-                                    }
+                                    offsetChanges.executeAndFlushAllPendingChanges(
+                                        applier = offsetApplier,
+                                        slots = slots,
+                                        rememberManager = rememberManager
+                                    )
                                 }
                             }
                         }
@@ -3183,7 +3188,7 @@ internal class ComposerImpl(
         }
     }
 
-    private inline fun <R> withChanges(newChanges: MutableList<Change>, block: () -> R): R {
+    private inline fun <R> withChanges(newChanges: ChangeList, block: () -> R): R {
         val savedChanges = changes
         try {
             changes = newChanges
@@ -3386,7 +3391,7 @@ internal class ComposerImpl(
      * to prepare for the next composition.
      */
     private fun record(change: Change) {
-        changes.add(change)
+        changes.pushBackwardsCompatChange(change)
     }
 
     /**
@@ -3793,7 +3798,7 @@ internal class ComposerImpl(
      */
     private fun reportAllMovableContent() {
         if (slotTable.containsMark()) {
-            val changes = mutableListOf<Change>()
+            val changes = ChangeList()
             deferredChanges = changes
             slotTable.read { reader ->
                 this.reader = reader
