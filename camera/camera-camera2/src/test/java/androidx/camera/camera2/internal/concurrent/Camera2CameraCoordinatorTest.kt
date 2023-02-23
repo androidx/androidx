@@ -77,6 +77,27 @@ class Camera2CameraCoordinatorTest {
     }
 
     @Test
+    fun clearConcurrentCameraSelectors_whenConcurrentModeBecomesOff() {
+        // Concurrent -> Single
+        cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        assertThat(cameraCoordinator.concurrentCameraSelectors).isNotEmpty()
+        cameraCoordinator.activeConcurrentCameraSelectors =
+            cameraCoordinator.concurrentCameraSelectors[0]
+        assertThat(cameraCoordinator.activeConcurrentCameraSelectors).isNotEmpty()
+
+        cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
+        assertThat(cameraCoordinator.activeConcurrentCameraSelectors).isEmpty()
+
+        // Concurrent -> Unspecified
+        cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
+        cameraCoordinator.activeConcurrentCameraSelectors =
+            cameraCoordinator.concurrentCameraSelectors[0]
+
+        cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_UNSPECIFIED
+        assertThat(cameraCoordinator.activeConcurrentCameraSelectors).isEmpty()
+    }
+
+    @Test
     fun getPairedCameraId() {
         assertThat(cameraCoordinator.getPairedConcurrentCameraId("0")).isEqualTo("1")
         assertThat(cameraCoordinator.getPairedConcurrentCameraId("1")).isEqualTo("0")
