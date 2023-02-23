@@ -924,6 +924,26 @@ class RecorderTest(
     }
 
     @Test
+    fun canGetAudioStatsAmplitude() {
+        // Arrange.
+        val recording = createRecordingProcess()
+
+        // Act.
+        recording.startAndVerify { onStatus ->
+            val amplitude = onStatus[0].recordingStats.audioStats.audioAmplitude
+            assertThat(amplitude).isAtLeast(AudioStats.AUDIO_AMPLITUDE_NONE)
+        }
+
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            val uri = finalize.outputResults.outputUri
+            checkFileHasAudioAndVideo(uri, hasAudio = true)
+            assertThat(finalize.recordingStats.audioStats.audioAmplitude)
+                .isAtLeast(AudioStats.AUDIO_AMPLITUDE_NONE)
+        }
+    }
+
+    @Test
     fun cannotStartMultiplePendingRecordingsWhileInitializing() {
         // Arrange: Prepare 1st recording and start.
         val recorder = createRecorder(sendSurfaceRequest = false)

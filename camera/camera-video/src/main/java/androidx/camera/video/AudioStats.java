@@ -86,7 +86,7 @@ public abstract class AudioStats {
     public static final int AUDIO_STATE_ENCODER_ERROR = 3;
 
     /**
-     * The recording is muted because the audio source encountered errors.
+     *  The recording is muted because the audio source encountered errors.
      *
      * <p>If the audio source encounters errors during recording, audio stats generated after the
      * error will contain this audio state, and the recording will proceed without audio.

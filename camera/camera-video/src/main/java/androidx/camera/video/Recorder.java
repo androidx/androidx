@@ -16,6 +16,7 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.video.AudioStats.AUDIO_AMPLITUDE_NONE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_ENCODING_FAILED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
@@ -436,6 +437,7 @@ public final class Recorder implements VideoOutput {
     @Nullable
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     VideoEncoderSession mVideoEncoderSessionToRelease = null;
+    double mAudioAmplitude = 0;
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
@@ -943,7 +945,7 @@ public final class Recorder implements VideoOutput {
                         RecordingStats.of(/*duration=*/0L,
                                 /*bytes=*/0L,
                                 AudioStats.of(AudioStats.AUDIO_STATE_DISABLED, mAudioErrorCause,
-                                        AudioStats.AUDIO_AMPLITUDE_NONE)),
+                                        AUDIO_AMPLITUDE_NONE)),
                         OutputResults.of(Uri.EMPTY),
                         error,
                         cause));
@@ -1686,6 +1688,11 @@ public final class Recorder implements VideoOutput {
                                             audioErrorConsumer.accept(throwable);
                                         }
                                     }
+
+                                    @Override
+                                    public void onAmplitudeValue(double maxAmplitude) {
+                                        mAudioAmplitude = maxAmplitude;
+                                    }
                                 });
 
                         mAudioEncoder.setEncoderCallback(new EncoderCallback() {
@@ -2181,6 +2188,7 @@ public final class Recorder implements VideoOutput {
         mRecordingStopError = ERROR_UNKNOWN;
         mRecordingStopErrorCause = null;
         mAudioErrorCause = null;
+        mAudioAmplitude = AUDIO_AMPLITUDE_NONE;
         clearPendingAudioRingBuffer();
 
         switch (mAudioState) {
@@ -2480,7 +2488,7 @@ public final class Recorder implements VideoOutput {
     RecordingStats getInProgressRecordingStats() {
         return RecordingStats.of(mRecordingDurationNs, mRecordingBytes,
                 AudioStats.of(internalAudioStateToAudioStatsState(mAudioState), mAudioErrorCause,
-                        5));
+                        mAudioAmplitude));
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
