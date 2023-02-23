@@ -18,7 +18,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("androidx.baselineprofiles.apkprovider")
+    id("androidx.baselineprofiles")
 }
 
 android {
