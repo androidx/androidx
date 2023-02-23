@@ -923,6 +923,7 @@ package androidx.core.app {
   }
 
   public final class ServiceCompat {
+    method public static void startForeground(android.app.Service, int, android.app.Notification, int);
     method public static void stopForeground(android.app.Service, int);
     field public static final int START_STICKY = 1; // 0x1
     field public static final int STOP_FOREGROUND_DETACH = 2; // 0x2
