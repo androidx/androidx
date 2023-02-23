@@ -280,7 +280,7 @@ class BaselineProfilesConsumerPluginTest {
             .output
             .also {
                 assertThat(it).contains("generateBaselineProfiles - ")
-                assertThat(it).doesNotContain("generateReleaseBaselineProfiles - ")
+                assertThat(it).contains("generateReleaseBaselineProfiles - ")
                 assertThat(it).doesNotContain("generateFreeReleaseBaselineProfiles - ")
                 assertThat(it).doesNotContain("generatePaidReleaseBaselineProfiles - ")
             }
