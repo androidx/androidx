@@ -62,6 +62,11 @@ fun registerCompileAidlApi(
             "--structured"
         )
     )
+}.also { taskProvider ->
+    variant.sources.java?.addGeneratedSourceDirectory(
+        taskProvider,
+        StableAidlCompile::sourceOutputDir
+    )
 }
 
 fun registerPackageAidlApi(

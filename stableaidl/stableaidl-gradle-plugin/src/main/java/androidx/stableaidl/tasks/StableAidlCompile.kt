@@ -18,11 +18,9 @@ package androidx.stableaidl.tasks
 
 import androidx.stableaidl.internal.DirectoryWalker
 import androidx.stableaidl.internal.LoggerWrapper
+import androidx.stableaidl.internal.compiling.DependencyFileProcessor
+import androidx.stableaidl.internal.incremental.DependencyData
 import androidx.stableaidl.internal.process.GradleProcessExecutor
-import com.android.build.gradle.internal.BuildToolsExecutableInput
-import com.android.build.gradle.internal.services.getBuildService
-import com.android.builder.compiling.DependencyFileProcessor
-import com.android.builder.internal.incremental.DependencyData
 import com.android.ide.common.process.LoggedProcessOutputHandler
 import com.android.utils.FileUtils
 import com.google.common.annotations.VisibleForTesting
@@ -55,16 +53,6 @@ import org.gradle.workers.WorkerExecutor
 
 /**
  * Extension of AidlCompile that allows specifying extra command-line arguments.
- *
- * This classes relies on a number of internal AGP classes:
- *
- * - [BuildToolsExecutableInput] Provides access to Android SDK tools, including the AIDL compiler.
- *   We can't clone this out because it would pull in other components that we can't clone out.
- * - [getBuildService] Provides access to AGP's build service registry. We can't clone this out
- *   because it uses a private, unique constant per class loader.
- * - [DependencyData] Data object containing dependencies parsed from the AIDL compiler's -d output.
- *   We can't clone this out because it is used in the API signature of
- *   [DependencyFileProcessor.processFile].
  */
 @CacheableTask
 abstract class StableAidlCompile : DefaultTask() {
