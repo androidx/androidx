@@ -64,31 +64,28 @@ public class CamcorderProfileResolutionQuirk implements ProfileResolutionQuirk {
         return level != null && level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
-    private final List<Size> mSupportedResolutions;
+    private final StreamConfigurationMapCompat mStreamConfigurationMapCompat;
+    private List<Size> mSupportedResolutions = null;
 
     public CamcorderProfileResolutionQuirk(
             @NonNull CameraCharacteristicsCompat characteristicsCompat) {
-        Size[] sizes = null;
-        StreamConfigurationMap map =
-                characteristicsCompat.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-        if (map != null) {
-            StreamConfigurationMapCompat mapCompat =
-                    StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
-            sizes = mapCompat.getOutputSizes(
-                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
-        } else {
-            Logger.e(TAG, "StreamConfigurationMap is null");
-        }
-        mSupportedResolutions = sizes != null ? Arrays.asList(sizes.clone())
-                : Collections.emptyList();
-
-        Logger.d(TAG, "mSupportedResolutions = " + mSupportedResolutions);
+        mStreamConfigurationMapCompat =
+                characteristicsCompat.getStreamConfigurationMapCompat();
     }
 
     /** Returns the supported video resolutions. */
     @Override
     @NonNull
     public List<Size> getSupportedResolutions() {
+        if (mSupportedResolutions == null) {
+            Size[] sizes = mStreamConfigurationMapCompat.getOutputSizes(
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+            mSupportedResolutions = sizes != null ? Arrays.asList(sizes.clone())
+                    : Collections.emptyList();
+
+            Logger.d(TAG, "mSupportedResolutions = " + mSupportedResolutions);
+        }
+
         return new ArrayList<>(mSupportedResolutions);
     }
 }

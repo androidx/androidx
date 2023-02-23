@@ -18,9 +18,7 @@ package androidx.camera.camera2.internal;
 
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
-import android.hardware.camera2.params.StreamConfigurationMap;
 import android.util.Size;
 import android.view.Surface;
 
@@ -158,17 +156,9 @@ class MeteringRepeatingSession {
     @NonNull
     private Size getProperPreviewSize(@NonNull CameraCharacteristicsCompat
             cameraCharacteristicsCompat, @NonNull DisplayInfoManager displayInfoManager) {
-        Size[] outputSizes;
-        StreamConfigurationMap map = cameraCharacteristicsCompat.get(
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-        if (map == null) {
-            Logger.e(TAG, "Can not retrieve SCALER_STREAM_CONFIGURATION_MAP.");
-            return new Size(0, 0);
-        }
-
         StreamConfigurationMapCompat mapCompat =
-                StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
-        outputSizes = mapCompat.getOutputSizes(ImageFormat.PRIVATE);
+                cameraCharacteristicsCompat.getStreamConfigurationMapCompat();
+        Size[] outputSizes = mapCompat.getOutputSizes(ImageFormat.PRIVATE);
         if (outputSizes == null) {
             Logger.e(TAG, "Can not get output size list.");
             return new Size(0, 0);

@@ -91,7 +91,8 @@ public class ZoomControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA0_ID);
         CameraCharacteristicsCompat characteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics,
+                        CAMERA0_ID);
 
         mCamera2CameraControlImpl = spy(new Camera2CameraControlImpl(characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
@@ -406,7 +407,7 @@ public class ZoomControlTest {
                         Context.CAMERA_SERVICE);
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                cameraManager.getCameraCharacteristics(cameraId));
+                cameraManager.getCameraCharacteristics(cameraId), cameraId);
     }
 
     @Test
