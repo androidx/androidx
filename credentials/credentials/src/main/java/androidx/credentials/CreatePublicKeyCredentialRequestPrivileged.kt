@@ -32,7 +32,6 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @property relyingParty the expected true RP ID which will override the one in the [requestJson],
  * where rp is defined [here](https://w3c.github.io/webauthn/#rp-id)
  */
-// TODO("Add specific permission info/annotation")
 class CreatePublicKeyCredentialRequestPrivileged private constructor(
     val requestJson: String,
     val relyingParty: String,

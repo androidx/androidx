@@ -67,8 +67,8 @@ public class CreateCredentialRequestDisplayInfoJavaTest {
 
     @Test
     public void constructWithUserIdAndDisplayName_success() {
-        String expectedUserId = "userId";
-        String expectedDisplayName = "displayName";
+        CharSequence expectedUserId = "userId";
+        CharSequence expectedDisplayName = "displayName";
 
         CreateCredentialRequest.DisplayInfo displayInfo =
                 new CreateCredentialRequest.DisplayInfo(expectedUserId,
