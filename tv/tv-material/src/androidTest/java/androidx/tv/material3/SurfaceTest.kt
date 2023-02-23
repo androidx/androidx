@@ -18,6 +18,7 @@ package androidx.tv.material3
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -34,6 +35,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -55,6 +57,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
@@ -431,5 +434,31 @@ class SurfaceTest {
         rule.onNodeWithTag("surface")
             .captureToImage()
             .assertContainsColor(Color.Green)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun clickableSurface_onFocus_changesScaleFactor() {
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .background(Color.Blue)
+                    .size(50.toDp())
+            )
+            Surface(
+                onClick = {},
+                modifier = Modifier
+                    .size(50.toDp())
+                    .testTag("surface"),
+                scale = ClickableSurfaceDefaults.scale(
+                    focusedScale = 1.5f
+                )
+            ) {}
+        }
+        rule.onRoot().captureToImage().assertContainsColor(Color.Blue)
+
+        rule.onNodeWithTag("surface").performSemanticsAction(SemanticsActions.RequestFocus)
+
+        rule.onRoot().captureToImage().assertDoesNotContainColor(Color.Blue)
     }
 }
