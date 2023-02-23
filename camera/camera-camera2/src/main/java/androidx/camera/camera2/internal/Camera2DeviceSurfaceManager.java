@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal;
 
 import android.content.Context;
+import android.hardware.camera2.CameraDevice;
 import android.media.CamcorderProfile;
 import android.util.Size;
 
@@ -43,7 +44,7 @@ import java.util.Set;
  * Camera device manager to provide the guaranteed supported stream capabilities related info for
  * all camera devices
  *
- * <p>{@link android.hardware.camera2.CameraDevice#createCaptureSession} defines the default
+ * <p>{@link CameraDevice#createCaptureSession} defines the default
  * guaranteed stream combinations for different hardware level devices. It defines what combination
  * of surface configuration type and size pairs can be supported for different hardware level camera
  * devices. This structure is used to store the guaranteed supported stream capabilities related
@@ -177,12 +178,16 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     /**
      * Retrieves a map of suggested stream specifications for the given list of use cases.
      *
-     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
-     * @param cameraId          the camera id of the camera device used by the use cases
-     * @param existingSurfaces  list of surfaces already configured and used by the camera. The
-     *                          stream specifications for these surface can not change.
-     * @param newUseCaseConfigs list of configurations of the use cases that will be given a
-     *                          suggested stream specification
+     * @param isConcurrentCameraModeOn          true if concurrent camera mode is on, otherwise
+     *                                          false.
+     * @param cameraId                          the camera id of the camera device used by the
+     *                                          use cases
+     * @param existingSurfaces                  list of surfaces already configured and used by
+     *                                          the camera. The stream specifications for these
+     *                                          surface can not change.
+     * @param newUseCaseConfigsSupportedSizeMap map of configurations of the use cases to the
+     *                                          supported sizes list that will be given a
+     *                                          suggested stream specification
      * @return map of suggested stream specifications for given use cases
      * @throws IllegalStateException    if not initialized
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
@@ -193,11 +198,11 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     @NonNull
     @Override
     public Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
-            boolean isConcurrentCameraModeOn,
-            @NonNull String cameraId,
+            boolean isConcurrentCameraModeOn, @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
-            @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
-        Preconditions.checkArgument(!newUseCaseConfigs.isEmpty(), "No new use cases to be bound.");
+            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
+        Preconditions.checkArgument(!newUseCaseConfigsSupportedSizeMap.isEmpty(),
+                "No new use cases to be bound.");
 
         SupportedSurfaceCombination supportedSurfaceCombination =
                 mCameraSupportedSurfaceCombinationMap.get(cameraId);
@@ -210,6 +215,6 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
         return supportedSurfaceCombination.getSuggestedStreamSpecifications(
                 isConcurrentCameraModeOn,
                 existingSurfaces,
-                newUseCaseConfigs);
+                newUseCaseConfigsSupportedSizeMap);
     }
 }
