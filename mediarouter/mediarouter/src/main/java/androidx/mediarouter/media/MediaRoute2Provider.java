@@ -60,6 +60,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 /**
  * Provides non-system routes (and related RouteControllers) by using MediaRouter2.
@@ -366,11 +367,13 @@ class MediaRoute2Provider extends MediaRouteProvider {
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     /* package */ void setRouteListingPreference(
-            @Nullable RouteListingPreference routeListingPreference) {
+            @Nullable RouteListingPreference routeListingPreference,
+            Function<String, String> routeInfoIdToPlatformIdFunction) {
         Api34Impl.setPlatformRouteListingPreference(
                 mMediaRouter2,
                 routeListingPreference != null
-                        ? routeListingPreference.toPlatformRouteListingPreference()
+                        ? routeListingPreference.toPlatformRouteListingPreference(
+                                routeInfoIdToPlatformIdFunction)
                         : null);
     }
 

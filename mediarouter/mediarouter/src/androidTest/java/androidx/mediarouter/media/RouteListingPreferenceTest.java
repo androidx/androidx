@@ -35,6 +35,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 @RunWith(AndroidJUnit4.class)
 public class RouteListingPreferenceTest {
@@ -95,8 +96,10 @@ public class RouteListingPreferenceTest {
                         .setLinkedItemComponentName(FAKE_COMPONENT_NAME)
                         .setUseSystemOrdering(false)
                         .build();
+        // Note we don't care about the id validity in this test: We are using a fake id.
         android.media.RouteListingPreference platformRlp =
-                fakeRouteListingPreference.toPlatformRouteListingPreference();
+                fakeRouteListingPreference.toPlatformRouteListingPreference(
+                        /* routeInfoIdToPlatformIdFunction */ Function.identity());
 
         assertThat(platformRlp.getUseSystemOrdering()).isFalse();
         assertThat(platformRlp.getLinkedItemComponentName()).isEqualTo(FAKE_COMPONENT_NAME);
