@@ -72,7 +72,7 @@ abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
     @Before
     open fun setUp() {
         viewPager = activityTestRule.activity.findViewById(layoutId)
-        viewPager.setSystemExclusionRectsForEspressoSwipes()
+        viewPager.setSystemExclusionRectsForEspressoSwipes(requestLayout = true)
         idleWatcher = ViewPagerIdleWatcher(viewPager)
         onView(withId(layoutId)).perform(waitForInjectMotionEvents())
     }
