@@ -26,7 +26,7 @@ open class BaselineProfilesConsumerExtension {
 
     companion object {
 
-        private const val EXTENSION_NAME = "baselineProfilesProfileConsumer"
+        private const val EXTENSION_NAME = "baselineProfiles"
 
         internal fun registerExtension(project: Project): BaselineProfilesConsumerExtension {
             val ext = project.extensions.findByType(BaselineProfilesConsumerExtension::class.java)

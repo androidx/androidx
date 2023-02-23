@@ -243,7 +243,7 @@ class BaselineProfilesConsumerPluginTest {
                 dependencies {
                     baselineProfiles(project(":$producerModuleName"))
                 }
-                baselineProfilesProfileConsumer {
+                baselineProfiles {
                     mergeIntoMain = true
                 }
             """.trimIndent(),
@@ -440,7 +440,7 @@ class BaselineProfilesConsumerPluginTest {
                 dependencies {
                     baselineProfiles(project(":$producerModuleName"))
                 }
-                baselineProfilesProfileConsumer {
+                baselineProfiles {
                     filter { include("com.sample.Utils") }
                 }
             """.trimIndent(),

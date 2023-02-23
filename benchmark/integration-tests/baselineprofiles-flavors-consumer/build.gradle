@@ -53,7 +53,7 @@ dependencies {
     baselineProfiles(project(":benchmark:integration-tests:baselineprofiles-flavors-producer"))
 }
 
-baselineProfilesProfileConsumer {
+baselineProfiles {
     onDemandGeneration = false
     filter {
         include "androidx.benchmark.integration.baselineprofiles.flavors.consumer.*"
