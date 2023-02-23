@@ -23,6 +23,7 @@ import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.core.util.Preconditions.checkNotNull;
 
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 import android.graphics.Rect;
@@ -66,13 +67,19 @@ public class StreamSharing extends UseCase {
     private static final StreamSharingConfig DEFAULT_CONFIG;
 
     @NonNull
-    @SuppressWarnings("UnusedVariable")
     private final VirtualCamera mVirtualCamera;
-
+    // Node that applies effect to the input.
     @Nullable
-    private SurfaceProcessorNode mNode;
+    private SurfaceProcessorNode mEffectNode;
+    // Node that shares a single stream to multiple UseCases.
+    @Nullable
+    private SurfaceProcessorNode mSharingNode;
+    // The input edge that connects to the camera.
     @Nullable
     private SurfaceEdge mCameraEdge;
+    // The input edge of the sharing node.
+    @Nullable
+    private SurfaceEdge mSharingInputEdge;
 
     static {
         MutableConfig mutableConfig = new StreamSharingBuilder().getMutableConfig();
@@ -184,13 +191,17 @@ public class StreamSharing extends UseCase {
                 requireNonNull(getCropRect(streamSpec.getResolution())),
                 /*rotationDegrees=*/0, // Rotation are handled by each child.
                 /*mirroring=*/false); // Mirroring will be decided by each child.
-        mNode = new SurfaceProcessorNode(camera, DefaultSurfaceProcessor.Factory.newInstance());
+        mSharingInputEdge = getSharingInputEdge(mCameraEdge, camera);
+
+        mSharingNode = new SurfaceProcessorNode(camera,
+                DefaultSurfaceProcessor.Factory.newInstance());
 
         // Transform the input based on virtual camera configuration.
         Map<UseCase, SurfaceProcessorNode.OutConfig> outConfigMap =
-                mVirtualCamera.getChildrenOutConfigs(mCameraEdge);
-        SurfaceProcessorNode.Out out = mNode.transform(SurfaceProcessorNode.In.of(mCameraEdge,
-                new ArrayList<>(outConfigMap.values())));
+                mVirtualCamera.getChildrenOutConfigs(mSharingInputEdge);
+        SurfaceProcessorNode.Out out = mSharingNode.transform(
+                SurfaceProcessorNode.In.of(mSharingInputEdge,
+                        new ArrayList<>(outConfigMap.values())));
 
         // Pass the output edges to virtual camera to connect children.
         Map<UseCase, SurfaceEdge> outputEdges = new HashMap<>();
@@ -205,6 +216,26 @@ public class StreamSharing extends UseCase {
         builder.addRepeatingCameraCaptureCallback(mVirtualCamera.getParentMetadataCallback());
         addCameraErrorListener(builder, cameraId, config, streamSpec);
         return builder.build();
+    }
+
+    /**
+     * Creates the input {@link SurfaceEdge} for {@link #mSharingNode}.
+     */
+    @NonNull
+    private SurfaceEdge getSharingInputEdge(@NonNull SurfaceEdge cameraEdge,
+            @NonNull CameraInternal camera) {
+        if (getEffect() == null) {
+            // No effect. The input edge is the camera edge.
+            return cameraEdge;
+        }
+        // Transform the camera edge to get the input edge.
+        mEffectNode = new SurfaceProcessorNode(camera,
+                getEffect().createSurfaceProcessorInternal());
+        SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(cameraEdge);
+        SurfaceProcessorNode.In in = SurfaceProcessorNode.In.of(cameraEdge,
+                singletonList(outConfig));
+        SurfaceProcessorNode.Out out = mEffectNode.transform(in);
+        return requireNonNull(out.get(outConfig));
     }
 
     private void addCameraErrorListener(
@@ -229,9 +260,17 @@ public class StreamSharing extends UseCase {
             mCameraEdge.close();
             mCameraEdge = null;
         }
-        if (mNode != null) {
-            mNode.release();
-            mNode = null;
+        if (mSharingInputEdge != null) {
+            mSharingInputEdge.close();
+            mSharingInputEdge = null;
+        }
+        if (mSharingNode != null) {
+            mSharingNode.release();
+            mSharingNode = null;
+        }
+        if (mEffectNode != null) {
+            mEffectNode.release();
+            mEffectNode = null;
         }
     }
 
@@ -251,7 +290,7 @@ public class StreamSharing extends UseCase {
 
     @VisibleForTesting
     @Nullable
-    SurfaceProcessorNode getNode() {
-        return mNode;
+    SurfaceProcessorNode getSharingNode() {
+        return mSharingNode;
     }
 }

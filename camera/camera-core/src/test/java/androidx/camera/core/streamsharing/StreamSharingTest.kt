@@ -19,6 +19,7 @@ package androidx.camera.core.streamsharing
 import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
+import androidx.camera.core.CameraEffect
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.SessionConfig
@@ -31,6 +32,7 @@ import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
 import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
@@ -62,16 +64,18 @@ class StreamSharingTest {
     private lateinit var streamSharing: StreamSharing
     private val size = Size(800, 600)
     private lateinit var defaultConfig: UseCaseConfig<*>
+    private lateinit var effectProcessor: FakeSurfaceProcessorInternal
+    private lateinit var sharingProcessor: FakeSurfaceProcessorInternal
+    private lateinit var effect: CameraEffect
 
     @Before
     fun setUp() {
-        DefaultSurfaceProcessor.Factory.setSupplier {
-            FakeSurfaceProcessorInternal(
-                mainThreadExecutor()
-            )
-        }
+        sharingProcessor = FakeSurfaceProcessorInternal(mainThreadExecutor())
+        DefaultSurfaceProcessor.Factory.setSupplier { sharingProcessor }
         streamSharing = StreamSharing(camera, setOf(child1, child2), useCaseConfigFactory)
         defaultConfig = streamSharing.getDefaultConfig(true, useCaseConfigFactory)!!
+        effectProcessor = FakeSurfaceProcessorInternal(mainThreadExecutor())
+        effect = FakeSurfaceEffect(effectProcessor)
     }
 
     @After
@@ -79,7 +83,29 @@ class StreamSharingTest {
         if (streamSharing.camera != null) {
             streamSharing.unbindFromCamera(streamSharing.camera!!)
         }
+        effectProcessor.release()
         shadowOf(getMainLooper()).idle()
+    }
+
+    @Test
+    fun hasEffect_createEffectNode() {
+        // Arrange: set an effect on StreamSharing.
+        streamSharing.bindToCamera(camera, null, defaultConfig)
+        streamSharing.effect = effect
+        // Act: create pipeline
+        streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
+        shadowOf(getMainLooper()).idle()
+        // Assert: processors received input and output Surfaces.
+        assertThat(effectProcessor.surfaceRequest).isNotNull()
+        assertThat(effectProcessor.surfaceOutputs).isNotEmpty()
+        assertThat(sharingProcessor.surfaceRequest).isNotNull()
+        // Act: unbind StreamSharing.
+        streamSharing.unbindFromCamera(camera)
+        shadowOf(getMainLooper()).idle()
+        // Assert: the processors received signals to release the Surfaces.
+        assertThat(effectProcessor.isInputSurfaceReleased).isTrue()
+        assertThat(effectProcessor.isOutputSurfaceRequestedToClose.values.single()).isTrue()
+        assertThat(sharingProcessor.isInputSurfaceReleased).isTrue()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -129,10 +155,10 @@ class StreamSharingTest {
         streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
 
         // Assert: StreamSharing pipeline created.
-        val node = streamSharing.node!!
+        val node = streamSharing.sharingNode!!
         val cameraEdge = streamSharing.cameraEdge!!
         assertThat(streamSharing.cameraEdge).isNotNull()
-        assertThat(streamSharing.node).isNotNull()
+        assertThat(streamSharing.sharingNode).isNotNull()
         assertThat(streamSharing.sessionConfig.repeatingCameraCaptureCallbacks).isNotEmpty()
         // Assert: specs propagated to children.
         assertThat(child1.attachedStreamSpec).isNotNull()
@@ -143,7 +169,7 @@ class StreamSharingTest {
 
         // Assert: pipeline is cleared.
         assertThat(streamSharing.cameraEdge).isNull()
-        assertThat(streamSharing.node).isNull()
+        assertThat(streamSharing.sharingNode).isNull()
         assertThat((node.surfaceProcessor as FakeSurfaceProcessorInternal).isReleased).isTrue()
         assertThat(cameraEdge.isClosed).isTrue()
         assertThat(child1.attachedStreamSpec).isNull()
@@ -156,7 +182,7 @@ class StreamSharingTest {
         streamSharing.bindToCamera(camera, null, defaultConfig)
         streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
         val cameraEdge = streamSharing.cameraEdge
-        val node = streamSharing.node
+        val node = streamSharing.sharingNode
 
         // Act: send error to StreamSharing
         val sessionConfig = streamSharing.sessionConfig
@@ -165,7 +191,7 @@ class StreamSharingTest {
 
         // Assert: StreamSharing and children pipeline are recreated.
         assertThat(streamSharing.cameraEdge).isNotSameInstanceAs(cameraEdge)
-        assertThat(streamSharing.node).isNotSameInstanceAs(node)
+        assertThat(streamSharing.sharingNode).isNotSameInstanceAs(node)
         assertThat(child1.pipelineCreationCount).isEqualTo(2)
         assertThat(child2.pipelineCreationCount).isEqualTo(2)
     }
