@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@file:RequiresApi(api = 34)
 
 package androidx.health.connect.client.impl.platform.response
 
 import android.health.connect.InsertRecordsResponse
-import android.os.Build
 import androidx.annotation.RequiresApi
 
 internal fun InsertRecordsResponse.toKtResponse():

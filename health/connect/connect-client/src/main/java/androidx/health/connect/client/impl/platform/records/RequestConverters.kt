@@ -15,7 +15,7 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY)
-@file:RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@file:RequiresApi(api = 34)
 
 package androidx.health.connect.client.impl.platform.records
 
@@ -25,7 +25,6 @@ import android.health.connect.ReadRecordsRequestUsingFilters
 import android.health.connect.TimeInstantRangeFilter
 import android.health.connect.datatypes.AggregationType
 import android.health.connect.datatypes.Record as PlatformRecord
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
@@ -68,7 +67,8 @@ fun ChangesTokenRequest.toPlatformRequest(): ChangeLogTokenRequest {
 
 fun AggregateRequest.toPlatformRequest(timeSource: TimeSource): AggregateRecordsRequest<Any> {
     return AggregateRecordsRequest.Builder<Any>(
-            timeRangeFilter.toPlatformTimeRangeFilter(timeSource))
+            timeRangeFilter.toPlatformTimeRangeFilter(timeSource)
+        )
         .apply {
             dataOriginFilter.forEach { addDataOriginsFilter(it.toPlatformDataOrigin()) }
             metrics.forEach { addAggregationType(it.toAggregationType()) }
@@ -80,7 +80,8 @@ fun AggregateGroupByDurationRequest.toPlatformRequest(
     timeSource: TimeSource
 ): AggregateRecordsRequest<Any> {
     return AggregateRecordsRequest.Builder<Any>(
-            timeRangeFilter.toPlatformTimeRangeFilter(timeSource))
+            timeRangeFilter.toPlatformTimeRangeFilter(timeSource)
+        )
         .apply {
             dataOriginFilter.forEach { addDataOriginsFilter(it.toPlatformDataOrigin()) }
             metrics.forEach { addAggregationType(it.toAggregationType()) }
@@ -92,7 +93,8 @@ fun AggregateGroupByPeriodRequest.toPlatformRequest(
     timeSource: TimeSource
 ): AggregateRecordsRequest<Any> {
     return AggregateRecordsRequest.Builder<Any>(
-            timeRangeFilter.toPlatformTimeRangeFilter(timeSource))
+            timeRangeFilter.toPlatformTimeRangeFilter(timeSource)
+        )
         .apply {
             dataOriginFilter.forEach { addDataOriginsFilter(it.toPlatformDataOrigin()) }
             metrics.forEach { addAggregationType(it.toAggregationType()) }

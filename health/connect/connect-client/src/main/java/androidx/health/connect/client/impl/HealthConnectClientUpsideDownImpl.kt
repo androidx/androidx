@@ -25,7 +25,6 @@ import android.health.connect.HealthConnectException
 import android.health.connect.HealthConnectManager
 import android.health.connect.ReadRecordsRequestUsingIds
 import android.health.connect.RecordIdFilter
-import android.os.Build
 import android.os.RemoteException
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -67,7 +66,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * @suppress
  */
-@RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@RequiresApi(api = 34)
 class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionController {
 
     private val context: Context

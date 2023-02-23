@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@file:RequiresApi(api = 34)
 
 package androidx.health.connect.client.impl.platform
 
 import android.health.connect.HealthConnectException
-import android.os.Build
 import android.os.RemoteException
 import androidx.annotation.RequiresApi
 import java.io.IOException

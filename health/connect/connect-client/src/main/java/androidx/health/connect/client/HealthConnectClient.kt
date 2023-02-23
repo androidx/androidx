@@ -25,6 +25,8 @@ import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.core.content.pm.PackageInfoCompat
+import androidx.core.os.BuildCompat
+import androidx.core.os.BuildCompat.PrereleaseSdkCheck
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
@@ -366,12 +368,15 @@ interface HealthConnectClient {
          * Intent action to open Health Connect settings on this phone. Developers should use this
          * if they want to re-direct the user to Health Connect.
          */
+        @get:PrereleaseSdkCheck
+        @get:Suppress("IllegalExperimentalApiUsage")
         @get:JvmName("getHealthConnectSettingsAction")
         @JvmStatic
+        @PrereleaseSdkCheck
+        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET", "IllegalExperimentalApiUsage")
         val ACTION_HEALTH_CONNECT_SETTINGS =
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-                "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
-            else "android.health.connect.action.HEALTH_HOME_SETTINGS"
+            if (BuildCompat.isAtLeastU()) "android.health.connect.action.HEALTH_HOME_SETTINGS"
+            else "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
 
         /**
          * The Health Connect SDK is not unavailable on this device at the time. This can be due to
@@ -419,6 +424,8 @@ interface HealthConnectClient {
         @JvmOverloads
         @JvmStatic
         @AvailabilityStatus
+        @PrereleaseSdkCheck
+        @Suppress("IllegalExperimentalApiUsage")
         fun sdkStatus(
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
@@ -459,11 +466,13 @@ interface HealthConnectClient {
         @JvmOverloads
         @JvmStatic
         @Deprecated("use sdkStatus()", ReplaceWith("sdkStatus(context)"))
+        @PrereleaseSdkCheck
+        @Suppress("IllegalExperimentalApiUsage")
         public fun isProviderAvailable(
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): Boolean {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            if (BuildCompat.isAtLeastU()) {
                 return true
             }
             @Suppress("Deprecation")
@@ -487,6 +496,8 @@ interface HealthConnectClient {
          */
         @JvmOverloads
         @JvmStatic
+        @PrereleaseSdkCheck
+        @Suppress("IllegalExperimentalApiUsage")
         public fun getOrCreate(
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
@@ -500,7 +511,7 @@ interface HealthConnectClient {
                 throw IllegalStateException("Service not available")
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            if (BuildCompat.isAtLeastU()) {
                 return HealthConnectClientUpsideDownImpl(context)
             }
             return HealthConnectClientImpl(
