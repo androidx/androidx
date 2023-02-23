@@ -421,19 +421,51 @@ class XTypeElementTest(
 
     @Test
     fun kindName() {
-        val src = Source.kotlin(
+        val kotlinSrc = Source.kotlin(
             "Foo.kt",
             """
-            class MyClass
-            interface MyInterface
+            class KotlinClass
+            interface KotlinInterface
+            annotation class KotlinAnnotation
             """.trimIndent()
         )
-        runTest(sources = listOf(src)) { invocation ->
-            invocation.processingEnv.requireTypeElement("MyClass").let {
+        val javaSrc = Source.java(
+            "Bar.java",
+            """
+            class JavaClass {}
+            interface JavaInterface {}
+            @interface JavaAnnotation {}
+            """.trimIndent()
+        )
+        runTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
+            invocation.processingEnv.requireTypeElement("KotlinClass").let {
                 assertThat(it.kindName()).isEqualTo("class")
             }
-            invocation.processingEnv.requireTypeElement("MyInterface").let {
+            invocation.processingEnv.requireTypeElement("KotlinInterface").let {
                 assertThat(it.kindName()).isEqualTo("interface")
+            }
+            invocation.processingEnv.requireTypeElement("KotlinAnnotation").let {
+                // TODO(b/270557392): make the result consistent between KSP and JavaAP
+                if (invocation.isKsp) {
+                    assertThat(it.kindName()).isEqualTo("annotation_class")
+                } else {
+                    assertThat(it.kindName()).isEqualTo("annotation_type")
+                }
+            }
+
+            invocation.processingEnv.requireTypeElement("JavaClass").let {
+                assertThat(it.kindName()).isEqualTo("class")
+            }
+            invocation.processingEnv.requireTypeElement("JavaInterface").let {
+                assertThat(it.kindName()).isEqualTo("interface")
+            }
+            invocation.processingEnv.requireTypeElement("JavaAnnotation").let {
+                // TODO(b/270557392): make the result consistent between KSP and JavaAP
+                if (invocation.isKsp) {
+                    assertThat(it.kindName()).isEqualTo("annotation_class")
+                } else {
+                    assertThat(it.kindName()).isEqualTo("annotation_type")
+                }
             }
         }
     }
