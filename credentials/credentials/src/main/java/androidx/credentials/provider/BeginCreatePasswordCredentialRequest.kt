@@ -42,9 +42,12 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * actually store the password.
  *
  * @see BeginCreateCredentialRequest
+ *
+ * Note : Credential providers are not expected to utilize the constructor in this class for any
+ * production flow. This constructor must only be used for testing purposes.
  */
 @RequiresApi(34)
-class BeginCreatePasswordCredentialRequest internal constructor(
+class BeginCreatePasswordCredentialRequest constructor(
     callingAppInfo: CallingAppInfo?
 ) : BeginCreateCredentialRequest(
     PasswordCredential.TYPE_PASSWORD_CREDENTIAL,

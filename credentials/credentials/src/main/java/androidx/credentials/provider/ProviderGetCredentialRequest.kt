@@ -32,9 +32,12 @@ import androidx.credentials.CredentialOption
  *
  * @property credentialOption the credential retrieval parameters
  * @property callingAppInfo information pertaining to the calling application
+ *
+ * Note : Credential providers are not expected to utilize the constructor in this class for any
+ * production flow. This constructor must only be used for testing purposes.
  */
 @RequiresApi(34)
-class ProviderGetCredentialRequest internal constructor(
+class ProviderGetCredentialRequest constructor(
     val credentialOption: CredentialOption,
     val callingAppInfo: CallingAppInfo
     ) {

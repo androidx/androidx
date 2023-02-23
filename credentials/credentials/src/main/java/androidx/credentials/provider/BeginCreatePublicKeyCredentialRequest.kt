@@ -44,9 +44,12 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * @property json the request json to be used for registering the public key credential
  *
  * @see BeginCreateCredentialRequest
+ *
+ * Note : Credential providers are not expected to utilize the constructor in this class for any
+ * production flow. This constructor must only be used for testing purposes.
  */
 @RequiresApi(34)
-class BeginCreatePublicKeyCredentialRequest internal constructor(
+class BeginCreatePublicKeyCredentialRequest constructor(
     val json: String,
     callingAppInfo: CallingAppInfo?,
 ) : BeginCreateCredentialRequest(

@@ -31,9 +31,12 @@ import androidx.credentials.PasswordCredential
  * Providers must use the parameters in this option to retrieve the corresponding credentials'
  * metadata, and then return them in the form of a list of [PasswordCredentialEntry]
  * set on the [BeginGetCredentialResponse].
+ *
+ * Note : Credential providers are not expected to utilize the constructor in this class for any
+ * production flow. This constructor must only be used for testing purposes.
  */
 @RequiresApi(34)
-class BeginGetPasswordOption internal constructor(
+class BeginGetPasswordOption constructor(
     candidateQueryData: Bundle,
     id: String
 ) : BeginGetCredentialOption(
