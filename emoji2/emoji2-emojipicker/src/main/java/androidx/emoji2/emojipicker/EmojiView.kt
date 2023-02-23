@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
 import android.os.Build
 import android.text.Layout
 import android.text.Spanned
@@ -36,12 +37,22 @@ import androidx.emoji2.text.EmojiCompat
 /**
  * A customized view to support drawing emojis asynchronously.
  */
-internal class EmojiView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+internal class EmojiView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+) :
     View(context, attrs) {
 
     companion object {
         private const val EMOJI_DRAW_TEXT_SIZE_SP = 30
     }
+
+    init {
+        background = context.getDrawable(R.drawable.ripple_emoji_view)
+        importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
+    }
+
+    internal var willDrawVariantIndicator: Boolean = true
 
     private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
         textSize = TypedValue.applyDimension(
@@ -58,7 +69,10 @@ internal class EmojiView @JvmOverloads constructor(context: Context, attrs: Attr
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val size =
-            minOf(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec))
+            minOf(
+                MeasureSpec.getSize(widthMeasureSpec),
+                MeasureSpec.getSize(heightMeasureSpec)
+            ) - context.resources.getDimensionPixelSize(R.dimen.emoji_picker_emoji_view_padding)
         setMeasuredDimension(size, size)
     }
 
@@ -109,6 +123,28 @@ internal class EmojiView @JvmOverloads constructor(context: Context, attrs: Attr
                     /* y = */ -textPaint.fontMetrics.top,
                     textPaint,
                 )
+            }
+            if (willDrawVariantIndicator && BundledEmojiListLoader.getEmojiVariantsLookup()
+                    .containsKey(emoji)
+            ) {
+                context.getDrawable(R.drawable.variant_availability_indicator)?.apply {
+                    val canvasWidth = this@applyCanvas.width
+                    val canvasHeight = this@applyCanvas.height
+                    val indicatorWidth =
+                        context.resources.getDimensionPixelSize(
+                            R.dimen.variant_availability_indicator_width
+                        )
+                    val indicatorHeight =
+                        context.resources.getDimensionPixelSize(
+                            R.dimen.variant_availability_indicator_height
+                        )
+                    bounds = Rect(
+                        canvasWidth - indicatorWidth,
+                        canvasHeight - indicatorHeight,
+                        canvasWidth,
+                        canvasHeight
+                    )
+                }!!.draw(this)
             }
         }
     }
