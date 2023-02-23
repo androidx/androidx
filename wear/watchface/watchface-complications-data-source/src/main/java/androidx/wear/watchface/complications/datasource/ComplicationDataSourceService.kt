@@ -27,6 +27,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.RemoteException
 import android.support.wearable.complications.ComplicationData as WireComplicationData
+import android.os.Bundle
 import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
@@ -441,7 +442,7 @@ public abstract class ComplicationDataSourceService : Service() {
     private inner class IComplicationProviderWrapper : IComplicationProvider.Stub() {
         @SuppressLint("SyntheticAccessor")
         override fun onUpdate(complicationInstanceId: Int, type: Int, manager: IBinder) {
-            onUpdate2(
+            onUpdateInternal(
                 complicationInstanceId,
                 type,
                 isForSafeWatchFace = TargetWatchFaceSafety.UNKNOWN,
@@ -449,8 +450,17 @@ public abstract class ComplicationDataSourceService : Service() {
             )
         }
 
+        override fun onUpdate2(bundle: Bundle) {
+            onUpdateInternal(
+                bundle.getInt(IComplicationProvider.BUNDLE_KEY_COMPLICATION_INSTANCE_ID),
+                bundle.getInt(IComplicationProvider.BUNDLE_KEY_TYPE),
+                bundle.getInt(IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE),
+                bundle.getBinder(IComplicationProvider.BUNDLE_KEY_MANAGER)!!
+            )
+        }
+
         @SuppressLint("SyntheticAccessor")
-        override fun onUpdate2(
+        private fun onUpdateInternal(
             complicationInstanceId: Int,
             type: Int,
             @IsForSafeWatchFace isForSafeWatchFace: Int,
@@ -660,13 +670,22 @@ public abstract class ComplicationDataSourceService : Service() {
         }
 
         override fun onSynchronousComplicationRequest(complicationInstanceId: Int, type: Int) =
-            onSynchronousComplicationRequest2(
+            onSynchronousComplicationRequestInternal(
                 complicationInstanceId,
                 isForSafeWatchFace = TargetWatchFaceSafety.UNKNOWN,
                 type
             )
 
         override fun onSynchronousComplicationRequest2(
+            bundle: Bundle
+        ): android.support.wearable.complications.ComplicationData? =
+            onSynchronousComplicationRequestInternal(
+                bundle.getInt(IComplicationProvider.BUNDLE_KEY_COMPLICATION_INSTANCE_ID),
+                bundle.getInt(IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE),
+                bundle.getInt(IComplicationProvider.BUNDLE_KEY_TYPE)
+            )
+
+        private fun onSynchronousComplicationRequestInternal(
             complicationInstanceId: Int,
             @IsForSafeWatchFace isForSafeWatchFace: Int,
             type: Int
