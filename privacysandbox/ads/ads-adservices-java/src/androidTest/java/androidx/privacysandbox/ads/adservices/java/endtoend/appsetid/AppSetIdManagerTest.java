@@ -43,6 +43,10 @@ public class AppSetIdManagerTest {
         mTestUtil.overrideAppSetIdKillSwitch(true);
         mTestUtil.overrideKillSwitches(true);
         mTestUtil.overrideAllowlists(true);
+
+        // Put in a short sleep to make sure the updated config propagates
+        // before starting the tests
+        Thread.sleep(100);
     }
 
     @After
