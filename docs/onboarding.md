@@ -282,20 +282,6 @@ dependencies {
 Then,
 [use it like you would on an external project](https://developer.android.com/jetpack/compose/tooling).
 
-### Enabling Compose @Preview annotation previews
-
-Add the following dependencies to your project's `build.gradle`
-
-```groovy
-dependencies {
-    implementation(project(":compose:ui:ui-tooling-preview"))
-    debugImplementation(project(":compose:ui:ui-tooling"))
-}
-```
-
-then
-[use it like you would on an external project](https://developer.android.com/jetpack/compose/tooling).
-
 ## Making changes {#changes}
 
 Similar to Android framework development, library development should occur in
