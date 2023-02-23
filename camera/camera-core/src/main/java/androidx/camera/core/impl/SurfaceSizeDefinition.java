@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl;
 
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -42,9 +43,17 @@ public abstract class SurfaceSizeDefinition {
      * Create a SurfaceSizeDefinition object with input analysis, preview, record and maximum sizes
      *
      * @param analysisSize   Default ANALYSIS size is * 640x480.
+     * @param s720p          s720p refers to the 720p (1280 x 720) or the maximum supported
+     *                       resolution for the particular format returned by
+     *                       {@link StreamConfigurationMap#getOutputSizes(int)}, whichever is
+     *                       smaller.
      * @param previewSize    PREVIEW refers to the best size match to the device's screen
      *                       resolution,
      *                       or to 1080p * (1920x1080), whichever is smaller.
+     * @param s1440p         s1440p refers to the 1440p (1920 x 1440) or the maximum supported
+     *                       resolution for the particular format returned by
+     *                       {@link StreamConfigurationMap#getOutputSizes(int)}, whichever is
+     *                       smaller.
      * @param recordSize     RECORD refers to the camera device's maximum supported * recording
      *                       resolution, as determined by CamcorderProfile.
      * @return new {@link SurfaceSizeDefinition} object
@@ -52,18 +61,33 @@ public abstract class SurfaceSizeDefinition {
     @NonNull
     public static SurfaceSizeDefinition create(
             @NonNull Size analysisSize,
+            @NonNull Size s720p,
             @NonNull Size previewSize,
+            @NonNull Size s1440p,
             @NonNull Size recordSize) {
-        return new AutoValue_SurfaceSizeDefinition(analysisSize, previewSize, recordSize);
+        return new AutoValue_SurfaceSizeDefinition(
+                analysisSize,
+                s720p,
+                previewSize,
+                s1440p,
+                recordSize);
     }
 
     /** Returns the size of an ANALYSIS stream. */
     @NonNull
     public abstract Size getAnalysisSize();
 
+    /** Returns the size of an s720p stream. */
+    @NonNull
+    public abstract Size getS720pSize();
+
     /** Returns the size of a PREVIEW stream. */
     @NonNull
     public abstract Size getPreviewSize();
+
+    /** Returns the size of an s1440p stream. */
+    @NonNull
+    public abstract Size getS1440pSize();
 
     /** Returns the size of a RECORD stream*/
     @NonNull

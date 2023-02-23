@@ -51,9 +51,9 @@ import java.util.Map;
 @SdkSuppress(minSdkVersion = 21)
 public final class LifecycleCameraRepositoryTest {
 
-    private CameraCoordinator mCameraCoordinator;
     private FakeLifecycleOwner mLifecycle;
     private LifecycleCameraRepository mRepository;
+    private CameraCoordinator mCameraCoordinator;
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
     private LinkedHashSet<CameraInternal> mCameraSet;
     private int mCameraId = 0;
@@ -66,6 +66,7 @@ public final class LifecycleCameraRepositoryTest {
         CameraInternal camera = new FakeCamera(String.valueOf(mCameraId));
         mCameraSet = new LinkedHashSet<>(Collections.singleton(camera));
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(mCameraSet,
+                mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
     }
@@ -581,6 +582,7 @@ public final class LifecycleCameraRepositoryTest {
         String cameraId = String.valueOf(++mCameraId);
         CameraInternal fakeCamera = new FakeCamera(cameraId);
         return new CameraUseCaseAdapter(new LinkedHashSet<>(Collections.singleton(fakeCamera)),
+                mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
     }

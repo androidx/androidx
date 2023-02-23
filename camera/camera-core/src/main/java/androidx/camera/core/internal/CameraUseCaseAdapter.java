@@ -46,6 +46,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
@@ -101,6 +102,9 @@ public final class CameraUseCaseAdapter implements Camera {
     private final List<UseCase> mCameraUseCases = new ArrayList<>();
 
     @GuardedBy("mLock")
+    private final CameraCoordinator mCameraCoordinator;
+
+    @GuardedBy("mLock")
     @Nullable
     private ViewPort mViewPort;
 
@@ -138,20 +142,25 @@ public final class CameraUseCaseAdapter implements Camera {
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
      *
-     * @param cameras                    the set of cameras that are wrapped, with them in order
+     * @param cameras                    The set of cameras that are wrapped, with them in order
      *                                   of preference. The actual camera used will be dependent
      *                                   on configs set by
      *                                   {@link #setExtendedConfig(CameraConfig)} which can
      *                                   filter out specific camera instances
+     * @param cameraCoordinator          Camera coordinator that exposes concurrent camera mode.
      * @param cameraDeviceSurfaceManager A class that checks for whether a specific camera
      *                                   can support the set of Surface with set resolutions.
+     * @param useCaseConfigFactory       UseCase config factory that exposes configuration for
+     *                                   each UseCase.
      */
     public CameraUseCaseAdapter(@NonNull LinkedHashSet<CameraInternal> cameras,
+            @NonNull CameraCoordinator cameraCoordinator,
             @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager,
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
         mCameraInternal = cameras.iterator().next();
         mCameraInternals = new LinkedHashSet<>(cameras);
         mId = new CameraId(mCameraInternals);
+        mCameraCoordinator = cameraCoordinator;
         mCameraDeviceSurfaceManager = cameraDeviceSurfaceManager;
         mUseCaseConfigFactory = useCaseConfigFactory;
     }
@@ -272,13 +281,18 @@ public final class CameraUseCaseAdapter implements Camera {
             Map<UseCase, StreamSpec> suggestedStreamSpecMap;
             try {
                 suggestedStreamSpecMap = calculateSuggestedStreamSpecs(
+                        mCameraCoordinator.getCameraOperatingMode()
+                                == CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT,
                         mCameraInternal.getCameraInfoInternal(), cameraUseCasesToAttach,
                         cameraUseCasesToKeep, configs);
                 // TODO(b/265704882): enable stream sharing for LEVEL_3 and high preview
                 //  resolution. Throw exception here if (applyStreamSharing == false), both video
                 //  and preview are used and preview resolution is lower than user configuration.
             } catch (IllegalArgumentException exception) {
-                if (!applyStreamSharing && hasNoExtension()) {
+                // Only allow StreamSharing for non-concurrent mode.
+                if (!applyStreamSharing && hasNoExtension()
+                        && mCameraCoordinator.getCameraOperatingMode()
+                        != CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT) {
                     // Try again and see if StreamSharing resolves the issue.
                     updateUseCases(appUseCases, /*applyStreamSharing*/true);
                     return;
@@ -488,6 +502,7 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     private Map<UseCase, StreamSpec> calculateSuggestedStreamSpecs(
+            boolean isConcurrentCameraModeOn,
             @NonNull CameraInfoInternal cameraInfoInternal,
             @NonNull Collection<UseCase> newUseCases,
             @NonNull Collection<UseCase> currentUseCases,
@@ -499,7 +514,9 @@ public final class CameraUseCaseAdapter implements Camera {
         // Get resolution for current use cases.
         for (UseCase useCase : currentUseCases) {
             SurfaceConfig surfaceConfig =
-                    mCameraDeviceSurfaceManager.transformSurfaceConfig(cameraId,
+                    mCameraDeviceSurfaceManager.transformSurfaceConfig(
+                            isConcurrentCameraModeOn,
+                            cameraId,
                             useCase.getImageFormat(),
                             useCase.getAttachedSurfaceResolution());
             existingSurfaces.add(AttachedSurfaceInfo.create(surfaceConfig,
@@ -522,7 +539,9 @@ public final class CameraUseCaseAdapter implements Camera {
 
             // Get suggested stream specifications and update the use case session configuration
             Map<UseCaseConfig<?>, StreamSpec> useCaseConfigStreamSpecMap =
-                    mCameraDeviceSurfaceManager.getSuggestedStreamSpecs(cameraId, existingSurfaces,
+                    mCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
+                            isConcurrentCameraModeOn,
+                            cameraId, existingSurfaces,
                             new ArrayList<>(configToUseCaseMap.keySet()));
 
             for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
@@ -730,7 +749,10 @@ public final class CameraUseCaseAdapter implements Camera {
             try {
                 Map<UseCase, ConfigPair> configs = getConfigs(Arrays.asList(useCases),
                         mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
-                calculateSuggestedStreamSpecs(mCameraInternal.getCameraInfoInternal(),
+                calculateSuggestedStreamSpecs(
+                        mCameraCoordinator.getCameraOperatingMode()
+                                == CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT,
+                        mCameraInternal.getCameraInfoInternal(),
                         Arrays.asList(useCases), emptyList(), configs);
             } catch (IllegalArgumentException e) {
                 return false;

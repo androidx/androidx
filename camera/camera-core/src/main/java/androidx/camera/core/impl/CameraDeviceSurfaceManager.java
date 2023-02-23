@@ -58,28 +58,36 @@ public interface CameraDeviceSurfaceManager {
      * Check whether the input surface configuration list is under the capability of any combination
      * of this object.
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param cameraId          the camera id of the camera device to be compared
      * @param surfaceConfigList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
-    boolean checkSupported(@NonNull String cameraId,
+    boolean checkSupported(
+            boolean isConcurrentCameraModeOn,
+            @NonNull String cameraId,
             @Nullable List<SurfaceConfig> surfaceConfigList);
 
     /**
      * Transform to a SurfaceConfig object with cameraId, image format and size info
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param cameraId    the camera id of the camera device to transform the object
      * @param imageFormat the image format info for the surface configuration object
      * @param size        the size info for the surface configuration object
      * @return new {@link SurfaceConfig} object
      */
     @Nullable
-    SurfaceConfig transformSurfaceConfig(@NonNull String cameraId, int imageFormat,
+    SurfaceConfig transformSurfaceConfig(
+            boolean isConcurrentCameraModeOn,
+            @NonNull String cameraId,
+            int imageFormat,
             @NonNull Size size);
 
     /**
      * Retrieves a map of suggested stream specifications for the given list of use cases.
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param cameraId          the camera id of the camera device used by the use cases
      * @param existingSurfaces  list of surfaces already configured and used by the camera. The
      *                          stream specifications for these surface can not change.
@@ -94,6 +102,7 @@ public interface CameraDeviceSurfaceManager {
      */
     @NonNull
     Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
+            boolean isConcurrentCameraModeOn,
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs);

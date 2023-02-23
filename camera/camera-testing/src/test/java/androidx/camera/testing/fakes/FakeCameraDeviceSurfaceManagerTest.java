@@ -90,8 +90,11 @@ public class FakeCameraDeviceSurfaceManagerTest {
     public void validSurfaceCombination_noException() {
         UseCaseConfig<?> preview = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         UseCaseConfig<?> analysis = new ImageAnalysis.Builder().getUseCaseConfig();
-        mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(FAKE_CAMERA_ID0,
-                emptyList(), asList(preview, analysis));
+        mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
+                /* isConcurrentCameraModeOn = */false,
+                FAKE_CAMERA_ID0,
+                emptyList(),
+                asList(preview, analysis));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -103,7 +106,9 @@ public class FakeCameraDeviceSurfaceManagerTest {
                         YUV_420_888,
                         new Size(1, 1),
                         new Range<>(30, 30));
-        mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(FAKE_CAMERA_ID0,
+        mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
+                /* isConcurrentCameraModeOn = */false,
+                FAKE_CAMERA_ID0,
                 singletonList(analysis), asList(preview, video));
     }
 
@@ -112,17 +117,23 @@ public class FakeCameraDeviceSurfaceManagerTest {
         UseCaseConfig<?> preview = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         UseCaseConfig<?> video = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         UseCaseConfig<?> analysis = new ImageAnalysis.Builder().getUseCaseConfig();
-        mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(FAKE_CAMERA_ID0,
+        mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
+                /* isConcurrentCameraModeOn = */false,
+                FAKE_CAMERA_ID0,
                 Collections.emptyList(), asList(preview, video, analysis));
     }
 
     @Test
     public void canRetrieveInsertedSuggestedStreamSpecs() {
         Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecsCamera0 =
-                mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(FAKE_CAMERA_ID0,
+                mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
+                        /* isConcurrentCameraModeOn = */false,
+                        FAKE_CAMERA_ID0,
                         Collections.emptyList(), mUseCaseConfigList);
         Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecCamera1 =
-                mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(FAKE_CAMERA_ID1,
+                mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
+                        /* isConcurrentCameraModeOn = */false,
+                        FAKE_CAMERA_ID1,
                         Collections.emptyList(), mUseCaseConfigList);
 
         assertThat(suggestedStreamSpecsCamera0.get(mFakeUseCaseConfig)).isEqualTo(
