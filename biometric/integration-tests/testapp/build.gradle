@@ -59,6 +59,7 @@ dependencies {
 
     debugImplementation(libs.leakcanary)
 
+    androidTestImplementation(projectOrArtifact(":annotation:annotation"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
