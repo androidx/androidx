@@ -33,6 +33,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.reset
@@ -120,15 +121,17 @@ class Camera2CameraCoordinatorTest {
         val listener = mock(CameraCoordinator.ConcurrentCameraModeListener::class.java)
         cameraCoordinator.addListener(listener)
         cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
-        verify(listener).notifyConcurrentCameraModeUpdated(CAMERA_OPERATING_MODE_CONCURRENT)
+        verify(listener).onCameraOperatingModeUpdated(
+            CAMERA_OPERATING_MODE_UNSPECIFIED, CAMERA_OPERATING_MODE_CONCURRENT)
         cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
-        verify(listener).notifyConcurrentCameraModeUpdated(CAMERA_OPERATING_MODE_SINGLE)
+        verify(listener).onCameraOperatingModeUpdated(
+            CAMERA_OPERATING_MODE_CONCURRENT, CAMERA_OPERATING_MODE_SINGLE)
 
         reset(listener)
         cameraCoordinator.removeListener(listener)
         cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
-        verify(listener, never()).notifyConcurrentCameraModeUpdated(
-            CAMERA_OPERATING_MODE_CONCURRENT)
+        verify(listener, never()).onCameraOperatingModeUpdated(
+            anyInt(), anyInt())
     }
 
     private class FakeCameraManagerImpl : CameraManagerCompat.CameraManagerCompatImpl {

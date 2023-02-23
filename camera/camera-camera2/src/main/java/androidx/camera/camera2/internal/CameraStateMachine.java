@@ -62,6 +62,7 @@ class CameraStateMachine {
                 newPublicState = CameraState.create(CameraState.Type.OPENING, stateError);
                 break;
             case OPEN:
+            case CONFIGURED:
                 newPublicState = CameraState.create(CameraState.Type.OPEN, stateError);
                 break;
             case CLOSING:

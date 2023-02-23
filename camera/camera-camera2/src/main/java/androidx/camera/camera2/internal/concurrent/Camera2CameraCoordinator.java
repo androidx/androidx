@@ -109,7 +109,9 @@ public class Camera2CameraCoordinator implements CameraCoordinator {
     public void setCameraOperatingMode(@CameraOperatingMode int cameraOperatingMode) {
         if (cameraOperatingMode != mCameraOperatingMode) {
             for (ConcurrentCameraModeListener listener : mConcurrentCameraModeListeners) {
-                listener.notifyConcurrentCameraModeUpdated(cameraOperatingMode);
+                listener.onCameraOperatingModeUpdated(
+                        mCameraOperatingMode,
+                        cameraOperatingMode);
             }
         }
         // Clear the cached camera selectors if concurrent mode is off.
