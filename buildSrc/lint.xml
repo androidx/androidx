@@ -35,6 +35,7 @@
         <ignore path="**/java/tests/**" />
     </issue>
     <!-- Re-enable high-priority checks for tests (and everything else). -->
+    <issue id="BanThreadSleep" severity="fatal" />
     <issue id="NewApi" severity="fatal" />
     <issue id="WrongThread" severity="fatal" />
     <issue id="MissingTestSizeAnnotation" severity="fatal" />

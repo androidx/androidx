@@ -45,6 +45,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 BanInappropriateExperimentalUsage.NULL_ANNOTATION_GROUP_ISSUE,
                 BanInlineOptIn.ISSUE,
                 BanKeepAnnotation.ISSUE,
+                BanThreadSleep.ISSUE,
                 TargetApiAnnotationUsageDetector.ISSUE,
                 // If you add more SampledAnnotationDetector issues here, you
                 // MUST also update `buildSrc/lint_samples.xml` to ensure they
