@@ -22,11 +22,8 @@ import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOUR
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
-import static java.util.Objects.requireNonNull;
-
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
-import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.util.Pair;
 import android.util.Size;
@@ -422,10 +419,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @NonNull
     @Override
     public List<Size> getSupportedResolutions(int format) {
-        StreamConfigurationMap map = requireNonNull(mCameraCharacteristicsCompat.get(
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP));
         StreamConfigurationMapCompat mapCompat =
-                StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
+                mCameraCharacteristicsCompat.getStreamConfigurationMapCompat();
         Size[] size = mapCompat.getOutputSizes(format);
         return size != null ? Arrays.asList(size) : Collections.emptyList();
     }

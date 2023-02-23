@@ -156,7 +156,7 @@ public final class Camera2DeviceSurfaceManagerTest {
                         Context.CAMERA_SERVICE);
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                cameraManager.getCameraCharacteristics(cameraId));
+                cameraManager.getCameraCharacteristics(cameraId), cameraId);
     }
 
     @Test

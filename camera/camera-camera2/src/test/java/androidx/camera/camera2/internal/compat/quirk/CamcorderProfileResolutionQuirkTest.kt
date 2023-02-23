@@ -37,6 +37,8 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowCameraCharacteristics
 
+private const val CAMERA_ID_0 = "0"
+
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -97,6 +99,9 @@ class CamcorderProfileResolutionQuirkTest {
 
         shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
 
-        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics)
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+            characteristics,
+            CAMERA_ID_0
+        )
     }
 }

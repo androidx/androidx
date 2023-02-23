@@ -84,7 +84,8 @@ public class YuvImageOnePixelShiftQuirkTest {
         shadowCharacteristics.set(CameraCharacteristics.LENS_FACING,
                 CameraCharacteristics.LENS_FACING_BACK);
         CameraCharacteristicsCompat characteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics,
+                        CAMERA_ID);
         final Quirks quirks = CameraQuirks.get(CAMERA_ID, characteristicsCompat);
 
         // Assert.

@@ -1660,13 +1660,9 @@ class SupportedSurfaceCombinationTest {
                 Size(4032, 3024),
                 Size(1920, 1440),
                 Size(1280, 960),
-                Size(640, 480),
-                // Mismatched the same AspectRatio as maximum JPEG items, sorted by area size.
-                Size(3840, 2160),
-                Size(1920, 1080),
-                Size(1280, 720),
-                Size(960, 544),
-                Size(800, 450)
+                Size(640, 480)
+                // Non-matched items have been removed by OutputSizesCorrector due to
+                // TargetAspectRatio quirk.
             )
         } else {
             // Sizes of aspect ratio 16/9 will be in front of the returned sizes list and the
@@ -1747,12 +1743,9 @@ class SupportedSurfaceCombinationTest {
                 // delta then area size.
                 Size(1920, 1440),
                 Size(1280, 960),
-                Size(640, 480),
-                // Mismatched the same AspectRatio as maximum JPEG items, sorted by area size.
-                Size(1920, 1080),
-                Size(1280, 720),
-                Size(960, 544),
-                Size(800, 450)
+                Size(640, 480)
+                // Non-matched items have been removed by OutputSizesCorrector due to
+                // TargetAspectRatio quirk.
             )
         } else {
             // The target resolution will be calibrated by default target rotation 0 degree. The
@@ -2339,6 +2332,7 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun getSupportedOutputSizes_whenOneMod16SizeClosestToTargetResolution() {
         setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
             supportedSizes = arrayOf(
                 Size(1920, 1080),
                 Size(1440, 1080),
