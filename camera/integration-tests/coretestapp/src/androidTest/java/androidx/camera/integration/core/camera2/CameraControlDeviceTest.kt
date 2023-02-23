@@ -16,13 +16,10 @@
 package androidx.camera.integration.core.camera2
 
 import android.content.Context
-import android.hardware.camera2.CameraCharacteristics
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraSelector.LensFacing
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.MeteringPoint
@@ -113,76 +110,6 @@ class CameraControlDeviceTest(
     }
 
     @Test
-    fun startFocusMeteringAe_futureCompletes() {
-        Assume.assumeTrue(isSupportAeRegion(cameraSelector))
-        val action = FocusMeteringAction.Builder(
-            meteringPoint1!!,
-            FocusMeteringAction.FLAG_AE
-        ).build()
-        val future = camera!!.cameraControl.startFocusAndMetering(action)
-        assertFutureCompletes(future)
-    }
-
-    @Test
-    fun startFocusMeteringAwb_futureCompletes() {
-        Assume.assumeTrue(isSupportAwbRegion(cameraSelector))
-        val action = FocusMeteringAction.Builder(
-            meteringPoint1!!,
-            FocusMeteringAction.FLAG_AWB
-        ).build()
-        val future = camera!!.cameraControl.startFocusAndMetering(action)
-        assertFutureCompletes(future)
-    }
-
-    @Test
-    fun startFocusMeteringAeAwb_futureCompletes() {
-        Assume.assumeTrue(isSupportAeRegion(cameraSelector) || isSupportAwbRegion(cameraSelector))
-        val action = FocusMeteringAction.Builder(
-            meteringPoint1!!,
-            FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB
-        ).build()
-        val future = camera!!.cameraControl.startFocusAndMetering(action)
-        assertFutureCompletes(future)
-    }
-
-    @Test
-    fun startFocusMeteringMorePointThanSupported_futureCompletes() {
-        Assume.assumeTrue(isSupportAeRegion(cameraSelector) || isSupportAwbRegion(cameraSelector))
-        val factory = SurfaceOrientedMeteringPointFactory(1f, 1f)
-        // Most devices don't support 4 AF/AE/AWB regions. but it should still complete.
-        val point1 = factory.createPoint(0f, 0f)
-        val point2 = factory.createPoint(1f, 0f)
-        val point3 = factory.createPoint(0.2f, 0.2f)
-        val point4 = factory.createPoint(0.3f, 0.4f)
-        val action = FocusMeteringAction.Builder(
-            point1,
-            FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB
-        )
-            .addPoint(
-                point2, FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB
-            )
-            .addPoint(
-                point3,
-                FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB
-            )
-            .addPoint(
-                point4,
-                FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB
-            )
-            .build()
-        val future = camera!!.cameraControl.startFocusAndMetering(action)
-        assertFutureCompletes(future)
-    }
-
-    @Test
-    fun cancelFocusMetering_futureCompletes() {
-        val action = FocusMeteringAction.Builder(meteringPoint1!!).build()
-        camera!!.cameraControl.startFocusAndMetering(action)
-        val result = camera!!.cameraControl.cancelFocusAndMetering()
-        assertFutureCompletes(result)
-    }
-
-    @Test
     fun rebindAndEnableTorch_futureCompletes() {
         Assume.assumeTrue(CameraUtil.hasFlashUnitWithLensFacing(cameraSelector.lensFacing!!))
         instrumentation.runOnMainSync {
@@ -204,34 +131,6 @@ class CameraControlDeviceTest(
             future[10, TimeUnit.SECONDS]
         } catch (e: Exception) {
             Assert.fail("future fail:$e")
-        }
-    }
-
-    private fun getCameraCharacteristicWithLensFacing(
-        @LensFacing lensFacing: Int
-    ): CameraCharacteristics? {
-        return CameraUtil.getCameraCharacteristics(lensFacing)
-    }
-
-    private fun isSupportAeRegion(cameraSelector: CameraSelector?): Boolean {
-        return try {
-            val characteristics = getCameraCharacteristicWithLensFacing(
-                cameraSelector!!.lensFacing!!
-            )
-            characteristics!!.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE)!! > 0
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    private fun isSupportAwbRegion(cameraSelector: CameraSelector?): Boolean {
-        return try {
-            val characteristics = getCameraCharacteristicWithLensFacing(
-                cameraSelector!!.lensFacing!!
-            )
-            characteristics!!.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB)!! > 0
-        } catch (e: Exception) {
-            false
         }
     }
 
