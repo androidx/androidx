@@ -19,6 +19,7 @@ package androidx.appactions.interaction.capabilities.core.impl;
 import static androidx.appactions.interaction.capabilities.core.impl.utils.ImmutableCollectors.toImmutableList;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment;
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.FulfillmentParam;
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.FulfillmentValue;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /** Represents Fulfillment request sent from assistant, including arguments. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings("AutoValueImmutableFields")
 @AutoValue
 public abstract class ArgumentsWrapper {
@@ -66,8 +68,11 @@ public abstract class ArgumentsWrapper {
                 result.put(
                         fp.getName(),
                         fp.getValuesList().stream()
-                                .map(paramValue -> FulfillmentValue.newBuilder().setValue(
-                                        paramValue).build())
+                                .map(
+                                        paramValue ->
+                                                FulfillmentValue.newBuilder()
+                                                        .setValue(paramValue)
+                                                        .build())
                                 .collect(toImmutableList()));
             } else {
                 result.put(fp.getName(), fp.getFulfillmentValuesList());

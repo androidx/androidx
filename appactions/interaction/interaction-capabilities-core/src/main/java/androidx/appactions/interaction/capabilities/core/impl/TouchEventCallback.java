@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appactions.interaction.proto.FulfillmentResponse;
 import androidx.appactions.interaction.proto.TouchEventMetadata;
 
@@ -24,6 +25,7 @@ import androidx.appactions.interaction.proto.TouchEventMetadata;
  * An internal interface to allow the AppInteraction SDKs to be notified of results from processing
  * touch events.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface TouchEventCallback {
 
     /** Results from a successful touch event invocation. */
