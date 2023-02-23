@@ -549,21 +549,23 @@ public class ButtonColorTest {
         )
 
     @Test
-    public fun gives_disabled_button_primary_colors() =
+    public fun gives_disabled_primary_button_contrasting_content_color() =
         verifyButtonColors(
             Status.Disabled,
             { ButtonDefaults.primaryButtonColors() },
             { MaterialTheme.colors.primary },
-            { MaterialTheme.colors.onPrimary },
+            { MaterialTheme.colors.background },
+            applyAlphaForDisabledContent = false
         )
 
     @Test
-    public fun gives_disabled_compact_button_primary_colors() =
+    public fun gives_disabled_compact_button_contrasting_content_color() =
         verifyCompactButtonColors(
             Status.Disabled,
             { ButtonDefaults.primaryButtonColors() },
             { MaterialTheme.colors.primary },
-            { MaterialTheme.colors.onPrimary },
+            { MaterialTheme.colors.background },
+            applyAlphaForDisabledContent = false,
         )
 
     @Test
@@ -815,11 +817,13 @@ public class ButtonColorTest {
         buttonColors: @Composable () -> ButtonColors,
         backgroundColor: @Composable () -> Color,
         contentColor: @Composable () -> Color,
+        applyAlphaForDisabledContent: Boolean = true,
     ) {
         verifyColors(
             status,
             backgroundColor,
             contentColor,
+            applyAlphaForDisabledContent,
         ) {
             var actualColor = Color.Transparent
             Button(
@@ -863,11 +867,13 @@ public class ButtonColorTest {
         buttonColors: @Composable () -> ButtonColors,
         backgroundColor: @Composable () -> Color,
         contentColor: @Composable () -> Color,
+        applyAlphaForDisabledContent: Boolean = true,
     ) {
         verifyColors(
             status,
             backgroundColor,
             contentColor,
+            applyAlphaForDisabledContent,
         ) {
             var actualColor = Color.Transparent
             CompactButton(
@@ -888,6 +894,7 @@ public class ButtonColorTest {
         status: Status,
         backgroundColor: @Composable () -> Color,
         contentColor: @Composable () -> Color,
+        applyAlphaForDisabledContent: Boolean = true,
         threshold: Float = 50.0f,
         content: @Composable () -> Color,
     ) {
@@ -904,7 +911,11 @@ public class ButtonColorTest {
                 expectedBackground =
                     backgroundColor()
                         .copy(alpha = ContentAlpha.disabled).compositeOver(testBackground)
-                expectedContent = contentColor().copy(alpha = ContentAlpha.disabled)
+                expectedContent =
+                    if (applyAlphaForDisabledContent)
+                        contentColor().copy(alpha = ContentAlpha.disabled)
+                    else
+                        contentColor()
             }
             Box(
                 modifier = Modifier

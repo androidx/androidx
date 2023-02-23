@@ -439,7 +439,7 @@ class ChipColorTest {
       { MaterialTheme.colors.onPrimary },
       { MaterialTheme.colors.onPrimary },
       { MaterialTheme.colors.onPrimary },
-      compactChip = true
+      compactChip = true,
     )
 
   @Test
@@ -453,23 +453,38 @@ class ChipColorTest {
     )
 
   @Test
-  fun gives_primary_disabled_colors() =
+  fun gives_disabled_primary_chip_contrasting_content_color() =
     verifyColors(
       TestChipColors.Primary,
       ChipStatus.Disabled,
       { MaterialTheme.colors.primary },
-      { MaterialTheme.colors.onPrimary },
+      { MaterialTheme.colors.background },
+      applyAlphaForDisabledContent = false,
     )
 
   @Test
-  fun three_slot_layout_gives_primary_disabled_colors() =
+  fun gives_disabled_primary_compact_chip_contrasting_content_color() =
     verifySlotColors(
       TestChipColors.Primary,
       ChipStatus.Disabled,
       { MaterialTheme.colors.primary },
-      { MaterialTheme.colors.onPrimary },
-      { MaterialTheme.colors.onPrimary },
-      { MaterialTheme.colors.onPrimary }
+      { MaterialTheme.colors.background },
+      { MaterialTheme.colors.background },
+      { MaterialTheme.colors.background },
+      applyAlphaForDisabledContent = false,
+      compactChip = true,
+    )
+
+  @Test
+  fun three_slot_layout_gives_disabled_primary_contrasting_content_color() =
+    verifySlotColors(
+      TestChipColors.Primary,
+      ChipStatus.Disabled,
+      { MaterialTheme.colors.primary },
+      { MaterialTheme.colors.background },
+      { MaterialTheme.colors.background },
+      { MaterialTheme.colors.background },
+      applyAlphaForDisabledContent = false,
     )
 
   @Test
@@ -769,6 +784,7 @@ class ChipColorTest {
     backgroundColor: @Composable () -> Color,
     contentColor: @Composable () -> Color,
     disabledBackgroundColor: (@Composable () -> Color)? = null,
+    applyAlphaForDisabledContent: Boolean = true,
   ) {
     var expectedBackground = Color.Transparent
     var expectedContent = Color.Transparent
@@ -786,7 +802,11 @@ class ChipColorTest {
           } else {
             backgroundColor().copy(alpha = ContentAlpha.disabled).compositeOver(testBackground)
           }
-        expectedContent = contentColor().copy(alpha = ContentAlpha.disabled)
+        expectedContent =
+          if (applyAlphaForDisabledContent)
+            contentColor().copy(alpha = ContentAlpha.disabled)
+          else
+            contentColor()
       }
       Box(
         modifier = Modifier
@@ -834,6 +854,7 @@ class ChipColorTest {
     secondaryContentColor: @Composable () -> Color,
     iconColor: @Composable () -> Color,
     compactChip: Boolean = false,
+    applyAlphaForDisabledContent: Boolean = true,
   ) {
     var expectedBackground = Color.Transparent
     var expectedContent = Color.Transparent
@@ -854,10 +875,16 @@ class ChipColorTest {
         expectedBackground =
           backgroundColor().copy(alpha = ContentAlpha.disabled)
             .compositeOver(testBackground)
-        expectedContent = contentColor().copy(alpha = ContentAlpha.disabled)
-        expectedSecondaryContent = secondaryContentColor()
-          .copy(alpha = ContentAlpha.disabled)
-        expectedIcon = iconColor().copy(alpha = ContentAlpha.disabled)
+        if (applyAlphaForDisabledContent) {
+          expectedContent = contentColor().copy(alpha = ContentAlpha.disabled)
+          expectedSecondaryContent = secondaryContentColor()
+            .copy(alpha = ContentAlpha.disabled)
+          expectedIcon = iconColor().copy(alpha = ContentAlpha.disabled)
+        } else {
+          expectedContent = contentColor()
+          expectedSecondaryContent = secondaryContentColor()
+          expectedIcon = iconColor()
+        }
       }
       Box(
         modifier = Modifier
