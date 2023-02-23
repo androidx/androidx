@@ -50,6 +50,12 @@ dependencies {
         exclude group: "androidx.navigation", module: "navigation-common"
     })
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common-java8"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
+    androidTestImplementation(projectOrArtifact(":activity:activity-ktx"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
