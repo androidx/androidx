@@ -28,4 +28,4 @@ per-file *settings.gradle = alanv@google.com, aurimas@google.com
 per-file *libraryversions.toml = jnichol@google.com
 
 # Copybara can self-approve CLs within synced docs.
-per-file docs/... = copybara-worker-blackhole@google.com
+per-file docs/** = copybara-worker-blackhole@google.com
