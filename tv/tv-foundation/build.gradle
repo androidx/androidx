@@ -40,7 +40,7 @@ dependencies {
     api("androidx.compose.animation:animation:$composeVersion")
     api("androidx.compose.runtime:runtime:$composeVersion")
 
-    api("androidx.compose.foundation:foundation:$composeVersion")
+    api(project(":compose:foundation:foundation"))
     api("androidx.compose.foundation:foundation-layout:$composeVersion")
     api("androidx.compose.ui:ui-graphics:$composeVersion")
     api("androidx.compose.ui:ui-text:$composeVersion")
