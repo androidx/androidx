@@ -49,6 +49,7 @@ dependencies {
     implementation('androidx.media3:media3-exoplayer:1.0.0-beta03')
 
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))

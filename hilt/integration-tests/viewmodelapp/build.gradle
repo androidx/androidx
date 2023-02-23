@@ -42,6 +42,8 @@ dependencies {
     implementation(libs.hiltAndroid)
     kapt(libs.hiltCompiler)
 
+    androidTestImplementation(project(":activity:activity"))
+    androidTestImplementation(project(":fragment:fragment"))
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
