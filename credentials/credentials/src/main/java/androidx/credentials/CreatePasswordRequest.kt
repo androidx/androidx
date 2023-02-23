@@ -36,6 +36,7 @@ class CreatePasswordRequest private constructor(
     credentialData = toCredentialDataBundle(id, password),
     candidateQueryData = toCandidateDataBundle(),
     isSystemProviderRequired = false,
+    isAutoSelectAllowed = false,
     displayInfo
 ) {
 
@@ -58,7 +59,6 @@ class CreatePasswordRequest private constructor(
     /** @hide */
     companion object {
         internal const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
-
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         const val BUNDLE_KEY_PASSWORD = "androidx.credentials.BUNDLE_KEY_PASSWORD"
 

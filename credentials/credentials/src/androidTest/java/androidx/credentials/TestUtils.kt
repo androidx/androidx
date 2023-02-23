@@ -44,6 +44,24 @@ fun equals(a: Bundle, b: Bundle): Boolean {
     return true
 }
 
+/**
+ * Allows deep copying a bundle prior to API 26. Can adjust for more types, but currently
+ * that is not needed.
+ */
+@Suppress("DEPRECATION")
+fun deepCopyBundle(bundle: Bundle): Bundle {
+    val newBundle = Bundle()
+    for (key in bundle.keySet()) {
+        val value = bundle.get(key)
+        if (value is Boolean) {
+            newBundle.putBoolean(key, value)
+        } else if (value is String) {
+            newBundle.putString(key, value)
+        }
+    }
+    return newBundle
+}
+
 /** Used to maintain compatibility across API levels. */
 const val MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL = Build.VERSION_CODES.TIRAMISU
 

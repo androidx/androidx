@@ -16,6 +16,7 @@
 
 package androidx.credentials;
 
+import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED;
 import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_REQUEST_JSON;
 import static androidx.credentials.internal.FrameworkImplHelper.getFinalCreateCredentialData;
@@ -127,12 +128,17 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         expectedData.putBoolean(
                 BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
                 preferImmediatelyAvailableCredentialsExpected);
+        expectedData.putBoolean(
+                BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+                preferImmediatelyAvailableCredentialsExpected);
+        Bundle expectedQuery = TestUtilsKt.deepCopyBundle(expectedData);
+        expectedQuery.remove(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED);
 
         CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(
                 requestJsonExpected, preferImmediatelyAvailableCredentialsExpected);
 
         assertThat(request.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedData)).isTrue();
+        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(), expectedQuery)).isTrue();
         assertThat(request.isSystemProviderRequired()).isFalse();
         Bundle credentialData = getFinalCreateCredentialData(
                 request, mContext);

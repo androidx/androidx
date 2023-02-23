@@ -97,6 +97,7 @@ class CreatePublicKeyCredentialRequestTest {
     fun getter_frameworkProperties_success() {
         val requestJsonExpected = TEST_REQUEST_JSON
         val preferImmediatelyAvailableCredentialsExpected = false
+        val expectedAutoSelect = true
         val expectedData = Bundle()
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -110,6 +111,15 @@ class CreatePublicKeyCredentialRequestTest {
             BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
             preferImmediatelyAvailableCredentialsExpected
         )
+        expectedData.putBoolean(
+            CreateCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+            expectedAutoSelect
+        )
+
+        val expectedCandidateQueryBundle = expectedData.deepCopy()
+        expectedCandidateQueryBundle.remove(
+            CreateCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED
+        )
 
         val request = CreatePublicKeyCredentialRequest(
             requestJsonExpected,
@@ -117,7 +127,7 @@ class CreatePublicKeyCredentialRequestTest {
         )
 
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
-        assertThat(equals(request.candidateQueryData, expectedData)).isTrue()
+        assertThat(equals(request.candidateQueryData, expectedCandidateQueryBundle)).isTrue()
         assertThat(request.isSystemProviderRequired).isFalse()
         val credentialData = getFinalCreateCredentialData(
             request, mContext

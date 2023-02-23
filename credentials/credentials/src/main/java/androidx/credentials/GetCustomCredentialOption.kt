@@ -37,21 +37,29 @@ import android.os.Bundle
  * information
  * @property isSystemProviderRequired true if must only be fulfilled by a system provider and false
  * otherwise
+ * @property isAutoSelectAllowed defines if a credential entry will be automatically chosen if it is
+ * the only one available option, false by default
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [requestData] or [type] is null
  */
-open class GetCustomCredentialOption(
+open class GetCustomCredentialOption @JvmOverloads constructor(
     final override val type: String,
     final override val requestData: Bundle,
     final override val candidateQueryData: Bundle,
-    final override val isSystemProviderRequired: Boolean
+    final override val isSystemProviderRequired: Boolean,
+    final override val isAutoSelectAllowed: Boolean = false,
 ) : CredentialOption(
-    type,
-    requestData,
-    candidateQueryData,
-    isSystemProviderRequired
+    type = type,
+    requestData = requestData,
+    candidateQueryData = candidateQueryData,
+    isSystemProviderRequired = isSystemProviderRequired,
+    isAutoSelectAllowed = isAutoSelectAllowed
 ) {
+
     init {
+        if (!requestData.containsKey(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED)) {
+            requestData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
+        }
         require(type.isNotEmpty()) { "type should not be empty" }
     }
 }

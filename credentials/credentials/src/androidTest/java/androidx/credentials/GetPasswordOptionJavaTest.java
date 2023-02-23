@@ -32,10 +32,13 @@ public class GetPasswordOptionJavaTest {
     @Test
     public void getter_frameworkProperties() {
         GetPasswordOption option = new GetPasswordOption();
+        Bundle expectedRequestDataBundle = new Bundle();
+        expectedRequestDataBundle.putBoolean(GetPasswordOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+                false);
 
         assertThat(option.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
-        assertThat(TestUtilsKt.equals(option.getRequestData(), Bundle.EMPTY)).isTrue();
-        assertThat(TestUtilsKt.equals(option.getRequestData(), Bundle.EMPTY)).isTrue();
+        assertThat(TestUtilsKt.equals(option.getRequestData(), expectedRequestDataBundle)).isTrue();
+        assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), Bundle.EMPTY)).isTrue();
         assertThat(option.isSystemProviderRequired()).isFalse();
     }
 

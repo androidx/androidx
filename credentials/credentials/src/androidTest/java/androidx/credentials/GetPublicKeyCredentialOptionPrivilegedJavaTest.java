@@ -16,6 +16,7 @@
 
 package androidx.credentials;
 
+import static androidx.credentials.CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED;
 import static androidx.credentials.GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_CLIENT_DATA_HASH;
 import static androidx.credentials.GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.GetPublicKeyCredentialOptionPrivileged.BUNDLE_KEY_RELYING_PARTY;
@@ -132,6 +133,7 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
         String relyingPartyExpected = "RelyingParty";
         String clientDataHashExpected = "X342%4dfd7&";
         boolean preferImmediatelyAvailableCredentialsExpected = false;
+        boolean expectedIsAutoSelect = true;
         Bundle expectedData = new Bundle();
         expectedData.putString(
                 PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
@@ -140,6 +142,7 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
         expectedData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected);
         expectedData.putString(BUNDLE_KEY_RELYING_PARTY, relyingPartyExpected);
         expectedData.putString(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHashExpected);
+        expectedData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, expectedIsAutoSelect);
         expectedData.putBoolean(
                 BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
                 preferImmediatelyAvailableCredentialsExpected);
@@ -151,6 +154,7 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
 
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedData)).isTrue();
+        expectedData.remove(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED);
         assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), expectedData)).isTrue();
         assertThat(option.isSystemProviderRequired()).isFalse();
     }

@@ -31,7 +31,7 @@ class CreateCustomCredentialRequestTest {
         ) {
             CreateCustomCredentialRequest(
                 "", Bundle(), Bundle(), false,
-                DisplayInfo("userId")
+                DisplayInfo("userId"), false
             )
         }
     }
@@ -44,6 +44,7 @@ class CreateCustomCredentialRequestTest {
         val expectedCandidateQueryDataBundle = Bundle()
         expectedCandidateQueryDataBundle.putBoolean("key", true)
         val expectedDisplayInfo = DisplayInfo("userId")
+        val expectedAutoSelectAllowed = false
         val expectedSystemProvider = true
 
         val request = CreateCustomCredentialRequest(
@@ -51,7 +52,8 @@ class CreateCustomCredentialRequestTest {
             expectedCredentialDataBundle,
             expectedCandidateQueryDataBundle,
             expectedSystemProvider,
-            expectedDisplayInfo
+            expectedDisplayInfo,
+            expectedAutoSelectAllowed
         )
 
         assertThat(request.type).isEqualTo(expectedType)
@@ -63,6 +65,7 @@ class CreateCustomCredentialRequestTest {
                 expectedCandidateQueryDataBundle
             )
         ).isTrue()
+        assertThat(request.isAutoSelectAllowed).isEqualTo(expectedAutoSelectAllowed)
         assertThat(request.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
         assertThat(request.displayInfo).isEqualTo(expectedDisplayInfo)
     }
