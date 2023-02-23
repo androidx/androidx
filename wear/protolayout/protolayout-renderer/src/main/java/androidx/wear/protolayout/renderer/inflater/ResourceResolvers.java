@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import androidx.concurrent.futures.ResolvableFuture;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.proto.ResourceProto.AndroidAnimatedImageResourceByResId;
+import androidx.wear.protolayout.proto.ResourceProto.AndroidImageResourceByContentUri;
 import androidx.wear.protolayout.proto.ResourceProto.AndroidImageResourceByResId;
 import androidx.wear.protolayout.proto.ResourceProto.AndroidSeekableAnimatedImageResourceByResId;
 import androidx.wear.protolayout.proto.ResourceProto.InlineImageResource;
@@ -53,6 +54,10 @@ public class ResourceResolvers {
 
     @Nullable private final InlineImageResourceResolver mInlineImageResourceResolver;
 
+    @Nullable
+    private final AndroidImageResourceByContentUriResolver
+            mAndroidImageResourceByContentUriResolver;
+
     ResourceResolvers(
             @NonNull ResourceProto.Resources protoResources,
             @Nullable AndroidImageResourceByResIdResolver androidImageResourceByResIdResolver,
@@ -62,7 +67,8 @@ public class ResourceResolvers {
             @Nullable
                     AndroidSeekableAnimatedImageResourceByResIdResolver
                             androidSeekableAnimatedImageResourceByResIdResolver,
-            @Nullable InlineImageResourceResolver inlineImageResourceResolver) {
+            @Nullable InlineImageResourceResolver inlineImageResourceResolver,
+            @Nullable AndroidImageResourceByContentUriResolver androidContentUriResolver) {
         this.mProtoResources = protoResources;
         this.mAndroidImageResourceByResIdResolver = androidImageResourceByResIdResolver;
         this.mAndroidAnimatedImageResourceByResIdResolver =
@@ -70,6 +76,7 @@ public class ResourceResolvers {
         this.mAndroidSeekableAnimatedImageResourceByResIdResolver =
                 androidSeekableAnimatedImageResourceByResIdResolver;
         this.mInlineImageResourceResolver = inlineImageResourceResolver;
+        this.mAndroidImageResourceByContentUriResolver = androidContentUriResolver;
     }
 
     /** Exception thrown when accessing resources. */
@@ -131,6 +138,13 @@ public class ResourceResolvers {
                 throws ResourceAccessException;
     }
 
+    /** Interface that can provide a Drawable for an AndroidContentUriResource. */
+    public interface AndroidImageResourceByContentUriResolver {
+        /** Get the drawable as specified by {@code resource}, to be loaded asynchronously. */
+        @NonNull
+        ListenableFuture<Drawable> getDrawable(@NonNull AndroidImageResourceByContentUri resource);
+    }
+
     /** Get an empty builder to build {@link ResourceResolvers} with. */
     @NonNull
     public static Builder builder(@NonNull ResourceProto.Resources protoResources) {
@@ -176,6 +190,10 @@ public class ResourceResolvers {
                 getDrawableForImageResourceSynchronously(placeholderImageResource);
         if (placeHolderDrawable != null) {
             return placeHolderDrawable;
+        }
+
+        if (placeholderImageResource.hasAndroidContentUri()) {
+            throw new ResourceAccessException("Content URI images cannot be used as placeholders");
         }
 
         throw new ResourceAccessException("Can't find resolver for image resource.");
@@ -289,6 +307,13 @@ public class ResourceResolvers {
             return createFailedFuture(e);
         }
 
+        if (imageResource.hasAndroidContentUri()
+                && mAndroidImageResourceByContentUriResolver != null) {
+            AndroidImageResourceByContentUriResolver resolver =
+                    mAndroidImageResourceByContentUriResolver;
+            return resolver.getDrawable(imageResource.getAndroidContentUri());
+        }
+
         // Can't find resolver for image resource.
         return null;
     }
@@ -353,6 +378,9 @@ public class ResourceResolvers {
 
         @Nullable private InlineImageResourceResolver mInlineImageResourceResolver;
 
+        @Nullable
+        private AndroidImageResourceByContentUriResolver mAndroidImageResourceByContentUriResolver;
+
         Builder(@NonNull ResourceProto.Resources protoResources) {
             this.mProtoResources = protoResources;
         }
@@ -399,6 +427,14 @@ public class ResourceResolvers {
             return this;
         }
 
+        @NonNull
+        @SuppressLint("MissingGetterMatchingBuilder")
+        public Builder setAndroidImageResourceByContentUriResolver(
+                @NonNull AndroidImageResourceByContentUriResolver resolver) {
+            mAndroidImageResourceByContentUriResolver = resolver;
+            return this;
+        }
+
         /** Build a {@link ResourceResolvers} instance. */
         @NonNull
         public ResourceResolvers build() {
@@ -407,7 +443,8 @@ public class ResourceResolvers {
                     mAndroidImageResourceByResIdResolver,
                     mAndroidAnimatedImageResourceByResIdResolver,
                     mAndroidSeekableAnimatedImageResourceByResIdResolver,
-                    mInlineImageResourceResolver);
+                    mInlineImageResourceResolver,
+                    mAndroidImageResourceByContentUriResolver);
         }
     }
 }

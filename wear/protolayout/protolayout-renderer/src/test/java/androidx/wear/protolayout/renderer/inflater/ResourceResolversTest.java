@@ -42,6 +42,7 @@ import androidx.wear.protolayout.proto.ResourceProto.Resources;
 import androidx.wear.protolayout.proto.TriggerProto.OnVisibleTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.AndroidAnimatedImageResourceByResIdResolver;
+import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.AndroidImageResourceByContentUriResolver;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.AndroidImageResourceByResIdResolver;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.AndroidSeekableAnimatedImageResourceByResIdResolver;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.InlineImageResourceResolver;
@@ -70,6 +71,8 @@ public class ResourceResolversTest {
     @Mock
     private AndroidSeekableAnimatedImageResourceByResIdResolver
             mSeekableAnimatedImageByResIdResolver;
+
+    @Mock private AndroidImageResourceByContentUriResolver mContentUriResolver;
 
     private final Drawable mTestDrawable = new VectorDrawable();
     private final ListenableFuture<Drawable> mFutureDrawable =
@@ -108,6 +111,7 @@ public class ResourceResolversTest {
     private static final String ANDROID_AVD_BY_RES_ID_RESOURCE_ID = "androidAVDById";
     private static final String ANDROID_SEEKABLE_AVD_BY_RES_ID_RESOURCE_ID =
             "androidSeekableAVDById";
+    private static final String CONTENT_URI_RESOURCE_ID = "contentUriImage";
 
     @Test
     public void inlineImageRequestRoutedToCorrectAccessor() throws Exception {
@@ -119,6 +123,7 @@ public class ResourceResolversTest {
                                 mAnimatedImageByResIdResolver)
                         .setAndroidSeekableAnimatedImageResourceByResIdResolver(
                                 mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
                         .build();
 
         when(mInlineImageResolver.getDrawableOrThrow(any())).thenReturn(mTestDrawable);
@@ -131,6 +136,7 @@ public class ResourceResolversTest {
         verify(mImageByResIdResolver, never()).getDrawableOrThrow(any());
         verify(mAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
         verify(mSeekableAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
+        verify(mContentUriResolver, never()).getDrawable(any());
     }
 
     @Test
@@ -143,6 +149,7 @@ public class ResourceResolversTest {
                                 mAnimatedImageByResIdResolver)
                         .setAndroidSeekableAnimatedImageResourceByResIdResolver(
                                 mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
                         .build();
 
         when(mImageByResIdResolver.getDrawableOrThrow(any())).thenReturn(mTestDrawable);
@@ -155,6 +162,7 @@ public class ResourceResolversTest {
         verify(mImageByResIdResolver).getDrawableOrThrow(ANDROID_IMAGE_BY_RES_ID);
         verify(mAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
         verify(mSeekableAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
+        verify(mContentUriResolver, never()).getDrawable(any());
     }
 
     @Test
@@ -167,6 +175,7 @@ public class ResourceResolversTest {
                                 mAnimatedImageByResIdResolver)
                         .setAndroidSeekableAnimatedImageResourceByResIdResolver(
                                 mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
                         .build();
 
         when(mAnimatedImageByResIdResolver.getDrawableOrThrow(any())).thenReturn(mTestDrawable);
@@ -179,6 +188,7 @@ public class ResourceResolversTest {
         verify(mImageByResIdResolver, never()).getDrawableOrThrow(any());
         verify(mAnimatedImageByResIdResolver).getDrawableOrThrow(ANDROID_AVD_BY_RES_ID);
         verify(mSeekableAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
+        verify(mContentUriResolver, never()).getDrawable(any());
     }
 
     @Test
@@ -191,6 +201,7 @@ public class ResourceResolversTest {
                                 mAnimatedImageByResIdResolver)
                         .setAndroidSeekableAnimatedImageResourceByResIdResolver(
                                 mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
                         .build();
 
         when(mSeekableAnimatedImageByResIdResolver.getDrawableOrThrow(any()))
@@ -205,6 +216,33 @@ public class ResourceResolversTest {
         verify(mAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
         verify(mSeekableAnimatedImageByResIdResolver)
                 .getDrawableOrThrow(ANDROID_SEEKABLE_AVD_BY_RES_ID);
+        verify(mContentUriResolver, never()).getDrawable(any());
+    }
+
+    @Test
+    public void contentUriImageRoutedToCorrectAccessor() throws Exception {
+        ResourceResolvers resolvers =
+                ResourceResolvers.builder(buildResources())
+                        .setInlineImageResourceResolver(mInlineImageResolver)
+                        .setAndroidImageResourceByResIdResolver(mImageByResIdResolver)
+                        .setAndroidAnimatedImageResourceByResIdResolver(
+                                mAnimatedImageByResIdResolver)
+                        .setAndroidSeekableAnimatedImageResourceByResIdResolver(
+                                mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
+                        .build();
+
+        when(mContentUriResolver.getDrawable(any())).thenReturn(mFutureDrawable);
+
+        // Check future's value to keep compiler happy.
+        assertThat(resolvers.getDrawable(CONTENT_URI_RESOURCE_ID))
+                .isSameInstanceAs(mFutureDrawable);
+
+        verify(mInlineImageResolver, never()).getDrawableOrThrow(any());
+        verify(mImageByResIdResolver, never()).getDrawableOrThrow(any());
+        verify(mAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
+        verify(mSeekableAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
+        verify(mContentUriResolver).getDrawable(CONTENT_URI_IMAGE);
     }
 
     @Test
@@ -217,6 +255,7 @@ public class ResourceResolversTest {
                                 mAnimatedImageByResIdResolver)
                         .setAndroidSeekableAnimatedImageResourceByResIdResolver(
                                 mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
                         .build();
 
         ListenableFuture<Drawable> future = resolvers.getDrawable("does_not_exist");
@@ -225,6 +264,7 @@ public class ResourceResolversTest {
         verify(mImageByResIdResolver, never()).getDrawableOrThrow(any());
         verify(mAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
         verify(mSeekableAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
+        verify(mContentUriResolver, never()).getDrawable(any());
 
         assertThrows(ExecutionException.class, future::get);
     }
@@ -239,6 +279,7 @@ public class ResourceResolversTest {
                                 mAnimatedImageByResIdResolver)
                         .setAndroidSeekableAnimatedImageResourceByResIdResolver(
                                 mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
                         .build();
 
         ListenableFuture<Drawable> future = resolvers.getDrawable(INLINE_IMAGE_RESOURCE_ID);
@@ -247,6 +288,7 @@ public class ResourceResolversTest {
         verify(mImageByResIdResolver, never()).getDrawableOrThrow(any());
         verify(mAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
         verify(mSeekableAnimatedImageByResIdResolver, never()).getDrawableOrThrow(any());
+        verify(mContentUriResolver, never()).getDrawable(any());
 
         assertThrows(ExecutionException.class, future::get);
     }
@@ -263,6 +305,7 @@ public class ResourceResolversTest {
                                 mAnimatedImageByResIdResolver)
                         .setAndroidSeekableAnimatedImageResourceByResIdResolver(
                                 mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
                         .build();
 
         assertThat(resolvers.hasPlaceholderDrawable(INLINE_IMAGE_RESOURCE_ID)).isFalse();
@@ -280,6 +323,7 @@ public class ResourceResolversTest {
                                 mAnimatedImageByResIdResolver)
                         .setAndroidSeekableAnimatedImageResourceByResIdResolver(
                                 mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
                         .build();
 
         assertThat(resolvers.hasPlaceholderDrawable(ANDROID_IMAGE_BY_RES_ID_RESOURCE_ID)).isFalse();
@@ -297,9 +341,29 @@ public class ResourceResolversTest {
                                 mAnimatedImageByResIdResolver)
                         .setAndroidSeekableAnimatedImageResourceByResIdResolver(
                                 mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
                         .build();
 
         assertThat(resolvers.hasPlaceholderDrawable(ANDROID_AVD_BY_RES_ID_RESOURCE_ID)).isFalse();
+    }
+
+
+    @Test
+    public void contentUriCantHavePlaceholder() {
+        ResourceResolvers resolvers =
+                ResourceResolvers.builder(
+                                buildResources(
+                                        /* httpPlaceholderResourceId= */ INLINE_IMAGE_RESOURCE_ID))
+                        .setInlineImageResourceResolver(mInlineImageResolver)
+                        .setAndroidImageResourceByResIdResolver(mImageByResIdResolver)
+                        .setAndroidAnimatedImageResourceByResIdResolver(
+                                mAnimatedImageByResIdResolver)
+                        .setAndroidSeekableAnimatedImageResourceByResIdResolver(
+                                mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
+                        .build();
+
+        assertThat(resolvers.hasPlaceholderDrawable(CONTENT_URI_RESOURCE_ID)).isFalse();
     }
 
     @Test
@@ -312,6 +376,7 @@ public class ResourceResolversTest {
                                 mAnimatedImageByResIdResolver)
                         .setAndroidSeekableAnimatedImageResourceByResIdResolver(
                                 mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
                         .build();
 
         assertThrows(
@@ -334,11 +399,13 @@ public class ResourceResolversTest {
                                 mAnimatedImageByResIdResolver)
                         .setAndroidSeekableAnimatedImageResourceByResIdResolver(
                                 mSeekableAnimatedImageByResIdResolver)
+                        .setAndroidImageResourceByContentUriResolver(mContentUriResolver)
                         .build();
 
         assertThat(resolvers.canImageBeTinted(ANDROID_IMAGE_BY_RES_ID_RESOURCE_ID)).isTrue();
         assertThat(resolvers.canImageBeTinted(ANDROID_AVD_BY_RES_ID_RESOURCE_ID)).isTrue();
         assertThat(resolvers.canImageBeTinted(ANDROID_SEEKABLE_AVD_BY_RES_ID_RESOURCE_ID)).isTrue();
+        assertThat(resolvers.canImageBeTinted(CONTENT_URI_RESOURCE_ID)).isFalse();
         assertThat(resolvers.canImageBeTinted(INLINE_IMAGE_RESOURCE_ID)).isFalse();
     }
 
@@ -367,6 +434,11 @@ public class ResourceResolversTest {
                                 ImageResource.newBuilder()
                                         .setAndroidSeekableAnimatedResourceByResId(
                                                 ANDROID_SEEKABLE_AVD_BY_RES_ID)
+                                        .build())
+                        .putIdToImage(
+                                CONTENT_URI_RESOURCE_ID,
+                                ImageResource.newBuilder()
+                                        .setAndroidContentUri(CONTENT_URI_IMAGE)
                                         .build());
 
         return builder.build();
