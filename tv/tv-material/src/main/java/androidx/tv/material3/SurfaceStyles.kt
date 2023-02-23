@@ -16,6 +16,7 @@
 
 package androidx.tv.material3
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
@@ -25,21 +26,15 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Defines [Shape] for all TV [Interaction] states of a Clickable Surface.
- * @param shape [Shape] to be applied when Clickable Surface is in the default state.
- * @param focusedShape [Shape] to be applied when Clickable Surface is focused.
- * @param pressedShape [Shape] to be applied when Clickable Surface is pressed.
- * @param disabledShape [Shape] to be applied when Clickable Surface is disabled.
- * @param focusedDisabledShape [Shape] to be applied when Clickable Surface is focused in the
- * default state.
  */
 @ExperimentalTvMaterial3Api
 @Immutable
 class ClickableSurfaceShape internal constructor(
-    val shape: Shape,
-    val focusedShape: Shape,
-    val pressedShape: Shape,
-    val disabledShape: Shape,
-    val focusedDisabledShape: Shape
+    internal val shape: Shape,
+    internal val focusedShape: Shape,
+    internal val pressedShape: Shape,
+    internal val disabledShape: Shape,
+    internal val focusedDisabledShape: Shape
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -75,18 +70,14 @@ class ClickableSurfaceShape internal constructor(
 
 /**
  * Defines [Color] for all TV [Interaction] states of a Clickable Surface.
- * @param color [Color] to be applied when Clickable Surface is in the default state.
- * @param focusedColor [Color] to be applied when Clickable Surface is focused.
- * @param pressedColor [Color] to be applied when Clickable Surface is pressed.
- * @param disabledColor [Color] to be applied when Clickable Surface is disabled.
  */
 @ExperimentalTvMaterial3Api
 @Immutable
 class ClickableSurfaceColor internal constructor(
-    val color: Color,
-    val focusedColor: Color,
-    val pressedColor: Color,
-    val disabledColor: Color
+    internal val color: Color,
+    internal val focusedColor: Color,
+    internal val pressedColor: Color,
+    internal val disabledColor: Color
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -118,17 +109,73 @@ class ClickableSurfaceColor internal constructor(
 }
 
 /**
+ * Defines the scale for all TV indication states of Surface. Note: This scale must be
+ * a non-negative float.
+ */
+@ExperimentalTvMaterial3Api
+@Immutable
+class ClickableSurfaceScale internal constructor(
+    @FloatRange(from = 0.0) internal val scale: Float,
+    @FloatRange(from = 0.0) internal val focusedScale: Float,
+    @FloatRange(from = 0.0) internal val pressedScale: Float,
+    @FloatRange(from = 0.0) internal val disabledScale: Float,
+    @FloatRange(from = 0.0) internal val focusedDisabledScale: Float
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ClickableSurfaceScale
+
+        if (scale != other.scale) return false
+        if (focusedScale != other.focusedScale) return false
+        if (pressedScale != other.pressedScale) return false
+        if (disabledScale != other.disabledScale) return false
+        if (focusedDisabledScale != other.focusedDisabledScale) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = scale.hashCode()
+        result = 31 * result + focusedScale.hashCode()
+        result = 31 * result + pressedScale.hashCode()
+        result = 31 * result + disabledScale.hashCode()
+        result = 31 * result + focusedDisabledScale.hashCode()
+
+        return result
+    }
+
+    override fun toString(): String {
+        return "ClickableSurfaceScale(scale=$scale, focusedScale=$focusedScale," +
+            "pressedScale=$pressedScale, disabledScale=$disabledScale, " +
+            "focusedDisabledScale=$focusedDisabledScale)"
+    }
+
+    companion object {
+        /**
+         * Signifies the absence of a scale in TV Components. Use this if you do not want to
+         * display a [ScaleIndication] in any of the Leanback TV Components.
+         */
+        val None = ClickableSurfaceScale(
+            scale = 1f,
+            focusedScale = 1f,
+            pressedScale = 1f,
+            disabledScale = 1f,
+            focusedDisabledScale = 1f
+        )
+    }
+}
+
+/**
  * Defines [Glow] for all TV states of [Surface].
- * @param glow [Glow] to be applied when [Surface] is in the default state.
- * @param focusedGlow [Glow] to be applied when [Surface] is focused.
- * @param pressedGlow [Glow] to be applied when [Surface] is pressed.
  */
 @ExperimentalTvMaterial3Api
 @Immutable
 class ClickableSurfaceGlow internal constructor(
-    val glow: Glow,
-    val focusedGlow: Glow,
-    val pressedGlow: Glow
+    internal val glow: Glow,
+    internal val focusedGlow: Glow,
+    internal val pressedGlow: Glow
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

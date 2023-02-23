@@ -16,12 +16,20 @@
 
 package androidx.tv.material3
 
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationInstance
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -31,6 +39,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -44,7 +53,7 @@ import androidx.compose.ui.unit.dp
  */
 @ExperimentalTvMaterial3Api
 @Stable
-class GlowIndication internal constructor(
+class GlowIndication(
     private val color: Color,
     private val shape: Shape,
     private val glowBlurRadius: Dp,
@@ -151,4 +160,61 @@ fun rememberGlowIndication(
         offsetX = offsetY,
         offsetY = offsetX
     )
+}
+
+internal object ScaleIndicationTokens {
+    const val focusDuration: Int = 300
+    const val unFocusDuration: Int = 500
+    const val pressedDuration: Int = 120
+    const val releaseDuration: Int = 300
+    val enterEasing = CubicBezierEasing(0f, 0f, 0.2f, 1f)
+}
+
+/**
+ * ScaleIndication is an [Indication] that scales the composable by the provided factor. This
+ * indication by default will create a smooth animation between the state changes.
+ */
+@ExperimentalTvMaterial3Api
+@Stable
+class ScaleIndication(private val scale: Float) : Indication {
+    @Composable
+    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
+        val interaction by interactionSource.interactions.collectAsState(
+            initial = FocusInteraction.Focus()
+        )
+
+        val animationSpec = defaultScaleAnimationSpec(interaction)
+
+        val animatedScale by animateFloatAsState(
+            targetValue = scale,
+            animationSpec = animationSpec
+        )
+
+        return remember(animatedScale, animationSpec) {
+            ScaleIndicationInstance(scale = animatedScale)
+        }
+    }
+
+    private fun defaultScaleAnimationSpec(interaction: Interaction): TweenSpec<Float> =
+        tween(
+            durationMillis = when (interaction) {
+                is FocusInteraction.Focus -> ScaleIndicationTokens.focusDuration
+                is FocusInteraction.Unfocus -> ScaleIndicationTokens.unFocusDuration
+                is PressInteraction.Press -> ScaleIndicationTokens.pressedDuration
+                is PressInteraction.Release -> ScaleIndicationTokens.releaseDuration
+                is PressInteraction.Cancel -> ScaleIndicationTokens.releaseDuration
+                else -> ScaleIndicationTokens.releaseDuration
+            },
+            easing = ScaleIndicationTokens.enterEasing
+        )
+}
+
+internal class ScaleIndicationInstance(
+    private val scale: Float
+) : IndicationInstance {
+    override fun ContentDrawScope.drawIndication() {
+        scale(scale) {
+            this@drawIndication.drawContent()
+        }
+    }
 }
