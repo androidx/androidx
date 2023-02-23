@@ -23,7 +23,7 @@ import android.os.IBinder
 import androidx.window.core.ExperimentalWindowApi
 
 /** The controller that allows checking the current [Activity] embedding status. */
-class ActivityEmbeddingController private constructor(private val backend: EmbeddingBackend) {
+class ActivityEmbeddingController internal constructor(private val backend: EmbeddingBackend) {
     /**
      * Checks if the [activity] is embedded and its presentation may be customized by the host
      * process of the task this [activity] is associated with.
