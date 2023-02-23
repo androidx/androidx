@@ -299,6 +299,7 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                 newRouteListingPreference.add(
                         mDraggingToPosition,
                         newRouteListingPreference.remove(mDraggingFromPosition));
+                mRoutesManager.setRouteListingPreferenceItems(newRouteListingPreference);
             }
             mDraggingFromPosition = INDEX_UNSET;
             mDraggingToPosition = INDEX_UNSET;
