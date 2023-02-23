@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @param <T>
  */
-public interface InventoryResolver<T> extends ValueListener<T> {
+public interface InventoryResolver<T> extends ValueListenerAsync<T> {
     /**
      * Renders the provided entities in the app UI for dismabiguation.
      *
