@@ -16,6 +16,8 @@
 
 package androidx.core.app;
 
+import static androidx.annotation.RestrictTo.Scope.TESTS;
+
 import android.Manifest;
 import android.app.AppOpsManager;
 import android.app.Notification;
@@ -49,6 +51,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -170,6 +174,14 @@ public final class NotificationManagerCompat {
                 Context.NOTIFICATION_SERVICE);
     }
 
+    @RestrictTo(TESTS)
+    @VisibleForTesting
+    protected NotificationManagerCompat(@NonNull NotificationManager notificationManager,
+            @NonNull Context context) {
+        mContext = context;
+        mNotificationManager = notificationManager;
+    }
+
     /**
      * Cancel a previously shown notification.
      *
@@ -228,6 +240,46 @@ public final class NotificationManagerCompat {
             mNotificationManager.cancel(tag, id);
         } else {
             mNotificationManager.notify(tag, id, notification);
+        }
+    }
+
+    /**
+     * Post a number of notifications, to be shown in the status bar, stream, etc.
+     * Each notification will attempt to be posted in the order provided in the {@code
+     * notificationWithIds} list. Each notification must have a provided id and may have a
+     * provided tag.
+     *
+     * This is the preferred method for posting groups of notifications, to improve sound and
+     * animation behavior.
+     */
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    public void notify(@NonNull List<NotificationWithIdAndTag> notificationWithIdAndTags) {
+        final int notificationsSize = notificationWithIdAndTags.size();
+        for (int i = 0; i < notificationsSize; i++) {
+            NotificationWithIdAndTag notificationWithIdAndTag = notificationWithIdAndTags.get(i);
+            notify(notificationWithIdAndTag.mTag, notificationWithIdAndTag.mId,
+                    notificationWithIdAndTag.mNotification);
+        }
+    }
+
+    /**
+     * Helper class which encapsulates a Notification, its id, and optionally a tag, for use when
+     * batch-posting a number of notifications.
+     */
+    public static class NotificationWithIdAndTag {
+        final String mTag;
+        final int mId;
+        Notification mNotification;
+
+        public NotificationWithIdAndTag(@Nullable String tag, int id,
+                @NonNull Notification notification) {
+            this.mTag = tag;
+            this.mId = id;
+            this.mNotification = notification;
+        }
+
+        public NotificationWithIdAndTag(int id, @NonNull Notification notification) {
+            this(null, id, notification);
         }
     }
 
