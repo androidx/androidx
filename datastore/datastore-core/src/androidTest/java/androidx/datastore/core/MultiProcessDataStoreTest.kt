@@ -41,11 +41,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.job
@@ -622,6 +624,61 @@ class MultiProcessDataStoreTest {
     }
 
     @Test
+    fun stressTest() = runBlocking {
+        val stressTestFile = tempFolder.newFile()
+        val testJob = Job()
+        val testScope = CoroutineScope(
+            Dispatchers.IO + testJob
+        )
+        val stressTestStore = DataStoreImpl<Int>(
+            storage = FileStorage(
+                object : Serializer<Int> {
+                    override val defaultValue: Int
+                        get() = 0
+
+                    override suspend fun readFrom(input: InputStream): Int {
+                        return input.reader(Charsets.UTF_8).use {
+                            it.readText().toIntOrNull() ?: defaultValue
+                        }
+                    }
+
+                    override suspend fun writeTo(t: Int, output: OutputStream) {
+                        output.writer(Charsets.UTF_8).use {
+                            it.write(t.toString())
+                            it.flush()
+                        }
+                    }
+                },
+                coordinatorProducer = {
+                    MultiProcessCoordinator(testScope.coroutineContext, it)
+                },
+                produceFile = { stressTestFile }
+            ),
+            scope = testScope,
+            initTasksList = emptyList()
+        )
+        val limit = 1_000
+        stressTestStore.updateData { 0 }
+        val reader = async(Dispatchers.IO + testJob) {
+            stressTestStore.data.scan(0) { prev, next ->
+                check(next >= prev) {
+                    "check failed: $prev / $next"
+                }
+                next
+            }.take(limit - 200).collect() // we can drop some intermediate values, it is fine
+        }
+        val writer = async {
+            repeat(limit) {
+                stressTestStore.updateData {
+                    it + 1
+                }
+            }
+        }
+        listOf(reader, writer).awaitAll()
+        testJob.cancelAndJoin()
+    }
+
+    @Test
     fun testMultipleFlowsReceiveData() = runTest {
         val flowOf8 = store.data.take(8)
 
@@ -643,6 +700,10 @@ class MultiProcessDataStoreTest {
         flowCollection1.join()
         flowCollection2.join()
 
+        // This test only works because runTest ensures consistent behavior
+        // Otherwise, we cannot really expect the collector to read every single value
+        // (we provide eventual consistency, so it would also be OK if it missed some intermediate
+        // values as long as it received 7 at the end).
         assertThat(bytesFromFirstCollect).isEqualTo(mutableListOf<Byte>(0, 1, 2, 3, 4, 5, 6, 7))
         assertThat(bytesFromSecondCollect).isEqualTo(mutableListOf<Byte>(0, 1, 2, 3, 4, 5, 6, 7))
     }
