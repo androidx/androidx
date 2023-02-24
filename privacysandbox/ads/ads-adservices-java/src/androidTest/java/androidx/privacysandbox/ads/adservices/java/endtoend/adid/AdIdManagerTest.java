@@ -36,7 +36,8 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class AdIdManagerTest {
     private static final String TAG = "AdIdManagerTest";
-    private TestUtil mTestUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
+    private TestUtil mTestUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(),
+            TAG);
 
     @Before
     public void setup() throws Exception {
@@ -44,6 +45,10 @@ public class AdIdManagerTest {
         mTestUtil.overrideKillSwitches(true);
         mTestUtil.overrideConsentManagerDebugMode(true);
         mTestUtil.overrideAllowlists(true);
+
+        // Put in a short sleep to make sure the updated config propagates
+        // before starting the tests
+        Thread.sleep(100);
     }
 
     @After

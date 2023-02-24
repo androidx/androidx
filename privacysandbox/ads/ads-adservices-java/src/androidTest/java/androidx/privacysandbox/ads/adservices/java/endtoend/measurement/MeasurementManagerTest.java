@@ -66,7 +66,7 @@ public class MeasurementManagerTest {
     private MeasurementManagerFutures mMeasurementManager;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         // To grant access to all pp api app
         mTestUtil.overrideAllowlists(true);
         // We need to turn the Consent Manager into debug mode
@@ -75,6 +75,10 @@ public class MeasurementManagerTest {
         mTestUtil.overrideDisableMeasurementEnrollmentCheck("1");
         mMeasurementManager =
                 MeasurementManagerFutures.from(ApplicationProvider.getApplicationContext());
+
+        // Put in a short sleep to make sure the updated config propagates
+        // before starting the tests
+        Thread.sleep(100);
     }
 
     @After
