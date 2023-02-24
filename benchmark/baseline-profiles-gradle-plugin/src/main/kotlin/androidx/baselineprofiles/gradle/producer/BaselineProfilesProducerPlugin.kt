@@ -25,7 +25,7 @@ import androidx.baselineprofiles.gradle.utils.INTERMEDIATES_BASE_FOLDER
 import androidx.baselineprofiles.gradle.utils.camelCase
 import androidx.baselineprofiles.gradle.utils.checkAgpVersion
 import androidx.baselineprofiles.gradle.utils.createBuildTypeIfNotExists
-import androidx.baselineprofiles.gradle.utils.createNonObfuscatedBuildTypes
+import androidx.baselineprofiles.gradle.utils.createExtendedBuildTypes
 import androidx.baselineprofiles.gradle.utils.isGradleSyncRunning
 import com.android.build.api.dsl.TestBuildType
 import com.android.build.api.variant.TestAndroidComponentsExtension
@@ -35,6 +35,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.UnknownTaskException
 import org.gradle.api.attributes.Category
+import org.gradle.api.file.DirectoryProperty
 
 /**
  * This is the producer plugin for baseline profile generation. In order to generate baseline
@@ -47,6 +48,7 @@ class BaselineProfilesProducerPlugin : Plugin<Project> {
 
     companion object {
         private const val COLLECT_TASK_NAME = "collect"
+        private const val RELEASE = "release"
     }
 
     override fun apply(project: Project) {
@@ -91,6 +93,7 @@ class BaselineProfilesProducerPlugin : Plugin<Project> {
 
         // We need the instrumentation apk to run as a separate process
         val testExtension = project.extensions.getByType(TestExtension::class.java)
+        @Suppress("UnstableApiUsage")
         testExtension.experimentalProperties["android.experimental.self-instrumenting"] = true
 
         // Creates the new build types to match the apk provider. Note that release does not
@@ -100,8 +103,8 @@ class BaselineProfilesProducerPlugin : Plugin<Project> {
         // of generating baseline profiles. We don't need to create a nonMinified build type from
         // `debug` since there will be no matching configuration with the apk provider module.
 
-        val nonObfuscatedReleaseName = camelCase(BUILD_TYPE_BASELINE_PROFILE_PREFIX, "release")
-        val extendedTypeToOriginalTypeMapping = mutableMapOf(nonObfuscatedReleaseName to "release")
+        val nonObfuscatedReleaseName = camelCase(BUILD_TYPE_BASELINE_PROFILE_PREFIX, RELEASE)
+        val extendedTypeToOriginalTypeMapping = mutableMapOf(nonObfuscatedReleaseName to RELEASE)
 
         testAndroidComponent.finalizeDsl { ext ->
 
@@ -113,7 +116,7 @@ class BaselineProfilesProducerPlugin : Plugin<Project> {
                 enableAndroidTestCoverage = false
                 enableUnitTestCoverage = false
                 signingConfig = ext.buildTypes.getByName("debug").signingConfig
-                matchingFallbacks += listOf("release")
+                matchingFallbacks += listOf(RELEASE)
             }
 
             // The variant names are used by the test module to request a specific apk artifact to
@@ -122,17 +125,18 @@ class BaselineProfilesProducerPlugin : Plugin<Project> {
             // Unfortunately the test module cannot determine which variants are present in the
             // under test app module. As a result we need to replicate the same build types and
             // flavors, so that the same variant names are created.
-            createNonObfuscatedBuildTypes(
+            createExtendedBuildTypes(
                 project = project,
                 extension = ext,
+                newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
                 extendedBuildTypeToOriginalBuildTypeMapping = extendedTypeToOriginalTypeMapping,
                 configureBlock = configureBlock,
                 filterBlock = {
-                    // All the build types that have been added to the test module be extended.
-                    // This is because we can't know here which ones are actually release in the
-                    // under test module.
+                    // All the build types that have been added to the test module should be
+                    // extended. This is because we can't know here which ones are actually
+                    // release in the under test module. We can only exclude debug for sure.
                     it.name != "debug"
-                },
+                }
             )
             createBuildTypeIfNotExists(
                 project = project,
@@ -165,8 +169,7 @@ class BaselineProfilesProducerPlugin : Plugin<Project> {
                     return@onVariants
                 }
 
-                val flavorName =
-                    if (it.flavorName == null || it.flavorName!!.isEmpty()) null else it.flavorName
+                val flavorName = if (it.flavorName.isNullOrBlank()) null else it.flavorName
 
                 // Creates the configuration to handle this variant. Note that in the attributes
                 // to match the configuration we use the original build type without `nonObfuscated`.
@@ -210,15 +213,7 @@ class BaselineProfilesProducerPlugin : Plugin<Project> {
     ) {
 
         // Prepares the devices list to use to generate baseline profiles.
-        val devices = mutableSetOf<String>()
-            .also { it.addAll(baselineProfilesExtension.managedDevices) }
-        if (baselineProfilesExtension.useConnectedDevices) {
-            devices.add("connected")
-        }
-
-        // Determines which test tasks should run based on configuration
-        val shouldExpectConnectedOutput = devices.contains("connected")
-        val shouldExpectManagedOutput = baselineProfilesExtension.managedDevices.isNotEmpty()
+        val devices = baselineProfilesExtension.devices
 
         // The test task runs the ui tests
         val testTasks = devices.map {
@@ -259,19 +254,8 @@ class BaselineProfilesProducerPlugin : Plugin<Project> {
             CollectBaselineProfilesTask::class.java
         ) {
 
-            // Test tasks have to run before collect
-            it.dependsOn(testTasks)
-
-            // Merge result protos task may not exist depending on gradle version
-            val mergeTaskName = camelCase("merge", variantName, "testResultProtos")
-            try {
-                it.dependsOn(project.tasks.named(mergeTaskName))
-            } catch (e: UnknownTaskException) {
-                // Nothing to do.
-                project.logger.info("Task $mergeTaskName does not exist.")
-            }
-
-            // Sets flavor name
+            // Sets the baseline-prof output path. Note that we don't support multiple build types
+            // same of the agp instrumentation task for now. b/265438201.
             it.outputFile.set(
                 project
                     .layout
@@ -279,35 +263,10 @@ class BaselineProfilesProducerPlugin : Plugin<Project> {
                     .file("$INTERMEDIATES_BASE_FOLDER/$flavorName/baseline-prof.txt")
             )
 
-            // Sets the connected test results location, if tests are supposed to run also on
-            // connected devices.
-            if (shouldExpectConnectedOutput) {
-                it.connectedAndroidTestOutputDir.set(
-                    if (flavorName == null) {
-                        project.layout.buildDirectory
-                            .dir("outputs/androidTest-results/connected")
-                    } else {
-                        project.layout.buildDirectory
-                            .dir("outputs/androidTest-results/connected/flavors/$flavorName")
-                    }
-                )
-            }
-
-            // Sets the managed devices test results location, if tests are supposed to run
-            // also on managed devices.
-            if (shouldExpectManagedOutput) {
-                it.managedAndroidTestOutputDir.set(
-                    if (flavorName == null) {
-                        project.layout.buildDirectory.dir(
-                            "outputs/androidTest-results/managedDevice"
-                        )
-                    } else {
-                        project.layout.buildDirectory.dir(
-                            "outputs/androidTest-results/managedDevice/flavors/$flavorName"
-                        )
-                    }
-                )
-            }
+            // Sets the test results inputs
+            it.testResultDirs.setFrom(testTasks.map { task ->
+                task.flatMap { t -> t.property("resultsDir") as DirectoryProperty }
+            })
         }
 
         // The artifacts are added to the configuration that exposes the generated baseline profile

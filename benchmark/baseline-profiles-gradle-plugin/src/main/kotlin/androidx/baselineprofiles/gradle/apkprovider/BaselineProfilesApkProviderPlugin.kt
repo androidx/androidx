@@ -16,8 +16,9 @@
 
 package androidx.baselineprofiles.gradle.apkprovider
 
+import androidx.baselineprofiles.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
 import androidx.baselineprofiles.gradle.utils.checkAgpVersion
-import androidx.baselineprofiles.gradle.utils.createNonObfuscatedBuildTypes
+import androidx.baselineprofiles.gradle.utils.createExtendedBuildTypes
 import androidx.baselineprofiles.gradle.utils.isGradleSyncRunning
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import org.gradle.api.Plugin
@@ -96,11 +97,16 @@ class BaselineProfilesApkProviderPlugin : Plugin<Project> {
             .finalizeDsl { applicationExtension ->
 
                 val debugBuildType = applicationExtension.buildTypes.getByName("debug")
-                createNonObfuscatedBuildTypes(
+
+                // Creates the baseline profile build types
+                createExtendedBuildTypes(
                     project = project,
                     extension = applicationExtension,
-                    extendedBuildTypeToOriginalBuildTypeMapping = mutableMapOf(),
-                    filterBlock = { !it.isDebuggable },
+                    newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
+                    filterBlock = {
+                        // Create baseline profile build types only for non debuggable builds.
+                        !it.isDebuggable
+                    },
                     configureBlock = {
                         isJniDebuggable = false
                         isDebuggable = false
