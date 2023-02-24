@@ -18,13 +18,13 @@ package androidx.wear.watchface.control
 
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.TapEvent
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
-import androidx.wear.watchface.control.data.WatchFaceSurfaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.data.WatchFaceOverlayStyleWireFormat
@@ -109,12 +109,17 @@ internal class InteractiveWatchFaceImpl(
         }
     }
 
-    override fun renderWatchFaceToSurface(params: WatchFaceSurfaceRenderParams) {
-         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
+    @RequiresApi(Build.VERSION_CODES.R)
+    override fun createRemoteWatchFaceView(
+        hostToken: IBinder,
+        width: Int,
+        height: Int
+    ): IRemoteWatchFaceView? {
+        return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
-            "InteractiveWatchFaceImpl.renderWatchFaceToSurface"
+            "InteractiveWatchFaceImpl.createRemoteWatchFaceView"
         ) { watchFaceImpl ->
-            watchFaceImpl.renderWatchFaceToSurface(params)
+            watchFaceImpl.createRemoteWatchFaceView(hostToken, width, height)
         }
     }
 

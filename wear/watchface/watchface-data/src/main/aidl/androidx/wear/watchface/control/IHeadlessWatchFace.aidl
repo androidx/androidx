@@ -115,12 +115,4 @@ interface IHeadlessWatchFace {
      * @since API version 3.
      */
     UserStyleFlavorsWireFormat getUserStyleFlavors() = 9;
-
-    /**
-     * Request to render the watch face into a surface.
-     *
-     * @since API version 4.
-     * @param params The {@link WatchFaceSurfaceRenderParams} for this screenshot.
-     */
-    oneway void renderWatchFaceToSurface(in WatchFaceSurfaceRenderParams params) = 10;
 }

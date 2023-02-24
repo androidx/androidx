@@ -166,11 +166,15 @@ internal fun verticalFlip(buffer: ByteBuffer, width: Int, height: Int) {
 public sealed class Renderer
 @WorkerThread
 constructor(
-    public val surfaceHolder: SurfaceHolder,
+    surfaceHolder: SurfaceHolder,
     private val currentUserStyleRepository: CurrentUserStyleRepository,
     internal val watchState: WatchState,
     @IntRange(from = 0, to = 60000) public var interactiveDrawModeUpdateDelayMillis: Long,
 ) {
+    /** The [SurfaceHolder] that [renderInternal] will draw into. */
+    public var surfaceHolder: SurfaceHolder = surfaceHolder
+       protected set
+
     @OptIn(WatchFaceExperimental::class) private var pendingWatchFaceColors: WatchFaceColors? = null
     private var pendingWatchFaceColorsSet = false
 
@@ -373,15 +377,15 @@ constructor(
      *
      * @param zonedDateTime The [ZonedDateTime] to use when rendering the watch face
      * @param renderParameters The [RenderParameters] to use when rendering the watch face
-     * @param surface The [Surface] to render into. This is assumed to have the same dimensions as
-     * the screen.
+     * @param screenShotSurfaceHolder The [SurfaceHolder] containing the [Surface] to render into.
+     * This is assumed to have the same dimensions as the screen.
      */
     @Suppress("HiddenAbstractMethod")
     @UiThread
     internal abstract fun renderScreenshotToSurface(
         zonedDateTime: ZonedDateTime,
         renderParameters: RenderParameters,
-        surface: Surface
+        screenShotSurfaceHolder: SurfaceHolder
     )
 
     /**
@@ -619,18 +623,23 @@ constructor(
         internal override fun renderScreenshotToSurface(
             zonedDateTime: ZonedDateTime,
             renderParameters: RenderParameters,
-            surface: Surface
+            screenShotSurfaceHolder: SurfaceHolder
         ) {
             val prevRenderParameters = this.renderParameters
             val originalIsForScreenshot = renderParameters.isForScreenshot
+            val originalSurfaceHolder = surfaceHolder
+            surfaceHolder = screenShotSurfaceHolder
 
             renderParameters.isForScreenshot = true
             this.renderParameters = renderParameters
-            val canvas = surface.lockHardwareCanvas()
-            renderAndComposite(canvas, zonedDateTime)
-            surface.unlockCanvasAndPost(canvas)
+            val canvas = surfaceHolder.surface.lockHardwareCanvas()
+            TraceEvent("CanvasRenderer.renderScreenshotToSurface").use {
+                renderAndComposite(canvas, zonedDateTime)
+            }
+            surfaceHolder.unlockCanvasAndPost(canvas)
             this.renderParameters = prevRenderParameters
             renderParameters.isForScreenshot = originalIsForScreenshot
+            surfaceHolder = originalSurfaceHolder
         }
 
         private fun renderAndComposite(canvas: Canvas, zonedDateTime: ZonedDateTime) {
@@ -1427,10 +1436,12 @@ constructor(
         internal override fun renderScreenshotToSurface(
             zonedDateTime: ZonedDateTime,
             renderParameters: RenderParameters,
-            surface: Surface
+            screenShotSurfaceHolder: SurfaceHolder
         ) {
             val prevRenderParameters = this.renderParameters
             val originalIsForScreenshot = renderParameters.isForScreenshot
+            val originalSurfaceHolder = surfaceHolder
+            surfaceHolder = screenShotSurfaceHolder
 
             renderParameters.isForScreenshot = true
             this.renderParameters = renderParameters
@@ -1440,7 +1451,7 @@ constructor(
                     val tempEglSurface = EGL14.eglCreateWindowSurface(
                         eglDisplay,
                         eglConfig,
-                        surface,
+                        surfaceHolder.surface,
                         eglSurfaceAttribList,
                         0
                     )
@@ -1486,6 +1497,7 @@ constructor(
 
             this.renderParameters = prevRenderParameters
             renderParameters.isForScreenshot = originalIsForScreenshot
+            surfaceHolder = originalSurfaceHolder
         }
 
         private fun renderAndComposite(zonedDateTime: ZonedDateTime) {

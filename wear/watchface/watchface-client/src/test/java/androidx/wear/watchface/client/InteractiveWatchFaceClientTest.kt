@@ -66,7 +66,7 @@ class InteractiveWatchFaceClientTest {
                 previewImageUpdateRequestedListener = null
             )
 
-        Assert.assertFalse(client.isRenderWatchFaceToSurfaceSupported)
+        Assert.assertFalse(client.isRemoteWatchFaceViewHostSupported)
     }
 
     @Test
@@ -79,6 +79,6 @@ class InteractiveWatchFaceClientTest {
                 previewImageUpdateRequestedListener = null
             )
 
-        Assert.assertTrue(client.isRenderWatchFaceToSurfaceSupported)
+        Assert.assertTrue(client.isRemoteWatchFaceViewHostSupported)
     }
 }
