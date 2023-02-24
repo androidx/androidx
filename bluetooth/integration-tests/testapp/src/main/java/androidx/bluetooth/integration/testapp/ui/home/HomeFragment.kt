@@ -173,11 +173,36 @@ class HomeFragment : Fragment() {
                             )
                                 .show()
                         }
-                        AdvertiseResult.ADVERTISE_FAILED_ALREADY_STARTED -> TODO()
-                        AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE -> TODO()
-                        AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> TODO()
-                        AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR -> TODO()
-                        AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> TODO()
+                        AdvertiseResult.ADVERTISE_FAILED_ALREADY_STARTED -> {
+                            Log.d(
+                                TAG, "advertise onStartFailure() called with: " +
+                                    "${AdvertiseResult.ADVERTISE_FAILED_ALREADY_STARTED}"
+                            )
+                        }
+                        AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE -> {
+                            Log.d(
+                                TAG, "advertise onStartFailure() called with: " +
+                                    "${AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE}"
+                            )
+                        }
+                        AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> {
+                            Log.d(
+                                TAG, "advertise onStartFailure() called with: " +
+                                    "${AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED}"
+                            )
+                        }
+                        AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR -> {
+                            Log.d(
+                                TAG, "advertise onStartFailure() called with: " +
+                                    "${AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR}"
+                            )
+                        }
+                        AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> {
+                            Log.d(
+                                TAG, "advertise onStartFailure() called with: " +
+                                    "${AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS}"
+                            )
+                        }
                     }
                 }
         }

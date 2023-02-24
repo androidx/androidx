@@ -83,6 +83,8 @@ class BluetoothLe(private val context: Context) {
         callbackFlow {
             val callback = object : AdvertiseCallback() {
                 override fun onStartFailure(errorCode: Int) {
+                    // TODO(ofy) Map to proper errorCodes
+                    Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
                     trySend(AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR)
                 }
 
