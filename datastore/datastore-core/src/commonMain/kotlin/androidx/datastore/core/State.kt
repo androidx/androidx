@@ -19,14 +19,15 @@ package androidx.datastore.core
 /**
  * Represents the current state of the DataStore.
  */
-internal sealed class State<T>
+internal sealed class State<T>(
+    val version: Int
+)
 
-internal object UnInitialized : State<Any>()
-
+internal object UnInitialized : State<Any>(-1)
 /**
  * A read from disk has succeeded, value represents the current on disk state.
  */
-internal class Data<T>(val value: T, val hashCode: Int, val version: Int = -1) : State<T>() {
+internal class Data<T>(val value: T, val hashCode: Int, version: Int) : State<T>(version) {
     fun checkHashCode() {
         check(value.hashCode() == hashCode) {
             "Data in DataStore was mutated but DataStore is only compatible with Immutable types."
@@ -37,9 +38,9 @@ internal class Data<T>(val value: T, val hashCode: Int, val version: Int = -1) :
 /**
  * A read from disk has failed. ReadException is the exception that was thrown.
  */
-internal class ReadException<T>(val readException: Throwable) : State<T>()
+internal class ReadException<T>(val readException: Throwable, version: Int) : State<T>(version)
 
 /**
  * The scope has been cancelled. This DataStore cannot process any new reads or writes.
  */
-internal class Final<T>(val finalException: Throwable) : State<T>()
+internal class Final<T>(val finalException: Throwable) : State<T>(Int.MAX_VALUE)
