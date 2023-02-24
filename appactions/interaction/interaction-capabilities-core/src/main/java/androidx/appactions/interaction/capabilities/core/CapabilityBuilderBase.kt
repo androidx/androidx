@@ -21,7 +21,6 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.task.impl.TaskCapabilityImpl
 import androidx.appactions.interaction.capabilities.core.task.impl.SessionBridge
-import com.google.common.util.concurrent.ListenableFuture
 import java.util.function.Supplier
 import androidx.annotation.RestrictTo
 
@@ -112,14 +111,7 @@ abstract class CapabilityBuilderBase<
                 id,
                 actionSpec,
                 checkedProperty,
-                {
-                    object : BaseSession<ArgumentT, OutputT> {
-                        override fun onFinishAsync(
-                            argument: ArgumentT,
-                        ): ListenableFuture<ExecutionResult<OutputT>> {
-                            return actionExecutor!!.executeAsync(argument!!)
-                        } }
-                },
+                actionExecutor!!,
             )
         } else {
             return TaskCapabilityImpl(

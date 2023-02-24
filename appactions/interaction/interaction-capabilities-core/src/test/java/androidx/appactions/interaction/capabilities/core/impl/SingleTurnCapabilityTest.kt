@@ -18,9 +18,9 @@ package androidx.appactions.interaction.capabilities.core.impl
 
 import android.util.SizeF
 import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.ActionExecutor
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -30,12 +30,11 @@ import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils
 import androidx.appactions.interaction.capabilities.core.testing.spec.Argument
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
 import androidx.appactions.interaction.capabilities.core.testing.spec.Property
-import androidx.appactions.interaction.capabilities.core.testing.spec.Session
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
 import androidx.appactions.interaction.proto.ParamValue
-import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -44,7 +43,7 @@ import org.mockito.kotlin.mock
 
 @RunWith(JUnit4::class)
 class SingleTurnCapabilityTest {
-
+    val hostProperties = HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build()
     val mockCalback: CallbackInternal = mock()
 
     @Test
@@ -58,19 +57,12 @@ class SingleTurnCapabilityTest {
                 ).setOptionalStringField(
                     StringProperty.Builder().setProhibited(true).build(),
                 ).build(),
-                {
-                    object : Session {
-                        override fun onFinishAsync(
-                            argument: Argument,
-                        ): ListenableFuture<ExecutionResult<Output>> {
-                            return Futures.immediateFuture(
-                                ExecutionResult.Builder<Output>().setOutput(
-                                    Output.builder().setOptionalStringField("stringOutput")
-                                        .build(),
-                                ).build(),
-                            )
-                        }
-                    }
+                object : ActionExecutor<Argument, Output> {
+                    override suspend fun execute(argument: Argument): ExecutionResult<Output> =
+                        ExecutionResult.Builder<Output>().setOutput(
+                            Output.builder().setOptionalStringField("stringOutput")
+                                .build(),
+                        ).build()
                 },
             )
         val expectedFulfillmentResponse: FulfillmentResponse =
@@ -89,9 +81,7 @@ class SingleTurnCapabilityTest {
                     .build(),
             ).build()
 
-        val capabilitySession = capability.createSession(
-            HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build(),
-        )
+        val capabilitySession = capability.createSession(hostProperties)
         capabilitySession.execute(
             ArgumentUtils.buildArgs(
                 mapOf(
@@ -104,6 +94,27 @@ class SingleTurnCapabilityTest {
         )
 
         verify(mockCalback).onSuccess(expectedFulfillmentResponse)
+    }
+
+    @Test
+    fun oneShotSession_uiHandle() {
+        val actionExecutor: ActionExecutor<Argument, Output> =
+            object : ActionExecutor<Argument, Output> {
+                override suspend fun execute(
+                    argument: Argument,
+                ): ExecutionResult<Output> = ExecutionResult.getDefaultInstance<Output>()
+            }
+        val capability: ActionCapability =
+            SingleTurnCapabilityImpl<Property, Argument, Output>(
+                "capabilityId",
+                ACTION_SPEC,
+                Property.newBuilder().setRequiredEntityField(
+                    EntityProperty.Builder().build(),
+                ).build(),
+                actionExecutor,
+            )
+        val session = capability.createSession(hostProperties)
+        assertThat(session.uiHandle).isSameInstanceAs(actionExecutor)
     }
 
     companion object {

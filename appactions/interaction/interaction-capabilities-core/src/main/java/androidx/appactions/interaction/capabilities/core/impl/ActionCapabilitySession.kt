@@ -38,16 +38,31 @@ interface ActionCapabilitySession {
     )
 
     /**
+     * Notify this session to stop processing and perform cleanup.
+     */
+    fun destroy()
+
+    /**
      * Support for manual input. This method should be invoked by AppInteraction SDKs
      * (background/foreground), so the developers have a way to report state updates back to
      * Assistant.
      */
     fun setTouchEventCallback(callback: TouchEventCallback)
 
+    /**
+     * The current state of the multi-turn session including slot values and their statuses.
+     */
     val state: AppAction
 
+    /** The current status of the ActionCapabilitySession. */
     val status: Status
 
+    /**
+     * The developer-provided external object (either a BaseSession instance or an ActionExecutor instance).
+     */
+    val uiHandle: Any
+
+    /** This enum describes the current status of the ActionCapabilitySession. */
     enum class Status {
         UNINITIATED,
         IN_PROGRESS,
