@@ -13,8 +13,6 @@ RemovedClass: androidx.compose.material3.IncludeFontPaddingHelper_androidKt:
     Removed class androidx.compose.material3.IncludeFontPaddingHelper_androidKt
 RemovedClass: androidx.compose.material3.MenuKt:
     Removed class androidx.compose.material3.MenuKt
-RemovedClass: androidx.compose.material3.OutlinedTextFieldKt:
-    Removed class androidx.compose.material3.OutlinedTextFieldKt
 RemovedClass: androidx.compose.material3.ShapesKt:
     Removed class androidx.compose.material3.ShapesKt
 RemovedClass: androidx.compose.material3.Strings_androidKt:
@@ -27,8 +25,6 @@ RemovedClass: androidx.compose.material3.TextFieldDefaultsKt:
     Removed class androidx.compose.material3.TextFieldDefaultsKt
 RemovedClass: androidx.compose.material3.TextFieldImplKt:
     Removed class androidx.compose.material3.TextFieldImplKt
-RemovedClass: androidx.compose.material3.TextFieldKt:
-    Removed class androidx.compose.material3.TextFieldKt
 RemovedClass: androidx.compose.material3.TonalPaletteKt:
     Removed class androidx.compose.material3.TonalPaletteKt
 RemovedClass: androidx.compose.material3.TouchTargetKt:
