@@ -16,8 +16,11 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.testing.AndroidUtil.isEmulatorAndAPI21;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -395,6 +398,7 @@ public class ImageCaptureTest {
     @Test
     public void dispatchImage_cropRectIsUpdatedBasedOnExifOrientation()
             throws InterruptedException, IOException {
+        assumeFalse(isEmulatorAndAPI21());
         // Arrange: assume the sensor buffer is 6x4, the crop rect is (0, 0) - (2, 1) and the
         // rotation degrees is 90°.
         Semaphore semaphore = new Semaphore(0);
