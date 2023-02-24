@@ -28,7 +28,6 @@ import android.os.Looper
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.SharedMemoryImage
 import android.util.Log
-import android.view.Surface
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
@@ -211,24 +210,6 @@ public interface EditorSession : AutoCloseable {
         instant: Instant,
         slotIdToComplicationData: Map<Int, ComplicationData>?
     ): Bitmap
-
-    /**
-     * Renders the watch face to a [Surface] using the current [userStyle].
-     *
-     * @param renderParameters The [RenderParameters] to render with. Must be [DrawMode.INTERACTIVE]
-     * @param instant The [Instant] to render with
-     * @param slotIdToComplicationData The [ComplicationData] for each
-     *   [androidx.wear.watchface.ComplicationSlot] to render with
-     * @param surface The [Surface] to render into. This is assumed to have the same dimensions as
-     *   the screen.
-     */
-    @UiThread
-    public fun renderWatchFaceToSurface(
-        renderParameters: RenderParameters,
-        instant: Instant,
-        slotIdToComplicationData: Map<Int, ComplicationData>?,
-        surface: Surface
-    ) { }
 
     /**
      * Opens the complication data source chooser and returns the chosen complication data source
@@ -942,28 +923,6 @@ internal class OnWatchFaceEditorSessionImpl(
         )
     }
 
-    override fun renderWatchFaceToSurface(
-        renderParameters: RenderParameters,
-        instant: Instant,
-        slotIdToComplicationData: Map<Int, ComplicationData>?,
-        surface: Surface
-    ) {
-        requireNotClosed()
-        require(renderParameters.drawMode == DrawMode.INTERACTIVE) {
-            "Currently only DrawMode.INTERACTIVE is supported"
-        }
-        editorDelegate.renderWatchFaceToSurface(
-            renderParameters,
-            if (instant == EditorSession.DEFAULT_PREVIEW_INSTANT) {
-                editorDelegate.previewReferenceInstant
-            } else {
-                instant
-            },
-            slotIdToComplicationData,
-            surface
-        )
-    }
-
     override fun releaseResources() {
         // If commitChangesOnClose is true, the userStyle is not restored which for non-headless
         // watch faces meaning the style is applied immediately. It's possible for the System to
@@ -1090,26 +1049,6 @@ internal class HeadlessEditorSession(
             },
             userStyle.value,
             slotIdToComplicationData
-        )
-    }
-
-    override fun renderWatchFaceToSurface(
-        renderParameters: RenderParameters,
-        instant: Instant,
-        slotIdToComplicationData: Map<Int, ComplicationData>?,
-        surface: Surface
-    ) {
-        requireNotClosed()
-        headlessWatchFaceClient.renderWatchFaceToSurface(
-            renderParameters,
-            if (instant == EditorSession.DEFAULT_PREVIEW_INSTANT) {
-                headlessWatchFaceClient.previewReferenceInstant
-            } else {
-                instant
-            },
-            userStyle.value,
-            slotIdToComplicationData,
-            surface
         )
     }
 

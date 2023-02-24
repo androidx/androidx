@@ -17,15 +17,12 @@
 package androidx.wear.watchface.editor.sample
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
-import android.graphics.SurfaceTexture
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.Surface
-import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -79,8 +76,6 @@ internal class ConfigView(
 
     private lateinit var previewComplicationData: StateFlow<Map<Int, ComplicationData>?>
     private val drawRect = Rect()
-    private val watchFacePreviewView = TextureView(context)
-    private var surface: Surface? = null
 
     // One invisible button per complication.
     private val complicationButtons =
@@ -128,47 +123,6 @@ internal class ConfigView(
         }
 
     init {
-        background = ColorDrawable(Color.BLACK)
-        addView(watchFacePreviewView)
-
-        watchFacePreviewView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-            override fun onSurfaceTextureAvailable(
-                surfaceTexture: SurfaceTexture,
-                width: Int,
-                height: Int
-            ) {
-                surface = Surface(surfaceTexture)
-
-                val editingSession = watchFaceConfigActivity.editorSession
-                editingSession.renderWatchFaceToSurface(
-                    RenderParameters(
-                        DrawMode.INTERACTIVE,
-                        WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                        HighlightLayer(
-                            RenderParameters.HighlightedElement.AllComplicationSlots,
-                            Color.RED, // Red complication highlight.
-                            Color.argb(128, 0, 0, 0) // Darken everything else.
-                        )
-                    ),
-                    editingSession.previewReferenceInstant,
-                    previewComplicationData.value,
-                    surface!!
-                )
-            }
-
-            override fun onSurfaceTextureSizeChanged(
-                surfaceTexture: SurfaceTexture,
-                width: Int,
-                height: Int
-            ) {
-            }
-
-            override fun onSurfaceTextureDestroyed(surfaceTexture: SurfaceTexture) = true
-
-            override fun onSurfaceTextureUpdated(surfaceTexture: SurfaceTexture) {
-            }
-        }
-
         watchFaceConfigActivity.coroutineScope.launch {
             previewComplicationData = watchFaceConfigActivity.editorSession.complicationsPreviewData
             setWillNotDraw(false)
@@ -203,6 +157,25 @@ internal class ConfigView(
 
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
         drawRect.set(0, 0, width, height)
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        val editingSession = watchFaceConfigActivity.editorSession
+        val bitmap =
+            editingSession.renderWatchFaceToBitmap(
+                RenderParameters(
+                    DrawMode.INTERACTIVE,
+                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
+                    HighlightLayer(
+                        RenderParameters.HighlightedElement.AllComplicationSlots,
+                        Color.RED, // Red complication highlight.
+                        Color.argb(128, 0, 0, 0) // Darken everything else.
+                    )
+                ),
+                editingSession.previewReferenceInstant,
+                previewComplicationData.value
+            )
+        canvas.drawBitmap(bitmap, drawRect, drawRect, null)
     }
 
     private fun updateUi(
