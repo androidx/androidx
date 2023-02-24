@@ -18,11 +18,20 @@ package androidx.window.testing.embedding
 
 import android.app.Activity
 import android.app.Application
+import android.content.Intent
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityEmbeddingController
+import androidx.window.embedding.ActivityRule
 import androidx.window.embedding.EmbeddingBackend
+import androidx.window.embedding.EmbeddingRule
+import androidx.window.embedding.RuleController
+import androidx.window.embedding.SplitPairRule
+import androidx.window.embedding.SplitPlaceholderRule
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.Description
@@ -39,23 +48,30 @@ class ActivityEmbeddingTestRuleTest {
 
     private val mockActivity: Activity = mock()
 
+    private lateinit var activityEmbeddingController: ActivityEmbeddingController
+    private lateinit var ruleController: RuleController
+
     init {
         whenever(mockActivity.applicationContext).thenReturn(mock<Application>())
+    }
+
+    @Before
+    fun setUp() {
+        activityEmbeddingController = ActivityEmbeddingController.getInstance(mockActivity)
+        ruleController = RuleController.getInstance(mockActivity)
     }
 
     @Test
     fun testActivityEmbeddingController_overrideIsActivityEmbedded() {
         assertFalse(
-            ActivityEmbeddingController.getInstance(mockActivity)
-                .isActivityEmbedded(mockActivity)
+            activityEmbeddingController.isActivityEmbedded(mockActivity)
         )
         testRule.overrideIsActivityEmbedded(
             activity = mockActivity,
             isActivityEmbedded = true
         )
         assertTrue(
-            ActivityEmbeddingController.getInstance(mockActivity)
-                .isActivityEmbedded(mockActivity)
+            activityEmbeddingController.isActivityEmbedded(mockActivity)
         )
 
         testRule.overrideIsActivityEmbedded(
@@ -63,9 +79,152 @@ class ActivityEmbeddingTestRuleTest {
             isActivityEmbedded = false
         )
         assertFalse(
-            ActivityEmbeddingController.getInstance(mockActivity)
-                .isActivityEmbedded(mockActivity)
+            activityEmbeddingController.isActivityEmbedded(mockActivity)
         )
+    }
+
+    @Test
+    fun testRuleController_getRules() {
+        assertTrue(ruleController.getRules().isEmpty())
+    }
+
+    @Test
+    fun testRuleController_addRule() {
+        val splitPairRule = createSplitPairRule()
+        val splitPlaceholderRule = createSplitPlaceholderRule()
+        val activityRule = createActivityRule()
+
+        ruleController.addRule(splitPairRule)
+
+        assertEquals(1, ruleController.getRules().size)
+        assertTrue(ruleController.getRules().contains(splitPairRule))
+
+        ruleController.addRule(splitPlaceholderRule)
+
+        assertEquals(2, ruleController.getRules().size)
+        assertTrue(ruleController.getRules().contains(splitPlaceholderRule))
+
+        ruleController.addRule(activityRule)
+
+        assertEquals(3, ruleController.getRules().size)
+        assertTrue(ruleController.getRules().contains(activityRule))
+    }
+
+    @Test
+    fun testRuleController_addRule_updateRuleWithSameTag() {
+        val splitPairRule1 = createSplitPairRule("Tag1")
+        val splitPairRule2 = createSplitPairRule("Tag2")
+
+        ruleController.addRule(splitPairRule1)
+        ruleController.addRule(splitPairRule2)
+
+        assertEquals(2, ruleController.getRules().size)
+
+        val splitPairRule3 = SplitPairRule.Builder(emptySet())
+            .setMinWidthDp(splitPairRule1.minWidthDp + 1)
+            .setTag(splitPairRule1.tag)
+            .build()
+
+        ruleController.addRule(splitPairRule3)
+
+        assertEquals(2, ruleController.getRules().size)
+        assertFalse(ruleController.getRules().contains(splitPairRule1))
+        assertTrue(ruleController.getRules().contains(splitPairRule3))
+    }
+
+    @Test
+    fun testRuleController_removeRule() {
+        val rules = HashSet<EmbeddingRule>()
+        val splitPairRule = createSplitPairRule()
+        val splitPlaceholderRule = createSplitPlaceholderRule()
+        val activityRule = createActivityRule()
+        rules.add(splitPairRule)
+        rules.add(splitPlaceholderRule)
+        rules.add(activityRule)
+        ruleController.setRules(rules)
+
+        assertEquals(3, ruleController.getRules().size)
+
+        ruleController.removeRule(splitPairRule)
+
+        assertEquals(2, ruleController.getRules().size)
+        assertFalse(ruleController.getRules().contains(splitPairRule))
+
+        ruleController.removeRule(splitPlaceholderRule)
+
+        assertEquals(1, ruleController.getRules().size)
+        assertFalse(ruleController.getRules().contains(splitPlaceholderRule))
+
+        ruleController.removeRule(activityRule)
+
+        assertTrue(ruleController.getRules().isEmpty())
+    }
+
+    @Test
+    fun testRuleController_setRules() {
+        val rules = HashSet<EmbeddingRule>()
+
+        ruleController.setRules(rules)
+
+        assertTrue(ruleController.getRules().isEmpty())
+
+        val splitPairRule = createSplitPairRule()
+        val splitPlaceholderRule = createSplitPlaceholderRule()
+        val activityRule = createActivityRule()
+        rules.add(splitPairRule)
+        rules.add(splitPlaceholderRule)
+        rules.add(activityRule)
+        ruleController.setRules(rules)
+
+        assertEquals(3, ruleController.getRules().size)
+        assertTrue(ruleController.getRules().contains(splitPairRule))
+        assertTrue(ruleController.getRules().contains(splitPlaceholderRule))
+        assertTrue(ruleController.getRules().contains(activityRule))
+
+        ruleController.setRules(emptySet())
+
+        assertTrue(ruleController.getRules().isEmpty())
+    }
+
+    @Test
+    fun testRuleController_setRules_throwForDuplicateTag() {
+        val rules = HashSet<EmbeddingRule>()
+        val splitPairRule = createSplitPairRule("Tag1")
+        val splitPlaceholderRule = createSplitPlaceholderRule("Tag2")
+        rules.add(splitPairRule)
+        rules.add(splitPlaceholderRule)
+        ruleController.setRules(rules)
+
+        assertEquals(2, ruleController.getRules().size)
+
+        val activityRule = createActivityRule("Tag1")
+        rules.add(activityRule)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            ruleController.setRules(rules)
+        }
+    }
+
+    @Test
+    fun testRuleController_clearRules() {
+        ruleController.clearRules()
+
+        assertTrue(ruleController.getRules().isEmpty())
+
+        val rules = HashSet<EmbeddingRule>()
+        val splitPairRule = createSplitPairRule()
+        val splitPlaceholderRule = createSplitPlaceholderRule()
+        val activityRule = createActivityRule()
+        rules.add(splitPairRule)
+        rules.add(splitPlaceholderRule)
+        rules.add(activityRule)
+        ruleController.setRules(rules)
+
+        assertEquals(3, ruleController.getRules().size)
+
+        ruleController.clearRules()
+
+        assertTrue(ruleController.getRules().isEmpty())
     }
 
     @Test
@@ -84,6 +243,24 @@ class ActivityEmbeddingTestRuleTest {
             // Throw unexpected exception
         }
         assertFalse(EmbeddingBackend.getInstance(mockActivity) is StubEmbeddingBackend)
+    }
+
+    private fun createSplitPairRule(tag: String? = null): SplitPairRule {
+        return SplitPairRule.Builder(emptySet())
+            .setTag(tag)
+            .build()
+    }
+
+    private fun createSplitPlaceholderRule(tag: String? = null): SplitPlaceholderRule {
+        return SplitPlaceholderRule.Builder(emptySet(), Intent())
+            .setTag(tag)
+            .build()
+    }
+
+    private fun createActivityRule(tag: String? = null): ActivityRule {
+        return ActivityRule.Builder(emptySet())
+            .setTag(tag)
+            .build()
     }
 
     private object TestException : Exception("TEST EXCEPTION")

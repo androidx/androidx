@@ -95,6 +95,8 @@ class RuleController private constructor(private val embeddingBackend: Embedding
      * launches.
      *
      * @param rules The [EmbeddingRule]s to set
+     * @throws IllegalArgumentException if [rules] contains two [EmbeddingRule]s with the same
+     * [EmbeddingRule.tag].
      */
     fun setRules(rules: Set<EmbeddingRule>) {
         embeddingBackend.setRules(rules)

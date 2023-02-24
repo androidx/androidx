@@ -20,15 +20,16 @@ import android.app.Activity
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.EmbeddingBackend
+import androidx.window.embedding.RuleController
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-// TODO(b/269360931): Support RuleController.
 // TODO(b/269360912): Support SplitController.
 /**
- * A [TestRule] that will stub out the behavior of [ActivityEmbeddingController] with a more simple
- * one that will support testing independent of the current platform.
+ * A [TestRule] that will stub out the behavior of [ActivityEmbeddingController] and
+ * [RuleController] with a more simple one that will support testing independent of the current
+ * platform.
  */
 @ExperimentalWindowApi
 class ActivityEmbeddingTestRule : TestRule {
@@ -48,6 +49,7 @@ class ActivityEmbeddingTestRule : TestRule {
                 try {
                     base.evaluate()
                 } finally {
+                    stubEmbeddingBackend.reset()
                     EmbeddingBackend.reset()
                 }
             }
