@@ -874,6 +874,6 @@ objc\[.*\]: Class .*
 # KMP messages on successful XCFramework builds.
 xcframework successfully .*
 # > Configure project :internal-testutils-ktx
-WARNING:The option setting 'android\.r8\.maxWorkers=[0-9]+' is experimental\.
+WARNING:.*The option setting 'android\.r8\.maxWorkers=[0-9]+' is experimental\.
 # Building XCFrameworks (b/260140834) and iOS benchmark invocation
 .*xcodebuild.*
