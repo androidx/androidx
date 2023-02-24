@@ -36,7 +36,6 @@ import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_ZERO;
 import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 
 import android.content.Context;
-import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
@@ -59,7 +58,6 @@ import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
 import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
-import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
@@ -97,7 +95,6 @@ final class SupportedSurfaceCombination {
     private static final String TAG = "SupportedSurfaceCombination";
     private final List<SurfaceCombination> mSurfaceCombinations = new ArrayList<>();
     private final List<SurfaceCombination> mConcurrentSurfaceCombinations = new ArrayList<>();
-    private final Map<Integer, Size> mMaxSizeCache = new HashMap<>();
     private final String mCameraId;
     private final CamcorderProfileHelper mCamcorderProfileHelper;
     private final CameraCharacteristicsCompat mCharacteristics;
@@ -459,17 +456,7 @@ final class SupportedSurfaceCombination {
     }
 
     /**
-     * Returns the target aspect ratio value corrected by quirks.
-     *
-     * The final aspect ratio is determined by the following order:
-     * 1. The aspect ratio returned by {@link TargetAspectRatio} if it is
-     * {@link TargetAspectRatio#RATIO_4_3}, {@link TargetAspectRatio#RATIO_16_9} or
-     * {@link TargetAspectRatio#RATIO_MAX_JPEG}.
-     * 2. The use case's original aspect ratio if {@link TargetAspectRatio} returns
-     * {@link TargetAspectRatio#RATIO_ORIGINAL} and the use case has target aspect ratio setting.
-     * 3. The aspect ratio of use case's target size setting if {@link TargetAspectRatio} returns
-     * {@link TargetAspectRatio#RATIO_ORIGINAL} and the use case has no target aspect ratio but has
-     * target size setting.
+     * Returns the target aspect ratio rational value.
      *
      * @param imageOutputConfig       the image output config of the use case.
      * @param resolutionCandidateList the resolution candidate list which will be used to
@@ -479,63 +466,35 @@ final class SupportedSurfaceCombination {
     private Rational getTargetAspectRatio(@NonNull ImageOutputConfig imageOutputConfig,
             @NonNull List<Size> resolutionCandidateList) {
         Rational outputRatio = null;
-        // Gets the corrected aspect ratio due to device constraints or null if no correction is
-        // needed.
-        @TargetAspectRatio.Ratio int targetAspectRatio =
-                new TargetAspectRatio().get(mCameraId, mCharacteristics);
-        switch (targetAspectRatio) {
-            case TargetAspectRatio.RATIO_4_3:
-                outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
-                break;
-            case TargetAspectRatio.RATIO_16_9:
-                outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9 : ASPECT_RATIO_9_16;
-                break;
-            case TargetAspectRatio.RATIO_MAX_JPEG:
-                Size maxJpegSize = fetchMaxSize(ImageFormat.JPEG);
-                outputRatio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
-                break;
-            case TargetAspectRatio.RATIO_ORIGINAL:
-                if (imageOutputConfig.hasTargetAspectRatio()) {
-                    @AspectRatio.Ratio int aspectRatio = imageOutputConfig.getTargetAspectRatio();
-                    switch (aspectRatio) {
-                        case AspectRatio.RATIO_4_3:
-                            outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3
-                                    : ASPECT_RATIO_3_4;
-                            break;
-                        case AspectRatio.RATIO_16_9:
-                            outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9
-                                    : ASPECT_RATIO_9_16;
-                            break;
-                        case AspectRatio.RATIO_DEFAULT:
-                            break;
-                        default:
-                            Logger.e(TAG, "Undefined target aspect ratio: " + aspectRatio);
-                    }
-                } else {
-                    // The legacy resolution API will use the aspect ratio of the target size to
-                    // be the fallback target aspect ratio value when the use case has no target
-                    // aspect ratio setting.
-                    Size targetSize = getTargetSize(imageOutputConfig);
-                    if (targetSize != null) {
-                        outputRatio = getAspectRatioGroupKeyOfTargetSize(targetSize,
-                                resolutionCandidateList);
-                    }
-                }
-                break;
-            default:
-                // Unhandled event.
-        }
-        return outputRatio;
-    }
 
-    private Size fetchMaxSize(int imageFormat) {
-        Size size = mMaxSizeCache.get(imageFormat);
-        if (size != null) {
-            return size;
+        if (imageOutputConfig.hasTargetAspectRatio()) {
+            @AspectRatio.Ratio int aspectRatio = imageOutputConfig.getTargetAspectRatio();
+            switch (aspectRatio) {
+                case AspectRatio.RATIO_4_3:
+                    outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3
+                            : ASPECT_RATIO_3_4;
+                    break;
+                case AspectRatio.RATIO_16_9:
+                    outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9
+                            : ASPECT_RATIO_9_16;
+                    break;
+                case AspectRatio.RATIO_DEFAULT:
+                    break;
+                default:
+                    Logger.e(TAG, "Undefined target aspect ratio: " + aspectRatio);
+            }
+        } else {
+            // The legacy resolution API will use the aspect ratio of the target size to
+            // be the fallback target aspect ratio value when the use case has no target
+            // aspect ratio setting.
+            Size targetSize = getTargetSize(imageOutputConfig);
+            if (targetSize != null) {
+                outputRatio = getAspectRatioGroupKeyOfTargetSize(targetSize,
+                        resolutionCandidateList);
+            }
         }
-        Size maxSize = getMaxOutputSizeByFormat(imageFormat);
-        mMaxSizeCache.put(imageFormat, maxSize);
-        return maxSize;
+
+        return outputRatio;
     }
 
     private List<Integer> getUseCasesPriorityOrder(List<UseCaseConfig<?>> newUseCaseConfigs) {
