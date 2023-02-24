@@ -19,6 +19,7 @@ import android.support.wearable.complications.ComplicationData as WireComplicati
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.RemoteException
@@ -185,10 +186,18 @@ class ComplicationDataSourceServiceTest {
 
         @Suppress("NewApi") // onUpdate2
         mProvider.onUpdate2(
-            id,
-            ComplicationType.LONG_TEXT.toWireComplicationType(),
-            /* isForSafeWatchFace= */ TargetWatchFaceSafety.SAFE,
-            mLocalManager
+            Bundle().apply {
+                putInt(IComplicationProvider.BUNDLE_KEY_COMPLICATION_INSTANCE_ID, id)
+                putInt(
+                    IComplicationProvider.BUNDLE_KEY_TYPE,
+                    ComplicationType.LONG_TEXT.toWireComplicationType()
+                )
+                putInt(
+                    IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
+                    TargetWatchFaceSafety.SAFE
+                )
+                putBinder(IComplicationProvider.BUNDLE_KEY_MANAGER, mLocalManager)
+            }
         )
 
         runUiThreadTasksWhileAwaitingDataLatch(1000)
@@ -504,9 +513,20 @@ class ComplicationDataSourceServiceTest {
                     @Suppress("NewApi") // onSynchronousComplicationRequest2
                     response.set(
                         mProvider.onSynchronousComplicationRequest2(
-                            id,
-                            /* isForSafeWatchFace= */ TargetWatchFaceSafety.SAFE,
-                            ComplicationType.LONG_TEXT.toWireComplicationType()
+                            Bundle().apply {
+                                putInt(
+                                    IComplicationProvider.BUNDLE_KEY_COMPLICATION_INSTANCE_ID,
+                                    id
+                                )
+                                putInt(
+                                    IComplicationProvider.BUNDLE_KEY_TYPE,
+                                    ComplicationType.LONG_TEXT.toWireComplicationType()
+                                )
+                                putInt(
+                                    IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
+                                    TargetWatchFaceSafety.SAFE
+                                )
+                            }
                         )
                     )
                     doneLatch.countDown()
