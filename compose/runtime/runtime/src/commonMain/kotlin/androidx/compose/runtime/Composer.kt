@@ -21,13 +21,14 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.Composer.Companion.equals
 import androidx.compose.runtime.changelist.ChangeList
+import androidx.compose.runtime.changelist.ComposerChangeListWriter
+import androidx.compose.runtime.changelist.IntRef
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.IntMap
 import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
 import androidx.compose.runtime.snapshots.currentSnapshot
 import androidx.compose.runtime.snapshots.fastForEach
-import androidx.compose.runtime.snapshots.fastForEachIndexed
 import androidx.compose.runtime.snapshots.fastMap
 import androidx.compose.runtime.snapshots.fastToSet
 import androidx.compose.runtime.tooling.CompositionData
@@ -1290,6 +1291,7 @@ internal class ComposerImpl(
     private var providerCache: PersistentCompositionLocalMap? = null
     internal var deferredChanges: ChangeList? = null
 
+    private val changeListWriter = ComposerChangeListWriter(this, changes)
     private var insertAnchor: Anchor = insertTable.read { it.anchor(0) }
     private val insertFixups = mutableListOf<Change>()
 
@@ -1490,7 +1492,6 @@ internal class ComposerImpl(
     }
 
     internal fun changesApplied() {
-        createFreshInsertTable()
         providerUpdates.clear()
     }
 
@@ -1631,12 +1632,11 @@ internal class ComposerImpl(
         validateNodeExpected()
         runtimeCheck(!inserting) { "useNode() called while inserting" }
         val node = reader.node
-        recordDown(node)
+        changeListWriter.moveDown(node)
 
         if (reusing && node is ComposeNodeLifecycleCallback) {
-            recordApplierOperation { applier, _, _ ->
-                (applier.current as ComposeNodeLifecycleCallback).onReuse()
-            }
+            recordApplierOperation()
+            changeListWriter.useNode(node)
         }
     }
 
@@ -1708,12 +1708,15 @@ internal class ComposerImpl(
      * node that is the current node in the tree which was either created by [createNode].
      */
     override fun <V, T> apply(value: V, block: T.(V) -> Unit) {
-        val operation: Change = { applier, _, _ ->
-            @Suppress("UNCHECKED_CAST")
-            (applier.current as T).block(value)
+        if (inserting) {
+            recordFixup { applier, _, _ ->
+                @Suppress("UNCHECKED_CAST")
+                (applier.current as T).block(value)
+            }
+        } else {
+            recordApplierOperation()
+            changeListWriter.updateNode(value, block)
         }
-        if (inserting) recordFixup(operation)
-        else recordApplierOperation(operation)
     }
 
     /**
@@ -1882,7 +1885,7 @@ internal class ComposerImpl(
         if (inserting) {
             writer.update(value)
             if (value is RememberObserver) {
-                record { _, _, rememberManager -> rememberManager.remembering(value) }
+                changeListWriter.remember(value)
                 abandonSet.add(value)
             }
         } else {
@@ -1890,16 +1893,8 @@ internal class ComposerImpl(
             if (value is RememberObserver) {
                 abandonSet.add(value)
             }
-            recordSlotTableOperation(forParent = true) { _, slots, rememberManager ->
-                if (value is RememberObserver) {
-                    rememberManager.remembering(value)
-                }
-                when (val previous = slots.set(groupSlotIndex, value)) {
-                    is RememberObserver ->
-                        rememberManager.forgetting(previous)
-                    is RecomposeScopeImpl -> previous.release()
-                }
-            }
+            recordSlotTableOperation(forParent = true)
+            changeListWriter.updateValue(value, groupSlotIndex)
         }
     }
 
@@ -1920,7 +1915,7 @@ internal class ComposerImpl(
      * Schedule a side effect to run when we apply composition changes.
      */
     override fun recordSideEffect(effect: () -> Unit) {
-        record { _, _, rememberManager -> rememberManager.sideEffect(effect) }
+        changeListWriter.sideEffect(effect)
     }
 
     private fun currentCompositionLocalScope(): PersistentCompositionLocalMap {
@@ -2111,9 +2106,8 @@ internal class ComposerImpl(
             reader.startNode()
         } else {
             if (data != null && reader.groupAux !== data) {
-                recordSlotTableOperation { _, slots, _ ->
-                    slots.updateAux(data)
-                }
+                recordSlotTableOperation()
+                changeListWriter.updateAuxData(data)
             }
             reader.startGroup()
         }
@@ -2190,9 +2184,8 @@ internal class ComposerImpl(
                 reader.reposition(location)
                 if (currentRelativePosition > 0) {
                     // The slot group must be moved, record the move to be performed during apply.
-                    recordSlotEditingOperation { _, slots, _ ->
-                        slots.moveGroup(currentRelativePosition)
-                    }
+                    recordSlotEditingOperation()
+                    changeListWriter.moveCurrentGroup(currentRelativePosition)
                 }
                 startReaderGroup(isNode, data)
             } else {
@@ -2337,8 +2330,9 @@ internal class ComposerImpl(
                         if (nodePosition != nodeOffset) {
                             val updatedCount = pending.updatedNodeCountOf(currentInfo)
                             recordMoveNode(
-                                nodePosition + pending.startIndex,
-                                nodeOffset + pending.startIndex, updatedCount
+                                from = nodePosition + pending.startIndex,
+                                to = nodeOffset + pending.startIndex,
+                                count = updatedCount
                             )
                             pending.registerMoveNode(nodePosition, nodeOffset, updatedCount)
                         } // else the nodes are already in the correct position
@@ -2395,7 +2389,7 @@ internal class ComposerImpl(
                 }
             }
         } else {
-            if (isNode) recordUp()
+            if (isNode) changeListWriter.moveUp()
             recordEndGroup()
             val parentGroup = reader.parent
             val parentNodeCount = updatedNodeCount(parentGroup)
@@ -2647,7 +2641,7 @@ internal class ComposerImpl(
         // Record ups for the nodes between oldGroup and nearestCommonRoot
         var current = oldGroup
         while (current > 0 && current != nearestCommonRoot) {
-            if (reader.isNode(current)) recordUp()
+            if (reader.isNode(current)) changeListWriter.moveUp()
             current = reader.parent(current)
         }
 
@@ -2658,7 +2652,7 @@ internal class ComposerImpl(
     private fun doRecordDownsFor(group: Int, nearestCommonRoot: Int) {
         if (group > 0 && group != nearestCommonRoot) {
             doRecordDownsFor(reader.parent(group), nearestCommonRoot)
-            if (reader.isNode(group)) recordDown(reader.nodeAt(group))
+            if (reader.isNode(group)) changeListWriter.moveDown(reader.nodeAt(group))
         }
     }
 
@@ -2778,32 +2772,21 @@ internal class ComposerImpl(
                 if (reader.isNode(group)) {
                     val node = reader.node(group)
                     if (node is ComposeNodeLifecycleCallback) {
-                        record { _, _, rememberManager ->
-                            rememberManager.deactivating(node)
-                        }
+                        changeListWriter.deactivate(node)
                     }
                 }
                 reader.forEachData(group) { index, data ->
                     when (data) {
                         is RememberObserver -> {
                             reader.reposition(group)
-                            recordSlotTableOperation { _, slots, rememberManager ->
-                                runtimeCheck(data == slots.slot(slots.currentGroup, index)) {
-                                    "Slot table is out of sync"
-                                }
-                                rememberManager.forgetting(data)
-                                slots.set(index, Composer.Empty)
-                            }
+                            recordSlotTableOperation()
+                            changeListWriter.clearSlotValue(index, data)
                         }
                         is RecomposeScopeImpl -> {
                             data.release()
                             reader.reposition(group)
-                            recordSlotTableOperation { _, slots, _ ->
-                                runtimeCheck(data == slots.slot(slots.currentGroup, index)) {
-                                    "Slot table is out of sync"
-                                }
-                                slots.set(index, Composer.Empty)
-                            }
+                            recordSlotTableOperation()
+                            changeListWriter.clearSlotValue(index, data)
                         }
                     }
                 }
@@ -2864,7 +2847,7 @@ internal class ComposerImpl(
         else null
         scope?.requiresRecompose = false
         scope?.end(compositionToken)?.let {
-            record { _, _, _ -> it(composition) }
+            changeListWriter.endCompositionScope(it, composition)
         }
         val result = if (scope != null &&
             !scope.skipped &&
@@ -2977,72 +2960,14 @@ internal class ComposerImpl(
     private fun insertMovableContentGuarded(
         references: List<Pair<MovableContentStateReference, MovableContentStateReference?>>
     ) {
-        fun positionToParentOf(slots: SlotWriter, applier: Applier<Any?>, index: Int) {
-            while (!slots.indexInParent(index)) {
-                slots.skipToGroupEnd()
-                if (slots.isNode(slots.parent)) applier.up()
-                slots.endGroup()
-            }
-        }
-
-        fun currentNodeIndex(slots: SlotWriter): Int {
-            val original = slots.currentGroup
-
-            // Find parent node
-            var current = slots.parent
-            while (current >= 0 && !slots.isNode(current)) {
-                current = slots.parent(current)
-            }
-
-            var index = 0
-            current++
-            while (current < original) {
-                if (slots.indexInGroup(original, current)) {
-                    if (slots.isNode(current)) index = 0
-                    current++
-                } else {
-                    index += if (slots.isNode(current)) 1 else slots.nodeCount(current)
-                    current += slots.groupSize(current)
-                }
-            }
-            return index
-        }
-
-        fun positionToInsert(slots: SlotWriter, anchor: Anchor, applier: Applier<Any?>): Int {
-            val destination = slots.anchorIndex(anchor)
-            runtimeCheck(slots.currentGroup < destination)
-            positionToParentOf(slots, applier, destination)
-            var nodeIndex = currentNodeIndex(slots)
-            while (slots.currentGroup < destination) {
-                when {
-                    slots.indexInCurrentGroup(destination) -> {
-                        if (slots.isNode) {
-                            applier.down(slots.node(slots.currentGroup))
-                            nodeIndex = 0
-                        }
-                        slots.startGroup()
-                    }
-                    else -> nodeIndex += slots.skipGroup()
-                }
-            }
-
-            runtimeCheck(slots.currentGroup == destination)
-            return nodeIndex
-        }
-
-        withChanges(lateChanges) {
-            record(resetSlotsInstance)
+        changeListWriter.withChangeList(lateChanges) {
+            changeListWriter.resetSlots()
             references.fastForEach { (to, from) ->
                 val anchor = to.anchor
                 val location = to.slotTable.anchorIndex(anchor)
-                var effectiveNodeIndex = 0
-                realizeUps()
+                val effectiveNodeIndex = IntRef()
                 // Insert content at the anchor point
-                record { applier, slots, _ ->
-                    @Suppress("UNCHECKED_CAST")
-                    applier as Applier<Any?>
-                    effectiveNodeIndex = positionToInsert(slots, anchor, applier)
-                }
+                changeListWriter.determineMovableContentNodeIndex(effectiveNodeIndex, anchor)
                 if (from == null) {
                     val toSlotTable = to.slotTable
                     if (toSlotTable == insertTable) {
@@ -3063,7 +2988,7 @@ internal class ComposerImpl(
                         writersReaderDelta = location
                         val offsetChanges = ChangeList()
                         recomposeMovableContent {
-                            withChanges(offsetChanges) {
+                            changeListWriter.withChangeList(offsetChanges) {
                                 withReader(reader) {
                                     invokeMovableContentLambda(
                                         to.content,
@@ -3074,17 +2999,10 @@ internal class ComposerImpl(
                                 }
                             }
                         }
-                        if (offsetChanges.isNotEmpty()) {
-                            record { applier, slots, rememberManager ->
-                                val offsetApplier = if (effectiveNodeIndex > 0)
-                                    OffsetApplier(applier, effectiveNodeIndex) else applier
-                                offsetChanges.executeAndFlushAllPendingChanges(
-                                    applier = offsetApplier,
-                                    slots = slots,
-                                    rememberManager = rememberManager
-                                )
-                            }
-                        }
+                        changeListWriter.includeOperationsIn(
+                            other = offsetChanges,
+                            effectiveNodeIndex = effectiveNodeIndex
+                        )
                     }
                 } else {
                     // If the state was already removed from the from table then it will have a
@@ -3097,15 +3015,9 @@ internal class ComposerImpl(
 
                     // Insert nodes if necessary
                     if (nodesToInsert.isNotEmpty()) {
-                        record { applier, _, _ ->
-                            val base = effectiveNodeIndex
-                            @Suppress("UNCHECKED_CAST")
-                            nodesToInsert.fastForEachIndexed { i, node ->
-                                applier as Applier<Any?>
-                                applier.insertBottomUp(base + i, node)
-                                applier.insertTopDown(base + i, node)
-                            }
-                        }
+                        changeListWriter.copyNodesToNewAnchorLocation(
+                            nodesToInsert, effectiveNodeIndex
+                        )
                         if (to.slotTable == slotTable) {
                             // Inserting the content into the current slot table then we need to
                             // update the virtual node counts. Otherwise, we are inserting into
@@ -3120,25 +3032,12 @@ internal class ComposerImpl(
                     }
 
                     // Copy the slot table into the anchor location
-                    record { _, slots, _ ->
-                        val state = resolvedState ?: parentContext.movableContentStateResolve(from)
-                        ?: composeRuntimeError("Could not resolve state for movable content")
-
-                        // The slot table contains the movable content group plus the group
-                        // containing the movable content's table which then contains the actual
-                        // state to be inserted. The state is at index 2 in the table (for the
-                        // two groups) and is inserted into the provider group at offset 1 from the
-                        // current location.
-                        val anchors = slots.moveIntoGroupFrom(1, state.slotTable, 2)
-
-                        // For all the anchors that moved, if the anchor is tracking a recompose
-                        // scope, update it to reference its new composer.
-                        RecomposeScopeImpl.adoptAnchoredScopes(
-                            slots = slots,
-                            anchors = anchors,
-                            newOwner = to.composition as RecomposeScopeOwner
-                        )
-                    }
+                    changeListWriter.copySlotTableToAnchorLocation(
+                        resolvedState = resolvedState,
+                        parentContext = parentContext,
+                        from = from,
+                        to = to
+                    )
 
                     fromTable.read { reader ->
                         withReader(reader) {
@@ -3147,7 +3046,7 @@ internal class ComposerImpl(
                             writersReaderDelta = newLocation
                             val offsetChanges = ChangeList()
 
-                            withChanges(offsetChanges) {
+                            changeListWriter.withChangeList(offsetChanges) {
                                 recomposeMovableContent(
                                     from = from.composition,
                                     to = to.composition,
@@ -3162,39 +3061,17 @@ internal class ComposerImpl(
                                     )
                                 }
                             }
-                            if (offsetChanges.isNotEmpty()) {
-                                record { applier, slots, rememberManager ->
-                                    val offsetApplier = if (effectiveNodeIndex > 0)
-                                        OffsetApplier(applier, effectiveNodeIndex) else applier
-                                    offsetChanges.executeAndFlushAllPendingChanges(
-                                        applier = offsetApplier,
-                                        slots = slots,
-                                        rememberManager = rememberManager
-                                    )
-                                }
-                            }
+                            changeListWriter.includeOperationsIn(
+                                other = offsetChanges,
+                                effectiveNodeIndex = effectiveNodeIndex
+                            )
                         }
                     }
                 }
-                record(skipToGroupEndInstance)
+                changeListWriter.skipToEndOfCurrentGroup()
             }
-            record { applier, slots, _ ->
-                @Suppress("UNCHECKED_CAST")
-                applier as Applier<Any?>
-                positionToParentOf(slots, applier, 0)
-                slots.endGroup()
-            }
+            changeListWriter.endMovableContentPlacement()
             writersReaderDelta = 0
-        }
-    }
-
-    private inline fun <R> withChanges(newChanges: ChangeList, block: () -> R): R {
-        val savedChanges = changes
-        try {
-            changes = newChanges
-            return block()
-        } finally {
-            changes = savedChanges
         }
     }
 
@@ -3385,23 +3262,11 @@ internal class ComposerImpl(
     }
 
     /**
-     * Add a raw change to the change list. Once [record] is called, the operation is realized
-     * into the change list. The helper routines below reduce the number of operations that must
-     * be realized to change the previous tree to the new tree as well as update the slot table
-     * to prepare for the next composition.
-     */
-    private fun record(change: Change) {
-        changes.pushBackwardsCompatChange(change)
-    }
-
-    /**
      * Record a change ensuring, when it is applied, that the applier is focused on the current
      * node.
      */
-    private fun recordApplierOperation(change: Change) {
-        realizeUps()
-        realizeDowns()
-        record(change)
+    private fun recordApplierOperation() {
+        changeListWriter.pushPendingUpsAndDowns()
     }
 
     /**
@@ -3409,68 +3274,17 @@ internal class ComposerImpl(
      * table is prepared for the change by ensuring the parent group is started and then ended
      * as the group is left.
      */
-    private fun recordSlotEditingOperation(change: Change) {
+    private fun recordSlotEditingOperation() {
         realizeOperationLocation()
         recordSlotEditing()
-        record(change)
     }
 
     /**
      * Record a change ensuring, when it is applied, the write matches the current slot in the
      * reader.
      */
-    private fun recordSlotTableOperation(forParent: Boolean = false, change: Change) {
+    private fun recordSlotTableOperation(forParent: Boolean = false) {
         realizeOperationLocation(forParent)
-        record(change)
-    }
-
-    // Navigation of the node tree is performed by recording all the locations of the nodes as
-    // they are traversed by the reader and recording them in the downNodes array. When the node
-    // navigation is realized all the downs in the down nodes is played to the applier.
-    //
-    // If an up is recorded before the corresponding down is realized then it is simply removed
-    // from the downNodes stack.
-
-    private var pendingUps = 0
-    private var downNodes = Stack<Any?>()
-
-    private fun realizeUps() {
-        val count = pendingUps
-        if (count > 0) {
-            pendingUps = 0
-            record { applier, _, _ -> repeat(count) { applier.up() } }
-        }
-    }
-
-    private fun realizeDowns(nodes: Array<Any?>) {
-        record { applier, _, _ ->
-            for (index in nodes.indices) {
-                @Suppress("UNCHECKED_CAST")
-                val nodeApplier = applier as Applier<Any?>
-                nodeApplier.down(nodes[index])
-            }
-        }
-    }
-
-    private fun realizeDowns() {
-        if (downNodes.isNotEmpty()) {
-            @Suppress("UNCHECKED_CAST")
-            realizeDowns(downNodes.toArray())
-            downNodes.clear()
-        }
-    }
-
-    private fun recordDown(node: Any?) {
-        @Suppress("UNCHECKED_CAST")
-        downNodes.push(node)
-    }
-
-    private fun recordUp() {
-        if (downNodes.isNotEmpty()) {
-            downNodes.pop()
-        } else {
-            pendingUps++
-        }
     }
 
     // Navigating the writer slot is performed relatively as the location of a group in the writer
@@ -3522,43 +3336,20 @@ internal class ComposerImpl(
             "Tried to seek backward"
         }
         if (distance > 0) {
-            record { _, slots, _ -> slots.advanceBy(distance) }
+            changeListWriter.advanceSlotsBy(distance)
             writersReaderDelta = location
         }
     }
 
     private fun recordInsert(anchor: Anchor) {
         if (insertFixups.isEmpty()) {
-            val insertTable = insertTable
-            recordSlotEditingOperation { _, slots, _ ->
-                slots.beginInsert()
-                slots.moveFrom(
-                    table = insertTable,
-                    index = anchor.toIndexFor(insertTable),
-                    removeSourceGroup = false
-                )
-                slots.endInsert()
-            }
+            recordSlotEditingOperation()
+            changeListWriter.insertSlots(anchor, insertTable)
         } else {
-            val fixups = insertFixups.toMutableList()
+            changeListWriter.pushPendingUpsAndDowns()
+            recordSlotEditingOperation()
+            changeListWriter.insertSlots(anchor, insertTable, insertFixups.toMutableList())
             insertFixups.clear()
-            realizeUps()
-            realizeDowns()
-            val insertTable = insertTable
-            recordSlotEditingOperation { applier, slots, rememberManager ->
-                insertTable.write { writer ->
-                    fixups.fastForEach { fixup ->
-                        fixup(applier, writer, rememberManager)
-                    }
-                }
-                slots.beginInsert()
-                slots.moveFrom(
-                    table = insertTable,
-                    index = anchor.toIndexFor(insertTable),
-                    removeSourceGroup = false
-                )
-                slots.endInsert()
-            }
         }
     }
 
@@ -3585,7 +3376,8 @@ internal class ComposerImpl(
         // It is import that the movable content is reported first so it can be removed before the
         // group itself is removed.
         reportFreeMovableContent(reader.currentGroup)
-        recordSlotEditingOperation(change = removeCurrentGroupInstance)
+        recordSlotEditingOperation()
+        changeListWriter.removeCurrentGroup()
         writersReaderDelta += reader.groupSize
     }
 
@@ -3632,11 +3424,12 @@ internal class ComposerImpl(
                     )
                     parentContext.deletedMovableContent(reference)
                     recordSlotEditing()
-                    record { _, slots, _ -> releaseMovableGroupAtCurrent(reference, slots) }
+                    changeListWriter.releaseMovableGroupAtCurrent(
+                        composition, parentContext, reference
+                    )
                     if (needsNodeDelete) {
                         realizeMovement()
-                        realizeUps()
-                        realizeDowns()
+                        changeListWriter.pushPendingUpsAndDowns()
                         val nodeCount = if (reader.isNode(group)) 1 else reader.nodeCount(group)
                         if (nodeCount > 0) {
                             recordRemoveNode(nodeIndex, nodeCount)
@@ -3679,7 +3472,7 @@ internal class ComposerImpl(
                     val isNode = reader.isNode(current)
                     if (isNode) {
                         realizeMovement()
-                        recordDown(reader.node(current))
+                        changeListWriter.moveDown(reader.node(current))
                     }
                     runningNodeCount += reportGroup(
                         group = current,
@@ -3688,7 +3481,7 @@ internal class ComposerImpl(
                     )
                     if (isNode) {
                         realizeMovement()
-                        recordUp()
+                        changeListWriter.moveUp()
                     }
                     current += reader.groupSize(current)
                 }
@@ -3697,99 +3490,6 @@ internal class ComposerImpl(
         }
         reportGroup(groupBeingRemoved, needsNodeDelete = false, nodeIndex = 0)
         realizeMovement()
-    }
-
-    /**
-     * Release the reference the movable group stored in [slots] to the recomposer for to be used
-     * to insert to insert to other locations.
-     */
-    private fun releaseMovableGroupAtCurrent(
-        reference: MovableContentStateReference,
-        slots: SlotWriter
-    ) {
-        val slotTable = SlotTable()
-
-        // Write a table that as if it was written by a calling
-        // invokeMovableContentLambda because this might be removed from the
-        // composition before the new composition can be composed to receive it. When
-        // the new composition receives the state it must recompose over the state by
-        // calling invokeMovableContentLambda.
-        val anchors = slotTable.write { writer ->
-            writer.beginInsert()
-
-            // This is the prefix created by invokeMovableContentLambda
-            writer.startGroup(movableContentKey, reference.content)
-            writer.markGroup()
-            writer.update(reference.parameter)
-
-            // Move the content into current location
-            val anchors = slots.moveTo(reference.anchor, 1, writer)
-
-            // skip the group that was just inserted.
-            writer.skipGroup()
-
-            // End the group that represents the call to invokeMovableContentLambda
-            writer.endGroup()
-
-            writer.endInsert()
-
-            anchors
-        }
-
-        val state = MovableContentState(slotTable)
-        if (RecomposeScopeImpl.hasAnchoredRecomposeScopes(slotTable, anchors)) {
-            // Copy this into a local so the `movableContentRecomposeScopeOwner` captures
-            // only the value of `composition` not the composer not the composer's reference
-            // to the composition, which might change if we move to a composer per thread model
-            // instead of the current composer per composition, and the owner of the recompose
-            // scope is the composition, not the composer.
-            val composition = composition
-
-            // If any recompose scopes are invalidated while the movable content is outside
-            // a composition, ensure the reference is updated to contain the invalidation.
-            val movableContentRecomposeScopeOwner = object : RecomposeScopeOwner {
-                override fun invalidate(
-                    scope: RecomposeScopeImpl,
-                    instance: Any?
-                ): InvalidationResult {
-                    // Try sending this to the original owner first.
-                    val result = (composition as? RecomposeScopeOwner)?.invalidate(scope, instance)
-                        ?: InvalidationResult.IGNORED
-
-                    // If the original owner ignores this then we need to record it in the
-                    // reference
-                    if (result == InvalidationResult.IGNORED) {
-                        reference.invalidations += scope to instance?.let {
-                            IdentityArraySet<Any>().also { it.add(it) }
-                        }
-                        return InvalidationResult.SCHEDULED
-                    }
-                    return result
-                }
-
-                // The only reason [recomposeScopeReleased] is called is when the recompose scope is
-                // removed from the table. First, this never happens for content that is moving, and
-                // 2) even if it did the only reason we tell the composer is to clear tracking
-                // tables that contain this information which is not relevant here.
-                override fun recomposeScopeReleased(scope: RecomposeScopeImpl) {
-                    // Nothing to do
-                }
-
-                // [recordReadOf] this is also something that would happen only during active
-                // recomposition which doesn't happened to a slot table that is moving.
-                override fun recordReadOf(value: Any) {
-                    // Nothing to do
-                }
-            }
-            slotTable.write { writer ->
-                RecomposeScopeImpl.adoptAnchoredScopes(
-                    slots = writer,
-                    anchors = anchors,
-                    newOwner = movableContentRecomposeScopeOwner
-                )
-            }
-        }
-        parentContext.movableContentStateReleased(reference, state)
     }
 
     /**
@@ -3802,11 +3502,11 @@ internal class ComposerImpl(
             deferredChanges = changes
             slotTable.read { reader ->
                 this.reader = reader
-                withChanges(changes) {
+                changeListWriter.withChangeList(changes) {
                     reportFreeMovableContent(0)
-                    realizeUps()
+                    changeListWriter.pushPendingUpsAndDowns()
                     if (startedGroup) {
-                        record(skipToGroupEndInstance)
+                        changeListWriter.skipToEndOfCurrentGroup()
                         recordEndRoot()
                     }
                 }
@@ -3834,13 +3534,15 @@ internal class ComposerImpl(
             if (startedGroups.peekOr(invalidGroupLocation) != location) {
                 if (!startedGroup && implicitRootStart) {
                     // We need to ensure the root group is started.
-                    recordSlotTableOperation(change = startRootGroup)
+                    recordSlotTableOperation()
+                    changeListWriter.ensureRootStarted()
                     startedGroup = true
                 }
                 if (location > 0) {
                     val anchor = reader.anchor(location)
                     startedGroups.push(location)
-                    recordSlotTableOperation { _, slots, _ -> slots.ensureStarted(anchor) }
+                    recordSlotTableOperation()
+                    changeListWriter.ensureGroupStarted(anchor)
                 }
             }
         }
@@ -3852,19 +3554,21 @@ internal class ComposerImpl(
         runtimeCheck(currentStartedGroup <= location) { "Missed recording an endGroup" }
         if (startedGroups.peekOr(-1) == location) {
             startedGroups.pop()
-            recordSlotTableOperation(change = endGroupInstance)
+            recordSlotTableOperation()
+            changeListWriter.endCurrentGroup()
         }
     }
 
     private fun recordEndRoot() {
         if (startedGroup) {
-            recordSlotTableOperation(change = endGroupInstance)
+            recordSlotTableOperation()
+            changeListWriter.endCurrentGroup()
             startedGroup = false
         }
     }
 
     private fun finalizeCompose() {
-        realizeUps()
+        changeListWriter.finalizeComposition()
         runtimeCheck(pendingStack.isEmpty()) { "Start/end imbalance" }
         runtimeCheck(startedGroups.isEmpty()) { "Missed recording an endGroup()" }
         cleanUpCompose()
@@ -3926,13 +3630,15 @@ internal class ComposerImpl(
             if (previousRemove >= 0) {
                 val removeIndex = previousRemove
                 previousRemove = -1
-                recordApplierOperation { applier, _, _ -> applier.remove(removeIndex, count) }
+                recordApplierOperation()
+                changeListWriter.removeNode(removeIndex, count)
             } else {
                 val from = previousMoveFrom
                 previousMoveFrom = -1
                 val to = previousMoveTo
                 previousMoveTo = -1
-                recordApplierOperation { applier, _, _ -> applier.move(from, to, count) }
+                recordApplierOperation()
+                changeListWriter.moveNode(to, from, count)
             }
         }
     }
@@ -4452,18 +4158,6 @@ private fun SlotReader.nearestCommonRootOf(a: Int, b: Int, common: Int): Int {
     // ca == cb so it doesn't matter which is returned
     return currentA
 }
-
-private val removeCurrentGroupInstance: Change = { _, slots, rememberManager ->
-    slots.removeCurrentGroup(rememberManager)
-}
-
-private val skipToGroupEndInstance: Change = { _, slots, _ -> slots.skipToGroupEnd() }
-
-private val endGroupInstance: Change = { _, slots, _ -> slots.endGroup() }
-
-private val startRootGroup: Change = { _, slots, _ -> slots.ensureStarted(0) }
-
-private val resetSlotsInstance: Change = { _, slots, _ -> slots.reset() }
 
 private val KeyInfo.joinedKey: Any get() = if (objectKey != null) JoinedKey(key, objectKey) else key
 
