@@ -46,7 +46,7 @@ import kotlinx.coroutines.launch
 * split rule and then launching the activities in the same task using
 * [Activity.startActivity()][android.app.Activity.startActivity].
 */
-class SplitController private constructor(private val embeddingBackend: EmbeddingBackend) {
+class SplitController internal constructor(private val embeddingBackend: EmbeddingBackend) {
 
     /** A [ReentrantLock] to protect against concurrent access to [consumerToJobMap]. */
     private val lock = ReentrantLock()
