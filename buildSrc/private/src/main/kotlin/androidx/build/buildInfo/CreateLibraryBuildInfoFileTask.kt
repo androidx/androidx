@@ -205,7 +205,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                     )
                 )
                 task.commit.set(shaProvider)
-                task.groupIdRequiresSameVersion.set(mavenGroup?.requireSameVersion)
+                task.groupIdRequiresSameVersion.set(mavenGroup?.requireSameVersion ?: false)
                 task.groupZipPath.set(project.getGroupZipPath())
                 task.projectZipPath.set(project.getProjectZipPath())
 
@@ -297,8 +297,26 @@ private fun Project.createTaskForComponent(
     libraryGroup: LibraryGroup?,
     artifactId: String
 ) {
-    val task: TaskProvider<CreateLibraryBuildInfoFileTask> =
-        CreateLibraryBuildInfoFileTask.setup(
+    val task = createBuildInfoTask(
+        pub,
+        libraryGroup,
+        artifactId,
+        project.provider {
+            project.getFrameworksSupportCommitShaAtHead()
+        }
+    )
+    rootProject.tasks.named(CreateLibraryBuildInfoFileTask.TASK_NAME)
+        .configure { it.dependsOn(task) }
+    addTaskToAggregateBuildInfoFileTask(task)
+}
+
+private fun Project.createBuildInfoTask(
+    pub: ProjectComponentPublication,
+    libraryGroup: LibraryGroup?,
+    artifactId: String,
+    shaProvider: Provider<String>
+): TaskProvider<CreateLibraryBuildInfoFileTask> {
+    return CreateLibraryBuildInfoFileTask.setup(
             project = project,
             mavenGroup = libraryGroup,
             variant = VariantPublishPlan(
@@ -316,14 +334,8 @@ private fun Project.createTaskForComponent(
                             component.usages.orEmpty().flatMap { it.dependencyConstraints }
                     }.orEmpty()
             }),
-            shaProvider = project.provider {
-                project.getFrameworksSupportCommitShaAtHead()
-            }
+        shaProvider = shaProvider
         )
-
-    rootProject.tasks.named(CreateLibraryBuildInfoFileTask.TASK_NAME)
-        .configure { it.dependsOn(task) }
-    addTaskToAggregateBuildInfoFileTask(task)
 }
 
 private fun dependenciesOnKmpVariants(component: SoftwareComponentInternal) =
