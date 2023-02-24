@@ -23,6 +23,7 @@ import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.BinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ClientBinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
+import androidx.privacysandbox.tools.core.generator.GenerationTarget
 import androidx.privacysandbox.tools.core.generator.PrivacySandboxExceptionFileGenerator
 import androidx.privacysandbox.tools.core.generator.ServiceFactoryFileGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
@@ -129,7 +130,7 @@ class PrivacySandboxApiGenerator {
         val stubDelegateGenerator = StubDelegatesGenerator(basePackageName, binderCodeConverter)
         api.callbacks.forEach {
             interfaceFileGenerator.generate(it).writeTo(output)
-            stubDelegateGenerator.generate(it).writeTo(output)
+            stubDelegateGenerator.generate(it, GenerationTarget.CLIENT).writeTo(output)
         }
     }
 
@@ -144,7 +145,7 @@ class PrivacySandboxApiGenerator {
         val annotatedInterfaces = api.services + api.interfaces
         annotatedInterfaces.forEach {
             interfaceFileGenerator.generate(it).writeTo(output)
-            clientProxyGenerator.generate(it).writeTo(output)
+            clientProxyGenerator.generate(it, GenerationTarget.CLIENT).writeTo(output)
         }
     }
 
@@ -154,7 +155,8 @@ class PrivacySandboxApiGenerator {
         output: File
     ) {
         val valueFileGenerator = ValueFileGenerator()
-        val valueConverterFileGenerator = ValueConverterFileGenerator(binderCodeConverter)
+        val valueConverterFileGenerator =
+            ValueConverterFileGenerator(binderCodeConverter, GenerationTarget.CLIENT)
         api.values.forEach {
             valueFileGenerator.generate(it).writeTo(output)
             valueConverterFileGenerator.generate(it).writeTo(output)

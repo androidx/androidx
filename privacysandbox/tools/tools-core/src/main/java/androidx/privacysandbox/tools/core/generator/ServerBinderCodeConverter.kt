@@ -16,8 +16,14 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
+import androidx.privacysandbox.tools.core.generator.SpecNames.toCoreLibInfoMethod
+import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator.Companion.fromParcelableMethodName
+import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator.Companion.toParcelableMethodName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 
 class ServerBinderCodeConverter(private val api: ParsedApi) : BinderCodeConverter(api) {
@@ -31,6 +37,54 @@ class ServerBinderCodeConverter(private val api: ParsedApi) : BinderCodeConverte
     override fun convertToInterfaceBinderCode(
         annotatedInterface: AnnotatedInterface,
         expression: String
-    ): CodeBlock =
-        CodeBlock.of("%T(%L)", annotatedInterface.stubDelegateNameSpec(), expression)
+    ): CodeBlock {
+        if (annotatedInterface.inheritsSandboxedUiAdapter) {
+            return CodeBlock.builder().build {
+                addNamed(
+                    "%coreLibInfoConverter:T.%toParcelable:N(" +
+                        "%interface:L.%toCoreLibInfo:M(%context:N), " +
+                        "%stubDelegate:T(%interface:L, %context:N)" +
+                        ")",
+                    hashMapOf<String, Any>(
+                        "coreLibInfoConverter" to ClassName(
+                            annotatedInterface.type.packageName,
+                            annotatedInterface.coreLibInfoConverterName()
+                        ),
+                        "toParcelable" to toParcelableMethodName,
+                        "interface" to expression,
+                        "toCoreLibInfo" to toCoreLibInfoMethod,
+                        "context" to contextPropertyName,
+                        "stubDelegate" to annotatedInterface.stubDelegateNameSpec()
+                    )
+                )
+            }
+        }
+        return CodeBlock.of(
+            "%T(%L, %N)",
+            annotatedInterface.stubDelegateNameSpec(),
+            expression,
+            contextPropertyName,
+        )
+    }
+
+    override fun convertToInterfaceBinderType(annotatedInterface: AnnotatedInterface) =
+        annotatedInterface.aidlType().innerType.poetTypeName()
+
+    override fun convertToValueBinderCode(value: AnnotatedValue, expression: String): CodeBlock =
+        CodeBlock.of(
+            "%T(%N).%N(%L)",
+            value.converterNameSpec(),
+            contextPropertyName,
+            toParcelableMethodName,
+            expression
+        )
+
+    override fun convertToValueModelCode(value: AnnotatedValue, expression: String): CodeBlock =
+        CodeBlock.of(
+            "%T(%N).%N(%L)",
+            value.converterNameSpec(),
+            contextPropertyName,
+            fromParcelableMethodName,
+            expression,
+        )
 }
