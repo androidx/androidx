@@ -20,7 +20,7 @@
 package androidx.health.connect.client.impl.platform.records
 
 import android.health.connect.AggregateRecordsRequest
-import android.health.connect.ChangeLogTokenRequest
+import android.health.connect.changelog.ChangeLogTokenRequest
 import android.health.connect.ReadRecordsRequestUsingFilters
 import android.health.connect.TimeInstantRangeFilter
 import android.health.connect.datatypes.AggregationType
