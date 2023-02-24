@@ -55,6 +55,7 @@ dependencies {
     implementation(project(":compose:integration-tests:demos:common"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:ui:ui-util"))
     implementation(project(":compose:ui:ui:ui-samples"))
     implementation(project(":compose:material:material-icons-core"))
 
