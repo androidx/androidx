@@ -26,7 +26,6 @@ import org.junit.runners.JUnit4
 /** Test the Privacy Sandbox API Compiler with an SDK that uses all available features. */
 @RunWith(JUnit4::class)
 class FullFeaturedSdkTest {
-
     @Test
     fun compileServiceInterface_ok() {
         val inputTestDataDir = File("src/test/test-data/fullfeaturedsdk/input")
@@ -46,6 +45,7 @@ class FullFeaturedSdkTest {
             "com/mysdk/IMySecondInterface.java",
             "com/mysdk/IMyUiInterface.java",
             "com/mysdk/IMyUiInterfaceCoreLibInfoAndBinderWrapper.java",
+            "com/mysdk/IMyUiInterfaceTransactionCallback.java",
             "com/mysdk/IMySecondInterfaceTransactionCallback.java",
             "com/mysdk/IResponseTransactionCallback.java",
             "com/mysdk/IStringTransactionCallback.java",
