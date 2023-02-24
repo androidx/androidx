@@ -18,6 +18,7 @@ package androidx.compose.foundation.textfield
 
 import android.os.SystemClock
 import android.view.InputDevice
+import android.view.InputDevice.SOURCE_DPAD
 import android.view.KeyEvent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -327,7 +328,7 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on left
-        keyPressOnPhysicalKeyboard(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT)) return
 
         // Check if the element to the left of text field gains focus
         rule.onNodeWithTag("test-button-left").assertIsFocused()
@@ -343,7 +344,7 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on right
-        keyPressOnPhysicalKeyboard(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT)) return
 
         // Check if the element to the right of text field gains focus
         rule.onNodeWithTag("test-button-right").assertIsFocused()
@@ -359,7 +360,7 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on top
-        keyPressOnPhysicalKeyboard(rule, NativeKeyEvent.KEYCODE_DPAD_UP)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_UP)) return
 
         // Check if the element on the top of text field gains focus
         rule.onNodeWithTag("test-button-top").assertIsFocused()
@@ -375,7 +376,7 @@ class TextFieldFocusTest {
         rule.waitForIdle()
 
         // Move focus to the focusable element on bottom
-        keyPressOnPhysicalKeyboard(rule, NativeKeyEvent.KEYCODE_DPAD_DOWN)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_DOWN)) return
 
         // Check if the element to the bottom of text field gains focus
         rule.onNodeWithTag("test-button-bottom").assertIsFocused()
@@ -395,7 +396,7 @@ class TextFieldFocusTest {
         }
 
         // Check if keyboard is enabled on Dpad center key press
-        keyPressOnPhysicalKeyboard(rule, NativeKeyEvent.KEYCODE_DPAD_CENTER)
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_CENTER)) return
         keyboardHelper.waitForKeyboardVisibility(true)
         rule.runOnIdle {
             assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
@@ -529,28 +530,33 @@ class TextFieldFocusTest {
         }
     }
 
-    // Triggers a key press on the root node from a non-virtual device
-    private fun keyPressOnPhysicalKeyboard(
+    // Triggers a key press on the root node from a non-virtual dpad device ( if supported)
+    private fun keyPressOnDpadInputDevice(
         rule: ComposeContentTestRule,
         keyCode: Int,
         count: Int = 1
-    ) {
+    ): Boolean {
+        val deviceId = InputDevice.getDeviceIds().firstOrNull { id ->
+            InputDevice.getDevice(id)?.isVirtual?.not() ?: false &&
+                InputDevice.getDevice(id)?.supportsSource(SOURCE_DPAD) ?: false
+        } ?: return false
+        val keyEventDown = KeyEvent(
+            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_DOWN, keyCode, 0, 0,
+            deviceId, 0, 0, SOURCE_DPAD
+        )
+        val keyEventUp = KeyEvent(
+            SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_UP, keyCode, 0, 0,
+            deviceId, 0, 0, SOURCE_DPAD
+        )
+
         repeat(count) {
-            val deviceId = InputDevice.getDeviceIds().first { id ->
-                InputDevice.getDevice(id)?.isVirtual?.not() ?: false
-            }
-            val keyEventDown = KeyEvent(
-                SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-                KeyEvent.ACTION_DOWN, keyCode, 0, 0, deviceId, 0
-            )
             rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(keyEventDown))
             rule.waitForIdle()
-            val keyEventUp = KeyEvent(
-                SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-                KeyEvent.ACTION_UP, keyCode, 0, 0, deviceId, 0
-            )
             rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(keyEventUp))
         }
+        return true
     }
 
     // Triggers a key press on the virtual keyboard
