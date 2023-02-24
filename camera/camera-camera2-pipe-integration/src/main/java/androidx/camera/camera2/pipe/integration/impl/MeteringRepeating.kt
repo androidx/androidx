@@ -28,7 +28,9 @@ import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.error
+import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
+import androidx.camera.camera2.pipe.integration.compat.workaround.getSupportedRepeatingSurfaceSizes
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
@@ -140,7 +142,7 @@ class MeteringRepeating(
     }
 
     private fun getProperPreviewSize(): Size {
-        val outputSizes = cameraProperties.getOutputSizes()
+        var outputSizes = cameraProperties.getOutputSizes()
 
         if (outputSizes == null) {
             error { "Can not get output size list." }
@@ -152,7 +154,13 @@ class MeteringRepeating(
             return DEFAULT_PREVIEW_SIZE
         }
 
-        // TODO(b/256805716): get supported output sizes handling quirks.
+        val supportedOutputSizes = outputSizes.getSupportedRepeatingSurfaceSizes()
+
+        if (supportedOutputSizes.isNotEmpty()) {
+            outputSizes = supportedOutputSizes
+        } else {
+            warn { "No supported output size list, fallback to current list" }
+        }
 
         outputSizes.sortBy { size -> size.width.toLong() * size.height.toLong() }
 

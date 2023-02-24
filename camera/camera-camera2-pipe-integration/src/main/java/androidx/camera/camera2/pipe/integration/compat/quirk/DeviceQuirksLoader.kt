@@ -33,9 +33,13 @@ object DeviceQuirksLoader {
     fun loadQuirks(): List<Quirk> {
         val quirks: MutableList<Quirk> = mutableListOf()
 
-        // Load all device specific quirks.
-        if (InvalidVideoProfilesQuirk.load()) {
+        // Load all device specific quirks, preferably in lexicographical order
+        if (InvalidVideoProfilesQuirk.isEnabled()) {
             quirks.add(InvalidVideoProfilesQuirk())
+        }
+
+        if (RepeatingStreamConstraintForVideoRecordingQuirk.isEnabled()) {
+            quirks.add(RepeatingStreamConstraintForVideoRecordingQuirk())
         }
 
         return quirks
