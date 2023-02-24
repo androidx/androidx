@@ -35,7 +35,7 @@ import java.util.Objects;
 @CarProtocol
 @ExperimentalCarApi
 @KeepFields
-@RequiresCarApi(6)
+@RequiresCarApi(7)
 public class Badge {
 
     private final boolean mHasDot;
