@@ -411,6 +411,13 @@
   <string name="secondary_action_toast">Secondary Action is selected</string>
   <string name="row_primary_action_toast">Row primary action is selected</string>
 
+
+  <!--SectionedItemListDemoScreen -->
+  <string name="sectioned_item_list_demo_title">Sectioned Item List Demo</string>
+  <string name="sectioned_item_list_one_title">List 1</string>
+  <string name="sectioned_item_list_two_title">List 2</string>
+  <string name="sectioned_item_list_subtext">Subtext under each list</string>
+
   <!-- StartScreen -->
   <string name="misc_templates_demos_title">Misc Templates Demos</string>
   <string name="cal_api_level_prefix" translatable="false">CAL API Level: %d</string>
