@@ -21,7 +21,6 @@ import android.content.Context;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.ApiHelperForP;
 import androidx.webkit.internal.StartupApiFeature;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -164,14 +163,11 @@ public class ProcessGlobalConfig {
      * @throws UnsupportedOperationException if underlying WebView does not support the use of
      *                                       the method.
      * @throws IllegalArgumentException if the paths supplied do not have the right permissions
-     *
-     * @hide
      */
     @RequiresFeature(name = WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH,
             enforcement =
                     "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
     @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public ProcessGlobalConfig setDirectoryBasePath(@NonNull Context context,
             @NonNull String dataDirectoryBasePath, @NonNull String cacheDirectoryBasePath) {
         final StartupApiFeature.NoFramework feature =
