@@ -17,12 +17,14 @@
 package androidx.appactions.interaction.capabilities.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment;
 
 import com.google.auto.value.AutoValue;
 
 /** Represents metadata from the Assistant FulfillmentRequest. */
 @AutoValue
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RequestMetadata {
 
     /** Create a Builder instance for building a RequestMetadata instance. */
