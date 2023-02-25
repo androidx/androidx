@@ -16,7 +16,10 @@
 
 package androidx.appactions.interaction.capabilities.core.impl;
 
+import androidx.annotation.RestrictTo;
+
 /** A class to define exceptions that are reported from dialog capability API. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum ErrorStatusInternal {
     CANCELLED(0),
     TIMEOUT(1),
