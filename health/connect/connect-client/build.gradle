@@ -31,7 +31,7 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
-    api(libs.kotlinStdlib)
+    implementation(libs.kotlinStdlib)
     // Add dependencies here
     api("androidx.activity:activity:1.2.0")
     api("androidx.annotation:annotation:1.2.0")
