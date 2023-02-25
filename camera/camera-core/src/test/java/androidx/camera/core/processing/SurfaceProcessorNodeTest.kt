@@ -339,6 +339,43 @@ class SurfaceProcessorNodeTest {
     }
 
     @Test
+    fun setRotationAndMirroringToInput_applyCropRotateAndMirroring_rotationIsPropagated() {
+        // Arrange.
+        createSurfaceProcessorNode()
+        createInputEdge(previewRotationDegrees = 90, mirroring = true)
+        val inputSurface = nodeInput.surfaceEdge
+        val nodeOutput = node.transform(nodeInput)
+        provideSurfaces(nodeOutput)
+        shadowOf(getMainLooper()).idle()
+
+        // Act: update rotation degrees
+        inputSurface.rotationDegrees = 270
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: surfaceOutput of SurfaceProcessor will consume the initial rotation degrees and
+        // output surface will receive the remaining degrees.
+        val previewSurfaceOutput =
+            surfaceProcessorInternal.surfaceOutputs[PREVIEW]!! as SurfaceOutputImpl
+        assertThat(previewSurfaceOutput.rotationDegrees).isEqualTo(90)
+        assertThat(previewTransformInfo.rotationDegrees).isEqualTo(180)
+        assertThat(previewSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
+        assertThat(previewSurfaceOutput.mirroring).isTrue()
+        val videoSurfaceOutput =
+            surfaceProcessorInternal.surfaceOutputs[VIDEO_CAPTURE]!! as SurfaceOutputImpl
+        assertThat(videoSurfaceOutput.rotationDegrees).isEqualTo(90)
+        assertThat(videoTransformInfo.rotationDegrees).isEqualTo(180)
+        assertThat(videoSurfaceOutput.inputSize).isEqualTo(INPUT_SIZE)
+        assertThat(videoSurfaceOutput.mirroring).isTrue()
+
+        // Act: update rotation degrees
+        inputSurface.rotationDegrees = 180
+        shadowOf(getMainLooper()).idle()
+        // Assert: video rotation is the same as preview and are compensated by mirroring.
+        assertThat(previewTransformInfo.rotationDegrees).isEqualTo(270)
+        assertThat(videoTransformInfo.rotationDegrees).isEqualTo(270)
+    }
+
+    @Test
     fun provideSurfaceToOutput_surfaceIsPropagatedE2E() {
         // Arrange.
         createSurfaceProcessorNode()
@@ -379,7 +416,7 @@ class SurfaceProcessorNodeTest {
     private fun createInputEdge(
         previewTarget: Int = PREVIEW,
         previewSize: Size = INPUT_SIZE,
-        sensorToBufferTransform: android.graphics.Matrix = android.graphics.Matrix(),
+        sensorToBufferTransform: Matrix = Matrix(),
         hasCameraTransform: Boolean = true,
         previewCropRect: Rect = PREVIEW_CROP_RECT,
         previewRotationDegrees: Int = ROTATION_DEGREES,

@@ -52,7 +52,6 @@ import androidx.core.util.Preconditions;
 import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +117,7 @@ public class SurfaceProcessorNode implements
         for (OutConfig config : input.getOutConfigs()) {
             mOutput.put(config, transformSingleOutput(inputSurface, config));
         }
-        sendSurfaceRequest(inputSurface, mOutput.values());
+        sendSurfaceRequest(inputSurface, mOutput);
         sendSurfaceOutputs(inputSurface, mOutput);
         return mOutput;
     }
@@ -141,7 +140,7 @@ public class SurfaceProcessorNode implements
 
         // The aspect ratio of the output must match the aspect ratio of the crop rect. Otherwise
         // the output will be stretched.
-        Size rotatedCropSize = getRotatedSize(outConfig.getCropRect(), rotationDegrees);
+        Size rotatedCropSize = getRotatedSize(cropRect, rotationDegrees);
         checkArgument(isAspectRatioMatchingWithRoundingError(rotatedCropSize, outConfig.getSize()));
 
         StreamSpec streamSpec = StreamSpec.builder(outConfig.getSize())
@@ -167,7 +166,7 @@ public class SurfaceProcessorNode implements
      * Creates {@link SurfaceRequest} and send it to {@link SurfaceProcessor}.
      */
     private void sendSurfaceRequest(@NonNull SurfaceEdge input,
-            @NonNull Collection<SurfaceEdge> outputs) {
+            @NonNull Map<OutConfig, SurfaceEdge> outputs) {
         SurfaceRequest surfaceRequest = input.createSurfaceRequest(mCameraInternal);
         setUpRotationUpdates(
                 surfaceRequest,
@@ -239,20 +238,20 @@ public class SurfaceProcessorNode implements
      */
     void setUpRotationUpdates(
             @NonNull SurfaceRequest inputSurfaceRequest,
-            @NonNull Collection<SurfaceEdge> outputs,
+            @NonNull Map<OutConfig, SurfaceEdge> outputs,
             int rotatedDegrees) {
         inputSurfaceRequest.setTransformationInfoListener(mainThreadExecutor(), info -> {
-            for (SurfaceEdge output : outputs) {
+            for (Map.Entry<OutConfig, SurfaceEdge> output : outputs.entrySet()) {
                 // To obtain the rotation degrees delta, the rotation performed by the node must be
                 // eliminated.
                 int rotationDegrees = info.getRotationDegrees() - rotatedDegrees;
-                if (output.getMirroring()) {
+                if (output.getKey().getMirroring()) {
                     // The order of transformation is cropping -> rotation -> mirroring. To
                     // change the rotation, one must consider the mirroring.
                     rotationDegrees = -rotationDegrees;
                 }
                 rotationDegrees = within360(rotationDegrees);
-                output.setRotationDegrees(rotationDegrees);
+                output.getValue().setRotationDegrees(rotationDegrees);
             }
         });
     }
