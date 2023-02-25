@@ -118,6 +118,19 @@ class TaskCapabilityImplTest {
     }
 
     @Test
+    fun actionCapabilitySession_getUiHandle() {
+        val externalSession = object : Session {}
+        val capability = createCapability(
+            SINGLE_REQUIRED_FIELD_PROPERTY,
+            SessionBuilder { externalSession },
+            SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+            ::EmptyTaskUpdater,
+        )
+        val session = capability.createSession(hostProperties)
+        assertThat(session.uiHandle).isSameInstanceAs(externalSession)
+    }
+
+    @Test
     @kotlin.Throws(Exception::class)
     fun onInitInvoked_invokedOnce() {
         val onSuccessInvocationCount = AtomicInteger(0)

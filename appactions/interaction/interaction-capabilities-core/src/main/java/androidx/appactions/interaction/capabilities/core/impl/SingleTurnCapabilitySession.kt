@@ -19,7 +19,7 @@ package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.NonNull
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.ActionExecutor
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.FutureCallback
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
@@ -40,7 +40,7 @@ internal class SingleTurnCapabilitySession<
     OutputT,
     >(
     val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
-    val externalSession: BaseSession<ArgumentT, OutputT>,
+    val actionExecutor: ActionExecutor<ArgumentT, OutputT>,
 ) : ActionCapabilitySession {
     override val state: AppAction
         get() {
@@ -50,6 +50,10 @@ internal class SingleTurnCapabilitySession<
         get() {
             throw UnsupportedOperationException()
         }
+
+    override fun destroy() {}
+
+    override val uiHandle: Any = actionExecutor
 
     // single-turn capability does not have touch events
     override fun setTouchEventCallback(callback: TouchEventCallback) {
@@ -73,7 +77,7 @@ internal class SingleTurnCapabilitySession<
             }
         val argument = actionSpec.buildArgument(paramValuesMap)
         Futures.addCallback(
-            externalSession.onFinishAsync(argument),
+            actionExecutor.executeAsync(argument),
             object : FutureCallback<ExecutionResult<OutputT>> {
                 override fun onSuccess(executionResult: ExecutionResult<OutputT>) {
                     callback.onSuccess(convertToFulfillmentResponse(executionResult))
