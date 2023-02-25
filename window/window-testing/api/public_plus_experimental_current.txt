@@ -5,6 +5,8 @@ package androidx.window.testing.embedding {
     ctor public ActivityEmbeddingTestRule();
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
     method public void overrideIsActivityEmbedded(android.app.Activity activity, boolean isActivityEmbedded);
+    method public void overrideSplitInfo(android.app.Activity activity, java.util.List<androidx.window.embedding.SplitInfo> splitInfoList);
+    method public void overrideSplitSupportStatus(androidx.window.embedding.SplitController.SplitSupportStatus status);
   }
 
   public final class TestSplitAttributesCalculatorParams {

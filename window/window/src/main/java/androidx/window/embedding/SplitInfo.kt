@@ -18,9 +18,11 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.os.IBinder
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 /** Describes a split pair of two containers with activities. */
-class SplitInfo internal constructor(
+class SplitInfo @RestrictTo(LIBRARY_GROUP) constructor(
     /**
      * The [ActivityStack] representing the primary split container.
      */
