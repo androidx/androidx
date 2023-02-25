@@ -235,7 +235,7 @@ class MultiParagraph(
     /**
      * The width for text if all soft wrap opportunities were taken.
      */
-    val minIntrinsicWidth: Float get() = intrinsics.maxIntrinsicWidth
+    val minIntrinsicWidth: Float get() = intrinsics.minIntrinsicWidth
 
     /**
      * Returns the smallest width beyond which increasing the width never
