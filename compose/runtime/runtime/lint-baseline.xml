@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(0)"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/jvmTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTestsJvm.kt"/>
+    </issue>
 
     <issue
         id="ExperimentalPropertyAnnotation"
