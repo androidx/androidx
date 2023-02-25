@@ -300,7 +300,8 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
     }
 
     // TODO: add cleanup logic if any
-    private void terminate() {
+    void terminate() {
+        this.mExternalSession.onDestroy();
         this.mTaskStatus = ActionCapabilitySession.Status.DESTROYED;
     }
 

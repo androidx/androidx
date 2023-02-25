@@ -45,6 +45,13 @@ internal class TaskCapabilitySession<
     override val status: ActionCapabilitySession.Status
         get() = sessionOrchestrator.getStatus()
 
+    override fun destroy() {
+        // TODO(b/270751989): cancel current processing request immediately
+        this.sessionOrchestrator.terminate()
+    }
+
+    override val uiHandle: Any = externalSession
+
     /** synchronize on this lock to enqueue assistant/manual input requests. */
     private val requestLock = Any()
 
