@@ -17,7 +17,7 @@
 package androidx.baselineprofiles.gradle.producer
 
 import androidx.testutils.gradle.ProjectSetupRule
-import kotlin.test.assertTrue
+import com.google.common.truth.Truth.assertThat
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Before
 import org.junit.Rule
@@ -89,7 +89,13 @@ class BaselineProfilesProducerPluginTest {
             suffix = ""
         )
 
-        val output = gradleRunner.withArguments("tasks", "--stacktrace").build().output
-        assertTrue { output.contains("collectNonMinifiedReleaseBaselineProfiles - ") }
+        gradleRunner
+            .withArguments("tasks", "--stacktrace")
+            .build()
+            .output
+            .let {
+                assertThat(it).contains("connectedNonMinifiedReleaseAndroidTest - ")
+                assertThat(it).contains("collectNonMinifiedReleaseBaselineProfiles - ")
+            }
     }
 }

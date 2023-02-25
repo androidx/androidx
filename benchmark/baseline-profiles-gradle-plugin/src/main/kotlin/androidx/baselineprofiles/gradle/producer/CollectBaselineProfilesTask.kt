@@ -20,10 +20,9 @@ import com.google.testing.platform.proto.api.core.TestSuiteResultProto
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -37,15 +36,9 @@ import org.gradle.work.DisableCachingByDefault
 @DisableCachingByDefault(because = "Not worth caching.")
 abstract class CollectBaselineProfilesTask : DefaultTask() {
 
-    @get:Optional
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val connectedAndroidTestOutputDir: DirectoryProperty
-
-    @get:Optional
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val managedAndroidTestOutputDir: DirectoryProperty
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val testResultDirs: ConfigurableFileCollection
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
@@ -58,17 +51,15 @@ abstract class CollectBaselineProfilesTask : DefaultTask() {
     @TaskAction
     fun exec() {
 
-        // Prepares list with test results to read
-        val testResultProtoFiles =
-            listOf(connectedAndroidTestOutputDir, managedAndroidTestOutputDir)
-                .filter { it.isPresent }
-                .map { it.file("test-result.pb").get().asFile }
+        // Prepares list with test results to read. Note that these are the output directories
+        // from the instrumentation task. We're interested only in `test-result.pb`.
+        val testResultProtoFiles = testResultDirs.files.map { File(it, "test-result.pb") }
 
         // A test-result.pb file must exist as output of connected and managed device tests.
         // If it doesn't exist it's because there were no tests to run. If there are no devices,
         // the test task will simply fail. The following check is to give a meaningful error
         // message if something like that happens.
-        if (testResultProtoFiles.filter { !it.exists() }.isNotEmpty()) {
+        if (testResultProtoFiles.none { it.exists() }) {
             throw GradleException(
                 """
                 Expected test results were not found. This is most likely because there are no

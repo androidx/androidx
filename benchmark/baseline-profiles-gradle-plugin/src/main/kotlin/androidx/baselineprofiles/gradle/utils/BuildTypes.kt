@@ -20,12 +20,13 @@ import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
-internal inline fun <reified T : BuildType> createNonObfuscatedBuildTypes(
+internal inline fun <reified T : BuildType> createExtendedBuildTypes(
     project: Project,
     extension: CommonExtension<*, T, *, *>,
+    newBuildTypePrefix: String,
     crossinline filterBlock: (T) -> (Boolean),
     crossinline configureBlock: T.() -> (Unit),
-    extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String>
+    extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String> = mutableMapOf()
 ) {
     extension.buildTypes.filter { buildType ->
             if (buildType !is T) {
@@ -36,7 +37,7 @@ internal inline fun <reified T : BuildType> createNonObfuscatedBuildTypes(
             filterBlock(buildType)
         }.forEach { buildType ->
 
-            val newBuildTypeName = camelCase(BUILD_TYPE_BASELINE_PROFILE_PREFIX, buildType.name)
+            val newBuildTypeName = camelCase(newBuildTypePrefix, buildType.name)
 
             // Check in case the build type was created manually (to allow full customization)
             if (extension.buildTypes.findByName(newBuildTypeName) != null) {

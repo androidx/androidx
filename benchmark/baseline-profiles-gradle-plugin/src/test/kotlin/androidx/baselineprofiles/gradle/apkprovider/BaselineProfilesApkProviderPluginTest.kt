@@ -16,6 +16,7 @@
 
 package androidx.baselineprofiles.gradle.apkprovider
 
+import androidx.baselineprofiles.gradle.utils.GRADLE_CODE_PRINT_TASK
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
 import org.gradle.testkit.runner.GradleRunner
@@ -41,7 +42,7 @@ class BaselineProfilesApkProviderPluginTest {
     }
 
     @Test
-    fun verifyBuildType() {
+    fun verifyBuildTypes() {
         projectSetup.writeDefaultBuildGradle(
             prefix = """
                 plugins {
@@ -50,22 +51,46 @@ class BaselineProfilesApkProviderPluginTest {
                 }
                 android {
                     namespace 'com.example.namespace'
+                    buildTypes {
+                        anotherRelease { initWith(release) }
+                    }
                 }
-                tasks.register("printBuildType") {
-                    println(android.buildTypes.nonMinifiedRelease)
+
+                $GRADLE_CODE_PRINT_TASK
+
+                def registerTask(buildTypeName, taskName) {
+                    tasks.register(taskName, PrintTask) { t ->
+                        def buildType = android.buildTypes[buildTypeName]
+                        def text = "minifyEnabled=" + buildType.minifyEnabled.toString() + "\n"
+                        text += "testCoverageEnabled=" + buildType.testCoverageEnabled.toString() + "\n"
+                        text += "debuggable=" + buildType.debuggable.toString() + "\n"
+                        text += "profileable=" + buildType.profileable.toString() + "\n"
+                        t.text.set(text)
+                    }
                 }
+                registerTask("nonMinifiedRelease", "printNonMinifiedReleaseBuildType")
+                registerTask("nonMinifiedAnotherRelease", "printNonMinifiedAnotherReleaseBuildType")
             """.trimIndent(),
             suffix = ""
         )
 
-        gradleRunner
-            .withArguments("printBuildType", "--stacktrace")
-            .build()
-            .output
-            .also {
-                assertThat(it).contains("minifyEnabled=false")
-                assertThat(it).contains("testCoverageEnabled=false")
-                assertThat(it).contains("debuggable=false")
+        val runGradleAndAssertOutput: (String, (String) -> (Unit)) -> (Unit) =
+            { taskName, assertBlock ->
+                gradleRunner
+                    .withArguments(taskName, "--stacktrace")
+                    .build()
+                    .output
+                    .let(assertBlock)
+            }
+
+        arrayOf("printNonMinifiedReleaseBuildType", "printNonMinifiedAnotherReleaseBuildType")
+            .forEach { taskName ->
+                runGradleAndAssertOutput(taskName) {
+                    assertThat(it).contains("minifyEnabled=false")
+                    assertThat(it).contains("testCoverageEnabled=false")
+                    assertThat(it).contains("debuggable=false")
+                    assertThat(it).contains("profileable=true")
+                }
             }
     }
 }
