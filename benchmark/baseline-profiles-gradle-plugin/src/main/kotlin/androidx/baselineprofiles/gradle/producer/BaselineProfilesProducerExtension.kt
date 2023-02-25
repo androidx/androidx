@@ -67,4 +67,10 @@ open class BaselineProfilesProducerExtension {
      */
     @Incubating
     var enableEmulatorDisplay = false
+
+    internal val devices by lazy {
+        mutableSetOf<String>()
+            .also { it.addAll(this.managedDevices) }
+            .also { if (this.useConnectedDevices) it.add("connected") }
+    }
 }

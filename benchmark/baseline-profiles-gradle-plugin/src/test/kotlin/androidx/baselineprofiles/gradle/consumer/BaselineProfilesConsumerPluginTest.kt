@@ -17,6 +17,7 @@
 package androidx.baselineprofiles.gradle.consumer
 
 import androidx.baselineprofiles.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
+import androidx.baselineprofiles.gradle.utils.GRADLE_CODE_PRINT_TASK
 import androidx.baselineprofiles.gradle.utils.camelCase
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
@@ -387,6 +388,7 @@ class BaselineProfilesConsumerPluginTest {
             prefix = """
                 plugins {
                     id("com.android.application")
+                    id("androidx.baselineprofiles.apkprovider")
                     id("androidx.baselineprofiles.consumer")
                 }
                 android {
@@ -397,24 +399,38 @@ class BaselineProfilesConsumerPluginTest {
                         paid { dimension "version" }
                     }
                 }
-                android.applicationVariants.all { variant ->
-                    tasks.register(variant.name + "Print") { t ->
-                        println(android.sourceSets[variant.name].baselineProfiles)
+
+                $GRADLE_CODE_PRINT_TASK
+
+                androidComponents {
+                    onVariants(selector()) { variant ->
+                        tasks.register(variant.name + "Print", PrintTask) { t ->
+                            t.text.set(variant.sources.baselineProfiles?.all?.get().toString())
+                        }
                     }
                 }
             """.trimIndent(),
             suffix = ""
         )
-        arrayOf("freeRelease", "paidRelease").forEach {
-            assertThat(
+
+        arrayOf("freeRelease", "paidRelease")
+            .forEach {
+
+                // Expected src set location. Note that src sets are not added if the folder does
+                // not exist so we need to create it.
+                val expected =
+                    File(consumerProjectSetup.rootDir, "src/$it/generated/baselineProfiles")
+                        .apply {
+                            mkdirs()
+                            deleteOnExit()
+                        }
+
                 gradleRunner
                     .withArguments("${it}Print", "--stacktrace")
                     .build()
                     .output
-                    .contains("source=[src/$it/baselineProfiles]")
-            )
-                .isTrue()
-        }
+                    .let { o -> assertThat(o).contains(expected.absolutePath) }
+            }
     }
 
     @Test

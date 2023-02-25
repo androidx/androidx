@@ -89,12 +89,11 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
         }
     }
 
+    @Suppress("UnstableApiUsage")
     private fun configureWithAndroidPlugin(project: Project, isApplication: Boolean) {
 
         // Checks that the required AGP version is applied to this project.
         project.checkAgpVersion()
-
-        // Prepares extensions used by the plugin
 
         val baselineProfilesExtension =
             BaselineProfilesConsumerExtension.registerExtension(project)
@@ -108,51 +107,53 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
             mainConfiguration = null
         )
 
-        // If that's the case, we check that we're generating for a non debuggable build type.
-        val buildTypes = mutableListOf<String>()
+        // Here we select the build types we want to process, i.e. non debuggable build types that
+        // have not been created by the apk provider plugin. Variants are used to create per-variant
+        // configurations, tasks and configured for baseline profiles src sets.
+        val nonDebuggableBuildTypes = mutableListOf<String>()
 
-        // Determines which build types are available if this module is an application.
         // This extension exists only if the module is an application.
         project
             .extensions
             .findByType(ApplicationAndroidComponentsExtension::class.java)
             ?.finalizeDsl { ext ->
-                buildTypes.addAll(ext.buildTypes
+                nonDebuggableBuildTypes.addAll(ext.buildTypes
                     .filter {
-                        !it.isDebuggable &&
-                            !it.name.startsWith(BUILD_TYPE_BASELINE_PROFILE_PREFIX)
+
+                        // We want to enable baseline profile generation only for non-debuggable
+                        // build types. Additionally we exclude the ones we may have created in the
+                        // apk provider plugin if this is also applied to this module.
+                        !it.isDebuggable && !it.name.startsWith(BUILD_TYPE_BASELINE_PROFILE_PREFIX)
                     }
-                    .map { it.name })
+                    .map { it.name }
+                )
             }
 
-        // Determines which build types are available if this module is an application.
         // This extension exists only if the module is a library.
         project
             .extensions
             .findByType(LibraryAndroidComponentsExtension::class.java)
             ?.finalizeDsl { ext ->
-                buildTypes.addAll(ext.buildTypes
+                nonDebuggableBuildTypes.addAll(ext.buildTypes
                     .filter {
 
-                        // Note that library build types don't have a `debuggable` flag.
-                        it.name != "debug" &&
-                            !it.name.startsWith(BUILD_TYPE_BASELINE_PROFILE_PREFIX)
+                        // Note that library build types don't have a `debuggable` flag so we'll
+                        // just exclude the one named `debug`. Note that we don't need to filter
+                        // for baseline profile build type if this is a library, since the apk
+                        // provider cannot be applied.
+                        it.name != "debug"
                     }
                     .map { it.name })
             }
 
-        // Iterate variants to create per-variant tasks and configurations. Note that the src set
-        // api for variants are marked as unstable but there is no other way to do this.
-        @Suppress("UnstableApiUsage")
+        // Iterate baseline profile variants to create per-variant tasks and configurations
         project
             .extensions
             .getByType(AndroidComponentsExtension::class.java)
             .apply {
                 onVariants { variant ->
 
-                    if (variant.buildType !in buildTypes) {
-                        return@onVariants
-                    }
+                    if (variant.buildType !in nonDebuggableBuildTypes) return@onVariants
 
                     // Creates the configuration to carry the specific variant artifact
                     val baselineProfileConfiguration =
@@ -252,8 +253,8 @@ class BaselineProfilesConsumerPlugin : Plugin<Project> {
                             .get()
                             .asFile
 
-                        // If the folder does not exist it means that the profile has not been generated
-                        // so we don't need to add to sources.
+                        // If the folder does not exist it means that the profile has not been
+                        // generated so we don't need to add to sources.
                         if (baselineProfileSourcesFile.exists()) {
                             variant.sources.baselineProfiles?.addStaticSourceDirectory(
                                 baselineProfileSourcesFile.absolutePath
