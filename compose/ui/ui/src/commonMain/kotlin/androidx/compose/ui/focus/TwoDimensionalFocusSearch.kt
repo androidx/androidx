@@ -23,8 +23,6 @@ import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
 import androidx.compose.ui.focus.FocusDirection.Companion.Right
 import androidx.compose.ui.focus.FocusDirection.Companion.Up
-import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
-import androidx.compose.ui.focus.FocusRequester.Companion.Default
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Captured
@@ -33,7 +31,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitChildren
-import androidx.compose.ui.node.visitSubtreeIf
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
@@ -72,15 +69,7 @@ internal fun FocusTargetModifierNode.twoDimensionalFocusSearch(
                     val found = focusedChild.twoDimensionalFocusSearch(direction, onFound)
                     if (found != false) return found
 
-                    // If we don't find a match, we exit this Parent.
-                    // First check if this node has a custom focus exit.
-                    focusedChild
-                        .fetchFocusProperties().exit(direction).takeUnless { it == Default }?.let {
-                            return if (it == Cancel) null else it.findFocusTarget(onFound)
-                        }
-
-                    // If we don't have a custom exit property,
-                    // we search among the siblings of the parent.
+                    // We search among the siblings of the parent.
                     return generateAndSearchChildren(focusedChild.activeNode(), direction, onFound)
                 }
                 // Search for the next eligible sibling.
@@ -111,11 +100,6 @@ internal fun FocusTargetModifierNode.findChildCorrespondingToFocusEnter(
     direction: FocusDirection,
     onFound: (FocusTargetModifierNode) -> Boolean
 ): Boolean {
-
-    // Check if a custom FocusEnter is specified.
-    fetchFocusProperties().enter(direction).takeUnless { it == Default }?.let {
-        return if (it == Cancel) false else it.findFocusTarget(onFound)
-    }
 
     val focusableChildren = MutableVector<FocusTargetModifierNode>()
     collectAccessibleChildren(focusableChildren)
@@ -187,12 +171,7 @@ private fun FocusTargetModifierNode.searchChildren(
         // If the result is not deactivated, this is a valid next item.
         if (nextItem.fetchFocusProperties().canFocus) return onFound.invoke(nextItem)
 
-        // If the result is deactivated, and the deactivated node has a custom Enter, we use it.
-        nextItem.fetchFocusProperties().enter(direction).takeUnless { it == Default }?.let {
-            return if (it == Cancel) false else it.findFocusTarget(onFound)
-        }
-
-        // If the result is deactivated, and there is no custom enter, we search among its children.
+        // If the result is deactivated, we search among its children.
         if (nextItem.generateAndSearchChildren(focusedItem, direction, onFound)) return true
 
         // If there are no results among the children of the deactivated node,
@@ -211,26 +190,12 @@ private fun FocusTargetModifierNode.searchChildren(
 private fun DelegatableNode.collectAccessibleChildren(
     accessibleChildren: MutableVector<FocusTargetModifierNode>
 ) {
-    visitSubtreeIf(Nodes.FocusTarget) {
-
+    visitChildren(Nodes.FocusTarget) {
         if (it.fetchFocusProperties().canFocus) {
             accessibleChildren.add(it)
-            return@visitSubtreeIf false
+        } else {
+            it.collectAccessibleChildren(accessibleChildren)
         }
-
-        // If we encounter a deactivated child, we mimic a moveFocus(Enter).
-        it.fetchFocusProperties().enter(Enter).takeUnless { it == Default }?.let {
-            // If the user declined a custom enter, omit this part of the tree.
-            if (it != Cancel) {
-                it.focusRequesterNodes.forEach { node ->
-                    node.collectAccessibleChildren(accessibleChildren)
-                }
-            }
-            return@visitSubtreeIf false
-        }
-
-        // If there is no custom enter, we consider all the children.
-        return@visitSubtreeIf true
     }
 }
 
