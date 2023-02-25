@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text2.input
 
+import androidx.compose.foundation.text2.TextEditFilter
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -23,7 +25,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
-import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.util.fastForEach
 
 /**
@@ -35,16 +36,13 @@ import androidx.compose.ui.util.fastForEach
  * buffer using [apply].
  */
 internal class EditProcessor(
-    initialValue: TextFieldValue
+    initialValue: TextFieldValue = TextFieldValue(
+        EmptyAnnotatedString,
+        TextRange.Zero,
+        null
+    ),
+    private val filter: TextEditFilter = TextEditFilter { _, new -> new }
 ) {
-
-    constructor() : this(
-        TextFieldValue(
-            EmptyAnnotatedString,
-            TextRange.Zero,
-            null
-        )
-    )
 
     /**
      * The current state of the internal editing buffer as a [TextFieldValue] backed by Snapshot
@@ -60,17 +58,19 @@ internal class EditProcessor(
     )
         private set
 
+    private val resetListeners = mutableVectorOf<ResetListener>()
+
     /**
-     * Must be called whenever new TextFieldValue arrives.
+     * Must be called whenever TextFieldValue needs to change directly, not using EditCommands.
      *
      * This method updates the internal editing buffer with the given TextFieldValue.
      * This method may tell the IME about the selection offset changes or extracted text changes.
      *
-     * Retro; this function seems straightforward but it actually does something very specific
-     * for the previous state hoisting design of TextField. In each recomposition, this function
-     * was supposed to be called from BasicTextField with the new value. However, this new value
-     * wouldn't be new to the internal buffer since the changes coming from IME were already applied
-     * in previous composition and sent through onValueChange to the hoisted state.
+     * Retro(halilibo); this function seems straightforward but it actually does something very
+     * specific for the previous state hoisting design of TextField. In each recomposition, this
+     * function was supposed to be called from BasicTextField with the new value. However, this new
+     * value wouldn't be new to the internal buffer since the changes coming from IME were already
+     * applied in the previous composition and sent through onValueChange to the hoisted state.
      *
      * Therefore, this function has to care for two scenarios. 1) Developer doesn't interfere with
      * the value and the editing buffer doesn't have to change because previous composition value
@@ -83,47 +83,53 @@ internal class EditProcessor(
      * gain a new responsibility in the cases where developer filters the input or adds a template.
      * This would again introduce a need for sync between internal buffer and the state value.
      */
-    fun reset(
-        newValue: TextFieldValue,
-        textInputSession: TextInputSession?,
-    ) {
+    fun reset(newValue: TextFieldValue) {
+        val bufferState = TextFieldValue(
+            mBuffer.toString(),
+            mBuffer.selection,
+            mBuffer.composition
+        )
+
         var textChanged = false
         var selectionChanged = false
         val compositionChanged = newValue.composition != mBuffer.composition
 
-        // TODO(halilibo): String equality check marker.
-        if (value.annotatedString != newValue.annotatedString) {
+        if (bufferState.annotatedString != newValue.annotatedString) {
+            // reset the buffer in its entirety
             mBuffer = EditingBuffer(
                 text = newValue.annotatedString,
                 selection = newValue.selection
             )
             textChanged = true
-        } else if (value.selection != newValue.selection) {
+        } else if (bufferState.selection != newValue.selection) {
             mBuffer.setSelection(newValue.selection.min, newValue.selection.max)
             selectionChanged = true
         }
 
         val composition = newValue.composition
-        if (composition == null) {
+        if (composition == null || composition.collapsed) {
             mBuffer.commitComposition()
-        } else if (!composition.collapsed) {
+        } else {
             mBuffer.setComposition(composition.min, composition.max)
         }
 
-        // this is the same code as in TextInputServiceAndroid class where restartInput is decided.
-        // if restartInput is going to be called the composition has to be cleared otherwise it
-        // results in keyboards behaving strangely.
-        val finalValue = if (textChanged || (!selectionChanged && compositionChanged)) {
+        // TODO(halilibo): This could be unnecessary when we figure out how to correctly
+        //  communicate composing region changes back to IME.
+        if (textChanged || (!selectionChanged && compositionChanged)) {
             mBuffer.commitComposition()
             newValue.copy(composition = null)
-        } else {
-            newValue
         }
 
-        val oldValue = value
-        value = finalValue
+        val finalValue = TextFieldValue(
+            // do not call toString on current buffer unnecessarily.
+            if (textChanged) newValue.annotatedString else bufferState.annotatedString,
+            mBuffer.selection,
+            mBuffer.composition
+        )
 
-        textInputSession?.updateState(oldValue, finalValue)
+        resetListeners.forEach { it.onReset(bufferState, finalValue) }
+
+        value = finalValue
     }
 
     /**
@@ -136,7 +142,7 @@ internal class EditProcessor(
      *
      * @return the [TextFieldValue] representation of the final buffer state.
      */
-    fun update(editCommands: List<EditCommand>): TextFieldValue {
+    fun update(editCommands: List<EditCommand>) {
         var lastCommand: EditCommand? = null
         try {
             editCommands.fastForEach {
@@ -147,14 +153,21 @@ internal class EditProcessor(
             throw RuntimeException(generateBatchErrorMessage(editCommands, lastCommand), e)
         }
 
-        val newState = TextFieldValue(
+        val newValue = TextFieldValue(
             annotatedString = mBuffer.toAnnotatedString(),
             selection = mBuffer.selection,
             composition = mBuffer.composition
         )
 
-        value = newState
-        return newState
+        val oldValue = value
+
+        val filteredValue = filter.filter(oldValue, newValue)
+        if (filteredValue == newValue) {
+            value = filteredValue
+        } else {
+            // reset the buffer to new given state.
+            reset(filteredValue)
+        }
     }
 
     private fun generateBatchErrorMessage(
@@ -172,6 +185,26 @@ internal class EditProcessor(
             val prefix = if (failedCommand === it) " > " else "   "
             prefix + it.toStringForLog()
         }
+    }
+
+    internal fun addResetListener(resetListener: ResetListener) {
+        resetListeners.add(resetListener)
+    }
+
+    internal fun removeResetListener(resetListener: ResetListener) {
+        resetListeners.remove(resetListener)
+    }
+
+    /**
+     * A listener that can be attached to an EditProcessor to listen for reset events. State in
+     * EditProcessor can change through filters or direct access. Unlike IME events (EditCommands),
+     * these direct changes should be immediately passed onto IME to keep editor state and IME in
+     * sync. Moreover, some changes can even require an input session restart to reset the state
+     * in IME.
+     */
+    internal fun interface ResetListener {
+
+        fun onReset(oldValue: TextFieldValue, newValue: TextFieldValue)
     }
 }
 
