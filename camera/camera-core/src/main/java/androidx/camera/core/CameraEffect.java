@@ -16,6 +16,7 @@
 package androidx.camera.core;
 
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+import static androidx.camera.core.processing.TargetUtils.checkSupportedTargets;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Objects.requireNonNull;
@@ -32,6 +33,8 @@ import androidx.camera.core.processing.SurfaceProcessorWithExecutor;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -121,6 +124,12 @@ public abstract class CameraEffect {
      */
     public static final int IMAGE_CAPTURE = 1 << 2;
 
+    // Allowed targets for SurfaceProcessor
+    private static final List<Integer> SURFACE_PROCESSOR_TARGETS = Arrays.asList(
+            PREVIEW,
+            VIDEO_CAPTURE,
+            PREVIEW | VIDEO_CAPTURE);
+
     @Targets
     private final int mTargets;
     @NonNull
@@ -169,8 +178,7 @@ public abstract class CameraEffect {
             @Targets int targets,
             @NonNull Executor executor,
             @NonNull SurfaceProcessor surfaceProcessor) {
-        checkArgument(targets == PREVIEW || targets == VIDEO_CAPTURE,
-                "Currently SurfaceProcessor can only target PREVIEW and VIDEO_CAPTURE.");
+        checkSupportedTargets(SURFACE_PROCESSOR_TARGETS, targets);
         mTargets = targets;
         mExecutor = executor;
         mSurfaceProcessor = surfaceProcessor;

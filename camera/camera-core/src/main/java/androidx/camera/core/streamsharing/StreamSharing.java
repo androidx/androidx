@@ -54,6 +54,7 @@ import androidx.camera.core.processing.SurfaceProcessorNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -171,6 +172,17 @@ public class StreamSharing extends UseCase {
     @NonNull
     public Set<UseCase> getChildren() {
         return mVirtualCamera.getChildren();
+    }
+
+    /**
+     * StreamSharing supports [PREVIEW, VIDEO_CAPTURE] or [PREVIEW, VIDEO_CAPTURE, IMAGE_CAPTURE].
+     */
+    @Override
+    @NonNull
+    public Set<Integer> getSupportedEffectTargets() {
+        Set<Integer> targets = new HashSet<>();
+        targets.add(PREVIEW | VIDEO_CAPTURE);
+        return targets;
     }
 
     @NonNull

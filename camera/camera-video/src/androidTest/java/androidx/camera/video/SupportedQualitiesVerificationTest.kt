@@ -38,6 +38,7 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -245,6 +246,7 @@ class SupportedQualitiesVerificationTest(
         val fakeSurfaceProcessor = DefaultSurfaceProcessor.Factory.newInstance()
         surfaceProcessorsToRelease.add(fakeSurfaceProcessor)
         return FakeSurfaceEffect(
+            VIDEO_CAPTURE,
             fakeSurfaceProcessor
         )
     }

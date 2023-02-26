@@ -558,7 +558,7 @@ public final class CameraUseCaseAdapter implements Camera {
         for (UseCase useCase : useCases) {
             useCase.setEffect(null);
             for (CameraEffect effect : effects) {
-                if (useCase.getSupportedEffectTargets().contains(effect.getTargets())) {
+                if (useCase.isEffectTargetsSupported(effect.getTargets())) {
                     checkState(useCase.getEffect() == null,
                             useCase + " already has effect " + effect);
                     useCase.setEffect(effect);

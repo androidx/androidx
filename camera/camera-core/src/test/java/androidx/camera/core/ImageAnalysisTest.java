@@ -143,6 +143,14 @@ public class ImageAnalysisTest {
     }
 
     @Test
+    public void verifySupportedEffects() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        assertThat(imageAnalysis.isEffectTargetsSupported(CameraEffect.PREVIEW)).isFalse();
+        assertThat(imageAnalysis.isEffectTargetsSupported(CameraEffect.IMAGE_CAPTURE)).isFalse();
+        assertThat(imageAnalysis.isEffectTargetsSupported(CameraEffect.VIDEO_CAPTURE)).isFalse();
+    }
+
+    @Test
     public void canSetQueueDepth() {
         assertThat(getMergedImageAnalysisConfig(null, null, QUEUE_DEPTH,
                 false).getImageQueueDepth()).isEqualTo(QUEUE_DEPTH);
