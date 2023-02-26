@@ -26,7 +26,9 @@ import android.os.Looper.getMainLooper
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
@@ -136,6 +138,19 @@ class PreviewTest {
         for (handler in handlersToRelease) {
             handler.looper.quitSafely()
         }
+    }
+
+    @Test
+    fun verifySupportedEffects() {
+        val preview = Preview.Builder().build()
+        assertThat(preview.isEffectTargetsSupported(PREVIEW)).isTrue()
+        assertThat(preview.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE)).isTrue()
+        assertThat(
+            preview.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE or IMAGE_CAPTURE)
+        ).isTrue()
+        assertThat(preview.isEffectTargetsSupported(VIDEO_CAPTURE)).isFalse()
+        assertThat(preview.isEffectTargetsSupported(IMAGE_CAPTURE)).isFalse()
+        assertThat(preview.isEffectTargetsSupported(IMAGE_CAPTURE or VIDEO_CAPTURE)).isFalse()
     }
 
     @Test

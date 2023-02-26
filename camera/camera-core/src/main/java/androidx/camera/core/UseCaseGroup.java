@@ -19,6 +19,8 @@ package androidx.camera.core;
 import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
+import static androidx.camera.core.processing.TargetUtils.checkSupportedTargets;
+import static androidx.camera.core.processing.TargetUtils.getHumanReadableName;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Objects.requireNonNull;
@@ -142,46 +144,19 @@ public final class UseCaseGroup {
             Map<Integer, CameraEffect> targetEffectMap = new HashMap<>();
             for (CameraEffect effect : mEffects) {
                 int targets = effect.getTargets();
-                if (!SUPPORTED_TARGETS.contains(targets)) {
-                    throw new IllegalArgumentException(String.format(Locale.US,
-                            "Effects target %s is not in the supported list %s.",
-                            getHumanReadableTargets(targets),
-                            getHumanReadableSupportedTargets()));
-                }
+                checkSupportedTargets(SUPPORTED_TARGETS, targets);
                 if (targetEffectMap.containsKey(effect.getTargets())) {
                     throw new IllegalArgumentException(String.format(Locale.US,
                             "Effects %s and %s contain duplicate targets %s.",
                             requireNonNull(
                                     targetEffectMap.get(effect.getTargets())).getClass().getName(),
                             effect.getClass().getName(),
-                            getHumanReadableTargets(targets)));
+                            getHumanReadableName(targets)));
                 }
                 targetEffectMap.put(effect.getTargets(), effect);
             }
         }
 
-        static String getHumanReadableSupportedTargets() {
-            List<String> targetNameList = new ArrayList<>();
-            for (Integer targets : SUPPORTED_TARGETS) {
-                targetNameList.add(getHumanReadableTargets(targets));
-            }
-            return "[" + String.join(", ", targetNameList) + "]";
-        }
-
-        static String getHumanReadableTargets(int targets) {
-            List<String> names = new ArrayList<>();
-            if ((targets & IMAGE_CAPTURE) != 0) {
-                names.add("IMAGE_CAPTURE");
-            }
-            if ((targets & PREVIEW) != 0) {
-                names.add("PREVIEW");
-            }
-
-            if ((targets & VIDEO_CAPTURE) != 0) {
-                names.add("VIDEO_CAPTURE");
-            }
-            return String.join("|", names);
-        }
 
         /**
          * Adds {@link UseCase} to the collection.

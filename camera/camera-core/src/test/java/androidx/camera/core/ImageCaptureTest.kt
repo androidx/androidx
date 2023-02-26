@@ -26,6 +26,9 @@ import android.os.Looper.getMainLooper
 import android.util.Pair
 import android.util.Rational
 import android.view.Surface
+import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
+import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.ImageCapture.ImageCaptureRequest
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor.ImageCaptor
@@ -143,6 +146,19 @@ class ImageCaptureTest {
         CameraXUtil.shutdown().get()
         fakeImageReaderProxy = null
         callbackThread.quitSafely()
+    }
+
+    @Test
+    fun verifySupportedEffects() {
+        val imageCapture = ImageCapture.Builder().build()
+        assertThat(imageCapture.isEffectTargetsSupported(IMAGE_CAPTURE)).isTrue()
+        assertThat(imageCapture.isEffectTargetsSupported(PREVIEW or IMAGE_CAPTURE)).isTrue()
+        assertThat(
+            imageCapture.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE or IMAGE_CAPTURE)
+        ).isTrue()
+        assertThat(imageCapture.isEffectTargetsSupported(PREVIEW)).isFalse()
+        assertThat(imageCapture.isEffectTargetsSupported(VIDEO_CAPTURE)).isFalse()
+        assertThat(imageCapture.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE)).isFalse()
     }
 
     @Test

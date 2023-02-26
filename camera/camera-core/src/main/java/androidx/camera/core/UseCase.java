@@ -17,6 +17,8 @@
 package androidx.camera.core;
 
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
+import static androidx.camera.core.processing.TargetUtils.isSuperset;
+import static androidx.core.util.Preconditions.checkArgument;
 
 import android.annotation.SuppressLint;
 import android.graphics.Matrix;
@@ -45,9 +47,9 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
+import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -700,7 +702,7 @@ public abstract class UseCase {
         }
 
         synchronized (mCameraLock) {
-            Preconditions.checkArgument(camera == mCamera);
+            checkArgument(camera == mCamera);
             removeStateChangeCallback(mCamera);
             mCamera = null;
         }
@@ -785,10 +787,12 @@ public abstract class UseCase {
     /**
      * Sets the {@link CameraEffect} associated with this use case.
      *
+     * @throws IllegalArgumentException if the effect targets are not supported by this use case.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void setEffect(@Nullable CameraEffect effect) {
+        checkArgument(effect == null || isEffectTargetsSupported(effect.getTargets()));
         mEffect = effect;
     }
 
@@ -896,19 +900,46 @@ public abstract class UseCase {
     }
 
     /**
-     * Returns the supported {@link CameraEffect} targets.
+     * A set of {@link CameraEffect.Targets} bitmasks supported by the {@link UseCase}.
      *
-     * <p>{@link CameraUseCaseAdapter} sets {@link CameraEffect} on this {@link UseCase} if the
-     * returned set contains the {@link CameraEffect#getTargets()}.
+     * <p>To apply the {@link CameraEffect} on the {@link UseCase} or one of its ancestors,
+     * {@link CameraEffect#getTargets()} must be a superset of at least one of the bitmask. For
+     * example:
+     * <ul>
+     * <li>For {@link Preview}, the set only contains [PREVIEW]. {@link Preview} and its ancestors
+     * supports effects that are supersets of [PREVIEW]: PREVIEW, PREVIEW|VIDEO_CAPTURE, or
+     * PREVIEW|VIDEO_CAPTURE|IMAGE_CAPTURE. A {@link CameraEffect} that does not target PREVIEW
+     * cannot be applied to {@link Preview} or its ancestors.
+     * <li>For {@link StreamSharing}, the set contains [PREVIEW|VIDEO_CAPTURE].
+     * {@link StreamSharing} supports effects with targets PREVIEW|VIDEO_CAPTURE or
+     * PREVIEW|VIDEO_CAPTURE|IMAGE_CAPTURE.
+     * </ul>
      *
-     * <p>Returns an empty set if this {@link UseCase} does not support effects.
+     * <p>The method returns an empty set if this {@link UseCase} does not support effects. By
+     * default, this method returns an empty set.
      *
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public Set<Integer> getSupportedEffectTargets() {
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected Set<Integer> getSupportedEffectTargets() {
         return Collections.emptySet();
+    }
+
+    /**
+     * Returns whether the targets can be applied to this {@link UseCase} or one of its ancestors.
+     *
+     * @hide
+     * @see #getSupportedEffectTargets()
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public boolean isEffectTargetsSupported(@CameraEffect.Targets int effectTargets) {
+        for (Integer useCaseTargets : getSupportedEffectTargets()) {
+            if (isSuperset(effectTargets, useCaseTargets)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     enum State {

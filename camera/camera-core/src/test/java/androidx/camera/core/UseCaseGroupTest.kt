@@ -17,10 +17,6 @@
 package androidx.camera.core
 
 import android.os.Build
-import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
-import androidx.camera.core.CameraEffect.PREVIEW
-import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
-import androidx.camera.core.UseCaseGroup.Builder.getHumanReadableTargets
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessor
@@ -65,14 +61,5 @@ class UseCaseGroupTest {
                 "and androidx.camera.testing.fakes.FakeSurfaceEffect " +
                 "contain duplicate targets PREVIEW."
         )
-    }
-
-    @Test
-    fun verifyHumanReadableTargetsNames() {
-        assertThat(getHumanReadableTargets(PREVIEW)).isEqualTo("PREVIEW")
-        assertThat(getHumanReadableTargets(PREVIEW or VIDEO_CAPTURE))
-            .isEqualTo("PREVIEW|VIDEO_CAPTURE")
-        assertThat(getHumanReadableTargets(PREVIEW or VIDEO_CAPTURE or IMAGE_CAPTURE))
-            .isEqualTo("IMAGE_CAPTURE|PREVIEW|VIDEO_CAPTURE")
     }
 }

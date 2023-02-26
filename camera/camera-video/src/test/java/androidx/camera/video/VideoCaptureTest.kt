@@ -35,6 +35,8 @@ import androidx.arch.core.util.Function
 import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.AspectRatio.RATIO_4_3
 import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
+import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
 import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
@@ -156,6 +158,21 @@ class VideoCaptureTest {
         for (handler in handlersToRelease) {
             handler.looper.quitSafely()
         }
+    }
+
+    @Test
+    fun verifySupportedEffects() {
+        val videoCapture = createVideoCapture(createVideoOutput())
+        assertThat(videoCapture.isEffectTargetsSupported(VIDEO_CAPTURE)).isTrue()
+        assertThat(videoCapture.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE)).isTrue()
+        assertThat(
+            videoCapture.isEffectTargetsSupported(
+                PREVIEW or VIDEO_CAPTURE or IMAGE_CAPTURE
+            )
+        ).isTrue()
+        assertThat(videoCapture.isEffectTargetsSupported(PREVIEW)).isFalse()
+        assertThat(videoCapture.isEffectTargetsSupported(IMAGE_CAPTURE)).isFalse()
+        assertThat(videoCapture.isEffectTargetsSupported(PREVIEW or IMAGE_CAPTURE)).isFalse()
     }
 
     @Test

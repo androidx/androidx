@@ -20,6 +20,9 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
 import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
+import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.SessionConfig
@@ -75,7 +78,7 @@ class StreamSharingTest {
         streamSharing = StreamSharing(camera, setOf(child1, child2), useCaseConfigFactory)
         defaultConfig = streamSharing.getDefaultConfig(true, useCaseConfigFactory)!!
         effectProcessor = FakeSurfaceProcessorInternal(mainThreadExecutor())
-        effect = FakeSurfaceEffect(effectProcessor)
+        effect = FakeSurfaceEffect(PREVIEW or VIDEO_CAPTURE, effectProcessor)
     }
 
     @After
@@ -85,6 +88,17 @@ class StreamSharingTest {
         }
         effectProcessor.release()
         shadowOf(getMainLooper()).idle()
+    }
+
+    @Test
+    fun verifySupportedEffects() {
+        assertThat(streamSharing.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE)).isTrue()
+        assertThat(
+            streamSharing.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE or IMAGE_CAPTURE)
+        ).isTrue()
+        assertThat(streamSharing.isEffectTargetsSupported(IMAGE_CAPTURE)).isFalse()
+        assertThat(streamSharing.isEffectTargetsSupported(PREVIEW)).isFalse()
+        assertThat(streamSharing.isEffectTargetsSupported(VIDEO_CAPTURE)).isFalse()
     }
 
     @Test
