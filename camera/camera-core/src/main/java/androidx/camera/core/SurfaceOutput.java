@@ -99,18 +99,19 @@ public interface SurfaceOutput {
     void requestClose();
 
     /**
-     * Updates the 4 x 4 transformation matrix retrieved from the input {@link Surface}.
+     * Applies an additional 4x4 transformation on the original matrix.
      *
      * <p>When the input {@link Surface} of {@link SurfaceProcessor} is backed by a
      * {@link SurfaceTexture}, use this method to update the texture transform matrix.
      *
-     * <p>After retrieving the transform matrix from {@link SurfaceTexture#getTransformMatrix},
-     * the {@link SurfaceProcessor} implementation should always call this method to update the
-     * value. The result is a matrix of the same format, which is a transform matrix maps 2D
-     * homogeneous texture coordinates of the form (s, t, 0, 1) with s and t in the inclusive
-     * range [0, 1] to the texture coordinate that should be used to sample that location from
-     * the texture. The matrix is stored in column-major order so that it may be passed directly
-     * to OpenGL ES via the {@code glLoadMatrixf} or {@code glUniformMatrix4fv} functions.
+     * <p>Typically, after retrieving the transform matrix from
+     * {@link SurfaceTexture#getTransformMatrix}, the {@link SurfaceProcessor} implementation
+     * should always call this method to update the value. The result is a matrix of the same
+     * format, which is a transform matrix maps 2D homogeneous texture coordinates of the form
+     * (s, t, 0, 1) with s and t in the inclusive range [0, 1] to the texture coordinate that
+     * should be used to sample that location from the texture. The matrix is stored in
+     * column-major order so that it may be passed directly to OpenGL ES via the {@code
+     * glLoadMatrixf} or {@code glUniformMatrix4fv} functions.
      *
      * <p>The additional transformation is calculated based on the target rotation, target
      * resolution and the {@link ViewPort} associated with the target {@link UseCase}. The value
@@ -129,11 +130,25 @@ public interface SurfaceOutput {
      * });
      * </code></pre>
      *
+     * <p>To get the value of the additional transformation, pass in an identity matrix as the
+     * original value. This is useful when {@link SurfaceTexture#getTransformMatrix} is not
+     * applied by the implementation.
+     *
+     * <p>Code sample:
+     * <pre><code>
+     * float[] identity = new float[16];
+     * Matrix.setIdentityM(identity, 0);
+     * float[] updatedTransform = new float[16];
+     *
+     * surfaceTexture.setOnFrameAvailableListener(surfaceTexture -> {
+     *     outputSurface.updateTransformMatrix(updatedTransform, identity);
+     *     // Use the value of updatedTransform for OpenGL rendering.
+     * });
+     * </code></pre>
+     *
      * @param updated  the array into which the 4x4 matrix will be stored. The array must
      *                 have exactly 16 elements.
-     * @param original the original value retrieved from
-     *                 {@link SurfaceTexture#getTransformMatrix}. The array must have exactly 16
-     *                 elements.
+     * @param original the original 4x4 matrix. The array must have exactly 16 elements.
      * @see SurfaceTexture#getTransformMatrix(float[])
      */
     void updateTransformMatrix(@NonNull float[] updated, @NonNull float[] original);
