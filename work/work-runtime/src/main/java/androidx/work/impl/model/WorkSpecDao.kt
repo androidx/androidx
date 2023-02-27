@@ -318,10 +318,26 @@ interface WorkSpecDao {
             " LIMIT " +
             "(SELECT MAX(:schedulerLimit" + "-COUNT(*), 0) FROM workspec WHERE" +
             " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET +
+            // content_uri_triggers aren't counted here because they have separate limit
+            " AND LENGTH(content_uri_triggers)=0" +
             " AND state NOT IN " + COMPLETED_STATES +
             ")"
     )
     fun getEligibleWorkForScheduling(schedulerLimit: Int): List<WorkSpec>
+
+    /**
+     * @return The List of [WorkSpec]s that are eligible to be scheduled.
+     */
+    @Query(
+        "SELECT * FROM workspec WHERE " +
+            "state=$ENQUEUED" +
+            // We only want WorkSpecs which have not been previously scheduled.
+            " AND schedule_requested_at=${WorkSpec.SCHEDULE_NOT_REQUESTED_YET}" +
+            " AND LENGTH(content_uri_triggers)<>0" +
+            // Order by period start time so we execute scheduled WorkSpecs in FIFO order
+            " ORDER BY last_enqueue_time"
+    )
+    fun getEligibleWorkForSchedulingWithContentUris(): List<WorkSpec>
 
     /**
      * @return The List of [WorkSpec]s that can be scheduled irrespective of scheduling
@@ -386,6 +402,11 @@ interface WorkSpecDao {
 
     @Update
     fun updateWorkSpec(workSpec: WorkSpec)
+
+    @Query("Select COUNT(*) FROM workspec WHERE LENGTH(content_uri_triggers)<>0" +
+            " AND state NOT IN $COMPLETED_STATES"
+    )
+    fun countNonFinishedContentUriTriggerWorkers(): Int
 }
 
 private const val WORK_INFO_COLUMNS = "id, state, output, run_attempt_count, generation" +
