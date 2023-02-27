@@ -1,0 +1,3 @@
+Landroidx/benchmark/integration/baselineprofile/consumer/EmptyActivity;
+HSPLandroidx/benchmark/integration/baselineprofile/consumer/EmptyActivity;-><init>()V
+HSPLandroidx/benchmark/integration/baselineprofile/consumer/EmptyActivity;->onCreate(Landroid/os/Bundle;)V
