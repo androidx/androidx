@@ -179,28 +179,45 @@ abstract class GenerateMediaTestConfigurationTask : DefaultTask() {
         isClientPrevious: Boolean,
         isServicePrevious: Boolean,
     ) {
-        val configBuilder = MediaConfigBuilder()
         val clientBuiltArtifact = clientApk.elements.single()
         val serviceBuiltArtifact = serviceApk.elements.single()
         val clientApkName = clientBuiltArtifact.resolveName(clientPath)
+        val clientApkSha256 = sha256(File(clientBuiltArtifact.outputFile))
         val serviceApkName = serviceBuiltArtifact.resolveName(servicePath)
-        configBuilder.clientApkName(clientApkName)
-            .clientApkSha256(sha256(File(clientBuiltArtifact.outputFile)))
-            .clientApplicationId(clientApk.applicationId)
-            .serviceApkName(serviceApkName)
-            .serviceApkSha256(sha256(File(serviceBuiltArtifact.outputFile)))
-            .serviceApplicationId(serviceApk.applicationId)
-            .minSdk(minSdk.get().toString())
-            .testRunner(testRunner.get())
-            .isClientPrevious(isClientPrevious)
-            .isServicePrevious(isServicePrevious)
-            .tag("androidx_unit_tests")
-            .tag("media_compat")
+        val serviceApkSha256 = sha256(File(serviceBuiltArtifact.outputFile))
         createOrFail(jsonClientOutputFile).writeText(
-            configBuilder.buildJson(jsonClientOutputFile.asFile.get().name, forClient = true)
+            buildMediaJson(
+                configName = jsonClientOutputFile.asFile.get().name,
+                forClient = true,
+                clientApkName = clientApkName,
+                clientApkSha256 = clientApkSha256,
+                isClientPrevious = isClientPrevious,
+                isServicePrevious = isServicePrevious,
+                minSdk = minSdk.get().toString(),
+                serviceApkName = serviceApkName,
+                serviceApkSha256 = serviceApkSha256,
+                tags = listOf(
+                    "androidx_unit_tests",
+                    "media_compat"
+                ),
+            )
         )
         createOrFail(jsonServiceOutputFile).writeText(
-            configBuilder.buildJson(jsonServiceOutputFile.asFile.get().name, forClient = false)
+            buildMediaJson(
+                configName = jsonServiceOutputFile.asFile.get().name,
+                forClient = false,
+                clientApkName = clientApkName,
+                clientApkSha256 = clientApkSha256,
+                isClientPrevious = isClientPrevious,
+                isServicePrevious = isServicePrevious,
+                minSdk = minSdk.get().toString(),
+                serviceApkName = serviceApkName,
+                serviceApkSha256 = serviceApkSha256,
+                tags = listOf(
+                    "androidx_unit_tests",
+                    "media_compat"
+                ),
+            )
         )
     }
 }

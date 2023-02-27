@@ -118,73 +118,56 @@ class ConfigBuilder {
     }
 }
 
-class MediaConfigBuilder {
-    lateinit var clientApkName: String
-    lateinit var clientApkSha256: String
-    lateinit var clientApplicationId: String
-    var isClientPrevious: Boolean = true
-    var isServicePrevious: Boolean = true
-    lateinit var minSdk: String
-    lateinit var serviceApkName: String
-    lateinit var serviceApkSha256: String
-    lateinit var serviceApplicationId: String
-    var tags: MutableList<String> = mutableListOf()
-    lateinit var testRunner: String
+private fun mediaInstrumentationArgsForJson(
+    isClientPrevious: Boolean,
+    isServicePrevious: Boolean
+): List<InstrumentationArg> {
+    return listOf(
+        if (isClientPrevious) {
+            InstrumentationArg(key = "client_version", value = "previous")
+        } else {
+            InstrumentationArg(key = "client_version", value = "tot")
+        },
+        if (isServicePrevious) {
+            InstrumentationArg(key = "service_version", value = "previous")
+        } else {
+            InstrumentationArg(key = "service_version", value = "tot")
+        }
+    )
+}
 
-    fun clientApkName(clientApkName: String) = apply { this.clientApkName = clientApkName }
-    fun clientApkSha256(clientApkSha256: String) = apply { this.clientApkSha256 = clientApkSha256 }
-    fun clientApplicationId(clientApplicationId: String) =
-        apply { this.clientApplicationId = clientApplicationId }
-    fun isClientPrevious(isClientPrevious: Boolean) = apply {
-        this.isClientPrevious = isClientPrevious
-    }
-    fun isServicePrevious(isServicePrevious: Boolean) = apply {
-        this.isServicePrevious = isServicePrevious
-    }
-    fun minSdk(minSdk: String) = apply { this.minSdk = minSdk }
-    fun serviceApkName(serviceApkName: String) = apply { this.serviceApkName = serviceApkName }
-    fun serviceApkSha256(serviceApkSha256: String) = apply {
-        this.serviceApkSha256 = serviceApkSha256
-    }
-    fun serviceApplicationId(serviceApplicationId: String) =
-        apply { this.serviceApplicationId = serviceApplicationId }
-    fun tag(tag: String) = apply { this.tags.add(tag) }
-    fun testRunner(testRunner: String) = apply { this.testRunner = testRunner }
-
-    private fun mediaInstrumentationArgsForJson(): List<InstrumentationArg> {
-        return listOf(
-            if (isClientPrevious) {
-                InstrumentationArg(key = "client_version", value = "previous")
-            } else {
-                InstrumentationArg(key = "client_version", value = "tot")
-            },
-            if (isServicePrevious) {
-                InstrumentationArg(key = "service_version", value = "previous")
-            } else {
-                InstrumentationArg(key = "service_version", value = "tot")
-            }
+fun buildMediaJson(
+    configName: String,
+    forClient: Boolean,
+    clientApkName: String,
+    clientApkSha256: String,
+    isClientPrevious: Boolean,
+    isServicePrevious: Boolean,
+    minSdk: String,
+    serviceApkName: String,
+    serviceApkSha256: String,
+    tags: List<String>,
+): String {
+    val gson = GsonBuilder().setPrettyPrinting().create()
+    val instrumentationArgs =
+        listOf(
+            InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest")
+        ) + mediaInstrumentationArgsForJson(
+            isClientPrevious = isClientPrevious,
+            isServicePrevious = isServicePrevious
         )
-    }
-
-    fun buildJson(configName: String, forClient: Boolean): String {
-        val gson = GsonBuilder().setPrettyPrinting().create()
-        val instrumentationArgs =
-            listOf(
-                InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest")
-            ) + mediaInstrumentationArgsForJson()
-        val values = mapOf(
-            "name" to configName,
-            "minSdkVersion" to minSdk,
-            "testSuiteTags" to tags,
-            "testApk" to if (forClient) clientApkName else serviceApkName,
-            "testApkSha256" to if (forClient) clientApkSha256 else serviceApkSha256,
-            "appApk" to if (forClient) serviceApkName else clientApkName,
-            "appApkSha256" to if (forClient) serviceApkSha256 else clientApkSha256,
-            "instrumentationArgs" to instrumentationArgs,
-            "additionalApkKeys" to listOf<String>()
-        )
-        return gson.toJson(values)
-    }
+    val values = mapOf(
+        "name" to configName,
+        "minSdkVersion" to minSdk,
+        "testSuiteTags" to tags,
+        "testApk" to if (forClient) clientApkName else serviceApkName,
+        "testApkSha256" to if (forClient) clientApkSha256 else serviceApkSha256,
+        "appApk" to if (forClient) serviceApkName else clientApkName,
+        "appApkSha256" to if (forClient) serviceApkSha256 else clientApkSha256,
+        "instrumentationArgs" to instrumentationArgs,
+        "additionalApkKeys" to listOf<String>()
+    )
+    return gson.toJson(values)
 }
 
 private data class InstrumentationArg(

@@ -34,7 +34,6 @@ import javax.xml.parsers.SAXParserFactory
 class AndroidTestConfigBuilderTest {
 
     private lateinit var builder: ConfigBuilder
-    private lateinit var mediaBuilder: MediaConfigBuilder
 
     @Before
     fun init() {
@@ -48,19 +47,6 @@ class AndroidTestConfigBuilderTest {
             .testApkName("placeholder.apk")
             .testApkSha256("123456")
             .testRunner("com.example.Runner")
-        mediaBuilder = MediaConfigBuilder()
-        mediaBuilder.clientApplicationId("com.androidx.client.Placeholder")
-            .clientApkName("clientPlaceholder.apk")
-            .clientApkSha256("123456")
-            .serviceApplicationId("com.androidx.service.Placeholder")
-            .serviceApkName("servicePlaceholder.apk")
-            .serviceApkSha256("654321")
-            .minSdk("15")
-            .tag("placeholder_tag")
-            .tag("media_compat")
-            .testRunner("com.example.Runner")
-            .isClientPrevious(true)
-            .isServicePrevious(false)
     }
 
     @Test
@@ -191,7 +177,21 @@ class AndroidTestConfigBuilderTest {
     @Test
     fun testAgainstMediaGoldenDefault() {
         MatcherAssert.assertThat(
-            mediaBuilder.buildJson("foo.json", forClient = true),
+            buildMediaJson(
+                configName = "foo.json",
+                forClient = true,
+                clientApkName = "clientPlaceholder.apk",
+                clientApkSha256 = "123456",
+                isClientPrevious = true,
+                isServicePrevious = false,
+                minSdk = "15",
+                serviceApkName = "servicePlaceholder.apk",
+                serviceApkSha256 = "654321",
+                tags = listOf(
+                    "placeholder_tag",
+                    "media_compat"
+                ),
+            ),
             CoreMatchers.`is`("""
                 {
                   "name": "foo.json",
