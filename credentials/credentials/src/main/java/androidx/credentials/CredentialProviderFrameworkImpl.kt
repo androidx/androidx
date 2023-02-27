@@ -134,14 +134,14 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         }
 
         credentialManager!!.createCredential(
-            android.credentials.CreateCredentialRequest(
-                request.type,
-                FrameworkImplHelper.getFinalCreateCredentialData(request, activity),
-                request.candidateQueryData,
-                request.isSystemProviderRequired,
+            android.credentials.CreateCredentialRequest
+                .Builder(FrameworkImplHelper.getFinalCreateCredentialData(request, activity),
+                    request.candidateQueryData)
+                .setType(request.type)
+                .setIsSystemProviderRequired(request.isSystemProviderRequired)
                 // TODO("change to taking value from the request when ready")
-                /*alwaysSendAppInfoToProvider=*/true
-            ),
+                .setAlwaysSendAppInfoToProvider(true)
+                .build(),
             activity,
             cancellationSignal,
             Executors.newSingleThreadExecutor(),
