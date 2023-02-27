@@ -44,24 +44,19 @@
     <string name="date_input_invalid_year_range" msgid="8434112129235255568">"ਤਾਰੀਖ ਸੰਭਾਵਿਤ ਸਾਲ ਦੀ ਰੇਂਜ ਤੋਂ ਬਾਹਰ ਹੈ %1$s - %2$s"</string>
     <string name="date_picker_switch_to_calendar_mode" msgid="9029369254443419167">"ਕੈਲੰਡਰ ਇਨਪੁੱਟ ਮੋਡ \'ਤੇ ਸਵਿੱਚ ਕਰੋ"</string>
     <string name="date_picker_switch_to_input_mode" msgid="1496750567914156598">"ਲਿਖਤ ਇਨਪੁੱਟ ਮੋਡ \'ਤੇ ਸਵਿੱਚ ਕਰੋ"</string>
-    <!-- no translation found for date_picker_scroll_to_later_years (3226341140390493774) -->
-    <skip />
-    <!-- no translation found for date_picker_scroll_to_earlier_years (8911933542023210271) -->
-    <skip />
+    <string name="date_picker_scroll_to_later_years" msgid="3226341140390493774">"ਬਾਅਦ ਵਾਲੇ ਸਾਲਾਂ ਨੂੰ ਦਿਖਾਉਣ ਲਈ ਸਕ੍ਰੋਲ ਕਰੋ"</string>
+    <string name="date_picker_scroll_to_earlier_years" msgid="8911933542023210271">"ਪਹਿਲਾਂ ਵਾਲੇ ਸਾਲਾਂ ਨੂੰ ਦਿਖਾਉਣ ਲਈ ਸਕ੍ਰੋਲ ਕਰੋ"</string>
     <string name="date_range_picker_title" msgid="690080476639943577">"ਤਾਰੀਖਾਂ ਚੁਣੋ"</string>
     <string name="date_range_picker_start_headline" msgid="5759491386723090559">"ਸ਼ੁੁਰੂਆਤੀ ਤਾਰੀਖ"</string>
     <string name="date_range_picker_end_headline" msgid="4766270708882012148">"ਸਮਾਪਤੀ ਤਾਰੀਖ"</string>
-    <!-- no translation found for date_range_picker_scroll_to_next_month (51495506931835470) -->
-    <skip />
-    <!-- no translation found for date_range_picker_scroll_to_previous_month (4371570854614540700) -->
-    <skip />
-    <!-- no translation found for date_range_picker_day_in_range (9048690781645835833) -->
-    <skip />
+    <string name="date_range_picker_scroll_to_next_month" msgid="51495506931835470">"ਅਗਲਾ ਮਹੀਨਾ ਦਿਖਾਉਣ ਲਈ ਸਕ੍ਰੋਲ ਕਰੋ"</string>
+    <string name="date_range_picker_scroll_to_previous_month" msgid="4371570854614540700">"ਪਿਛਲਾ ਮਹੀਨਾ ਦਿਖਾਉਣ ਲਈ ਸਕ੍ਰੋਲ ਕਰੋ"</string>
+    <string name="date_range_picker_day_in_range" msgid="9048690781645835833">"ਰੇਂਜ ਵਿੱਚ"</string>
     <string name="date_range_input_title" msgid="2366412111888449406">"ਤਾਰੀਖਾਂ ਦਾਖਲ ਕਰੋ"</string>
-    <!-- no translation found for date_range_input_invalid_range_input (1891592555781755601) -->
+    <string name="date_range_input_invalid_range_input" msgid="1891592555781755601">"ਇਨਪੁੱਟ ਕੀਤੀ ਗਈ ਤਾਰੀਖ ਦੀ ਰੇਂਜ ਅਵੈਧ ਹੈ"</string>
+    <!-- no translation found for bottom_sheet_drag_handle_description (7772321844937772780) -->
     <skip />
-    <!-- no translation found for tooltip_pane_description (8191239805703103845) -->
-    <skip />
+    <string name="tooltip_pane_description" msgid="8191239805703103845">"ਟੂਲ-ਟਿੱਪ"</string>
     <string name="tooltip_long_press_label" msgid="2732804537909054941">"ਟੂਲ-ਟਿੱਪ ਦਿਖਾਓ"</string>
     <string name="time_picker_pm" msgid="2232702812657998674">"PM"</string>
     <string name="time_picker_am" msgid="5096144640014509074">"AM"</string>

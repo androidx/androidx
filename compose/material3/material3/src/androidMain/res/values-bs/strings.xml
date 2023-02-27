@@ -54,7 +54,9 @@
     <string name="date_range_picker_day_in_range" msgid="9048690781645835833">"U dometu"</string>
     <string name="date_range_input_title" msgid="2366412111888449406">"Unesite datume"</string>
     <string name="date_range_input_invalid_range_input" msgid="1891592555781755601">"Nevažeći unos raspona datuma"</string>
-    <string name="tooltip_pane_description" msgid="8191239805703103845">"Opis"</string>
+    <!-- no translation found for bottom_sheet_drag_handle_description (7772321844937772780) -->
+    <skip />
+    <string name="tooltip_pane_description" msgid="8191239805703103845">"Skočni opis"</string>
     <string name="tooltip_long_press_label" msgid="2732804537909054941">"Prikaži skočni opis"</string>
     <string name="time_picker_pm" msgid="2232702812657998674">"poslijepodne"</string>
     <string name="time_picker_am" msgid="5096144640014509074">"prijepodne"</string>
