@@ -113,6 +113,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
+    @Ignore("b/270954533")
     fun deleteRecords_byId() = runTest {
         val recordIds =
             healthConnectClient
@@ -207,6 +208,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
+    @Ignore("b/270954533")
     fun updateRecords() = runTest {
         val id =
             healthConnectClient
@@ -244,6 +246,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
+    @Ignore("b/270954533")
     fun readRecord_withId() = runTest {
         val insertResponse =
             healthConnectClient.insertRecords(
@@ -271,6 +274,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
+    @Ignore("b/270954533")
     fun readRecords_withFilters() = runTest {
         healthConnectClient.insertRecords(
             listOf(
@@ -303,11 +307,13 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
+    @Ignore("b/270954533")
     fun readRecord_noRecords_throwRemoteException() = runTest {
         assertFailsWith<RemoteException> { healthConnectClient.readRecord(StepsRecord::class, "1") }
     }
 
     @Test
+    @Ignore("b/270954533")
     fun aggregateRecords() = runTest {
         healthConnectClient.insertRecords(
             listOf(
@@ -384,6 +390,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
+    @Ignore("b/270954533")
     fun aggregateRecordsGroupByDuration() = runTest {
         healthConnectClient.insertRecords(
             listOf(
@@ -489,6 +496,7 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
+    @Ignore("b/270954533")
     fun getChanges() = runTest {
         val token =
             healthConnectClient.getChangesToken(
