@@ -18,9 +18,7 @@ package androidx.mediarouter.media;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.media.MediaRoute2Info;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
@@ -36,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * Allows applications to customize the list of routes used for media routing (for example, in the
@@ -147,19 +144,11 @@ public final class RouteListingPreference {
 
     // Internal methods.
 
-    /**
-     * Returns the {@link android.media.RouteListingPreference platform equivalent} of this
-     * instance.
-     *
-     * @param routeInfoIdToPlatformIdFunction Maps {@link MediaRouter.RouteInfo#getId() route info
-     *     ids} to {@link MediaRoute2Info#getId() platform route info ids}.
-     * @hide
-     */
+    /** @hide */
     @RequiresApi(api = 34)
     @NonNull /* package */
-    android.media.RouteListingPreference toPlatformRouteListingPreference(
-            Function<String, String> routeInfoIdToPlatformIdFunction) {
-        return Api34Impl.toPlatformRouteListingPreference(this, routeInfoIdToPlatformIdFunction);
+    android.media.RouteListingPreference toPlatformRouteListingPreference() {
+        return Api34Impl.toPlatformRouteListingPreference(this);
     }
 
     // Inner classes.
@@ -577,12 +566,11 @@ public final class RouteListingPreference {
         @DoNotInline
         @NonNull
         public static android.media.RouteListingPreference toPlatformRouteListingPreference(
-                RouteListingPreference routeListingPreference,
-                Function<String, String> routeInfoIdToPlatformIdFunction) {
+                RouteListingPreference routeListingPreference) {
             ArrayList<android.media.RouteListingPreference.Item> platformRlpItems =
                     new ArrayList<>();
             for (Item item : routeListingPreference.getItems()) {
-                platformRlpItems.add(toPlatformItem(item, routeInfoIdToPlatformIdFunction));
+                platformRlpItems.add(toPlatformItem(item));
             }
 
             return new android.media.RouteListingPreference.Builder()
@@ -594,17 +582,8 @@ public final class RouteListingPreference {
 
         @DoNotInline
         @NonNull
-        public static android.media.RouteListingPreference.Item toPlatformItem(
-                Item item, Function<String, String> routeInfoIdToPlatformIdFunction) {
-            String routeInfoId = item.getRouteId();
-            String platformId = routeInfoIdToPlatformIdFunction.apply(routeInfoId);
-            if (platformId == null) {
-                // The item's id is not a route info id. The platform discards invalid ids, and the
-                // provided id may be a valid MediaRouter2 id, so just use the provided one.
-                Log.w(MediaRouter.TAG, "Unexpected route info id: " + routeInfoId);
-                platformId = routeInfoId;
-            }
-            return new android.media.RouteListingPreference.Item.Builder(platformId)
+        public static android.media.RouteListingPreference.Item toPlatformItem(Item item) {
+            return new android.media.RouteListingPreference.Item.Builder(item.getRouteId())
                     .setFlags(item.getFlags())
                     .setSubText(item.getSubText())
                     .setCustomSubtextMessage(item.getCustomSubtextMessage())

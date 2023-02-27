@@ -2832,8 +2832,7 @@ public final class MediaRouter {
         public void setRouteListingPreference(
                 @Nullable RouteListingPreference routeListingPreference) {
             if (mMr2Provider != null && BuildCompat.isAtLeastU()) {
-                mMr2Provider.setRouteListingPreference(
-                        routeListingPreference, this::findDescriptorIdByUniqueId);
+                mMr2Provider.setRouteListingPreference(routeListingPreference);
             }
         }
 
@@ -3353,12 +3352,6 @@ public final class MediaRouter {
                     return newUniqueId;
                 }
             }
-        }
-
-        @Nullable
-        private String findDescriptorIdByUniqueId(String uniqueId) {
-            int index = findRouteByUniqueId(uniqueId);
-            return index >= 0 ? mRoutes.get(index).getDescriptorId() : null;
         }
 
         private int findRouteByUniqueId(String uniqueId) {
