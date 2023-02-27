@@ -32,10 +32,10 @@ import java.util.Map;
  * objects.
  * <p>
  * Consider the following scenario: we have 2 instances of {@code LiveData}, let's name them
- * {@code liveData1} and {@code liveData2}, and we want to merge their emissions in one object:
- * {@code liveDataMerger}. Then, {@code liveData1} and {@code liveData2} will become sources for
- * the {@code MediatorLiveData liveDataMerger} and every time {@code onChanged} callback
- * is called for either of them, we set a new value in {@code liveDataMerger}.
+ * {@code liveData1} and {@code liveData2}, and we want to merge their emissions in one
+ * {@link MediatorLiveData} object: {@code liveDataMerger}. Then, {@code liveData1} and {@code
+ * liveData2} will become sources for the {@code liveDataMerger} and every time {@code onChanged}
+ * callback is called for either of them, we set a new value in {@code liveDataMerger}.
  *
  * <pre>
  * LiveData&lt;Integer&gt; liveData1 = ...;
