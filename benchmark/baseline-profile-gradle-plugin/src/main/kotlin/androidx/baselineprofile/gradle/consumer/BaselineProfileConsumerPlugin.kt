@@ -45,9 +45,9 @@ import org.gradle.api.tasks.TaskProvider
 /**
  * This is the consumer plugin for baseline profile generation. In order to generate baseline
  * profiles three plugins are needed: one is applied to the app or the library that should consume
- * the baseline profile when building (consumer), one is applied to the project that should supply
- * the apk under test (apk provider) and the last one is applied to a test module containing
- * the ui test that generate the baseline profile on the device (producer).
+ * the baseline profile when building (consumer), one is applied to the module that should supply
+ * the under test app (app target) and the last one is applied to a test module containing the ui
+ * test that generate the baseline profile on the device (producer).
  */
 class BaselineProfileConsumerPlugin : Plugin<Project> {
 
@@ -109,8 +109,8 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
         )
 
         // Here we select the build types we want to process, i.e. non debuggable build types that
-        // have not been created by the apk provider plugin. Variants are used to create per-variant
-        // configurations, tasks and configured for baseline profiles src sets.
+        // have not been created by the app target plugin. Variants are used to create
+        // per-variant configurations, tasks and configured for baseline profiles src sets.
         val nonDebuggableBuildTypes = mutableListOf<String>()
 
         // This extension exists only if the module is an application.
@@ -123,7 +123,7 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
 
                         // We want to enable baseline profile generation only for non-debuggable
                         // build types. Additionally we exclude the ones we may have created in the
-                        // apk provider plugin if this is also applied to this module.
+                        // app target plugin if this is also applied to this module.
                         !it.isDebuggable && !it.name.startsWith(
                             BUILD_TYPE_BASELINE_PROFILE_PREFIX
                         )

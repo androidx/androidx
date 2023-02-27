@@ -392,7 +392,7 @@ class BaselineProfileConsumerPluginTest {
             prefix = """
                 plugins {
                     id("com.android.application")
-                    id("androidx.baselineprofile.apkprovider")
+                    id("androidx.baselineprofile.apptarget")
                     id("androidx.baselineprofile.consumer")
                 }
                 android {

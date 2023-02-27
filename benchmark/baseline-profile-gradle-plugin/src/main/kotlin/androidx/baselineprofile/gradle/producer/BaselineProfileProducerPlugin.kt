@@ -41,9 +41,9 @@ import org.gradle.api.file.DirectoryProperty
 /**
  * This is the producer plugin for baseline profile generation. In order to generate baseline
  * profiles three plugins are needed: one is applied to the app or the library that should consume
- * the baseline profile when building (consumer), one is applied to the project that should supply
- * the apk under test (apk provider) and the last one is applied to a test module containing
- * the ui test that generate the baseline profile on the device (producer).
+ * the baseline profile when building (consumer), one is applied to the module that should supply
+ * the under test app (app target) and the last one is applied to a test module containing the ui
+ * test that generate the baseline profile on the device (producer).
  */
 class BaselineProfileProducerPlugin : Plugin<Project> {
 
@@ -96,12 +96,12 @@ class BaselineProfileProducerPlugin : Plugin<Project> {
         @Suppress("UnstableApiUsage")
         testExtension.experimentalProperties["android.experimental.self-instrumenting"] = true
 
-        // Creates the new build types to match the apk provider. Note that release does not
+        // Creates the new build types to match the app target. Note that release does not
         // exist by default so we need to create nonMinifiedRelease and map it manually to
         // `release`. All the existing build types beside `debug`, that is the default one, are
         // added manually in the configuration so we can assume they've been added for the purpose
         // of generating baseline profiles. We don't need to create a nonMinified build type from
-        // `debug` since there will be no matching configuration with the apk provider module.
+        // `debug` since there will be no matching configuration with the app target module.
 
         val nonObfuscatedReleaseName = camelCase(BUILD_TYPE_BASELINE_PROFILE_PREFIX, RELEASE)
         val extendedTypeToOriginalTypeMapping = mutableMapOf(nonObfuscatedReleaseName to RELEASE)

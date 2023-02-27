@@ -16,7 +16,7 @@
 
 package androidx.baselineprofile.gradle.wrapper
 
-import androidx.baselineprofile.gradle.apkprovider.BaselineProfileApkProviderPlugin
+import androidx.baselineprofile.gradle.apptarget.BaselineProfileAppTargetPlugin
 import androidx.baselineprofile.gradle.consumer.BaselineProfileConsumerPlugin
 import androidx.baselineprofile.gradle.producer.BaselineProfileProducerPlugin
 import org.gradle.api.Plugin
@@ -26,7 +26,7 @@ import org.gradle.api.Project
  * The wrapper plugin simplifies the developer workflow detecting which android plugin is applied
  * to the module and applying the correct baseline profile plugin. It uses the following mapping:
  * `com.android.application` can be both [BaselineProfileConsumerPlugin] and
- * [BaselineProfileApkProviderPlugin], `com.android.library` can be only
+ * [BaselineProfileAppTargetPlugin], `com.android.library` can be only
  * [BaselineProfileConsumerPlugin], `com.android.test` can be only [BaselineProfileProducerPlugin]
  */
 class BaselineProfileWrapperPlugin : Plugin<Project> {
@@ -36,9 +36,9 @@ class BaselineProfileWrapperPlugin : Plugin<Project> {
         // If this module is an application module
         project.pluginManager.withPlugin("com.android.application") {
 
-            // Applies profile consumer and apk provider plugins
+            // Applies profile consumer and app target plugins
             project.pluginManager.apply(BaselineProfileConsumerPlugin::class.java)
-            project.pluginManager.apply(BaselineProfileApkProviderPlugin::class.java)
+            project.pluginManager.apply(BaselineProfileAppTargetPlugin::class.java)
         }
 
         // If this module is a library module
