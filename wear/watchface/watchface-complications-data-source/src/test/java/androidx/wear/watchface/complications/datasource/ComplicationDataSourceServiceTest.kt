@@ -186,17 +186,14 @@ class ComplicationDataSourceServiceTest {
 
         @Suppress("NewApi") // onUpdate2
         mProvider.onUpdate2(
+            id,
+            ComplicationType.LONG_TEXT.toWireComplicationType(),
+            mLocalManager,
             Bundle().apply {
-                putInt(IComplicationProvider.BUNDLE_KEY_COMPLICATION_INSTANCE_ID, id)
-                putInt(
-                    IComplicationProvider.BUNDLE_KEY_TYPE,
-                    ComplicationType.LONG_TEXT.toWireComplicationType()
-                )
                 putInt(
                     IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
                     TargetWatchFaceSafety.SAFE
                 )
-                putBinder(IComplicationProvider.BUNDLE_KEY_MANAGER, mLocalManager)
             }
         )
 
@@ -513,15 +510,9 @@ class ComplicationDataSourceServiceTest {
                     @Suppress("NewApi") // onSynchronousComplicationRequest2
                     response.set(
                         mProvider.onSynchronousComplicationRequest2(
+                            id,
+                            ComplicationType.LONG_TEXT.toWireComplicationType(),
                             Bundle().apply {
-                                putInt(
-                                    IComplicationProvider.BUNDLE_KEY_COMPLICATION_INSTANCE_ID,
-                                    id
-                                )
-                                putInt(
-                                    IComplicationProvider.BUNDLE_KEY_TYPE,
-                                    ComplicationType.LONG_TEXT.toWireComplicationType()
-                                )
                                 putInt(
                                     IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
                                     TargetWatchFaceSafety.SAFE

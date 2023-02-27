@@ -442,30 +442,24 @@ public abstract class ComplicationDataSourceService : Service() {
     private inner class IComplicationProviderWrapper : IComplicationProvider.Stub() {
         @SuppressLint("SyntheticAccessor")
         override fun onUpdate(complicationInstanceId: Int, type: Int, manager: IBinder) {
-            onUpdateInternal(
+            onUpdate2(
                 complicationInstanceId,
                 type,
-                isForSafeWatchFace = TargetWatchFaceSafety.UNKNOWN,
-                manager
-            )
-        }
-
-        override fun onUpdate2(bundle: Bundle) {
-            onUpdateInternal(
-                bundle.getInt(IComplicationProvider.BUNDLE_KEY_COMPLICATION_INSTANCE_ID),
-                bundle.getInt(IComplicationProvider.BUNDLE_KEY_TYPE),
-                bundle.getInt(IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE),
-                bundle.getBinder(IComplicationProvider.BUNDLE_KEY_MANAGER)!!
+                manager,
+                bundle = null
             )
         }
 
         @SuppressLint("SyntheticAccessor")
-        private fun onUpdateInternal(
+        override fun onUpdate2(
             complicationInstanceId: Int,
             type: Int,
-            @IsForSafeWatchFace isForSafeWatchFace: Int,
-            manager: IBinder
+            manager: IBinder,
+            bundle: Bundle?
         ) {
+            val isForSafeWatchFace = bundle?.getInt(
+                IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE
+            ) ?: TargetWatchFaceSafety.UNKNOWN
             val expectedDataType = fromWireType(type)
             val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
             mainThreadHandler.post {
@@ -670,26 +664,20 @@ public abstract class ComplicationDataSourceService : Service() {
         }
 
         override fun onSynchronousComplicationRequest(complicationInstanceId: Int, type: Int) =
-            onSynchronousComplicationRequestInternal(
+            onSynchronousComplicationRequest2(
                 complicationInstanceId,
-                isForSafeWatchFace = TargetWatchFaceSafety.UNKNOWN,
-                type
+                type,
+                bundle = null
             )
 
         override fun onSynchronousComplicationRequest2(
-            bundle: Bundle
-        ): android.support.wearable.complications.ComplicationData? =
-            onSynchronousComplicationRequestInternal(
-                bundle.getInt(IComplicationProvider.BUNDLE_KEY_COMPLICATION_INSTANCE_ID),
-                bundle.getInt(IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE),
-                bundle.getInt(IComplicationProvider.BUNDLE_KEY_TYPE)
-            )
-
-        private fun onSynchronousComplicationRequestInternal(
             complicationInstanceId: Int,
-            @IsForSafeWatchFace isForSafeWatchFace: Int,
-            type: Int
+            type: Int,
+            bundle: Bundle?
         ): android.support.wearable.complications.ComplicationData? {
+            val isForSafeWatchFace = bundle?.getInt(
+                IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE
+            ) ?: TargetWatchFaceSafety.UNKNOWN
             val expectedDataType = fromWireType(type)
             val complicationType = fromWireType(type)
             val latch = CountDownLatch(1)
