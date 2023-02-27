@@ -49,8 +49,11 @@ class PermissionControllerUpsideDownTest {
     fun getGrantedPermissions() = runTest {
         val permissionController: PermissionController =
             HealthConnectClientUpsideDownImpl(ApplicationProvider.getApplicationContext())
+        // Permissions may have been granted by the other instrumented test in this directory.
+        // Since there is no way to revoke permissions with grantPermissionRule, use containsAtLeast
+        // instead of containsExactly.
         assertThat(permissionController.getGrantedPermissions())
-            .containsExactly(HealthPermissions.WRITE_STEPS, HealthPermissions.READ_DISTANCE)
+            .containsAtLeast(HealthPermissions.WRITE_STEPS, HealthPermissions.READ_DISTANCE)
     }
 
     @Test
