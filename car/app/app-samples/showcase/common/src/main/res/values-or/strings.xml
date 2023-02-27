@@ -131,7 +131,7 @@
     <string name="required_permissions_title" msgid="5351791879153568211">"ଅନୁମତି ଆବଶ୍ୟକ"</string>
     <string name="request_permissions_title" msgid="7456426341142412300">"ଅନୁମତି ଅନୁରୋଧର ଡେମୋ"</string>
     <string name="cancel_reservation_title" msgid="1374986823057959608">"ରିଜର୍ଭେସନ ସ୍କ୍ରିନକୁ ବାତିଲ କରନ୍ତୁ"</string>
-    <string name="reservation_cancelled_msg" msgid="6334213670275547875">"ରିଜର୍ଭେସନ ବାତିଲ୍ କରାଯାଇଛି"</string>
+    <string name="reservation_cancelled_msg" msgid="6334213670275547875">"ରିଜର୍ଭେସନ ବାତିଲ କରାଯାଇଛି"</string>
     <string name="result_demo_title" msgid="3900525190662148290">"ଫଳାଫଳର ଡେମୋ"</string>
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"ଏହି ଆପକୁ ଫଳାଫଳ ପାଇଁ ଆରମ୍ଭ କରାଯାଇନଥିଲା"</string>
     <string name="started_for_result_msg" msgid="4225260243713833974">"ଏହି ଆପକୁ %sରୁ ଫଳାଫଳ ପାଇଁ କଲ କରାଯାଇଥିଲା। କଲରଙ୍କ ପାଖକୁ ପୁଣି ପଠାଇବା ପାଇଁ ଦୟାକରି ଫଳାଫଳକୁ ଚୟନ କରନ୍ତୁ"</string>
@@ -323,6 +323,14 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ଏହି ଧାଡ଼ିଟିକୁ ମଧ୍ୟ ଚୟନ କରାଯାଇପାରିବ"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ଦ୍ୱିତୀୟ କାର୍ଯ୍ୟ ଚୟନ କରାଯାଇଛି"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"ଧାଡ଼ିର ପ୍ରାଥମିକ କାର୍ଯ୍ୟ ଚୟନ କରାଯାଇଛି"</string>
+    <!-- no translation found for sectioned_item_list_demo_title (1236735461225007729) -->
+    <skip />
+    <!-- no translation found for sectioned_item_list_one_title (6594204350307263338) -->
+    <skip />
+    <!-- no translation found for sectioned_item_list_two_title (4941545381743022833) -->
+    <skip />
+    <!-- no translation found for sectioned_item_list_subtext (2963927693547537519) -->
+    <skip />
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ବିବିଧ ଟେମ୍ପଲେଟର ଡେମୋ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase ଡେମୋ"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"ଟେମ୍ପଲେଟ ଲେଆଉଟର ଡେମୋଗୁଡ଼ିକ"</string>
