@@ -49,7 +49,7 @@ import androidx.compose.ui.node.Nodes.FocusProperties
 import androidx.compose.ui.node.Nodes.FocusTarget
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.simpleIdentityToString
-import androidx.compose.ui.semantics.SemanticsModifierCore.Companion.generateSemanticsId
+import androidx.compose.ui.semantics.generateSemanticsId
 import androidx.compose.ui.semantics.outerSemantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density

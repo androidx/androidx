@@ -39,12 +39,12 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.SemanticsNodeWithAdjustedBounds
 import androidx.compose.ui.platform.getAllUncoveredSemanticsNodesToMap
 import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.EmptySemanticsModifierNodeElement
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsConfiguration
-import androidx.compose.ui.semantics.SemanticsModifierCore
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -938,15 +938,12 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testUncoveredNodes_notPlacedNodes_notIncluded() {
         val nodes = SemanticsOwner(
             LayoutNode().also {
-                it.modifier = SemanticsModifierCore(
-                    mergeDescendants = false,
-                    clearAndSetSemantics = false,
-                    properties = {}
-                )
+                it.modifier = EmptySemanticsModifierNodeElement
             }
         ).getAllUncoveredSemanticsNodesToMap()
         assertEquals(0, nodes.size)
