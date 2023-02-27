@@ -2181,15 +2181,23 @@ public final class MediaRouter {
      * </p>
      */
     public static final class ProviderInfo {
+        // Package private fields to avoid use of a synthetic accessor.
         final MediaRouteProvider mProviderInstance;
         final List<RouteInfo> mRoutes = new ArrayList<>();
+        final boolean mTreatRouteDescriptorIdsAsUnique;
 
         private final ProviderMetadata mMetadata;
         private MediaRouteProviderDescriptor mDescriptor;
 
         ProviderInfo(MediaRouteProvider provider) {
+            this(provider, /* treatRouteDescriptorIdsAsUnique= */ false);
+        }
+
+        /** @hide */
+        ProviderInfo(MediaRouteProvider provider, boolean treatRouteDescriptorIdsAsUnique) {
             mProviderInstance = provider;
             mMetadata = provider.getMetadata();
+            mTreatRouteDescriptorIdsAsUnique = treatRouteDescriptorIdsAsUnique;
         }
 
         /**
@@ -2663,9 +2671,9 @@ public final class MediaRouter {
                             updateDiscoveryRequest();
                         }
                     });
-            addProvider(mSystemProvider);
+            addProvider(mSystemProvider, /* treatRouteDescriptorIdsAsUnique= */ true);
             if (mMr2Provider != null) {
-                addProvider(mMr2Provider);
+                addProvider(mMr2Provider, /* treatRouteDescriptorIdsAsUnique= */ true);
             }
 
             // Start watching for routes published by registered media route
@@ -2802,7 +2810,7 @@ public final class MediaRouter {
                 if (mMr2Provider == null) {
                     mMr2Provider = new MediaRoute2Provider(
                             mApplicationContext, new Mr2ProviderCallback());
-                    addProvider(mMr2Provider);
+                    addProvider(mMr2Provider, /* treatRouteDescriptorIdsAsUnique= */ true);
                     // Make sure mDiscoveryRequestForMr2Provider is updated
                     updateDiscoveryRequest();
                     mRegisteredProviderWatcher.rescan();
@@ -3119,12 +3127,18 @@ public final class MediaRouter {
                             MediaRouterParams.ENABLE_GROUP_VOLUME_UX, true);
         }
 
-
         @Override
         public void addProvider(@NonNull MediaRouteProvider providerInstance) {
+            addProvider(providerInstance, /* treatRouteDescriptorIdsAsUnique= */ false);
+        }
+
+        private void addProvider(
+                @NonNull MediaRouteProvider providerInstance,
+                boolean treatRouteDescriptorIdsAsUnique) {
             if (findProviderInfo(providerInstance) == null) {
                 // 1. Add the provider to the list.
-                ProviderInfo provider = new ProviderInfo(providerInstance);
+                ProviderInfo provider =
+                        new ProviderInfo(providerInstance, treatRouteDescriptorIdsAsUnique);
                 mProviders.add(provider);
                 if (DEBUG) {
                     Log.d(TAG, "Provider added: " + provider);
@@ -3338,8 +3352,11 @@ public final class MediaRouter {
             // possible for there to be two providers with the same package name.
             // Therefore we must dedupe the composite id.
             String componentName = provider.getComponentName().flattenToShortString();
-            String uniqueId = componentName + ":" + routeDescriptorId;
-            if (findRouteByUniqueId(uniqueId) < 0) {
+            String uniqueId =
+                    provider.mTreatRouteDescriptorIdsAsUnique
+                            ? routeDescriptorId
+                            : (componentName + ":" + routeDescriptorId);
+            if (provider.mTreatRouteDescriptorIdsAsUnique || findRouteByUniqueId(uniqueId) < 0) {
                 mUniqueIdMap.put(new Pair<>(componentName, routeDescriptorId), uniqueId);
                 return uniqueId;
             }
