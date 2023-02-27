@@ -97,7 +97,9 @@ internal class EmojiView @JvmOverloads constructor(
                     if (value == this.emoji) {
                         drawEmoji(
                             if (EmojiPickerView.emojiCompatLoaded)
-                                EmojiCompat.get().process(value) ?: value else value
+                                EmojiCompat.get().process(value) ?: value else value,
+                            drawVariantIndicator = willDrawVariantIndicator &&
+                                BundledEmojiListLoader.getEmojiVariantsLookup().containsKey(value)
                         )
                         contentDescription = value
                     }
@@ -108,7 +110,7 @@ internal class EmojiView @JvmOverloads constructor(
             }
         }
 
-    private fun drawEmoji(emoji: CharSequence) {
+    private fun drawEmoji(emoji: CharSequence, drawVariantIndicator: Boolean) {
         offscreenCanvasBitmap.eraseColor(Color.TRANSPARENT)
         offscreenCanvasBitmap.applyCanvas {
             if (emoji is Spanned) {
@@ -124,9 +126,7 @@ internal class EmojiView @JvmOverloads constructor(
                     textPaint,
                 )
             }
-            if (willDrawVariantIndicator && BundledEmojiListLoader.getEmojiVariantsLookup()
-                    .containsKey(emoji)
-            ) {
+            if (drawVariantIndicator) {
                 context.getDrawable(R.drawable.variant_availability_indicator)?.apply {
                     val canvasWidth = this@applyCanvas.width
                     val canvasHeight = this@applyCanvas.height
