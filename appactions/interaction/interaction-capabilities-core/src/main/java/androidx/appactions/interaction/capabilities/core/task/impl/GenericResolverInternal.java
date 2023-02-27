@@ -26,8 +26,7 @@ import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.task.InventoryListResolver;
 import androidx.appactions.interaction.capabilities.core.task.InventoryResolver;
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult;
-import androidx.appactions.interaction.capabilities.core.task.ValueListListener;
-import androidx.appactions.interaction.capabilities.core.task.ValueListener;
+import androidx.appactions.interaction.capabilities.core.task.ValueListenerAsync;
 import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.InvalidResolverException;
 import androidx.appactions.interaction.capabilities.core.values.SearchAction;
 import androidx.appactions.interaction.proto.ParamValue;
@@ -49,13 +48,13 @@ import java.util.List;
 public abstract class GenericResolverInternal<ValueTypeT> {
     @NonNull
     public static <ValueTypeT> GenericResolverInternal<ValueTypeT> fromValueListener(
-            @NonNull ValueListener<ValueTypeT> valueListener) {
+            @NonNull ValueListenerAsync<ValueTypeT> valueListener) {
         return AutoOneOf_GenericResolverInternal.value(valueListener);
     }
 
     @NonNull
     public static <ValueTypeT> GenericResolverInternal<ValueTypeT> fromValueListListener(
-            @NonNull ValueListListener<ValueTypeT> valueListListener) {
+            @NonNull ValueListenerAsync<List<ValueTypeT>> valueListListener) {
         return AutoOneOf_GenericResolverInternal.valueList(valueListListener);
     }
 
@@ -88,9 +87,9 @@ public abstract class GenericResolverInternal<ValueTypeT> {
     @NonNull
     public abstract Kind getKind();
 
-    abstract ValueListener<ValueTypeT> value();
+    abstract ValueListenerAsync<ValueTypeT> value();
 
-    abstract ValueListListener<ValueTypeT> valueList();
+    abstract ValueListenerAsync<List<ValueTypeT>> valueList();
 
     abstract AppEntityResolver<ValueTypeT> appEntityResolver();
 
@@ -147,8 +146,8 @@ public abstract class GenericResolverInternal<ValueTypeT> {
             @NonNull ParamValueConverter<ValueTypeT> converter)
             throws StructConversionException {
         SlotTypeConverter<ValueTypeT> singularConverter = SlotTypeConverter.ofSingular(converter);
-        SlotTypeConverter<List<ValueTypeT>> repeatedConverter = SlotTypeConverter.ofRepeated(
-                converter);
+        SlotTypeConverter<List<ValueTypeT>> repeatedConverter =
+                SlotTypeConverter.ofRepeated(converter);
 
         switch (getKind()) {
             case VALUE:

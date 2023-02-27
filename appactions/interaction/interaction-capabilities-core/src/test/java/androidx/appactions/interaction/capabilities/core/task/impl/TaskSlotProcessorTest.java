@@ -27,8 +27,7 @@ import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver;
 import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult;
 import androidx.appactions.interaction.capabilities.core.task.InventoryResolver;
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult;
-import androidx.appactions.interaction.capabilities.core.task.ValueListListener;
-import androidx.appactions.interaction.capabilities.core.task.ValueListener;
+import androidx.appactions.interaction.capabilities.core.task.ValueListenerAsync;
 import androidx.appactions.interaction.capabilities.core.testing.spec.SettableFutureWrapper;
 import androidx.appactions.interaction.capabilities.core.values.SearchAction;
 import androidx.appactions.interaction.proto.CurrentValue;
@@ -79,7 +78,7 @@ public final class TaskSlotProcessorTest {
     private <T> GenericResolverInternal<T> createValueResolver(
             ValidationResult validationResult, Consumer<T> valueConsumer) {
         return GenericResolverInternal.fromValueListener(
-                new ValueListener<T>() {
+                new ValueListenerAsync<T>() {
                     @NonNull
                     @Override
                     public ListenableFuture<ValidationResult> onReceived(T value) {
@@ -90,14 +89,13 @@ public final class TaskSlotProcessorTest {
     }
 
     private <T> GenericResolverInternal<T> createValueResolver(ValidationResult validationResult) {
-        return createValueResolver(validationResult, (unused) -> {
-        });
+        return createValueResolver(validationResult, (unused) -> {});
     }
 
     private <T> GenericResolverInternal<T> createValueListResolver(
             ValidationResult validationResult, Consumer<List<T>> valueConsumer) {
         return GenericResolverInternal.fromValueListListener(
-                new ValueListListener<T>() {
+                new ValueListenerAsync<List<T>>() {
                     @NonNull
                     @Override
                     public ListenableFuture<ValidationResult> onReceived(List<T> value) {
@@ -157,8 +155,10 @@ public final class TaskSlotProcessorTest {
         assertThat(result.isSuccessful()).isTrue();
         assertThat(result.processedValues())
                 .containsExactly(
-                        CurrentValue.newBuilder().setValue(args.get(0)).setStatus(
-                                Status.ACCEPTED).build());
+                        CurrentValue.newBuilder()
+                                .setValue(args.get(0))
+                                .setStatus(Status.ACCEPTED)
+                                .build());
     }
 
     @Test
@@ -188,8 +188,10 @@ public final class TaskSlotProcessorTest {
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.processedValues())
                 .containsExactly(
-                        CurrentValue.newBuilder().setValue(args.get(0)).setStatus(
-                                Status.REJECTED).build());
+                        CurrentValue.newBuilder()
+                                .setValue(args.get(0))
+                                .setStatus(Status.REJECTED)
+                                .build());
     }
 
     @Test
@@ -200,8 +202,8 @@ public final class TaskSlotProcessorTest {
                         .addTaskParameter(
                                 "repeatedValue",
                                 (paramValue) -> false,
-                                createValueListResolver(ValidationResult.newAccepted(),
-                                        lastReceivedArgs::set),
+                                createValueListResolver(
+                                        ValidationResult.newAccepted(), lastReceivedArgs::set),
                                 Optional.empty(),
                                 Optional.empty(),
                                 TypeConverters::toStringValue)
@@ -222,10 +224,14 @@ public final class TaskSlotProcessorTest {
         assertThat(result.isSuccessful()).isTrue();
         assertThat(result.processedValues())
                 .containsExactly(
-                        CurrentValue.newBuilder().setValue(args.get(0)).setStatus(
-                                Status.ACCEPTED).build(),
-                        CurrentValue.newBuilder().setValue(args.get(1)).setStatus(
-                                Status.ACCEPTED).build());
+                        CurrentValue.newBuilder()
+                                .setValue(args.get(0))
+                                .setStatus(Status.ACCEPTED)
+                                .build(),
+                        CurrentValue.newBuilder()
+                                .setValue(args.get(1))
+                                .setStatus(Status.ACCEPTED)
+                                .build());
         assertThat(lastReceivedArgs.getFuture().get()).containsExactly("testValue1", "testValue2");
     }
 
@@ -237,8 +243,8 @@ public final class TaskSlotProcessorTest {
                         .addTaskParameter(
                                 "repeatedValue",
                                 (paramValue) -> false,
-                                createValueListResolver(ValidationResult.newRejected(),
-                                        lastReceivedArgs::set),
+                                createValueListResolver(
+                                        ValidationResult.newRejected(), lastReceivedArgs::set),
                                 Optional.empty(),
                                 Optional.empty(),
                                 TypeConverters::toStringValue)
@@ -259,10 +265,14 @@ public final class TaskSlotProcessorTest {
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.processedValues())
                 .containsExactly(
-                        CurrentValue.newBuilder().setValue(args.get(0)).setStatus(
-                                Status.REJECTED).build(),
-                        CurrentValue.newBuilder().setValue(args.get(1)).setStatus(
-                                Status.REJECTED).build());
+                        CurrentValue.newBuilder()
+                                .setValue(args.get(0))
+                                .setStatus(Status.REJECTED)
+                                .build(),
+                        CurrentValue.newBuilder()
+                                .setValue(args.get(1))
+                                .setStatus(Status.REJECTED)
+                                .build());
         assertThat(lastReceivedArgs.getFuture().get()).containsExactly("testValue1", "testValue2");
     }
 
@@ -277,7 +287,8 @@ public final class TaskSlotProcessorTest {
                                 "assistantDrivenSlot",
                                 (paramValue) -> !paramValue.hasIdentifier(),
                                 createAssistantDisambigResolver(
-                                        ValidationResult.newAccepted(), onReceivedCb::set,
+                                        ValidationResult.newAccepted(),
+                                        onReceivedCb::set,
                                         renderCb::set),
                                 Optional.empty(),
                                 Optional.empty(),
@@ -291,9 +302,11 @@ public final class TaskSlotProcessorTest {
                                         .setIdentifier("id")
                                         .setStructValue(
                                                 Struct.newBuilder()
-                                                        .putFields("id",
-                                                                Value.newBuilder().setStringValue(
-                                                                        "1234").build())))
+                                                        .putFields(
+                                                                "id",
+                                                                Value.newBuilder()
+                                                                        .setStringValue("1234")
+                                                                        .build())))
                         .build();
         List<CurrentValue> values =
                 Arrays.asList(
@@ -302,15 +315,17 @@ public final class TaskSlotProcessorTest {
                                 .setStatus(Status.PENDING)
                                 .setDisambiguationData(
                                         DisambiguationData.newBuilder()
-                                                .addEntities(Entity.newBuilder().setIdentifier(
-                                                        "entity-1"))
-                                                .addEntities(Entity.newBuilder().setIdentifier(
-                                                        "entity-2")))
+                                                .addEntities(
+                                                        Entity.newBuilder()
+                                                                .setIdentifier("entity-1"))
+                                                .addEntities(
+                                                        Entity.newBuilder()
+                                                                .setIdentifier("entity-2")))
                                 .build());
 
         SlotProcessingResult result =
-                TaskSlotProcessor.processSlot("assistantDrivenSlot", values, paramRegistry,
-                                Runnable::run)
+                TaskSlotProcessor.processSlot(
+                                "assistantDrivenSlot", values, paramRegistry, Runnable::run)
                         .get();
 
         assertThat(result.isSuccessful()).isFalse();
@@ -323,10 +338,12 @@ public final class TaskSlotProcessorTest {
                                 .setStatus(Status.DISAMBIG)
                                 .setDisambiguationData(
                                         DisambiguationData.newBuilder()
-                                                .addEntities(Entity.newBuilder().setIdentifier(
-                                                        "entity-1"))
-                                                .addEntities(Entity.newBuilder().setIdentifier(
-                                                        "entity-2")))
+                                                .addEntities(
+                                                        Entity.newBuilder()
+                                                                .setIdentifier("entity-1"))
+                                                .addEntities(
+                                                        Entity.newBuilder()
+                                                                .setIdentifier("entity-2")))
                                 .build());
     }
 
@@ -364,15 +381,18 @@ public final class TaskSlotProcessorTest {
                                 .build());
 
         SlotProcessingResult result =
-                TaskSlotProcessor.processSlot("appDrivenSlot", values, paramRegistry,
-                        Runnable::run).get();
+                TaskSlotProcessor.processSlot("appDrivenSlot", values, paramRegistry, Runnable::run)
+                        .get();
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(onReceivedCb.getFuture().isDone()).isFalse();
         assertThat(appSearchCb.getFuture().isDone()).isTrue();
         assertThat(appSearchCb.getFuture().get())
-                .isEqualTo(SearchAction.<String>newBuilder().setQuery("A").setObject(
-                        "nested").build());
+                .isEqualTo(
+                        SearchAction.<String>newBuilder()
+                                .setQuery("A")
+                                .setObject("nested")
+                                .build());
         assertThat(result.processedValues())
                 .containsExactly(
                         CurrentValue.newBuilder()

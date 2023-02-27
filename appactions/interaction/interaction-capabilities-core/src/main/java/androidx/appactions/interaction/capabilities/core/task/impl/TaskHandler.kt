@@ -23,17 +23,20 @@ import androidx.appactions.interaction.capabilities.core.task.AppEntityListResol
 import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver
 import androidx.appactions.interaction.capabilities.core.task.InventoryListResolver
 import androidx.appactions.interaction.capabilities.core.task.InventoryResolver
-import androidx.appactions.interaction.capabilities.core.task.ValueListListener
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
+import androidx.appactions.interaction.capabilities.core.task.ValueListenerAsync.Companion.toValueListenerAsync
 import androidx.appactions.interaction.proto.ParamValue
 import java.util.Optional
 import java.util.function.Function
 import java.util.function.Predicate
 
+import androidx.annotation.RestrictTo
+
 /**
  * Container of multi-turn Task related function references.
  *
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class TaskHandler<ConfirmationT> (
     val taskParamRegistry: TaskParamRegistry,
     val confirmationType: ConfirmationType,
@@ -124,7 +127,9 @@ data class TaskHandler<ConfirmationT> (
             taskParamRegistryBuilder.addTaskParameter(
                 paramName,
                 GROUND_NEVER,
-                GenericResolverInternal.fromValueListener(listener),
+                GenericResolverInternal.fromValueListener(
+                    listener.toValueListenerAsync(),
+                ),
                 Optional.empty(),
                 Optional.empty(),
                 converter,
@@ -134,13 +139,16 @@ data class TaskHandler<ConfirmationT> (
 
         fun <ValueTypeT> registerValueListTaskParam(
             paramName: String,
-            listener: ValueListListener<ValueTypeT>,
+            listener: ValueListener<List<ValueTypeT>>,
             converter: ParamValueConverter<ValueTypeT>,
         ): Builder<ConfirmationT> {
             taskParamRegistryBuilder.addTaskParameter(
                 paramName,
                 GROUND_NEVER,
-                GenericResolverInternal.fromValueListListener(listener),
+                GenericResolverInternal.fromValueListListener(
+
+                    listener.toValueListenerAsync(),
+                ),
                 Optional.empty(),
                 Optional.empty(),
                 converter,
