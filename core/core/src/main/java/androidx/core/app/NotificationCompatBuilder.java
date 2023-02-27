@@ -98,14 +98,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 .setDeleteIntent(n.deleteIntent)
                 .setFullScreenIntent(b.mFullScreenIntent,
                         (n.flags & Notification.FLAG_HIGH_PRIORITY) != 0)
+                .setLargeIcon(b.mLargeIcon)
                 .setNumber(b.mNumber)
                 .setProgress(b.mProgressMax, b.mProgress, b.mProgressIndeterminate);
-        if (Build.VERSION.SDK_INT < 23) {
-            mBuilder.setLargeIcon(b.mLargeIcon == null ? null : b.mLargeIcon.getBitmap());
-        } else {
-            Api23Impl.setLargeIcon(mBuilder,
-                    b.mLargeIcon == null ? null : b.mLargeIcon.toIcon(mContext));
-        }
         if (Build.VERSION.SDK_INT < 21) {
             mBuilder.setSound(n.sound, n.audioStreamType);
         }
@@ -737,11 +732,6 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         static Notification.Builder setSmallIcon(Notification.Builder builder,
                 Object icon /** Icon **/) {
             return builder.setSmallIcon((Icon) icon);
-        }
-
-        @DoNotInline
-        static Notification.Builder setLargeIcon(Notification.Builder builder, Icon icon) {
-            return builder.setLargeIcon(icon);
         }
     }
 
