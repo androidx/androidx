@@ -124,7 +124,7 @@ import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.semantics.SemanticsModifierCore
+import androidx.compose.ui.semantics.EmptySemanticsModifierNodeElement
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.outerSemantics
@@ -190,11 +190,7 @@ internal class AndroidComposeView(context: Context) :
     override var density = Density(context)
         private set
 
-    private val semanticsModifier = SemanticsModifierCore(
-        mergeDescendants = false,
-        clearAndSetSemantics = false,
-        properties = {}
-    )
+    private val semanticsModifier = EmptySemanticsModifierNodeElement
 
     override val focusOwner: FocusOwner = FocusOwnerImpl { registerOnEndApplyChangesListener(it) }
 
