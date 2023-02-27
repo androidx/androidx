@@ -24,8 +24,6 @@ import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
 import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback;
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures;
-import androidx.appactions.interaction.capabilities.core.task.OnDialogFinishListener;
-import androidx.appactions.interaction.capabilities.core.task.OnInitListener;
 import androidx.appactions.interaction.capabilities.core.task.OnReadyToConfirmListener;
 import androidx.appactions.interaction.capabilities.core.testing.spec.SettableFutureWrapper;
 import androidx.appactions.interaction.proto.FulfillmentResponse;
@@ -95,19 +93,6 @@ public final class TestingUtils {
         };
     }
 
-    public static <T> Optional<OnInitListener<T>> buildOnInitListener(
-            SettableFutureWrapper<T> updaterFuture) {
-        return Optional.of(
-                new OnInitListener<T>() {
-                    @NonNull
-                    @Override
-                    public ListenableFuture<Void> onInit(T taskUpdater) {
-                        updaterFuture.set(taskUpdater);
-                        return Futures.immediateVoidFuture();
-                    }
-                });
-    }
-
     public static <ArgumentT, ConfirmationT>
             Optional<OnReadyToConfirmListener<ArgumentT, ConfirmationT>>
                     buildOnReadyToConfirmListener(SettableFutureWrapper<ArgumentT> future) {
@@ -116,15 +101,6 @@ public final class TestingUtils {
                     future.set(finalArgs);
                     return Futures.immediateFuture(ConfirmationOutput.getDefaultInstance());
                 });
-    }
-
-    public static <ArgumentT, OutputT>
-            OnDialogFinishListener<ArgumentT, OutputT> buildOnFinishListener(
-                    SettableFutureWrapper<ArgumentT> future) {
-        return (finalArgs) -> {
-            future.set(finalArgs);
-            return Futures.immediateFuture(ExecutionResult.<OutputT>getDefaultInstance());
-        };
     }
 
     public static TouchEventCallback buildTouchEventCallback(
