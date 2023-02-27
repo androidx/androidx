@@ -15,7 +15,6 @@
  */
 
 import androidx.build.LibraryType
-import com.google.auto.value.AutoValue
 
 plugins {
     id("AndroidXPlugin")
