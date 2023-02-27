@@ -67,6 +67,12 @@ public interface WindowAreaComponent {
      */
     int STATUS_AVAILABLE = 2;
 
+    /**
+     * WindowArea status constant to signify that the feature is
+     * already enabled.
+     */
+    int STATUS_ACTIVE = 3;
+
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -74,7 +80,8 @@ public interface WindowAreaComponent {
     @IntDef({
             STATUS_UNSUPPORTED,
             STATUS_UNAVAILABLE,
-            STATUS_AVAILABLE
+            STATUS_AVAILABLE,
+            STATUS_ACTIVE
     })
     @interface WindowAreaStatus {}
 
