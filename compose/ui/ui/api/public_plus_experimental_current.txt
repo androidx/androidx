@@ -2428,6 +2428,8 @@ package androidx.compose.ui.node {
 
   public final class DelegatableNodeKt {
     method @androidx.compose.ui.ExperimentalComposeUiApi public static void invalidateSubtree(androidx.compose.ui.node.DelegatableNode);
+    method @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.unit.Density requireDensity(androidx.compose.ui.node.DelegatableNode);
+    method @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.unit.LayoutDirection requireLayoutDirection(androidx.compose.ui.node.DelegatableNode);
   }
 
   @androidx.compose.ui.ExperimentalComposeUiApi public abstract class DelegatingNode extends androidx.compose.ui.Modifier.Node {
