@@ -1614,6 +1614,60 @@ class MultiParagraphIntegrationTest {
         }
     }
 
+    @Test
+    fun minInstrinsicWidth_includes_white_space() {
+        with(defaultDensity) {
+            val fontSize = 12.sp
+            val text = "b "
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize)
+            )
+
+            val expectedWidth = text.length * fontSize.toPx()
+            assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun minInstrinsicWidth_returns_longest_word_width() {
+        with(defaultDensity) {
+            // create words with length 1, 2, 3... 50; and append all with space.
+            val maxWordLength = 50
+            val text = (1..maxWordLength).fold("") { string, next ->
+                string + "a".repeat(next) + " "
+            }
+            val fontSize = 12.sp
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize)
+            )
+
+            // +1 is for the white space
+            val expectedWidth = (maxWordLength + 1) * fontSize.toPx()
+            assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
+        }
+    }
+
+    @Test
+    fun minInstrinsicWidth_withStyledText() {
+        with(defaultDensity) {
+            val text = "a bb ccc"
+            val fontSize = 12.sp
+            val styledFontSize = fontSize * 2
+            val paragraph = simpleMultiParagraph(
+                text = buildAnnotatedString {
+                    append(text)
+                    addStyle(SpanStyle(fontSize = styledFontSize), "a".length, "a bb ".length)
+                },
+                style = TextStyle(fontSize = fontSize),
+            )
+
+            val expectedWidth = "bb ".length * styledFontSize.toPx()
+            assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
+        }
+    }
+
     private fun MultiParagraph.disableAntialias() {
         paragraphInfoList.forEach {
             (it.paragraph as AndroidParagraph).textPaint.isAntiAlias = false
