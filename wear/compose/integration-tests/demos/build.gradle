@@ -65,6 +65,7 @@ dependencies {
     implementation(project(":wear:compose:compose-material-samples"))
 
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":emoji2:emoji2"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
