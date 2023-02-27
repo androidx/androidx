@@ -54,6 +54,8 @@
     <string name="date_range_picker_day_in_range" msgid="9048690781645835833">"In range"</string>
     <string name="date_range_input_title" msgid="2366412111888449406">"Enter dates"</string>
     <string name="date_range_input_invalid_range_input" msgid="1891592555781755601">"Invalid date range input"</string>
+    <!-- no translation found for bottom_sheet_drag_handle_description (7772321844937772780) -->
+    <skip />
     <string name="tooltip_pane_description" msgid="8191239805703103845">"Tooltip"</string>
     <string name="tooltip_long_press_label" msgid="2732804537909054941">"Show tooltip"</string>
     <string name="time_picker_pm" msgid="2232702812657998674">"PM"</string>
