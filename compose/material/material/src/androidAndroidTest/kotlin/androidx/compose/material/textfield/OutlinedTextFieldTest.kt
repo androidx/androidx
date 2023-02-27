@@ -26,9 +26,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -106,10 +106,10 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import kotlin.math.max
+import kotlin.math.roundToInt
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -508,42 +508,20 @@ class OutlinedTextFieldTest {
     }
 
     @Test
-    fun testOutlinedTextField_labelPosition_whenUnfocused_isNotCovered() {
+    fun testOutlinedTextField_transparentPlaceholder_doesNotAppearInComposition() {
         // Regression test for b/251162419
-        val labelPosition = Ref<Offset>()
-        val labelSize = Ref<IntSize>()
-        val placeholderPosition = Ref<Offset>()
-        val placeholderSize = Ref<IntSize>()
-
         rule.setMaterialContent {
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
-                label = {
-                    Text(
-                        text = "Label",
-                        modifier = Modifier.onGloballyPositioned {
-                            labelPosition.value = it.positionInRoot()
-                            labelSize.value = it.size
-                        }
-                    )
-                },
+                label = { Text(text = "Label") },
                 placeholder = {
-                    Text(
-                        text = "Placeholder",
-                        modifier = Modifier.onGloballyPositioned {
-                            placeholderPosition.value = it.positionInRoot()
-                            placeholderSize.value = it.size
-                        }
-                    )
+                    Text(text = "Placeholder", modifier = Modifier.testTag("Placeholder"))
                 },
             )
         }
 
-        assertThat(labelSize.value!!.height).isAtMost(placeholderSize.value!!.height)
-        assertThat(labelSize.value!!.width).isAtMost(placeholderSize.value!!.width)
-
-        assertThat(labelPosition.value!!.y).isLessThan(placeholderPosition.value!!.y)
+        rule.onNodeWithTag("Placeholder", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test

@@ -58,7 +58,6 @@ internal enum class TextFieldType {
 /**
  * Implementation of the [TextField] and [OutlinedTextField]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CommonDecorationBox(
     type: TextFieldType,
@@ -128,8 +127,11 @@ internal fun CommonDecorationBox(
             }
         }
 
+        // Transparent components interfere with Talkback (b/261061240), so if any components below
+        // have alpha == 0, we set the component to null instead.
+
         val decoratedPlaceholder: @Composable ((Modifier) -> Unit)? =
-            if (placeholder != null && transformedText.isEmpty()) {
+            if (placeholder != null && transformedText.isEmpty() && placeholderAlphaProgress > 0f) {
                 @Composable { modifier ->
                     Box(modifier.alpha(placeholderAlphaProgress)) {
                         Decoration(
@@ -143,22 +145,32 @@ internal fun CommonDecorationBox(
             } else null
 
         val prefixColor = colors.prefixColor(enabled, isError, interactionSource).value
-        val decoratedPrefix: @Composable (() -> Unit)? = prefix?.let {
-            @Composable {
-                Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
-                    Decoration(contentColor = prefixColor, typography = bodyLarge, content = it)
+        val decoratedPrefix: @Composable (() -> Unit)? =
+            if (prefix != null && prefixSuffixAlphaProgress > 0f) {
+                @Composable {
+                    Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
+                        Decoration(
+                            contentColor = prefixColor,
+                            typography = bodyLarge,
+                            content = prefix
+                        )
+                    }
                 }
-            }
-        }
+            } else null
 
         val suffixColor = colors.suffixColor(enabled, isError, interactionSource).value
-        val decoratedSuffix: @Composable (() -> Unit)? = suffix?.let {
-            @Composable {
-                Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
-                    Decoration(contentColor = suffixColor, typography = bodyLarge, content = it)
+        val decoratedSuffix: @Composable (() -> Unit)? =
+            if (suffix != null && prefixSuffixAlphaProgress > 0f) {
+                @Composable {
+                    Box(Modifier.alpha(prefixSuffixAlphaProgress)) {
+                        Decoration(
+                            contentColor = suffixColor,
+                            typography = bodyLarge,
+                            content = suffix
+                        )
+                    }
                 }
-            }
-        }
+            } else null
 
         // Developers need to handle invalid input manually. But since we don't provide error
         // message slot API, we can set the default error message in case developers forget about

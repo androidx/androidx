@@ -487,42 +487,28 @@ class OutlinedTextFieldTest {
     }
 
     @Test
-    fun testOutlinedTextField_labelPosition_whenUnfocused_isNotCovered() {
+    fun testOutlinedTextField_transparentComponents_doNotAppearInComposition() {
         // Regression test for b/251162419
-        val labelPosition = Ref<Offset>()
-        val labelSize = Ref<IntSize>()
-        val placeholderPosition = Ref<Offset>()
-        val placeholderSize = Ref<IntSize>()
-
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
-                label = {
-                    Text(
-                        text = "Label",
-                        modifier = Modifier.onGloballyPositioned {
-                            labelPosition.value = it.positionInRoot()
-                            labelSize.value = it.size
-                        }
-                    )
-                },
+                label = { Text(text = "Label") },
                 placeholder = {
-                    Text(
-                        text = "Placeholder",
-                        modifier = Modifier.onGloballyPositioned {
-                            placeholderPosition.value = it.positionInRoot()
-                            placeholderSize.value = it.size
-                        }
-                    )
+                    Text(text = "Placeholder", modifier = Modifier.testTag("Placeholder"))
                 },
+                prefix = {
+                    Text(text = "Prefix", modifier = Modifier.testTag("Prefix"))
+                },
+                suffix = {
+                    Text(text = "Suffix", modifier = Modifier.testTag("Suffix"))
+                }
             )
         }
 
-        assertThat(labelSize.value!!.height).isAtMost(placeholderSize.value!!.height)
-        assertThat(labelSize.value!!.width).isAtMost(placeholderSize.value!!.width)
-
-        assertThat(labelPosition.value!!.y).isLessThan(placeholderPosition.value!!.y)
+        rule.onNodeWithTag("Placeholder", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("Prefix", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("Suffix", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
