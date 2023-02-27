@@ -24,6 +24,7 @@ import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
 import androidx.benchmark.Shell
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOG_TAG
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 
 /**
@@ -58,14 +59,15 @@ class PerfettoCaptureWrapper {
     ): Boolean {
         capture?.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                Log.d(PerfettoHelper.LOG_TAG, "Recording perfetto trace")
+                Log.d(LOG_TAG, "Recording perfetto trace")
                 if (userspaceTracingPackage != null &&
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
                 ) {
-                    enableAndroidxTracingPerfetto(
+                    val result = enableAndroidxTracingPerfetto(
                         targetPackage = userspaceTracingPackage,
                         provideBinariesIfMissing = true
-                    )
+                    ) ?: "Success"
+                    Log.d(LOG_TAG, "Enable full tracing result=$result")
                 }
                 start(appTagPackages)
             }
