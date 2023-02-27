@@ -75,14 +75,15 @@ public class MultiPointerPredictor implements KalmanPredictor {
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         int action = event.getActionMasked();
-        int pointerId = event.getPointerId(event.getActionIndex());
+        int actionIndex = event.getActionIndex();
+        int pointerId = event.getPointerId(actionIndex);
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
             SinglePointerPredictor predictor = new SinglePointerPredictor();
             predictor.setPredictionTarget(mPredictionTargetMs);
             if (mReportRateMs > 0) {
                 predictor.setReportRate(mReportRateMs);
             }
-            predictor.initStrokePrediction(pointerId);
+            predictor.initStrokePrediction(pointerId, event.getToolType(actionIndex));
             predictor.onTouchEvent(event);
             mPredictorMap.put(pointerId, predictor);
         } else if (action == MotionEvent.ACTION_UP) {
