@@ -30,7 +30,7 @@ class BanThreadSleepTest : AbstractLintDetectorTest(
 ) {
 
     @Test
-    fun `Detection of Keep annotation in Java sources`() {
+    fun `Detection of Thread#sleep in Java sources`() {
         val input = arrayOf(
             javaSample("androidx.ThreadSleepUsageJava"),
         )
@@ -46,8 +46,9 @@ src/androidx/ThreadSleepUsageJava.java:21: Error: Uses Thread.sleep() [BanThread
 
         check(*input).expect(expected)
     }
+
     @Test
-    fun `Detection of Keep annotation in Kotlin sources`() {
+    fun `Detection of Thread#sleep in Kotlin sources`() {
         val input = arrayOf(
             ktSample("androidx.ThreadSleepUsageKotlin"),
         )
