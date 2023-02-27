@@ -23,7 +23,6 @@ import androidx.annotation.RequiresApi
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePublicKeyCredentialRequest
-import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged
 import androidx.credentials.R
 
 /** @hide */
@@ -50,7 +49,6 @@ class FrameworkImplHelper {
                     when (request) {
                         is CreatePasswordRequest -> R.drawable.ic_password
                         is CreatePublicKeyCredentialRequest -> R.drawable.ic_passkey
-                        is CreatePublicKeyCredentialRequestPrivileged -> R.drawable.ic_passkey
                         else -> R.drawable.ic_other_sign_in
                     }
                 )
