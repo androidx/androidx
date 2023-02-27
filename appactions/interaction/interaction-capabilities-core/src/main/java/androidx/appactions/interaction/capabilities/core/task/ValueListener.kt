@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.task;
+package androidx.appactions.interaction.capabilities.core.task
 
-import androidx.annotation.NonNull;
-
-import com.google.common.util.concurrent.ListenableFuture;
+import kotlinx.coroutines.guava.await
 
 /**
  * Provides a mechanism for the app to listen to argument updates from Assistant.
- *
- * @param <T>
  */
-public interface ValueListener<T> {
+fun interface ValueListener<T> {
     /**
      * Invoked when Assistant reports that an argument value has changed. This method should be
      * idempotent, as it may be called multiple times with the same input value, not only on the
@@ -38,8 +34,15 @@ public interface ValueListener<T> {
      *   <li>2. If the given values are valid, update app UI state if applicable.
      * </ul>
      *
-     * <p>Returns a ListenableFuture that resolves to the ValidationResult.
+     * <p>Returns the ValidationResult.
      */
-    @NonNull
-    ListenableFuture<ValidationResult> onReceived(T value);
+    suspend fun onReceived(value: T): ValidationResult
+
+    companion object {
+        @JvmStatic
+        @JvmName("from")
+        fun <T> ValueListenerAsync<T>.toValueListener() = ValueListener<T> {
+            this.onReceived(it).await()
+        }
+    }
 }
