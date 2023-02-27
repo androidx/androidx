@@ -1,8 +1,6 @@
 // Baseline format: 1.0
 RemovedClass: androidx.activity.OnBackPressedDispatcherKt:
     Removed class androidx.activity.OnBackPressedDispatcherKt
-RemovedClass: androidx.activity.PipHintTrackerKt:
-    Removed class androidx.activity.PipHintTrackerKt
 
 
 RemovedPackage: androidx.activity.contextaware:

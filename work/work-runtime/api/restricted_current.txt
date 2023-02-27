@@ -7,7 +7,7 @@ package androidx.work {
   }
 
   public enum BackoffPolicy {
-    method public static androidx.work.BackoffPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.BackoffPolicy valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.BackoffPolicy[] values();
     enum_constant public static final androidx.work.BackoffPolicy EXPONENTIAL;
     enum_constant public static final androidx.work.BackoffPolicy LINEAR;
@@ -159,7 +159,7 @@ package androidx.work {
   }
 
   public enum ExistingPeriodicWorkPolicy {
-    method public static androidx.work.ExistingPeriodicWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.ExistingPeriodicWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.ExistingPeriodicWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy CANCEL_AND_REENQUEUE;
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy KEEP;
@@ -168,7 +168,7 @@ package androidx.work {
   }
 
   public enum ExistingWorkPolicy {
-    method public static androidx.work.ExistingWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.ExistingWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.ExistingWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND;
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND_OR_REPLACE;
@@ -226,7 +226,7 @@ package androidx.work {
   }
 
   public enum NetworkType {
-    method public static androidx.work.NetworkType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.NetworkType valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.NetworkType[] values();
     enum_constant public static final androidx.work.NetworkType CONNECTED;
     enum_constant public static final androidx.work.NetworkType METERED;
@@ -277,7 +277,7 @@ package androidx.work {
   }
 
   public enum OutOfQuotaPolicy {
-    method public static androidx.work.OutOfQuotaPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.OutOfQuotaPolicy valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.OutOfQuotaPolicy[] values();
     enum_constant public static final androidx.work.OutOfQuotaPolicy DROP_WORK_REQUEST;
     enum_constant public static final androidx.work.OutOfQuotaPolicy RUN_AS_NON_EXPEDITED_WORK_REQUEST;
@@ -357,7 +357,7 @@ package androidx.work {
 
   public enum WorkInfo.State {
     method public final boolean isFinished();
-    method public static androidx.work.WorkInfo.State valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.WorkInfo.State valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.work.WorkInfo.State[] values();
     property public final boolean isFinished;
     enum_constant public static final androidx.work.WorkInfo.State BLOCKED;
