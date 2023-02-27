@@ -16,12 +16,14 @@
 
 package androidx.wear.protolayout.renderer.inflater;
 
+import static androidx.wear.protolayout.renderer.common.FuturesHelper.createFailedFuture;
+import static androidx.wear.protolayout.renderer.common.FuturesHelper.createImmediateFuture;
+
 import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.proto.ResourceProto.AndroidAnimatedImageResourceByResId;
@@ -349,18 +351,6 @@ public class ResourceResolvers {
         }
 
         return null;
-    }
-
-    static <T> ListenableFuture<T> createImmediateFuture(@NonNull T value) {
-        ResolvableFuture<T> future = ResolvableFuture.create();
-        future.set(value);
-        return future;
-    }
-
-    static <T> ListenableFuture<T> createFailedFuture(@NonNull Throwable throwable) {
-        ResolvableFuture<T> errorFuture = ResolvableFuture.create();
-        errorFuture.setException(throwable);
-        return errorFuture;
     }
 
     /** Builder for ResourceResolvers */
