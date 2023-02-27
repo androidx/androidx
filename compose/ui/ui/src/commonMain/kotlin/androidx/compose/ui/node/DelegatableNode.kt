@@ -20,6 +20,8 @@ import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Represents a [Modifier.Node] which can be a delegate of another [Modifier.Node]. Since
@@ -361,10 +363,27 @@ internal fun DelegatableNode.requireCoordinator(kind: NodeKind<*>): NodeCoordina
 }
 
 @ExperimentalComposeUiApi
-internal fun DelegatableNode.requireLayoutNode() = checkNotNull(node.coordinator).layoutNode
+internal fun DelegatableNode.requireLayoutNode(): LayoutNode =
+    checkNotNull(node.coordinator) {
+        "Cannot obtain node coordinator. Is the Modifier.Node attached?"
+    }.layoutNode
 
 @ExperimentalComposeUiApi
 internal fun DelegatableNode.requireOwner(): Owner = checkNotNull(requireLayoutNode().owner)
+
+/**
+ * Returns the current [Density] of the LayoutNode that this [DelegatableNode] is attached to.
+ * If the node is not attached, this function will throw an [IllegalStateException].
+ */
+@ExperimentalComposeUiApi
+fun DelegatableNode.requireDensity(): Density = requireLayoutNode().density
+
+/**
+ * Returns the current [LayoutDirection] of the LayoutNode that this [DelegatableNode] is attached
+ * to. If the node is not attached, this function will throw an [IllegalStateException].
+ */
+@ExperimentalComposeUiApi
+fun DelegatableNode.requireLayoutDirection(): LayoutDirection = requireLayoutNode().layoutDirection
 
 /**
  * Invalidates the subtree of this layout, including layout, drawing, parent data, etc.
