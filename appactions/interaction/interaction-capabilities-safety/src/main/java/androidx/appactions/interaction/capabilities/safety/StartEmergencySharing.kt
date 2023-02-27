@@ -25,8 +25,8 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBui
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
-import androidx.appactions.interaction.capabilities.core.values.executionstatus.ActionNotInProgress
 import androidx.appactions.interaction.capabilities.core.values.executionstatus.NoInternetConnection
+import androidx.appactions.interaction.capabilities.safety.executionstatus.EmergencySharingInProgress
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyFeatureNotOnboarded
 import androidx.appactions.interaction.proto.ParamValue
@@ -34,27 +34,30 @@ import com.google.protobuf.Struct
 import com.google.protobuf.Value
 import java.util.Optional
 
-/** StopSafetyCheck.kt in interaction-capabilities-safety */
-private const val CAPABILITY_NAME = "actions.intent.STOP_SAFETY_CHECK"
+/** StartEmergencySharing.kt in interaction-capabilities-safety */
+private const val CAPABILITY_NAME = "actions.intent.START_EMERGENCY_SHARING"
 
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StopSafetyCheck.Property::class.java)
-        .setArgument(StopSafetyCheck.Argument::class.java, StopSafetyCheck.Argument::Builder)
-        .setOutput(StopSafetyCheck.Output::class.java)
+        .setDescriptor(StartEmergencySharing.Property::class.java)
+        .setArgument(
+            StartEmergencySharing.Argument::class.java,
+            StartEmergencySharing.Argument::Builder
+        )
+        .setOutput(StartEmergencySharing.Output::class.java)
         .bindOptionalOutput(
             "executionStatus",
-            StopSafetyCheck.Output::executionStatus.getter,
-            StopSafetyCheck.ExecutionStatus::toParamValue
+            StartEmergencySharing.Output::executionStatus.getter,
+            StartEmergencySharing.ExecutionStatus::toParamValue,
         )
         .build()
 
 // TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
-class StopSafetyCheck private constructor() {
+class StartEmergencySharing private constructor() {
     // TODO(b/267805819): Update to include the SessionBuilder once Session API is ready.
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
+            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session,
             >(ACTION_SPEC) {
         override fun build(): ActionCapability {
             super.setProperty(Property())
@@ -105,7 +108,7 @@ class StopSafetyCheck private constructor() {
     class ExecutionStatus {
         private var successStatus: SuccessStatus? = null
         private var genericErrorStatus: GenericErrorStatus? = null
-        private var actionNotInProgress: ActionNotInProgress? = null
+        private var emergencySharingInProgress: EmergencySharingInProgress? = null
         private var safetyAccountNotLoggedIn: SafetyAccountNotLoggedIn? = null
         private var safetyFeatureNotOnboarded: SafetyFeatureNotOnboarded? = null
         private var noInternetConnection: NoInternetConnection? = null
@@ -118,8 +121,8 @@ class StopSafetyCheck private constructor() {
             this.genericErrorStatus = genericErrorStatus
         }
 
-        constructor(actionNotInProgress: ActionNotInProgress) {
-            this.actionNotInProgress = actionNotInProgress
+        constructor(emergencySharingInProgress: EmergencySharingInProgress) {
+            this.emergencySharingInProgress = emergencySharingInProgress
         }
 
         constructor(safetyAccountNotLoggedIn: SafetyAccountNotLoggedIn) {
@@ -142,8 +145,8 @@ class StopSafetyCheck private constructor() {
             if (genericErrorStatus != null) {
                 status = genericErrorStatus.toString()
             }
-            if (actionNotInProgress != null) {
-                status = actionNotInProgress.toString()
+            if (emergencySharingInProgress != null) {
+                status = emergencySharingInProgress.toString()
             }
             if (safetyAccountNotLoggedIn != null) {
                 status = safetyAccountNotLoggedIn.toString()

@@ -34,27 +34,30 @@ import com.google.protobuf.Struct
 import com.google.protobuf.Value
 import java.util.Optional
 
-/** StopSafetyCheck.kt in interaction-capabilities-safety */
-private const val CAPABILITY_NAME = "actions.intent.STOP_SAFETY_CHECK"
+/** StopEmergencySharing.kt in interaction-capabilities-safety */
+private const val CAPABILITY_NAME = "actions.intent.STOP_EMERGENCY_SHARING"
 
 private val ACTION_SPEC =
     ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-        .setDescriptor(StopSafetyCheck.Property::class.java)
-        .setArgument(StopSafetyCheck.Argument::class.java, StopSafetyCheck.Argument::Builder)
-        .setOutput(StopSafetyCheck.Output::class.java)
+        .setDescriptor(StopEmergencySharing.Property::class.java)
+        .setArgument(
+            StopEmergencySharing.Argument::class.java,
+            StopEmergencySharing.Argument::Builder
+        )
+        .setOutput(StopEmergencySharing.Output::class.java)
         .bindOptionalOutput(
             "executionStatus",
-            StopSafetyCheck.Output::executionStatus.getter,
-            StopSafetyCheck.ExecutionStatus::toParamValue
+            StopEmergencySharing.Output::executionStatus.getter,
+            StopEmergencySharing.ExecutionStatus::toParamValue,
         )
         .build()
 
 // TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
-class StopSafetyCheck private constructor() {
+class StopEmergencySharing private constructor() {
     // TODO(b/267805819): Update to include the SessionBuilder once Session API is ready.
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
+            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session,
             >(ACTION_SPEC) {
         override fun build(): ActionCapability {
             super.setProperty(Property())
