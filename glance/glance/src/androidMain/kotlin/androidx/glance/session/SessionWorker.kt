@@ -18,20 +18,38 @@ package androidx.glance.session
 
 import android.content.Context
 import android.util.Log
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
 import androidx.glance.Applier
 import androidx.glance.EmittableWithChildren
 import androidx.work.CoroutineWorker
+import androidx.work.Data
 import androidx.work.WorkerParameters
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
+
+/**
+ * Options to configure [SessionWorker] timeouts.
+ * @property initialTimeout How long to wait after the first successful composition before timing
+ * out.
+ * @property additionalTime If an external event is received and there is less than [additionalTime]
+ * remaining, add [additionalTime] so that there is enough time to respond to the event.
+ * @property idleTimeout Timeout within [idleTimeout] if the system is in idle/light idle/low power
+ * standby mode.
+ * @property timeSource The time source for measuring progress towards timeouts.
+ */
+internal data class TimeoutOptions(
+    val initialTimeout: Duration = 45.seconds,
+    val additionalTime: Duration = 5.seconds,
+    val idleTimeout: Duration = 5.seconds,
+    val timeSource: TimeSource = TimeSource.Monotonic,
+)
 
 /**
  * [SessionWorker] handles composition for a particular Glanceable.
@@ -44,25 +62,44 @@ import kotlinx.coroutines.withTimeoutOrNull
 internal class SessionWorker(
     appContext: Context,
     params: WorkerParameters,
+    private val sessionManager: SessionManager = GlanceSessionManager,
+    private val timeouts: TimeoutOptions = TimeoutOptions(),
+    @Deprecated("Deprecated by super class, replacement in progress, see b/245353737")
+    override val coroutineContext: CoroutineDispatcher = Dispatchers.Main
 ) : CoroutineWorker(appContext, params) {
-    @VisibleForTesting
-    internal var sessionManager: SessionManager = GlanceSessionManager
+    // This constructor is required by WorkManager's default WorkerFactory.
+    constructor(appContext: Context, params: WorkerParameters) : this(
+        appContext,
+        params,
+        GlanceSessionManager,
+    )
 
     companion object {
         private const val TAG = "GlanceSessionWorker"
         private const val DEBUG = false
-        @VisibleForTesting
-        internal val defaultTimeout = 45.seconds
+        internal const val TimeoutExitReason = "TIMEOUT_EXIT_REASON"
     }
 
     private val key = inputData.getString(sessionManager.keyParam)
-            ?: error("SessionWorker must be started with a key")
+        ?: error("SessionWorker must be started with a key")
 
-    @Deprecated("Deprecated by super class, replacement in progress, see b/245353737")
-    override val coroutineContext = Dispatchers.Main
+    override suspend fun doWork() =
+        withTimerOrNull(timeouts.timeSource) {
+            observeIdleEvents(
+                applicationContext,
+                onIdle = {
+                    startTimer(timeouts.idleTimeout)
+                    if (DEBUG) Log.d(TAG, "Received idle event, session timeout $timeLeft")
+                }
+            ) {
+                work()
+            }
+        } ?: Result.success(Data.Builder().putBoolean(TimeoutExitReason, true).build())
 
-    override suspend fun doWork(): Result = withTimeoutOrNull(defaultTimeout) {
-        val session = sessionManager.getSession(key) ?: error("No session available for key $key")
+    private suspend fun TimerScope.work(): Result {
+        val session = sessionManager.getSession(key)
+            ?: error("No session available for key $key")
+
         if (DEBUG) Log.d(TAG, "Setting up composition for ${session.key}")
         val frameClock = InteractiveFrameClock(this)
         val snapshotMonitor = launch { globalSnapshotMonitor() }
@@ -83,15 +120,21 @@ internal class SessionWorker(
                 when (state) {
                     Recomposer.State.Idle -> {
                         // Only update the session when a change has actually occurred. The
-                        // Recomposer may sometimes wake up due to changes in other compositions.
-                        // Also update the session if we have not sent an initial tree yet.
+                        // Recomposer may sometimes wake up due to changes in other
+                        // compositions. Also update the session if we have not sent an initial
+                        // tree yet.
                         if (recomposer.changeCount > lastRecomposeCount || !uiReady.value) {
                             if (DEBUG) Log.d(TAG, "UI tree updated (${session.key})")
                             val processed = session.processEmittableTree(
                                 applicationContext,
                                 root.copy() as EmittableWithChildren
                             )
-                            if (!uiReady.value && processed) uiReady.emit(true)
+                            // If the UI has been processed for the first time, set uiReady to true
+                            // and start the timeout.
+                            if (!uiReady.value && processed) {
+                                uiReady.emit(true)
+                                startTimer(timeouts.initialTimeout)
+                            }
                         }
                         lastRecomposeCount = recomposer.changeCount
                     }
@@ -100,11 +143,13 @@ internal class SessionWorker(
                 }
             }
         }
-
         // Wait until the Emittable tree has been processed at least once before receiving events.
         uiReady.first { it }
         session.receiveEvents(applicationContext) {
-            if (DEBUG) Log.d(TAG, "processing event for ${session.key}")
+            // If time is running low, add time to make sure that we have time to respond to this
+            // event.
+            if (timeLeft < timeouts.additionalTime) addTime(timeouts.additionalTime)
+            if (DEBUG) Log.d(TAG, "processing event for ${session.key}; $timeLeft left")
             launch { frameClock.startInteractive() }
         }
 
@@ -113,6 +158,6 @@ internal class SessionWorker(
         snapshotMonitor.cancel()
         recomposer.close()
         recomposer.join()
-        return@withTimeoutOrNull Result.success()
-    } ?: Result.success()
+        return Result.success()
+    }
 }
