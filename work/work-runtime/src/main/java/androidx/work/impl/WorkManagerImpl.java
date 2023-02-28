@@ -90,6 +90,7 @@ public class WorkManagerImpl extends WorkManager {
     private static final String TAG = Logger.tagWithPrefix("WorkManagerImpl");
     public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 22;
     public static final int MIN_JOB_SCHEDULER_API_LEVEL = 23;
+    public static final int CONTENT_URI_TRIGGER_API_LEVEL = 24;
     public static final String REMOTE_WORK_MANAGER_CLIENT =
             "androidx.work.multiprocess.RemoteWorkManagerClient";
 
