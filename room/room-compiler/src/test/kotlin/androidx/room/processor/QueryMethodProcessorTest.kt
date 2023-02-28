@@ -1358,7 +1358,8 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX2_FLOWABLE, COMMON.RX2_OBSERVABLE,
             COMMON.RX3_COMPLETABLE, COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.RX3_FLOWABLE,
             COMMON.RX3_OBSERVABLE, COMMON.LISTENABLE_FUTURE, COMMON.LIVE_DATA,
-            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.FLOW, COMMON.GUAVA_ROOM
+            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.FLOW, COMMON.GUAVA_ROOM,
+            COMMON.RX2_ROOM, COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
         )
 
         runProcessorTest(
@@ -1821,6 +1822,34 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.NONNULL_VOID)
+            }
+        }
+    }
+
+    @Test
+    fun maybe() {
+        singleQueryMethodKotlin<ReadQueryMethod>(
+            """
+                @Query("SELECT * FROM book WHERE bookId = :bookId")
+                abstract fun getBookMaybe(bookId: String): io.reactivex.Maybe<Book>
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(0)
+            }
+        }
+    }
+
+    @Test
+    fun single() {
+        singleQueryMethodKotlin<ReadQueryMethod>(
+            """
+                @Query("SELECT * FROM book WHERE bookId = :bookId")
+                abstract fun getBookSingle(bookId: String): io.reactivex.Single<Book>
+                """
+        ) { _, invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(0)
             }
         }
     }

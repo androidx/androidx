@@ -22,7 +22,7 @@ import kotlin.collections.MutableMap
 import kotlin.jvm.JvmStatic
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
 public class MyDao_Impl(
     __db: RoomDatabase,
 ) : MyDao {

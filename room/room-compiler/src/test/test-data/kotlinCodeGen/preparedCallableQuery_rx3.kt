@@ -16,7 +16,7 @@ import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
 public class MyDao_Impl(
     __db: RoomDatabase,
 ) : MyDao {
@@ -34,8 +34,8 @@ public class MyDao_Impl(
     }
 
     public override fun insertPublisherSingle(id: String, name: String): Single<Long> =
-        Single.fromCallable(object : Callable<Long> {
-            public override fun call(): Long {
+        Single.fromCallable(object : Callable<Long?> {
+            public override fun call(): Long? {
                 val _stmt: SupportSQLiteStatement = __preparedStmtOfInsertPublisherSingle.acquire()
                 var _argIndex: Int = 1
                 _stmt.bindString(_argIndex, id)
@@ -43,7 +43,7 @@ public class MyDao_Impl(
                 _stmt.bindString(_argIndex, name)
                 __db.beginTransaction()
                 try {
-                    val _result: Long = _stmt.executeInsert()
+                    val _result: Long? = _stmt.executeInsert()
                     __db.setTransactionSuccessful()
                     return _result
                 } finally {
@@ -54,8 +54,8 @@ public class MyDao_Impl(
         })
 
     public override fun insertPublisherMaybe(id: String, name: String): Maybe<Long> =
-        Maybe.fromCallable(object : Callable<Long> {
-            public override fun call(): Long {
+        Maybe.fromCallable(object : Callable<Long?> {
+            public override fun call(): Long? {
                 val _stmt: SupportSQLiteStatement = __preparedStmtOfInsertPublisherSingle.acquire()
                 var _argIndex: Int = 1
                 _stmt.bindString(_argIndex, id)
@@ -63,7 +63,7 @@ public class MyDao_Impl(
                 _stmt.bindString(_argIndex, name)
                 __db.beginTransaction()
                 try {
-                    val _result: Long = _stmt.executeInsert()
+                    val _result: Long? = _stmt.executeInsert()
                     __db.setTransactionSuccessful()
                     return _result
                 } finally {

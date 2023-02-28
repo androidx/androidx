@@ -19,6 +19,7 @@ package androidx.room.solver.binderprovider
 import androidx.room.compiler.processing.XType
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
+import androidx.room.solver.ObservableQueryResultBinderProvider
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.RxType
 import androidx.room.solver.TypeAdapterExtras
@@ -34,7 +35,12 @@ class RxCallableQueryResultBinderProvider private constructor(
         query: ParsedQuery,
         extras: TypeAdapterExtras
     ): QueryResultBinder {
-        val typeArg = declared.typeArguments.first()
+        // Add info that the type mirror is hardcoded into a Kotlin Nullable for Callable
+        extras.putData(
+            ObservableQueryResultBinderProvider.OriginalTypeArg::class,
+            ObservableQueryResultBinderProvider.OriginalTypeArg(declared)
+        )
+        val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)
         return RxCallableQueryResultBinder(rxType, typeArg, adapter)
     }
@@ -44,6 +50,15 @@ class RxCallableQueryResultBinderProvider private constructor(
 
     private fun matchesRxType(declared: XType): Boolean {
         return declared.rawType.asTypeName() == rxType.className
+    }
+
+    private fun extractTypeArg(declared: XType): XType {
+        // Maybe is always expected to be built with a Callable containing a nullable type argument
+        return if (rxType.canBeNull || rxType.isSingle()) {
+            declared.typeArguments.first().makeNullable()
+        } else {
+            declared.typeArguments.first()
+        }
     }
 
     companion object {

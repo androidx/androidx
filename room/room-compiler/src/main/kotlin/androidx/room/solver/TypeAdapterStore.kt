@@ -482,7 +482,12 @@ class TypeAdapterStore private constructor(
 
         // TODO: (b/192068912) Refactor the following since this if-else cascade has gotten large
         if (typeMirror.isArray() && typeMirror.componentType.isNotByte()) {
-            checkTypeNullability(typeMirror, typeMirror.componentType, "Array")
+            checkTypeNullability(
+                typeMirror,
+                extras,
+                "Array",
+                arrayComponentType = typeMirror.componentType
+            )
             val rowAdapter =
                 findRowAdapter(typeMirror.componentType, query) ?: return null
             return ArrayQueryResultAdapter(typeMirror, rowAdapter)
@@ -490,9 +495,13 @@ class TypeAdapterStore private constructor(
             val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
             return SingleItemQueryResultAdapter(rowAdapter)
         } else if (typeMirror.rawType.asTypeName() == GuavaTypeNames.OPTIONAL) {
-            checkTypeNullability(typeMirror, typeMirror.typeArguments.first(), "Optional")
+            checkTypeNullability(
+                typeMirror,
+                extras,
+                "Optional"
+            )
             // Handle Guava Optional by unpacking its generic type argument and adapting that.
-            // The Optional adapter will reappend the Optional type.
+            // The Optional adapter will re-append the Optional type.
             val typeArg = typeMirror.typeArguments.first()
             // use nullable when finding row adapter as non-null adapters might return
             // default values
@@ -502,7 +511,11 @@ class TypeAdapterStore private constructor(
                 resultAdapter = SingleItemQueryResultAdapter(rowAdapter)
             )
         } else if (typeMirror.rawType.asTypeName() == CommonTypeNames.OPTIONAL) {
-            checkTypeNullability(typeMirror, typeMirror.typeArguments.first(), "Optional")
+            checkTypeNullability(
+                typeMirror,
+                extras,
+                "Optional"
+            )
 
             // Handle java.util.Optional similarly.
             val typeArg = typeMirror.typeArguments.first()
@@ -514,7 +527,10 @@ class TypeAdapterStore private constructor(
                 resultAdapter = SingleItemQueryResultAdapter(rowAdapter)
             )
         } else if (typeMirror.isTypeOf(ImmutableList::class)) {
-            checkTypeNullability(typeMirror, typeMirror.typeArguments.first())
+            checkTypeNullability(
+                typeMirror,
+                extras
+            )
 
             val typeArg = typeMirror.typeArguments.first().extendsBoundOrSelf()
             val rowAdapter = findRowAdapter(typeArg, query) ?: return null
@@ -523,7 +539,10 @@ class TypeAdapterStore private constructor(
                 rowAdapter = rowAdapter
             )
         } else if (typeMirror.isTypeOf(java.util.List::class)) {
-            checkTypeNullability(typeMirror, typeMirror.typeArguments.first())
+            checkTypeNullability(
+                typeMirror,
+                extras
+            )
 
             val typeArg = typeMirror.typeArguments.first().extendsBoundOrSelf()
             val rowAdapter = findRowAdapter(typeArg, query) ?: return null
@@ -534,7 +553,7 @@ class TypeAdapterStore private constructor(
         } else if (typeMirror.isTypeOf(ImmutableMap::class)) {
             val keyTypeArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
             val valueTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
-            checkTypeNullability(typeMirror, keyTypeArg)
+            checkTypeNullability(typeMirror, extras)
 
             // Create a type mirror for a regular Map in order to use MapQueryResultAdapter. This
             // avoids code duplication as Immutable Map can be initialized by creating an immutable
@@ -559,7 +578,7 @@ class TypeAdapterStore private constructor(
         ) {
             val keyTypeArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
             val valueTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
-            checkTypeNullability(typeMirror, keyTypeArg)
+            checkTypeNullability(typeMirror, extras)
 
             if (valueTypeArg.typeElement == null) {
                 context.logger.e(
@@ -629,7 +648,7 @@ class TypeAdapterStore private constructor(
                 else ->
                     typeMirror.typeArguments[0].extendsBoundOrSelf()
             }
-            checkTypeNullability(typeMirror, keyTypeArg)
+            checkTypeNullability(typeMirror, extras)
 
             val mapValueTypeArg = if (mapType.isSparseArray()) {
                 typeMirror.typeArguments[0].extendsBoundOrSelf()
@@ -737,31 +756,49 @@ class TypeAdapterStore private constructor(
     }
 
     private fun checkTypeNullability(
-        collectionType: XType,
-        typeArg: XType,
-        typeKeyword: String = "Collection"
+        searchingType: XType,
+        extras: TypeAdapterExtras,
+        typeKeyword: String = "Collection",
+        arrayComponentType: XType? = null
     ) {
         if (context.codeLanguage != CodeLanguage.KOTLIN) {
             return
         }
 
+        val collectionType: XType = extras.getData(
+            ObservableQueryResultBinderProvider.OriginalTypeArg::class
+        )?.original ?: searchingType
+
         if (collectionType.nullability != XNullability.NONNULL) {
             context.logger.w(
                 Warning.UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE,
                 ProcessorErrors.nullableCollectionOrArrayReturnTypeInDaoMethod(
-                    collectionType.asTypeName().toString(context.codeLanguage),
+                    searchingType.asTypeName().toString(context.codeLanguage),
                     typeKeyword
                 )
             )
         }
 
-        if (typeArg.nullability != XNullability.NONNULL) {
+        // Since Array has typeArg in the componentType and not typeArguments, need a special check.
+        if (arrayComponentType != null && arrayComponentType.nullability != XNullability.NONNULL) {
             context.logger.w(
                 Warning.UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE,
                 ProcessorErrors.nullableComponentInDaoMethodReturnType(
-                    collectionType.asTypeName().toString(context.codeLanguage)
+                    searchingType.asTypeName().toString(context.codeLanguage)
                 )
             )
+            return
+        }
+
+        collectionType.typeArguments.forEach { typeArg ->
+            if (typeArg.nullability != XNullability.NONNULL) {
+                context.logger.w(
+                    Warning.UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE,
+                    ProcessorErrors.nullableComponentInDaoMethodReturnType(
+                        searchingType.asTypeName().toString(context.codeLanguage)
+                    )
+                )
+            }
         }
     }
 
