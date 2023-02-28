@@ -102,6 +102,20 @@ fun ModalBottomSheet(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val animateToDismiss: () -> Unit = {
+        if (sheetState.swipeableState.confirmValueChange(Hidden)) {
+            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                if (!sheetState.isVisible) {
+                    onDismissRequest()
+                }
+            }
+        }
+    }
+    val settleToDismiss: (velocity: Float) -> Unit = {
+        scope.launch { sheetState.settle(it) }.invokeOnCompletion {
+            if (!sheetState.isVisible) onDismissRequest()
+        }
+    }
 
     // Callback that is invoked when the anchors have changed.
     val anchorChangeHandler = remember(sheetState, scope) {
@@ -128,11 +142,7 @@ fun ModalBottomSheet(
             val fullHeight = constraints.maxHeight
             Scrim(
                 color = scrimColor,
-                onDismissRequest = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) { onDismissRequest() }
-                    }
-                },
+                onDismissRequest = animateToDismiss,
                 visible = sheetState.targetValue != Hidden
             )
             Surface(
@@ -153,11 +163,7 @@ fun ModalBottomSheet(
                             ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                                 sheetState = sheetState,
                                 orientation = Orientation.Vertical,
-                                onFling = {
-                                    scope.launch { sheetState.settle(it) }.invokeOnCompletion {
-                                            if (!sheetState.isVisible) onDismissRequest()
-                                        }
-                                }
+                                onFling = settleToDismiss
                             )
                         }
                     )
@@ -167,11 +173,7 @@ fun ModalBottomSheet(
                         screenHeight = fullHeight.toFloat(),
                         bottomPadding = systemBarHeight.toFloat(),
                         onDragStopped = {
-                            scope
-                                .launch { sheetState.settle(it) }
-                                .invokeOnCompletion {
-                                    if (!sheetState.isVisible) onDismissRequest()
-                                }
+                            settleToDismiss(it)
                         },
                     ),
                 shape = shape,
@@ -188,11 +190,7 @@ fun ModalBottomSheet(
                                 // current value.
                                 with(sheetState) {
                                     dismiss {
-                                        if (swipeableState.confirmValueChange(Hidden)) {
-                                            scope.launch { hide() }.invokeOnCompletion {
-                                                if (!isVisible) { onDismissRequest() }
-                                            }
-                                        }
+                                        animateToDismiss()
                                         true
                                     }
                                     if (currentValue == PartiallyExpanded) {

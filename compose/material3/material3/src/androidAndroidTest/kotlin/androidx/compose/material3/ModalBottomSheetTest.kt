@@ -118,10 +118,10 @@ class ModalBottomSheetTest {
         }
         rule.onNodeWithTag(sheetTag).assertIsDisplayed()
 
+        // Tap Scrim
         val outsideY = with(rule.density) {
             rule.onAllNodes(isPopup()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() / 4
         }
-
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(0, outsideY)
         rule.waitForIdle()
 
@@ -539,7 +539,7 @@ class ModalBottomSheetTest {
     }
 
     @Test
-    fun modalBottomSheet_respectsConfirmStateChange() {
+    fun modalBottomSheet_respectsConfirmValueChange() {
         lateinit var sheetState: SheetState
         rule.setContent {
             sheetState = rememberModalBottomSheetState(
@@ -574,6 +574,16 @@ class ModalBottomSheetTest {
         rule.onNodeWithTag(dragHandleTag).onParent()
             .performSemanticsAction(SemanticsActions.Dismiss)
 
+        rule.runOnIdle {
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+        }
+
+        // Tap Scrim
+        val outsideY = with(rule.density) {
+            rule.onAllNodes(isPopup()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() / 4
+        }
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(0, outsideY)
+        rule.waitForIdle()
         rule.runOnIdle {
             assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }
