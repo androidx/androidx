@@ -9,8 +9,12 @@ import kotlin.Int
 
 public abstract class AbstractSandboxedSdkProviderCompat : SandboxedSdkProvider() {
   public override fun onLoadSdk(params: Bundle): SandboxedSdk {
-    val sdk = createWithoutRuntimeLibrarySdk(context!!)
-    return SandboxedSdk(WithoutRuntimeLibrarySdkStubDelegate(sdk, context!!))
+    val ctx = context
+    if (ctx == null) {
+      throw IllegalStateException("Context must not be null. Do you need to call attachContext()?")
+    }
+    val sdk = createWithoutRuntimeLibrarySdk(ctx)
+    return SandboxedSdk(WithoutRuntimeLibrarySdkStubDelegate(sdk, ctx))
   }
 
   public override fun getView(
