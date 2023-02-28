@@ -154,7 +154,6 @@ public class GetPublicKeyCredentialOptionPrivilegedJavaTest {
 
         assertThat(option.getType()).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedData)).isTrue();
-        expectedData.remove(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED);
         assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), expectedData)).isTrue();
         assertThat(option.isSystemProviderRequired()).isFalse();
     }

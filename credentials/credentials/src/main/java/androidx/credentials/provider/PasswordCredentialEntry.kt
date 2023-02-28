@@ -31,6 +31,7 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.CredentialOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.R
 import java.time.Instant
@@ -71,7 +72,11 @@ class PasswordCredentialEntry internal constructor(
     val lastUsedTime: Instant?,
     val icon: Icon,
     val isAutoSelectAllowed: Boolean,
-    beginGetPasswordOption: BeginGetPasswordOption
+    beginGetPasswordOption: BeginGetPasswordOption,
+    /** @hide */
+    val autoSelectAllowedFromOption: Boolean = false,
+    /** @hide */
+    val isDefaultIcon: Boolean? = null
     ) : CredentialEntry(
     beginGetPasswordOption,
     toSlice(
@@ -132,7 +137,9 @@ class PasswordCredentialEntry internal constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_SUBTITLE =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
-
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_DEFAULT_ICON_RES_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
@@ -147,11 +154,12 @@ class PasswordCredentialEntry internal constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_OPTION_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
-
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
-
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_TRUE_STRING = "true"
 
@@ -167,7 +175,7 @@ class PasswordCredentialEntry internal constructor(
             pendingIntent: PendingIntent,
             typeDisplayName: CharSequence?,
             lastUsedTime: Instant?,
-            icon: Icon?,
+            icon: Icon,
             isAutoSelectAllowed: Boolean,
             beginGetPasswordCredentialOption: BeginGetPasswordOption
         ): Slice {
@@ -203,17 +211,30 @@ class PasswordCredentialEntry internal constructor(
                     /*subType=*/null,
                     listOf(SLICE_HINT_OPTION_ID)
                 )
+                .addIcon(
+                    icon, /*subType=*/null,
+                    listOf(SLICE_HINT_ICON)
+                )
+            if (icon.resId == R.drawable.ic_password) {
+                sliceBuilder.addInt(
+                    /*true=*/1,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
+                )
+            }
+            if (CredentialOption.extractAutoSelectValue(
+                    beginGetPasswordCredentialOption.candidateQueryData)) {
+                sliceBuilder.addInt(
+                    /*true=*/1,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_AUTO_SELECT_FROM_OPTION)
+                )
+            }
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(
                     lastUsedTime.toEpochMilli(),
                     /*subType=*/null,
                     listOf(SLICE_HINT_LAST_USED_TIME_MILLIS)
-                )
-            }
-            if (icon != null) {
-                sliceBuilder.addIcon(
-                    icon, /*subType=*/null,
-                    listOf(SLICE_HINT_ICON)
                 )
             }
             sliceBuilder.addAction(
@@ -243,7 +264,9 @@ class PasswordCredentialEntry internal constructor(
             var pendingIntent: PendingIntent? = null
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
+            var autoSelectAllowedFromOption = false
             var beginGetPasswordOptionId: CharSequence? = null
+            var isDefaultIcon = false
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -265,6 +288,10 @@ class PasswordCredentialEntry internal constructor(
                     if (autoSelectValue == AUTO_SELECT_TRUE_STRING) {
                         autoSelectAllowed = true
                     }
+                } else if (it.hasHint(SLICE_HINT_AUTO_SELECT_FROM_OPTION)) {
+                    autoSelectAllowedFromOption = true
+                } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
+                    isDefaultIcon = true
                 }
             }
 
@@ -280,7 +307,9 @@ class PasswordCredentialEntry internal constructor(
                     BeginGetPasswordOption.createFrom(
                         Bundle(),
                         beginGetPasswordOptionId!!.toString()
-                    )
+                    ),
+                    autoSelectAllowedFromOption,
+                    isDefaultIcon
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)

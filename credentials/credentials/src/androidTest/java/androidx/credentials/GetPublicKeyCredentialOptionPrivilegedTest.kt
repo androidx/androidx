@@ -165,7 +165,6 @@ class GetPublicKeyCredentialOptionPrivilegedTest {
 
         assertThat(option.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
         assertThat(equals(option.requestData, expectedData)).isTrue()
-        expectedData.remove(CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED)
         assertThat(equals(option.candidateQueryData, expectedData)).isTrue()
         assertThat(option.isSystemProviderRequired).isFalse()
     }
