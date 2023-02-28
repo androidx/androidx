@@ -210,7 +210,7 @@ package androidx.compose.ui.autofill {
   }
 
   @androidx.compose.ui.ExperimentalComposeUiApi public enum AutofillType {
-    method public static androidx.compose.ui.autofill.AutofillType valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.ui.autofill.AutofillType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.ui.autofill.AutofillType[] values();
     enum_constant public static final androidx.compose.ui.autofill.AutofillType AddressAuxiliaryDetails;
     enum_constant public static final androidx.compose.ui.autofill.AutofillType AddressCountry;
@@ -1685,7 +1685,7 @@ package androidx.compose.ui.input.pointer {
   }
 
   public enum PointerEventPass {
-    method public static androidx.compose.ui.input.pointer.PointerEventPass valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.ui.input.pointer.PointerEventPass valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.ui.input.pointer.PointerEventPass[] values();
     enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass Final;
     enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass Initial;
@@ -2781,7 +2781,7 @@ package androidx.compose.ui.platform {
   }
 
   public enum TextToolbarStatus {
-    method public static androidx.compose.ui.platform.TextToolbarStatus valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.ui.platform.TextToolbarStatus valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.ui.platform.TextToolbarStatus[] values();
     enum_constant public static final androidx.compose.ui.platform.TextToolbarStatus Hidden;
     enum_constant public static final androidx.compose.ui.platform.TextToolbarStatus Shown;
@@ -3325,7 +3325,7 @@ package androidx.compose.ui.semantics {
 package androidx.compose.ui.state {
 
   public enum ToggleableState {
-    method public static androidx.compose.ui.state.ToggleableState valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.ui.state.ToggleableState valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.ui.state.ToggleableState[] values();
     enum_constant public static final androidx.compose.ui.state.ToggleableState Indeterminate;
     enum_constant public static final androidx.compose.ui.state.ToggleableState Off;
@@ -3413,7 +3413,7 @@ package androidx.compose.ui.window {
   }
 
   public enum SecureFlagPolicy {
-    method public static androidx.compose.ui.window.SecureFlagPolicy valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.ui.window.SecureFlagPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.ui.window.SecureFlagPolicy[] values();
     enum_constant public static final androidx.compose.ui.window.SecureFlagPolicy Inherit;
     enum_constant public static final androidx.compose.ui.window.SecureFlagPolicy SecureOff;
