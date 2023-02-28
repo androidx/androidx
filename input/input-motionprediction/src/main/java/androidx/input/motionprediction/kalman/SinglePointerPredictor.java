@@ -80,10 +80,15 @@ public class SinglePointerPredictor implements KalmanPredictor {
     private final DVector2 mAcceleration = new DVector2();
     private final DVector2 mJank = new DVector2();
 
-    /* pointer of the gesture that require prediction */
+    /* pointer of the gesture that requires prediction */
     private int mPointerId = 0;
 
+    /* tool type of the gesture that requires prediction */
+    private int mToolType = MotionEvent.TOOL_TYPE_UNKNOWN;
+
     private double mPressure = 0;
+    private double mLastOrientation = 0;
+    private double mLastTilt = 0;
 
     /**
      * Kalman based predictor, predicting the location of the pen `predictionTarget`
@@ -98,13 +103,15 @@ public class SinglePointerPredictor implements KalmanPredictor {
         mPrevEventTime = 0;
     }
 
-    void initStrokePrediction(int pointerId) {
+    void initStrokePrediction(int pointerId, int toolType) {
         mKalman.reset();
         mPrevEventTime = 0;
         mPointerId = pointerId;
+        mToolType = toolType;
     }
 
-    private void update(float x, float y, float pressure, long eventTime) {
+    private void update(float x, float y, float pressure, float orientation,
+            float tilt, long eventTime) {
         if (x == mLastPosition.a1
                 && y == mLastPosition.a2
                 && (eventTime <= (mPrevEventTime + EVENT_TIME_IGNORED_THRESHOLD_MS))) {
@@ -121,6 +128,8 @@ public class SinglePointerPredictor implements KalmanPredictor {
         mKalman.update(x, y, pressure);
         mLastPosition.a1 = x;
         mLastPosition.a2 = y;
+        mLastOrientation = orientation;
+        mLastTilt = tilt;
 
         // Calculate average report rate over the first 20 samples. Most sensors will not
         // provide reliable timestamps and do not report at an even interval, so this is just
@@ -176,6 +185,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
             return false;
         }
         int pointerIndex = event.findPointerIndex(mPointerId);
+
         if (pointerIndex == -1) {
             Log.i(
                     TAG,
@@ -188,7 +198,9 @@ public class SinglePointerPredictor implements KalmanPredictor {
         }
         for (BatchedMotionEvent ev : BatchedMotionEvent.iterate(event)) {
             MotionEvent.PointerCoords pointerCoords = ev.coords[pointerIndex];
-            update(pointerCoords.x, pointerCoords.y, pointerCoords.pressure, ev.timeMs);
+            update(pointerCoords.x, pointerCoords.y, pointerCoords.pressure,
+                    pointerCoords.orientation,
+                    pointerCoords.getAxisValue(MotionEvent.AXIS_TILT), ev.timeMs);
         }
         return true;
     }
@@ -221,6 +233,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
                 new MotionEvent.PointerProperties[1];
         pointerProperties[0] = new MotionEvent.PointerProperties();
         pointerProperties[0].id = mPointerId;
+        pointerProperties[0].toolType = mToolType;
 
         // Project physical state of the pen into the future.
         int predictionTargetInSamples =
@@ -253,6 +266,8 @@ public class SinglePointerPredictor implements KalmanPredictor {
             coords[0].x = (float) mPosition.a1;
             coords[0].y = (float) mPosition.a2;
             coords[0].pressure = (float) mPressure;
+            coords[0].orientation = (float) mLastOrientation;
+            coords[0].setAxisValue(MotionEvent.AXIS_TILT, (float) mLastTilt);
             if (predictedEvent == null) {
                 predictedEvent =
                         MotionEvent.obtain(
@@ -301,6 +316,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
                         new MotionEvent.PointerProperties[1];
                 pointerProperties[0] = new MotionEvent.PointerProperties();
                 pointerProperties[0].id = mPointerId;
+                pointerProperties[0].toolType = mToolType;
                 predictedEvent =
                         MotionEvent.obtain(
                                 0 /* downTime */,
