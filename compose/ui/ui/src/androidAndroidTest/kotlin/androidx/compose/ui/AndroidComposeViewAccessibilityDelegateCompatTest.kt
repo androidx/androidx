@@ -20,6 +20,7 @@ package androidx.compose.ui
 import android.os.Build
 import android.text.SpannableString
 import android.view.ViewGroup
+import android.view.ViewStructure
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.FrameLayout
@@ -35,6 +36,7 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
+import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.SemanticsNodeWithAdjustedBounds
 import androidx.compose.ui.platform.getAllUncoveredSemanticsNodesToMap
@@ -55,8 +57,8 @@ import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.dismiss
-import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.editableText
+import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.getTextLayoutResult
@@ -69,6 +71,7 @@ import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.pasteText
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
@@ -84,19 +87,27 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.IntRect
 import androidx.core.view.ViewCompat
+import androidx.core.view.ViewStructureCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
+import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
+import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import java.util.concurrent.Executors
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert.assertEquals
@@ -119,6 +130,10 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     private lateinit var container: ViewGroup
     private lateinit var androidComposeView: AndroidComposeView
     private lateinit var info: AccessibilityNodeInfoCompat
+
+    private lateinit var contentCaptureSessionCompat: ContentCaptureSessionCompat
+    private lateinit var viewStructureCompat: ViewStructureCompat
+    private lateinit var viewStructure: ViewStructure
 
     @Before
     fun setup() {
@@ -703,7 +718,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         }
 
         accessibilityDelegate.previousSemanticsNodes[1] =
-            AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy(
+            SemanticsNodeCopy(
                 semanticsNode,
                 mapOf()
             )
@@ -756,7 +771,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     fun sendWindowContentChangeUndefinedEventByDefault_whenPropertyAdded() {
         val oldSemanticsNode = createSemanticsNodeWithProperties(1, false) {}
         accessibilityDelegate.previousSemanticsNodes[1] =
-            AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy(
+            SemanticsNodeCopy(
                 oldSemanticsNode,
                 mapOf()
             )
@@ -783,7 +798,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             disabled()
         }
         accessibilityDelegate.previousSemanticsNodes[1] =
-            AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy(
+            SemanticsNodeCopy(
                 oldSemanticsNode,
                 mapOf()
             )
@@ -808,7 +823,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             disabled()
         }
         accessibilityDelegate.previousSemanticsNodes[1] =
-            AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy(
+            SemanticsNodeCopy(
                 oldSemanticsNode,
                 mapOf()
             )
@@ -836,7 +851,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             onClick(label = label) { true }
         }
         accessibilityDelegate.previousSemanticsNodes[1] =
-            AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy(
+            SemanticsNodeCopy(
                 oldSemanticsNode,
                 mapOf()
             )
@@ -865,7 +880,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             onClick(label = labelOld) { true }
         }
         accessibilityDelegate.previousSemanticsNodes[1] =
-            AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy(
+            SemanticsNodeCopy(
                 oldSemanticsNode,
                 mapOf()
             )
@@ -893,7 +908,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             customActions = listOf(CustomAccessibilityAction(label) { true })
         }
         accessibilityDelegate.previousSemanticsNodes[1] =
-            AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy(
+            SemanticsNodeCopy(
                 oldSemanticsNode,
                 mapOf()
             )
@@ -922,7 +937,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             customActions = listOf(CustomAccessibilityAction(labelOld) { true })
         }
         accessibilityDelegate.previousSemanticsNodes[1] =
-            AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy(
+            SemanticsNodeCopy(
                 oldSemanticsNode,
                 mapOf()
             )
@@ -971,7 +986,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         val oldSemanticsNode = createSemanticsNodeWithProperties(1, true) {
         }
         accessibilityDelegate.previousSemanticsNodes[1] =
-            AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy(
+            SemanticsNodeCopy(
                 oldSemanticsNode,
                 mapOf()
             )
@@ -1383,6 +1398,170 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = 29)
+    private fun setUpContentCapture() {
+        contentCaptureSessionCompat = mock()
+        viewStructureCompat = mock()
+        viewStructure = mock()
+
+        whenever(contentCaptureSessionCompat.newVirtualViewStructure(any(), any()))
+            .thenReturn(viewStructureCompat)
+        whenever(viewStructureCompat.toViewStructure()).thenReturn(viewStructure)
+        accessibilityDelegate.contentCaptureSession = contentCaptureSessionCompat
+        accessibilityDelegate.currentSemanticsNodes
+        accessibilityDelegate.contentCaptureForceEnabledForTesting = true
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testSendContentCaptureSemanticsStructureChangeEvents_appeared() {
+        setUpContentCapture()
+
+        val nodeId = 12
+        val oldNode = createSemanticsNodeWithChildren(nodeId, emptyList())
+        val oldNodeCopy = SemanticsNodeCopy(oldNode, mapOf())
+        accessibilityDelegate.previousSemanticsNodes[nodeId] = oldNodeCopy
+
+        val newNodeId1 = 10
+        val newNodeId2 = 11
+        val newNodeId3 = 12
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList()) {
+            text = AnnotatedString("foo")
+        }
+        val newNode2 = createSemanticsNodeWithChildren(newNodeId2, emptyList()) {
+            text = AnnotatedString("bar")
+        }
+        val newNode3 = createSemanticsNodeWithChildren(newNodeId3, listOf(newNode1, newNode2))
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+            newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
+            newNodeId3 to SemanticsNodeWithAdjustedBounds(newNode3, android.graphics.Rect()),
+        )
+
+        accessibilityDelegate.sendContentCaptureSemanticsStructureChangeEvents(
+            newNode3, oldNodeCopy)
+
+        val captor = argumentCaptor<CharSequence>()
+        verify(viewStructureCompat, times(2)).setText(captor.capture())
+        assertEquals(captor.firstValue, "foo")
+        assertEquals(captor.secondValue, "bar")
+
+        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes)
+            .isEmpty()
+        assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes.keys)
+            .containsExactly(newNodeId1, newNodeId2)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testSendContentCaptureSemanticsStructureChangeEvents_disappeared() {
+        setUpContentCapture()
+        val nodeId1 = 10
+        val nodeId2 = 11
+        val nodeId3 = 12
+        val oldNode1 = createSemanticsNodeWithChildren(nodeId1, emptyList())
+        val oldNode2 = createSemanticsNodeWithChildren(nodeId2, emptyList())
+        val oldNode3 = createSemanticsNodeWithChildren(nodeId3, listOf(oldNode1, oldNode2))
+        val oldNodeCopy1 = SemanticsNodeCopy(oldNode1, mapOf())
+        val oldNodeCopy2 = SemanticsNodeCopy(oldNode2, mapOf())
+        val oldNodeCopy3 = SemanticsNodeCopy(oldNode3, mapOf())
+        accessibilityDelegate.previousSemanticsNodes[nodeId1] = oldNodeCopy1
+        accessibilityDelegate.previousSemanticsNodes[nodeId2] = oldNodeCopy2
+        accessibilityDelegate.previousSemanticsNodes[nodeId3] = oldNodeCopy3
+
+        val newNodeId1 = 12
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList())
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+        )
+
+        accessibilityDelegate.sendContentCaptureSemanticsStructureChangeEvents(
+            newNode1, oldNodeCopy3)
+
+        assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes).isEmpty()
+        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes)
+            .containsExactly(nodeId1, nodeId2)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testSendContentCaptureSemanticsStructureChangeEvents_appearedAndDisappeared() {
+        setUpContentCapture()
+        val nodeId1 = 10
+        val nodeId2 = 11
+        val nodeId3 = 12
+        val oldNode1 = createSemanticsNodeWithChildren(nodeId1, emptyList())
+        val oldNode2 = createSemanticsNodeWithChildren(nodeId2, emptyList())
+        val oldNode3 = createSemanticsNodeWithChildren(nodeId3, listOf(oldNode1, oldNode2))
+        val oldNodeCopy1 = SemanticsNodeCopy(oldNode1, mapOf())
+        val oldNodeCopy2 = SemanticsNodeCopy(oldNode2, mapOf())
+        val oldNodeCopy3 = SemanticsNodeCopy(oldNode3, mapOf())
+        accessibilityDelegate.previousSemanticsNodes[nodeId1] = oldNodeCopy1
+        accessibilityDelegate.previousSemanticsNodes[nodeId2] = oldNodeCopy2
+        accessibilityDelegate.previousSemanticsNodes[nodeId3] = oldNodeCopy3
+
+        val newNodeId1 = 13
+        val newNodeId2 = 14
+        val newNodeId3 = 12
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList())
+        val newNode2 = createSemanticsNodeWithChildren(newNodeId2, emptyList())
+        val newNode3 = createSemanticsNodeWithChildren(newNodeId3, listOf(newNode1, newNode2))
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+            newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
+            newNodeId3 to SemanticsNodeWithAdjustedBounds(newNode3, android.graphics.Rect()),
+        )
+
+        accessibilityDelegate.sendContentCaptureSemanticsStructureChangeEvents(
+            newNode3, oldNodeCopy3)
+
+        assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes.keys)
+            .containsExactly(newNodeId1, newNodeId2)
+        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes)
+            .containsExactly(nodeId1, nodeId2)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    fun testSendContentCaptureSemanticsStructureChangeEvents_sameNodeAppearedThenDisappeared() {
+        setUpContentCapture()
+        val nodeId1 = 10
+        val oldNode1 = createSemanticsNodeWithChildren(nodeId1, emptyList())
+        val oldNodeCopy1 =
+            SemanticsNodeCopy(oldNode1, mapOf())
+        accessibilityDelegate.previousSemanticsNodes[nodeId1] = oldNodeCopy1
+
+        val newNodeId1 = 11
+        val newNodeId2 = 10
+        val newNode1 = createSemanticsNodeWithChildren(newNodeId1, emptyList())
+        val newNode2 = createSemanticsNodeWithChildren(newNodeId2, listOf(newNode1))
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            newNodeId1 to SemanticsNodeWithAdjustedBounds(newNode1, android.graphics.Rect()),
+            newNodeId2 to SemanticsNodeWithAdjustedBounds(newNode2, android.graphics.Rect()),
+        )
+
+        accessibilityDelegate.sendContentCaptureSemanticsStructureChangeEvents(
+            newNode2, oldNodeCopy1)
+
+        assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes.keys)
+            .containsExactly(newNodeId1)
+        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes).isEmpty()
+
+        val newNodeCopy1 = SemanticsNodeCopy(newNode1, mapOf())
+        val newNodeCopy2 = SemanticsNodeCopy(newNode2, mapOf())
+        accessibilityDelegate.previousSemanticsNodes[newNodeId1] = newNodeCopy1
+        accessibilityDelegate.previousSemanticsNodes[newNodeId2] = newNodeCopy2
+        accessibilityDelegate.currentSemanticsNodes = mapOf(
+            nodeId1 to SemanticsNodeWithAdjustedBounds(oldNode1, android.graphics.Rect()),
+        )
+
+        accessibilityDelegate.sendContentCaptureSemanticsStructureChangeEvents(
+            oldNode1, newNodeCopy2)
+
+        assertThat(accessibilityDelegate.bufferedContentCaptureAppearedNodes).isEmpty()
+        assertThat(accessibilityDelegate.bufferedContentCaptureDisappearedNodes).isEmpty()
+    }
+
     private fun sendTextSemanticsChangeEvent(oldNodePassword: Boolean, newNodePassword: Boolean) {
         val nodeId = 1
         val oldTextNode = createSemanticsNodeWithProperties(nodeId, true) {
@@ -1399,7 +1578,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             )
         }
         accessibilityDelegate.previousSemanticsNodes[nodeId] =
-            AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy(oldTextNode, mapOf())
+            SemanticsNodeCopy(oldTextNode, mapOf())
 
         val newTextNode = createSemanticsNodeWithAdjustedBoundsWithProperties(nodeId, true) {
             setText { true }
@@ -1437,6 +1616,29 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             true,
             layoutNode
         )
+    }
+
+    private fun createSemanticsNodeWithChildren(
+        id: Int,
+        children: List<SemanticsNode>,
+        properties: (SemanticsPropertyReceiver.() -> Unit) = {}
+    ): SemanticsNode {
+        val layoutNode = LayoutNode(semanticsId = id)
+        layoutNode.zSortedChildren.addAll(children.map { it.layoutNode })
+        val nodeCoordinator = InnerNodeCoordinator(layoutNode)
+        val modifierNode = object : SemanticsModifierNode, Modifier.Node() {
+            override val semanticsConfiguration = SemanticsConfiguration().also {
+                it.properties()
+            }
+        }
+        modifierNode.updateCoordinator(nodeCoordinator)
+
+        val semanticsNode = SemanticsNode(modifierNode, true, layoutNode)
+        layoutNode.modifier = Modifier.semantics {
+            properties()
+        }
+
+        return semanticsNode
     }
 
     private fun createSemanticsNodeWithAdjustedBoundsWithProperties(
