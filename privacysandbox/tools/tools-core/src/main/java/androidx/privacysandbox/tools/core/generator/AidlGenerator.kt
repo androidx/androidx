@@ -33,7 +33,6 @@ import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.Types.asNonNull
 import androidx.privacysandbox.tools.core.model.getOnlyService
 import androidx.privacysandbox.tools.core.model.hasSuspendFunctions
-import androidx.privacysandbox.tools.core.model.hasUiInterfaces
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -80,18 +79,7 @@ class AidlGenerator private constructor(
 
     private fun compileAidlInterfaces(aidlSources: List<GeneratedSource>): List<GeneratedSource> {
         aidlCompiler.compile(workingDir, aidlSources.map { it.file.toPath() })
-        val javaSources = aidlSources.mapNotNull {
-            if (it.packageName == bundleType().packageName) {
-                // TODO(b/265266769): use framework stubs so we can stop special Bundle treatment
-                null
-            } else {
-                GeneratedSource(
-                    packageName = it.packageName,
-                    interfaceName = it.interfaceName,
-                    file = getJavaFileForAidlFile(it.file)
-                )
-            }
-        }
+        val javaSources = aidlSources.map { it.copy(file = getJavaFileForAidlFile(it.file)) }
         javaSources.forEach {
             check(it.file.exists()) {
                 "Missing AIDL compilation output ${it.file.absolutePath}"
@@ -106,13 +94,11 @@ class AidlGenerator private constructor(
         val customCallbacks = api.callbacks.flatMap(::aidlInterface)
         val interfaces = api.interfaces.flatMap(::aidlInterface)
         val suspendFunctionUtilities = generateSuspendFunctionUtilities()
-        val fakeBundle = generateFakeBundle()
         return suspendFunctionUtilities +
             service +
             values +
             customCallbacks +
-            interfaces +
-            fakeBundle
+            interfaces
     }
 
     private fun aidlInterface(annotatedInterface: AnnotatedInterface): List<AidlFileSpec> {
@@ -158,12 +144,6 @@ class AidlGenerator private constructor(
         val aidlType = getAidlTypeDeclaration(parameter.type)
 
         addParameter(parameter.name, aidlType)
-    }
-
-    // TODO(b/265266769): Use framework stubs for Bundle
-    private fun generateFakeBundle(): List<AidlFileSpec> {
-        if (!api.hasUiInterfaces()) return emptyList()
-        return listOf(aidlParcelable(bundleType()))
     }
 
     private fun generateSuspendFunctionUtilities(): List<AidlFileSpec> {
