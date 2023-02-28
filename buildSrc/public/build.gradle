@@ -52,9 +52,9 @@ gradlePlugin {
             id = "androidx.baselineprofile.consumer"
             implementationClass = "androidx.baselineprofile.gradle.consumer.BaselineProfileConsumerPlugin"
         }
-        baselineProfileApkProvider {
-            id = "androidx.baselineprofile.apkprovider"
-            implementationClass = "androidx.baselineprofile.gradle.apkprovider.BaselineProfileApkProviderPlugin"
+        baselineProfileAppTarget {
+            id = "androidx.baselineprofile.apptarget"
+            implementationClass = "androidx.baselineprofile.gradle.apptarget.BaselineProfileAppTargetPlugin"
         }
         baselineProfileWrapper {
             id = "androidx.baselineprofile"

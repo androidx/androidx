@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.integration.baselineprofile.library.apkprovider
+package androidx.benchmark.integration.baselineprofile.library.apptarget
 
 import android.app.Activity
 import android.os.Bundle
