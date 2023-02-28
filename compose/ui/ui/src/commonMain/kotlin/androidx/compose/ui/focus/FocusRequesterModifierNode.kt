@@ -17,6 +17,7 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitChildren
@@ -37,8 +38,15 @@ interface FocusRequesterModifierNode : DelegatableNode
  */
 @ExperimentalComposeUiApi
 fun FocusRequesterModifierNode.requestFocus(): Boolean {
-    visitChildren(Nodes.FocusTarget) {
-        if (it.requestFocus()) return true
+    visitChildren(Nodes.FocusTarget) { focusTarget ->
+        val focusProperties = focusTarget.fetchFocusProperties()
+        return if (focusProperties.canFocus) {
+            focusTarget.requestFocus()
+        } else {
+            focusTarget.findChildCorrespondingToFocusEnter(Enter) {
+                it.requestFocus()
+            }
+        }
     }
     return false
 }
