@@ -137,6 +137,7 @@ private class BinderAdapterDelegate(
 
             override fun notifyConfigurationChanged(configuration: Configuration) {
                 surfaceControlViewHost.surfacePackage?.notifyConfigurationChanged(configuration)
+                session.notifyConfigurationChanged(configuration)
             }
 
             override fun notifyResized(width: Int, height: Int) {

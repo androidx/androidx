@@ -17,6 +17,7 @@
 package androidx.privacysandbox.ui.tests.endtoend
 
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
 import android.view.View
@@ -83,6 +84,7 @@ class IntegrationTests {
     fun testChangingSandboxedSdkViewLayoutChangesChildLayout() {
         val adapter = TestSandboxedUiAdapter(
             null,
+            null,
             false /* hasFailiningTestSession */
         )
         val coreLibInfo = adapter.toCoreLibInfo(context)
@@ -131,7 +133,7 @@ class IntegrationTests {
     @Test
     fun testSessionOpen() {
         val openSessionLatch = CountDownLatch(1)
-        val adapter = TestSandboxedUiAdapter(openSessionLatch, false)
+        val adapter = TestSandboxedUiAdapter(openSessionLatch, null, false)
         val coreLibInfo = adapter.toCoreLibInfo(context)
         val userRemoteAdapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         view.setAdapter(userRemoteAdapter)
@@ -150,7 +152,7 @@ class IntegrationTests {
     @Test
     fun testOpenSessionFromAdapter() {
         val openSessionLatch = CountDownLatch(1)
-        val adapter = TestSandboxedUiAdapter(openSessionLatch, false)
+        val adapter = TestSandboxedUiAdapter(openSessionLatch, null, false)
         val coreLibInfo = adapter.toCoreLibInfo(context)
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
         var testSessionClient = TestSandboxedUiAdapter.TestSessionClient()
@@ -171,11 +173,29 @@ class IntegrationTests {
     }
 
     @Test
+    fun testConfigurationChanged() {
+        val configChangedLatch = CountDownLatch(1)
+        val adapter = TestSandboxedUiAdapter(
+            null,
+            configChangedLatch,
+            false
+        )
+        val coreLibInfo = adapter.toCoreLibInfo(context)
+        val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
+        view.setAdapter(adapterFromCoreLibInfo)
+        activity.runOnUiThread {
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
+        configChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
+        assertTrue(configChangedLatch.count == 0.toLong())
+    }
+
+    @Test
     fun testSessionError() {
         val errorLatch = CountDownLatch(1)
         val errorConsumer = TestErrorConsumer(errorLatch)
         view.setSdkErrorConsumer(errorConsumer)
-        val adapter = TestSandboxedUiAdapter(null, true)
+        val adapter = TestSandboxedUiAdapter(null, null, true)
         val coreLibInfo = adapter.toCoreLibInfo(context)
         val adapterThatFailsToCreateUi =
             SandboxedUiAdapterFactory.createFromCoreLibInfo(coreLibInfo)
@@ -198,6 +218,7 @@ class IntegrationTests {
 
     class TestSandboxedUiAdapter(
         val openSessionLatch: CountDownLatch?,
+        val configChangedLatch: CountDownLatch?,
         val hasFailingTestSession: Boolean
     ) : SandboxedUiAdapter {
 
@@ -265,6 +286,7 @@ class IntegrationTests {
             }
 
             override fun notifyConfigurationChanged(configuration: Configuration) {
+                configChangedLatch?.countDown()
             }
 
             override fun close() {
