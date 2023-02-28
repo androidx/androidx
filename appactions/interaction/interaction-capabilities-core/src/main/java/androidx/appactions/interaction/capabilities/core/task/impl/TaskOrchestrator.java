@@ -496,7 +496,7 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
             return Futures.immediateFuture(SlotProcessingResult.create(false, pendingArgs));
         }
         return TaskSlotProcessor.processSlot(
-                name, pendingArgs, mTaskHandler.getTaskParamRegistry(), mExecutor);
+                name, pendingArgs, mTaskHandler.getTaskParamMap(), mExecutor);
     }
 
     /**

@@ -26,9 +26,7 @@ import androidx.appactions.interaction.capabilities.core.task.InventoryResolver
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.capabilities.core.task.ValueListenerAsync.Companion.toValueListenerAsync
 import androidx.appactions.interaction.proto.ParamValue
-import java.util.Optional
 import java.util.function.Function
-import java.util.function.Predicate
 
 import androidx.annotation.RestrictTo
 
@@ -38,7 +36,7 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class TaskHandler<ConfirmationT> (
-    val taskParamRegistry: TaskParamRegistry,
+    val taskParamMap: Map<String, TaskParamBinding<*>>,
     val confirmationType: ConfirmationType,
     val confirmationDataBindings: Map<String, Function<ConfirmationT, List<ParamValue>>>,
     val onReadyToConfirmListener: OnReadyToConfirmListenerInternal<ConfirmationT>?,
@@ -46,7 +44,7 @@ data class TaskHandler<ConfirmationT> (
     class Builder<ConfirmationT>(
         val confirmationType: ConfirmationType = ConfirmationType.NOT_SUPPORTED,
     ) {
-        val taskParamRegistryBuilder = TaskParamRegistry.builder()
+        val mutableTaskParamMap = mutableMapOf<String, TaskParamBinding<*>>()
         val confirmationDataBindings: MutableMap<
             String, Function<ConfirmationT, List<ParamValue>>,> = mutableMapOf()
         var onReadyToConfirmListener: OnReadyToConfirmListenerInternal<ConfirmationT>? = null
@@ -56,13 +54,13 @@ data class TaskHandler<ConfirmationT> (
             listener: InventoryResolver<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
         ): Builder<ConfirmationT> {
-            taskParamRegistryBuilder.addTaskParameter(
+            mutableTaskParamMap[paramName] = TaskParamBinding(
                 paramName,
                 GROUND_IF_NO_IDENTIFIER,
                 GenericResolverInternal.fromInventoryResolver(listener),
-                Optional.empty(),
-                Optional.empty(),
                 converter,
+                null,
+                null,
             )
             return this
         }
@@ -72,13 +70,13 @@ data class TaskHandler<ConfirmationT> (
             listener: InventoryListResolver<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
         ): Builder<ConfirmationT> {
-            taskParamRegistryBuilder.addTaskParameter(
+            mutableTaskParamMap[paramName] = TaskParamBinding(
                 paramName,
                 GROUND_IF_NO_IDENTIFIER,
                 GenericResolverInternal.fromInventoryListResolver(listener),
-                Optional.empty(),
-                Optional.empty(),
                 converter,
+                null,
+                null,
             )
             return this
         }
@@ -90,13 +88,13 @@ data class TaskHandler<ConfirmationT> (
             entityConverter: DisambigEntityConverter<ValueTypeT>,
             searchActionConverter: SearchActionConverter<ValueTypeT>,
         ): Builder<ConfirmationT> {
-            taskParamRegistryBuilder.addTaskParameter(
+            mutableTaskParamMap[paramName] = TaskParamBinding(
                 paramName,
                 GROUND_IF_NO_IDENTIFIER,
                 GenericResolverInternal.fromAppEntityResolver(listener),
-                Optional.of(entityConverter),
-                Optional.of(searchActionConverter),
                 converter,
+                entityConverter,
+                searchActionConverter,
             )
             return this
         }
@@ -108,13 +106,13 @@ data class TaskHandler<ConfirmationT> (
             entityConverter: DisambigEntityConverter<ValueTypeT>,
             searchActionConverter: SearchActionConverter<ValueTypeT>,
         ): Builder<ConfirmationT> {
-            taskParamRegistryBuilder.addTaskParameter(
+            mutableTaskParamMap[paramName] = TaskParamBinding(
                 paramName,
                 GROUND_IF_NO_IDENTIFIER,
                 GenericResolverInternal.fromAppEntityListResolver(listener),
-                Optional.of(entityConverter),
-                Optional.of(searchActionConverter),
                 converter,
+                entityConverter,
+                searchActionConverter,
             )
             return this
         }
@@ -124,15 +122,15 @@ data class TaskHandler<ConfirmationT> (
             listener: ValueListener<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
         ): Builder<ConfirmationT> {
-            taskParamRegistryBuilder.addTaskParameter(
+            mutableTaskParamMap[paramName] = TaskParamBinding(
                 paramName,
                 GROUND_NEVER,
                 GenericResolverInternal.fromValueListener(
                     listener.toValueListenerAsync(),
                 ),
-                Optional.empty(),
-                Optional.empty(),
                 converter,
+                null,
+                null,
             )
             return this
         }
@@ -142,16 +140,16 @@ data class TaskHandler<ConfirmationT> (
             listener: ValueListener<List<ValueTypeT>>,
             converter: ParamValueConverter<ValueTypeT>,
         ): Builder<ConfirmationT> {
-            taskParamRegistryBuilder.addTaskParameter(
+            mutableTaskParamMap[paramName] = TaskParamBinding(
                 paramName,
                 GROUND_NEVER,
                 GenericResolverInternal.fromValueListListener(
 
                     listener.toValueListenerAsync(),
                 ),
-                Optional.empty(),
-                Optional.empty(),
                 converter,
+                null,
+                null,
             )
             return this
         }
@@ -171,10 +169,9 @@ data class TaskHandler<ConfirmationT> (
         ): Builder<ConfirmationT> {
             confirmationDataBindings.put(
                 paramName,
-                { output: ConfirmationT ->
-                    listOfNotNull(confirmationGetter(output)).map(converter)
-                },
-            )
+            ) { output: ConfirmationT ->
+                listOfNotNull(confirmationGetter(output)).map(converter)
+            }
             return this
         }
 
@@ -188,21 +185,15 @@ data class TaskHandler<ConfirmationT> (
 
         fun build(): TaskHandler<ConfirmationT> {
             return TaskHandler(
-                taskParamRegistryBuilder.build(),
+                mutableTaskParamMap.toMap(),
                 confirmationType,
                 confirmationDataBindings,
                 onReadyToConfirmListener,
             )
         }
         companion object {
-            val GROUND_IF_NO_IDENTIFIER = Predicate<ParamValue> {
-                    paramValue ->
-                !paramValue.hasIdentifier()
-            }
-            val GROUND_NEVER = Predicate<ParamValue> {
-                    _ ->
-                false
-            }
+            val GROUND_IF_NO_IDENTIFIER = { paramValue: ParamValue -> !paramValue.hasIdentifier() }
+            val GROUND_NEVER = { _: ParamValue -> false }
         }
     }
 }
