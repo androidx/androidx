@@ -537,7 +537,8 @@ internal fun CoreTextField(
             editable = !readOnly,
             singleLine = maxLines == 1,
             offsetMapping = offsetMapping,
-            undoManager = undoManager
+            undoManager = undoManager,
+            imeAction = imeOptions.imeAction,
         )
 
     // Modifiers that should be applied to the outer text field container. Usually those include

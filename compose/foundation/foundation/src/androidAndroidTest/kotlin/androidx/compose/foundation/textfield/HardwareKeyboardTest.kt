@@ -372,6 +372,46 @@ class HardwareKeyboardTest {
         }
     }
 
+    @Test
+    fun textField_tabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.Tab.downAndUp()
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_tabMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.Tab.downAndUp()
+            expectedText("\ttext")
+        }
+    }
+
+    @Test
+    fun textField_shiftTabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.Tab.downAndUp(metaState = META_SHIFT_ON)
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_enterSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.Enter.downAndUp()
+            expectedText("text") // no change, should do ime action instead
+        }
+    }
+
+    @Test
+    fun textField_enterMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.Enter.downAndUp()
+            expectedText("\ntext")
+        }
+    }
+
     private inner class SequenceScope(
         val state: MutableState<TextFieldValue>,
         val nodeGetter: () -> SemanticsNodeInteraction
@@ -405,16 +445,23 @@ class HardwareKeyboardTest {
     private fun keysSequenceTest(
         initText: String = "",
         modifier: Modifier = Modifier.fillMaxSize(),
+        singleLine: Boolean = false,
         sequence: SequenceScope.() -> Unit,
     ) {
         val value = mutableStateOf(TextFieldValue(initText))
-        keysSequenceTest(value = value, modifier = modifier, sequence = sequence)
+        keysSequenceTest(
+            value = value,
+            modifier = modifier,
+            singleLine = singleLine,
+            sequence = sequence
+        )
     }
 
     private fun keysSequenceTest(
         value: MutableState<TextFieldValue>,
         modifier: Modifier = Modifier.fillMaxSize(),
         onValueChange: (TextFieldValue) -> Unit = { value.value = it },
+        singleLine: Boolean = false,
         sequence: SequenceScope.() -> Unit,
     ) {
         val inputService = TextInputService(mock())
@@ -431,7 +478,8 @@ class HardwareKeyboardTest {
                         fontSize = 10.sp
                     ),
                     modifier = modifier.focusRequester(focusRequester),
-                    onValueChange = onValueChange
+                    onValueChange = onValueChange,
+                    singleLine = singleLine,
                 )
             }
         }
