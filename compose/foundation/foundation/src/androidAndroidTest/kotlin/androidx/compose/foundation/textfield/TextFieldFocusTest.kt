@@ -226,6 +226,7 @@ class TextFieldFocusTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun keyboardIsShown_forFieldInActivity_whenFocusRequestedImmediately_fromLaunchedEffect() {
         keyboardIsShown_whenFocusRequestedImmediately_fromEffect(
@@ -237,6 +238,7 @@ class TextFieldFocusTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun keyboardIsShown_forFieldInActivity_whenFocusRequestedImmediately_fromDisposableEffect() {
         keyboardIsShown_whenFocusRequestedImmediately_fromEffect(
@@ -317,6 +319,7 @@ class TextFieldFocusTest {
         keyboardHelper.waitForKeyboardVisibility(visible = false)
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadLeft() {
         setupAndEnableBasicTextField()
@@ -333,6 +336,7 @@ class TextFieldFocusTest {
         rule.onNodeWithTag("test-button-left").assertIsFocused()
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadRight() {
         setupAndEnableBasicTextField()
@@ -349,6 +353,7 @@ class TextFieldFocusTest {
         rule.onNodeWithTag("test-button-right").assertIsFocused()
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadUp() {
         setupAndEnableBasicTextField()
@@ -365,6 +370,7 @@ class TextFieldFocusTest {
         rule.onNodeWithTag("test-button-top").assertIsFocused()
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadDown() {
         setupAndEnableBasicTextField()
