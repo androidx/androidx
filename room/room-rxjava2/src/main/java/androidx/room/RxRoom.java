@@ -224,7 +224,7 @@ public class RxRoom {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static <T> Single<T> createSingle(final Callable<T> callable) {
+    public static <T> Single<T> createSingle(final Callable<? extends T> callable) {
         return Single.create(new SingleOnSubscribe<T>() {
             @Override
             public void subscribe(SingleEmitter<T> emitter) throws Exception {

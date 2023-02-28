@@ -100,7 +100,7 @@ class InvalidationLiveDataContainerTest {
         return container.create(
             arrayOf("a", "b"),
             false,
-            createComputeFunction<Any>()
+            createComputeFunction()
         )
     }
 
