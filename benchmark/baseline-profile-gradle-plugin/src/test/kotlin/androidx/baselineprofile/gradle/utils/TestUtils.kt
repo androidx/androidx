@@ -16,6 +16,10 @@
 
 package androidx.baselineprofile.gradle.utils
 
+import com.google.common.truth.StringSubject
+import com.google.common.truth.Truth.assertThat
+import org.gradle.testkit.runner.GradleRunner
+
 internal const val GRADLE_CODE_PRINT_TASK = """
     abstract class PrintTask extends DefaultTask {
         @Input abstract Property<String> getText()
@@ -23,3 +27,18 @@ internal const val GRADLE_CODE_PRINT_TASK = """
     }
 
 """
+
+internal fun GradleRunner.build(taskName: String, block: (String) -> (Unit)) {
+    this
+        .withArguments(taskName, "--stacktrace")
+        .build()
+        .output
+        .let(block)
+}
+
+internal fun GradleRunner.buildAndAssertThatOutput(
+    taskName: String,
+    assertBlock: StringSubject.() -> (Unit)
+) {
+    this.build(taskName) { assertBlock(assertThat(it)) }
+}

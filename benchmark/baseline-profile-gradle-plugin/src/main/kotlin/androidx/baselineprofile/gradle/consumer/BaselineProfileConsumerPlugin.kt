@@ -25,11 +25,14 @@ import androidx.baselineprofile.gradle.utils.INTERMEDIATES_BASE_FOLDER
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
 import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.checkAgpVersion
+import androidx.baselineprofile.gradle.utils.isAgpVersionAtLeast
 import androidx.baselineprofile.gradle.utils.isGradleSyncRunning
 import androidx.baselineprofile.gradle.utils.maybeRegister
+import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.Variant
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -37,8 +40,12 @@ import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Category
 import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 
@@ -54,6 +61,8 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
     companion object {
         private const val GENERATE_TASK_NAME = "generate"
         private const val RELEASE = "release"
+        private const val PROPERTY_R8_REWRITE_BASELINE_PROFILE_RULES =
+            "android.experimental.art-profile-r8-rewriting"
     }
 
     override fun apply(project: Project) {
@@ -157,6 +166,21 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                 onVariants { variant ->
 
                     if (variant.buildType !in nonDebuggableBuildTypes) return@onVariants
+
+                    // Sets the r8 rewrite baseline profile for the non debuggable variant.
+                    if (baselineProfileExtension.enableR8BaselineProfileRewrite &&
+                        project.isAgpVersionAtLeast(AndroidPluginVersion(8, 0, 0).beta(2))
+                    ) {
+                        // TODO: Note that currently there needs to be at least a baseline profile,
+                        //  even if empty. For this reason we always add a src set that points to
+                        //  an empty file. This can removed after b/271158087 is fixed.
+                        GenerateDummyBaselineProfileTask.setupForVariant(project, variant)
+                        @Suppress("UnstableApiUsage")
+                        variant.experimentalProperties.put(
+                            PROPERTY_R8_REWRITE_BASELINE_PROFILE_RULES,
+                            baselineProfileExtension.enableR8BaselineProfileRewrite
+                        )
+                    }
 
                     // Creates the configuration to carry the specific variant artifact
                     val baselineProfileConfiguration =
@@ -437,5 +461,48 @@ abstract class MainGenerateBaselineProfileTask : DefaultTask() {
                 Details on https://issuetracker.google.com/issue?id=270433400.
                 """.trimIndent()
         )
+    }
+}
+
+@CacheableTask
+abstract class GenerateDummyBaselineProfileTask : DefaultTask() {
+
+    companion object {
+        fun setupForVariant(
+            project: Project,
+            variant: Variant
+        ) {
+            val taskProvider = project
+                .tasks
+                .maybeRegister<GenerateDummyBaselineProfileTask>(
+                    "generate", variant.name, "profileForR8RuleRewrite"
+                ) {
+                    it.outputDir.set(
+                        project
+                            .layout
+                            .buildDirectory
+                            .dir("$INTERMEDIATES_BASE_FOLDER/${variant.name}/empty/")
+                    )
+                    it.variantName.set(variant.name)
+                }
+            variant.sources.baselineProfiles?.addGeneratedSourceDirectory(
+                taskProvider, GenerateDummyBaselineProfileTask::outputDir
+            )
+        }
+    }
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @get:Input
+    abstract val variantName: Property<String>
+
+    @TaskAction
+    fun exec() {
+        outputDir
+            .file("empty-baseline-prof.txt")
+            .get()
+            .asFile
+            .writeText("Lignore/This;")
     }
 }

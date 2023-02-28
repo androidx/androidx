@@ -18,6 +18,7 @@ package androidx.baselineprofile.gradle.consumer
 
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
 import androidx.baselineprofile.gradle.utils.GRADLE_CODE_PRINT_TASK
+import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
@@ -403,6 +404,9 @@ class BaselineProfileConsumerPluginTest {
                         paid { dimension "version" }
                     }
                 }
+                baselineProfile {
+                    enableR8BaselineProfileRewrite = false
+                }
 
                 $GRADLE_CODE_PRINT_TASK
 
@@ -424,20 +428,66 @@ class BaselineProfileConsumerPluginTest {
                 // not exist so we need to create it.
                 val expected =
                     File(
-                        consumerProjectSetup.rootDir,
-                        "src/$it/$expectedBaselineProfileOutputFolder"
-                    )
-                        .apply {
-                            mkdirs()
-                            deleteOnExit()
-                        }
+                    consumerProjectSetup.rootDir,
+                    "src/$it/$expectedBaselineProfileOutputFolder"
+                )
+                    .apply {
+                        mkdirs()
+                        deleteOnExit()
+                    }
 
-                gradleRunner
-                    .withArguments("${it}Print", "--stacktrace")
-                    .build()
-                    .output
-                    .let { o -> assertThat(o).contains(expected.absolutePath) }
+                gradleRunner.buildAndAssertThatOutput("${it}Print") {
+                    contains(expected.absolutePath)
+                }
             }
+    }
+
+    @Test
+    fun testR8RewriteBaselineProfilePropertySet() {
+        consumerProjectSetup.writeDefaultBuildGradle(
+            prefix = """
+                plugins {
+                    id("com.android.library")
+                    id("androidx.baselineprofile.consumer")
+                }
+                android {
+                    namespace 'com.example.namespace'
+                    productFlavors {
+                        flavorDimensions = ["version"]
+                        free { dimension "version" }
+                        paid { dimension "version" }
+                    }
+                    buildTypes {
+                        anotherRelease { initWith(release) }
+                    }
+                }
+
+                $GRADLE_CODE_PRINT_TASK
+
+                androidComponents {
+                    onVariants(selector()) { variant ->
+                        println(variant.name)
+                        tasks.register("print" + variant.name, PrintTask) { t ->
+                            def prop = "android.experimental.art-profile-r8-rewriting"
+                            if (prop in variant.experimentalProperties) {
+                                def value = variant.experimentalProperties[prop].get().toString()
+                                t.text.set( "r8-rw=" + value)
+                            } else {
+                                t.text.set( "r8-rw=false")
+                            }
+                        }
+                    }
+                }
+            """.trimIndent(),
+            suffix = ""
+        )
+
+        arrayOf(
+            "printFreeRelease",
+            "printPaidRelease",
+            "printFreeAnotherRelease",
+            "printPaidAnotherRelease",
+        ).forEach { gradleRunner.buildAndAssertThatOutput(it) { contains("r8-rw=false") } }
     }
 
     @Test
