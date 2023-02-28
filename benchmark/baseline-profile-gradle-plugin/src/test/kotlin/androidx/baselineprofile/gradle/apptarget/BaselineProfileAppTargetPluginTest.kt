@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.baselineprofile.gradle.apkprovider
+package androidx.baselineprofile.gradle.apptarget
 
 import androidx.baselineprofile.gradle.utils.GRADLE_CODE_PRINT_TASK
 import androidx.testutils.gradle.ProjectSetupRule
@@ -27,7 +27,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BaselineProfileApkProviderPluginTest {
+class BaselineProfileAppTargetPluginTest {
 
     @get:Rule
     val projectSetup = ProjectSetupRule()
@@ -47,7 +47,7 @@ class BaselineProfileApkProviderPluginTest {
             prefix = """
                 plugins {
                     id("com.android.application")
-                    id("androidx.baselineprofile.apkprovider")
+                    id("androidx.baselineprofile.apptarget")
                 }
                 android {
                     namespace 'com.example.namespace'

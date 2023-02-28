@@ -92,7 +92,7 @@ class BaselineProfileWrapperPluginTest {
         ) {
             containsAtLeast(
                 "class $CLASS_CONSUMER_PLUGIN",
-                "class $CLASS_APK_PROVIDER_PLUGIN"
+                "class $CLASS_APP_TARGET_PLUGIN"
             )
         }
     }
@@ -155,8 +155,8 @@ class BaselineProfileWrapperPluginTest {
 
 private const val CLASS_CONSUMER_PLUGIN =
     "androidx.baselineprofile.gradle.consumer.BaselineProfileConsumerPlugin"
-private const val CLASS_APK_PROVIDER_PLUGIN =
-    "androidx.baselineprofile.gradle.apkprovider.BaselineProfileApkProviderPlugin"
+private const val CLASS_APP_TARGET_PLUGIN =
+    "androidx.baselineprofile.gradle.apptarget.BaselineProfileAppTargetPlugin"
 private const val CLASS_PRODUCER_PLUGIN =
     "androidx.baselineprofile.gradle.producer.BaselineProfileProducerPlugin"
 
