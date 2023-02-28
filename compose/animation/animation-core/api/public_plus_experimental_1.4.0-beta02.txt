@@ -76,7 +76,7 @@ package androidx.compose.animation.core {
   }
 
   public enum AnimationEndReason {
-    method public static androidx.compose.animation.core.AnimationEndReason valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.animation.core.AnimationEndReason valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.animation.core.AnimationEndReason[] values();
     enum_constant public static final androidx.compose.animation.core.AnimationEndReason BoundReached;
     enum_constant public static final androidx.compose.animation.core.AnimationEndReason Finished;
@@ -473,7 +473,7 @@ package androidx.compose.animation.core {
   }
 
   public enum RepeatMode {
-    method public static androidx.compose.animation.core.RepeatMode valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.animation.core.RepeatMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.animation.core.RepeatMode[] values();
     enum_constant public static final androidx.compose.animation.core.RepeatMode Restart;
     enum_constant public static final androidx.compose.animation.core.RepeatMode Reverse;

@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+ParameterNameChange: androidx.compose.material3.SnackbarDuration#valueOf(String) parameter #0:
+    Attempted to change parameter name from name to value in method androidx.compose.material3.SnackbarDuration.valueOf
+ParameterNameChange: androidx.compose.material3.SnackbarResult#valueOf(String) parameter #0:
+    Attempted to change parameter name from name to value in method androidx.compose.material3.SnackbarResult.valueOf
+
+
 RemovedClass: androidx.compose.material3.AlertDialogKt:
     Removed class androidx.compose.material3.AlertDialogKt
 RemovedClass: androidx.compose.material3.BadgeKt:
