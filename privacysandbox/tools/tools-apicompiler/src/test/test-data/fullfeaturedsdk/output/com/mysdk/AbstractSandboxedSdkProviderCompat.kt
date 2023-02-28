@@ -22,9 +22,8 @@ public abstract class AbstractSandboxedSdkProviderCompat : SandboxedSdkProviderC
     params: Bundle,
     width: Int,
     height: Int,
-  ): View {
-    TODO("Implement")
-  }
+  ): View = throw
+      UnsupportedOperationException("This SDK doesn't support explicit SurfaceView requests.")
 
   protected abstract fun createMySdk(context: Context): MySdk
 }
