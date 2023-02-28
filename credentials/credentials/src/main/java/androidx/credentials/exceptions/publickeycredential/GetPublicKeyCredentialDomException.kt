@@ -20,7 +20,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.credentials.exceptions.domerrors.DomError
 
 /**
- * During the create-passkey flow, this is thrown when a DOM Exception is thrown,
+ * During the get-passkey flow, this is thrown when a DOM Exception is thrown,
  * indicating the operation contains a DOMException error type. The fido spec can be found
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names). The full list of
  * implemented DOMErrors extends from and can be seen at [DomError].
@@ -29,16 +29,16 @@ import androidx.credentials.exceptions.domerrors.DomError
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names)
  * @throws NullPointerException If [domError] is null
  */
-class CreatePublicKeyCredentialDomException @JvmOverloads constructor(
+class GetPublicKeyCredentialDomException @JvmOverloads constructor(
     val domError: DomError,
     errorMessage: CharSequence? = null
-) : CreatePublicKeyCredentialException(
-    TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + domError.type,
+) : GetPublicKeyCredentialException(
+    TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + domError.type,
     errorMessage) {
     /** @hide */
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION"
+        const val TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION: String =
+            "androidx.credentials.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION"
     }
 }

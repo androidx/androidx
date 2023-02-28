@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.credentials.exceptions.createpublickeycredential
+package androidx.credentials.exceptions.publickeycredential
 
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat

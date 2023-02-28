@@ -18,7 +18,7 @@ package androidx.credentials.exceptions.publickeycredential
 
 import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
-import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.GetCredentialException
 
 /**
  * A subclass of CreateCredentialException for unique exceptions thrown specific only to
@@ -28,12 +28,12 @@ import androidx.credentials.exceptions.CreateCredentialException
  * @throws NullPointerException if [type] is null
  * @throws IllegalArgumentException if [type] is empty
  */
-open class CreatePublicKeyCredentialException @JvmOverloads internal constructor(
+open class GetPublicKeyCredentialException @JvmOverloads internal constructor(
     /** @hide */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override val type: String,
     errorMessage: CharSequence? = null
-) : CreateCredentialException(type, errorMessage) {
+) : GetCredentialException(type, errorMessage) {
     init {
         require(type.isNotEmpty()) { "type must not be empty" }
     }
