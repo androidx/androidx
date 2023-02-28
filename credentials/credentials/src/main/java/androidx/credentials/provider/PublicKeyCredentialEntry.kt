@@ -31,6 +31,7 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.CredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
 import java.time.Instant
@@ -70,6 +71,10 @@ class PublicKeyCredentialEntry internal constructor(
     val lastUsedTime: Instant?,
     val isAutoSelectAllowed: Boolean,
     beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
+    /** @hide */
+    val autoSelectAllowedFromOption: Boolean = false,
+    /** @hide */
+    val isDefaultIcon: Boolean = false
     ) : CredentialEntry(
     beginGetPublicKeyCredentialOption,
     toSlice(
@@ -148,6 +153,12 @@ class PublicKeyCredentialEntry internal constructor(
         internal const val SLICE_HINT_OPTION_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_DEFAULT_ICON_RES_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_TRUE_STRING = "true"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_FALSE_STRING = "false"
@@ -161,7 +172,7 @@ class PublicKeyCredentialEntry internal constructor(
             pendingIntent: PendingIntent,
             typeDisplayName: CharSequence?,
             lastUsedTime: Instant?,
-            icon: Icon?,
+            icon: Icon,
             isAutoSelectAllowed: Boolean,
             beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption
         ): Slice {
@@ -188,14 +199,27 @@ class PublicKeyCredentialEntry internal constructor(
                     /*subType=*/null,
                     listOf(SLICE_HINT_OPTION_ID)
                 )
+                .addIcon(icon, /*subType=*/null,
+                    listOf(SLICE_HINT_ICON))
+            if (icon.resId == R.drawable.ic_passkey) {
+                sliceBuilder.addInt(
+                    /*true=*/1,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
+                )
+            }
+            if (CredentialOption.extractAutoSelectValue(
+                    beginGetPublicKeyCredentialOption.candidateQueryData)) {
+                sliceBuilder.addInt(
+                    /*true=*/1,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_AUTO_SELECT_FROM_OPTION)
+                )
+            }
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(lastUsedTime.toEpochMilli(),
                     /*subType=*/null,
                     listOf(SLICE_HINT_LAST_USED_TIME_MILLIS))
-            }
-            if (icon != null) {
-                sliceBuilder.addIcon(icon, /*subType=*/null,
-                    listOf(SLICE_HINT_ICON))
             }
             sliceBuilder.addAction(pendingIntent,
                 Slice.Builder(sliceBuilder)
@@ -223,6 +247,8 @@ class PublicKeyCredentialEntry internal constructor(
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
             var beginGetPublicKeyCredentialOptionId: CharSequence? = null
+            var autoSelectAllowedFromOption = false
+            var isDefaultIcon = false
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -244,6 +270,10 @@ class PublicKeyCredentialEntry internal constructor(
                     if (autoSelectValue == AUTO_SELECT_TRUE_STRING) {
                         autoSelectAllowed = true
                     }
+                } else if (it.hasHint(SLICE_HINT_AUTO_SELECT_FROM_OPTION)) {
+                    autoSelectAllowedFromOption = true
+                } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
+                    isDefaultIcon = true
                 }
             }
 
@@ -259,7 +289,9 @@ class PublicKeyCredentialEntry internal constructor(
                     BeginGetPublicKeyCredentialOption.createFrom(
                         Bundle(),
                         beginGetPublicKeyCredentialOptionId!!.toString()
-                    )
+                    ),
+                    autoSelectAllowedFromOption,
+                    isDefaultIcon
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)

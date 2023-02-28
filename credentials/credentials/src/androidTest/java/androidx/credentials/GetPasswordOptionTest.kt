@@ -38,7 +38,7 @@ class GetPasswordOptionTest {
 
         assertThat(option.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
         assertThat(equals(option.requestData, expectedRequestDataBundle)).isTrue()
-        assertThat(equals(option.candidateQueryData, Bundle.EMPTY)).isTrue()
+        assertThat(equals(option.candidateQueryData, expectedRequestDataBundle)).isTrue()
         assertThat(option.isSystemProviderRequired).isFalse()
     }
 

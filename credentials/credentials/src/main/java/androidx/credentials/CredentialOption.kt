@@ -50,6 +50,10 @@ abstract class CredentialOption internal constructor(
         requestData?.let {
             it.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
         }
+        @Suppress("UNNECESSARY_SAFE_CALL")
+        candidateQueryData?.let {
+            it.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
+        }
     }
 
     /** @hide */
@@ -58,6 +62,10 @@ abstract class CredentialOption internal constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
         const val BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED =
             "androidx.credentials.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED"
+
+        internal fun extractAutoSelectValue(data: Bundle): Boolean {
+            return data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED)
+        }
 
         /** @hide */
         @JvmStatic

@@ -38,7 +38,8 @@ public class GetPasswordOptionJavaTest {
 
         assertThat(option.getType()).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL);
         assertThat(TestUtilsKt.equals(option.getRequestData(), expectedRequestDataBundle)).isTrue();
-        assertThat(TestUtilsKt.equals(option.getCandidateQueryData(), Bundle.EMPTY)).isTrue();
+        assertThat(TestUtilsKt.equals(option.getCandidateQueryData(),
+                expectedRequestDataBundle)).isTrue();
         assertThat(option.isSystemProviderRequired()).isFalse();
     }
 

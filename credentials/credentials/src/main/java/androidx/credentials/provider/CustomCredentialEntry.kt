@@ -30,6 +30,7 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.CredentialOption
 import androidx.credentials.R
 import java.time.Instant
 import java.util.Collections
@@ -66,7 +67,11 @@ class CustomCredentialEntry internal constructor(
     val typeDisplayName: CharSequence?,
     val icon: Icon,
     val lastUsedTime: Instant?,
-    beginGetCredentialOption: BeginGetCredentialOption
+    beginGetCredentialOption: BeginGetCredentialOption,
+    /** @hide */
+    val autoSelectAllowedFromOption: Boolean = false,
+    /** @hide */
+    val isDefaultIcon: Boolean = false
     ) : android.service.credentials.CredentialEntry(
     beginGetCredentialOption,
     toSlice(
@@ -142,12 +147,14 @@ class CustomCredentialEntry internal constructor(
         internal const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_OPTION_BUNDLE =
-            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_BUNDLE"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_OPTION_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
-
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_DEFAULT_ICON_RES_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_TRUE_STRING = "true"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -162,7 +169,7 @@ class CustomCredentialEntry internal constructor(
             pendingIntent: PendingIntent,
             typeDisplayName: CharSequence?,
             lastUsedTime: Instant?,
-            icon: Icon?,
+            icon: Icon,
             isAutoSelectAllowed: Boolean?,
             beginGetCredentialOption: BeginGetCredentialOption
         ): Slice {
@@ -187,15 +194,28 @@ class CustomCredentialEntry internal constructor(
                     /*subType=*/null,
                     listOf(SLICE_HINT_OPTION_ID)
                 )
+                .addIcon(icon, /*subType=*/null,
+                    listOf(SLICE_HINT_ICON))
 
+            if (icon.resId == R.drawable.ic_other_sign_in) {
+                sliceBuilder.addInt(
+                    /*true=*/1,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
+                )
+            }
+            if (CredentialOption.extractAutoSelectValue(
+                    beginGetCredentialOption.candidateQueryData)) {
+                sliceBuilder.addInt(
+                    /*true=*/1,
+                    /*subType=*/null,
+                    listOf(SLICE_HINT_AUTO_SELECT_FROM_OPTION)
+                )
+            }
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(lastUsedTime.toEpochMilli(),
                     /*subType=*/null,
                     listOf(SLICE_HINT_LAST_USED_TIME_MILLIS))
-            }
-            if (icon != null) {
-                sliceBuilder.addIcon(icon, /*subType=*/null,
-                    listOf(SLICE_HINT_ICON))
             }
             sliceBuilder.addAction(pendingIntent,
                 Slice.Builder(sliceBuilder)
@@ -224,6 +244,8 @@ class CustomCredentialEntry internal constructor(
             var lastUsedTime: Instant? = null
             var autoSelectAllowed = false
             var beginGetCredentialOptionId: CharSequence? = null
+            var autoSelectAllowedFromOption = false
+            var isDefaultIcon = false
 
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_TYPE_DISPLAY_NAME)) {
@@ -245,6 +267,10 @@ class CustomCredentialEntry internal constructor(
                     if (autoSelectValue == AUTO_SELECT_TRUE_STRING) {
                         autoSelectAllowed = true
                     }
+                } else if (it.hasHint(SLICE_HINT_AUTO_SELECT_FROM_OPTION)) {
+                    autoSelectAllowedFromOption = true
+                } else if (it.hasHint(SLICE_HINT_DEFAULT_ICON_RES_ID)) {
+                    isDefaultIcon = true
                 }
             }
 
@@ -262,7 +288,9 @@ class CustomCredentialEntry internal constructor(
                         beginGetCredentialOptionId!!.toString(),
                         type,
                         Bundle()
-                    )
+                    ),
+                    autoSelectAllowedFromOption,
+                    isDefaultIcon
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
