@@ -321,14 +321,20 @@ private fun extractProfileRooted(packageName: String): String {
     // The path to the primary profile
     val currentProfile = "/data/misc/profiles/cur/0/$packageName/primary.prof"
     Log.d(TAG, "Reference profile location: $referenceProfile")
-    val pathResult = Shell.executeScriptCaptureStdout("pm path $packageName")
-    // The result looks like: `package: <result>`
-    val apkPath = pathResult.substringAfter("package:").trim()
-    Log.d(TAG, "APK Path: $apkPath")
-    // Convert to HRF
-    Log.d(TAG, "Converting to human readable profile format")
-    // Look at reference profile first, and then fallback to current profile
-    return profmanGetProfileRules(apkPath, listOf(referenceProfile, currentProfile))
+
+    @Suppress("SimplifiableCallChain") // join+block makes ordering unclear
+    val mergedProfile = Shell.pmPath(packageName).map { apkPath ->
+        Log.d(TAG, "APK Path: $apkPath")
+        // Convert to HRF
+        Log.d(TAG, "Converting to human readable profile format")
+        // Look at reference profile first, and then fallback to current profile
+        profmanGetProfileRules(apkPath, listOf(referenceProfile, currentProfile))
+    }.joinToString(separator = "\n")
+    if (mergedProfile.isBlank()) {
+        throw IllegalStateException("No profiles found for all apks in app")
+    }
+
+    return mergedProfile
 }
 
 private fun profmanGetProfileRules(apkPath: String, pathOptions: List<String>): String {
@@ -343,8 +349,10 @@ private fun profmanGetProfileRules(apkPath: String, pathOptions: List<String>): 
         profile.ifBlank { null }
     }
     if (profiles.isEmpty()) {
-        throw IllegalStateException("The profile is empty.")
+        Log.d(TAG, "No profiles found for $apkPath")
+        return ""
     }
+
     // Merge rules
     val rules = mutableSetOf<String>()
     profiles.forEach { profile ->
