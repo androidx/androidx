@@ -341,29 +341,18 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
     }
 
     companion object {
-        @Volatile
-        private var globalInstance: SplitController? = null
-        private val globalLock = ReentrantLock()
 
         internal const val sDebug = false
 
         /**
-         * Obtains the singleton instance of [SplitController].
+         * Obtains an instance of [SplitController].
          *
          * @param context the [Context] to initialize the controller with
          */
         @JvmStatic
         fun getInstance(context: Context): SplitController {
-            if (globalInstance == null) {
-                globalLock.withLock {
-                    if (globalInstance == null) {
-                        val applicationContext = context.applicationContext
-                        val backend = EmbeddingBackend.getInstance(applicationContext)
-                        globalInstance = SplitController(backend)
-                    }
-                }
-            }
-            return globalInstance!!
+            val backend = EmbeddingBackend.getInstance(context)
+            return SplitController(backend)
         }
     }
 }

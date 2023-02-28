@@ -21,6 +21,8 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.SplitAttributes.BackgroundColor
@@ -59,7 +61,7 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
  * @see SplitAttributes.LayoutDirection
  * @see SplitAttributes.BackgroundColor
  */
-class SplitAttributes internal constructor(
+class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
 
     /**
      * The split type attribute. Defaults to an equal split of the parent window

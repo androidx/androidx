@@ -25,8 +25,20 @@ import androidx.window.embedding.ActivityRule
 import androidx.window.embedding.EmbeddingBackend
 import androidx.window.embedding.EmbeddingRule
 import androidx.window.embedding.RuleController
+import androidx.window.embedding.SplitAttributes
+import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
+import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitPairRule
 import androidx.window.embedding.SplitPlaceholderRule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
@@ -40,16 +52,18 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 /** Test for [ActivityEmbeddingTestRule]. */
-@OptIn(ExperimentalWindowApi::class)
+@OptIn(ExperimentalWindowApi::class, ExperimentalCoroutinesApi::class)
 class ActivityEmbeddingTestRuleTest {
 
     @get:Rule
     val testRule: ActivityEmbeddingTestRule = ActivityEmbeddingTestRule()
 
     private val mockActivity: Activity = mock()
+    private val testScope = TestScope()
 
     private lateinit var activityEmbeddingController: ActivityEmbeddingController
     private lateinit var ruleController: RuleController
+    private lateinit var splitController: SplitController
 
     init {
         whenever(mockActivity.applicationContext).thenReturn(mock<Application>())
@@ -59,6 +73,7 @@ class ActivityEmbeddingTestRuleTest {
     fun setUp() {
         activityEmbeddingController = ActivityEmbeddingController.getInstance(mockActivity)
         ruleController = RuleController.getInstance(mockActivity)
+        splitController = SplitController.getInstance(mockActivity)
     }
 
     @Test
@@ -243,6 +258,49 @@ class ActivityEmbeddingTestRuleTest {
             // Throw unexpected exception
         }
         assertFalse(EmbeddingBackend.getInstance(mockActivity) is StubEmbeddingBackend)
+    }
+
+    @Test
+    fun testOverrideSplitSupportStatus() {
+        val expected = SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
+        testRule.overrideSplitSupportStatus(expected)
+
+        val actual = splitController.splitSupportStatus
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testOverrideSplitInfo() = testScope.runTest {
+        val expected = listOf(TestSplitInfo(mockActivity, mockActivity))
+
+        testRule.overrideSplitInfo(mockActivity, expected)
+
+        val actual = splitController.splitInfoList(mockActivity).first().toList()
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testOverrideSplitInfo_updatesExistingListeners() = testScope.runTest {
+        val expected1 = listOf(TestSplitInfo(mockActivity, mockActivity))
+        val expected2 = listOf(TestSplitInfo(
+            mockActivity,
+            mockActivity,
+            SplitAttributes(splitType = SPLIT_TYPE_HINGE)
+        ))
+
+        val value = testScope.async(Dispatchers.Unconfined) {
+            splitController.splitInfoList(mockActivity).take(3).toList()
+        }
+        testRule.overrideSplitInfo(mockActivity, expected1)
+        testRule.overrideSplitInfo(mockActivity, expected2)
+        runTest(UnconfinedTestDispatcher(testScope.testScheduler)) {
+            assertEquals(
+                listOf(emptyList(), expected1, expected2),
+                value.await()
+            )
+        }
     }
 
     private fun createSplitPairRule(tag: String? = null): SplitPairRule {
