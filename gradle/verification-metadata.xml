@@ -248,7 +248,7 @@
             <trusting group="^org[.]jetbrains($|([.].*))" regex="true"/>
          </trusted-key>
          <trusted-key id="8858d45be9b276802318155b96fb9db219f3338d" group="kr.motd.maven"/>
-         <trusted-key id="88cd390855df292e2172da9742575e0ccd6ba16a " group="org.xerial"/>
+         <trusted-key id="88cd390855df292e2172da9742575e0ccd6ba16a" group="org.xerial"/>
          <trusted-key id="8a10792983023d5d14c93b488d7f1bec1e2ecae7">
             <trusting group="com.fasterxml"/>
             <trusting group="com.fasterxml.jackson"/>
