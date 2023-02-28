@@ -35,9 +35,13 @@ fun compileWithPrivacySandboxKspCompiler(
     val provider = PrivacySandboxKspCompiler.Provider()
 
     val processorOptions = buildMap {
-        val aidlPath = (System.getProperty("aidl_compiler_path")
+        val aidlCompilerPath = (System.getProperty("aidl_compiler_path")
             ?: throw IllegalArgumentException("aidl_compiler_path flag not set."))
-        put("aidl_compiler_path", aidlPath)
+        put("aidl_compiler_path", aidlCompilerPath)
+        val frameworkAidlPath = (System.getProperty("framework_aidl_path")
+            ?: throw IllegalArgumentException("framework_aidl_path flag not set."))
+        put("aidl_compiler_path", aidlCompilerPath)
+        put("framework_aidl_path", frameworkAidlPath)
         putAll(extraProcessorOptions)
     }
 
