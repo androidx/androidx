@@ -16,9 +16,6 @@
 
 package androidx.wear.protolayout.renderer.inflater;
 
-import static androidx.wear.protolayout.renderer.common.FuturesHelper.createFailedFuture;
-import static androidx.wear.protolayout.renderer.common.FuturesHelper.createImmediateFuture;
-
 import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 
@@ -33,6 +30,7 @@ import androidx.wear.protolayout.proto.ResourceProto.AndroidSeekableAnimatedImag
 import androidx.wear.protolayout.proto.ResourceProto.InlineImageResource;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
@@ -208,18 +206,16 @@ public class ResourceResolvers {
                 mProtoResources.getIdToImageMap().get(protoResourceId);
 
         if (imageResource == null) {
-            return createFailedFuture(
-                    new IllegalArgumentException(
-                            "Resource " + protoResourceId + " is not defined in resources bundle"));
+            return Futures.immediateFailedFuture(new IllegalArgumentException(
+                                "Resource " + protoResourceId + " is not defined in resources bundle"));
         }
 
         @Nullable
         ListenableFuture<Drawable> drawableFutureOrNull =
                 getDrawableForImageResource(imageResource);
         if (drawableFutureOrNull == null) {
-            return createFailedFuture(
-                    new ResourceAccessException(
-                            "Can't find resolver for image resource " + protoResourceId));
+            return Futures.immediateFailedFuture(new ResourceAccessException(
+                                "Can't find resolver for image resource " + protoResourceId));
         }
         return drawableFutureOrNull;
     }
@@ -303,10 +299,10 @@ public class ResourceResolvers {
         try {
             Drawable drawable = getDrawableForImageResourceSynchronously(imageResource);
             if (drawable != null) {
-                return createImmediateFuture(drawable);
+                return Futures.immediateFuture(drawable);
             }
         } catch (ResourceAccessException e) {
-            return createFailedFuture(e);
+            return Futures.immediateFailedFuture(e);
         }
 
         if (imageResource.hasAndroidContentUri()

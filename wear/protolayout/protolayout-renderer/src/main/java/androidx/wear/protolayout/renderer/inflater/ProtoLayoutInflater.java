@@ -17,8 +17,6 @@
 package androidx.wear.protolayout.renderer.inflater;
 
 import static androidx.core.util.Preconditions.checkNotNull;
-import static androidx.wear.protolayout.renderer.common.FuturesHelper.createFailedFuture;
-import static androidx.wear.protolayout.renderer.common.FuturesHelper.createImmediateVoidFuture;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.FIRST_CHILD_INDEX;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.ROOT_NODE_ID;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.getParentNodePosId;
@@ -176,6 +174,7 @@ import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.ResourceAcc
 import androidx.wear.widget.ArcLayout;
 import androidx.wear.widget.CurvedTextView;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.ref.WeakReference;
@@ -3672,7 +3671,7 @@ public final class ProtoLayoutInflater {
         }
         if (groupMutation.isNoOp()) {
             // Nothing to do.
-            return createImmediateVoidFuture();
+            return Futures.immediateVoidFuture();
         }
 
         if (groupMutation.mPipelineMaker.isPresent()) {
@@ -3695,9 +3694,9 @@ public final class ProtoLayoutInflater {
         } else {
             try {
                 applyMutationInternal(parent, groupMutation);
-                return createImmediateVoidFuture();
+                return Futures.immediateVoidFuture();
             } catch (ViewMutationException ex) {
-                return createFailedFuture(ex);
+                return Futures.immediateFailedFuture(ex);
             }
         }
     }
