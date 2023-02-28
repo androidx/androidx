@@ -69,8 +69,25 @@ public open class FragmentNavigator(
      */
     internal val backStack get() = state.backStack
 
+    /**
+     * Temporarily stores entries that need to attach observer on its fragment
+     */
+    private val toAttachObserver = mutableListOf<String>()
+
     override fun onAttach(state: NavigatorState) {
         super.onAttach(state)
+
+        fragmentManager.addFragmentOnAttachListener { _, fragment ->
+            fragment.viewLifecycleOwnerLiveData.observe(fragment) {
+                val needToAttach = toAttachObserver.remove(fragment.tag)
+                // attach observer unless it was already popped at this point
+                if (needToAttach && !entriesToPop.contains(fragment.tag)) {
+                    val entry = state.backStack.value.last { it.id == fragment.tag }
+                    attachObserver(entry, fragment)
+                }
+            }
+        }
+
         fragmentManager.addOnBackStackChangedListener(object : OnBackStackChangedListener {
             override fun onBackStackChanged() { }
 
@@ -92,34 +109,10 @@ public open class FragmentNavigator(
                 val entry = (state.backStack.value + state.transitionsInProgress.value).lastOrNull {
                     it.id == fragment.tag
                 }
-                if (entry != null && fragmentWasAddedOrPopped(fragment, entry)) {
-                    val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
-                    val currentState = viewLifecycle.currentState
-                    // We only need to add observers while the viewLifecycle has not reached a final
-                    // state
-                    if (currentState == Lifecycle.State.STARTED ||
-                        currentState == Lifecycle.State.CREATED
-                    ) {
-                        viewLifecycle.addObserver(object : LifecycleEventObserver {
-                            override fun onStateChanged(
-                                source: LifecycleOwner,
-                                event: Lifecycle.Event
-                            ) {
-                                // Once the lifecycle reaches RESUMED, we can mark the transition
-                                // complete
-                                if (event == Lifecycle.Event.ON_RESUME) {
-                                    state.markTransitionComplete(entry)
-                                }
-                                // Once the lifecycle reaches DESTROYED, we can mark the transition
-                                // complete and remove the observer.
-                                if (event == Lifecycle.Event.ON_DESTROY) {
-                                    state.markTransitionComplete(entry)
-                                    viewLifecycle.removeObserver(this)
-                                }
-                            }
-                        })
-                    }
+                if (entry != null && fragmentWasPopped(fragment, entry)) {
                     entriesToPop.remove(entry.id)
+                } else if (entry != null && fragmentWasAdded(fragment)) {
+                    attachObserver(entry, fragment)
                 } else if (fragmentShouldBePopped(fragment, pop)) {
                     // This is the case of system back where we will need to make the call to
                     // popBackStack. Otherwise, popBackStack was called directly and this should
@@ -131,15 +124,45 @@ public open class FragmentNavigator(
                 }
             }
 
-            fun fragmentWasAddedOrPopped(fragment: Fragment, entry: NavBackStackEntry): Boolean {
-                return fragment.view != null &&
-                    (fragment.isAdded || entriesToPop.contains(entry.id))
+            fun fragmentWasPopped(fragment: Fragment, entry: NavBackStackEntry): Boolean {
+                return fragment.view != null && entriesToPop.contains(entry.id)
+            }
+
+            fun fragmentWasAdded(fragment: Fragment): Boolean {
+                return fragment.view != null && fragment.isAdded
             }
 
             fun fragmentShouldBePopped(fragment: Fragment, pop: Boolean): Boolean {
                 return pop && entriesToPop.isEmpty() && !fragment.isAdded
             }
         })
+    }
+
+    internal fun attachObserver(entry: NavBackStackEntry, fragment: Fragment) {
+        val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
+        val currentState = viewLifecycle.currentState
+        // We only need to add observers while the viewLifecycle has not reached a final
+        // state
+        if (currentState.isAtLeast(Lifecycle.State.CREATED)) {
+            viewLifecycle.addObserver(object : LifecycleEventObserver {
+                override fun onStateChanged(
+                    source: LifecycleOwner,
+                    event: Lifecycle.Event
+                ) {
+                    // Once the lifecycle reaches RESUMED, we can mark the transition
+                    // complete
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        state.markTransitionComplete(entry)
+                    }
+                    // Once the lifecycle reaches DESTROYED, we can mark the transition
+                    // complete and remove the observer.
+                    if (event == Lifecycle.Event.ON_DESTROY) {
+                        state.markTransitionComplete(entry)
+                        viewLifecycle.removeObserver(this)
+                    }
+                }
+            })
+        }
     }
 
     /**
@@ -275,6 +298,9 @@ public open class FragmentNavigator(
 
         if (!initialNavigation) {
             ft.addToBackStack(entry.id)
+        } else {
+            // not added to backstack so we need to make sure we attach fragment observer later
+            toAttachObserver.add(entry.id)
         }
 
         if (navigatorExtras is Extras) {
