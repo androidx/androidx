@@ -18,6 +18,11 @@ package androidx.compose.ui.focus
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
+import androidx.compose.ui.focus.CustomDestinationResult.None
+import androidx.compose.ui.focus.CustomDestinationResult.RedirectCancelled
+import androidx.compose.ui.focus.CustomDestinationResult.Redirected
+import androidx.compose.ui.focus.FocusDirection.Companion.Exit
 import androidx.compose.ui.focus.FocusDirection.Companion.Next
 import androidx.compose.ui.focus.FocusDirection.Companion.Previous
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
@@ -118,6 +123,14 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
 
     @OptIn(ExperimentalComposeUiApi::class)
     override fun clearFocus(force: Boolean, refreshFocusEvents: Boolean) {
+        // Don't clear focus if an item on the focused path has a custom exit specified.
+        if (!force) {
+            when (rootFocusNode.performCustomClearFocus(Exit)) {
+                Redirected, Cancelled, RedirectCancelled -> return
+                None -> { /* Do nothing. */ }
+            }
+        }
+
         // If this hierarchy had focus before clearing it, it indicates that the host view has
         // focus. So after clearing focus within the compose hierarchy, we should restore focus to
         // the root focus modifier to maintain consistency with the host view.
@@ -142,24 +155,29 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
         val source = rootFocusNode.findActiveFocusNode() ?: return false
 
         // Check if a custom focus traversal order is specified.
-        when (val next = source.customFocusSearch(focusDirection, layoutDirection)) {
-            @OptIn(ExperimentalComposeUiApi::class)
-            Cancel -> return false
-            Default -> {
-                val foundNextItem =
-                    rootFocusNode.focusSearch(focusDirection, layoutDirection) { destination ->
-                        if (destination == source) return@focusSearch false
-                        checkNotNull(destination.nearestAncestor(Nodes.FocusTarget)) {
-                            "Focus search landed at the root."
-                        }
-                        // If we found a potential next item, move focus to it.
-                        destination.requestFocus()
-                    }
-                // If we didn't find a potential next item, try to wrap around.
-                return foundNextItem || wrapAroundFocus(focusDirection)
+        source.customFocusSearch(focusDirection, layoutDirection).also {
+            if (it !== Default) {
+                return it !== Cancel && it.focus()
             }
-            else -> return next.findFocusTarget { it.requestFocus() }
         }
+
+        var isCancelled = false
+        val foundNextItem =
+            rootFocusNode.focusSearch(focusDirection, layoutDirection) { destination ->
+                if (destination == source) return@focusSearch false
+                checkNotNull(destination.nearestAncestor(Nodes.FocusTarget)) {
+                    "Focus search landed at the root."
+                }
+                // If we found a potential next item, move focus to it.
+                // Returning true ends focus search.
+                when (destination.performCustomRequestFocus(focusDirection)) {
+                    Redirected -> true
+                    Cancelled, RedirectCancelled -> { isCancelled = true; true }
+                    None -> destination.performRequestFocus()
+                }
+            }
+        // If we didn't find a potential next item, try to wrap around.
+        return !isCancelled && (foundNextItem || wrapAroundFocus(focusDirection))
     }
 
     /**

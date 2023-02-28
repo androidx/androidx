@@ -18,6 +18,7 @@ package androidx.compose.ui.focus
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester.Companion.Default
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Captured
@@ -44,6 +45,9 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
      */
     val focusState: FocusState
         get() = focusStateImpl
+
+    private var isProcessingCustomExit = false
+    private var isProcessingCustomEnter = false
 
     internal var focusStateImpl = Inactive
     internal val beyondBoundsLayoutParent: BeyondBoundsLayout?
@@ -91,6 +95,54 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
             it.modifyFocusProperties(properties)
         }
         return properties
+    }
+
+    /**
+     * Fetch custom enter destination associated with this [focusTarget].
+     *
+     * Custom focus enter properties are specified as a lambda. If the user runs code in this
+     * lambda that triggers a focus search, or some other focus change that causes focus to leave
+     * the sub-hierarchy associated with this node, we could end up in a loop as that operation
+     * will trigger another invocation of the lambda associated with the focus exit property.
+     * This function prevents that re-entrant scenario by ensuring there is only one concurrent
+     * invocation of this lambda.
+     */
+    @ExperimentalComposeUiApi
+    internal inline fun fetchCustomEnter(
+        focusDirection: FocusDirection,
+        block: (FocusRequester) -> Unit
+    ) {
+        if (!isProcessingCustomEnter) {
+            isProcessingCustomEnter = true
+            fetchFocusProperties().enter(focusDirection).also {
+                if (it !== Default) block(it)
+            }
+            isProcessingCustomEnter = false
+        }
+    }
+
+    /**
+     * Fetch custom exit destination associated with this [focusTarget].
+     *
+     * Custom focus exit properties are specified as a lambda. If the user runs code in this
+     * lambda that triggers a focus search, or some other focus change that causes focus to leave
+     * the sub-hierarchy associated with this node, we could end up in a loop as that operation
+     * will trigger another invocation of the lambda associated with the focus exit property.
+     * This function prevents that re-entrant scenario by ensuring there is only one concurrent
+     * invocation of this lambda.
+     */
+    @ExperimentalComposeUiApi
+    internal inline fun fetchCustomExit(
+        focusDirection: FocusDirection,
+        block: (FocusRequester) -> Unit
+    ) {
+        if (!isProcessingCustomExit) {
+            isProcessingCustomExit = true
+            fetchFocusProperties().exit(focusDirection).also {
+                if (it !== Default) block(it)
+            }
+            isProcessingCustomExit = false
+        }
     }
 
     internal fun invalidateFocus() {

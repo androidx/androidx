@@ -62,11 +62,11 @@ internal fun FocusTargetModifierNode.customFocusSearch(
         Left -> when (layoutDirection) {
             Ltr -> focusProperties.start
             Rtl -> focusProperties.end
-        }.takeUnless { it == Default } ?: focusProperties.left
+        }.takeUnless { it === Default } ?: focusProperties.left
         Right -> when (layoutDirection) {
             Ltr -> focusProperties.end
             Rtl -> focusProperties.start
-        }.takeUnless { it == Default } ?: focusProperties.right
+        }.takeUnless { it === Default } ?: focusProperties.right
         // TODO(b/183746982): add focus order API for "In" and "Out".
         //  Developers can to specify a custom "In" to specify which child should be visited when
         //  the user presses dPad center. (They can also redirect the "In" to some other item).
@@ -92,7 +92,8 @@ internal fun FocusTargetModifierNode.customFocusSearch(
  * @param focusDirection The requested direction to move focus.
  * @param layoutDirection Whether the layout is RTL or LTR.
  * @param onFound This lambda is invoked if focus search finds the next focus node.
- * @return if no focus node is found, we return false. otherwise we return the result of [onFound].
+ * @return if no focus node is found, we return false. If we receive a cancel, we return null
+ * otherwise we return the result of [onFound].
  */
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun FocusTargetModifierNode.focusSearch(

@@ -17,6 +17,12 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
+import androidx.compose.ui.focus.CustomDestinationResult.None
+import androidx.compose.ui.focus.CustomDestinationResult.RedirectCancelled
+import androidx.compose.ui.focus.CustomDestinationResult.Redirected
+import androidx.compose.ui.focus.FocusDirection.Companion.Enter
+import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Captured
@@ -34,14 +40,22 @@ import androidx.compose.ui.node.observeReads
  */
 @ExperimentalComposeUiApi
 internal fun FocusTargetModifierNode.requestFocus(): Boolean {
-    check(node.isAttached)
-    val focusProperties = fetchFocusProperties()
-    // If the node is deactivated, we perform a moveFocus(Enter).
-    if (!focusProperties.canFocus) {
-        return findChildCorrespondingToFocusEnter(FocusDirection.Enter) {
-            it.requestFocus()
-        }
+    return when (performCustomRequestFocus(Enter)) {
+        None -> performRequestFocus()
+        Redirected -> true
+        Cancelled, RedirectCancelled -> false
     }
+}
+
+/**
+ * This function performs the request focus action.
+ *
+ * Note: Do not call this directly, consider using [requestFocus], which will check if any
+ * custom focus [enter][FocusProperties.enter] and [exit][FocusProperties.exit]
+ * [properties][FocusProperties] have been specified.
+ */
+@OptIn(ExperimentalComposeUiApi::class)
+internal fun FocusTargetModifierNode.performRequestFocus(): Boolean {
     when (focusStateImpl) {
         Active, Captured -> {
             // There is no change in focus state, but we send a focus event to notify the user
@@ -53,10 +67,10 @@ internal fun FocusTargetModifierNode.requestFocus(): Boolean {
             if (success) refreshFocusEventNodes()
         }
         Inactive -> return nearestAncestor(FocusTarget)
-                ?.requestFocusForChild(this)
-                ?: (requestFocusForOwner() && grantFocus()).also { success ->
-                    if (success) refreshFocusEventNodes()
-                }
+            ?.requestFocusForChild(this)
+            ?: (requestFocusForOwner() && grantFocus()).also { success ->
+                if (success) refreshFocusEventNodes()
+            }
     }
 }
 
@@ -165,9 +179,7 @@ private fun FocusTargetModifierNode.grantFocus(): Boolean {
 private fun FocusTargetModifierNode.clearChildFocus(
     forced: Boolean = false,
     refreshFocusEvents: Boolean = true
-): Boolean {
-    return activeChild?.clearFocus(forced, refreshFocusEvents) ?: true
-}
+): Boolean = activeChild?.clearFocus(forced, refreshFocusEvents) ?: true
 
 /**
  * Focusable children of this [focus node][FocusTargetModifierNode] can use this function to request
@@ -238,4 +250,61 @@ private fun FocusTargetModifierNode.requestFocusForChild(
 @OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetModifierNode.requestFocusForOwner(): Boolean {
     return coordinator?.layoutNode?.owner?.requestFocus() ?: error("Owner not initialized.")
+}
+
+internal enum class CustomDestinationResult { None, Cancelled, Redirected, RedirectCancelled }
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal fun FocusTargetModifierNode.performCustomRequestFocus(
+    focusDirection: FocusDirection
+): CustomDestinationResult {
+    when (focusStateImpl) {
+        Active, Captured -> return None
+        ActiveParent ->
+            return checkNotNull(activeChild).performCustomClearFocus(focusDirection)
+        Inactive -> {
+            val focusParent = nearestAncestor(FocusTarget) ?: return None
+            return when (focusParent.focusStateImpl) {
+                Captured -> Cancelled
+                ActiveParent -> focusParent.performCustomRequestFocus(focusDirection)
+                Active -> focusParent.performCustomEnter(focusDirection)
+                Inactive ->
+                    focusParent.performCustomRequestFocus(focusDirection).takeUnless { it == None }
+                        ?: focusParent.performCustomEnter(focusDirection)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal fun FocusTargetModifierNode.performCustomClearFocus(
+    focusDirection: FocusDirection
+): CustomDestinationResult = when (focusStateImpl) {
+    Active, Inactive -> None
+    Captured -> Cancelled
+    ActiveParent ->
+        checkNotNull(activeChild).performCustomClearFocus(focusDirection).takeUnless { it == None }
+            ?: performCustomExit(focusDirection)
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+private fun FocusTargetModifierNode.performCustomEnter(
+    focusDirection: FocusDirection
+): CustomDestinationResult {
+    fetchCustomEnter(focusDirection) {
+        if (it === Cancel) return Cancelled
+        return if (it.focus()) Redirected else RedirectCancelled
+    }
+    return None
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+private fun FocusTargetModifierNode.performCustomExit(
+    focusDirection: FocusDirection
+): CustomDestinationResult {
+    fetchCustomExit(focusDirection) {
+        if (it === Cancel) return Cancelled
+        return if (it.focus()) Redirected else RedirectCancelled
+    }
+    return None
 }
