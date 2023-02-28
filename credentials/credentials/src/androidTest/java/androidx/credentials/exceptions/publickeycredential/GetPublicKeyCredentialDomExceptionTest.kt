@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.credentials.exceptions.createpublickeycredential
+package androidx.credentials.exceptions.publickeycredential
 
 import androidx.credentials.exceptions.domerrors.AbortError
 import androidx.credentials.exceptions.domerrors.EncodingError
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
 import com.google.common.truth.Truth
 import org.junit.Test
 
-class CreatePublicKeyCredentialDomExceptionTest {
-    @Test(expected = CreatePublicKeyCredentialDomException::class)
+class GetPublicKeyCredentialDomExceptionTest {
+    @Test(expected = GetPublicKeyCredentialDomException::class)
     fun construct_inputNonEmpty_success() {
-        throw CreatePublicKeyCredentialDomException(
+        throw GetPublicKeyCredentialDomException(
             AbortError(), "msg"
         )
     }
@@ -35,10 +34,10 @@ class CreatePublicKeyCredentialDomExceptionTest {
         val expectedMessage = "msg"
         val expectedDomError = EncodingError()
         val expectedType =
-            CreatePublicKeyCredentialDomException.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
+            GetPublicKeyCredentialDomException.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
                 expectedDomError.type
 
-        val exception = CreatePublicKeyCredentialDomException(expectedDomError, expectedMessage)
+        val exception = GetPublicKeyCredentialDomException(expectedDomError, expectedMessage)
 
         Truth.assertThat(exception.type).isEqualTo(expectedType)
         Truth.assertThat(exception.errorMessage).isEqualTo(expectedMessage)
