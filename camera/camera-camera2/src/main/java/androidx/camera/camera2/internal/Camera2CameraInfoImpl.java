@@ -26,6 +26,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 
@@ -467,6 +468,19 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @Override
     public Quirks getCameraQuirks() {
         return mCameraQuirks;
+    }
+
+    @NonNull
+    @Override
+    public List<Range<Integer>> getSupportedFpsRanges() {
+        Range<Integer>[] availableTargetFpsRanges =
+                mCameraCharacteristicsCompat.get(
+                        CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
+        if (availableTargetFpsRanges != null) {
+            return Arrays.asList(availableTargetFpsRanges);
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     /**

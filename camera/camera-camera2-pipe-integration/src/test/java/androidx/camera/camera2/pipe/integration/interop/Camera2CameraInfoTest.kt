@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.interop
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
@@ -150,6 +151,10 @@ class Camera2CameraInfoTest {
             }
 
             override fun getCameraQuirks(): Quirks {
+                throw NotImplementedError("Not used in testing")
+            }
+
+            override fun getSupportedFpsRanges(): MutableList<Range<Int>> {
                 throw NotImplementedError("Not used in testing")
             }
 
