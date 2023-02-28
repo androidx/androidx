@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ClassVerificationFailureDetectorTest : AbstractLintDetectorTest(
     useDetector = ClassVerificationFailureDetector(),
-    useIssues = listOf(ClassVerificationFailureDetector.ISSUE),
+    useIssues = listOf(ClassVerificationFailureDetector.METHOD_CALL_ISSUE),
     stubs = arrayOf(
         // AndroidManifest with minSdkVersion=14
         manifest().minSdk(14),

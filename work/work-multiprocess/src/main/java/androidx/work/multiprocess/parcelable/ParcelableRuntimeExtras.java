@@ -26,7 +26,9 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.work.WorkerParameters;
 
@@ -34,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link androidx.work.WorkerParameters.RuntimeExtras}, but parcelable.
+ * {@link WorkerParameters.RuntimeExtras}, but parcelable.
  *
  * @hide
  */
@@ -116,7 +118,7 @@ public class ParcelableRuntimeExtras implements Parcelable {
         boolean hasNetwork = network != null;
         writeBooleanValue(parcel, hasNetwork);
         if (hasNetwork) {
-            parcel.writeParcelable(network, flags);
+            parcel.writeParcelable(Api21Impl.castToParcelable(network), flags);
         }
 
         List<Uri> triggeredContentUris = null;
@@ -147,5 +149,17 @@ public class ParcelableRuntimeExtras implements Parcelable {
     @NonNull
     public WorkerParameters.RuntimeExtras getRuntimeExtras() {
         return mRuntimeExtras;
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Parcelable castToParcelable(Network network) {
+            return network;
+        }
     }
 }

@@ -4430,7 +4430,8 @@ public class NotificationCompat {
 
                     // Write person to native notification
                     if (Build.VERSION.SDK_INT >= 28) {
-                        bundle.putParcelable(KEY_NOTIFICATION_PERSON, mPerson.toAndroidPerson());
+                        bundle.putParcelable(KEY_NOTIFICATION_PERSON,
+                                Api28Impl.castToParcelable(mPerson.toAndroidPerson()));
                     } else {
                         bundle.putBundle(KEY_PERSON, mPerson.toBundle());
                     }
@@ -4580,6 +4581,11 @@ public class NotificationCompat {
                 static Notification.MessagingStyle.Message createMessage(CharSequence text,
                         long timestamp, android.app.Person sender) {
                     return new Notification.MessagingStyle.Message(text, timestamp, sender);
+                }
+
+                @DoNotInline
+                static Parcelable castToParcelable(android.app.Person person) {
+                    return person;
                 }
             }
         }
@@ -4994,15 +5000,16 @@ public class NotificationCompat {
             extras.putBoolean(EXTRA_CALL_IS_VIDEO, mIsVideo);
             if (mPerson != null) {
                 if (Build.VERSION.SDK_INT >= 28) {
-                    extras.putParcelable(EXTRA_CALL_PERSON, mPerson.toAndroidPerson());
+                    extras.putParcelable(EXTRA_CALL_PERSON,
+                            Api28Impl.castToParcelable(mPerson.toAndroidPerson()));
                 } else {
                     extras.putParcelable(EXTRA_CALL_PERSON_COMPAT, mPerson.toBundle());
                 }
             }
             if (mVerificationIcon != null) {
                 if (Build.VERSION.SDK_INT >= 23) {
-                    extras.putParcelable(EXTRA_VERIFICATION_ICON, mVerificationIcon.toIcon(
-                            mBuilder.mContext));
+                    extras.putParcelable(EXTRA_VERIFICATION_ICON, Api23Impl.castToParcelable(
+                            mVerificationIcon.toIcon(mBuilder.mContext)));
                 } else {
                     extras.putParcelable(EXTRA_VERIFICATION_ICON_COMPAT,
                             mVerificationIcon.toBundle());
@@ -5415,10 +5422,15 @@ public class NotificationCompat {
 
             @DoNotInline
             static Notification.Action.Builder createActionBuilder(
-                    android.graphics.drawable.Icon icon,
+                    Icon icon,
                     CharSequence title,
-                    android.app.PendingIntent intent) {
+                    PendingIntent intent) {
                 return new Notification.Action.Builder(icon, title, intent);
+            }
+
+            @DoNotInline
+            static Parcelable castToParcelable(Icon icon) {
+                return icon;
             }
         }
 
@@ -5461,6 +5473,11 @@ public class NotificationCompat {
             static Notification.Builder addPerson(Notification.Builder builder,
                     android.app.Person person) {
                 return builder.addPerson(person);
+            }
+
+            @DoNotInline
+            static Parcelable castToParcelable(android.app.Person person) {
+                return person;
             }
         }
 
@@ -8106,7 +8123,7 @@ public class NotificationCompat {
                 Api20Impl.addExtras(builder, remoteInputCompat.getExtras());
 
                 android.app.RemoteInput remoteInput = Api20Impl.build(builder);
-                b.putParcelable(KEY_REMOTE_INPUT, remoteInput);
+                b.putParcelable(KEY_REMOTE_INPUT, Api20Impl.castToParcelable(remoteInput));
             }
             b.putParcelable(KEY_ON_REPLY, uc.getReplyPendingIntent());
             b.putParcelable(KEY_ON_READ, uc.getReadPendingIntent());
@@ -8462,8 +8479,13 @@ public class NotificationCompat {
 
             @DoNotInline
             static android.app.RemoteInput.Builder addExtras(
-                    android.app.RemoteInput.Builder builder, android.os.Bundle extras) {
+                    android.app.RemoteInput.Builder builder, Bundle extras) {
                 return builder.addExtras(extras);
+            }
+
+            @DoNotInline
+            static Parcelable castToParcelable(android.app.RemoteInput remoteInput) {
+                return remoteInput;
             }
         }
 
