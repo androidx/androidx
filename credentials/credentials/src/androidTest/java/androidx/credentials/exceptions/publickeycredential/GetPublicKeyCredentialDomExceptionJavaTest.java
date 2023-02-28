@@ -14,36 +14,35 @@
  * limitations under the License.
  */
 
-package androidx.credentials.exceptions.createpublickeycredential;
+package androidx.credentials.exceptions.publickeycredential;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.credentials.exceptions.domerrors.AbortError;
 import androidx.credentials.exceptions.domerrors.DomError;
 import androidx.credentials.exceptions.domerrors.EncodingError;
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException;
 
 import org.junit.Test;
 
-public class CreatePublicKeyCredentialDomExceptionJavaTest {
+public class GetPublicKeyCredentialDomExceptionJavaTest {
 
-    @Test(expected = CreatePublicKeyCredentialDomException.class)
+    @Test(expected = GetPublicKeyCredentialDomException.class)
     public void construct_inputNonEmpty_success() throws
-            CreatePublicKeyCredentialDomException {
-        throw new CreatePublicKeyCredentialDomException(
+            GetPublicKeyCredentialDomException {
+        throw new GetPublicKeyCredentialDomException(
                 new AbortError(), "msg");
     }
 
-    @Test(expected = CreatePublicKeyCredentialDomException.class)
+    @Test(expected = GetPublicKeyCredentialDomException.class)
     public void construct_errorMessageNull_success() throws
-            CreatePublicKeyCredentialDomException {
-        throw new CreatePublicKeyCredentialDomException(new
+            GetPublicKeyCredentialDomException {
+        throw new GetPublicKeyCredentialDomException(new
                 AbortError(), null);
     }
 
     @Test(expected = NullPointerException.class)
-    public void construct_errorNull_failure() throws CreatePublicKeyCredentialDomException {
-        throw new CreatePublicKeyCredentialDomException(null, "msg");
+    public void construct_errorNull_failure() throws GetPublicKeyCredentialDomException {
+        throw new GetPublicKeyCredentialDomException(null, "msg");
     }
 
     @Test
@@ -51,12 +50,12 @@ public class CreatePublicKeyCredentialDomExceptionJavaTest {
         String expectedMessage = "msg";
         DomError expectedDomError = new EncodingError();
         String expectedType =
-                CreatePublicKeyCredentialDomException
-                        .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION
+                GetPublicKeyCredentialDomException
+                        .TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION
                         + expectedDomError.getType();
 
-        CreatePublicKeyCredentialDomException exception = new
-                CreatePublicKeyCredentialDomException(expectedDomError, expectedMessage);
+        GetPublicKeyCredentialDomException exception = new
+                GetPublicKeyCredentialDomException(expectedDomError, expectedMessage);
 
         assertThat(exception.getType()).isEqualTo(expectedType);
         assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);

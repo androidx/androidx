@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.credentials.exceptions.createpublickeycredential;
+package androidx.credentials.exceptions.publickeycredential;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -27,34 +26,34 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class CreatePublicKeyCredentialExceptionJavaTest {
+public class GetPublicKeyCredentialExceptionJavaTest {
 
-    @Test(expected = CreatePublicKeyCredentialException.class)
-    public void construct_inputsNonEmpty_success() throws CreatePublicKeyCredentialException {
-        throw new CreatePublicKeyCredentialException("type", "msg");
+    @Test(expected = GetPublicKeyCredentialException.class)
+    public void construct_inputsNonEmpty_success() throws GetPublicKeyCredentialException {
+        throw new GetPublicKeyCredentialException("type", "msg");
     }
 
-    @Test(expected = CreatePublicKeyCredentialException.class)
-    public void construct_errorMessageNull_success() throws CreatePublicKeyCredentialException {
-        throw new CreatePublicKeyCredentialException("type", null);
+    @Test(expected = GetPublicKeyCredentialException.class)
+    public void construct_errorMessageNull_success() throws GetPublicKeyCredentialException {
+        throw new GetPublicKeyCredentialException("type", null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void construct_typeEmpty_throws() throws CreatePublicKeyCredentialException {
-        throw new CreatePublicKeyCredentialException("", "msg");
+    public void construct_typeEmpty_throws() throws GetPublicKeyCredentialException {
+        throw new GetPublicKeyCredentialException("", "msg");
     }
 
     @Test(expected = NullPointerException.class)
-    public void construct_typeNull_throws() throws CreatePublicKeyCredentialException {
-        throw new CreatePublicKeyCredentialException(null, "msg");
+    public void construct_typeNull_throws() throws GetPublicKeyCredentialException {
+        throw new GetPublicKeyCredentialException(null, "msg");
     }
 
     @Test
     public void getter_success() {
         String expectedType = "type";
         String expectedMessage = "message";
-        CreatePublicKeyCredentialException exception = new
-                CreatePublicKeyCredentialException(expectedType , expectedMessage);
+        GetPublicKeyCredentialException exception = new
+                GetPublicKeyCredentialException(expectedType , expectedMessage);
         assertThat(exception.getType()).isEqualTo(expectedType);
         assertThat(exception.getErrorMessage()).isEqualTo(expectedMessage);
     }
