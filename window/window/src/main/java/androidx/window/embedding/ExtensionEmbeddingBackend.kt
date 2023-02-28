@@ -316,15 +316,18 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     }
 
     override val splitSupportStatus: SplitController.SplitSupportStatus by lazy {
-        if (!areExtensionsAvailable()) {
-            SplitController.SplitSupportStatus.SPLIT_UNAVAILABLE
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            isSplitPropertyEnabled(applicationContext)
-        } else {
-            // The PackageManager#getProperty API is not supported before S, assuming
-            // the property is enabled to keep the same behavior on earlier platforms.
-            SplitController.SplitSupportStatus.SPLIT_AVAILABLE
+        when {
+            !areExtensionsAvailable() -> {
+                SplitController.SplitSupportStatus.SPLIT_UNAVAILABLE
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                isSplitPropertyEnabled(applicationContext)
+            }
+            else -> {
+                // The PackageManager#getProperty API is not supported before S, assuming
+                // the property is enabled to keep the same behavior on earlier platforms.
+                SplitController.SplitSupportStatus.SPLIT_AVAILABLE
+            }
         }
     }
 
