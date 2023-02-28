@@ -44,6 +44,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +58,12 @@ import java.util.concurrent.Executor;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeCameraInfoInternal implements CameraInfoInternal {
+    private static final List<Range<Integer>> FAKE_FPS_RANGES = Collections.unmodifiableList(
+            Arrays.asList(
+                    new Range<>(12, 30),
+                    new Range<>(30, 30),
+                    new Range<>(60, 60))
+    );
     private final String mCameraId;
     private final int mSensorRotation;
     @CameraSelector.LensFacing
@@ -206,6 +213,12 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @Override
     public Quirks getCameraQuirks() {
         return new Quirks(mCameraQuirks);
+    }
+
+    @NonNull
+    @Override
+    public List<Range<Integer>> getSupportedFpsRanges() {
+        return FAKE_FPS_RANGES;
     }
 
     @Override

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.os.Build
+import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
@@ -62,6 +63,20 @@ class CameraInfoAdapterTest {
             Size(1920, 1080),
             Size(1280, 720),
             Size(640, 480)
+        )
+    }
+
+    @Test
+    fun getSupportedFpsRanges() {
+        // Act.
+        val ranges: List<Range<Int>> = cameraInfoAdapter.supportedFpsRanges
+
+        // Assert.
+        assertThat(ranges).containsExactly(
+            Range(12, 30),
+            Range(24, 24),
+            Range(30, 30),
+            Range(60, 60)
         )
     }
 

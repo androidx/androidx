@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.testing
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.StreamConfigurationMap
+import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlStateAdapter
@@ -65,7 +66,13 @@ object FakeCameraInfoAdapterCreator {
 
     private val cameraCharacteristics = mapOf(
         CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to streamConfigurationMap,
-        CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 640, 480)
+        CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 640, 480),
+        CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES to arrayOf(
+            Range(12, 30),
+            Range(24, 24),
+            Range(30, 30),
+            Range(60, 60)
+        )
     )
 
     private val zoomControl = ZoomControl(useCaseThreads, FakeZoomCompat())
