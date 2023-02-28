@@ -1131,8 +1131,11 @@ public class ViewCompat {
     @Nullable
     public static ContentCaptureSessionCompat getContentCaptureSession(@NonNull View v) {
         if (Build.VERSION.SDK_INT >= 29) {
-            return ContentCaptureSessionCompat.toContentCaptureSessionCompat(
-                    Api29Impl.getContentCaptureSession(v), v);
+            ContentCaptureSession session = Api29Impl.getContentCaptureSession(v);
+            if (session == null) {
+                return null;
+            }
+            return ContentCaptureSessionCompat.toContentCaptureSessionCompat(session, v);
         }
         return null;
     }

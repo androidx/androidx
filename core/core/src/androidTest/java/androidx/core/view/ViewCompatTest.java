@@ -385,6 +385,13 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
 
     @SdkSuppress(minSdkVersion = 29)
     @Test
+    public void testGetContentCaptureSession_returnsNullWhenSessionNotSetAboveSDK29() {
+        Object result = ViewCompat.getContentCaptureSession(mView);
+        assertNull(result);
+    }
+
+    @SdkSuppress(minSdkVersion = 29)
+    @Test
     public void testSetContentCaptureSession_successAboveSDK29() {
         ContentCaptureSession contentCaptureSession = mock(ContentCaptureSession.class);
         ViewCompat.setContentCaptureSession(mView,
