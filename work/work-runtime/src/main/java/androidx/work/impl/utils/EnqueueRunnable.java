@@ -25,6 +25,7 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
+import static androidx.work.impl.utils.EnqueueUtilsKt.checkContentUriTriggerWorkerLimits;
 import static androidx.work.impl.utils.EnqueueUtilsKt.wrapInConstraintTrackingWorkerIfNeeded;
 
 import android.content.Context;
@@ -118,6 +119,8 @@ public class EnqueueRunnable implements Runnable {
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
         workDatabase.beginTransaction();
         try {
+            checkContentUriTriggerWorkerLimits(workDatabase,
+                    workManagerImpl.getConfiguration(), mWorkContinuation);
             boolean needsScheduling = processContinuation(mWorkContinuation);
             workDatabase.setTransactionSuccessful();
             return needsScheduling;

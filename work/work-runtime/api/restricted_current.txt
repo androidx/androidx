@@ -14,6 +14,7 @@ package androidx.work {
   }
 
   public final class Configuration {
+    method public int getContentUriTriggerWorkersLimit();
     method public String? getDefaultProcessName();
     method public java.util.concurrent.Executor getExecutor();
     method public androidx.core.util.Consumer<java.lang.Throwable>? getInitializationExceptionHandler();
@@ -24,6 +25,7 @@ package androidx.work {
     method public androidx.core.util.Consumer<java.lang.Throwable>? getSchedulingExceptionHandler();
     method public java.util.concurrent.Executor getTaskExecutor();
     method public androidx.work.WorkerFactory getWorkerFactory();
+    property public final int contentUriTriggerWorkersLimit;
     property public final String? defaultProcessName;
     property public final java.util.concurrent.Executor executor;
     property public final androidx.core.util.Consumer<java.lang.Throwable>? initializationExceptionHandler;
@@ -41,6 +43,7 @@ package androidx.work {
   public static final class Configuration.Builder {
     ctor public Configuration.Builder();
     method public androidx.work.Configuration build();
+    method public androidx.work.Configuration.Builder setContentUriTriggerWorkersLimit(int contentUriTriggerWorkersLimit);
     method public androidx.work.Configuration.Builder setDefaultProcessName(String processName);
     method public androidx.work.Configuration.Builder setExecutor(java.util.concurrent.Executor executor);
     method public androidx.work.Configuration.Builder setInitializationExceptionHandler(androidx.core.util.Consumer<java.lang.Throwable> exceptionHandler);
