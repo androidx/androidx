@@ -232,7 +232,8 @@ private class FakeSavedStateRegistryOwner : SavedStateRegistryOwner {
     val lifecycleRegistry = LifecycleRegistry(this)
     val savedStateRegistryController = SavedStateRegistryController.create(this)
 
-    override fun getLifecycle() = lifecycleRegistry
+    override val lifecycle
+        get() = lifecycleRegistry
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
 }

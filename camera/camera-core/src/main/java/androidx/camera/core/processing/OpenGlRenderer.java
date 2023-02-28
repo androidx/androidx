@@ -33,6 +33,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
@@ -100,9 +101,12 @@ public final class OpenGlRenderer {
 
     private static final int SIZEOF_FLOAT = 4;
     private static final int TEX_TARGET = GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
+    private static final OutputSurface NO_OUTPUT_SURFACE =
+            OutputSurface.of(EGL14.EGL_NO_SURFACE, 0, 0);
 
     private final AtomicBoolean mInitialized = new AtomicBoolean(false);
-    private final Map<Surface, OutputSurface> mOutputSurfaceMap = new HashMap<>();
+    @VisibleForTesting
+    final Map<Surface, OutputSurface> mOutputSurfaceMap = new HashMap<>();
     @Nullable
     private Thread mGlThread;
     @NonNull
@@ -114,7 +118,7 @@ public final class OpenGlRenderer {
     @NonNull
     private EGLSurface mTempSurface = EGL14.EGL_NO_SURFACE;
     @Nullable
-    private OutputSurface mCurrentOutputSurface;
+    private Surface mCurrentSurface;
     private int mTexId = -1;
     private int mProgramHandle = -1;
     private int mTexMatrixLoc = -1;
@@ -165,28 +169,31 @@ public final class OpenGlRenderer {
     }
 
     /**
-     * Set the output surface.
+     * Register the output surface.
      *
      * @throws IllegalStateException if the renderer is not initialized or the caller doesn't run
      * on the GL thread.
      */
-    public void setOutputSurface(@NonNull Surface surface) {
+    public void registerOutputSurface(@NonNull Surface surface) {
         checkInitializedOrThrow(true);
         checkGlThreadOrThrow();
 
         if (!mOutputSurfaceMap.containsKey(surface)) {
-            EGLSurface eglSurface = createWindowSurface(mEglDisplay, requireNonNull(mEglConfig),
-                    surface);
-            Size size = getSurfaceSize(eglSurface);
-            mOutputSurfaceMap.put(surface, OutputSurface.of(eglSurface, size.getWidth(),
-                    size.getHeight()));
+            mOutputSurfaceMap.put(surface, NO_OUTPUT_SURFACE);
         }
-        mCurrentOutputSurface = requireNonNull(mOutputSurfaceMap.get(surface));
-        makeCurrent(mCurrentOutputSurface.getEglSurface());
+    }
 
-        GLES20.glViewport(0, 0, mCurrentOutputSurface.getWidth(),
-                mCurrentOutputSurface.getHeight());
-        GLES20.glScissor(0, 0, mCurrentOutputSurface.getWidth(), mCurrentOutputSurface.getHeight());
+    /**
+     * Unregister the output surface.
+     *
+     * @throws IllegalStateException if the renderer is not initialized or the caller doesn't run
+     * on the GL thread.
+     */
+    public void unregisterOutputSurface(@NonNull Surface surface) {
+        checkInitializedOrThrow(true);
+        checkGlThreadOrThrow();
+
+        removeOutputSurfaceInternal(surface, true);
     }
 
     /**
@@ -206,15 +213,32 @@ public final class OpenGlRenderer {
     /**
      * Renders the texture image to the output surface.
      *
-     * @throws IllegalStateException if the renderer is not initialized or the caller doesn't run
-     * on the GL thread.
+     * @throws IllegalStateException if the renderer is not initialized, the caller doesn't run
+     * on the GL thread or the surface is not registered by {@link #registerOutputSurface(Surface)}.
      */
-    public void render(long timestampNs, @NonNull float[] textureTransform) {
+    public void render(long timestampNs, @NonNull float[] textureTransform,
+            @NonNull Surface surface) {
         checkInitializedOrThrow(true);
         checkGlThreadOrThrow();
 
-        if (mCurrentOutputSurface == null) {
-            return;
+        OutputSurface outputSurface = getOutSurfaceOrThrow(surface);
+
+        // Workaround situations that out surface is failed to create or needs to be recreated.
+        if (outputSurface == NO_OUTPUT_SURFACE) {
+            outputSurface = createOutputSurfaceInternal(surface);
+            if (outputSurface == null) {
+                return;
+            }
+
+            mOutputSurfaceMap.put(surface, outputSurface);
+        }
+
+        // Set output surface.
+        if (surface != mCurrentSurface) {
+            makeCurrent(outputSurface.getEglSurface());
+            mCurrentSurface = surface;
+            GLES20.glViewport(0, 0, outputSurface.getWidth(), outputSurface.getHeight());
+            GLES20.glScissor(0, 0, outputSurface.getWidth(), outputSurface.getHeight());
         }
 
         // Select the program.
@@ -265,13 +289,13 @@ public final class OpenGlRenderer {
         GLES20.glBindTexture(TEX_TARGET, 0);
 
         // Set timestamp
-        EGLExt.eglPresentationTimeANDROID(mEglDisplay, mCurrentOutputSurface.getEglSurface(),
-                timestampNs);
+        EGLExt.eglPresentationTimeANDROID(mEglDisplay, outputSurface.getEglSurface(), timestampNs);
 
         // Swap buffer
-        if (!EGL14.eglSwapBuffers(mEglDisplay, mCurrentOutputSurface.getEglSurface())) {
+        if (!EGL14.eglSwapBuffers(mEglDisplay, outputSurface.getEglSurface())) {
             Logger.w(TAG, "Failed to swap buffers with EGL error: 0x" + Integer.toHexString(
                     EGL14.eglGetError()));
+            removeOutputSurfaceInternal(surface, false);
         }
     }
 
@@ -433,28 +457,32 @@ public final class OpenGlRenderer {
             mProgramHandle = -1;
         }
 
-        // Destroy EGLSurfaces
-        for (OutputSurface outputSurface : mOutputSurfaceMap.values()) {
-            EGL14.eglDestroySurface(mEglDisplay, outputSurface.getEglSurface());
-        }
-        mOutputSurfaceMap.clear();
-
-        // Destroy temp surface
-        if (!Objects.equals(mTempSurface, EGL14.EGL_NO_SURFACE)) {
-            EGL14.eglDestroySurface(mEglDisplay, mTempSurface);
-            mTempSurface = EGL14.EGL_NO_SURFACE;
-        }
-
-        // Destroy EGLContext and terminate display
         if (!Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY)) {
+            EGL14.eglMakeCurrent(mEglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE,
+                    EGL14.EGL_NO_CONTEXT);
+
+            // Destroy EGLSurfaces
+            for (OutputSurface outputSurface : mOutputSurfaceMap.values()) {
+                if (!Objects.equals(outputSurface.getEglSurface(), EGL14.EGL_NO_SURFACE)) {
+                    if (!EGL14.eglDestroySurface(mEglDisplay, outputSurface.getEglSurface())) {
+                        checkEglErrorOrLog("eglDestroySurface");
+                    }
+                }
+            }
+            mOutputSurfaceMap.clear();
+
+            // Destroy temp surface
+            if (!Objects.equals(mTempSurface, EGL14.EGL_NO_SURFACE)) {
+                EGL14.eglDestroySurface(mEglDisplay, mTempSurface);
+                mTempSurface = EGL14.EGL_NO_SURFACE;
+            }
+
+            // Destroy EGLContext and terminate display
             if (!Objects.equals(mEglContext, EGL14.EGL_NO_CONTEXT)) {
-                // Ignore the result of eglMakeCurrent with EGL_NO_SURFACE because it returns false
-                // on some devices.
-                EGL14.eglMakeCurrent(mEglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE,
-                        mEglContext);
                 EGL14.eglDestroyContext(mEglDisplay, mEglContext);
                 mEglContext = EGL14.EGL_NO_CONTEXT;
             }
+            EGL14.eglReleaseThread();
             EGL14.eglTerminate(mEglDisplay);
             mEglDisplay = EGL14.EGL_NO_DISPLAY;
         }
@@ -466,7 +494,7 @@ public final class OpenGlRenderer {
         mPositionLoc = -1;
         mTexCoordLoc = -1;
         mTexId = -1;
-        mCurrentOutputSurface = null;
+        mCurrentSurface = null;
         mGlThread = null;
     }
 
@@ -480,6 +508,14 @@ public final class OpenGlRenderer {
     private void checkGlThreadOrThrow() {
         Preconditions.checkState(mGlThread == Thread.currentThread(),
                 "Method call must be called on the GL thread.");
+    }
+
+    @NonNull
+    private OutputSurface getOutSurfaceOrThrow(@NonNull Surface surface) {
+        Preconditions.checkState(mOutputSurfaceMap.containsKey(surface),
+                "The surface is not registered.");
+
+        return requireNonNull(mOutputSurfaceMap.get(surface));
     }
 
     @SuppressWarnings("SameParameterValue") // currently hard code width/height with 1/1
@@ -498,6 +534,45 @@ public final class OpenGlRenderer {
             throw new IllegalStateException("surface was null");
         }
         return eglSurface;
+    }
+
+    @Nullable
+    private OutputSurface createOutputSurfaceInternal(@NonNull Surface surface) {
+        EGLSurface eglSurface;
+        try {
+            eglSurface = createWindowSurface(mEglDisplay, requireNonNull(mEglConfig), surface);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            Logger.w(TAG, "Failed to create EGL surface: " + e.getMessage(), e);
+            return null;
+        }
+
+        Size size = getSurfaceSize(eglSurface);
+        return OutputSurface.of(eglSurface, size.getWidth(), size.getHeight());
+    }
+
+    private void removeOutputSurfaceInternal(@NonNull Surface surface, boolean unregister) {
+        // Unmake current surface.
+        if (mCurrentSurface == surface) {
+            mCurrentSurface = null;
+            makeCurrent(mTempSurface);
+        }
+
+        // Remove cached EGL surface.
+        OutputSurface removedOutputSurface;
+        if (unregister) {
+            removedOutputSurface = mOutputSurfaceMap.remove(surface);
+        } else {
+            removedOutputSurface = mOutputSurfaceMap.put(surface, NO_OUTPUT_SURFACE);
+        }
+
+        // Destroy EGL surface.
+        if (removedOutputSurface != null && removedOutputSurface != NO_OUTPUT_SURFACE) {
+            try {
+                EGL14.eglDestroySurface(mEglDisplay, removedOutputSurface.getEglSurface());
+            } catch (RuntimeException e) {
+                Logger.w(TAG, "Failed to destroy EGL surface: " + e.getMessage(), e);
+            }
+        }
     }
 
     @NonNull
@@ -560,6 +635,14 @@ public final class OpenGlRenderer {
         int error = EGL14.eglGetError();
         if (error != EGL14.EGL_SUCCESS) {
             throw new IllegalStateException(op + ": EGL error: 0x" + Integer.toHexString(error));
+        }
+    }
+
+    private static void checkEglErrorOrLog(@NonNull String op) {
+        try {
+            checkEglErrorOrThrow(op);
+        } catch (IllegalStateException e) {
+            Logger.e(TAG, e.getMessage(), e);
         }
     }
 

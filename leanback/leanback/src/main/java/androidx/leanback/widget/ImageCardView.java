@@ -43,7 +43,7 @@ import androidx.leanback.R;
  * No matter what way you use, all your styles applied to an ImageCardView have to extend the style
  * {@link R.style#Widget_Leanback_ImageCardViewStyle}.
  * <p>
- * <u>Example:</u><br>
+ * <b>Example:</b><br>
  *
  * <pre>
  * {@code
@@ -69,7 +69,7 @@ import androidx.leanback.R;
  * You can do this by using a the {@link #ImageCardView(Context)} constructor and passing a
  * ContextThemeWrapper with the custom ImageCardView theme id.
  * <p>
- * <u>Example (using constructor):</u><br>
+ * <b>Example (using constructor):</b><br>
  *
  * <pre>
  * {@code
@@ -94,7 +94,7 @@ import androidx.leanback.R;
  * You can combine the following values:
  * <code>Title, Content, IconOnRight, IconOnLeft, ImageOnly</code>.
  * <p>
- * <u>Examples:</u><br>
+ * <b>Examples:</b><br>
  *
  * <pre>
  * {@code <style name="CustomImageCardViewStyle" parent="Widget.Leanback.ImageCardViewStyle">

@@ -63,16 +63,15 @@ class EvCompControl @Inject constructor(
         get() = _useCaseCamera
         set(value) {
             _useCaseCamera = value
-            updateAsync(evCompIndex)
+            updateAsync(evCompIndex, cancelPreviousTask = false)
         }
 
     override fun reset() {
-        evCompIndex = 0
-        compat.stopRunningTask()
-        updateAsync(0)
+        evCompIndex = DEFAULT_EXPOSURE_COMPENSATION
+        updateAsync(DEFAULT_EXPOSURE_COMPENSATION)
     }
 
-    fun updateAsync(exposureIndex: Int): Deferred<Int> {
+    fun updateAsync(exposureIndex: Int, cancelPreviousTask: Boolean = true): Deferred<Int> {
         if (!compat.supported) {
             return createFailureResult(
                 IllegalArgumentException("ExposureCompensation is not supported")
@@ -88,12 +87,15 @@ class EvCompControl @Inject constructor(
             )
         }
 
-        useCaseCamera?.let {
+        return useCaseCamera?.let { camera ->
             evCompIndex = exposureIndex
-            return compat.applyAsync(exposureIndex, it)
-        } ?: return createFailureResult(
-            CameraControl.OperationCanceledException("Camera is not active.")
-        )
+            compat.applyAsync(exposureIndex, camera, cancelPreviousTask)
+        } ?: run {
+            CameraControl.OperationCanceledException("Camera is not active.").let { cancelResult ->
+                compat.stopRunningTask(cancelResult)
+                createFailureResult(cancelResult)
+            }
+        }
     }
 
     private fun createFailureResult(exception: Exception) = CompletableDeferred<Int>().apply {

@@ -58,42 +58,51 @@ public interface CameraDeviceSurfaceManager {
      * Check whether the input surface configuration list is under the capability of any combination
      * of this object.
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param cameraId          the camera id of the camera device to be compared
      * @param surfaceConfigList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
-    boolean checkSupported(@NonNull String cameraId,
+    boolean checkSupported(
+            boolean isConcurrentCameraModeOn,
+            @NonNull String cameraId,
             @Nullable List<SurfaceConfig> surfaceConfigList);
 
     /**
      * Transform to a SurfaceConfig object with cameraId, image format and size info
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param cameraId    the camera id of the camera device to transform the object
      * @param imageFormat the image format info for the surface configuration object
      * @param size        the size info for the surface configuration object
      * @return new {@link SurfaceConfig} object
      */
     @Nullable
-    SurfaceConfig transformSurfaceConfig(@NonNull String cameraId, int imageFormat,
+    SurfaceConfig transformSurfaceConfig(
+            boolean isConcurrentCameraModeOn,
+            @NonNull String cameraId,
+            int imageFormat,
             @NonNull Size size);
 
     /**
-     * Retrieves a map of suggested resolutions for the given list of use cases.
+     * Retrieves a map of suggested stream specifications for the given list of use cases.
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param cameraId          the camera id of the camera device used by the use cases
      * @param existingSurfaces  list of surfaces already configured and used by the camera. The
-     *                          resolutions for these surface can not change.
+     *                          stream specifications for these surface can not change.
      * @param newUseCaseConfigs list of configurations of the use cases that will be given a
-     *                          suggested resolution
-     * @return map of suggested resolutions for given use cases
-     *
+     *                          suggested stream specification
+     * @return map of suggested stream specifications for given use cases
      * @throws IllegalStateException    if not initialized
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
-     *      there isn't a supported combination of surfaces available, or if the {@code cameraId}
-     *      is not a valid id.
+     *                                  there isn't a supported combination of surfaces
+     *                                  available, or if the {@code cameraId}
+     *                                  is not a valid id.
      */
     @NonNull
-    Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
+    Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
+            boolean isConcurrentCameraModeOn,
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs);

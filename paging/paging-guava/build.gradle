@@ -41,7 +41,6 @@ dependencies {
 androidx {
     name = "Android Paging Guava"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2019"
     description = "Android Paging Guava"
     legacyDisableKotlinStrictApiMode = true

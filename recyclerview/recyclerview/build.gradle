@@ -12,6 +12,7 @@ dependencies {
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.customview:customview:1.0.0")
     implementation("androidx.customview:customview-poolingcontainer:1.0.0")
+    implementation("androidx.profileinstaller:profileinstaller:1.2.1")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -31,7 +32,7 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
 
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
     testImplementation(libs.kotlinStdlib)
     lintPublish(project(":recyclerview:recyclerview-lint"))
 }
@@ -57,7 +58,6 @@ androidx {
     name = "Android Support RecyclerView"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.RECYCLERVIEW
-    mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2014"
     description = "Android Support RecyclerView"
     failOnDeprecationWarnings = false

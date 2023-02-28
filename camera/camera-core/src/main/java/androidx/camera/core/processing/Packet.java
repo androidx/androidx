@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.media.Image;
 import android.os.Build;
 import android.util.Size;
 
@@ -32,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.impl.utils.TransformUtils;
 
@@ -123,6 +125,13 @@ public abstract class Packet<T> {
     @NonNull
     public abstract Matrix getSensorToBufferTransform();
 
+
+    /**
+     * Gets the {@link CameraCaptureResult} associated with this frame.
+     */
+    @NonNull
+    public abstract CameraCaptureResult getCameraCaptureResult();
+
     /**
      * Returns true if the {@link Packet} needs cropping.
      */
@@ -135,10 +144,11 @@ public abstract class Packet<T> {
      */
     @NonNull
     public static Packet<Bitmap> of(@NonNull Bitmap data, @NonNull Exif exif,
-            @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
+            @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform,
+            @NonNull CameraCaptureResult cameraCaptureResult) {
         return new AutoValue_Packet<>(data, exif, ImageFormat.FLEX_RGBA_8888,
                 new Size(data.getWidth(), data.getHeight()),
-                cropRect, rotationDegrees, sensorToBufferTransform);
+                cropRect, rotationDegrees, sensorToBufferTransform, cameraCaptureResult);
     }
 
     /**
@@ -146,13 +156,29 @@ public abstract class Packet<T> {
      */
     @NonNull
     public static Packet<ImageProxy> of(@NonNull ImageProxy data, @Nullable Exif exif,
-            @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
+            @NonNull Rect cropRect, int rotationDegrees, @NonNull Matrix sensorToBufferTransform,
+            @NonNull CameraCaptureResult cameraCaptureResult) {
+        return of(data, exif, new Size(data.getWidth(), data.getHeight()), cropRect,
+                rotationDegrees, sensorToBufferTransform, cameraCaptureResult);
+    }
+
+    /**
+     * Creates {@link ImageProxy} based {@link Packet} with overridden image size.
+     *
+     * <p>When the image is rotated in the HAL, the size of the {@link Image} class do not
+     * match the image content. We might need to override it with the correct value. The size of
+     * the {@link Image} class always matches the {@link android.view.Surface} size.
+     */
+    @NonNull
+    public static Packet<ImageProxy> of(@NonNull ImageProxy data, @Nullable Exif exif,
+            @NonNull Size size, @NonNull Rect cropRect, int rotationDegrees,
+            @NonNull Matrix sensorToBufferTransform,
+            @NonNull CameraCaptureResult cameraCaptureResult) {
         if (data.getFormat() == JPEG) {
             checkNotNull(exif, "JPEG image must have Exif.");
         }
-        return new AutoValue_Packet<>(data, exif, data.getFormat(),
-                new Size(data.getWidth(), data.getHeight()), cropRect, rotationDegrees,
-                sensorToBufferTransform);
+        return new AutoValue_Packet<>(data, exif, data.getFormat(), size, cropRect, rotationDegrees,
+                sensorToBufferTransform, cameraCaptureResult);
     }
 
     /**
@@ -161,8 +187,9 @@ public abstract class Packet<T> {
     @NonNull
     public static Packet<byte[]> of(@NonNull byte[] data, @NonNull Exif exif,
             int format, @NonNull Size size, @NonNull Rect cropRect,
-            int rotationDegrees, @NonNull Matrix sensorToBufferTransform) {
+            int rotationDegrees, @NonNull Matrix sensorToBufferTransform,
+            @NonNull CameraCaptureResult cameraCaptureResult) {
         return new AutoValue_Packet<>(data, exif, format, size, cropRect,
-                rotationDegrees, sensorToBufferTransform);
+                rotationDegrees, sensorToBufferTransform, cameraCaptureResult);
     }
 }

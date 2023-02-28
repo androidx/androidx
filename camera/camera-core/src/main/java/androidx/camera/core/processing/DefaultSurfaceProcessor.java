@@ -16,6 +16,10 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+import static androidx.core.util.Preconditions.checkState;
+
+import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -30,6 +34,7 @@ import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Supplier;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -65,7 +70,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
     private int mInputSurfaceCount = 0;
 
     /** Constructs {@link DefaultSurfaceProcessor} with default shaders. */
-    public DefaultSurfaceProcessor() {
+    DefaultSurfaceProcessor() {
         this(ShaderProvider.DEFAULT);
     }
 
@@ -75,7 +80,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
      * @param shaderProvider custom shader provider for OpenGL rendering.
      * @throws IllegalArgumentException if the shaderProvider provides invalid shader.
      */
-    public DefaultSurfaceProcessor(@NonNull ShaderProvider shaderProvider) {
+    DefaultSurfaceProcessor(@NonNull ShaderProvider shaderProvider) {
         mGlThread = new HandlerThread("GL Thread");
         mGlThread.start();
         mGlHandler = new Handler(mGlThread.getLooper());
@@ -124,12 +129,17 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             surfaceOutput.close();
             return;
         }
-        mGlExecutor.execute(() ->
-                mOutputSurfaces.put(surfaceOutput, surfaceOutput.getSurface(mGlExecutor, event -> {
-                    surfaceOutput.close();
-                    mOutputSurfaces.remove(surfaceOutput);
-                }))
-        );
+        mGlExecutor.execute(() -> {
+            Surface surface = surfaceOutput.getSurface(mGlExecutor, event -> {
+                surfaceOutput.close();
+                Surface removedSurface = mOutputSurfaces.remove(surfaceOutput);
+                if (removedSurface != null) {
+                    mGlRenderer.unregisterOutputSurface(removedSurface);
+                }
+            });
+            mGlRenderer.registerOutputSurface(surface);
+            mOutputSurfaces.put(surfaceOutput, surface);
+        });
     }
 
     /**
@@ -159,9 +169,15 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         for (Map.Entry<SurfaceOutput, Surface> entry : mOutputSurfaces.entrySet()) {
             Surface surface = entry.getValue();
             SurfaceOutput surfaceOutput = entry.getKey();
-            mGlRenderer.setOutputSurface(surface);
-            surfaceOutput.updateTransformMatrix(mSurfaceOutputMatrix, mTextureMatrix);
-            mGlRenderer.render(surfaceTexture.getTimestamp(), mSurfaceOutputMatrix);
+            if (surfaceOutput.getFormat() == INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
+                // Render GPU output directly.
+                surfaceOutput.updateTransformMatrix(mSurfaceOutputMatrix, mTextureMatrix);
+                mGlRenderer.render(surfaceTexture.getTimestamp(), mSurfaceOutputMatrix, surface);
+            } else {
+                checkState(surfaceOutput.getFormat() == ImageFormat.JPEG,
+                        "Unsupported format: " + surfaceOutput.getFormat());
+                // TODO: download RGB from GPU and encode to JPEG bytes before writing to Surface.
+            }
         }
     }
 
@@ -201,6 +217,34 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             } else {
                 throw new IllegalStateException("Failed to create DefaultSurfaceProcessor", cause);
             }
+        }
+    }
+
+    /**
+     * Factory class that produces {@link DefaultSurfaceProcessor}.
+     *
+     * <p> This is for working around the limit that OpenGL cannot be initialized in unit tests.
+     */
+    public static class Factory {
+        private Factory() {
+        }
+
+        private static Supplier<SurfaceProcessorInternal> sSupplier = DefaultSurfaceProcessor::new;
+
+        /**
+         * Creates a new {@link DefaultSurfaceProcessor} with no-op shader.
+         */
+        @NonNull
+        public static SurfaceProcessorInternal newInstance() {
+            return sSupplier.get();
+        }
+
+        /**
+         * Overrides the {@link DefaultSurfaceProcessor} supplier for testing.
+         */
+        @VisibleForTesting
+        public static void setSupplier(@NonNull Supplier<SurfaceProcessorInternal> supplier) {
+            sSupplier = supplier;
         }
     }
 }

@@ -31,9 +31,9 @@ public class OverlayStyle(
     val backgroundColor: Color?,
 
     /**
-     * The background color of items rendered in the status indicator tray. If not `null` then
-     * this must be either [Color.BLACK] or [Color.WHITE]. If this is `null` then the system
-     * default will be used.
+     * The background color of items rendered in the status indicator tray. If not `null` then this
+     * must be either [Color.BLACK] or [Color.WHITE]. If this is `null` then the system default will
+     * be used.
      */
     val foregroundColor: Color?
 ) {

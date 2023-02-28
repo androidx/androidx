@@ -18,20 +18,22 @@ package androidx.health.connect.client.records
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Length
+import androidx.health.connect.client.units.meters
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the user's height. */
 public class HeightRecord(
-    /** Height in [Length] unit. Required field. Valid range: 0-3 meters. */
-    public val height: Length,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** Height in [Length] unit. Required field. Valid range: 0-3 meters. */
+    public val height: Length,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 
     init {
         height.requireNotLess(other = height.zero(), name = "height")
+        height.requireNotMore(other = MAX_HEIGHT, name = "height")
     }
 
     /*
@@ -63,6 +65,7 @@ public class HeightRecord(
     companion object {
         private const val HEIGHT_NAME = "Height"
         private const val HEIGHT_FIELD_NAME = "height"
+        private val MAX_HEIGHT = 3.meters
 
         /**
          * Metric identifier to retrieve the average height from

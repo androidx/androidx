@@ -18,9 +18,10 @@ package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.XProcessingEnvConfig
-import androidx.room.compiler.processing.XProcessingStep
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XProcessingEnvironmentTestConfigProvider
+import androidx.room.compiler.processing.XProcessingStep
+import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
+import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import androidx.room.compiler.processing.util.runner.CompilationTestRunner
@@ -36,6 +37,7 @@ import java.io.File
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import javax.annotation.processing.Processor
+import javax.lang.model.SourceVersion
 
 private fun defaultTestConfig(
     options: Map<String, String>
@@ -145,10 +147,12 @@ fun runProcessorTest(
 )
 
 /**
- * Runs the step created by [createProcessingStep] with ksp and one of javac or kapt, depending
- * on whether input has kotlin sources.
+ * Runs the steps created by [createProcessingSteps] with ksp and one of javac or kapt (depending on
+ * whether input has kotlin sources).
  *
- * The step created by [createProcessingStep] will be invoked only for the first round.
+ * The steps will be contained in implementations of
+ * [androidx.room.compiler.processing.XBasicAnnotationProcessor] and are subject to its validation
+ * and element deferring behaviour.
  *
  * [onCompilationResult] will be called with a [CompilationResultSubject] after each compilation to
  * assert the compilation result.
@@ -156,7 +160,6 @@ fun runProcessorTest(
  * By default, the compilation is expected to succeed. If it should fail, there must be an
  * assertion on [onCompilationResult] which expects a failure (e.g. checking errors).
  */
-@Suppress("VisibleForTests") // this is a test library
 @ExperimentalProcessingApi
 fun runProcessorTest(
     sources: List<Source> = emptyList(),
@@ -165,9 +168,24 @@ fun runProcessorTest(
     javacArguments: List<String> = emptyList(),
     kotlincArguments: List<String> = emptyList(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
-    createProcessingStep: () -> XProcessingStep,
+    createProcessingSteps: () -> Iterable<XProcessingStep>,
     onCompilationResult: (CompilationResultSubject) -> Unit
 ) {
+    val javacProcessor = object : JavacBasicAnnotationProcessor(
+        configureEnv = { config }
+    ) {
+        override fun getSupportedSourceVersion() = SourceVersion.latestSupported()
+
+        override fun processingSteps() = createProcessingSteps()
+    }
+    val ksProvider = SymbolProcessorProvider { environment ->
+        object : KspBasicAnnotationProcessor(
+            symbolProcessorEnvironment = environment,
+            config = config
+        ) {
+            override fun processingSteps() = createProcessingSteps()
+        }
+    }
     runProcessorTest(
         sources = sources,
         classpath = classpath,
@@ -175,22 +193,10 @@ fun runProcessorTest(
         javacArguments = javacArguments,
         kotlincArguments = kotlincArguments,
         config = config,
-    ) { invocation ->
-        val step = createProcessingStep()
-        val elements =
-            step.annotations()
-                .associateWith { annotation ->
-                    invocation.roundEnv.getElementsAnnotatedWith(annotation)
-                        .filterIsInstance<XTypeElement>()
-                        .toSet()
-                }
-        step.process(
-            env = invocation.processingEnv,
-            elementsByAnnotation = elements,
-            isLastRound = false
-        )
-        invocation.assertCompilationResult(onCompilationResult)
-    }
+        javacProcessors = listOf(javacProcessor),
+        symbolProcessorProviders = listOf(ksProvider),
+        onCompilationResult = onCompilationResult
+    )
 }
 
 /**

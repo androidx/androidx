@@ -9,9 +9,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    jvm {
-        withJava() // Remove after b/247980072
-    }
+    jvm()
     mac()
     linux()
     ios()
@@ -46,7 +44,6 @@ androidXMultiplatform {
 }
 
 jvmJar {
-    from sourceSets.main.output
     // Strip out typedef classes. For Android libraries, this is done
     // automatically by the Gradle plugin, but the Annotation library is a
     // plain jar, built by the regular Gradle java plugin. The typedefs
@@ -70,10 +67,9 @@ artifacts {
 
 androidx {
     name = "Android Support Library Annotations"
-    type = LibraryType.KMP_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION
-    mavenGroup = LibraryGroups.ANNOTATION
+    mavenMultiplatformVersion = LibraryVersions.ANNOTATION_KMP
     inceptionYear = "2013"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
 }

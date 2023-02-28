@@ -31,10 +31,9 @@ import androidx.collection.ArraySet;
 import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.DeterministicAead;
 import com.google.crypto.tink.KeyTemplate;
+import com.google.crypto.tink.KeyTemplates;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.aead.AeadConfig;
-import com.google.crypto.tink.aead.AesGcmKeyManager;
-import com.google.crypto.tink.daead.AesSivKeyManager;
 import com.google.crypto.tink.daead.DeterministicAeadConfig;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
 import com.google.crypto.tink.subtle.Base64;
@@ -52,14 +51,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An implementation of {@link SharedPreferences} that encrypts keys and values.
+ * <br />
+ * <br />
+ * <b>WARNING</b>: The preference file should not be backed up with Auto Backup. When restoring the
+ * file it is likely the key used to encrypt it will no longer be present. You should exclude all
+ * <code>EncryptedSharedPreference</code>s from backup using
+ * <a href="https://developer.android.com/guide/topics/data/autobackup#IncludingFiles">backup rules</a>.
+ * <br />
+ * <br />
+ * Basic use of the class:
  *
  * <pre>
- *  String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+ *  MasterKey masterKey = new MasterKey.Builder(context)
+ *      .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+ *      .build();
  *
  *  SharedPreferences sharedPreferences = EncryptedSharedPreferences.create(
- *      "secret_shared_prefs",
- *      masterKeyAlias,
  *      context,
+ *      "secret_shared_prefs",
+ *      masterKey,
  *      EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
  *      EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
  *  );
@@ -124,6 +134,12 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
     /**
      * Opens an instance of encrypted SharedPreferences
      *
+     * <p>If the <code>masterKeyAlias</code> used here is for a key that is not yet created, this
+     * method will not be thread safe. Use the alternate signature that is not deprecated for
+     * multi-threaded contexts.
+     *
+     * @deprecated Use {@link #create(Context, String, MasterKey,
+     * PrefKeyEncryptionScheme, PrefValueEncryptionScheme)} instead.
      * @param fileName                  The name of the file to open; can not contain path
      *                                  separators.
      * @param masterKeyAlias            The alias of the master key to use.
@@ -133,8 +149,6 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
      * @return The SharedPreferences instance that encrypts all data.
      * @throws GeneralSecurityException when a bad master key or keyset has been attempted
      * @throws IOException              when fileName can not be used
-     * @deprecated Use {@link #create(Context, String, MasterKey,
-     * PrefKeyEncryptionScheme, PrefValueEncryptionScheme)} instead.
      */
     @Deprecated
     @NonNull
@@ -174,20 +188,20 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         /**
          * Pref keys are encrypted deterministically with AES256-SIV-CMAC (RFC 5297).
          *
-         * For more information please see the Tink documentation:
+         * <p>For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/daead/AesSivKeyManager.html">AesSivKeyManager</a>.aes256SivTemplate()
+         * <p><a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/daead/AesSivKeyManager.html">AesSivKeyManager</a>.aes256SivTemplate()
          */
-        AES256_SIV(AesSivKeyManager.aes256SivTemplate());
+        AES256_SIV("AES256_SIV");
 
-        private final KeyTemplate mDeterministicAeadKeyTemplate;
+        private final String mDeterministicAeadKeyTemplateName;
 
-        PrefKeyEncryptionScheme(KeyTemplate keyTemplate) {
-            mDeterministicAeadKeyTemplate = keyTemplate;
+        PrefKeyEncryptionScheme(String deterministicAeadKeyTemplateName) {
+            mDeterministicAeadKeyTemplateName = deterministicAeadKeyTemplateName;
         }
 
-        KeyTemplate getKeyTemplate() {
-            return mDeterministicAeadKeyTemplate;
+        KeyTemplate getKeyTemplate() throws GeneralSecurityException {
+            return KeyTemplates.get(mDeterministicAeadKeyTemplateName);
         }
     }
 
@@ -198,20 +212,20 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         /**
          * Pref values are encrypted with AES256-GCM. The associated data is the encrypted pref key.
          *
-         * For more information please see the Tink documentation:
+         * <p>For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/aead/AesGcmKeyManager.html">AesGcmKeyManager</a>.aes256GcmTemplate()
+         * <p><a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/aead/AesGcmKeyManager.html">AesGcmKeyManager</a>.aes256GcmTemplate()
          */
-        AES256_GCM(AesGcmKeyManager.aes256GcmTemplate());
+        AES256_GCM("AES256_GCM");
 
-        private final KeyTemplate mAeadKeyTemplate;
+        private final String mAeadKeyTemplateName;
 
-        PrefValueEncryptionScheme(KeyTemplate keyTemplates) {
-            mAeadKeyTemplate = keyTemplates;
+        PrefValueEncryptionScheme(String aeadKeyTemplateName) {
+            mAeadKeyTemplateName = aeadKeyTemplateName;
         }
 
-        KeyTemplate getKeyTemplate() {
-            return mAeadKeyTemplate;
+        KeyTemplate getKeyTemplate() throws GeneralSecurityException {
+            return KeyTemplates.get(mAeadKeyTemplateName);
         }
     }
 
@@ -219,7 +233,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         private final EncryptedSharedPreferences mEncryptedSharedPreferences;
         private final SharedPreferences.Editor mEditor;
         private final List<String> mKeysChanged;
-        private AtomicBoolean mClearRequested = new AtomicBoolean(false);
+        private final AtomicBoolean mClearRequested = new AtomicBoolean(false);
 
         Editor(EncryptedSharedPreferences encryptedSharedPreferences,
                 SharedPreferences.Editor editor) {
@@ -318,7 +332,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
                 throw new SecurityException(key + " is a reserved key for the encryption keyset.");
             }
             mEditor.remove(mEncryptedSharedPreferences.encryptKey(key));
-            mKeysChanged.remove(key);
+            mKeysChanged.add(key);
             return this;
         }
 
@@ -411,7 +425,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
     @Override
     public String getString(@Nullable String key, @Nullable String defValue) {
         Object value = getDecryptedObject(key);
-        return (value != null && value instanceof String ? (String) value : defValue);
+        return (value instanceof String ? (String) value : defValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -431,25 +445,25 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
     @Override
     public int getInt(@Nullable String key, int defValue) {
         Object value = getDecryptedObject(key);
-        return (value != null && value instanceof Integer ? (Integer) value : defValue);
+        return (value instanceof Integer ? (Integer) value : defValue);
     }
 
     @Override
     public long getLong(@Nullable String key, long defValue) {
         Object value = getDecryptedObject(key);
-        return (value != null && value instanceof Long ? (Long) value : defValue);
+        return (value instanceof Long ? (Long) value : defValue);
     }
 
     @Override
     public float getFloat(@Nullable String key, float defValue) {
         Object value = getDecryptedObject(key);
-        return (value != null && value instanceof Float ? (Float) value : defValue);
+        return (value instanceof Float ? (Float) value : defValue);
     }
 
     @Override
     public boolean getBoolean(@Nullable String key, boolean defValue) {
         Object value = getDecryptedObject(key);
-        return (value != null && value instanceof Boolean ? (Boolean) value : defValue);
+        return (value instanceof Boolean ? (Boolean) value : defValue);
     }
 
     @Override
@@ -500,6 +514,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
             return mId;
         }
 
+        @Nullable
         public static EncryptedType fromId(int id) {
             switch (id) {
                 case 0:
@@ -519,69 +534,73 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         }
     }
 
-    private Object getDecryptedObject(String key) {
+    private Object getDecryptedObject(String key) throws SecurityException {
         if (isReservedKey(key)) {
             throw new SecurityException(key + " is a reserved key for the encryption keyset.");
         }
         if (key == null) {
             key = NULL_VALUE;
         }
-        Object returnValue = null;
+
         try {
             String encryptedKey = encryptKey(key);
             String encryptedValue = mSharedPreferences.getString(encryptedKey, null);
-            if (encryptedValue != null) {
-                byte[] cipherText = Base64.decode(encryptedValue, Base64.DEFAULT);
-                byte[] value = mValueAead.decrypt(cipherText, encryptedKey.getBytes(UTF_8));
-                ByteBuffer buffer = ByteBuffer.wrap(value);
-                buffer.position(0);
-                int typeId = buffer.getInt();
-                EncryptedType type = EncryptedType.fromId(typeId);
-                switch (type) {
-                    case STRING:
-                        int stringLength = buffer.getInt();
-                        ByteBuffer stringSlice = buffer.slice();
-                        buffer.limit(stringLength);
-                        String stringValue = UTF_8.decode(stringSlice).toString();
-                        if (stringValue.equals(NULL_VALUE)) {
-                            returnValue = null;
-                        } else {
-                            returnValue = stringValue;
-                        }
-                        break;
-                    case INT:
-                        returnValue = buffer.getInt();
-                        break;
-                    case LONG:
-                        returnValue = buffer.getLong();
-                        break;
-                    case FLOAT:
-                        returnValue = buffer.getFloat();
-                        break;
-                    case BOOLEAN:
-                        returnValue = buffer.get() != (byte) 0;
-                        break;
-                    case STRING_SET:
-                        ArraySet<String> stringSet = new ArraySet<>();
-                        while (buffer.hasRemaining()) {
-                            int subStringLength = buffer.getInt();
-                            ByteBuffer subStringSlice = buffer.slice();
-                            subStringSlice.limit(subStringLength);
-                            buffer.position(buffer.position() + subStringLength);
-                            stringSet.add(UTF_8.decode(subStringSlice).toString());
-                        }
-                        if (stringSet.size() == 1 && NULL_VALUE.equals(stringSet.valueAt(0))) {
-                            returnValue = null;
-                        } else {
-                            returnValue = stringSet;
-                        }
-                        break;
-                }
+            if (encryptedValue == null) {
+                return null;
+            }
+
+            byte[] cipherText = Base64.decode(encryptedValue, Base64.DEFAULT);
+            byte[] value = mValueAead.decrypt(cipherText, encryptedKey.getBytes(UTF_8));
+            ByteBuffer buffer = ByteBuffer.wrap(value);
+            buffer.position(0);
+            int typeId = buffer.getInt();
+            EncryptedType type = EncryptedType.fromId(typeId);
+            if (type == null) {
+                throw new SecurityException("Unknown type ID for encrypted pref value: " + typeId);
+            }
+
+            switch (type) {
+                case STRING:
+                    int stringLength = buffer.getInt();
+                    ByteBuffer stringSlice = buffer.slice();
+                    buffer.limit(stringLength);
+
+                    String stringValue = UTF_8.decode(stringSlice).toString();
+                    if (stringValue.equals(NULL_VALUE)) {
+                        return null;
+                    }
+
+                    return stringValue;
+                case INT:
+                    return buffer.getInt();
+                case LONG:
+                    return buffer.getLong();
+                case FLOAT:
+                    return buffer.getFloat();
+                case BOOLEAN:
+                    return buffer.get() != (byte) 0;
+                case STRING_SET:
+                    ArraySet<String> stringSet = new ArraySet<>();
+
+                    while (buffer.hasRemaining()) {
+                        int subStringLength = buffer.getInt();
+                        ByteBuffer subStringSlice = buffer.slice();
+                        subStringSlice.limit(subStringLength);
+                        buffer.position(buffer.position() + subStringLength);
+                        stringSet.add(UTF_8.decode(subStringSlice).toString());
+                    }
+
+                    if (stringSet.size() == 1 && NULL_VALUE.equals(stringSet.valueAt(0))) {
+                        return null;
+                    }
+
+                    return stringSet;
+                default:
+                    throw new SecurityException("Unhandled type for encrypted pref value: " + type);
             }
         } catch (GeneralSecurityException ex) {
             throw new SecurityException("Could not decrypt value. " + ex.getMessage(), ex);
         }
-        return returnValue;
     }
 
     String encryptKey(String key) {
@@ -620,10 +639,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
      * @param key the plain text key
      */
     boolean isReservedKey(String key) {
-        if (KEY_KEYSET_ALIAS.equals(key) || VALUE_KEYSET_ALIAS.equals(key)) {
-            return true;
-        }
-        return false;
+        return KEY_KEYSET_ALIAS.equals(key) || VALUE_KEYSET_ALIAS.equals(key);
     }
 
     Pair<String, String> encryptKeyValuePair(String key, byte[] value)

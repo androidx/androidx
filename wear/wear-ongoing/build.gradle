@@ -34,7 +34,6 @@ android {
 androidx {
     name = "Android Wear Ongoing Activities"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.WEAR
     mavenVersion = LibraryVersions.WEAR_ONGOING
     inceptionYear = "2021"
     description = "Android Wear Ongoing Activities"

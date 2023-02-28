@@ -31,6 +31,7 @@ import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -46,11 +47,13 @@ public class KeyboardShortcutsTestCaseWithToolbar {
 
     @Test
     @MediumTest
+    @SdkSuppress(minSdkVersion = 24, // O+ uses navigation clusters for jumping to ActionBar.
+            maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testAccessActionBar() throws Throwable {
-        // Since O, we rely on keyboard navigation clusters for jumping to actionbar
-        if (Build.VERSION.SDK_INT <= 25) {
-            return;
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
         }
+
         final BaseTestActivity activity = mActivityTestRule.getActivity();
 
         final View editText = activity.findViewById(androidx.appcompat.test.R.id.editText);

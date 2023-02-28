@@ -25,6 +25,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.LocaleList
 import android.util.Log
@@ -46,6 +47,10 @@ import java.util.concurrent.TimeUnit
 class AppWidgetHostTestActivity : Activity() {
     private var mHost: AppWidgetHost? = null
     private val mHostViews = mutableListOf<TestAppWidgetHostView>()
+    private var mConfigurationChanged: CountDownLatch? = null
+    private var mLastConfiguration: Configuration? = null
+    val lastConfiguration: Configuration
+        get() = synchronized(this) { mLastConfiguration!! }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,7 +101,6 @@ class AppWidgetHostTestActivity : Activity() {
         val context = this.createConfigurationContext(config)
 
         val hostView = host.createView(context, appWidgetId, info) as TestAppWidgetHostView
-        hostView.setPadding(0, 0, 0, 0)
         val contentFrame = findViewById<FrameLayout>(R.id.content)
         contentFrame.addView(hostView)
         hostView.setSizes(portraitSize, landscapeSize)
@@ -115,16 +119,28 @@ class AppWidgetHostTestActivity : Activity() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        updateAllSizes(newConfig.orientation)
-        reapplyRemoteViews()
+        mHostViews.forEach {
+            it.updateSize(newConfig.orientation)
+            it.reapplyRemoteViews()
+        }
+        synchronized(this) {
+            mLastConfiguration = newConfig
+            mConfigurationChanged?.countDown()
+        }
     }
 
-    fun updateAllSizes(orientation: Int) {
-        mHostViews.forEach { it.updateSize(orientation) }
+    fun resetConfigurationChangedLatch() {
+       synchronized(this) {
+           mConfigurationChanged = CountDownLatch(1)
+           mLastConfiguration = null
+       }
     }
 
-    fun reapplyRemoteViews() {
-        mHostViews.forEach { it.reapplyRemoteViews() }
+    // This should not be called from the main thread, so that it does not block
+    // onConfigurationChanged from being called.
+    fun waitForConfigurationChange() {
+        val result = mConfigurationChanged?.await(5, TimeUnit.SECONDS)!!
+        require(result) { "Timeout before getting configuration" }
     }
 }
 
@@ -160,11 +176,15 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
             mRemoteViews?.let { return }
             mLatch = CountDownLatch(1)
         }
-        val result = mLatch?.await(5, TimeUnit.SECONDS)!!
+        val result = mLatch?.await(30, TimeUnit.SECONDS)!!
         require(result) { "Timeout before getting RemoteViews" }
     }
 
     override fun updateAppWidget(remoteViews: RemoteViews?) {
+        if (VERBOSE_LOG) {
+            Log.d(RECEIVER_TEST_TAG, "updateAppWidget() called with: $remoteViews")
+        }
+
         super.updateAppWidget(remoteViews)
         synchronized(this) {
             mRemoteViews = remoteViews
@@ -172,6 +192,14 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
                 mLatch?.countDown()
             }
         }
+    }
+
+    override fun prepareView(view: View?) {
+        if (VERBOSE_LOG) {
+            Log.d(RECEIVER_TEST_TAG, "prepareView() called with: view = $view")
+        }
+
+        super.prepareView(view)
     }
 
     /** Reset the latch used to detect the arrival of a new RemoteViews. */
@@ -197,7 +225,18 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
         val displayMetrics = resources.displayMetrics
         val width = size.width.toPixels(displayMetrics)
         val height = size.height.toPixels(displayMetrics)
-        layoutParams = LayoutParams(width, height, Gravity.CENTER)
+
+        // The widget host applies a default padding that is difficult to remove. Make the outer
+        // host view bigger by the default padding amount, so that the inner view that we care about
+        // matches the provided size.
+        val hostViewPadding = Rect()
+        val testComponent =
+            ComponentName(context.applicationContext, TestGlanceAppWidgetReceiver::class.java)
+        getDefaultPaddingForWidget(context, testComponent, hostViewPadding)
+        val paddedWidth = width + hostViewPadding.left + hostViewPadding.right
+        val paddedHeight = height + hostViewPadding.top + hostViewPadding.bottom
+
+        layoutParams = LayoutParams(paddedWidth, paddedHeight, Gravity.CENTER)
         requestLayout()
     }
 

@@ -22,14 +22,16 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
 import android.util.Size
-import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.integration.core.util.StressTestUtil
 import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_IMAGE_ANALYSIS
@@ -38,6 +40,7 @@ import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_VIDEO_CAPTURE
 import androidx.camera.integration.core.util.StressTestUtil.createCameraSelectorById
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.GLUtil
 import androidx.camera.testing.LabTestRule
@@ -81,11 +84,18 @@ private var texId = INVALID_TEX_ID
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class BindUnbindUseCasesStressTest(
-    private val cameraId: String
+    val implName: String,
+    val cameraConfig: CameraXConfig,
+    val cameraId: String
 ) {
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
+    @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     @get:Rule
@@ -135,6 +145,8 @@ class BindUnbindUseCasesStressTest(
 
     @Before
     fun setUp(): Unit = runBlocking {
+        // Configures the test target config
+        ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
         cameraIdCameraSelector = createCameraSelectorById(cameraId)
@@ -153,7 +165,6 @@ class BindUnbindUseCasesStressTest(
     fun cleanUp(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
             }
         }
@@ -164,9 +175,8 @@ class BindUnbindUseCasesStressTest(
         @JvmField val stressTest = StressTestRule()
 
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}")
-        val parameters: Collection<String>
-            get() = CameraUtil.getBackwardCompatibleCameraIdListOrThrow()
+        @Parameterized.Parameters(name = "config = {0}, cameraId = {2}")
+        fun data() = StressTestUtil.getAllCameraXConfigCameraIdCombinations()
     }
 
     @LabTestRule.LabTestOnly

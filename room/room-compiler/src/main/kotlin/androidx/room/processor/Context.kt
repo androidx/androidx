@@ -21,6 +21,7 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.CommonTypeNames
 import androidx.room.log.RLog
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.parser.optimization.RemoveUnusedColumnQueryRewriter
@@ -130,17 +131,19 @@ class Context private constructor(
 
     class CommonTypes(val processingEnv: XProcessingEnv) {
         val VOID: XType by lazy {
-            processingEnv.requireType("java.lang.Void")
+            processingEnv.requireType(CommonTypeNames.VOID)
         }
         val STRING: XType by lazy {
-            processingEnv.requireType("java.lang.String")
+            processingEnv.requireType(CommonTypeNames.STRING)
         }
         val READONLY_COLLECTION: XType by lazy {
-            if (processingEnv.backend == XProcessingEnv.Backend.KSP) {
-                processingEnv.requireType("kotlin.collections.Collection")
-            } else {
-                processingEnv.requireType("java.util.Collection")
-            }
+            processingEnv.requireType(CommonTypeNames.COLLECTION)
+        }
+        val LIST: XType by lazy {
+            processingEnv.requireType(CommonTypeNames.LIST)
+        }
+        val SET: XType by lazy {
+            processingEnv.requireType(CommonTypeNames.SET)
         }
     }
 
@@ -168,9 +171,33 @@ class Context private constructor(
         return Pair(result, collector)
     }
 
-    fun fork(element: XElement, forceSuppressedWarnings: Set<Warning> = emptySet()): Context {
+    /**
+     * Forks the processor context adding suppressed warnings a type converters found in the
+     * given [element].
+     *
+     * @param element the element from which to create the fork.
+     * @param forceSuppressedWarnings the warning that will be silenced regardless if they are
+     * present or not in the [element].
+     * @param forceBuiltInConverters the built-in converter states that will be set regardless of
+     * the states found in the [element].
+     */
+    fun fork(
+        element: XElement,
+        forceSuppressedWarnings: Set<Warning> = emptySet(),
+        forceBuiltInConverters: BuiltInConverterFlags? = null
+    ): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
-        val processConvertersResult = CustomConverterProcessor.findConverters(this, element)
+        val processConvertersResult =
+            CustomConverterProcessor.findConverters(this, element).let { result ->
+                if (forceBuiltInConverters != null) {
+                    result.copy(
+                        builtInConverterFlags =
+                            result.builtInConverterFlags.withNext(forceBuiltInConverters)
+                    )
+                } else {
+                    result
+                }
+            }
         val subBuiltInConverterFlags = typeConverters.builtInConverterFlags.withNext(
             processConvertersResult.builtInConverterFlags
         )

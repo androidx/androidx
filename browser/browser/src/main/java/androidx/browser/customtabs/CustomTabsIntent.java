@@ -26,8 +26,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.LocaleList;
+import android.provider.Browser;
+import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -35,9 +39,11 @@ import android.widget.RemoteViews;
 import androidx.annotation.AnimRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Dimension;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.BundleCompat;
@@ -351,24 +357,24 @@ public final class CustomTabsIntent {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({ACTIVITY_HEIGHT_DEFAULT, ACTIVITY_HEIGHT_ADJUSTABLE, ACTIVITY_HEIGHT_FIXED})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ActivityResizeBehavior {
+    public @interface ActivityHeightResizeBehavior {
     }
 
     /**
-     * Applies the default resize behavior for the Custom Tab Activity when it behaves as a
+     * Applies the default height resize behavior for the Custom Tab Activity when it behaves as a
      * bottom sheet.
      */
     public static final int ACTIVITY_HEIGHT_DEFAULT = 0;
 
     /**
-     * The Custom Tab Activity, when it behaves as a bottom sheet, can be manually resized by the
-     * user.
+     * The Custom Tab Activity, when it behaves as a bottom sheet, can have its height manually
+     * resized by the user.
      */
     public static final int ACTIVITY_HEIGHT_ADJUSTABLE = 1;
 
     /**
-     * The Custom Tab Activity, when it behaves as a bottom sheet, cannot be manually resized by
-     * the user.
+     * The Custom Tab Activity, when it behaves as a bottom sheet, cannot have its height manually
+     * resized by the user.
      */
     public static final int ACTIVITY_HEIGHT_FIXED = 2;
 
@@ -379,12 +385,12 @@ public final class CustomTabsIntent {
 
     /**
      * Extra that, if set in combination with
-     * {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX}, defines the resize behavior of
-     * the Custom Tab Activity when it behaves as a bottom sheet.
+     * {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX}, defines the height resize
+     * behavior of the Custom Tab Activity when it behaves as a bottom sheet.
      * Default is {@link CustomTabsIntent#ACTIVITY_HEIGHT_DEFAULT}.
      */
-    public static final String EXTRA_ACTIVITY_RESIZE_BEHAVIOR =
-            "androidx.browser.customtabs.extra.ACTIVITY_RESIZE_BEHAVIOR";
+    public static final String EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR =
+            "androidx.browser.customtabs.extra.ACTIVITY_HEIGHT_RESIZE_BEHAVIOR";
 
     /**
      * Extra that sets the toolbar's top corner radii in dp. This will only have
@@ -451,6 +457,11 @@ public final class CustomTabsIntent {
      * The maximum toolbar corner radius in dp.
      */
     private static final int MAX_TOOLBAR_CORNER_RADIUS_DP = 16;
+
+    /**
+     * The name of the accept language HTTP header.
+     */
+    private static final String HTTP_ACCEPT_LANGUAGE = "Accept-Language";
 
     /**
      * An {@link Intent} used to start the Custom Tabs Activity.
@@ -969,27 +980,28 @@ public final class CustomTabsIntent {
          * The Custom Tab will behave as a bottom sheet.
          *
          * @param initialHeightPx The Custom Tab Activity's initial height in pixels.
-         * @param activityResizeBehavior Desired height behavior.
+         * @param activityHeightResizeBehavior Desired height behavior.
          * @see CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX
-         * @see CustomTabsIntent#EXTRA_ACTIVITY_RESIZE_BEHAVIOR
+         * @see CustomTabsIntent#EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR
          * @see CustomTabsIntent#ACTIVITY_HEIGHT_DEFAULT
          * @see CustomTabsIntent#ACTIVITY_HEIGHT_ADJUSTABLE
          * @see CustomTabsIntent#ACTIVITY_HEIGHT_FIXED
          */
         @NonNull
         public Builder setInitialActivityHeightPx(@Dimension(unit = PX) int initialHeightPx,
-                @ActivityResizeBehavior int activityResizeBehavior) {
+                @ActivityHeightResizeBehavior int activityHeightResizeBehavior) {
             if (initialHeightPx <= 0) {
                 throw new IllegalArgumentException("Invalid value for the initialHeightPx "
                         + "argument");
             }
-            if (activityResizeBehavior < 0 || activityResizeBehavior > ACTIVITY_HEIGHT_MAX) {
-                throw new IllegalArgumentException("Invalid value for the activityResizeBehavior "
-                        + "argument");
+            if (activityHeightResizeBehavior < 0
+                    || activityHeightResizeBehavior > ACTIVITY_HEIGHT_MAX) {
+                throw new IllegalArgumentException(
+                        "Invalid value for the activityHeightResizeBehavior argument");
             }
 
             mIntent.putExtra(EXTRA_INITIAL_ACTIVITY_HEIGHT_PX, initialHeightPx);
-            mIntent.putExtra(EXTRA_ACTIVITY_RESIZE_BEHAVIOR, activityResizeBehavior);
+            mIntent.putExtra(EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR, activityHeightResizeBehavior);
             return this;
         }
 
@@ -1069,7 +1081,28 @@ public final class CustomTabsIntent {
             }
             mIntent.putExtra(EXTRA_SHARE_STATE, mShareState);
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                setCurrentLocaleAsDefaultAcceptLanguage();
+            }
+
             return new CustomTabsIntent(mIntent, mStartAnimationBundle);
+        }
+
+        /**
+         * Sets the current app's locale as default Accept-Language. If the app has its own locale,
+         * we set it to Accept-Language, otherwise use the system locale.
+         */
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        private void setCurrentLocaleAsDefaultAcceptLanguage() {
+            String defaultLocale = Api24Impl.getDefaultLocale();
+            if (!TextUtils.isEmpty(defaultLocale)) {
+                Bundle header = mIntent.hasExtra(Browser.EXTRA_HEADERS) ?
+                        mIntent.getBundleExtra(Browser.EXTRA_HEADERS) : new Bundle();
+                if (!header.containsKey(HTTP_ACCEPT_LANGUAGE)) {
+                    header.putString(HTTP_ACCEPT_LANGUAGE, defaultLocale);
+                    mIntent.putExtra(Browser.EXTRA_HEADERS, header);
+                }
+            }
         }
     }
 
@@ -1152,14 +1185,14 @@ public final class CustomTabsIntent {
      * @param intent Intent to retrieve the resize behavior from.
      * @return The resize behavior. If {@link CustomTabsIntent#EXTRA_INITIAL_ACTIVITY_HEIGHT_PX}
      *         is not set as part of the same intent, the value has no effect.
-     * @see CustomTabsIntent#EXTRA_ACTIVITY_RESIZE_BEHAVIOR
+     * @see CustomTabsIntent#EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR
      * @see CustomTabsIntent#ACTIVITY_HEIGHT_DEFAULT
      * @see CustomTabsIntent#ACTIVITY_HEIGHT_ADJUSTABLE
      * @see CustomTabsIntent#ACTIVITY_HEIGHT_FIXED
      */
-    @ActivityResizeBehavior
+    @ActivityHeightResizeBehavior
     public static int getActivityResizeBehavior(@NonNull Intent intent) {
-        return intent.getIntExtra(EXTRA_ACTIVITY_RESIZE_BEHAVIOR,
+        return intent.getIntExtra(EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR,
                 CustomTabsIntent.ACTIVITY_HEIGHT_DEFAULT);
     }
 
@@ -1199,5 +1232,15 @@ public final class CustomTabsIntent {
     @CloseButtonPosition
     public static int getCloseButtonPosition(@NonNull Intent intent) {
         return intent.getIntExtra(EXTRA_CLOSE_BUTTON_POSITION, CLOSE_BUTTON_POSITION_DEFAULT);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private static class Api24Impl {
+        @DoNotInline
+        @Nullable
+        static String getDefaultLocale() {
+            LocaleList defaultLocaleList = LocaleList.getAdjustedDefault();
+            return (defaultLocaleList.size() > 0) ? defaultLocaleList.get(0).toLanguageTag(): null;
+        }
     }
 }

@@ -22,6 +22,8 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
+
 /**
  * Simple custom drawable.
  */
@@ -35,7 +37,7 @@ public class MyDrawable extends Drawable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         // Get the drawable's bounds
         int width = getBounds().width();
         int height = getBounds().height();

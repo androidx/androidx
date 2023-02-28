@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.codegen
 
+import androidx.room.compiler.processing.XNullability
 import com.google.common.truth.Truth.assertThat
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.SHORT
@@ -123,5 +124,56 @@ class XTypeNameTest {
                 kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME
             ).hashCode()
         ).isEqualTo(expectedClass.hashCode())
+    }
+
+    @Test
+    fun rawType() {
+        val expectedRawClass = XClassName.get("foo", "Bar")
+        assertThat(expectedRawClass.parametrizedBy(String::class.asClassName()).rawTypeName)
+            .isEqualTo(expectedRawClass)
+    }
+
+    @Test
+    fun equalsIgnoreNullability() {
+        assertThat(
+            XTypeName.BOXED_INT.copy(nullable = false).equalsIgnoreNullability(
+                XTypeName.BOXED_INT.copy(nullable = true)
+            )
+        ).isTrue()
+
+        assertThat(
+            XTypeName.BOXED_INT.copy(nullable = false).equalsIgnoreNullability(
+                XTypeName.BOXED_LONG.copy(nullable = true)
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun toString_codeLanguage() {
+        assertThat(XTypeName.ANY_OBJECT.toString(CodeLanguage.JAVA))
+            .isEqualTo("java.lang.Object")
+        assertThat(XTypeName.ANY_OBJECT.toString(CodeLanguage.KOTLIN))
+            .isEqualTo("kotlin.Any")
+    }
+
+    @Test
+    fun mutations_kotlinUnavailable() {
+        val typeName = XClassName(
+            java = JClassName.get("test", "Foo"),
+            kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME,
+            nullability = XNullability.UNKNOWN
+        )
+        assertThat(typeName.copy(nullable = true).kotlin)
+            .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
+        assertThat(typeName.copy(nullable = false).kotlin)
+            .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
+        assertThat(typeName.parametrizedBy(XTypeName.BOXED_LONG).kotlin)
+            .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
+        assertThat(XTypeName.getArrayName(typeName).kotlin)
+            .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
+        assertThat(XTypeName.getConsumerSuperName(typeName).kotlin)
+            .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
+        assertThat(XTypeName.getProducerExtendsName(typeName).kotlin)
+            .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
     }
 }

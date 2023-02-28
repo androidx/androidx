@@ -19,13 +19,15 @@ package androidx.camera.integration.core.stresstest
 import android.Manifest
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
-import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.integration.core.recordVideoAndWaitForVideoSavedIdle
 import androidx.camera.integration.core.switchCameraAndWaitForViewfinderIdle
 import androidx.camera.integration.core.takePictureAndWaitForImageSavedIdle
+import androidx.camera.integration.core.util.StressTestUtil
 import androidx.camera.integration.core.util.StressTestUtil.HOME_TIMEOUT_MS
 import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_IMAGE_ANALYSIS
@@ -38,6 +40,7 @@ import androidx.camera.integration.core.util.StressTestUtil.launchCameraXActivit
 import androidx.camera.integration.core.waitForImageAnalysisIdle
 import androidx.camera.integration.core.waitForViewfinderIdle
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.LabTestRule
@@ -60,13 +63,20 @@ import org.junit.Rule
 import org.junit.runners.Parameterized
 
 abstract class SwitchCameraStressTestBase(
+    val implName: String,
+    val cameraConfig: CameraXConfig,
     val cameraId: String
 ) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
+
+    @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     @get:Rule
@@ -93,9 +103,8 @@ abstract class SwitchCameraStressTestBase(
         @JvmField val stressTest = StressTestRule()
 
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}")
-        val parameters: Collection<String>
-            get() = CameraUtil.getBackwardCompatibleCameraIdListOrThrow()
+        @Parameterized.Parameters(name = "config = {0}, cameraId = {2}")
+        fun data() = StressTestUtil.getAllCameraXConfigCameraIdCombinations()
     }
 
     @Before
@@ -111,6 +120,15 @@ abstract class SwitchCameraStressTestBase(
         // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
         // explicitly initiated from within the test.
         device.setOrientationNatural()
+
+        // For running the LifecycleStatusChangeStressTest, we need to get the target test camera
+        // to check whether the testing use case combination can be supported to skip unsupported
+        // cases. For the purpose, we force configure the target testing config first
+        // (Camera2Config/CameraPipeConfig) and gets the CameraProvider instance in the setup()
+        // function. Then, the activity launched afterward will also run on the same config
+        // environment. The setup config environment will be cleared after
+        // CameraProvider#shutdown() is called in the tearDown() function.
+        ProcessCameraProvider.configureInstance(cameraConfig)
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
@@ -233,9 +251,7 @@ abstract class SwitchCameraStressTestBase(
         // Checks whether the input camera can support the use case combination
         assumeCameraSupportUseCaseCombination(camera, useCaseCombination)
 
-        val camera2CameraInfo = Camera2CameraInfo.from(camera.cameraInfo)
-        val lensFacing =
-            camera2CameraInfo.getCameraCharacteristic(CameraCharacteristics.LENS_FACING)
+        val lensFacing = (camera.cameraInfo as CameraInfoInternal).lensFacing
 
         val otherLensFacingCameraSelector =
             if (lensFacing == CameraCharacteristics.LENS_FACING_BACK) {

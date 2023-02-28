@@ -18,15 +18,10 @@ package androidx.constraintlayout.compose
 
 import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.core.parser.CLObject
 import androidx.constraintlayout.core.parser.CLParser
 import androidx.constraintlayout.core.parser.CLParsingException
-import androidx.constraintlayout.core.state.CorePixelDp
 import androidx.constraintlayout.core.state.TransitionParser
 import org.intellij.lang.annotations.Language
 
@@ -47,24 +42,14 @@ interface Transition {
  */
 @SuppressLint("ComposableNaming")
 @ExperimentalMotionApi
-@Composable
-fun Transition(@Language("json5") content: String): Transition? {
-    val dpToPixel = with(LocalDensity.current) { 1.dp.toPx() }
-    val transition = remember(content) {
-        val parsed = try {
-            CLParser.parse(content)
-        } catch (e: CLParsingException) {
-            Log.e("CML", "Error parsing JSON $e")
-            null
-        }
-        if (parsed != null) {
-            val pixelDp = CorePixelDp { dpValue -> dpValue * dpToPixel }
-            TransitionImpl(parsed, pixelDp)
-        } else {
-            null
-        }
+fun Transition(@Language("json5") content: String): Transition {
+    val parsed = try {
+        CLParser.parse(content)
+    } catch (e: CLParsingException) {
+        Log.e("CML", "Error parsing JSON $e")
+        null
     }
-    return transition
+    return parsed?.let { TransitionImpl(parsed) } ?: TransitionImpl.EMPTY
 }
 
 /**
@@ -73,9 +58,9 @@ fun Transition(@Language("json5") content: String): Transition? {
  * Used to reduced the exposed API from [Transition].
  */
 @ExperimentalMotionApi
+@PublishedApi
 internal class TransitionImpl(
-    private val parsedTransition: CLObject,
-    private val pixelDp: CorePixelDp
+    private val parsedTransition: CLObject
 ) : Transition {
 
     /**
@@ -83,7 +68,7 @@ internal class TransitionImpl(
      */
     fun applyAllTo(transition: androidx.constraintlayout.core.state.Transition) {
         try {
-            TransitionParser.parse(parsedTransition, transition, pixelDp)
+            TransitionParser.parse(parsedTransition, transition)
         } catch (e: CLParsingException) {
             Log.e("CML", "Error parsing JSON $e")
         }
@@ -107,5 +92,26 @@ internal class TransitionImpl(
 
     override fun getEndConstraintSetId(): String {
         return parsedTransition.getStringOrNull("to") ?: "end"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TransitionImpl
+
+        if (parsedTransition != other.parsedTransition) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return parsedTransition.hashCode()
+    }
+
+    @PublishedApi
+    internal companion object {
+        @PublishedApi
+        internal val EMPTY = TransitionImpl(CLObject(charArrayOf()))
     }
 }

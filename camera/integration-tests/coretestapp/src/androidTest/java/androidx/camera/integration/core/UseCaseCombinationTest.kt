@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -31,6 +30,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
@@ -107,7 +107,6 @@ class UseCaseCombinationTest(
     fun shutdownCameraX(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
                 cameraProvider.shutdown()[10, TimeUnit.SECONDS]
             }
         }
@@ -444,7 +443,7 @@ class UseCaseCombinationTest(
         return Preview.Builder()
             .setTargetName("Preview").also {
                 monitor?.let { monitor ->
-                    Camera2Interop.Extender(it).setSessionCaptureCallback(monitor)
+                    CameraPipeUtil.setCameraCaptureSessionCallback(implName, it, monitor)
                 }
             }.build()
     }

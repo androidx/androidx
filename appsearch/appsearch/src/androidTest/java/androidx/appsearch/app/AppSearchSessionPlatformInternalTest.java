@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
 import android.content.Context;
@@ -50,37 +51,7 @@ public class AppSearchSessionPlatformInternalTest extends AppSearchSessionIntern
 
     @Override
     @Test
-    public void testSearchSuggestion() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_namespaceFilter() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_differentPrefix() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_removeDocument() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_replacementDocument() throws Exception {
-        // TODO(b/227356108) enable the test when suggestion is ready in platform.
-    }
-
-    @Override
-    @Test
-    public void testSearchSuggestion_ignoreOperators() throws Exception {
+    public void testSearchSuggestion_propertyFilter() throws Exception {
         // TODO(b/227356108) enable the test when suggestion is ready in platform.
     }
 }

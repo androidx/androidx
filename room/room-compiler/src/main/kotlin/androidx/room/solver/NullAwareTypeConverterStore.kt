@@ -52,9 +52,7 @@ class NullAwareTypeConverterStore(
      */
     private val knownColumnTypes: List<XType>
 ) : TypeConverterStore {
-    private val knownColumnTypeNames = knownColumnTypes.map {
-        it.typeName
-    }
+    private val knownColumnTypeNames = knownColumnTypes.map { it.asTypeName() }
     override val typeConverters = if (context.processingEnv.backend == Backend.KSP) {
         val processedConverters = typeConverters.toMutableList()
         // create copies for converters that receive non-null values
@@ -159,7 +157,7 @@ class NullAwareTypeConverterStore(
 
     private fun isColumnType(type: XType): Boolean {
         // compare using type names to handle both null and non-null.
-        return knownColumnTypeNames.contains(type.typeName)
+        return knownColumnTypeNames.contains(type.asTypeName())
     }
 
     private fun findConverterIntoStatementInternal(

@@ -24,7 +24,6 @@ import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -33,6 +32,7 @@ import androidx.car.app.model.CarText;
 import androidx.car.app.model.InputCallback;
 import androidx.car.app.model.InputCallbackDelegate;
 import androidx.car.app.model.InputCallbackDelegateImpl;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -45,6 +45,7 @@ import java.util.Objects;
  * <p>For example, this can be used to request a username, a password or an activation code.
  */
 @RequiresCarApi(2)
+@KeepFields
 public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     /**
      * The type of input represented by the {@link InputSignInMethod} instance.
@@ -108,25 +109,18 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
      */
     public static final int KEYBOARD_NUMBER = 4;
 
-    @Keep
     @Nullable
     private final CarText mHint;
-    @Keep
     @Nullable
     private final CarText mDefaultValue;
-    @Keep
     @InputType
     private final int mInputType;
-    @Keep
     @Nullable
     private final CarText mErrorMessage;
-    @Keep
     @KeyboardType
     private final int mKeyboardType;
-    @Keep
     @Nullable
     private final InputCallbackDelegate mInputCallbackDelegate;
-    @Keep
     private final boolean mShowKeyboardByDefault;
 
     /**
@@ -256,7 +250,8 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
 
     /** A builder of {@link InputSignInMethod}. */
     public static final class Builder {
-        @Nullable final InputCallbackDelegate mInputCallbackDelegate;
+        @Nullable
+        final InputCallbackDelegate mInputCallbackDelegate;
         @Nullable
         CarText mHint;
         @Nullable

@@ -42,7 +42,6 @@ androidx {
     type = LibraryType.IDE_PLUGIN
     // Decouple SQLITE_INSPECTOR because it depends on
     // the inspection protocol, which is alpha
-    mavenGroup = LibraryGroups.INSPECTION_EXTENSIONS
     inceptionYear = "2019"
     description = "The implementation of SQLite Inspector."
 }
@@ -56,11 +55,4 @@ android {
         main.resources.srcDirs += "src/main/proto"
     }
     namespace "androidx.sqlite.inspection"
-}
-
-// Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn", "-Xjvm-default=all"]
-    }
 }

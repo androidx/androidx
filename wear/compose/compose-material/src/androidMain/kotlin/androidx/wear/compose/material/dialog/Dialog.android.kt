@@ -38,6 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.CASUAL
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
@@ -46,11 +48,9 @@ import androidx.wear.compose.material.RAPID
 import androidx.wear.compose.material.STANDARD_IN
 import androidx.wear.compose.material.STANDARD_OUT
 import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.ScalingLazyListState
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
-import androidx.wear.compose.material.rememberScalingLazyListState
 import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
 /**
@@ -87,6 +87,80 @@ public fun Dialog(
     properties: DialogProperties = DialogProperties(),
     content: @Composable () -> Unit,
 ) {
+    Dialog(
+        showDialog = showDialog,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        properties = properties,
+        positionIndicator = { if (scrollState != null) PositionIndicator(scrollState) },
+        content = content
+    )
+}
+
+/**
+ * [Dialog] displays a full-screen dialog, layered over any other content. It takes a single slot,
+ * which is expected to be an opinionated Wear dialog content, such as [Alert]
+ * or [Confirmation].
+ *
+ * The dialog supports swipe-to-dismiss and reveals the parent content in the background
+ * during the swipe gesture.
+ *
+ * Example of content using [Dialog] to trigger an alert dialog using [Alert]:
+ * @sample androidx.wear.compose.material.samples.AlertDialogSample
+ *
+ * Example of content using [Dialog] to trigger a confirmation dialog using
+ * [Confirmation]:
+ * @sample androidx.wear.compose.material.samples.ConfirmationDialogSample
+
+ * @param showDialog Controls whether to display the [Dialog]. Set to true initially to trigger
+ * an 'intro' animation and display the [Dialog]. Subsequently, setting to false triggers
+ * an 'outro' animation, then [Dialog] calls [onDismissRequest] and hides itself.
+ * @param onDismissRequest Executes when the user dismisses the dialog.
+ * Must remove the dialog from the composition.
+ * @param modifier Modifier to be applied to the dialog.
+ * @param scrollState The scroll state for the dialog so that the scroll position can be displayed.
+ * @param properties Typically platform specific properties to further configure the dialog.
+ * @param content Slot for dialog content such as [Alert] or [Confirmation].
+ */
+@Suppress("DEPRECATION")
+@Deprecated(
+    "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+        "A newer overload is available which uses ScalingLazyListState from " +
+        "wear.compose.foundation.lazy package", level = DeprecationLevel.HIDDEN
+)
+@Composable
+public fun Dialog(
+    showDialog: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    scrollState: androidx.wear.compose.material.ScalingLazyListState? =
+        androidx.wear.compose.material.rememberScalingLazyListState(),
+    properties: DialogProperties = DialogProperties(),
+    content: @Composable () -> Unit,
+) {
+    Dialog(
+        showDialog = showDialog,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        properties = properties,
+        positionIndicator = { if (scrollState != null) PositionIndicator(scrollState) },
+        content = content
+    )
+}
+
+/**
+ * A Dialog composable which was created for sharing code between 2 versions
+ * of public [Dialog]s - with ScalingLazyListState from material and another from foundation.lazy
+ */
+@Composable
+private fun Dialog(
+    showDialog: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    properties: DialogProperties = DialogProperties(),
+    positionIndicator: @Composable () -> Unit,
+    content: @Composable () -> Unit,
+) {
     // Transitions for background and 'dialog content' alpha.
     var alphaTransitionState by remember {
         mutableStateOf(MutableTransitionState(AlphaStage.IntroFadeOut))
@@ -101,7 +175,8 @@ public fun Dialog(
 
     if (showDialog ||
         alphaTransitionState.targetState != AlphaStage.IntroFadeOut ||
-        scaleTransitionState.targetState != ScaleStage.Intro) {
+        scaleTransitionState.targetState != ScaleStage.Intro
+    ) {
         Dialog(
             onDismissRequest = onDismissRequest,
             properties = properties,
@@ -114,17 +189,19 @@ public fun Dialog(
                 vignette = {
                     AnimatedVisibility(
                         visible = scaleTransitionState.targetState == ScaleStage.Display,
-                        enter = fadeIn(animationSpec =
+                        enter = fadeIn(
+                            animationSpec =
                             TweenSpec(durationMillis = CASUAL, easing = STANDARD_IN)
                         ),
-                        exit = fadeOut(animationSpec =
+                        exit = fadeOut(
+                            animationSpec =
                             TweenSpec(durationMillis = CASUAL, easing = STANDARD_OUT)
                         ),
                     ) {
                         Vignette(vignettePosition = VignettePosition.TopAndBottom)
                     }
                 },
-                positionIndicator = { if (scrollState != null) PositionIndicator(scrollState) },
+                positionIndicator = positionIndicator,
                 modifier = modifier,
             ) {
                 SwipeToDismissBox(
@@ -142,8 +219,11 @@ public fun Dialog(
                     }
                 ) { isBackground ->
                     Box(
-                        modifier = Modifier.matchParentSize().background(
-                            MaterialTheme.colors.background.copy(alpha = backgroundAlpha))
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(
+                                MaterialTheme.colors.background.copy(alpha = backgroundAlpha)
+                            )
                     )
                     if (!isBackground) content()
                 }

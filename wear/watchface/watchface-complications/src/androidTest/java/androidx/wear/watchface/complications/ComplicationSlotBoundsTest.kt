@@ -21,8 +21,8 @@ import android.graphics.RectF
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.MediumTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.test.R
 import com.google.common.truth.Truth.assertThat
@@ -49,44 +49,43 @@ class ComplicationSlotBoundsTest {
         val bounds = ComplicationSlotBounds.inflate(context.resources, parser, 1.0f, 1.0f)!!
 
         // SHORT_TEXT, LONG_TEXT and RANGED_VALUE should match the input
-        assertThat(
-            bounds.perComplicationTypeBounds[ComplicationType.SHORT_TEXT]
-        ).isEqualTo(RectF(0.2f, 0.4f, 0.3f, 0.1f))
-        assertThat(
-            bounds.perComplicationTypeMargins[ComplicationType.SHORT_TEXT]
-        ).isEqualTo(RectF(0.1f, 0.2f, 0.3f, 0.4f))
+        assertThat(bounds.perComplicationTypeBounds[ComplicationType.SHORT_TEXT])
+            .isEqualTo(RectF(0.2f, 0.4f, 0.3f, 0.1f))
+        assertThat(bounds.perComplicationTypeMargins[ComplicationType.SHORT_TEXT])
+            .isEqualTo(RectF(0.1f, 0.2f, 0.3f, 0.4f))
 
         val widthPixels = context.resources.displayMetrics.widthPixels
 
-        assertThat(
-            bounds.perComplicationTypeBounds[ComplicationType.LONG_TEXT]
-        ).isEqualTo(RectF(
-            96f * context.resources.displayMetrics.density / widthPixels,
-            96f * context.resources.displayMetrics.density / widthPixels,
-            192f * context.resources.displayMetrics.density / widthPixels,
-            192f * context.resources.displayMetrics.density / widthPixels
-        ))
+        assertThat(bounds.perComplicationTypeBounds[ComplicationType.LONG_TEXT])
+            .isEqualTo(
+                RectF(
+                    96f * context.resources.displayMetrics.density / widthPixels,
+                    96f * context.resources.displayMetrics.density / widthPixels,
+                    192f * context.resources.displayMetrics.density / widthPixels,
+                    192f * context.resources.displayMetrics.density / widthPixels
+                )
+            )
         assertThat(bounds.perComplicationTypeMargins[ComplicationType.LONG_TEXT]).isEqualTo(RectF())
 
-        assertThat(
-            bounds.perComplicationTypeBounds[ComplicationType.RANGED_VALUE]
-        ).isEqualTo(RectF(0.3f, 0.3f, 0.5f, 0.7f))
+        assertThat(bounds.perComplicationTypeBounds[ComplicationType.RANGED_VALUE])
+            .isEqualTo(RectF(0.3f, 0.3f, 0.5f, 0.7f))
 
         val center = context.resources.getDimension(R.dimen.complication_center) / widthPixels
         val halfSize =
             context.resources.getDimension(R.dimen.complication_size) / widthPixels / 2.0f
-        assertThat(
-            bounds.perComplicationTypeBounds[ComplicationType.SMALL_IMAGE]
-        ).isEqualTo(RectF(
-            center - halfSize, center - halfSize, center + halfSize, center + halfSize
-        ))
+        assertThat(bounds.perComplicationTypeBounds[ComplicationType.SMALL_IMAGE])
+            .isEqualTo(
+                RectF(center - halfSize, center - halfSize, center + halfSize, center + halfSize)
+            )
 
         // All other types should have been backfilled with an empty rect.
         for (type in ComplicationType.values()) {
-            if (type != ComplicationType.SHORT_TEXT &&
-                type != ComplicationType.LONG_TEXT &&
-                type != ComplicationType.RANGED_VALUE &&
-                type != ComplicationType.SMALL_IMAGE) {
+            if (
+                type != ComplicationType.SHORT_TEXT &&
+                    type != ComplicationType.LONG_TEXT &&
+                    type != ComplicationType.RANGED_VALUE &&
+                    type != ComplicationType.SMALL_IMAGE
+            ) {
                 assertThat(bounds.perComplicationTypeBounds[type]).isEqualTo(RectF())
             }
         }

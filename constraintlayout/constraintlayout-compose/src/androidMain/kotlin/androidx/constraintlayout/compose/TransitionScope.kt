@@ -18,68 +18,23 @@ package androidx.constraintlayout.compose
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.RememberObserver
-import androidx.compose.runtime.currentRecomposeScope
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateObserver
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.core.parser.CLArray
 import androidx.constraintlayout.core.parser.CLContainer
 import androidx.constraintlayout.core.parser.CLNumber
 import androidx.constraintlayout.core.parser.CLObject
 import androidx.constraintlayout.core.parser.CLString
-import androidx.constraintlayout.core.state.CorePixelDp
 import kotlin.properties.ObservableProperty
 import kotlin.reflect.KProperty
 
 @ExperimentalMotionApi
-@Composable
 fun Transition(
     from: String = "start",
     to: String = "end",
     transitionContent: TransitionScope.() -> Unit
 ): Transition {
-    val dpToPixel = with(LocalDensity.current) { 1.dp.toPx() }
-    val transitionScope = remember(from, to) { TransitionScope(from, to) }
-    val snapshotObserver = remember {
-        // We use a Snapshot observer to know when state within the DSL has changed and recompose
-        // the transition object
-        SnapshotStateObserver {
-            it()
-        }
-    }
-    remember {
-        object : RememberObserver {
-            override fun onAbandoned() {
-                // TODO: Investigate if we need to do something here
-            }
-
-            override fun onForgotten() {
-                snapshotObserver.stop()
-                snapshotObserver.clear()
-            }
-
-            override fun onRemembered() {
-                snapshotObserver.start()
-            }
-        }
-    }
-    snapshotObserver.observeReads(currentRecomposeScope, {
-        it.invalidate()
-    }) {
-        transitionScope.reset()
-        // Observe state changes within the DSL, to know when to invalidate and update the
-        // Transition
-        transitionScope.transitionContent()
-    }
-    return remember {
-        TransitionImpl(
-            transitionScope.getObject(),
-            CorePixelDp { dpValue -> dpValue * dpToPixel }
-        )
-    }
+    val transitionScope = TransitionScope(from, to)
+    transitionScope.transitionContent()
+    return TransitionImpl(transitionScope.getObject())
 }
 
 @ExperimentalMotionApi
@@ -264,18 +219,48 @@ class KeyCyclesScope internal constructor(vararg targets: ConstrainedLayoutRefer
 
 @ExperimentalMotionApi
 abstract class BaseKeyFrameScope internal constructor() {
-    protected val userAttributes = mutableMapOf<String, Any>()
+    /**
+     * PropertyName-Value map for the properties of each type of key frame.
+     *
+     * The values are for a singular unspecified frame.
+     */
+    private val keyFramePropertiesValue = mutableMapOf<String, Any>()
 
+    /**
+     * PropertyName-Value map for user-defined values.
+     *
+     * Typically used on KeyAttributes only.
+     */
+    internal val customPropertiesValue = mutableMapOf<String, Any>()
+
+    /**
+     * When changed, updates the value of type [T] on the [keyFramePropertiesValue] map.
+     *
+     * Where the Key is the property's name unless [nameOverride] is not null.
+     */
     protected fun <T> addOnPropertyChange(initialValue: T, nameOverride: String? = null) =
         object : ObservableProperty<T>(initialValue) {
             override fun afterChange(property: KProperty<*>, oldValue: T, newValue: T) {
                 val name = nameOverride ?: property.name
                 if (newValue != null) {
-                    userAttributes[name] = newValue
+                    keyFramePropertiesValue[name] = newValue
                 }
             }
         }
 
+    /**
+     * Property delegate that updates the [keyFramePropertiesValue] map on value changes.
+     *
+     * Where the Key is the property's name unless [nameOverride] is not null.
+     *
+     * The value is the String given by [NamedPropertyOrValue.name].
+     *
+     * &nbsp;
+     *
+     * Use when declaring properties that have a named value.
+     *
+     * E.g.: `var curveFit: CurveFit? by addNameOnPropertyChange(null)`
+     */
     protected fun <E : NamedPropertyOrValue?> addNameOnPropertyChange(
         initialValue: E,
         nameOverride: String? = null
@@ -284,14 +269,35 @@ abstract class BaseKeyFrameScope internal constructor() {
             override fun afterChange(property: KProperty<*>, oldValue: E, newValue: E) {
                 val name = nameOverride ?: property.name
                 if (newValue != null) {
-                    userAttributes[name] = newValue.name
+                    keyFramePropertiesValue[name] = newValue.name
                 }
             }
         }
 
-    fun addToContainer(container: CLContainer) {
-        userAttributes.forEach { (name, value) ->
-            val array = container.getArrayOrCreate(name)
+    /**
+     * Adds the property maps to the given container.
+     *
+     * Where every value is treated as part of array.
+     */
+    internal fun addToContainer(container: CLContainer) {
+        container.putValuesAsArrayElements(keyFramePropertiesValue)
+        val customPropsObject = container.getObjectOrNull("custom") ?: run {
+            val custom = CLObject(charArrayOf())
+            container.put("custom", custom)
+            custom
+        }
+        customPropsObject.putValuesAsArrayElements(customPropertiesValue)
+    }
+
+    /**
+     * Adds the values from [propertiesSource] to the [CLContainer].
+     *
+     * Each value will be added as a new element of their corresponding array (given by the Key,
+     * which is the name of the affected property).
+     */
+    private fun CLContainer.putValuesAsArrayElements(propertiesSource: Map<String, Any>) {
+        propertiesSource.forEach { (name, value) ->
+            val array = this.getArrayOrCreate(name)
             when (value) {
                 is String -> {
                     val stringChars = value.toCharArray()
@@ -395,6 +401,8 @@ class Arc internal constructor(val name: String) {
         val StartVertical = Arc("startVertical")
         val StartHorizontal = Arc("startHorizontal")
         val Flip = Arc("flip")
+        val Below = Arc("below")
+        val Above = Arc("above")
     }
 }
 

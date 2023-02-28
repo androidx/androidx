@@ -28,9 +28,10 @@ import androidx.activity.ComponentActivity
 class ConfigurableActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val textContent = intent.getStringExtra(EXTRA_TEXT)
 
         val view = TextView(this).apply {
-            text = intent.getStringExtra(EXTRA_TEXT)
+            text = textContent
         }
         setContentView(view)
 
@@ -50,7 +51,11 @@ class ConfigurableActivity : ComponentActivity() {
             else -> {
                 // report delayed, modify text
                 val runnable = {
-                    view.text = FULLY_DRAWN_TEXT
+                    view.text = if (textContent == INNER_ACTIVITY_TEXT) {
+                        INNER_ACTIVITY_FULLY_DRAWN_TEXT
+                    } else {
+                        FULLY_DRAWN_TEXT
+                    }
                     reportFullyDrawn()
                 }
                 view.postDelayed(runnable, reportFullyDrawnDelayMs)
@@ -76,6 +81,7 @@ class ConfigurableActivity : ComponentActivity() {
         private const val EXTRA_REPORT_FULLY_DRAWN_DELAY_MS = "REPORT_FULLY_DRAWN_DELAY_MS"
         const val FULLY_DRAWN_TEXT = "FULLY DRAWN"
         const val INNER_ACTIVITY_TEXT = "INNER ACTIVITY"
+        const val INNER_ACTIVITY_FULLY_DRAWN_TEXT = "INNER ACTIVITY FULLY DRAWN"
 
         fun createIntent(
             text: String,

@@ -40,16 +40,20 @@ import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
 import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.SIZE
 import androidx.camera.core.imagecapture.Utils.WIDTH
+import androidx.camera.core.imagecapture.Utils.createCameraCaptureResultImageInfo
 import androidx.camera.core.imagecapture.Utils.injectRotationOptionQuirk
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.CaptureConfig.OPTION_ROTATION
+import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.IoConfig.OPTION_IO_EXECUTOR
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageReaderProxy
+import androidx.camera.testing.fakes.GrayscaleImageEffect
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -77,6 +81,7 @@ class ImagePipelineTest {
     }
 
     private lateinit var imagePipeline: ImagePipeline
+    private lateinit var imageCaptureConfig: ImageCaptureConfig
 
     @Before
     fun setUp() {
@@ -86,7 +91,8 @@ class ImagePipelineTest {
         }
         builder.mutableConfig.insertOption(OPTION_IO_EXECUTOR, mainThreadExecutor())
         builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
-        imagePipeline = ImagePipeline(builder.useCaseConfig, SIZE)
+        imageCaptureConfig = builder.useCaseConfig
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE)
     }
 
     @After
@@ -95,12 +101,29 @@ class ImagePipelineTest {
     }
 
     @Test
+    fun createPipelineWithoutEffect_processingNodeHasNoEffect() {
+        assertThat(imagePipeline.processingNode.mImageProcessor).isNull()
+    }
+
+    @Test
+    fun createPipelineWithEffect_processingNodeContainsEffect() {
+        assertThat(
+            ImagePipeline(
+                imageCaptureConfig,
+                SIZE,
+                GrayscaleImageEffect()
+            ).processingNode.mImageProcessor
+        ).isNotNull()
+    }
+
+    @Test
     fun createRequests_verifyCameraRequest() {
         // Arrange.
         val captureInput = imagePipeline.captureNode.inputEdge
 
         // Act: create requests
-        val result = imagePipeline.createRequests(IN_MEMORY_REQUEST, CALLBACK)
+        val result =
+            imagePipeline.createRequests(IN_MEMORY_REQUEST, CALLBACK, Futures.immediateFuture(null))
         // Assert: CameraRequest is constructed correctly.
         val cameraRequest = result.first!!
         val captureConfig = cameraRequest.captureConfigs.single()
@@ -114,8 +137,9 @@ class ImagePipelineTest {
         assertThat(captureConfig.implementationOptions.retrieveOption(OPTION_ROTATION))
             .isEqualTo(ROTATION_DEGREES)
 
-        // Act: fail the camera request.
-        cameraRequest.onCaptureFailure(FAILURE)
+        // Act: fail the processing request.
+        val processingRequest = result.second!!
+        processingRequest.onCaptureFailure(FAILURE)
         // Assert: The failure is propagated.
         assertThat(CALLBACK.captureFailure).isEqualTo(FAILURE)
     }
@@ -126,7 +150,8 @@ class ImagePipelineTest {
         injectRotationOptionQuirk()
 
         // Act: create requests
-        val result = imagePipeline.createRequests(IN_MEMORY_REQUEST, CALLBACK)
+        val result =
+            imagePipeline.createRequests(IN_MEMORY_REQUEST, CALLBACK, Futures.immediateFuture(null))
         // Assert: CameraRequest is constructed correctly.
         val cameraRequest = result.first!!
         val captureConfig = cameraRequest.captureConfigs.single()
@@ -137,7 +162,8 @@ class ImagePipelineTest {
     @Test
     fun createRequests_verifyProcessingRequest() {
         // Act: create requests
-        val result = imagePipeline.createRequests(IN_MEMORY_REQUEST, CALLBACK)
+        val result =
+            imagePipeline.createRequests(IN_MEMORY_REQUEST, CALLBACK, Futures.immediateFuture(null))
         // Assert: ProcessingRequest is constructed correctly.
         val processingRequest = result.second!!
         assertThat(processingRequest.jpegQuality).isEqualTo(IN_MEMORY_REQUEST.jpegQuality)
@@ -212,7 +238,7 @@ class ImagePipelineTest {
         )
 
         // Act: create camera request.
-        val result = imagePipeline.createRequests(request, CALLBACK)
+        val result = imagePipeline.createRequests(request, CALLBACK, Futures.immediateFuture(null))
 
         // Get JPEG quality and return.
         val cameraRequest = result.first!!
@@ -225,7 +251,8 @@ class ImagePipelineTest {
     @Test
     fun createRequests_captureTagMatches() {
         // Act: create requests
-        val result = imagePipeline.createRequests(IN_MEMORY_REQUEST, CALLBACK)
+        val result =
+            imagePipeline.createRequests(IN_MEMORY_REQUEST, CALLBACK, Futures.immediateFuture(null))
 
         // Assert: ProcessingRequest's tag matches camera request.
         val cameraRequest = result.first!!
@@ -239,16 +266,17 @@ class ImagePipelineTest {
     fun sendInMemoryRequest_receivesImageProxy() {
         // Arrange.
         val processingRequest = imagePipeline.createRequests(
-            IN_MEMORY_REQUEST, CALLBACK
+            IN_MEMORY_REQUEST, CALLBACK, Futures.immediateFuture(null)
         ).second!!
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
-        val imageInfo = FakeImageInfo().apply {
-            this.setTag(processingRequest.tagBundleKey, processingRequest.stageIds.single())
-        }
+        val imageInfo = createCameraCaptureResultImageInfo(
+            processingRequest.tagBundleKey,
+            processingRequest.stageIds.single()
+        )
         val image = createJpegFakeImageProxy(imageInfo, jpegBytes)
 
         // Act: send processing request and the image.
-        imagePipeline.postProcess(processingRequest)
+        imagePipeline.submitProcessingRequest(processingRequest)
         imagePipeline.captureNode.onImageProxyAvailable(image)
         shadowOf(getMainLooper()).idle()
 
@@ -269,11 +297,27 @@ class ImagePipelineTest {
         for (i in 0 until MAX_IMAGES) {
             val imageInfo = FakeImageInfo()
             imageReaderProxy.triggerImageAvailable(imageInfo.tagBundle, 0)
-            imagePipeline.captureNode.mSafeCloseImageReaderProxy.acquireNextImage()
+            imagePipeline.captureNode.mSafeCloseImageReaderProxy!!.acquireNextImage()
                 ?.let { images.add(it) }
         }
 
         // Assert: the capacity of queue is 0.
         assertThat(imagePipeline.capacity).isEqualTo(0)
+    }
+
+    @Test
+    fun notifyCallbackError_captureFailureIsCalled() {
+        // Arrange.
+        val processingRequest = imagePipeline.createRequests(
+            IN_MEMORY_REQUEST, CALLBACK, Futures.immediateFuture(null)
+        ).second!!
+
+        // Act: send processing request and the image.
+        imagePipeline.submitProcessingRequest(processingRequest)
+        imagePipeline.notifyCaptureError(FAILURE)
+
+        shadowOf(getMainLooper()).idle()
+        // Assert: The failure is propagated.
+        assertThat(CALLBACK.captureFailure).isEqualTo(FAILURE)
     }
 }

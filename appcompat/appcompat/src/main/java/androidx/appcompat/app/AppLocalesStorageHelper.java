@@ -23,11 +23,11 @@ import static androidx.appcompat.app.AppCompatDelegate.getApplicationLocales;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.util.Xml;
 
 import androidx.annotation.NonNull;
-import androidx.core.os.LocaleListCompat;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -170,36 +170,41 @@ class AppLocalesStorageHelper {
      * this method will throw an error.</p>
      */
     static void syncLocalesToFramework(Context context) {
-        ComponentName app_locales_component = new ComponentName(
-                context, APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME);
+        if (Build.VERSION.SDK_INT >= 33) {
+            ComponentName app_locales_component = new ComponentName(
+                    context, APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME);
 
-        if (context.getPackageManager().getComponentEnabledSetting(app_locales_component)
-                != COMPONENT_ENABLED_STATE_ENABLED) {
-            AppCompatDelegate.setAppContext(context);
-            // ComponentEnabledSetting for the app component app_locales_component is used as a
-            // marker to represent that the locales has been synced from AndroidX to framework
-            // If this marker is found in ENABLED state then we do not need to sync again.
-            if (getApplicationLocales().isEmpty()) {
-                // We check if some locales are applied by the framework or not (this is done to
-                // ensure that we don't overwrite newer locales set by the framework). If no
-                // app-locales are found then we need to sync the app-specific locales from androidX
-                // to framework.
+            if (context.getPackageManager().getComponentEnabledSetting(app_locales_component)
+                    != COMPONENT_ENABLED_STATE_ENABLED) {
+                // ComponentEnabledSetting for the app component app_locales_component is used as a
+                // marker to represent that the locales has been synced from AndroidX to framework
+                // If this marker is found in ENABLED state then we do not need to sync again.
+                if (getApplicationLocales().isEmpty()) {
+                    // We check if some locales are applied by the framework or not (this is done to
+                    // ensure that we don't overwrite newer locales set by the framework). If no
+                    // app-locales are found then we need to sync the app-specific locales from
+                    // androidX to framework.
 
-                String appLocales = readLocales(context);
-                // if locales are present in storage, call the setApplicationLocales() API. As the
-                // API version is >= 33, this call will be directed to the framework API and the
-                // locales will be persisted there.
-                AppCompatDelegate.setApplicationLocales(
-                        LocaleListCompat.forLanguageTags(appLocales));
+                    String appLocales = readLocales(context);
+                    // if locales are present in storage, call the setApplicationLocales() API. As
+                    // the API version is >= 33, this call will be directed to the framework API and
+                    // the locales will be persisted there.
+                    Object localeManager = context.getSystemService(Context.LOCALE_SERVICE);
+                    if (localeManager != null) {
+                        AppCompatDelegate.Api33Impl.localeManagerSetApplicationLocales(
+                                localeManager,
+                                AppCompatDelegate.Api24Impl.localeListForLanguageTags(appLocales));
+                    }
+                }
+                // setting ComponentEnabledSetting for app component using
+                // AppLocalesMetadataHolderService (used only for locales, thus minimizing
+                // the chances of conflicts). Setting it as ENABLED marks the success of app-locales
+                // sync from AndroidX to framework.
+                // Flag DONT_KILL_APP indicates that you don't want to kill the app containing the
+                // component.
+                context.getPackageManager().setComponentEnabledSetting(app_locales_component,
+                        COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ DONT_KILL_APP);
             }
-            // setting ComponentEnabledSetting for app component using
-            // AppLocalesMetadataHolderService (used only for locales, thus minimizing
-            // the chances of conflicts). Setting it as ENABLED marks the success of app-locales
-            // sync from AndroidX to framework.
-            // Flag DONT_KILL_APP indicates that you don't want to kill the app containing the
-            // component.
-            context.getPackageManager().setComponentEnabledSetting(app_locales_component,
-                    COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ DONT_KILL_APP);
         }
     }
 

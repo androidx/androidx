@@ -18,13 +18,17 @@ package androidx.wear.compose.material
 
 import android.os.Build
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -52,12 +56,22 @@ class HorizontalPageIndicatorScreenshotTest {
 
     @Test
     fun horizontalPageIndicator_circular_selected_page() {
-        selected_page(PageIndicatorStyle.Curved)
+        selected_page(PageIndicatorStyle.Curved, LayoutDirection.Ltr)
     }
 
     @Test
     fun horizontalPageIndicator_linear_selected_page() {
-        selected_page(PageIndicatorStyle.Linear)
+        selected_page(PageIndicatorStyle.Linear, LayoutDirection.Ltr)
+    }
+
+    @Test
+    fun horizontalPageIndicator_circular_selected_page_rtl() {
+        selected_page(PageIndicatorStyle.Curved, LayoutDirection.Rtl)
+    }
+
+    @Test
+    fun horizontalPageIndicator_linear_selected_page_rtl() {
+        selected_page(PageIndicatorStyle.Linear, LayoutDirection.Rtl)
     }
 
     @Test
@@ -70,16 +84,14 @@ class HorizontalPageIndicatorScreenshotTest {
         between_pages(PageIndicatorStyle.Linear)
     }
 
-    private fun selected_page(indicatorStyle: PageIndicatorStyle) {
+    private fun selected_page(
+        indicatorStyle: PageIndicatorStyle,
+        layoutDirection: LayoutDirection
+    ) {
         rule.setContentWithTheme {
-            HorizontalPageIndicator(
-                modifier = Modifier.testTag(TEST_TAG).size(150.dp),
-                indicatorStyle = indicatorStyle,
-                pageIndicatorState = pageIndicatorState(),
-                selectedColor = Color.Yellow,
-                unselectedColor = Color.Red,
-                indicatorSize = 15.dp
-            )
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                defaultHorizontalPageIndicator(indicatorStyle)
+            }
         }
         rule.waitForIdle()
 
@@ -91,7 +103,9 @@ class HorizontalPageIndicatorScreenshotTest {
     private fun between_pages(indicatorStyle: PageIndicatorStyle) {
         rule.setContentWithTheme {
             HorizontalPageIndicator(
-                modifier = Modifier.testTag(TEST_TAG).size(150.dp),
+                modifier = Modifier
+                    .testTag(TEST_TAG)
+                    .size(150.dp),
                 indicatorStyle = indicatorStyle,
                 pageIndicatorState = pageIndicatorState(0.5f),
                 selectedColor = Color.Yellow,
@@ -104,5 +118,19 @@ class HorizontalPageIndicatorScreenshotTest {
         rule.onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
+    }
+
+    @Composable
+    private fun defaultHorizontalPageIndicator(indicatorStyle: PageIndicatorStyle) {
+        HorizontalPageIndicator(
+            modifier = Modifier
+                .testTag(TEST_TAG)
+                .size(150.dp),
+            indicatorStyle = indicatorStyle,
+            pageIndicatorState = pageIndicatorState(),
+            selectedColor = Color.Yellow,
+            unselectedColor = Color.Red,
+            indicatorSize = 15.dp
+        )
     }
 }

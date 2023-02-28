@@ -39,9 +39,11 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowCameraCharacteristics
+import org.robolectric.util.ReflectionHelpers
 
 val YUV_REPROCESSING_MAXIMUM_SIZE = Size(4000, 3000)
 val PRIVATE_REPROCESSING_MAXIMUM_SIZE = Size(3000, 2000)
+private const val CAMERA_ID_0 = "0"
 
 /**
  * Unit tests for [ZslControlImpl].
@@ -49,20 +51,20 @@ val PRIVATE_REPROCESSING_MAXIMUM_SIZE = Size(3000, 2000)
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.M)
-public class ZslControlImplTest {
+class ZslControlImplTest {
 
     private lateinit var zslControl: ZslControlImpl
     private lateinit var sessionConfigBuilder: SessionConfig.Builder
 
     @Before
-    public fun setUp() {
+    fun setUp() {
         sessionConfigBuilder = SessionConfig.Builder().also { sessionConfigBuilder ->
             sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
         }
     }
 
     @Test
-    public fun isPrivateReprocessingSupported_addZslConfig() {
+    fun isPrivateReprocessingSupported_addZslConfig() {
         zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
             hasCapabilities = true,
             isYuvReprocessingSupported = false,
@@ -85,7 +87,7 @@ public class ZslControlImplTest {
     }
 
     @Test
-    public fun isYuvReprocessingSupported_notAddZslConfig() {
+    fun isYuvReprocessingSupported_notAddZslConfig() {
         zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
             hasCapabilities = true,
             isYuvReprocessingSupported = true,
@@ -99,7 +101,7 @@ public class ZslControlImplTest {
     }
 
     @Test
-    public fun isJpegNotValidOutputFormat_notAddZslConfig() {
+    fun isJpegNotValidOutputFormat_notAddZslConfig() {
         zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
             hasCapabilities = true,
             isYuvReprocessingSupported = true,
@@ -113,7 +115,7 @@ public class ZslControlImplTest {
     }
 
     @Test
-    public fun isReprocessingNotSupported_notAddZslConfig() {
+    fun isReprocessingNotSupported_notAddZslConfig() {
         zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
             hasCapabilities = true,
             isYuvReprocessingSupported = false,
@@ -127,7 +129,7 @@ public class ZslControlImplTest {
     }
 
     @Test
-    public fun isZslDisabledByUserCaseConfig_notAddZslConfig() {
+    fun isZslDisabledByUserCaseConfig_notAddZslConfig() {
         zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
             hasCapabilities = true,
             isYuvReprocessingSupported = false,
@@ -142,7 +144,7 @@ public class ZslControlImplTest {
     }
 
     @Test
-    public fun isZslDisabledByFlashMode_addZslConfig() {
+    fun isZslDisabledByFlashMode_addZslConfig() {
         zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
             hasCapabilities = true,
             isYuvReprocessingSupported = false,
@@ -166,7 +168,7 @@ public class ZslControlImplTest {
     }
 
     @Test
-    public fun isZslDisabled_clearZslConfig() {
+    fun isZslDisabled_clearZslConfig() {
         zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
             hasCapabilities = true,
             isYuvReprocessingSupported = false,
@@ -180,6 +182,49 @@ public class ZslControlImplTest {
         zslControl.addZslConfig(sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNull()
+    }
+
+    @Test
+    fun hasZslDisablerQuirk_notAddZslConfig() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "samsung")
+        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-F936B")
+
+        zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = false,
+            isPrivateReprocessingSupported = true,
+            isJpegValidOutputFormat = true
+        ))
+
+        zslControl.addZslConfig(sessionConfigBuilder)
+
+        assertThat(zslControl.mReprocessingImageReader).isNull()
+    }
+
+    @Test
+    fun hasNoZslDisablerQuirk_addZslConfig() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "samsung")
+        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-G973")
+
+        zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = false,
+            isPrivateReprocessingSupported = true,
+            isJpegValidOutputFormat = true
+        ))
+
+        zslControl.addZslConfig(sessionConfigBuilder)
+
+        assertThat(zslControl.mReprocessingImageReader).isNotNull()
+        assertThat(zslControl.mReprocessingImageReader.imageFormat).isEqualTo(PRIVATE)
+        assertThat(zslControl.mReprocessingImageReader.maxImages).isEqualTo(
+            MAX_IMAGES)
+        assertThat(zslControl.mReprocessingImageReader.width).isEqualTo(
+            PRIVATE_REPROCESSING_MAXIMUM_SIZE.width)
+        assertThat(zslControl.mReprocessingImageReader.height).isEqualTo(
+            PRIVATE_REPROCESSING_MAXIMUM_SIZE.height)
+        assertThat(zslControl.mImageRingBuffer.maxCapacity).isEqualTo(
+            RING_BUFFER_CAPACITY)
     }
 
     private fun createCameraCharacteristicsCompat(
@@ -249,6 +294,9 @@ public class ZslControlImplTest {
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, streamConfigurationMap)
         }
 
-        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics)
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+            characteristics,
+            CAMERA_ID_0
+        )
     }
 }

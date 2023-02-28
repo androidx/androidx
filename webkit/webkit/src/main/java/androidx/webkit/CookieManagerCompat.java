@@ -20,7 +20,6 @@ import android.webkit.CookieManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.ApiFeature;
 import androidx.webkit.internal.CookieManagerAdapter;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -30,9 +29,7 @@ import java.util.List;
 
 /**
  * Compatibility version of {@link android.webkit.CookieManager}
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CookieManagerCompat {
     private CookieManagerCompat() {}
 
@@ -44,9 +41,7 @@ public class CookieManagerCompat {
      *
      * @param url the URL for which the API retrieves all available cookies.
      * @return the cookies as a list of strings.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.GET_COOKIE_INFO,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull List<String> getCookieInfo(@NonNull CookieManager cookieManager,

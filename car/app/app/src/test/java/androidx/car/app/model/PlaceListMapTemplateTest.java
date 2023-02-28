@@ -109,7 +109,7 @@ public class PlaceListMapTemplateTest {
     }
 
     @Test
-    public void addList_hasToggle_throws() {
+    public void addList_hasToggle() {
         SpannableString title = new SpannableString("Title");
         title.setSpan(mDistanceSpan, /* start= */ 0, /* end= */ 1, /* flags= */ 0);
         Row rowWithToggle =
@@ -117,18 +117,16 @@ public class PlaceListMapTemplateTest {
                 }).build()).build();
         Row rowMeetingRestrictions =
                 new Row.Builder().setTitle(title).addText("text1").addText("text2").build();
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new PlaceListMapTemplate.Builder()
-                                .setTitle("Title")
-                                .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
-                                .build());
 
         // Positive cases.
         new PlaceListMapTemplate.Builder()
                 .setTitle("Title")
                 .setItemList(new ItemList.Builder().addItem(rowMeetingRestrictions).build())
+                .build();
+
+        new PlaceListMapTemplate.Builder()
+                .setTitle("Title")
+                .setItemList(new ItemList.Builder().addItem(rowWithToggle).build())
                 .build();
     }
 

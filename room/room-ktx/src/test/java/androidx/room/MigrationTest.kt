@@ -116,7 +116,7 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun query(query: String, bindArgs: Array<Any?>): Cursor {
+    override fun query(query: String, bindArgs: Array<out Any?>): Cursor {
         throw UnsupportedOperationException()
     }
 
@@ -135,7 +135,7 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun delete(table: String, whereClause: String?, whereArgs: Array<Any?>?): Int {
+    override fun delete(table: String, whereClause: String?, whereArgs: Array<out Any?>?): Int {
         throw UnsupportedOperationException()
     }
 
@@ -144,7 +144,7 @@ private class FakeDB : SupportSQLiteDatabase {
         conflictAlgorithm: Int,
         values: ContentValues,
         whereClause: String?,
-        whereArgs: Array<Any?>?
+        whereArgs: Array<out Any?>?
     ): Int {
         throw UnsupportedOperationException()
     }
@@ -153,7 +153,7 @@ private class FakeDB : SupportSQLiteDatabase {
         throw UnsupportedOperationException()
     }
 
-    override fun execSQL(sql: String, bindArgs: Array<Any?>) {
+    override fun execSQL(sql: String, bindArgs: Array<out Any?>) {
         throw UnsupportedOperationException()
     }
 

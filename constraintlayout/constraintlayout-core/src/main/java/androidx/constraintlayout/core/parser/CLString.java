@@ -15,6 +15,11 @@
  */
 package androidx.constraintlayout.core.parser;
 
+import androidx.annotation.NonNull;
+
+/**
+ * {@link CLElement} implementation for json Strings when used as property values or array elements.
+ */
 public class CLString extends CLElement {
 
     public CLString(char[] content) {
@@ -24,6 +29,17 @@ public class CLString extends CLElement {
     // @TODO: add description
     public static CLElement allocate(char[] content) {
         return new CLString(content);
+    }
+
+    /**
+     * Creates a {@link CLString} element from a String object.
+     */
+    @NonNull
+    public static CLString from(@NonNull String content) {
+        CLString stringElement = new CLString(content.toCharArray());
+        stringElement.setStart(0L);
+        stringElement.setEnd(content.length() - 1);
+        return stringElement;
     }
 
     @Override
@@ -39,6 +55,22 @@ public class CLString extends CLElement {
         json.append(content());
         json.append("'");
         return json.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof CLString && this.content().equals(((CLString) obj).content())) {
+            return true;
+        }
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }
 

@@ -53,7 +53,6 @@ import kotlin.coroutines.EmptyCoroutineContext
  * state again.
  * @param context [CoroutineContext] to use for collecting.
  */
-@ExperimentalLifecycleComposeApi
 @Composable
 fun <T> StateFlow<T>.collectAsStateWithLifecycle(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
@@ -88,7 +87,6 @@ fun <T> StateFlow<T>.collectAsStateWithLifecycle(
  * state again.
  * @param context [CoroutineContext] to use for collecting.
  */
-@ExperimentalLifecycleComposeApi
 @Composable
 fun <T> StateFlow<T>.collectAsStateWithLifecycle(
     lifecycle: Lifecycle,
@@ -126,7 +124,6 @@ fun <T> StateFlow<T>.collectAsStateWithLifecycle(
  * state again.
  * @param context [CoroutineContext] to use for collecting.
  */
-@ExperimentalLifecycleComposeApi
 @Composable
 fun <T> Flow<T>.collectAsStateWithLifecycle(
     initialValue: T,
@@ -163,7 +160,6 @@ fun <T> Flow<T>.collectAsStateWithLifecycle(
  * state again.
  * @param context [CoroutineContext] to use for collecting.
  */
-@ExperimentalLifecycleComposeApi
 @Composable
 fun <T> Flow<T>.collectAsStateWithLifecycle(
     initialValue: T,

@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo
 import androidx.core.os.bundleOf
 import androidx.savedstate.SavedStateRegistry
 import java.io.Serializable
+import java.lang.ClassCastException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -220,8 +221,15 @@ class SavedStateHandle {
      */
     @MainThread
     operator fun <T> get(key: String): T? {
-        @Suppress("UNCHECKED_CAST")
-        return regular[key] as T?
+        return try {
+            @Suppress("UNCHECKED_CAST")
+            regular[key] as T?
+        } catch (e: ClassCastException) {
+            // Instead of failing on ClassCastException, we remove the value from the
+            // SavedStateHandle and return null.
+            remove<T>(key)
+            null
+        }
     }
 
     /**

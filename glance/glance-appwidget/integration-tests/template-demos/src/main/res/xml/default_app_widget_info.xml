@@ -20,6 +20,6 @@
     android:minResizeHeight="40dp"
     android:minResizeWidth="40dp"
     android:initialLayout="@layout/glance_default_loading_layout"
-    android:previewImage="@drawable/compose"
+    android:previewImage="@drawable/palm_leaf"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen" />

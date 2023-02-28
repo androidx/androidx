@@ -1,0 +1,20 @@
+<resources>
+  <style name="ProtoLayoutFallbackTextAppearance">
+    <!-- Note that many properties are non-overridable, as they are explicitly
+         set by inflateText (e.g. bold, italic, size etc).  -->
+    <item name="android:fontFamily">sans-serif</item>
+    <item name="android:textSize">16sp</item>
+  </style>
+
+  <style name="ProtoLayoutBaseFont">
+    <item name="protoLayoutNormalFont">sans-serif</item>
+    <item name="protoLayoutMediumFont">sans-serif-medium</item>
+    <item name="protoLayoutBoldFont">sans-serif</item>
+  </style>
+
+  <style name="ProtoLayoutBaseTheme">
+    <item name="protoLayoutFallbackTextAppearance">@style/ProtoLayoutFallbackTextAppearance</item>
+    <item name="protoLayoutTitleFont">@style/ProtoLayoutBaseFont</item>
+    <item name="protoLayoutBodyFont">@style/ProtoLayoutBaseFont</item>
+  </style>
+</resources>

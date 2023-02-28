@@ -30,7 +30,6 @@ import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestD
 
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.lifecycle.util.InstantTaskExecutor;
 
@@ -59,12 +58,7 @@ public class TransformationsTest {
     @Test
     public void testMap() {
         LiveData<String> source = new MutableLiveData<>();
-        LiveData<Integer> mapped = Transformations.map(source, new Function<String, Integer>() {
-            @Override
-            public Integer apply(String input) {
-                return input.length();
-            }
-        });
+        LiveData<Integer> mapped = Transformations.map(source, String::length);
         Observer<Integer> observer = mock(Observer.class);
         mapped.observe(mOwner, observer);
         source.setValue("four");
@@ -76,15 +70,13 @@ public class TransformationsTest {
         LiveData<Integer> trigger = new MutableLiveData<>();
         final LiveData<String> first = new MutableLiveData<>();
         final LiveData<String> second = new MutableLiveData<>();
-        LiveData<String> result = Transformations.switchMap(trigger,
-                new Function<Integer, LiveData<String>>() {
-                    @Override
-                    public LiveData<String> apply(Integer input) {
-                        if (input == 1) {
-                            return first;
-                        } else {
-                            return second;
-                        }
+        LiveData<String> result = Transformations.switchMap(
+                trigger,
+                (Integer input) -> {
+                    if (input == 1) {
+                        return first;
+                    } else {
+                        return second;
                     }
                 });
 
@@ -109,15 +101,13 @@ public class TransformationsTest {
         LiveData<Integer> trigger = new MutableLiveData<>();
         final LiveData<String> first = new MutableLiveData<>();
         final LiveData<String> second = new MutableLiveData<>();
-        LiveData<String> result = Transformations.switchMap(trigger,
-                new Function<Integer, LiveData<String>>() {
-                    @Override
-                    public LiveData<String> apply(Integer input) {
-                        if (input == 1) {
-                            return first;
-                        } else {
-                            return second;
-                        }
+        LiveData<String> result = Transformations.switchMap(
+                trigger,
+                (Integer input) -> {
+                    if (input == 1) {
+                        return first;
+                    } else {
+                        return second;
                     }
                 });
 
@@ -146,13 +136,7 @@ public class TransformationsTest {
     public void testNoRedispatchSwitchMap() {
         LiveData<Integer> trigger = new MutableLiveData<>();
         final LiveData<String> first = new MutableLiveData<>();
-        LiveData<String> result = Transformations.switchMap(trigger,
-                new Function<Integer, LiveData<String>>() {
-                    @Override
-                    public LiveData<String> apply(Integer input) {
-                        return first;
-                    }
-                });
+        LiveData<String> result = Transformations.switchMap(trigger, (Integer input) -> first);
 
         Observer<String> observer = mock(Observer.class);
         result.observe(mOwner, observer);
@@ -169,15 +153,13 @@ public class TransformationsTest {
     public void testSwitchMapToNull() {
         LiveData<Integer> trigger = new MutableLiveData<>();
         final LiveData<String> first = new MutableLiveData<>();
-        LiveData<String> result = Transformations.switchMap(trigger,
-                new Function<Integer, LiveData<String>>() {
-                    @Override
-                    public LiveData<String> apply(Integer input) {
-                        if (input == 1) {
-                            return first;
-                        } else {
-                            return null;
-                        }
+        LiveData<String> result = Transformations.switchMap(
+                trigger,
+                (Integer input) -> {
+                    if (input == 1) {
+                        return first;
+                    } else {
+                        return null;
                     }
                 });
 
@@ -197,12 +179,7 @@ public class TransformationsTest {
     @Test
     public void noObsoleteValueTest() {
         MutableLiveData<Integer> numbers = new MutableLiveData<>();
-        LiveData<Integer> squared = Transformations.map(numbers, new Function<Integer, Integer>() {
-            @Override
-            public Integer apply(Integer input) {
-                return input * input;
-            }
-        });
+        LiveData<Integer> squared = Transformations.map(numbers, (Integer input) -> input * input);
 
         Observer observer = mock(Observer.class);
         squared.setValue(1);
@@ -213,6 +190,19 @@ public class TransformationsTest {
         numbers.setValue(2);
         squared.observeForever(observer);
         verify(observer, only()).onChanged(4);
+    }
+
+    @Test
+    public void testDistinctUntilChanged_initialValueIsSet() {
+        MutableLiveData<String> originalLiveData = new MutableLiveData<>("value");
+
+        LiveData<String> dedupedLiveData = Transformations.distinctUntilChanged(originalLiveData);
+        assertThat(dedupedLiveData.getValue(), is("value"));
+
+        CountingObserver<String> observer = new CountingObserver<>();
+        dedupedLiveData.observe(mOwner, observer);
+        assertThat(observer.mTimesUpdated, is(1));
+        assertThat(dedupedLiveData.getValue(), is("value"));
     }
 
     @Test
@@ -261,7 +251,7 @@ public class TransformationsTest {
         int mTimesUpdated;
 
         @Override
-        public void onChanged(@Nullable T t) {
+        public void onChanged(@Nullable T value) {
             ++mTimesUpdated;
         }
     }

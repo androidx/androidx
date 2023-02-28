@@ -16,35 +16,50 @@ package androidx.work {
   public final class Configuration {
     method public String? getDefaultProcessName();
     method public java.util.concurrent.Executor getExecutor();
-    method public androidx.work.InitializationExceptionHandler? getInitializationExceptionHandler();
+    method public androidx.core.util.Consumer<java.lang.Throwable>? getInitializationExceptionHandler();
     method public androidx.work.InputMergerFactory getInputMergerFactory();
     method public int getMaxJobSchedulerId();
     method public int getMinJobSchedulerId();
     method public androidx.work.RunnableScheduler getRunnableScheduler();
-    method public androidx.work.SchedulingExceptionHandler? getSchedulingExceptionHandler();
+    method public androidx.core.util.Consumer<java.lang.Throwable>? getSchedulingExceptionHandler();
     method public java.util.concurrent.Executor getTaskExecutor();
     method public androidx.work.WorkerFactory getWorkerFactory();
+    property public final String? defaultProcessName;
+    property public final java.util.concurrent.Executor executor;
+    property public final androidx.core.util.Consumer<java.lang.Throwable>? initializationExceptionHandler;
+    property public final androidx.work.InputMergerFactory inputMergerFactory;
+    property public final int maxJobSchedulerId;
+    property public final int minJobSchedulerId;
+    property public final androidx.work.RunnableScheduler runnableScheduler;
+    property public final androidx.core.util.Consumer<java.lang.Throwable>? schedulingExceptionHandler;
+    property public final java.util.concurrent.Executor taskExecutor;
+    property public final androidx.work.WorkerFactory workerFactory;
+    field public static final androidx.work.Configuration.Companion Companion;
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
   }
 
   public static final class Configuration.Builder {
     ctor public Configuration.Builder();
     method public androidx.work.Configuration build();
-    method public androidx.work.Configuration.Builder setDefaultProcessName(String);
-    method public androidx.work.Configuration.Builder setExecutor(java.util.concurrent.Executor);
-    method public androidx.work.Configuration.Builder setInitializationExceptionHandler(androidx.work.InitializationExceptionHandler);
-    method public androidx.work.Configuration.Builder setInputMergerFactory(androidx.work.InputMergerFactory);
-    method public androidx.work.Configuration.Builder setJobSchedulerJobIdRange(int, int);
-    method public androidx.work.Configuration.Builder setMaxSchedulerLimit(int);
-    method public androidx.work.Configuration.Builder setMinimumLoggingLevel(int);
-    method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler);
-    method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.work.SchedulingExceptionHandler);
-    method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor);
-    method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory);
+    method public androidx.work.Configuration.Builder setDefaultProcessName(String processName);
+    method public androidx.work.Configuration.Builder setExecutor(java.util.concurrent.Executor executor);
+    method public androidx.work.Configuration.Builder setInitializationExceptionHandler(androidx.core.util.Consumer<java.lang.Throwable> exceptionHandler);
+    method public androidx.work.Configuration.Builder setInputMergerFactory(androidx.work.InputMergerFactory inputMergerFactory);
+    method public androidx.work.Configuration.Builder setJobSchedulerJobIdRange(int minJobSchedulerId, int maxJobSchedulerId);
+    method public androidx.work.Configuration.Builder setMaxSchedulerLimit(int maxSchedulerLimit);
+    method public androidx.work.Configuration.Builder setMinimumLoggingLevel(int loggingLevel);
+    method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler runnableScheduler);
+    method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.core.util.Consumer<java.lang.Throwable> schedulingExceptionHandler);
+    method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor taskExecutor);
+    method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory workerFactory);
+  }
+
+  public static final class Configuration.Companion {
   }
 
   public static interface Configuration.Provider {
     method public androidx.work.Configuration getWorkManagerConfiguration();
+    property public abstract androidx.work.Configuration workManagerConfiguration;
   }
 
   public final class Constraints {
@@ -173,18 +188,14 @@ package androidx.work {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setForegroundAsync(android.content.Context, java.util.UUID, androidx.work.ForegroundInfo);
   }
 
-  public interface InitializationExceptionHandler {
-    method public void handleException(Throwable);
-  }
-
   public abstract class InputMerger {
     ctor public InputMerger();
-    method public abstract androidx.work.Data merge(java.util.List<androidx.work.Data!>);
+    method public abstract androidx.work.Data merge(java.util.List<androidx.work.Data> inputs);
   }
 
   public abstract class InputMergerFactory {
     ctor public InputMergerFactory();
-    method public abstract androidx.work.InputMerger? createInputMerger(String);
+    method public abstract androidx.work.InputMerger? createInputMerger(String className);
   }
 
   public abstract class ListenableWorker {
@@ -242,7 +253,7 @@ package androidx.work {
   }
 
   public final class OneTimeWorkRequestKt {
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.OneTimeWorkRequest.Builder! OneTimeWorkRequestBuilder();
+    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.OneTimeWorkRequest.Builder OneTimeWorkRequestBuilder();
     method public static inline androidx.work.OneTimeWorkRequest.Builder setInputMerger(androidx.work.OneTimeWorkRequest.Builder, kotlin.reflect.KClass<? extends androidx.work.InputMerger> inputMerger);
   }
 
@@ -274,7 +285,7 @@ package androidx.work {
 
   public final class OverwritingInputMerger extends androidx.work.InputMerger {
     ctor public OverwritingInputMerger();
-    method public androidx.work.Data merge(java.util.List<androidx.work.Data!>);
+    method public androidx.work.Data merge(java.util.List<androidx.work.Data> inputs);
   }
 
   public final class PeriodicWorkRequest extends androidx.work.WorkRequest {
@@ -294,10 +305,10 @@ package androidx.work {
   }
 
   public final class PeriodicWorkRequestKt {
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
-    method @RequiresApi(26) public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(java.time.Duration repeatInterval);
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexTimeInterval, java.util.concurrent.TimeUnit flexTimeIntervalUnit);
-    method @RequiresApi(26) public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder! PeriodicWorkRequestBuilder(java.time.Duration repeatInterval, java.time.Duration flexTimeInterval);
+    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
+    method @RequiresApi(26) public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder PeriodicWorkRequestBuilder(java.time.Duration repeatInterval);
+    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder PeriodicWorkRequestBuilder(long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexTimeInterval, java.util.concurrent.TimeUnit flexTimeIntervalUnit);
+    method @RequiresApi(26) public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.PeriodicWorkRequest.Builder PeriodicWorkRequestBuilder(java.time.Duration repeatInterval, java.time.Duration flexTimeInterval);
   }
 
   public interface ProgressUpdater {
@@ -307,10 +318,6 @@ package androidx.work {
   public interface RunnableScheduler {
     method public void cancel(Runnable);
     method public void scheduleWithDelay(@IntRange(from=0) long, Runnable);
-  }
-
-  public interface SchedulingExceptionHandler {
-    method public void handleException(Throwable);
   }
 
   public abstract class WorkContinuation {
@@ -324,17 +331,35 @@ package androidx.work {
   }
 
   public final class WorkInfo {
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation, optional androidx.work.Constraints constraints);
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount, optional int generation);
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress, optional int runAttemptCount);
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress);
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData);
+    ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags);
+    method public androidx.work.Constraints getConstraints();
     method public int getGeneration();
     method public java.util.UUID getId();
     method public androidx.work.Data getOutputData();
     method public androidx.work.Data getProgress();
-    method @IntRange(from=0) public int getRunAttemptCount();
+    method @IntRange(from=0L) public int getRunAttemptCount();
     method public androidx.work.WorkInfo.State getState();
-    method public java.util.Set<java.lang.String!> getTags();
+    method public java.util.Set<java.lang.String> getTags();
+    property public final androidx.work.Constraints constraints;
+    property public final int generation;
+    property public final java.util.UUID id;
+    property public final androidx.work.Data outputData;
+    property public final androidx.work.Data progress;
+    property @IntRange(from=0L) public final int runAttemptCount;
+    property public final androidx.work.WorkInfo.State state;
+    property public final java.util.Set<java.lang.String> tags;
   }
 
   public enum WorkInfo.State {
-    method public boolean isFinished();
+    method public final boolean isFinished();
+    method public static androidx.work.WorkInfo.State valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.WorkInfo.State[] values();
+    property public final boolean isFinished;
     enum_constant public static final androidx.work.WorkInfo.State BLOCKED;
     enum_constant public static final androidx.work.WorkInfo.State CANCELLED;
     enum_constant public static final androidx.work.WorkInfo.State ENQUEUED;

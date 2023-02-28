@@ -120,6 +120,20 @@ package androidx.constraintlayout.helper.widget {
     field protected float mComputedMinY;
   }
 
+  public class LogJson extends androidx.constraintlayout.widget.ConstraintHelper {
+    ctor public LogJson(android.content.Context);
+    ctor public LogJson(android.content.Context, android.util.AttributeSet?);
+    ctor public LogJson(android.content.Context, android.util.AttributeSet?, int);
+    method public void periodicStart();
+    method public void periodicStop();
+    method public void setDelay(int);
+    method public void writeLog();
+    field public static final int LOG_API = 4; // 0x4
+    field public static final int LOG_DELAYED = 2; // 0x2
+    field public static final int LOG_LAYOUT = 3; // 0x3
+    field public static final int LOG_PERIODIC = 1; // 0x1
+  }
+
   public class MotionEffect extends androidx.constraintlayout.motion.widget.MotionHelper {
     ctor public MotionEffect(android.content.Context!);
     ctor public MotionEffect(android.content.Context!, android.util.AttributeSet!);
@@ -388,6 +402,7 @@ package androidx.constraintlayout.motion.widget {
     field public static final String PERCENT_Y = "percentY";
     field public static final String SIZE_PERCENT = "sizePercent";
     field public static final String TRANSITION_EASING = "transitionEasing";
+    field public static final int TYPE_AXIS = 3; // 0x3
     field public static final int TYPE_CARTESIAN = 0; // 0x0
     field public static final int TYPE_PATH = 1; // 0x1
     field public static final int TYPE_SCREEN = 2; // 0x2
@@ -906,7 +921,7 @@ package androidx.constraintlayout.utils.widget {
     ctor public MockView(android.content.Context!);
     ctor public MockView(android.content.Context!, android.util.AttributeSet!);
     ctor public MockView(android.content.Context!, android.util.AttributeSet!, int);
-    method public void onDraw(android.graphics.Canvas!);
+    method public void onDraw(android.graphics.Canvas);
     field protected String! mText;
   }
 
@@ -1045,7 +1060,7 @@ package androidx.constraintlayout.widget {
     method protected void init(android.util.AttributeSet!);
     method public static boolean isChildOfHelper(android.view.View!);
     method public void loadParameters(androidx.constraintlayout.widget.ConstraintSet.Constraint!, androidx.constraintlayout.core.widgets.HelperWidget!, androidx.constraintlayout.widget.ConstraintLayout.LayoutParams!, android.util.SparseArray<androidx.constraintlayout.core.widgets.ConstraintWidget!>!);
-    method public void onDraw(android.graphics.Canvas!);
+    method public void onDraw(android.graphics.Canvas);
     method public int removeView(android.view.View!);
     method public void resolveRtl(androidx.constraintlayout.core.widgets.ConstraintWidget!, boolean);
     method protected void setIds(String!);
@@ -1106,7 +1121,7 @@ package androidx.constraintlayout.widget {
     method protected void setSelfDimensionBehaviour(androidx.constraintlayout.core.widgets.ConstraintWidgetContainer!, int, int, int, int);
     method public void setState(int, int, int);
     field public static final int DESIGN_INFO_ID = 0; // 0x0
-    field public static final String VERSION = "ConstraintLayout-2.2.0-alpha03";
+    field public static final String VERSION = "ConstraintLayout-2.2.0-alpha04";
     field protected androidx.constraintlayout.widget.ConstraintLayoutStates! mConstraintLayoutSpec;
     field protected boolean mDirtyHierarchy;
     field protected androidx.constraintlayout.core.widgets.ConstraintWidgetContainer! mLayoutWidget;
@@ -1650,7 +1665,7 @@ package androidx.constraintlayout.widget {
     ctor public Placeholder(android.content.Context!, android.util.AttributeSet!, int, int);
     method public android.view.View! getContent();
     method public int getEmptyVisibility();
-    method public void onDraw(android.graphics.Canvas!);
+    method public void onDraw(android.graphics.Canvas);
     method public void setContentId(int);
     method public void setEmptyVisibility(int);
     method public void updatePostMeasure(androidx.constraintlayout.widget.ConstraintLayout!);

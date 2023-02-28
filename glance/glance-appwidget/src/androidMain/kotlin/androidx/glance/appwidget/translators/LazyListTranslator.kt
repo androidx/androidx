@@ -57,9 +57,7 @@ private fun RemoteViews.translateEmittableLazyList(
     check(!translationContext.isLazyCollectionDescendant) {
         "Glance does not support nested list views."
     }
-    // TODO(b/205868100): Remove [FILL_IN_COMPONENT] flag and set target component here when all
-    // click actions on descendants are exclusively [StartActivityAction] or exclusively not
-    // [StartActivityAction].
+    // TODO(b/205868100): Add FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT for api 34
     setPendingIntentTemplate(
         viewDef.mainViewId,
         PendingIntent.getActivity(
@@ -94,7 +92,7 @@ private fun RemoteViews.translateEmittableLazyList(
         viewDef.mainViewId,
         items
     )
-    applyModifiers(translationContext.forAdapterView(), this, element.modifier, viewDef)
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
 /**

@@ -27,6 +27,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import org.hamcrest.core.IsNull
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert
 import kotlin.reflect.KClass
 
@@ -49,7 +50,7 @@ fun startActivityWithSplashScreen(
 
     // Wait for launcher
     val launcherPackage: String = device.launcherPackageName
-    Assert.assertThat(launcherPackage, IsNull.notNullValue())
+    assertThat(launcherPackage, IsNull.notNullValue())
     device.wait(
         Until.hasObject(By.pkg(launcherPackage).depth(0)),
         LAUNCH_TIMEOUT

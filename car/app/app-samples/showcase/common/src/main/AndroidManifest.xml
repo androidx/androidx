@@ -38,6 +38,6 @@
 
     <application
         android:supportsRtl="true">
-        <activity android:name=".templates.SignInWithGoogleActivity" />
+        <activity android:name=".screens.templatelayouts.SignInWithGoogleActivity" />
     </application>
 </manifest>

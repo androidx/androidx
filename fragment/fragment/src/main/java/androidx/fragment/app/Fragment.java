@@ -320,6 +320,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         void onPreAttached() {
             mSavedStateRegistryController.performAttach();
             enableSavedStateHandles(Fragment.this);
+            // Restore the state immediately so that every lifecycle callback including
+            // onAttach() can safely access the state in the SavedStateRegistry
+            Bundle savedStateRegistryState = mSavedFragmentState != null
+                    ? mSavedFragmentState.getBundle(FragmentStateManager.REGISTRY_STATE_KEY)
+                    : null;
+            mSavedStateRegistryController.performRestore(savedStateRegistryState);
         }
     };
 
@@ -688,10 +694,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mSavedViewState != null) {
             mView.restoreHierarchyState(mSavedViewState);
             mSavedViewState = null;
-        }
-        if (mView != null) {
-            mViewLifecycleOwner.performRestore(mSavedViewRegistryState);
-            mSavedViewRegistryState = null;
         }
         mCalled = false;
         onViewStateRestored(savedInstanceState);
@@ -1429,7 +1431,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Call {@link Activity#startActivity(Intent)} from the fragment's
      * containing Activity.
      */
-    public void startActivity(@SuppressLint("UnknownNullness") Intent intent) {
+    public void startActivity(@NonNull Intent intent) {
         startActivity(intent, null);
     }
 
@@ -1437,7 +1439,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Call {@link Activity#startActivity(Intent, Bundle)} from the fragment's
      * containing Activity.
      */
-    public void startActivity(@SuppressLint("UnknownNullness") Intent intent,
+    public void startActivity(@NonNull Intent intent,
             @Nullable Bundle options) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
@@ -1466,7 +1468,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @SuppressWarnings("deprecation")
     @Deprecated
-    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+    public void startActivityForResult(@NonNull Intent intent,
             int requestCode) {
         startActivityForResult(intent, requestCode, null);
     }
@@ -1494,7 +1496,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
-    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+    public void startActivityForResult(@NonNull Intent intent,
             int requestCode, @Nullable Bundle options) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
@@ -1532,7 +1534,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link ActivityResultContract}.
      */
     @Deprecated
-    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
+    public void startIntentSenderForResult(@NonNull IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
         if (mHost == null) {
@@ -3083,10 +3085,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 }
             });
         }
-        Bundle savedStateRegistryState = mSavedFragmentState != null
-                ? mSavedFragmentState.getBundle(FragmentStateManager.REGISTRY_STATE_KEY)
-                : null;
-        mSavedStateRegistryController.performRestore(savedStateRegistryState);
         onCreate(savedInstanceState);
         mIsCreated = true;
         if (!mCalled) {
@@ -3100,7 +3098,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @Nullable Bundle savedInstanceState) {
         mChildFragmentManager.noteStateNotSaved();
         mPerformedCreateView = true;
-        mViewLifecycleOwner = new FragmentViewLifecycleOwner(this, getViewModelStore());
+        mViewLifecycleOwner = new FragmentViewLifecycleOwner(this, getViewModelStore(),
+                () -> {
+                    // Perform the restore as soon as the FragmentViewLifecycleOwner
+                    // becomes initialized, to ensure it is always available
+                    mViewLifecycleOwner.performRestore(mSavedViewRegistryState);
+                    mSavedViewRegistryState = null;
+                });
         mView = onCreateView(inflater, container, savedInstanceState);
         if (mView != null) {
             // Initialize the view lifecycle

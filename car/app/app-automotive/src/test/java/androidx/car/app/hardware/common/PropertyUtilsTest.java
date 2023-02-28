@@ -72,6 +72,7 @@ public class PropertyUtilsTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void convertPropertyValueToPropertyResponse_ifStatusAvailableThenAddsValue() {
         when(mCarPropertyValue.getStatus()).thenReturn(CarPropertyValue.STATUS_AVAILABLE);
         assertThat(
@@ -81,6 +82,7 @@ public class PropertyUtilsTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void convertPropertyValueToPropertyResponse_ifStatusIsUnavailableThenIgnoresValue() {
         when(mCarPropertyValue.getStatus()).thenReturn(CarPropertyValue.STATUS_UNAVAILABLE);
         assertThat(
@@ -90,6 +92,7 @@ public class PropertyUtilsTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void convertPropertyValueToPropertyResponse_ifStatusIsErrorThenIgnoresValue() {
         when(mCarPropertyValue.getStatus()).thenReturn(CarPropertyValue.STATUS_ERROR);
         assertThat(

@@ -35,6 +35,14 @@ import java.util.concurrent.Executor;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface Encoder {
 
+    /**
+     * A stop timestamp that represents no preference on the stop timestamp.
+     *
+     * <p>The encoder will decide a proper stop timestamp internally. Usually it will be the time
+     * when {@link #stop()} is called.
+     */
+    long NO_TIMESTAMP = -1;
+
     /** Returns the encoder's input instance. */
     @NonNull
     EncoderInput getInput();
@@ -42,6 +50,9 @@ public interface Encoder {
     /** Returns the EncoderInfo which provides encoder's information and capabilities. */
     @NonNull
     EncoderInfo getEncoderInfo();
+
+    /** Returns target bitrate configured on the encoder */
+    int getConfiguredBitrate();
 
     /**
      * Starts the encoder.
@@ -57,19 +68,24 @@ public interface Encoder {
     /**
      * Stops the encoder.
      *
-     * <p>It will trigger {@link EncoderCallback#onEncodeStop} after the last encoded data. It can
-     * call {@link #start} to start again.
+     * <p>It will trigger {@link EncoderCallback#onEncodeStop} after receiving the encoded data
+     * that has a timestamp as close as to the time this method is called. It's guaranteed that
+     * there won't be more encoded data being produced after
+     * {@link EncoderCallback#onEncodeStop()} is sent. {@link #start} can be called to start
+     * another encoding session.
      */
     void stop();
 
     /**
      * Stops the encoder with an expected stop time.
      *
-     * <p>It will trigger {@link EncoderCallback#onEncodeStop} after the last encoded data. It can
-     * call {@link #start} to start again.
+     * <p>It will trigger {@link EncoderCallback#onEncodeStop} after receiving the encoded data
+     * that has a timestamp as close as to the given stop timestamp. It's guaranteed that there
+     * won't be more encoded data being produced after {@link EncoderCallback#onEncodeStop()} is
+     * sent.{@link #start} can be called to start another encoding session.
      *
-     * <p>The encoder will try to provide the last {@link EncodedData} with a timestamp as close
-     * as to the given stop timestamp.
+     * <p>Use {@link #stop()} to stop the encoder without specifying expected stop time and let
+     * the Encoder to decide.
      *
      * @param expectedStopTimeUs The desired stop time.
      */

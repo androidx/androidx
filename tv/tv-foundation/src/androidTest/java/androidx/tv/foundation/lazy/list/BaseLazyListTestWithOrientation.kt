@@ -75,6 +75,13 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
             this.fillMaxHeight()
         }
 
+    fun TvLazyListItemScope.fillParentMaxMainAxis() =
+        if (vertical) {
+            Modifier.fillParentMaxHeight()
+        } else {
+            Modifier.fillParentMaxWidth()
+        }
+
     fun TvLazyListItemScope.fillParentMaxCrossAxis() =
         if (vertical) {
             Modifier.fillParentMaxWidth()
@@ -102,7 +109,7 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
         } else {
             getUnclippedBoundsInRoot().left
         }
-        position.assertIsEqualTo(expected, tolerance = 1.dp)
+        position.assertIsEqualTo(expected, tolerance = 2.dp)
     }
 
     fun SemanticsNodeInteraction.assertStartPositionInRootIsEqualTo(expectedStart: Dp) =

@@ -21,10 +21,10 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
+import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.compat.ObjectUnavailableException
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 import kotlinx.atomicfu.atomic
 
 internal val graphRequestProcessorIds = atomic(0)
@@ -37,7 +37,8 @@ internal val graphRequestProcessorIds = atomic(0)
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Suppress("NOTHING_TO_INLINE")
-public class GraphRequestProcessor private constructor(
+class GraphRequestProcessor
+private constructor(
     private val captureSequenceProcessor: CaptureSequenceProcessor<Any, CaptureSequence<Any>>
 ) {
     companion object {
@@ -51,21 +52,25 @@ public class GraphRequestProcessor private constructor(
     }
 
     private val debugId = graphRequestProcessorIds.incrementAndGet()
-    private val active = atomic(false)
+    private val closed = atomic(false)
+
     @GuardedBy("activeCaptureSequences")
     private val activeCaptureSequences = mutableListOf<CaptureSequence<*>>()
-    private val activeBurstListener = object : CaptureSequence.CaptureSequenceListener {
-        override fun onCaptureSequenceComplete(captureSequence: CaptureSequence<*>) {
-            // Listen to the completion of active capture sequences and remove them from the list
-            // of currently active capture sequences. Since repeating requests are not required to
-            // execute, only non-repeating capture sequences are tracked.
-            if (!captureSequence.repeating) {
-                synchronized(activeCaptureSequences) {
-                    activeCaptureSequences.remove(captureSequence)
+    private val activeBurstListener =
+        object : CaptureSequence.CaptureSequenceListener {
+            override fun onCaptureSequenceComplete(captureSequence: CaptureSequence<*>) {
+                // Listen to the completion of active capture sequences and remove them from the
+                // list
+                // of currently active capture sequences. Since repeating requests are not required
+                // to
+                // execute, only non-repeating capture sequences are tracked.
+                if (!captureSequence.repeating) {
+                    synchronized(activeCaptureSequences) {
+                        activeCaptureSequences.remove(captureSequence)
+                    }
                 }
             }
         }
-    }
 
     internal fun abortCaptures() {
         // Note: abortCaptures is not affected by active state.
@@ -79,11 +84,12 @@ public class GraphRequestProcessor private constructor(
         // Create a copy of the list of non-repeating capture sequences (thread safe), clear the
         // list, then invoke the onAborted listeners for all capture sequences that were in progress
         // at the time abort was invoked.
-        val requestsToAbort = synchronized(activeCaptureSequences) {
-            val copy = activeCaptureSequences.toList()
-            activeCaptureSequences.clear()
-            copy
-        }
+        val requestsToAbort =
+            synchronized(activeCaptureSequences) {
+                val copy = activeCaptureSequences.toList()
+                activeCaptureSequences.clear()
+                copy
+            }
 
         // Invoke onAbort to indicate that the actual abort is about to happen.
         for (sequence in requestsToAbort) {
@@ -100,7 +106,8 @@ public class GraphRequestProcessor private constructor(
     }
 
     internal fun close() {
-        if (active.compareAndSet(expect = false, update = true)) {
+        Log.warn { "Closing $this" }
+        if (closed.compareAndSet(expect = false, update = true)) {
             captureSequenceProcessor.close()
         }
     }
@@ -113,25 +120,35 @@ public class GraphRequestProcessor private constructor(
         listeners: List<Request.Listener>,
     ): Boolean {
         // Reject incoming requests if this instance has been stopped or closed.
-        if (active.value) {
+        if (closed.value) {
+            Log.warn { "Rejecting requests $requests: Request processor is closed." }
             return false
         }
 
         // This can fail for various reasons and may throw exceptions.
-        val captureSequence = captureSequenceProcessor.build(
-            isRepeating,
-            requests,
-            defaultParameters,
-            requiredParameters,
-            listeners,
-            activeBurstListener
-        )
+        val captureSequence =
+            captureSequenceProcessor.build(
+                isRepeating,
+                requests,
+                defaultParameters,
+                requiredParameters,
+                listeners,
+                activeBurstListener
+            )
 
         // Reject incoming requests if this instance has been stopped or closed.
-        if (captureSequence == null || active.value) {
+        if (captureSequence == null) {
+            Log.warn { "Rejecting requests $requests: Could not create the capture sequence." }
 
             // We do not need to invoke the sequenceCompleteListener since it has not been added to
             // the list of activeCaptureSequences yet.
+            return false
+        }
+
+        // Re-check again and reject requests if this instance has been closed or stopped.
+        // This is an optimization since building the captureSequence can take non-zero time.
+        if (closed.value) {
+            Log.warn { "Rejecting requests $requests: Request processor is closed." }
             return false
         }
 
@@ -142,9 +159,7 @@ public class GraphRequestProcessor private constructor(
 
         // Non-repeating requests must always be aware of abort calls.
         if (!captureSequence.repeating) {
-            synchronized(activeCaptureSequences) {
-                activeCaptureSequences.add(captureSequence)
-            }
+            synchronized(activeCaptureSequences) { activeCaptureSequences.add(captureSequence) }
         }
 
         var captured = false
@@ -157,16 +172,17 @@ public class GraphRequestProcessor private constructor(
             // invoked before this method call returns and sequenceNumber has been set on the
             // callback. Both this call and the synchronized behavior on the captureSequence have
             // been designed to minimize the number of synchronized calls.
-            val result = synchronized(lock = captureSequence) {
-                // Check closed state right before submitting.
-                if (active.value) {
-                    Log.warn { "Did not submit $captureSequence, $this was closed!" }
-                    return false
+            val result =
+                synchronized(lock = captureSequence) {
+                    // Check closed state right before submitting.
+                    if (closed.value) {
+                        Log.warn { "Did not submit $captureSequence, $this was closed!" }
+                        return false
+                    }
+                    val sequenceNumber = captureSequenceProcessor.submit(captureSequence)
+                    captureSequence.sequenceNumber = sequenceNumber
+                    sequenceNumber
                 }
-                val sequenceNumber = captureSequenceProcessor.submit(captureSequence)
-                captureSequence.sequenceNumber = sequenceNumber
-                sequenceNumber
-            }
 
             if (result != -1) {
                 captureSequence.invokeOnRequestSequenceSubmitted()
@@ -200,20 +216,14 @@ public class GraphRequestProcessor private constructor(
      * abort was called.
      */
     private inline fun <T> CaptureSequence<T>.invokeOnAborted() {
-        invokeOnRequests { request, _, listener ->
-            listener.onAborted(request.request)
-        }
+        invokeOnRequests { request, _, listener -> listener.onAborted(request.request) }
     }
 
     private inline fun <T> CaptureSequence<T>.invokeOnRequestSequenceCreated() {
-        invokeOnRequests { request, _, listener ->
-            listener.onRequestSequenceCreated(request)
-        }
+        invokeOnRequests { request, _, listener -> listener.onRequestSequenceCreated(request) }
     }
 
     private inline fun <T> CaptureSequence<T>.invokeOnRequestSequenceSubmitted() {
-        invokeOnRequests { request, _, listener ->
-            listener.onRequestSequenceSubmitted(request)
-        }
+        invokeOnRequests { request, _, listener -> listener.onRequestSequenceSubmitted(request) }
     }
 }

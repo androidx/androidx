@@ -50,7 +50,8 @@ final class JpegBytes2CroppedBitmap implements Operation<Packet<byte[]>, Packet<
                 requireNonNull(packet.getExif()),
                 new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight()),
                 packet.getRotationDegrees(),
-                updateSensorToBufferTransform(packet.getSensorToBufferTransform(), cropRect));
+                updateSensorToBufferTransform(packet.getSensorToBufferTransform(), cropRect),
+                packet.getCameraCaptureResult());
     }
 
     @NonNull

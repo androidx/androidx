@@ -16,6 +16,10 @@
 
 package androidx.camera.viewfinder;
 
+import static android.hardware.camera2.CameraMetadata.LENS_FACING_BACK;
+import static android.hardware.camera2.CameraMetadata.LENS_FACING_EXTERNAL;
+import static android.hardware.camera2.CameraMetadata.LENS_FACING_FRONT;
+
 import android.annotation.SuppressLint;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
@@ -31,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode;
 import androidx.camera.viewfinder.internal.surface.ViewfinderSurface;
 import androidx.camera.viewfinder.internal.utils.Logger;
 import androidx.camera.viewfinder.internal.utils.executor.CameraExecutors;
@@ -68,62 +73,39 @@ public class ViewfinderSurfaceRequest {
 
     private static final String TAG = "ViewfinderSurfaceRequest";
 
-    private final boolean mIsLegacyDevice;
-    private final boolean mIsFrontCamera;
-    private final int mSensorOrientation;
     @NonNull private final Size mResolution;
     @NonNull private final ViewfinderSurface mInternalViewfinderSurface;
     @NonNull private final CallbackToFutureAdapter.Completer<Void> mRequestCancellationCompleter;
     @NonNull private final ListenableFuture<Void> mSessionStatusFuture;
     @NonNull private final CallbackToFutureAdapter.Completer<Surface> mSurfaceCompleter;
-
+    @LensFacingValue private int mLensFacing;
+    @SensorOrientationDegreesValue private int mSensorOrientation;
+    @Nullable
+    private ImplementationMode mImplementationMode;
     @SuppressWarnings("WeakerAccess") /*synthetic accessor */
     @NonNull
     final ListenableFuture<Surface> mSurfaceFuture;
 
     /**
-     * Creates a new surface request with surface resolution and camera characteristics.
-     *
-     * <p>The resolution given here will be the default resolution of the Surface returned by
-     * {@link CameraViewfinder#requestSurfaceAsync(ViewfinderSurfaceRequest)}, which can then be
-     * passed to the camera API to set the camera viewfinder resolution.
-     *
-     * @param resolution The requested surface resolution.
-     * @param cameraCharacteristics The {@link CameraCharacteristics} to get device information
-     *                              e.g. hardware level, lens facing, sensor orientation, etc,.
-     */
-    public ViewfinderSurfaceRequest(
-            @NonNull Size resolution,
-            @NonNull CameraCharacteristics cameraCharacteristics) {
-        this(resolution,
-                cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
-                        == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
-                cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)
-                        == CameraCharacteristics.LENS_FACING_FRONT,
-                cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION));
-    }
-
-    /**
-     * Creates a new surface request with surface resolution, view display and camera device
-     * information.
+     * Creates a new surface request with surface resolution, camera device, lens facing and
+     * sensor orientation information.
      *
      * @param resolution The requested surface resolution. It is the output surface size
      *                   the camera is configured with, instead of {@link CameraViewfinder}
      *                   view size.
-     * {@link CameraViewfinder} view
-     * @param isLegacyDevice The device hardware level is legacy or not.
-     * @param isFrontCamera The camera is front facing or not.
+     * @param lensFacing The camera lens facing.
      * @param sensorOrientation THe camera sensor orientation.
+     * @param implementationMode The {@link ImplementationMode} to apply to the viewfinder.
      */
-    private ViewfinderSurfaceRequest(
+    ViewfinderSurfaceRequest(
             @NonNull Size resolution,
-            boolean isLegacyDevice,
-            boolean isFrontCamera,
-            int sensorOrientation) {
+            @LensFacingValue int lensFacing,
+            @SensorOrientationDegreesValue int sensorOrientation,
+            @Nullable ImplementationMode implementationMode) {
         mResolution = resolution;
-        mIsLegacyDevice = isLegacyDevice;
-        mIsFrontCamera = isFrontCamera;
+        mLensFacing = lensFacing;
         mSensorOrientation = sensorOrientation;
+        mImplementationMode = implementationMode;
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
         // triggered externally by the top-level completer (mSurfaceCompleter). The other future
@@ -164,7 +146,7 @@ public class ViewfinderSurfaceRequest {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 if (t instanceof RequestCancelledException) {
                     // Cancellation occurred. Notify listeners.
                     Preconditions.checkState(requestCancellationFuture.cancel(false));
@@ -259,6 +241,8 @@ public class ViewfinderSurfaceRequest {
     /**
      * Returns the resolution of the requested {@link Surface}.
      *
+     * <p>The value is set by {@link Builder#Builder(Size)}.
+     *
      * The surface which fulfills this request must have the resolution specified here in
      * order to fulfill the resource requirements of the camera.
      *
@@ -273,28 +257,40 @@ public class ViewfinderSurfaceRequest {
     /**
      * Returns the sensor orientation.
      *
+     * <p>The value is set by {@link Builder#setSensorOrientation(int)}, which can be retrieved from
+     * {@link CameraCharacteristics} by key {@link CameraCharacteristics#SENSOR_ORIENTATION}.
+     *
      * @return The sensor orientation.
      */
+    @SensorOrientationDegreesValue
     public int getSensorOrientation() {
         return mSensorOrientation;
     }
 
     /**
-     * Returns the status of camera lens facing.
+     * Returns the camera lens facing.
      *
-     * @return True if front camera, otherwise false.
+     * <p>The value is set by {@link Builder#setLensFacing(int)}, which can be retrieved from
+     * {@link CameraCharacteristics} by key {@link CameraCharacteristics#LENS_FACING}.
+     *
+     * @return The lens facing.
      */
-    public boolean isFrontCamera() {
-        return mIsFrontCamera;
+    @LensFacingValue
+    public int getLensFacing() {
+        return mLensFacing;
     }
 
     /**
-     * Returns the status of camera hardware level.
+     * Returns the {@link ImplementationMode}.
      *
-     * @return True if legacy device, otherwise false.
+     * <p>The value is set by {@link Builder#setImplementationMode(ImplementationMode)}.
+     *
+     * @return {@link ImplementationMode}. The value will be null if it's not set via
+     * {@link Builder#setImplementationMode(ImplementationMode)}.
      */
-    public boolean isLegacyDevice() {
-        return mIsLegacyDevice;
+    @Nullable
+    public ImplementationMode getImplementationMode() {
+        return mImplementationMode;
     }
 
     /**
@@ -362,7 +358,7 @@ public class ViewfinderSurfaceRequest {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(@NonNull Throwable t) {
                     Preconditions.checkState(t instanceof RequestCancelledException, "Camera "
                             + "surface session should only fail with request "
                             + "cancellation. Instead failed due to:\n" + t);
@@ -412,6 +408,114 @@ public class ViewfinderSurfaceRequest {
         return mSurfaceCompleter.setException(
                 new ViewfinderSurface.SurfaceUnavailableException("Surface request "
                         + "will not complete."));
+    }
+
+    /**
+     * Builder for {@link ViewfinderSurfaceRequest}.
+     */
+    public static final class Builder {
+
+        @NonNull private final Size mResolution;
+        @LensFacingValue private int mLensFacing = LENS_FACING_BACK;
+        @SensorOrientationDegreesValue private int mSensorOrientation = 0;
+        @Nullable private ImplementationMode mImplementationMode;
+
+        public Builder(@NonNull Size resolution) {
+            mResolution = resolution;
+        }
+
+        /**
+         * Sets the {@link ImplementationMode}.
+         *
+         * <p><b>Possible values:</b></p>
+         * <ul>
+         *   <li>{@link ImplementationMode#PERFORMANCE PERFORMANCE}</li>
+         *   <li>{@link ImplementationMode#COMPATIBLE COMPATIBLE}</li>
+         * </ul>
+         *
+         * <p>If not set, the {@link ImplementationMode} set via {@code app:implementationMode} in
+         * layout xml will be used for {@link CameraViewfinder}. If not set in the layout xml,
+         * the default value {@link ImplementationMode#PERFORMANCE} will be used in
+         * {@link CameraViewfinder}.
+         *
+         * @param implementationMode The {@link ImplementationMode}.
+         * @return This builder.
+         */
+        @NonNull
+        public Builder setImplementationMode(@NonNull ImplementationMode implementationMode) {
+            mImplementationMode = implementationMode;
+            return this;
+        }
+
+        /**
+         * Sets the lens facing.
+         *
+         * <p><b>Possible values:</b></p>
+         * <ul>
+         *   <li>{@link CameraMetadata#LENS_FACING_FRONT FRONT}</li>
+         *   <li>{@link CameraMetadata#LENS_FACING_BACK BACK}</li>
+         *   <li>{@link CameraMetadata#LENS_FACING_EXTERNAL EXTERNAL}</li>
+         * </ul>
+         *
+         * <p>The value can be retrieved from {@link CameraCharacteristics} by key
+         * {@link CameraCharacteristics#LENS_FACING}. If not set,
+         * {@link CameraMetadata#LENS_FACING_BACK} will be used by default.
+         *
+         * @param lensFacing The lens facing.
+         * @return This builder.
+         */
+        @NonNull
+        public Builder setLensFacing(@LensFacingValue int lensFacing) {
+            mLensFacing = lensFacing;
+            return this;
+        }
+
+        /**
+         * Sets the sensor orientation.
+         *
+         * <p><b>Range of valid values:</b><br>
+         * 0, 90, 180, 270</p>
+         *
+         * <p>The value can be retrieved from {@link CameraCharacteristics} by key
+         * {@link CameraCharacteristics#SENSOR_ORIENTATION}. If it is not
+         * set, 0 will be used by default.
+         *
+         * @param sensorOrientation
+         * @return this builder.
+         */
+        @NonNull
+        public Builder setSensorOrientation(@SensorOrientationDegreesValue int sensorOrientation) {
+            mSensorOrientation = sensorOrientation;
+            return this;
+        }
+
+        /**
+         * Builds the {@link ViewfinderSurfaceRequest}.
+         * @return the instance of {@link ViewfinderSurfaceRequest}.
+         */
+        @NonNull
+        public ViewfinderSurfaceRequest build() {
+            if (mLensFacing != LENS_FACING_FRONT
+                    && mLensFacing != LENS_FACING_BACK
+                    && mLensFacing != LENS_FACING_EXTERNAL) {
+                throw new IllegalArgumentException("Lens facing value: " + mLensFacing + " is "
+                        + "invalid");
+            }
+
+            if (mSensorOrientation != 0
+                    && mSensorOrientation != 90
+                    && mSensorOrientation != 180
+                    && mSensorOrientation != 270) {
+                throw new IllegalArgumentException("Sensor orientation value: "
+                        + mSensorOrientation + " is invalid");
+            }
+
+            return new ViewfinderSurfaceRequest(
+                    mResolution,
+                    mLensFacing,
+                    mSensorOrientation,
+                    mImplementationMode);
+        }
     }
 
     static final class RequestCancelledException extends RuntimeException {
@@ -540,5 +644,21 @@ public class ViewfinderSurfaceRequest {
         // Ensure Result can't be subclassed outside the package
         Result() {
         }
+    }
+
+    /**
+     * Valid integer sensor orientation degrees values.
+     */
+    @IntDef({0, 90, 180, 270})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface SensorOrientationDegreesValue {
+    }
+
+    /**
+     * Valid integer sensor orientation degrees values.
+     */
+    @IntDef({LENS_FACING_FRONT, LENS_FACING_BACK, LENS_FACING_EXTERNAL})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface LensFacingValue {
     }
 }

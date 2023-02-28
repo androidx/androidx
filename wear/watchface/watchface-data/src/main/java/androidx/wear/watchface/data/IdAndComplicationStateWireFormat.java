@@ -46,8 +46,7 @@ public final class IdAndComplicationStateWireFormat implements VersionedParcelab
     ComplicationStateWireFormat mComplicationState;
 
     /** Used by VersionedParcelable. */
-    IdAndComplicationStateWireFormat() {
-    }
+    IdAndComplicationStateWireFormat() {}
 
     public IdAndComplicationStateWireFormat(
             int id, @NonNull ComplicationStateWireFormat complicationState) {

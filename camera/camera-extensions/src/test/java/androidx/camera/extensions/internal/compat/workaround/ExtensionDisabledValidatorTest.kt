@@ -17,7 +17,6 @@
 package androidx.camera.extensions.internal.compat.workaround
 
 import android.os.Build
-import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.util.ExtensionsTestUtil.resetSingleton
 import androidx.camera.extensions.internal.util.ExtensionsTestUtil.setTestApiVersionAndAdvancedExtender
@@ -41,7 +40,7 @@ class ExtensionDisabledValidatorTest(private val config: TestConfig) {
 
     @Before
     fun setUp() {
-        setTestApiVersionAndAdvancedExtender("1.2.0", config.isAdvancedInterface)
+        setTestApiVersionAndAdvancedExtender(config.version, config.isAdvancedInterface)
     }
 
     @After
@@ -56,19 +55,13 @@ class ExtensionDisabledValidatorTest(private val config: TestConfig) {
         ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", config.device)
 
         val validator = ExtensionDisabledValidator()
-        assertThat(
-            validator.shouldDisableExtension(
-                config.cameraId,
-                config.extensionMode
-            )
-        ).isEqualTo(config.shouldDisableExtension)
+        assertThat(validator.shouldDisableExtension()).isEqualTo(config.shouldDisableExtension)
     }
 
     class TestConfig(
         val brand: String,
         val device: String,
-        val cameraId: String,
-        val extensionMode: Int,
+        val version: String,
         val isAdvancedInterface: Boolean,
         val shouldDisableExtension: Boolean
     )
@@ -79,36 +72,24 @@ class ExtensionDisabledValidatorTest(private val config: TestConfig) {
         fun createTestSet(): List<TestConfig> {
             return listOf(
                 // Pixel 5 extension capability is disabled on basic extender
-                TestConfig("Google", "Redfin", "0", ExtensionMode.BOKEH, false, true),
-                TestConfig("Google", "Redfin", "0", ExtensionMode.HDR, false, true),
-                TestConfig("Google", "Redfin", "0", ExtensionMode.NIGHT, false, true),
-                TestConfig("Google", "Redfin", "0", ExtensionMode.FACE_RETOUCH, false, true),
-                TestConfig("Google", "Redfin", "0", ExtensionMode.AUTO, false, true),
-                TestConfig("Google", "Redfin", "1", ExtensionMode.BOKEH, false, true),
-                TestConfig("Google", "Redfin", "1", ExtensionMode.HDR, false, true),
-                TestConfig("Google", "Redfin", "1", ExtensionMode.NIGHT, false, true),
-                TestConfig("Google", "Redfin", "1", ExtensionMode.FACE_RETOUCH, false, true),
-                TestConfig("Google", "Redfin", "1", ExtensionMode.AUTO, false, true),
+                TestConfig("Google", "Redfin", "1.2.0", false, true),
 
                 // Pixel 5 extension capability is enabled on advanced extender
-                TestConfig("Google", "Redfin", "0", ExtensionMode.NIGHT, true, false),
-                TestConfig("Google", "Redfin", "1", ExtensionMode.NIGHT, true, false),
+                TestConfig("Google", "Redfin", "1.2.0", true, false),
 
-                // Motorola Razr 5G bokeh mode is disabled. Other extension modes should still work.
-                TestConfig("Motorola", "Smith", "0", ExtensionMode.BOKEH, false, true),
-                TestConfig("Motorola", "Smith", "0", ExtensionMode.HDR, false, false),
-                TestConfig("Motorola", "Smith", "1", ExtensionMode.BOKEH, false, true),
-                TestConfig("Motorola", "Smith", "1", ExtensionMode.HDR, false, false),
-                TestConfig("Motorola", "Smith", "2", ExtensionMode.BOKEH, false, false),
-                TestConfig("Motorola", "Smith", "2", ExtensionMode.HDR, false, false),
+                // All Motorola devices should be disabled for version 1.1.0 and older.
+                TestConfig("Motorola", "Smith", "1.1.0", false, true),
+                TestConfig("Motorola", "Hawaii P", "1.1.0", false, true),
+
+                // Make sure Motorola device would still be enabled for newer versions
+                // Motorola doesn't support this today but making sure there is a path to enable
+                TestConfig("Motorola", "Hawaii P", "1.2.0", false, false),
 
                 // Other cases should be kept normal.
-                TestConfig("", "", "0", ExtensionMode.BOKEH, false, false),
-                TestConfig("", "", "1", ExtensionMode.BOKEH, false, false),
+                TestConfig("", "", "1.2.0", false, false),
 
                 // Advanced extender is enabled for all devices
-                TestConfig("", "", "0", ExtensionMode.BOKEH, true, false),
-                TestConfig("", "", "1", ExtensionMode.BOKEH, true, false),
+                TestConfig("", "", "1.2.0", true, false),
             )
         }
     }

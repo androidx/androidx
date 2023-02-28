@@ -19,5 +19,6 @@ package androidx.room.compiler.codegen
 enum class VisibilityModifier {
     PUBLIC,
     PROTECTED,
+    INTERNAL,
     PRIVATE
 }

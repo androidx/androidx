@@ -48,6 +48,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
@@ -1423,5 +1424,72 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         assertEquals("last item position should match",
                 Math.max(start, end), event.getToIndex());
 
+    }
+
+    @Test
+    public void rowCountForAccessibility_verticalOrientation()
+            throws Throwable {
+        Config config = new Config(VERTICAL, false, 3, GAP_HANDLING_NONE).itemCount(100);
+        setupByConfig(config);
+        waitFirstLayout();
+
+        int count = mLayoutManager.getRowCountForAccessibility(mRecyclerView.mRecycler,
+                mRecyclerView.mState);
+
+        assertEquals(-1, count);
+    }
+
+    @Test
+    public void rowCountForAccessibility_horizontalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final int itemCount = 2;
+        Config config = new Config(HORIZONTAL, false, 3, GAP_HANDLING_NONE).itemCount(itemCount);
+        setupByConfig(config);
+        waitFirstLayout();
+
+        int count = mLayoutManager.getRowCountForAccessibility(mRecyclerView.mRecycler,
+                mRecyclerView.mState);
+
+        assertEquals(itemCount, count);
+    }
+
+    @Test
+    public void columnCountForAccessibility_horizontalOrientation()
+            throws Throwable {
+        Config config = new Config(HORIZONTAL, false, 3, GAP_HANDLING_NONE).itemCount(100);
+        setupByConfig(config);
+        waitFirstLayout();
+
+        int count = mLayoutManager.getColumnCountForAccessibility(mRecyclerView.mRecycler,
+                mRecyclerView.mState);
+
+        assertEquals(-1, count);
+    }
+
+    @Test
+    public void columnCountForAccessibility_verticalOrientation_fewerItemsThanSpanCount()
+            throws Throwable {
+        final int itemCount = 2;
+        Config config = new Config(VERTICAL, false, 3, GAP_HANDLING_NONE).itemCount(itemCount);
+        setupByConfig(config);
+        waitFirstLayout();
+
+        int count = mLayoutManager.getColumnCountForAccessibility(mRecyclerView.mRecycler,
+                mRecyclerView.mState);
+
+        assertEquals(itemCount, count);
+    }
+
+    @Test
+    public void onInitializeAccessibilityNodeInfo() throws Throwable {
+        setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_NONE));
+        waitFirstLayout();
+        final AccessibilityNodeInfoCompat info = AccessibilityNodeInfoCompat.obtain();
+
+        mActivityRule.runOnUiThread(
+                () -> mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(
+                        mRecyclerView.mRecycler, mRecyclerView.mState, info));
+        assertEquals(info.getClassName(),
+                "androidx.recyclerview.widget.StaggeredGridLayoutManager");
     }
 }

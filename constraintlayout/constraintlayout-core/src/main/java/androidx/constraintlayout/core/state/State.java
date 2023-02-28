@@ -20,11 +20,12 @@ import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_PACK
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_SPREAD;
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_SPREAD_INSIDE;
 
-import androidx.constraintlayout.core.motion.utils.Utils;
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.core.state.helpers.AlignHorizontallyReference;
 import androidx.constraintlayout.core.state.helpers.AlignVerticallyReference;
 import androidx.constraintlayout.core.state.helpers.BarrierReference;
 import androidx.constraintlayout.core.state.helpers.FlowReference;
+import androidx.constraintlayout.core.state.helpers.GridReference;
 import androidx.constraintlayout.core.state.helpers.GuidelineReference;
 import androidx.constraintlayout.core.state.helpers.HorizontalChainReference;
 import androidx.constraintlayout.core.state.helpers.VerticalChainReference;
@@ -41,6 +42,7 @@ import java.util.Map;
  */
 public class State {
     private CorePixelDp mDpToPixel;
+    private boolean mIsLtr = true;
     protected HashMap<Object, Reference> mReferences = new HashMap<>();
     protected HashMap<Object, HelperReference> mHelperReferences = new HashMap<>();
     HashMap<String, ArrayList<String>> mTags = new HashMap<>();
@@ -65,8 +67,10 @@ public class State {
         END_TO_END,
         TOP_TO_TOP,
         TOP_TO_BOTTOM,
+        TOP_TO_BASELINE,
         BOTTOM_TO_TOP,
         BOTTOM_TO_BOTTOM,
+        BOTTOM_TO_BASELINE,
         BASELINE_TO_BASELINE,
         BASELINE_TO_TOP,
         BASELINE_TO_BOTTOM,
@@ -93,6 +97,9 @@ public class State {
         LAYER,
         HORIZONTAL_FLOW,
         VERTICAL_FLOW,
+        GRID,
+        ROW,
+        COLUMN,
         FLOW
     }
 
@@ -151,7 +158,7 @@ public class State {
             wrapMap.put("aligned", ALIGNED);
 
             valueMap.put("none", 0);
-            valueMap.put("chain", 1);
+            valueMap.put("chain", 3); // Corresponds to CHAIN_NEW
             valueMap.put("aligned", 2);
         }
 
@@ -181,6 +188,7 @@ public class State {
     }
 
     public State() {
+        mParent.setKey(PARENT);
         mReferences.put(PARENT, mParent);
     }
 
@@ -193,6 +201,20 @@ public class State {
      */
     public void setDpToPixel(CorePixelDp dpToPixel) {
         this.mDpToPixel = dpToPixel;
+    }
+
+    /**
+     * Set whether the layout direction is left to right (Ltr).
+     */
+    public void setLtr(boolean isLtr) {
+        mIsLtr = isLtr;
+    }
+
+    /**
+     * Returns true if layout direction is left to right. False for right to left.
+     */
+    public boolean isLtr() {
+        return mIsLtr;
     }
 
     /**
@@ -219,7 +241,7 @@ public class State {
      */
     public int convertDimension(Object value) {
         if (value instanceof Float) {
-            return ((Float) value).intValue();
+            return Math.round((Float) value);
         }
         if (value instanceof Integer) {
             return (Integer) value;
@@ -324,6 +346,12 @@ public class State {
                     reference = new FlowReference(this, type);
                 }
                 break;
+                case GRID:
+                case ROW:
+                case COLUMN: {
+                    reference = new GridReference(this, type);
+                }
+                    break;
                 default: {
                     reference = new HelperReference(this, type);
                 }
@@ -366,6 +394,29 @@ public class State {
             reference.setFacade(barrierReference);
         }
         return (BarrierReference) reference.getFacade();
+    }
+
+    /**
+     * Get a Grid reference
+     *
+     * @param key name of the reference object
+     * @param gridType type of Grid pattern - Grid, Row, or Column
+     * @return a GridReference object
+     */
+    @NonNull
+    public GridReference getGrid(@NonNull Object key, @NonNull String gridType) {
+        ConstraintReference reference = constraints(key);
+        if (reference.getFacade() == null || !(reference.getFacade() instanceof GridReference)) {
+            State.Helper Type = Helper.GRID;
+            if (gridType.charAt(0) == 'r') {
+                Type = Helper.ROW;
+            } else if (gridType.charAt(0) == 'c') {
+                Type = Helper.COLUMN;
+            }
+            GridReference gridReference = new GridReference(this, Type);
+            reference.setFacade(gridReference);
+        }
+        return (GridReference) reference.getFacade();
     }
 
     /**
@@ -486,10 +537,9 @@ public class State {
 
     // @TODO: add description
     public void map(Object key, Object view) {
-        Reference ref = constraints(key);
-        if (ref instanceof ConstraintReference) {
-            ConstraintReference reference = (ConstraintReference) ref;
-            reference.setView(view);
+        ConstraintReference ref = constraints(key);
+        if (ref != null) {
+            ref.setView(view);
         }
     }
 
@@ -562,6 +612,20 @@ public class State {
                 container.add(widget);
             } else {
                 reference.setConstraintWidget(container);
+            }
+        }
+        for (Object key : mHelperReferences.keySet()) {
+            // We need this pass to apply chains properly
+            HelperReference reference = mHelperReferences.get(key);
+            HelperWidget helperWidget = reference.getHelperWidget();
+            if (helperWidget != null) {
+                for (Object keyRef : reference.mReferences) {
+                    Reference constraintReference = mReferences.get(keyRef);
+                    reference.getHelperWidget().add(constraintReference.getConstraintWidget());
+                }
+                reference.apply();
+            } else {
+                reference.apply();
             }
         }
         for (Object key : mReferences.keySet()) {

@@ -25,6 +25,7 @@ import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.DrawableCompat;
 
@@ -48,7 +49,7 @@ public class DrawableWrapperCompat extends Drawable implements Drawable.Callback
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         mDrawable.draw(canvas);
     }
 

@@ -23,7 +23,9 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.wrapContentHeight
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.key
 import androidx.compose.ui.unit.Dp
+import androidx.glance.Emittable
 
 /**
  * The DSL implementation of a lazy grid layout. It composes only visible rows of the grid.
@@ -60,7 +62,6 @@ internal fun applyVerticalGridScope(
     alignment: Alignment,
     content: LazyVerticalGridScope.() -> Unit
 ): @Composable () -> Unit {
-    var nextImplicitItemId = ReservedItemIdRangeEnd
     val itemList = mutableListOf<Pair<Long?, @Composable LazyItemScope.() -> Unit>>()
     val listScopeImpl = object : LazyVerticalGridScope {
         override fun item(itemId: Long, content: @Composable LazyItemScope.() -> Unit) {
@@ -86,9 +87,9 @@ internal fun applyVerticalGridScope(
     }
     listScopeImpl.apply(content)
     return {
-        itemList.forEach { (itemId, composable) ->
-            val id = itemId.takeIf {
-              it != LazyVerticalGridScope.UnspecifiedItemId } ?: nextImplicitItemId--
+        itemList.forEachIndexed { index, (itemId, composable) ->
+            val id = itemId.takeIf { it != LazyVerticalGridScope.UnspecifiedItemId }
+                ?: (ReservedItemIdRangeEnd - index)
             check(id != LazyVerticalGridScope.UnspecifiedItemId) {
                 "Implicit list item ids exhausted."
             }
@@ -105,16 +106,21 @@ private fun LazyVerticalGridItem(
     alignment: Alignment,
     content: @Composable () -> Unit
 ) {
-    GlanceNode(
-        factory = ::EmittableLazyVerticalGridListItem,
-        update = {
-            this.set(itemId) { this.itemId = it }
-            this.set(alignment) { this.alignment = it }
-        },
-        content = content
-    )
+    // We wrap LazyVerticalGridItem in the key composable to ensure that lambda actions declared
+    // within each item's scope will get a unique ID based on the currentCompositeKeyHash.
+    key(itemId) {
+        GlanceNode(
+            factory = ::EmittableLazyVerticalGridListItem,
+            update = {
+                this.set(itemId) { this.itemId = it }
+                this.set(alignment) { this.alignment = it }
+            },
+            content = content
+        )
+    }
 }
 
+@JvmDefaultWithCompatibility
 /**
  * Receiver scope which is used by [LazyColumn].
  */
@@ -227,40 +233,52 @@ inline fun <T> LazyVerticalGridScope.itemsIndexed(
     itemContent(it, items[it])
 }
 
-internal abstract class EmittableLazyVerticalGridList : EmittableWithChildren(
-  resetsDepthForChildren = true
-  ) {
-  override var modifier: GlanceModifier = GlanceModifier
-  var horizontalAlignment: Alignment.Horizontal = Alignment.Start
-  var gridCells: GridCells = GridCells.Fixed(1)
+internal abstract class EmittableLazyVerticalGridList :
+EmittableWithChildren(resetsDepthForChildren = true) {
+    override var modifier: GlanceModifier = GlanceModifier
+    var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+    var gridCells: GridCells = GridCells.Fixed(1)
 
-  override fun toString() =
-      "EmittableLazyVerticalGridList(modifier=$modifier, " +
-      "horizontalAlignment=$horizontalAlignment, " +
-      "numColumn=$gridCells, " +
-      "children=[\n${childrenToString()}\n])"
+    override fun toString(): String =
+        "EmittableLazyVerticalGridList(modifier=$modifier, " +
+        "horizontalAlignment=$horizontalAlignment, " +
+        "numColumn=$gridCells, " +
+        "children=[\n${childrenToString()}\n])"
 }
 
 internal class EmittableLazyVerticalGridListItem : EmittableWithChildren() {
-  override var modifier: GlanceModifier
-      get() = children.singleOrNull()?.modifier
-          ?: GlanceModifier.wrapContentHeight().fillMaxWidth()
-      set(_) {
-          throw IllegalAccessError(
-            "You cannot set the modifier of an EmittableLazyVerticalGridListItem"
-          )
-      }
-  var itemId: Long = 0
-  var alignment: Alignment = Alignment.CenterStart
+    override var modifier: GlanceModifier
+        get() = children.singleOrNull()?.modifier
+            ?: GlanceModifier.wrapContentHeight().fillMaxWidth()
+        set(_) {
+            throw IllegalAccessError(
+              "You cannot set the modifier of an EmittableLazyVerticalGridListItem"
+            )
+        }
+    var itemId: Long = 0
+    var alignment: Alignment = Alignment.CenterStart
 
-  override fun toString() =
-      "EmittableLazyVerticalGridListItem(" +
-      "modifier=$modifier, " +
-      "alignment=$alignment, " +
-      "children=[\n${childrenToString()}\n])"
+    override fun copy(): Emittable = EmittableLazyVerticalGridListItem().also {
+        it.itemId = itemId
+        it.alignment = alignment
+        it.children.addAll(children.map { it.copy() })
+    }
+
+    override fun toString(): String =
+        "EmittableLazyVerticalGridListItem(" +
+        "modifier=$modifier, " +
+        "alignment=$alignment, " +
+        "children=[\n${childrenToString()}\n])"
 }
 
-internal class EmittableLazyVerticalGrid : EmittableLazyVerticalGridList()
+internal class EmittableLazyVerticalGrid : EmittableLazyVerticalGridList() {
+    override fun copy(): Emittable = EmittableLazyVerticalGrid().also {
+        it.modifier = modifier
+        it.horizontalAlignment = horizontalAlignment
+        it.gridCells = gridCells
+        it.children.addAll(children.map { it.copy() })
+    }
+}
 
 /**
  * Defines the number of columns of the GridView.

@@ -352,7 +352,11 @@ open class CameraActivity : AppCompatActivity() {
 
         private const val TAG = "MainActivity"
         private const val REQUEST_CODE_PERMISSIONS = 20
-        val PERMISSIONS =
+        val PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            // in android 10 or later, we don't actually need WRITE_EXTERNAL_STORAGE to write to
+            // the external storage.
+            arrayOf(Manifest.permission.CAMERA)
+        else
             arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
         private var cameraImpl: String? = null
     }

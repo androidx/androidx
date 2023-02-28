@@ -46,4 +46,12 @@ interface IJsSandboxIsolate {
      *             in JS code, else false.
      */
     boolean provideNamedData(String name, in AssetFileDescriptor afd) = 2;
+
+    /**
+     * @param afd      input AssetFileDescriptor containing the JavaScript code to be evaluated
+     * @param callback used to pass the information back to the embedding app
+     *                 from the sandbox.
+     */
+    void evaluateJavascriptWithFd(in AssetFileDescriptor afd, in IJsSandboxIsolateCallback callback)
+        = 3;
 }

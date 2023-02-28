@@ -36,6 +36,7 @@ dependencies {
     api(libs.kotlinCoroutinesRx3)
     api(libs.rxjava3)
     api(project(":window:window"))
+    implementation("androidx.annotation:annotation:1.5.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -50,7 +51,6 @@ dependencies {
 androidx {
     name = "WindowManager RxJava 3 Support"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2021"
     description = "WindowManager RxJava 3 Support"
 }

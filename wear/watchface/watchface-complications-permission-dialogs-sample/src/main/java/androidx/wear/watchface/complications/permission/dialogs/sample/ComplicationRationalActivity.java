@@ -34,5 +34,4 @@ public class ComplicationRationalActivity extends Activity {
 
         findViewById(R.id.ok_button).setOnClickListener(view -> finish());
     }
-
 }

@@ -112,7 +112,7 @@ class ListenableFuturePagingSourceTest {
     @Test
     fun refresh_canceledCoroutine_cancelsFuture() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         // filter right away to block initial load
         queryExecutor.filterFunction = { runnable ->
@@ -146,7 +146,7 @@ class ListenableFuturePagingSourceTest {
     @Test
     fun append_canceledCoroutine_cancelsFuture() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         runTest {
             itemStore.awaitInitialLoad()
@@ -195,7 +195,7 @@ class ListenableFuturePagingSourceTest {
     @Test
     fun prepend_canceledCoroutine_cancelsFuture() {
         val items = createItems(startId = 0, count = 90)
-        db.dao.insert(items)
+        db.getDao().insert(items)
 
         runTest {
             itemStore.awaitInitialLoad()
@@ -244,7 +244,7 @@ class ListenableFuturePagingSourceTest {
     private fun runTest(
         pager: Pager<Int, PagingEntity> =
             Pager(config = CONFIG) {
-                val baseSource = db.dao.loadItemsListenableFuture()
+                val baseSource = db.getDao().loadItemsListenableFuture()
                 // to get access to the futures returned from loadFuture. Also to
                 // mimic real use case of wrapping the source returned from Room.
                 ListenableFuturePagingSourceImpl(baseSource).also { pagingSources.add(it) }

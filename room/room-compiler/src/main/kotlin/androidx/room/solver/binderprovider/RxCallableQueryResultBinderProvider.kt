@@ -43,7 +43,7 @@ class RxCallableQueryResultBinderProvider private constructor(
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: XType): Boolean {
-        return declared.rawType.typeName == rxType.className
+        return declared.rawType.asTypeName() == rxType.className
     }
 
     companion object {

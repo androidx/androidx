@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * @hide
- */
+/** @hide */
 @RestrictTo(LIBRARY_GROUP)
 package android.support.wearable.watchface;
 

@@ -46,14 +46,15 @@ class Bitmap2JpegBytes implements Operation<Bitmap2JpegBytes.In, Packet<byte[]>>
         Packet<Bitmap> packet = in.getPacket();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         packet.getData().compress(Bitmap.CompressFormat.JPEG, in.getJpegQuality(), outputStream);
-        packet.getData().recycle();
+        //packet.getData().recycle();
         return Packet.of(outputStream.toByteArray(),
                 requireNonNull(packet.getExif()),
                 ImageFormat.JPEG,
                 packet.getSize(),
                 packet.getCropRect(),
                 packet.getRotationDegrees(),
-                packet.getSensorToBufferTransform());
+                packet.getSensorToBufferTransform(),
+                packet.getCameraCaptureResult());
     }
 
     /**

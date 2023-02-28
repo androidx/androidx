@@ -16,7 +16,9 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.isVoidObject
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.parser.ParsedQuery
@@ -56,9 +58,11 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(
         val adapter = context.typeAdapterStore.findQueryResultAdapter(
             declared.typeArguments.first(), query, extras
         )
-        return GuavaListenableFutureQueryResultBinder(
-            declared.typeArguments.first(), adapter
-        )
+        val typeArg = declared.typeArguments.first()
+        if (typeArg.isVoidObject() && typeArg.nullability == XNullability.NONNULL) {
+            context.logger.e(ProcessorErrors.NONNULL_VOID)
+        }
+        return GuavaListenableFutureQueryResultBinder(typeArg, adapter)
     }
 
     /**
@@ -66,5 +70,5 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(
      */
     override fun matches(declared: XType): Boolean =
         declared.typeArguments.size == 1 &&
-            declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+            declared.rawType.asTypeName() == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 }

@@ -21,6 +21,8 @@ import android.util.Size;
 
 /**
  * Surface will be created by constructing a ImageReader.
+ *
+ * @since 1.2
  */
 @SuppressLint("UnknownNullness")
 public interface ImageReaderOutputConfigImpl extends Camera2OutputConfigImpl {

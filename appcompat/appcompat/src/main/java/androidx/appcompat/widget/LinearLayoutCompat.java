@@ -299,7 +299,7 @@ public class LinearLayoutCompat extends ViewGroup {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         if (mDivider == null) {
             return;
         }

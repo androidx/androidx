@@ -63,7 +63,7 @@ private class ReportDrawnComposition(
     override fun invoke() {
         snapshotStateObserver.clear()
         snapshotStateObserver.stop()
-     }
+    }
 
     /**
      * Stops observing [predicate] and marks the [fullyDrawnReporter] as ready for it.
@@ -141,6 +141,16 @@ fun ReportDrawnWhen(
         }
     }
 }
+
+/**
+ * Calls [Activity.reportFullyDrawn] after this composition is completed.
+ *
+ * The [Activity] used is extracted from the [LocalView]'s context.
+ *
+ * @sample androidx.activity.compose.samples.ReportDrawnSample
+ */
+@Composable
+fun ReportDrawn() = ReportDrawnWhen { true }
 
 /**
  * Adds [block] to the methods that must complete prior to [Activity.reportFullyDrawn]

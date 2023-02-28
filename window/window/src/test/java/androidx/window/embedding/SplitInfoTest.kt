@@ -17,21 +17,20 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import androidx.window.core.ExperimentalWindowApi
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.mockito.kotlin.mock
 
-@OptIn(ExperimentalWindowApi::class)
 class SplitInfoTest {
 
     @Test
     fun testSplitInfoContainsActivityFirstStack() {
         val activity = mock<Activity>()
-        val firstStack = ActivityStack(listOf(activity))
-        val secondStack = ActivityStack(emptyList())
-        val info = SplitInfo(firstStack, secondStack, 0.5f)
+        val firstStack = createTestActivityStack(listOf(activity))
+        val secondStack = createTestActivityStack(emptyList())
+        val attributes = SplitAttributes()
+        val info = SplitInfo(firstStack, secondStack, attributes)
 
         assertTrue(info.contains(activity))
     }
@@ -39,9 +38,10 @@ class SplitInfoTest {
     @Test
     fun testSplitInfoContainsActivitySecondStack() {
         val activity = mock<Activity>()
-        val firstStack = ActivityStack(emptyList())
-        val secondStack = ActivityStack(listOf(activity))
-        val info = SplitInfo(firstStack, secondStack, 0.5f)
+        val firstStack = createTestActivityStack(emptyList())
+        val secondStack = createTestActivityStack(listOf(activity))
+        val attributes = SplitAttributes()
+        val info = SplitInfo(firstStack, secondStack, attributes)
 
         assertTrue(info.contains(activity))
     }
@@ -49,12 +49,18 @@ class SplitInfoTest {
     @Test
     fun testEqualsImpliesHashCode() {
         val activity = mock<Activity>()
-        val firstStack = ActivityStack(emptyList())
-        val secondStack = ActivityStack(listOf(activity))
-        val firstInfo = SplitInfo(firstStack, secondStack, 0.5f)
-        val secondInfo = SplitInfo(firstStack, secondStack, 0.5f)
+        val firstStack = createTestActivityStack(emptyList())
+        val secondStack = createTestActivityStack(listOf(activity))
+        val attributes = SplitAttributes()
+        val firstInfo = SplitInfo(firstStack, secondStack, attributes)
+        val secondInfo = SplitInfo(firstStack, secondStack, attributes)
 
         assertEquals(firstInfo, secondInfo)
         assertEquals(firstInfo.hashCode(), secondInfo.hashCode())
     }
+
+    private fun createTestActivityStack(
+        activitiesInProcess: List<Activity>,
+        isEmpty: Boolean = false,
+    ): ActivityStack = ActivityStack(activitiesInProcess, isEmpty)
 }

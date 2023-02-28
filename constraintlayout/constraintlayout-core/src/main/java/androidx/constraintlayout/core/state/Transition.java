@@ -16,6 +16,7 @@
 
 package androidx.constraintlayout.core.state;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.core.motion.CustomVariable;
 import androidx.constraintlayout.core.motion.Motion;
 import androidx.constraintlayout.core.motion.MotionWidget;
@@ -63,11 +64,15 @@ public class Transition implements TypedValues {
     private int mDuration = 400;
     private float mStagger = 0.0f;
     private OnSwipe mOnSwipe = null;
-    CorePixelDp mToPixel; // Todo placed here as a temp till the refactor is done
+    final CorePixelDp mToPixel; // Todo placed here as a temp till the refactor is done
     int mParentStartWidth, mParentStartHeight;
     int mParentEndWidth, mParentEndHeight;
     int mParentInterpolatedWidth, mParentInterpolateHeight;
     boolean mWrap;
+
+    public Transition(@NonNull CorePixelDp dpToPixel) {
+        mToPixel = dpToPixel;
+    }
 
     // @TODO: add description
     @SuppressWarnings("HiddenTypeParameter")

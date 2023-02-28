@@ -20,16 +20,11 @@ import android.app.Application
 import androidx.work.Configuration
 
 class InspectorApp : Application(), Configuration.Provider {
-    lateinit var executor: DispatchingExecutor
-    override fun onCreate() {
-        super.onCreate()
-        executor = DispatchingExecutor()
-    }
+    val executor = DispatchingExecutor()
 
-    override fun getWorkManagerConfiguration(): Configuration {
-        return Configuration.Builder()
+    override val workManagerConfiguration: Configuration =
+        Configuration.Builder()
             .setExecutor(executor)
             .setTaskExecutor(executor)
             .build()
-    }
 }

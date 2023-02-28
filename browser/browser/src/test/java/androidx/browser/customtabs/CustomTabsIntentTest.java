@@ -16,6 +16,8 @@
 
 package androidx.browser.customtabs;
 
+import static com.google.common.net.HttpHeaders.ACCEPT_LANGUAGE;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -26,6 +28,9 @@ import static org.junit.Assert.fail;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.LocaleList;
+import android.provider.Browser;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.RequiresApi;
@@ -152,7 +157,7 @@ public class CustomTabsIntentTest {
     }
 
     @Test
-    public void testActivityInitialFixedResizeBehavior() {
+    public void testActivityInitialFixedHeightResizeBehavior() {
         int heightFixedResizeBehavior = CustomTabsIntent.ACTIVITY_HEIGHT_FIXED;
         int initialActivityHeight = 200;
 
@@ -161,9 +166,10 @@ public class CustomTabsIntentTest {
                 .build()
                 .intent;
 
-        assertEquals("The value of EXTRA_ACTIVITY_FIXED_HEIGHT should be ACTIVITY_HEIGHT_FIXED.",
+        assertEquals("The value of EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should be "
+                        + "ACTIVITY_HEIGHT_FIXED.",
                 heightFixedResizeBehavior,
-                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_RESIZE_BEHAVIOR,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR,
                         CustomTabsIntent.ACTIVITY_HEIGHT_DEFAULT));
         assertEquals("The height should be the same as the one that was set.",
                 initialActivityHeight,
@@ -177,7 +183,7 @@ public class CustomTabsIntentTest {
     }
 
     @Test
-    public void testActivityInitialAdjustableResizeBehavior() {
+    public void testActivityInitialAdjustableHeightResizeBehavior() {
         int heightAdjustableResizeBehavior = CustomTabsIntent.ACTIVITY_HEIGHT_ADJUSTABLE;
         int initialActivityHeight = 200;
 
@@ -186,10 +192,10 @@ public class CustomTabsIntentTest {
                 .build()
                 .intent;
 
-        assertEquals("The value of EXTRA_ACTIVITY_FIXED_HEIGHT should be "
+        assertEquals("The value of EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should be "
                         + "ACTIVITY_HEIGHT_ADJUSTABLE.",
                 heightAdjustableResizeBehavior,
-                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_RESIZE_BEHAVIOR,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR,
                         CustomTabsIntent.ACTIVITY_HEIGHT_DEFAULT));
         assertEquals("The height should be the same as the one that was set.",
                 initialActivityHeight,
@@ -215,10 +221,10 @@ public class CustomTabsIntentTest {
         assertEquals("The height should be the same as the one that was set.",
                 initialActivityHeight,
                 intent.getIntExtra(CustomTabsIntent.EXTRA_INITIAL_ACTIVITY_HEIGHT_PX, 0));
-        assertEquals("The value of EXTRA_ACTIVITY_RESIZE_BEHAVIOR should be "
+        assertEquals("The value of EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should be "
                         + "ACTIVITY_HEIGHT_DEFAULT.",
                 defaultResizeBehavior,
-                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_RESIZE_BEHAVIOR,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR,
                         CustomTabsIntent.ACTIVITY_HEIGHT_FIXED));
         assertEquals("The height returned by the getter should be the same.",
                 initialActivityHeight,
@@ -237,8 +243,8 @@ public class CustomTabsIntentTest {
 
         assertFalse("The EXTRA_INITIAL_ACTIVITY_HEIGHT_PX should not be set.",
                 intent.hasExtra(CustomTabsIntent.EXTRA_INITIAL_ACTIVITY_HEIGHT_PX));
-        assertFalse("The EXTRA_ACTIVITY_RESIZE_BEHAVIOR should not be set.",
-                intent.hasExtra(CustomTabsIntent.EXTRA_ACTIVITY_RESIZE_BEHAVIOR));
+        assertFalse("The EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR should not be set.",
+                intent.hasExtra(CustomTabsIntent.EXTRA_ACTIVITY_HEIGHT_RESIZE_BEHAVIOR));
         assertEquals("The getter should return the default value.",
                 defaultInitialActivityHeight,
                 CustomTabsIntent.getInitialActivityHeightPx(intent));
@@ -511,6 +517,25 @@ public class CustomTabsIntentTest {
                 .intent;
         assertEquals(pendingSession.getId(),
                 intent.getParcelableExtra(CustomTabsIntent.EXTRA_SESSION_ID));
+    }
+
+    @Config(maxSdk = Build.VERSION_CODES.M)
+    @Test
+    public void putDefaultAcceptLanguage_BeforeSdk24() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+
+        Bundle header = intent.getBundleExtra(Browser.EXTRA_HEADERS);
+        boolean isEmptyAcceptLanguage = header == null || !header.containsKey(ACCEPT_LANGUAGE);
+        assertTrue(isEmptyAcceptLanguage);
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.N)
+    @Test
+    public void putDefaultAcceptLanguage() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertEquals(LocaleList.getAdjustedDefault().get(0).toLanguageTag(),
+                intent.getBundleExtra(Browser.EXTRA_HEADERS).getString(ACCEPT_LANGUAGE));
     }
 
     private void assertNullSessionInExtras(Intent intent) {

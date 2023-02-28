@@ -68,8 +68,9 @@ call. Experimental APIs do not maintain binary compatibility guarantees, and you
 will put external clients in a difficult situation.
 
 *Do* use `@RequiresOptIn` for API surfaces that must be publicly available and
-documented but need the flexibility to stay in `alpha` (and break compatibility)
-during the rest of the library's `beta`, `rc`, or stable cycles.
+documented but need the flexibility to stay in `alpha` during the rest of the
+library's `beta`, `rc`, or stable cycles, and continue to break compatibility in
+`beta`.
 
 #### How to mark an API surface as experimental
 
@@ -246,6 +247,53 @@ Java visibilty should be set as appropriate for the code in question (`private`,
 For more, read the section in
 [Android API Council Guidelines](https://android.googlesource.com/platform/developers/docs/+/refs/heads/master/api-guidelines/index.md#no-public-typedefs)
 
+#### `*current.txt` File Explanation {#currenttxt}
+
+In this example, `1.3.0-beta02.txt` is just used for an example. This will match
+the current library version.
+
+<table>
+    <tr>
+        <td><code>api/current.txt</code></td>
+        <td>All public APIs.</td>
+    </tr>
+    <tr>
+        <td><code>api/1.3.0-beta02.txt</code></td>
+        <td>All public APIs available in version <code>1.3.0-beta02</code>.
+        Used to enforce compatibility in later versions.  This file is only
+        generated during Beta.</td>
+    </tr>
+    <tr>
+        <td><code>api/public_plus_experimental_current.txt </code></td>
+        <td>Superset of all public APIs (<code>api/current.txt</code>) and all
+        experimental/<code>RequiresOptIn</code> APIs.
+        </td>
+    </tr>
+    <tr>
+        <td><code>api/public_plus_experimental_1.3.0-beta03.txt</code></td>
+        <td>Superset of all public APIs (<code>api/1.3.0-beta02.txt.txt</code>) and all
+        experimental/RequiresOptIn APIs, as available in version
+        <code>1.3.0-beta02.txt</code>.  Only generated during Beta.</td>
+    <tr>
+        <td><code>api/restricted_current.txt</code></td>
+        <td>Superset of all public APIs (<code>api/current.txt</code>) and
+        all <code>RestrictTo</code> APIs that require compatibility across
+        versions.
+        <p/>Specifically, includes <code>@RestrictTo(LIBRARY_GROUP)</code> and
+        <code>@RestrictTo(LIBRARY_GROUP_PREFIX)</code>.</td>
+    </tr>
+    <tr>
+        <td><code>api/restricted_1.3.0-beta02.txt.txt</code></td>
+        <td>Superset of all public APIs (<code>api/current.txt</code>) and
+        all <code>RestrictTo</code> APIs that require compatibility across
+        versions, as available in version <code>1.3.0-beta02.txt</code>.
+        <p/>
+        Specifically, includes <code>@RestrictTo(LIBRARY_GROUP)</code> and
+        <code>@RestrictTo(LIBRARY_GROUP_PREFIX)</code>. This file is only
+        generated during Beta.</td>
+    </tr>
+</table>
+
 ## Constructors {#constructors}
 
 ### View constructors {#view-constructors}
@@ -387,6 +435,17 @@ that are more lightweight, depending on your use case:
 *   Maintain granular control of your concurrency invariants
 
 ## Kotlin-specific guidelines {#kotlin}
+
+Generally speaking, Kotlin code should follow the compatibility guidelines
+outlined at:
+
+-   The official Android Developers
+    [Kotlin-Java interop guide](https://developer.android.com/kotlin/interop)
+-   Android API guidelines for
+    [Kotlin-Java interop](https://android.googlesource.com/platform/developers/docs/+/refs/heads/master/api-guidelines/index.md#kotin-interop)
+-   Android API guidelines for
+    [asynchronous and non-blocking APIs](https://android.googlesource.com/platform/developers/docs/+/refs/heads/master/api-guidelines/async.md)
+-   Library-specific guidance outlined below
 
 ### Nullability
 
@@ -713,3 +772,74 @@ parameters order for the public Kotlin functions:
 2.  All parameters with default values.
 3.  An optional last parameter without default value which can be used as a
     trailing lambda.
+
+### Default interface methods {#kotlin-jvm-default}
+
+The Kotlin compiler is capable of generating Kotlin-specific default interface
+methods that are compatible with Java 7 language level; however, Jetpack
+libraries ship as Java 8 language level and should use the native Java
+implementation of default methods.
+
+To maximize compatibility, Jetpack libraries should pass `-Xjvm-default=all` to
+the Kotlin compiler:
+
+```
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xjvm-default=all"]
+    }
+}
+```
+
+Before adding this argument, library owners must ensure that existing interfaces
+with default methods in stable API surfaces are annotated with
+`@JvmDefaultWithCompatibility` to preserve binary compatibility:
+
+1.  Any interface with stable default method implementations from before the
+    `all` conversion
+1.  Any interface with stable methods that have default argument values from
+    before the `all` conversion
+1.  Any interface that extends another `@JvmDefaultWithCompatibility` interface
+
+Unstable API surfaces do not need to be annotated, e.g. if the methods or whole
+interface is `@RequiresOptIn` or was never released in a stable library version.
+
+One way to handle this task is to search the API `.txt` file from the latest
+release for `default` or `optional` and add the annotation by hand, then look
+for public sub-interfaces and add the annotation there as well.
+
+## Proguard configuration
+
+Proguard configurations allow libraries to specify how post-processing tools
+like optimizers and shrinkers should operate on library bytecode. Note that
+while Proguard is the name of a specific tool, a Proguard configuration may be
+read by R8 or any number of other post-processing tools.
+
+NOTE Jetpack libraries **must not** run Proguard on their release artifacts. Do
+not specify `minifyEnabled`, `shrinkResources`, or `proguardFiles` in your build
+configuration.
+
+### Bundling with a library
+
+**Android libraries (AARs)** can bundle consumer-facing Proguard rules using the
+`consumerProguardFiles` (*not* `proguardFiles`) field in their `build.gradle`
+file's `defaultConfig`:
+
+```
+android {
+    defaultConfig {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+}
+```
+
+Libraries *do not* need to specify this field on `buildTypes.all`.
+
+**Java-only libraries (JARs)** can bundle consumer-facing Proguard rules by
+placing the file under the `META-INF` resources directory. The file **must** be
+named using the library's unique Maven coordinate to avoid build-time merging
+issues:
+
+```
+<project>/src/main/resources/META-INF/proguard/androidx.core_core.pro
+```

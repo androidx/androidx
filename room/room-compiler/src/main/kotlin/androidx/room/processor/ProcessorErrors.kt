@@ -18,19 +18,18 @@ package androidx.room.processor
 
 import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.Upsert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
+import androidx.room.Upsert
 import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.parser.QueryType
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CustomTypeConverter
 import androidx.room.vo.Field
-import com.squareup.javapoet.TypeName
 
 object ProcessorErrors {
     private fun String.trim(): String {
@@ -137,7 +136,7 @@ object ProcessorErrors {
     val QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE = "Query/Insert method parameters cannot " +
         "start with underscore (_)."
 
-    fun cannotFindQueryResultAdapter(returnTypeName: TypeName) = "Not sure how to convert a " +
+    fun cannotFindQueryResultAdapter(returnTypeName: String) = "Not sure how to convert a " +
         "Cursor to this method's return type ($returnTypeName)."
 
     fun classMustImplementEqualsAndHashCode(keyType: String) = "The key" +
@@ -160,14 +159,14 @@ object ProcessorErrors {
     val MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED = "To use the @MapInfo annotation, you " +
         "must provide either the key column name, value column name, or both."
 
-    fun keyMayNeedMapInfo(keyArg: TypeName): String {
+    fun keyMayNeedMapInfo(keyArg: String): String {
         return """
             Looks like you may need to use @MapInfo to clarify the 'keyColumn' needed for
             the return type of a method. Type argument that needs @MapInfo: $keyArg
             """.trim()
     }
 
-    fun valueMayNeedMapInfo(valueArg: TypeName): String {
+    fun valueMayNeedMapInfo(valueArg: String): String {
         return """
             Looks like you may need to use @MapInfo to clarify the 'valueColumn' needed for
             the return type of a method. Type argument that needs @MapInfo: $valueArg
@@ -207,6 +206,9 @@ object ProcessorErrors {
         "private, final, or abstract. It can be abstract only if the method is also" +
         " annotated with @Query."
 
+    fun nullableParamInShortcutMethod(param: String) = "Methods annotated with [@Insert, " +
+        "@Upsert, @Update, @Delete] shouldn't declare nullable parameters ($param)."
+
     fun transactionMethodAsync(returnTypeName: String) = "Method annotated with @Transaction must" +
         " not return deferred/async return type $returnTypeName. Since transactions are" +
         " thread confined and Room cannot guarantee that all queries in the method" +
@@ -225,7 +227,7 @@ object ProcessorErrors {
         "annotated with @Entity or a collection/array of it."
 
     val DB_MUST_EXTEND_ROOM_DB = "Classes annotated with @Database should extend " +
-        RoomTypeNames.ROOM_DB
+        ROOM_DB.canonicalName
 
     val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE = "Observable query return type (LiveData, Flowable" +
         ", DataSource, DataSourceFactory etc) can only be used with SELECT queries that" +
@@ -266,7 +268,7 @@ object ProcessorErrors {
         return MISSING_PARAMETER_FOR_BIND.format(bindVarName.joinToString(", "))
     }
 
-    fun valueCollectionMustBeListOrSet(mapValueTypeName: TypeName): String {
+    fun valueCollectionMustBeListOrSet(mapValueTypeName: String): String {
         return "Multimap 'value' collection type must be a List or Set. Found $mapValueTypeName."
     }
 
@@ -287,7 +289,7 @@ object ProcessorErrors {
 
     val DAO_METHOD_CONFLICTS_WITH_OTHERS = "Dao method has conflicts."
 
-    fun duplicateDao(dao: TypeName, methodNames: List<String>): String {
+    fun duplicateDao(dao: String, methodNames: List<String>): String {
         return """
                 All of these functions [${methodNames.joinToString(", ")}] return the same DAO
                 class [$dao].
@@ -299,7 +301,7 @@ object ProcessorErrors {
     }
 
     fun pojoMissingNonNull(
-        pojoTypeName: TypeName,
+        pojoTypeName: String,
         missingPojoFields: List<String>,
         allQueryColumns: List<String>
     ): String {
@@ -312,10 +314,10 @@ object ProcessorErrors {
     }
 
     fun cursorPojoMismatch(
-        pojoTypeNames: List<TypeName>,
+        pojoTypeNames: List<String>,
         unusedColumns: List<String>,
         allColumns: List<String>,
-        pojoUnusedFields: Map<TypeName, List<Field>>,
+        pojoUnusedFields: Map<String, List<Field>>,
     ): String {
         val unusedColumnsWarning = if (unusedColumns.isNotEmpty()) {
             val pojoNames = if (pojoTypeNames.size > 1) {
@@ -367,7 +369,7 @@ object ProcessorErrors {
             " ${converters.joinToString(", ") { it.toString() }}"
     }
 
-    fun typeConverterMustBeDeclared(typeName: TypeName): String {
+    fun typeConverterMustBeDeclared(typeName: String): String {
         return "Invalid type converter type: $typeName. Type converters must be a class."
     }
 
@@ -712,7 +714,7 @@ object ProcessorErrors {
 
     val RAW_QUERY_BAD_RETURN_TYPE = "RawQuery methods must return a non-void type."
 
-    fun rawQueryBadEntity(typeName: TypeName): String {
+    fun rawQueryBadEntity(typeName: String): String {
         return """
             observedEntities field in RawQuery must either reference a class that is annotated
             with @Entity or it should reference a POJO that either contains @Embedded fields that
@@ -722,7 +724,7 @@ object ProcessorErrors {
     }
 
     val RAW_QUERY_STRING_PARAMETER_REMOVED = "RawQuery does not allow passing a string anymore." +
-        " Please use ${SupportDbTypeNames.QUERY}."
+        " Please use ${SupportDbTypeNames.QUERY.canonicalName}."
 
     val MISSING_COPY_ANNOTATIONS = "Annotated property getter is missing " +
         "@AutoValue.CopyAnnotations."
@@ -821,7 +823,7 @@ object ProcessorErrors {
         "perform the query."
 
     fun cannotFindPreparedQueryResultAdapter(
-        returnType: TypeName,
+        returnType: String,
         type: QueryType
     ) = StringBuilder().apply {
         append("Not sure how to handle query method's return type ($returnType). ")
@@ -855,9 +857,9 @@ object ProcessorErrors {
 
     fun mismatchedGetter(
         fieldName: String,
-        ownerType: TypeName,
-        getterType: TypeName,
-        fieldType: TypeName
+        ownerType: String,
+        getterType: String,
+        fieldType: String
     ) = """
             $ownerType's $fieldName field has type $fieldType but its getter returns $getterType.
             This mismatch might cause unexpected $fieldName values in the database when $ownerType
@@ -866,9 +868,9 @@ object ProcessorErrors {
 
     fun mismatchedSetter(
         fieldName: String,
-        ownerType: TypeName,
-        setterType: TypeName,
-        fieldType: TypeName
+        ownerType: String,
+        setterType: String,
+        fieldType: String
     ) = """
             $ownerType's $fieldName field has type $fieldType but its setter accepts $setterType.
             This mismatch might cause unexpected $fieldName values when $ownerType is read from the
@@ -878,11 +880,11 @@ object ProcessorErrors {
     val DATABASE_INVALID_DAO_METHOD_RETURN_TYPE = "Abstract database methods must return a @Dao " +
         "annotated class or interface."
 
-    fun invalidEntityTypeInDatabaseAnnotation(typeName: TypeName): String {
+    fun invalidEntityTypeInDatabaseAnnotation(typeName: String): String {
         return "Invalid Entity type: $typeName. An entity in the database must be a class."
     }
 
-    fun invalidViewTypeInDatabaseAnnotation(typeName: TypeName): String {
+    fun invalidViewTypeInDatabaseAnnotation(typeName: String): String {
         return "Invalid View type: $typeName. Views in a database must be a class or an " +
             "interface."
     }
@@ -898,7 +900,7 @@ object ProcessorErrors {
         "or an interface."
 
     fun shortcutMethodArgumentMustBeAClass(
-        typeName: TypeName
+        typeName: String
     ): String {
         return "Invalid query argument: $typeName. It must be a class or an interface."
     }
@@ -1099,7 +1101,7 @@ object ProcessorErrors {
     fun ambiguousColumn(
         columnName: String,
         location: AmbiguousColumnLocation,
-        typeName: TypeName?
+        typeName: String?
     ): String {
         val (locationDesc, recommendation) = when (location) {
             AmbiguousColumnLocation.MAP_INFO -> {
@@ -1124,5 +1126,25 @@ object ProcessorErrors {
         MAP_INFO,
         POJO,
         ENTITY,
+    }
+
+    val KOTLIN_PROPERTY_OVERRIDE = "Property getter overrides are not support when generating " +
+        "Kotlin code, please rewrite as an abstract function."
+
+    val NONNULL_VOID = "Invalid non-null declaration of 'Void', should be nullable. The 'Void' " +
+        "class represents a placeholder type that is uninstantiable and 'null' is always returned."
+
+    fun nullableCollectionOrArrayReturnTypeInDaoMethod(
+        typeName: String,
+        returnType: String
+    ): String {
+        return "The nullable `$returnType` ($typeName) return type in a DAO method is " +
+        "meaningless because Room will instead return an empty `$returnType` if no rows are " +
+        "returned from the query."
+    }
+
+    fun nullableComponentInDaoMethodReturnType(typeName: String): String {
+        return "The DAO method return type ($typeName) with the nullable type argument " +
+        "is meaningless because for now Room will never put a null value in a result."
     }
 }

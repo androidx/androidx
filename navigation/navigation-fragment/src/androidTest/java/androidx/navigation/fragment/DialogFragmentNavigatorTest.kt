@@ -23,6 +23,9 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -108,10 +111,10 @@ class DialogFragmentNavigatorTest {
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry)
         dialogNavigator.popBackStack(entry, false)
+        fragmentManager.executePendingTransactions()
         assertThat(navigatorState.backStack.value)
             .isEmpty()
 
-        fragmentManager.executePendingTransactions()
         assertWithMessage("Dialog should not be shown")
             .that(dialogFragment.dialog)
             .isNull()
@@ -162,13 +165,10 @@ class DialogFragmentNavigatorTest {
             .that(dialogFragment.requireDialog().isShowing)
             .isTrue()
         dialogNavigator.popBackStack(entry, false)
+        fragmentManager.executePendingTransactions()
         assertWithMessage("DialogNavigator should pop dialog off the back stack")
             .that(navigatorState.backStack.value)
             .isEmpty()
-        assertWithMessage("Pop should dismiss the DialogFragment")
-            .that(dialogFragment.requireDialog().isShowing)
-            .isFalse()
-        fragmentManager.executePendingTransactions()
         assertWithMessage("Dismiss should remove the dialog")
             .that(dialogFragment.dialog)
             .isNull()
@@ -181,20 +181,61 @@ class DialogFragmentNavigatorTest {
     @Test
     fun testDismiss() {
         lateinit var dialogFragment: DialogFragment
+        val entry = createBackStackEntry()
+        var matchCount = 0
+
         fragmentManager.fragmentFactory = object : FragmentFactory() {
             override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
                 return super.instantiate(classLoader, className).also { fragment ->
                     if (fragment is DialogFragment) {
                         dialogFragment = fragment
+                        // observer before navigator to verify down states
+                        dialogFragment.lifecycle.addObserver(object : LifecycleEventObserver {
+                            override fun onStateChanged(
+                                source: LifecycleOwner,
+                                event: Lifecycle.Event
+                            ) {
+                                if (event == Lifecycle.Event.ON_STOP) {
+                                    if (entry.lifecycle.currentState == Lifecycle.State.CREATED) {
+                                        matchCount++
+                                    }
+                                }
+                                if (event == Lifecycle.Event.ON_DESTROY) {
+                                    if (entry.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                                        matchCount++
+                                    }
+                                    dialogFragment.lifecycle.removeObserver(this)
+                                }
+                            }
+                        })
                     }
                 }
             }
         }
-        val entry = createBackStackEntry()
 
         dialogNavigator.navigate(listOf(entry), null, null)
         assertThat(navigatorState.backStack.value)
             .containsExactly(entry)
+
+        // observer after navigator to verify up states
+        dialogFragment.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_START) {
+                    if (entry.lifecycle.currentState == Lifecycle.State.STARTED) {
+                        matchCount++
+                    }
+                }
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    if (entry.lifecycle.currentState == Lifecycle.State.RESUMED) {
+                        matchCount++
+                    }
+                }
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    dialogFragment.lifecycle.removeObserver(this)
+                }
+            }
+        })
+
         fragmentManager.executePendingTransactions()
         assertWithMessage("Dialog should be shown")
             .that(dialogFragment.requireDialog().isShowing)
@@ -202,6 +243,7 @@ class DialogFragmentNavigatorTest {
 
         dialogFragment.dismiss()
         fragmentManager.executePendingTransactions()
+        assertThat(matchCount).isEqualTo(4)
         assertWithMessage("Dismiss should remove the dialog from the back stack")
             .that(navigatorState.backStack.value)
             .isEmpty()

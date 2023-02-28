@@ -160,44 +160,117 @@ public class DeviceProfileWriter {
         if (mDesiredVersion == null) {
             return this;
         }
-        try (AssetFileDescriptor fd = mAssetManager.openFd(mProfileSourceLocation)) {
-            try (InputStream is = fd.createInputStream()) {
-                byte[] baselineVersion = ProfileTranscoder.readHeader(is, MAGIC_PROF);
-                mProfile = ProfileTranscoder.readProfile(is, baselineVersion, mApkName);
+
+        InputStream profileStream = getProfileInputStream(mAssetManager);
+        if (profileStream != null) {
+            mProfile = readProfileInternal(profileStream);
+        }
+        if (mProfile != null) {
+            DexProfileData[] profile = mProfile;
+            if (requiresMetadata()) {
+                DeviceProfileWriter profileWriter = addMetadata(profile, mDesiredVersion);
+                if (profileWriter != null) return profileWriter;
             }
-        }  catch (FileNotFoundException e) {
+        }
+        return this;
+    }
+
+    /**
+     * Loads an {@link InputStream} from assets whether the underlying file is compressed or not.
+     *
+     * @param assetManager The {@link AssetManager} to use.
+     * @param location The source file's location.
+     * @return An InputStream in case the profile was successfully read.
+     * @throws IOException If anything goes wrong while opening or reading the file.
+     */
+    private @Nullable InputStream openStreamFromAssets(AssetManager assetManager, String location)
+            throws IOException {
+        InputStream profileStream = null;
+        try {
+            AssetFileDescriptor descriptor = assetManager.openFd(location);
+            profileStream = descriptor.createInputStream();
+        } catch (FileNotFoundException e) {
+            String message = e.getMessage();
+            if (message != null && message.contains("compressed")) {
+                mDiagnostics.onDiagnosticReceived(
+                        ProfileInstaller.DIAGNOSTIC_PROFILE_IS_COMPRESSED, null);
+            }
+        }
+        return profileStream;
+    }
+
+    /**
+     * Load the baseline profile file from assets.
+     * @param assetManager The {@link AssetManager} to use.
+     * @return The opened stream or null if the stream was unable to be opened.
+     */
+    private @Nullable InputStream getProfileInputStream(AssetManager assetManager) {
+        InputStream profileStream = null;
+        try {
+            profileStream = openStreamFromAssets(assetManager, mProfileSourceLocation);
+        } catch (FileNotFoundException e) {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_BASELINE_PROFILE_NOT_FOUND, e);
+        } catch (IOException e) {
+            mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
+        }
+        return profileStream;
+    }
+
+    /**
+     * Reads a baseline profile from a given {@link InputStream} and transcodes it along the way
+     * if needed.
+     *
+     * @param profileStream The {@link InputStream} containing the baseline profile data.
+     */
+    private @Nullable DexProfileData[] readProfileInternal(InputStream profileStream) {
+        DexProfileData[] profile = null;
+        try {
+            byte[] baselineVersion = ProfileTranscoder.readHeader(profileStream, MAGIC_PROF);
+            profile = ProfileTranscoder.readProfile(profileStream, baselineVersion, mApkName);
         } catch (IOException e) {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
         } catch (IllegalStateException e) {
             mDiagnostics.onResultReceived(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
-        }
-        DexProfileData[] profile = mProfile;
-        if (profile != null && requiresMetadata()) {
-            try (AssetFileDescriptor fd = mAssetManager.openFd(mProfileMetaSourceLocation)) {
-                try (InputStream is = fd.createInputStream()) {
-                    byte[] metaVersion = ProfileTranscoder.readHeader(is, MAGIC_PROFM);
-                    mProfile = ProfileTranscoder.readMeta(
-                            is,
-                            metaVersion,
-                            mDesiredVersion,
-                            profile
-                    );
-                    return this;
-                }
-            } catch (FileNotFoundException e) {
-                mDiagnostics.onResultReceived(
-                        ProfileInstaller.RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND,
-                        e
-                );
+        } finally {
+            try {
+                profileStream.close();
             } catch (IOException e) {
                 mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
-            } catch (IllegalStateException e) {
-                mProfile = null;
-                mDiagnostics.onResultReceived(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
             }
         }
-        return this;
+        return profile;
+    }
+
+    /**
+     * Add Metadata from an existing baseline profile metadata file.
+     * @param profile The profile which needs adding of metadata.
+     *
+     * @return Baseline profile with metaadata.
+     */
+    @Nullable
+    private DeviceProfileWriter addMetadata(DexProfileData[] profile, byte[] desiredVersion) {
+
+        try (InputStream is = openStreamFromAssets(mAssetManager, mProfileMetaSourceLocation)) {
+            if (is != null) {
+                byte[] metaVersion = ProfileTranscoder.readHeader(is, MAGIC_PROFM);
+                mProfile = ProfileTranscoder.readMeta(
+                        is,
+                        metaVersion,
+                        desiredVersion,
+                        profile
+                );
+                return this;
+            }
+        } catch (FileNotFoundException e) {
+            mDiagnostics.onResultReceived(
+                    ProfileInstaller.RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND, e);
+        } catch (IOException e) {
+            mDiagnostics.onResultReceived(ProfileInstaller.RESULT_IO_EXCEPTION, e);
+        } catch (IllegalStateException e) {
+            mProfile = null;
+            mDiagnostics.onResultReceived(ProfileInstaller.RESULT_PARSE_EXCEPTION, e);
+        }
+        return null;
     }
 
     /**
@@ -286,8 +359,9 @@ public class DeviceProfileWriter {
     }
 
     private static @Nullable byte[] desiredVersion() {
-        // If SDK is pre-N, we don't want to do anything, so return null.
-        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK) {
+        // If SDK is pre or post supported version, we don't want to do anything, so return null.
+        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK
+                || Build.VERSION.SDK_INT > ProfileVersion.MAX_SUPPORTED_SDK) {
             return null;
         }
 
@@ -318,7 +392,8 @@ public class DeviceProfileWriter {
 
     private static boolean requiresMetadata() {
         // If SDK is pre-N, we don't want to do anything, so return null.
-        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK) {
+        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK
+                || Build.VERSION.SDK_INT > ProfileVersion.MAX_SUPPORTED_SDK) {
             return false;
         }
 

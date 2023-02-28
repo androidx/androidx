@@ -22,6 +22,8 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 /**
  * Utility class representing a Guideline helper object for
  * {@link ConstraintLayout}.
@@ -122,7 +124,7 @@ public class Guideline extends View {
      */
     @SuppressLint("MissingSuperCall")
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
 
     }
 

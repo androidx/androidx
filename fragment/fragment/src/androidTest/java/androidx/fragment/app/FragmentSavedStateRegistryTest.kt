@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContract
@@ -32,13 +33,19 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.RecreatedActivity
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class FragmentSavedStateRegistryTest {
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     private fun ActivityScenario<FragmentSavedStateActivity>.initializeSavedState(
         testFragment: Fragment = Fragment()
@@ -55,7 +62,7 @@ class FragmentSavedStateRegistryTest {
 
     @Test
     fun savedState() {
-        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
             initializeSavedState()
             recreate()
             withActivity {
@@ -67,7 +74,7 @@ class FragmentSavedStateRegistryTest {
 
     @Test
     fun savedStateLateInit() {
-        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
             initializeSavedState()
             recreate()
             withActivity {
@@ -83,8 +90,20 @@ class FragmentSavedStateRegistryTest {
     }
 
     @Test
-    fun savedStateEarlyRegister() {
-        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+    fun savedStateOnAttachConsume() {
+        withUse(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+            initializeSavedState(OnAttachCheckingFragment())
+            recreate()
+            val fragment = withActivity {
+                supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as OnAttachCheckingFragment
+            }
+            assertThat(fragment.restoredState).isEqualTo(VALUE)
+        }
+    }
+
+    @Test
+    fun savedStateOnCreateConsume() {
+       withUse(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
             initializeSavedState(OnCreateCheckingFragment())
             recreate()
         }
@@ -92,7 +111,7 @@ class FragmentSavedStateRegistryTest {
 
     @Test
     fun savedStateOnActivityResult() {
-        with(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentSavedStateActivity::class.java)) {
             val registry = withActivity { registry }
             initializeSavedState(OnActivityResultCheckingFragment(registry))
             recreate()
@@ -139,6 +158,17 @@ class FragmentSavedStateActivity : RecreatedActivity() {
 
     val fragment: Fragment get() = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
         ?: throw IllegalStateException("Fragment under test wasn't found")
+}
+
+class OnAttachCheckingFragment : Fragment() {
+
+    var restoredState: String? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        val savedState = savedStateRegistry.consumeRestoredStateForKey(CALLBACK_KEY)
+        restoredState = savedState?.getString(KEY)
+    }
 }
 
 class OnCreateCheckingFragment : Fragment() {

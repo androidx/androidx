@@ -27,10 +27,7 @@ fun toDataTypeIdPairProto(
     dataTypeKC: KClass<out Record>,
     uid: String
 ): RequestProto.DataTypeIdPair =
-    RequestProto.DataTypeIdPair.newBuilder()
-        .setDataType(dataTypeKC.toDataType())
-        .setId(uid)
-        .build()
+    RequestProto.DataTypeIdPair.newBuilder().setDataType(dataTypeKC.toDataType()).setId(uid).build()
 
 fun toDataTypeIdPairProtoList(
     dataTypeKC: KClass<out Record>,

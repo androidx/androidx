@@ -21,6 +21,7 @@ import android.os.Parcelable
 import androidx.annotation.Sampled
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,11 +36,15 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -238,6 +243,27 @@ fun NavigateBackButton(navController: NavController) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Go to Previous screen")
+        }
+    }
+}
+
+@Preview
+@Composable
+fun NavHostPreview() {
+    CompositionLocalProvider(
+        LocalInspectionMode provides true,
+    ) {
+        Box(Modifier.fillMaxSize().background(Color.Red)) {
+            NavHost(
+                navController = rememberNavController(),
+                startDestination = "home"
+            ) {
+                composable("home") {
+                    Box(Modifier.fillMaxSize().background(Color.Blue)) {
+                        Text(text = "test", modifier = Modifier.testTag("text"))
+                    }
+                }
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ dependencies {
     implementation project(":appsearch:appsearch")
     implementation('androidx.collection:collection:1.2.0')
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation("androidx.core:core:1.7.0")
+    implementation("androidx.core:core:1.8.0")
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
@@ -38,7 +38,6 @@ dependencies {
 androidx {
     name = "AppSearch Platform Storage"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.APPSEARCH
     inceptionYear = "2021"
     description =
         "An implementation of AppSearchSession which uses the AppSearch service on Android S+"

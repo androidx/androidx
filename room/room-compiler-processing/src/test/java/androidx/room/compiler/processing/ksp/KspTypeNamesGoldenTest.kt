@@ -54,7 +54,7 @@ class KspTypeNamesGoldenTest {
             fun XExecutableElement.createNewUniqueKey(
                 owner: String
             ): String {
-                val prefix = this.closestMemberContainer.className.canonicalName()
+                val prefix = this.closestMemberContainer.asClassName().canonicalName
                 val jvmName = if (this is XMethodElement) {
                     jvmName
                 } else {

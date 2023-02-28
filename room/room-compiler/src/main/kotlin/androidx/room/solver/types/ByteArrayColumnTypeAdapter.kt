@@ -16,12 +16,12 @@
 
 package androidx.room.solver.types
 
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.TypeName
 
 class ByteArrayColumnTypeAdapter private constructor(
     out: XType
@@ -35,16 +35,18 @@ class ByteArrayColumnTypeAdapter private constructor(
         indexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            // according to docs, getBlob might throw if the value is null
-            // https://developer.android.com/reference/android/database/Cursor#getBlob(int)
-            beginControlFlow("if ($L.isNull($L))", cursorVarName, indexVarName).apply {
-                addStatement("$L = null", outVarName)
+        scope.builder.apply {
+            if (out.nullability == XNullability.NONNULL) {
+                addStatement("%L = %L.getBlob(%L)", outVarName, cursorVarName, indexVarName)
+            } else {
+                beginControlFlow("if (%L.isNull(%L))", cursorVarName, indexVarName).apply {
+                    addStatement("%L = null", outVarName)
+                }
+                nextControlFlow("else").apply {
+                    addStatement("%L = %L.getBlob(%L)", outVarName, cursorVarName, indexVarName)
+                }
+                endControlFlow()
             }
-            nextControlFlow("else").apply {
-                addStatement("$L = $L.getBlob($L)", outVarName, cursorVarName, indexVarName)
-            }
-            endControlFlow()
         }
     }
 
@@ -54,18 +56,22 @@ class ByteArrayColumnTypeAdapter private constructor(
         valueVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            beginControlFlow("if ($L == null)", valueVarName)
-                .addStatement("$L.bindNull($L)", stmtName, indexVarName)
-            nextControlFlow("else")
-                .addStatement("$L.bindBlob($L, $L)", stmtName, indexVarName, valueVarName)
-            endControlFlow()
+        scope.builder.apply {
+            if (out.nullability == XNullability.NONNULL) {
+                addStatement("%L.bindBlob(%L, %L)", stmtName, indexVarName, valueVarName)
+            } else {
+                beginControlFlow("if (%L == null)", valueVarName)
+                    .addStatement("%L.bindNull(%L)", stmtName, indexVarName)
+                nextControlFlow("else")
+                    .addStatement("%L.bindBlob(%L, %L)", stmtName, indexVarName, valueVarName)
+                endControlFlow()
+            }
         }
     }
 
     companion object {
         fun create(env: XProcessingEnv): List<ByteArrayColumnTypeAdapter> {
-            val arrayType = env.getArrayType(TypeName.BYTE)
+            val arrayType = env.getArrayType(env.requireType(XTypeName.PRIMITIVE_BYTE))
             return if (env.backend == XProcessingEnv.Backend.KSP) {
                 listOf(
                     ByteArrayColumnTypeAdapter(arrayType.makeNonNullable()),

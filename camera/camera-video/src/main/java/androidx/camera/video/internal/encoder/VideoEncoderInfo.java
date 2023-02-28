@@ -26,6 +26,9 @@ import androidx.annotation.RequiresApi;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface VideoEncoderInfo extends EncoderInfo {
+    /** Returns if the size is supported. */
+    boolean isSizeSupported(int width, int height);
+
     /** Returns the range of supported video widths. */
     @NonNull
     Range<Integer> getSupportedWidths();
@@ -67,4 +70,10 @@ public interface VideoEncoderInfo extends EncoderInfo {
      * <p>This is usually a power-of-2 value that video height must be a multiple of.
      */
     int getHeightAlignment();
+
+    /**
+     * Returns the video encoder's bitrate range.
+     */
+    @NonNull
+    Range<Integer> getSupportedBitrateRange();
 }

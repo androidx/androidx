@@ -67,6 +67,9 @@ class CameraPipeConfigTestRule(
                         log("started: ${description.displayName}")
                         logUncaughtExceptions()
                         base.evaluate()
+                    } catch (e: AssumptionViolatedException) {
+                        log("AssumptionViolatedException: ${description.displayName}", e)
+                        handleException(e)
                     } catch (e: Throwable) {
                         log("failed: ${description.displayName}", e)
                         handleException(e)

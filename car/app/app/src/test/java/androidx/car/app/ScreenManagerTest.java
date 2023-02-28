@@ -42,11 +42,13 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -54,6 +56,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public final class ScreenManagerTest {
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
     private TestScreen mScreen1;
     private TestScreen mScreen2;
@@ -77,8 +81,6 @@ public final class ScreenManagerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
         mTestCarContext =
                 TestCarContext.createCarContext(ApplicationProvider.getApplicationContext());
         mTestCarContext.overrideCarService(AppManager.class, mMockAppManager);

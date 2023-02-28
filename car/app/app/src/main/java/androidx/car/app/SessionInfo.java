@@ -18,13 +18,13 @@ package androidx.car.app;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.NavigationTemplate;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.versioning.CarAppApiLevel;
 import androidx.car.app.versioning.CarAppApiLevels;
 
@@ -37,6 +37,7 @@ import java.util.Set;
 /** Information about a {@link Session}, such as the physical display and the session ID. */
 @RequiresCarApi(6)
 @CarProtocol
+@KeepFields
 public class SessionInfo {
     private static final char DIVIDER = '/';
 
@@ -85,12 +86,10 @@ public class SessionInfo {
     }
 
     /** A string identifier unique per physical display. */
-    @Keep
     @NonNull
     private final String mSessionId;
 
     /** The type of display the {@link Session} is rendering on. */
-    @Keep
     @DisplayType
     private final int mDisplayType;
 

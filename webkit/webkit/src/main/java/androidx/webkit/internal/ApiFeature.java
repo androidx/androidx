@@ -220,4 +220,17 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
         }
     }
 
+    /**
+     * Represents a feature that was added in T.
+     */
+    public static class T extends ApiFeature {
+        T(@NonNull String publicFeatureValue, @NonNull String internalFeatureValue) {
+            super(publicFeatureValue, internalFeatureValue);
+        }
+
+        @Override
+        public final boolean isSupportedByFramework() {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
+        }
+    }
 }

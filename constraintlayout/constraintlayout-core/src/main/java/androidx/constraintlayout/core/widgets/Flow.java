@@ -1015,12 +1015,12 @@ public class Flow extends VirtualLayout {
                     doWrap = true;
                 }
                 if (doWrap) {
+                    col = 1;
                     width = w;
                     list = new WidgetsList(orientation, mLeft, mTop, mRight, mBottom, max);
                     list.setStartIndex(i);
                     mChainList.add(list);
                 } else {
-                    col = 0;
                     if (i > 0) {
                         width += mHorizontalGap + w;
                     } else {
@@ -1033,6 +1033,7 @@ public class Flow extends VirtualLayout {
             int height = 0;
             int row = 0;
             for (int i = 0; i < count; i++) {
+                row++;
                 ConstraintWidget widget = widgets[i];
                 int h = getWidgetHeight(widget, max);
                 if (widget.getVerticalDimensionBehaviour() == DimensionBehaviour.MATCH_CONSTRAINT) {
@@ -1044,12 +1045,12 @@ public class Flow extends VirtualLayout {
                     doWrap = true;
                 }
                 if (doWrap) {
+                    row = 1;
                     height = h;
                     list = new WidgetsList(orientation, mLeft, mTop, mRight, mBottom, max);
                     list.setStartIndex(i);
                     mChainList.add(list);
                 } else {
-                    row = 0;
                     if (i > 0) {
                         height += mVerticalGap + h;
                     } else {

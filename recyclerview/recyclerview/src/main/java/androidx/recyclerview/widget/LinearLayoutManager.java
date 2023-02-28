@@ -21,6 +21,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.PointF;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -30,9 +32,12 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.os.TraceCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 
 import java.util.List;
 
@@ -85,30 +90,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      */
     private boolean mLastStackFromEnd;
 
-    /**
-     * Whether the last layout filled the entire viewport
-     *
-     * If the last layout did not fill the viewport, we should not attempt to calculate an
-     * anchoring based on the current children (other than if one is focused), because there
-     * isn't any scrolling that could have occurred that would indicate a position in the list
-     * that needs to be preserved - and in fact, trying to do so could produce the wrong result,
-     * such as the case of anchoring to a loading spinner at the end of the list.
-     */
-    private boolean mLastLayoutFilledViewport = false;
-
-    /**
-     * Whether the *current* layout filled the entire viewport
-     *
-     * This is used to populate mLastLayoutFilledViewport. It exists as a separate variable
-     * because we need to populate it at the correct moment, which is tricky due to the
-     * LayoutManager layout being called multiple times.  We want to not set it in prelayout
-     * (because that's not the real layout), but we want to set it the *first* time that the
-     * actual layout is run, because for certain non-exact layout cases, there are two passes,
-     * with the second pass being provided an EXACTLY spec (when the actual spec was non-exact).
-     * This would otherwise incorrectly believe the viewport was filled, because it was provided
-     * just enough space to contain the content, and thus it would always fill the viewport.
-     */
-    private Boolean mThisLayoutFilledViewport = null;
 
     /**
      * Defines if layout should be calculated from end to start.
@@ -282,6 +263,56 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             event.setFromIndex(findFirstVisibleItemPosition());
             event.setToIndex(findLastVisibleItemPosition());
         }
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
+            @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
+        super.onInitializeAccessibilityNodeInfo(recycler, state, info);
+        // TODO(b/251823537)
+        if (mRecyclerView.mAdapter != null && mRecyclerView.mAdapter.getItemCount() > 0) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                info.addAction(AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION);
+            }
+        }
+    }
+
+    @Override
+    boolean performAccessibilityAction(int action, @Nullable Bundle args) {
+        if (super.performAccessibilityAction(action, args)) {
+            return true;
+        }
+
+        if (action == android.R.id.accessibilityActionScrollToPosition && args != null) {
+            int position = -1;
+
+            if (mOrientation == VERTICAL) {
+                final int rowArg = args.getInt(
+                        AccessibilityNodeInfoCompat.ACTION_ARGUMENT_ROW_INT, -1);
+                if (rowArg < 0) {
+                    return false;
+                }
+                position = Math.min(rowArg, getRowCountForAccessibility(mRecyclerView.mRecycler,
+                        mRecyclerView.mState) - 1);
+            } else { // horizontal
+                final int columnArg = args.getInt(
+                        AccessibilityNodeInfoCompat.ACTION_ARGUMENT_COLUMN_INT, -1);
+                if (columnArg < 0) {
+                    return false;
+                }
+                position = Math.min(columnArg,
+                        getColumnCountForAccessibility(mRecyclerView.mRecycler,
+                                mRecyclerView.mState) - 1);
+            }
+            if (position >= 0) {
+                // We want the target element to be the first on screen. That way, a
+                // screenreader like Talkback can directly focus on it as part of its default focus
+                // logic.
+                scrollToPositionWithOffset(position, 0);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -595,26 +626,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         // resolve layout direction
         resolveShouldLayoutReverse();
 
-        boolean layoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
-
-        // The 2 booleans below are necessary because if we are laying out from the end, and the
-        // previous measured dimension is different from the new measured value, then any
-        // previously calculated anchor will be incorrect.
-        boolean reCalcAnchorDueToVertical = layoutFromEnd
-                && getOrientation() == RecyclerView.VERTICAL
-                && state.getPreviousMeasuredHeight() != getHeight();
-        boolean reCalcAnchorDueToHorizontal = layoutFromEnd
-                && getOrientation() == RecyclerView.HORIZONTAL
-                && state.getPreviousMeasuredWidth() != getWidth();
-
-        boolean reCalcAnchor = reCalcAnchorDueToVertical || reCalcAnchorDueToHorizontal
-                || mPendingScrollPosition != RecyclerView.NO_POSITION || mPendingSavedState != null;
-
         final View focused = getFocusedChild();
-
-        if (!mAnchorInfo.mValid || reCalcAnchor) {
+        if (!mAnchorInfo.mValid || mPendingScrollPosition != RecyclerView.NO_POSITION
+                || mPendingSavedState != null) {
             mAnchorInfo.reset();
-            mAnchorInfo.mLayoutFromEnd = layoutFromEnd;
+            mAnchorInfo.mLayoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
             // calculate anchor position and coordinate
             updateAnchorInfoForLayout(recycler, state, mAnchorInfo);
             mAnchorInfo.mValid = true;
@@ -753,17 +769,13 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             // because layout from end may be changed by scroll to position
             // we re-calculate it.
             // find which side we should check for gaps.
-            if (layoutFromEnd) {
+            if (mShouldReverseLayout ^ mStackFromEnd) {
                 int fixOffset = fixLayoutEndGap(endOffset, recycler, state, true);
                 startOffset += fixOffset;
                 endOffset += fixOffset;
                 fixOffset = fixLayoutStartGap(startOffset, recycler, state, false);
                 startOffset += fixOffset;
                 endOffset += fixOffset;
-                if (!state.isPreLayout() && mThisLayoutFilledViewport == null) {
-                    mThisLayoutFilledViewport =
-                            (startOffset <= mOrientationHelper.getStartAfterPadding());
-                }
             } else {
                 int fixOffset = fixLayoutStartGap(startOffset, recycler, state, true);
                 startOffset += fixOffset;
@@ -771,10 +783,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
                 fixOffset = fixLayoutEndGap(endOffset, recycler, state, false);
                 startOffset += fixOffset;
                 endOffset += fixOffset;
-                if (!state.isPreLayout() && mThisLayoutFilledViewport == null) {
-                    mThisLayoutFilledViewport =
-                            (endOffset >= mOrientationHelper.getEndAfterPadding());
-                }
             }
         }
         layoutForPredictiveAnimations(recycler, state, startOffset, endOffset);
@@ -796,8 +804,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         mPendingSavedState = null; // we don't need this anymore
         mPendingScrollPosition = RecyclerView.NO_POSITION;
         mPendingScrollPositionOffset = INVALID_OFFSET;
-        mLastLayoutFilledViewport = mThisLayoutFilledViewport != null && mThisLayoutFilledViewport;
-        mThisLayoutFilledViewport = null;
         mAnchorInfo.reset();
     }
 
@@ -907,19 +913,11 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         if (getChildCount() == 0) {
             return false;
         }
-
         final View focused = getFocusedChild();
         if (focused != null && anchorInfo.isViewValidAsAnchor(focused, state)) {
             anchorInfo.assignFromViewAndKeepVisibleRect(focused, getPosition(focused));
             return true;
         }
-
-        // If we did not fill the layout, don't anchor. This prevents, for example,
-        // anchoring to the bottom of the list when there is a loading indicator.
-        if (!mLastLayoutFilledViewport) {
-            return false;
-        }
-
         if (mLastStackFromEnd != mStackFromEnd) {
             return false;
         }

@@ -43,13 +43,9 @@ public final class WatchFaceColorsWireFormat implements VersionedParcelable, Par
     int mTertiaryColor;
 
     /** Used by VersionedParcelable. */
-    WatchFaceColorsWireFormat() {
-    }
+    WatchFaceColorsWireFormat() {}
 
-    public WatchFaceColorsWireFormat(
-            int primaryColor,
-            int secondaryColor,
-            int tertiaryColor) {
+    public WatchFaceColorsWireFormat(int primaryColor, int secondaryColor, int tertiaryColor) {
         mPrimaryColor = primaryColor;
         mSecondaryColor = secondaryColor;
         mTertiaryColor = tertiaryColor;

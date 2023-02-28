@@ -18,17 +18,25 @@ package androidx.graphics.lowlatency
 
 import android.annotation.SuppressLint
 import android.hardware.HardwareBuffer
+import android.opengl.GLES20
+import android.opengl.Matrix
 import android.os.Build
 import android.util.Log
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
+import androidx.graphics.opengl.FrameBuffer
+import androidx.graphics.opengl.FrameBufferPool
+import androidx.graphics.opengl.FrameBufferRenderer
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
-import java.util.Collections
+import androidx.hardware.SyncFenceCompat
+import androidx.opengl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
+import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.Executors
 
 /**
  * Class responsible for supporting a "front buffered" rendering system. This allows for lower
@@ -77,7 +85,12 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction
         ) {
-            mFrontBufferSyncStrategy.setVisible(false)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                transaction.addTransactionCommittedListener(mExecutor, mCommittedListener)
+            } else {
+                clearFrontBuffer()
+            }
+            mFrontBufferSyncStrategy.isVisible = false
             callback.onDoubleBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl,
                 transaction
@@ -89,7 +102,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction
         ) {
-            mFrontBufferSyncStrategy.setVisible(true)
+            mFrontBufferSyncStrategy.isVisible = true
             callback.onFrontBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl,
                 transaction
@@ -97,8 +110,21 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         }
     }
 
+    private val mExecutor = Executors.newSingleThreadExecutor()
+
+    private val mCommittedListener = object : SurfaceControlCompat.TransactionCommittedListener {
+        override fun onTransactionCommitted() {
+            clearFrontBuffer()
+        }
+    }
+
+    internal fun clearFrontBuffer() {
+        mFrontBufferedLayerRenderer?.clear()
+        mFrontBufferedRenderTarget?.requestRender()
+    }
+
     /**
-     * [GLRenderer.EGLContextCallback]s used to release the corresponding [RenderBufferPool]
+     * [GLRenderer.EGLContextCallback]s used to release the corresponding [FrameBufferPool]
      * if the [GLRenderer] is torn down.
      * This is especially helpful if a [GLRenderer] is being provided and shared across other
      * [GLRenderer.RenderTarget] instances in which case it can be released externally from
@@ -106,7 +132,12 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     private val mContextCallbacks = object : GLRenderer.EGLContextCallback {
         override fun onEGLContextCreated(eglManager: EGLManager) {
-            // no-op
+            with(eglManager) {
+                val supportsEglFences = isExtensionSupported(EGL_KHR_FENCE_SYNC)
+                val supportsAndroidFences = isExtensionSupported(EGL_ANDROID_NATIVE_FENCE_SYNC)
+                Log.d(TAG, "Supports KHR_FENCE_SYNC: $supportsEglFences")
+                Log.d(TAG, "Supports ANDROID_NATIVE_FENCE_SYNC: $supportsAndroidFences")
+            }
         }
 
         override fun onEGLContextDestroyed(eglManager: EGLManager) {
@@ -126,24 +157,37 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         }
 
         override fun onLayerDestroyed() {
-            release(true)
+            detachTargets(true)
         }
 
-        override fun obtainDoubleBufferedLayerParams(): MutableCollection<T> =
-            mParentBufferParamQueue
+        override fun obtainDoubleBufferedLayerParams(): MutableCollection<T>? =
+            mSegments.poll()
 
         override fun getFrontBufferedLayerSurfaceControl(): SurfaceControlCompat? =
             mFrontBufferedLayerSurfaceControl
 
-        override fun getRenderBufferPool(): RenderBufferPool? =
+        override fun getFrameBufferPool(): FrameBufferPool? =
             mBufferPool
+    }
+
+    /**
+     * Runnable executed on the GLThread to update [FrontBufferSyncStrategy.isVisible] as well
+     * as hide the SurfaceControl associated with the front buffered layer
+     */
+    private val mCancelRunnable = Runnable {
+        mFrontBufferSyncStrategy.isVisible = false
+        mFrontBufferedLayerSurfaceControl?.let { frontBufferSurfaceControl ->
+            SurfaceControlCompat.Transaction()
+                .setVisibility(frontBufferSurfaceControl, false)
+                .commit()
+        }
     }
 
     /**
      * Queue of parameters to be consumed in [Callback.onDrawFrontBufferedLayer] with the parameter
      * provided in [renderFrontBufferedLayer]
      */
-    private val mFrontBufferQueueParams = ConcurrentLinkedQueue<T>()
+    private val mActiveSegment = ParamQueue<T>()
 
     /**
      * Collection of parameters to be consumed in [Callback.onDoubleBufferedLayerRenderComplete]
@@ -152,28 +196,28 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      * this collection is cleared and new parameters are added to it with consecutive calls to
      * [renderFrontBufferedLayer].
      */
-    private val mParentBufferParamQueue = Collections.synchronizedList(ArrayList<T>())
+    private val mSegments = ConcurrentLinkedQueue<MutableCollection<T>>()
 
     /**
-     * [RenderBuffer] used for rendering into the front buffered layer. This buffer is persisted
+     * [FrameBuffer] used for rendering into the front buffered layer. This buffer is persisted
      * across frames as part of front buffered rendering and is not expected to be released again
      * after the corresponding [SurfaceControlCompat.Transaction] that submits this buffer is
      * applied as per the implementation of "scan line racing" that is done for front buffered
      * rendering
      */
-    private var mFrontLayerBuffer: RenderBuffer? = null
+    private var mFrontLayerBuffer: FrameBuffer? = null
 
     /**
-     * [RenderBufferPool] used to cycle through [RenderBuffer] instances that are released when
-     * the [HardwareBuffer] within the [RenderBuffer] is already displayed by the hardware
+     * [FrameBufferPool] used to cycle through [FrameBuffer] instances that are released when
+     * the [HardwareBuffer] within the [FrameBuffer] is already displayed by the hardware
      * compositor
      */
-    private var mBufferPool: RenderBufferPool? = null
+    private var mBufferPool: FrameBufferPool? = null
 
     /**
      * [GLRenderer.RenderCallback] used for drawing into the front buffered layer
      */
-    private var mFrontBufferedLayerRenderer: HardwareBufferRenderer? = null
+    private var mFrontBufferedLayerRenderer: FrameBufferRenderer? = null
 
     /**
      * [SurfaceControlCompat] used to configure buffers and visibility of the front buffered layer
@@ -181,7 +225,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     private var mFrontBufferedLayerSurfaceControl: SurfaceControlCompat? = null
 
     /**
-     * [FrontBufferSyncStrategy] used for [HardwareBufferRenderer] to conditionally decide
+     * [FrontBufferSyncStrategy] used for [FrameBufferRenderer] to conditionally decide
      * when to create a [SyncFenceCompat] for transaction calls.
      */
     private val mFrontBufferSyncStrategy: FrontBufferSyncStrategy
@@ -235,12 +279,6 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     private val mHardwareBufferUsageFlags: Long
 
-    /**
-     * Flag to determine if [HardwareBuffer.USAGE_FRONT_BUFFER] is supported or not on
-     * the device
-     */
-    private val mSupportsFrontBufferUsage: Boolean
-
     init {
         mParentRenderLayer.setParentLayerCallbacks(mParentLayerCallback)
         val renderer = if (glRenderer == null) {
@@ -254,20 +292,19 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         }
         renderer.registerEGLContextCallback(mContextCallbacks)
 
-        mDoubleBufferedLayerRenderTarget =
-            mParentRenderLayer.createRenderTarget(renderer, mCallback)
         mGLRenderer = renderer
 
         mHardwareBufferUsageFlags = obtainHardwareBufferUsageFlags()
 
-        mSupportsFrontBufferUsage =
-            (mHardwareBufferUsageFlags and HardwareBuffer.USAGE_FRONT_BUFFER) != 0L
-
-        mFrontBufferSyncStrategy = FrontBufferSyncStrategy(mSupportsFrontBufferUsage)
+        mFrontBufferSyncStrategy = FrontBufferSyncStrategy(mHardwareBufferUsageFlags)
     }
 
     internal fun update(width: Int, height: Int) {
-        if (mWidth != width || mHeight != height) {
+        if (mWidth != width || mHeight != height && isValid()) {
+
+            mDoubleBufferedLayerRenderTarget?.detach(true)
+            val doubleBufferTarget = mParentRenderLayer.createRenderTarget(mGLRenderer, mCallback)
+
             mFrontBufferedLayerSurfaceControl?.release()
 
             val frontBufferedSurfaceControl = SurfaceControlCompat.Builder()
@@ -277,12 +314,18 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 }
                 .build()
 
-            val bufferPool = RenderBufferPool(
-                width,
-                height,
+            val bufferWidth = mParentRenderLayer.getBufferWidth()
+            val bufferHeight = mParentRenderLayer.getBufferHeight()
+
+            // Create buffer pool for the multi-buffered layer
+            // The flags here are identical to those used for buffers in the front buffered layer
+            // except USAGE_FRONT_BUFFER is not specified
+            val bufferPool = FrameBufferPool(
+                bufferWidth,
+                bufferHeight,
                 format = HardwareBuffer.RGBA_8888,
-                usage = mHardwareBufferUsageFlags,
-                maxPoolSize = 5
+                usage = BaseFlags,
+                maxPoolSize = 4
             )
 
             val previousBufferPool = mBufferPool
@@ -293,7 +336,12 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             }
 
             val frontBufferedLayerRenderer =
-                createFrontBufferedLayerRenderer(frontBufferedSurfaceControl)
+                createFrontBufferedLayerRenderer(
+                    frontBufferedSurfaceControl,
+                    bufferWidth,
+                    bufferHeight,
+                    mHardwareBufferUsageFlags
+                )
             mFrontBufferedRenderTarget = mGLRenderer.createRenderTarget(
                 width,
                 height,
@@ -302,6 +350,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
             mFrontBufferedLayerRenderer = frontBufferedLayerRenderer
             mFrontBufferedLayerSurfaceControl = frontBufferedSurfaceControl
+            mDoubleBufferedLayerRenderTarget = doubleBufferTarget
             mBufferPool = bufferPool
             mWidth = width
             mHeight = height
@@ -333,12 +382,46 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     fun renderFrontBufferedLayer(param: T) {
         if (isValid()) {
-            mFrontBufferQueueParams.add(param)
-            mParentBufferParamQueue.add(param)
+            mActiveSegment.add(param)
             mFrontBufferedRenderTarget?.requestRender()
         } else {
             Log.w(
                 TAG, "Attempt to render to front buffered layer when " +
+                    "GLFrontBufferedRenderer has been released"
+            )
+        }
+    }
+
+    /**
+     * Requests to render to the double buffered layer. This schedules a call to
+     * [Callback.onDrawDoubleBufferedLayer] with the parameters provided. If the front buffered
+     * layer is visible, this will hide this layer after rendering to the double buffered layer
+     * is complete. This is equivalent to calling [GLFrontBufferedRenderer.renderFrontBufferedLayer]
+     * for each parameter provided in the collection followed by a single call to
+     * [GLFrontBufferedRenderer.commit]. This is useful for re-rendering the double buffered
+     * scene when the corresponding Activity is being resumed from the background in which the
+     * contents should be re-drawn. Additionally this allows for applications to decide to
+     * dynamically render to either front or double buffered layers.
+     *
+     * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns 'false',
+     * this call is ignored.
+     *
+     * @param params Parameters that to be consumed when rendering to the double buffered layer.
+     * These parameters will be provided in the corresponding call to
+     * [Callback.onDrawDoubleBufferedLayer]
+     */
+    fun renderDoubleBufferedLayer(params: Collection<T>) {
+        if (isValid()) {
+            val segment = if (params is MutableCollection<T>) {
+                params
+            } else {
+                ArrayList<T>().apply { addAll(params) }
+            }
+            mSegments.add(segment)
+            mDoubleBufferedLayerRenderTarget?.requestRender()
+        } else {
+            Log.w(
+                TAG, "Attempt to render to the double buffered layer when " +
                     "GLFrontBufferedRenderer has been released"
             )
         }
@@ -356,8 +439,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     /**
      * Requests to render the entire scene to the double buffered layer and schedules a call to
-     * [Callback.onDoubleBufferedLayerRenderComplete]. The parameters provided to
-     * [Callback.onDoubleBufferedLayerRenderComplete] will include each argument provided to every
+     * [Callback.onDrawDoubleBufferedLayer]. The parameters provided to
+     * [Callback.onDrawDoubleBufferedLayer] will include each argument provided to every
      * [renderFrontBufferedLayer] call since the last call to [commit] has been made.
      *
      * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns `false`,
@@ -365,8 +448,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     fun commit() {
         if (isValid()) {
+            mSegments.add(mActiveSegment.release())
             mDoubleBufferedLayerRenderTarget?.requestRender()
-            mFrontBufferedLayerRenderer?.clear()
         } else {
             Log.w(
                 TAG, "Attempt to render to the double buffered layer when " +
@@ -376,24 +459,43 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     /**
-     * Releases the [GLFrontBufferedRenderer] and provides an optional callback that is invoked when
-     * the [GLFrontBufferedRenderer] is fully torn down. If the [cancelPending] flag is true, all
-     * pending requests to render into the front or double buffered layers will be processed before
-     * the [GLFrontBufferedRenderer] is torn down. Otherwise all in process requests are ignored.
-     * If the [GLFrontBufferedRenderer] is already released, that is [isValid] returns `false`, this
-     * method does nothing.
+     * Requests to cancel rendering and hides the front buffered layer.
+     * Unlike [commit], this does not schedule a call to render into the double buffered layer.
      *
-     * @param cancelPending Flag indicating that requests to render should be processed before
-     * the [GLFrontBufferedRenderer] is released
-     * @param onReleaseComplete Optional callback invoked when the [GLFrontBufferedRenderer] has
-     * been released. This callback is invoked on the backing GLThread
+     * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns `false`,
+     * this call is ignored.
      */
-    @JvmOverloads
-    fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
-        if (!isValid()) {
-            Log.w(TAG, "Attempt to release GLFrontbufferedRenderer that is already released")
-            return
+    fun cancel() {
+        if (isValid()) {
+            mActiveSegment.clear()
+            mGLRenderer.execute(mCancelRunnable)
+            mFrontBufferedLayerRenderer?.clear()
+        } else {
+            Log.w(TAG, "Attempt to cancel rendering to front buffer after " +
+                "GLFrontBufferedRenderer has been released")
         }
+    }
+
+    /**
+     * Queue a [Runnable] to be executed on the GL rendering thread. Note it is important
+     * this [Runnable] does not block otherwise it can stall the GL thread.
+     *
+     * @param runnable to be executed
+     */
+    fun execute(runnable: Runnable) {
+        if (isValid()) {
+            mGLRenderer.execute(runnable)
+        } else {
+            Log.w(TAG, "Attempt to execute runnable after GLFrontBufferedRenderer has " +
+                "been released")
+        }
+    }
+
+    /**
+     * Helper method used to detach the front and multi buffered render targets as well as
+     * release SurfaceControl instances
+     */
+    internal fun detachTargets(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
         // Wrap the callback into a separate lambda to ensure it is invoked only after
         // both the front and double buffered layer target renderers are detached
         var callbackCount = 0
@@ -423,10 +525,35 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 onReleaseComplete?.invoke()
             }
         }
+        mFrontBufferedLayerSurfaceControl = null
         mFrontBufferedRenderTarget?.detach(cancelPending, wrappedCallback)
         mDoubleBufferedLayerRenderTarget?.detach(cancelPending, wrappedCallback)
         mFrontBufferedRenderTarget = null
         mDoubleBufferedLayerRenderTarget = null
+        mWidth = -1
+        mHeight = -1
+    }
+
+    /**
+     * Releases the [GLFrontBufferedRenderer] and provides an optional callback that is invoked when
+     * the [GLFrontBufferedRenderer] is fully torn down. If the [cancelPending] flag is true, all
+     * pending requests to render into the front or double buffered layers will be processed before
+     * the [GLFrontBufferedRenderer] is torn down. Otherwise all in process requests are ignored.
+     * If the [GLFrontBufferedRenderer] is already released, that is [isValid] returns `false`, this
+     * method does nothing.
+     *
+     * @param cancelPending Flag indicating that requests to render should be processed before
+     * the [GLFrontBufferedRenderer] is released
+     * @param onReleaseComplete Optional callback invoked when the [GLFrontBufferedRenderer] has
+     * been released. This callback is invoked on the backing GLThread
+     */
+    @JvmOverloads
+    fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
+        if (!isValid()) {
+            Log.w(TAG, "Attempt to release GLFrontbufferedRenderer that is already released")
+            return
+        }
+        detachTargets(cancelPending, onReleaseComplete)
 
         mGLRenderer.unregisterEGLContextCallback(mContextCallbacks)
         if (mIsManagingGLRenderer) {
@@ -438,51 +565,65 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             mGLRenderer.stop(false)
         }
 
-        mFrontBufferedLayerSurfaceControl = null
-        mParentRenderLayer.setParentLayerCallbacks(null)
+        mExecutor.shutdown()
         mIsReleased = true
     }
 
     private fun createFrontBufferedLayerRenderer(
-        frontBufferedLayerSurfaceControl: SurfaceControlCompat
-    ): HardwareBufferRenderer {
-        return HardwareBufferRenderer(
-            object : HardwareBufferRenderer.RenderCallbacks {
+        frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+        bufferWidth: Int,
+        bufferHeight: Int,
+        usageFlags: Long
+    ): FrameBufferRenderer {
+        val bufferInfo = BufferInfo()
+        return FrameBufferRenderer(
+            object : FrameBufferRenderer.RenderCallback {
+                private fun createFrontBufferLayer(usageFlags: Long): HardwareBuffer {
+                    return HardwareBuffer.create(
+                        bufferWidth,
+                        bufferHeight,
+                        HardwareBuffer.RGBA_8888,
+                        1,
+                        usageFlags
+                    )
+                }
 
                 @WorkerThread
-                override fun obtainRenderBuffer(egl: EGLSpec): RenderBuffer {
+                override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer {
                     var buffer = mFrontLayerBuffer
                     if (buffer == null) {
-                        // Allocate and persist a RenderBuffer instance across frames
-                        buffer = mBufferPool?.obtain(egl).also { mFrontLayerBuffer = it }
-                            ?: throw IllegalArgumentException("Unable to obtain RenderBuffer")
+                        // Allocate and persist a FrameBuffer instance across frames
+                        buffer = FrameBuffer(
+                            egl,
+                            createFrontBufferLayer(usageFlags)
+                        ).also {
+                            mFrontLayerBuffer = it
+                            bufferInfo.frameBufferId = it.frameBuffer
+                        }
                     }
                     return buffer
                 }
 
                 @WorkerThread
                 override fun onDraw(eglManager: EGLManager) {
-                    try {
-                        // Explicitly call remove in order to delineate between scenarios where
-                        // no parameters are provided and the consumer explicitly supports nullable
-                        // parameters.
-                        // If poll was used instead, we would not be able to determine if the nullable
-                        // parameter was because there were no items in the queue or the consumer
-                        // explicitly provided null as a placeholder
+                    bufferInfo.apply {
+                        this.width = mParentRenderLayer.getBufferWidth()
+                        this.height = mParentRenderLayer.getBufferHeight()
+                    }
+                    mActiveSegment.next { param ->
                         mCallback.onDrawFrontBufferedLayer(
                             eglManager,
-                            mFrontBufferQueueParams.remove()
+                            bufferInfo,
+                            mParentRenderLayer.getTransform(),
+                            param
                         )
-                    } catch (_: NoSuchElementException) {
-                        // Skip rendering if we have been told to render but we do not have parameters
-                        // Because the call to render to the front buffer takes in a parameter we should
-                        // not run into this scenario.
                     }
                 }
 
+                @SuppressLint("WrongConstant")
                 @WorkerThread
                 override fun onDrawComplete(
-                    renderBuffer: RenderBuffer,
+                    frameBuffer: FrameBuffer,
                     syncFenceCompat: SyncFenceCompat?
                 ) {
                     val transaction = SurfaceControlCompat.Transaction()
@@ -490,10 +631,17 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                         .setLayer(frontBufferedLayerSurfaceControl, Integer.MAX_VALUE)
                         .setBuffer(
                             frontBufferedLayerSurfaceControl,
-                            renderBuffer.hardwareBuffer,
+                            frameBuffer.hardwareBuffer,
                             syncFenceCompat
                         )
                         .setVisibility(frontBufferedLayerSurfaceControl, true)
+                    val inverseTransform = mParentRenderLayer.getInverseBufferTransform()
+                    if (inverseTransform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                        transaction.setBufferTransform(
+                            frontBufferedLayerSurfaceControl,
+                            inverseTransform
+                        )
+                    }
                     mParentRenderLayer.buildReparentTransaction(
                         frontBufferedLayerSurfaceControl, transaction
                     )
@@ -502,6 +650,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                         transaction
                     )
                     transaction.commit()
+                    syncFenceCompat?.close()
                 }
             },
             mFrontBufferSyncStrategy
@@ -509,19 +658,17 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     private fun clearParamQueues() {
-        mFrontBufferQueueParams.clear()
-        mParentBufferParamQueue.clear()
+        mActiveSegment.clear()
+        mSegments.clear()
     }
 
     /**
      * Release the buffers associated with the front buffered layer as well as the
-     * [RenderBufferPool]
+     * [FrameBufferPool]
      */
-    internal fun releaseBuffers(pool: RenderBufferPool) {
-        mFrontLayerBuffer?.let {
-            pool.release(it)
-            mFrontLayerBuffer = null
-        }
+    internal fun releaseBuffers(pool: FrameBufferPool) {
+        mFrontLayerBuffer?.close()
+        mFrontLayerBuffer = null
         pool.close()
     }
 
@@ -556,6 +703,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             }
     }
 
+    @JvmDefaultWithCompatibility
     /**
      * Provides callbacks for consumers to draw into the front and double buffered layers as well as
      * provide opportunities to synchronize [SurfaceControlCompat.Transaction]s to submit the layers
@@ -568,18 +716,85 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          * parameters.
          * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
          * OpenGL commands to render into the front buffered layer
+         * @param bufferInfo [BufferInfo] about the buffer that is being rendered into. This
+         * includes the width and height of the buffer which can be different than the corresponding
+         * dimensions of the [SurfaceView] provided to the [GLFrontBufferedRenderer] as pre-rotation
+         * can occasionally swap width and height parameters in order to avoid GPU composition to
+         * rotate content. This should be used as input to [GLES20.glViewport].
+         * Additionally this also contains a frame buffer identifier that can be used to retarget
+         * rendering operations to the original destination after rendering into intermediate
+         * scratch buffers.
+         * @param transform Matrix that should be applied to the rendering in this callback.
+         * This should be consumed as input to any vertex shader implementations. Buffers are
+         * pre-rotated in advance in order to avoid unnecessary overhead of GPU composition to
+         * rotate content in the same install orientation of the display.
+         * This is a 4 x 4 matrix is represented as a flattened array of 16 floating point values.
+         * Consumers are expected to leverage [Matrix.multiplyMM] with this parameter alongside
+         * any additional transformations that are to be applied.
+         * For example:
+         * ```
+         * val myMatrix = FloatArray(16)
+         * Matrix.orthoM(
+         *      myMatrix, // matrix
+         *      0, // offset starting index into myMatrix
+         *      0f, // left
+         *      bufferInfo.bufferWidth.toFloat(), // right
+         *      0f, // bottom
+         *      bufferInfo.bufferHeight.toFloat(), // top
+         *      -1f, // near
+         *      1f, // far
+         * )
+         * val result = FloatArray(16)
+         * Matrix.multiplyMM(result, 0, myMatrix, 0, transform, 0)
+         * ```
          * @param param optional parameter provided the corresponding
          * [GLFrontBufferedRenderer.renderFrontBufferedLayer] method that triggered this request to render
          * into the front buffered layer
          */
         @WorkerThread
-        fun onDrawFrontBufferedLayer(eglManager: EGLManager, param: T)
+        fun onDrawFrontBufferedLayer(
+            eglManager: EGLManager,
+            bufferInfo: BufferInfo,
+            transform: FloatArray,
+            param: T
+        )
 
         /**
          * Callback invoked to render content into the doubled buffered layer with the specified
          * parameters.
          * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
          * OpenGL commands to render into the double buffered layer
+         * @param bufferInfo [BufferInfo] about the buffer that is being rendered into. This
+         * includes the width and height of the buffer which can be different than the corresponding
+         * dimensions of the [SurfaceView] provided to the [GLFrontBufferedRenderer] as pre-rotation
+         * can occasionally swap width and height parameters in order to avoid GPU composition to
+         * rotate content. This should be used as input to [GLES20.glViewport].
+         * Additionally this also contains a frame buffer identifier that can be used to retarget
+         * rendering operations to the original destination after rendering into intermediate
+         * scratch buffers.
+         * @param transform Matrix that should be applied to the rendering in this callback.
+         * This should be consumed as input to any vertex shader implementations. Buffers are
+         * pre-rotated in advance in order to avoid unnecessary overhead of GPU composition to
+         * rotate content in the same install orientation of the display.
+         * This is a 4 x 4 matrix is represented as a flattened array of 16 floating point values.
+         * Consumers are expected to leverage [Matrix.multiplyMM] with this parameter alongside
+         * any additional transformations that are to be applied.
+         * For example:
+         * ```
+         * val myMatrix = FloatArray(16)
+         * Matrix.orthoM(
+         *      myMatrix, // matrix
+         *      0, // offset starting index into myMatrix
+         *      0f, // left
+         *      bufferInfo.bufferWidth.toFloat(), // right
+         *      0f, // bottom
+         *      bufferInfo.bufferHeight.toFloat(), // top
+         *      -1f, // near
+         *      1f, // far
+         * )
+         * val result = FloatArray(16)
+         * Matrix.multiplyMM(result, 0, myMatrix, 0, transform, 0)
+         * ```
          * @param params optional parameter provided to render the entire scene into the double
          * buffered layer.
          * This is a collection of all parameters provided in consecutive invocations to
@@ -605,9 +820,17 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          *
          * This will generate a callback to this method with the params collection containing values
          * [4, 5]
+         *
+         * By default [GLES20.glViewport] is invoked with the correct dimensions of the buffer that
+         * is being rendered into taking into account pre-rotation transformations
          */
         @WorkerThread
-        fun onDrawDoubleBufferedLayer(eglManager: EGLManager, params: Collection<T>)
+        fun onDrawDoubleBufferedLayer(
+            eglManager: EGLManager,
+            bufferInfo: BufferInfo,
+            transform: FloatArray,
+            params: Collection<T>
+        )
 
         /**
          * Optional callback invoked when rendering to the front buffered layer is complete but

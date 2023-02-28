@@ -1080,7 +1080,7 @@ package androidx.leanback.graphics {
 
   public class FitWidthBitmapDrawable extends android.graphics.drawable.Drawable {
     ctor public FitWidthBitmapDrawable();
-    method public void draw(android.graphics.Canvas!);
+    method public void draw(android.graphics.Canvas);
     method public android.graphics.Bitmap! getBitmap();
     method public int getOpacity();
     method public android.graphics.Rect! getSource();

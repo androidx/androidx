@@ -24,35 +24,38 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.PlainComplicationText
 import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import com.google.common.truth.Truth.assertThat
+import java.time.Instant
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
-import java.time.Instant
 
 class TestService : SuspendingComplicationDataSourceService() {
     override suspend fun onComplicationRequest(request: ComplicationRequest) =
         ShortTextComplicationData.Builder(
-            PlainComplicationText.Builder("Complication").build(),
-            ComplicationText.EMPTY
-        ).build()
+                PlainComplicationText.Builder("Complication").build(),
+                ComplicationText.EMPTY
+            )
+            .build()
 
     override fun getPreviewData(type: ComplicationType) =
         ShortTextComplicationData.Builder(
-            PlainComplicationText.Builder("Preview").build(),
-            ComplicationText.EMPTY
-        ).build()
+                PlainComplicationText.Builder("Preview").build(),
+                ComplicationText.EMPTY
+            )
+            .build()
 }
 
 class TestTimelineService : SuspendingTimelineComplicationDataSourceService() {
     override suspend fun onComplicationRequest(request: ComplicationRequest) =
         ComplicationDataTimeline(
             ShortTextComplicationData.Builder(
-                PlainComplicationText.Builder("Default").build(),
-                ComplicationText.EMPTY
-            ).build(),
+                    PlainComplicationText.Builder("Default").build(),
+                    ComplicationText.EMPTY
+                )
+                .build(),
             listOf(
                 TimelineEntry(
                     TimeInterval(
@@ -60,21 +63,23 @@ class TestTimelineService : SuspendingTimelineComplicationDataSourceService() {
                         Instant.ofEpochSecond(100001000)
                     ),
                     ShortTextComplicationData.Builder(
-                        PlainComplicationText.Builder("Override").build(),
-                        ComplicationText.EMPTY
-                    ).build()
+                            PlainComplicationText.Builder("Override").build(),
+                            ComplicationText.EMPTY
+                        )
+                        .build()
                 )
             )
         )
 
     override fun getPreviewData(type: ComplicationType) =
         ShortTextComplicationData.Builder(
-            PlainComplicationText.Builder("Preview").build(),
-            ComplicationText.EMPTY
-        ).build()
+                PlainComplicationText.Builder("Preview").build(),
+                ComplicationText.EMPTY
+            )
+            .build()
 }
 
-/** Needed to prevent Robolectric from instrumenting various classes.  */
+/** Needed to prevent Robolectric from instrumenting various classes. */
 class ComplicationsTestRunner(clazz: Class<*>?) : RobolectricTestRunner(clazz) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration {
         return InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
@@ -107,9 +112,8 @@ public class SuspendingComplicationDataSourceServiceTest {
             }
         )
 
-        assertThat(
-            (result as ShortTextComplicationData).text.getTextAt(resources, Instant.EPOCH)
-        ).isEqualTo("Complication")
+        assertThat((result as ShortTextComplicationData).text.getTextAt(resources, Instant.EPOCH))
+            .isEqualTo("Complication")
     }
 
     @Test
@@ -120,7 +124,7 @@ public class SuspendingComplicationDataSourceServiceTest {
         testService.onComplicationRequest(
             ComplicationRequest(123, ComplicationType.SMALL_IMAGE, false),
             object : ComplicationDataSourceService.ComplicationRequestListener {
-                override fun onComplicationData(complicationData: ComplicationData?) { }
+                override fun onComplicationData(complicationData: ComplicationData?) {}
 
                 override fun onComplicationDataTimeline(
                     complicationDataTimeline: ComplicationDataTimeline?
@@ -131,17 +135,21 @@ public class SuspendingComplicationDataSourceServiceTest {
         )
 
         assertThat(
-            (result.defaultComplicationData as ShortTextComplicationData)
-                .text.getTextAt(resources, Instant.EPOCH)
-        ).isEqualTo("Default")
+                (result.defaultComplicationData as ShortTextComplicationData)
+                    .text
+                    .getTextAt(resources, Instant.EPOCH)
+            )
+            .isEqualTo("Default")
 
         val timelineEntry = result.timelineEntries.toTypedArray()[0]
         assertThat(timelineEntry.validity.start).isEqualTo(Instant.ofEpochSecond(100000000))
         assertThat(timelineEntry.validity.end).isEqualTo(Instant.ofEpochSecond(100001000))
         assertThat(
-            (timelineEntry.complicationData as ShortTextComplicationData)
-                .text.getTextAt(resources, Instant.EPOCH)
-        ).isEqualTo("Override")
+                (timelineEntry.complicationData as ShortTextComplicationData)
+                    .text
+                    .getTextAt(resources, Instant.EPOCH)
+            )
+            .isEqualTo("Override")
     }
 
     @Test
@@ -149,10 +157,14 @@ public class SuspendingComplicationDataSourceServiceTest {
         val testService = TestService()
 
         assertThat(
-            testService.getPreviewData(ComplicationType.SMALL_IMAGE).text.getTextAt(
-                ApplicationProvider.getApplicationContext<Context>().resources,
-                Instant.EPOCH
+                testService
+                    .getPreviewData(ComplicationType.SMALL_IMAGE)
+                    .text
+                    .getTextAt(
+                        ApplicationProvider.getApplicationContext<Context>().resources,
+                        Instant.EPOCH
+                    )
             )
-        ).isEqualTo("Preview")
+            .isEqualTo("Preview")
     }
 }

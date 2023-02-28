@@ -21,6 +21,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.core.motion.Motion;
 import androidx.constraintlayout.core.motion.MotionPaths;
 
@@ -168,6 +169,63 @@ class MotionRenderDebug {
         }
         drawBasicPath(canvas);
         drawTicks(canvas, mode, keyFrames, motionController, layoutWidth, layoutHeight);
+    }
+
+
+    /**
+     * Draws the paths of the given {@link Motion motionController}, forcing the drawing mode
+     * {@link Motion#DRAW_PATH_BASIC}.
+     *
+     * @param canvas Canvas instance used to draw on
+     * @param motionController Controller containing path information
+     * @param duration Defined in milliseconds, sets the amount of ticks used to draw the path
+     *                 based on {@link #DEBUG_PATH_TICKS_PER_MS}
+     * @param layoutWidth Width of the containing MotionLayout
+     * @param layoutHeight Height of the containing MotionLayout
+     * @param drawPath Whether to draw the path, paths are drawn using dashed lines
+     * @param drawTicks Whether to draw diamond shaped ticks that indicate KeyPositions along a path
+     */
+    void basicDraw(@NonNull Canvas canvas,
+            @NonNull Motion motionController,
+            int duration,
+            int layoutWidth,
+            int layoutHeight,
+            boolean drawPath,
+            boolean drawTicks) {
+        int mode = Motion.DRAW_PATH_BASIC;
+        mKeyFrameCount = motionController.buildKeyFrames(mKeyFramePoints, mPathMode, null);
+
+        int frames = duration / DEBUG_PATH_TICKS_PER_MS;
+        if (mPoints == null || mPoints.length != frames * 2) {
+            mPoints = new float[frames * 2];
+            mPath = new Path();
+        }
+
+        canvas.translate(mShadowTranslate, mShadowTranslate);
+
+        mPaint.setColor(mShadowColor);
+        mFillPaint.setColor(mShadowColor);
+        mPaintKeyframes.setColor(mShadowColor);
+        mPaintGraph.setColor(mShadowColor);
+        motionController.buildPath(mPoints, frames);
+        if (drawPath) {
+            drawBasicPath(canvas);
+        }
+        if (drawTicks) {
+            drawTicks(canvas, mode, mKeyFrameCount, motionController, layoutWidth, layoutHeight);
+        }
+
+        mPaint.setColor(mRedColor);
+        mPaintKeyframes.setColor(mKeyframeColor);
+        mFillPaint.setColor(mKeyframeColor);
+        mPaintGraph.setColor(mGraphColor);
+        canvas.translate(-mShadowTranslate, -mShadowTranslate);
+        if (drawPath) {
+            drawBasicPath(canvas);
+        }
+        if (drawTicks) {
+            drawTicks(canvas, mode, mKeyFrameCount, motionController, layoutWidth, layoutHeight);
+        }
     }
 
     private void drawBasicPath(Canvas canvas) {
@@ -376,5 +434,4 @@ class MotionRenderDebug {
         mPaint.setColor(0xFFFF0000);
         canvas.drawPath(mPath, mPaint);
     }
-
 }

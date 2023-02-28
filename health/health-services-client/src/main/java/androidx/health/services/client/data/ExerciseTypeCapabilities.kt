@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.ExerciseTypeCapabilities.SupportedGoalEntry
 import androidx.health.services.client.proto.DataProto.ExerciseTypeCapabilities.SupportedMilestoneEntry
@@ -32,7 +31,7 @@ public class ExerciseTypeCapabilities(
     public val supportedMilestones: Map<AggregateDataType<*, *>, Set<ComparisonType>>,
     /** Returns `true` if the given exercise supports auto pause and resume. */
     public val supportsAutoPauseAndResume: Boolean,
-) : ProtoParcelable<DataProto.ExerciseTypeCapabilities>() {
+) {
 
     internal constructor(
         proto: DataProto.ExerciseTypeCapabilities
@@ -65,8 +64,7 @@ public class ExerciseTypeCapabilities(
         supportsAutoPauseAndResume = proto.isAutoPauseAndResumeSupported,
     )
 
-    /** @hide */
-    override val proto: DataProto.ExerciseTypeCapabilities =
+    internal val proto: DataProto.ExerciseTypeCapabilities =
         DataProto.ExerciseTypeCapabilities.newBuilder()
             .addAllSupportedDataTypes(supportedDataTypes.map { it.proto })
             .addAllSupportedGoals(
@@ -98,12 +96,4 @@ public class ExerciseTypeCapabilities(
             "supportedGoals=$supportedGoals, " +
             "supportedMilestones=$supportedMilestones, " +
             "supportsAutoPauseAndResume=$supportsAutoPauseAndResume, "
-
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<ExerciseTypeCapabilities> = newCreator { bytes ->
-            val proto = DataProto.ExerciseTypeCapabilities.parseFrom(bytes)
-            ExerciseTypeCapabilities(proto)
-        }
-    }
 }

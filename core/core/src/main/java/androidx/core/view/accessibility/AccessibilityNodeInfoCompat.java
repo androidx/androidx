@@ -799,6 +799,20 @@ public class AccessibilityNodeInfoCompat {
             }
             return true;
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("AccessibilityActionCompat: ");
+            // Mirror AccessibilityNodeInfoCompat.toString's action string.
+            String actionName = getActionSymbolicName(mId);
+            if (actionName.equals("ACTION_UNKNOWN") && getLabel() != null) {
+                actionName = getLabel().toString();
+            }
+            builder.append(actionName);
+            return builder.toString();
+        }
     }
 
     /**
@@ -810,6 +824,10 @@ public class AccessibilityNodeInfoCompat {
      * collection with several rows, several columns, and is not hierarchical;
      * A vertical tree is a hierarchical collection with one column and
      * as many rows as the first level children.
+     * </p>
+     * <p>
+     * To be a valid list, a collection has 1 row and any number of columns or 1 column and any
+     * number of rows.
      * </p>
      */
     public static class CollectionInfoCompat {
@@ -1240,11 +1258,6 @@ public class AccessibilityNodeInfoCompat {
          *   {@link android.accessibilityservice.AccessibilityService}.
          * </p>
          * <p>
-         *   <strong>Note:</strong> It is a client responsibility to recycle the
-         *     received info by calling {@link AccessibilityNodeInfo#recycle()}
-         *     to avoid creating of multiple instances.
-         * </p>
-         * <p>
          * Compatibility:
          * <ul>
          *     <li>API &lt; 29: Always returns {@code null}</li>
@@ -1301,12 +1314,17 @@ public class AccessibilityNodeInfoCompat {
     private static final String UNIQUE_ID_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.UNIQUE_ID_KEY";
 
+    private static final String MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat."
+                    + "MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY";
+
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
     private static final int BOOLEAN_PROPERTY_SCREEN_READER_FOCUSABLE = 0x00000001;
     private static final int BOOLEAN_PROPERTY_IS_HEADING = 0x00000002;
     private static final int BOOLEAN_PROPERTY_IS_SHOWING_HINT = 0x00000004;
     private static final int BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY = 0x00000008;
+    private static final int BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS = 1 << 5;
 
     private final AccessibilityNodeInfo mInfo;
 
@@ -1991,11 +2009,6 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Get the child at given index.
-     * <p>
-     * <strong>Note:</strong> It is a client responsibility to recycle the
-     * received info by calling {@link AccessibilityNodeInfoCompat#recycle()} to
-     * avoid creating of multiple instances.
-     * </p>
      *
      * @param index The child index.
      * @return The child node.
@@ -2116,11 +2129,11 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT < 19) {
             return new ArrayList<Integer>();
         }
-        ArrayList<Integer> list = mInfo.getExtras()
+        ArrayList<Integer> list = Api19Impl.getExtras(mInfo)
                 .getIntegerArrayList(key);
         if (list == null) {
             list = new ArrayList<Integer>();
-            mInfo.getExtras().putIntegerArrayList(key, list);
+            Api19Impl.getExtras(mInfo).putIntegerArrayList(key, list);
         }
         return list;
     }
@@ -2246,11 +2259,6 @@ public class AccessibilityNodeInfoCompat {
      * Finds {@link android.view.accessibility.AccessibilityNodeInfo}s by text. The match
      * is case insensitive containment. The search is relative to this info i.e. this
      * info is the root of the traversed tree.
-     * <p>
-     * <strong>Note:</strong> It is a client responsibility to recycle the
-     * received info by calling {@link android.view.accessibility.AccessibilityNodeInfo#recycle()}
-     * to avoid creating of multiple instances.
-     * </p>
      *
      * @param text The searched text.
      * @return A list of node info.
@@ -2268,11 +2276,6 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Gets the parent.
-     * <p>
-     * <strong>Note:</strong> It is a client responsibility to recycle the
-     * received info by calling {@link android.view.accessibility.AccessibilityNodeInfo#recycle()}
-     * to avoid creating of multiple instances.
-     * </p>
      *
      * @return The parent.
      */
@@ -2738,6 +2741,36 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the minimum time duration between two content change events.
+     */
+    public long getMinDurationBetweenContentChangesMillis() {
+        if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY);
+        }
+        return 0;
+    }
+
+    /**
+     * Sets the minimum time duration between two content change events, which is used in throttling
+     * content change events in accessibility services.
+     *
+     * <p>
+     * Example: An app can set MinDurationBetweenContentChanges as 1 min for a view which sends
+     * content change events to accessibility services one event per second.
+     * Accessibility service will throttle those content change events and only handle one event
+     * per minute for that view.
+     * </p>
+     *
+     * @see AccessibilityEventCompat#getContentChangeTypes for all content change types.
+     * @param duration the minimum duration between content change events.
+     */
+    public void setMinDurationBetweenContentChangesMillis(long duration) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY, duration);
+        }
+    }
+
+    /**
      * Returns whether the node originates from a view considered important for accessibility.
      *
      * @return {@code true} if the node originates from a view considered important for
@@ -2925,10 +2958,10 @@ public class AccessibilityNodeInfoCompat {
 
     private void clearExtrasSpans() {
         if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().remove(SPANS_START_KEY);
-            mInfo.getExtras().remove(SPANS_END_KEY);
-            mInfo.getExtras().remove(SPANS_FLAGS_KEY);
-            mInfo.getExtras().remove(SPANS_ID_KEY);
+            Api19Impl.getExtras(mInfo).remove(SPANS_START_KEY);
+            Api19Impl.getExtras(mInfo).remove(SPANS_END_KEY);
+            Api19Impl.getExtras(mInfo).remove(SPANS_FLAGS_KEY);
+            Api19Impl.getExtras(mInfo).remove(SPANS_ID_KEY);
         }
     }
 
@@ -2973,7 +3006,7 @@ public class AccessibilityNodeInfoCompat {
         if (BuildCompat.isAtLeastR()) {
             return mInfo.getStateDescription();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getCharSequence(STATE_DESCRIPTION_KEY);
+            return Api19Impl.getExtras(mInfo).getCharSequence(STATE_DESCRIPTION_KEY);
         }
         return null;
     }
@@ -3008,7 +3041,7 @@ public class AccessibilityNodeInfoCompat {
         if (BuildCompat.isAtLeastR()) {
             mInfo.setStateDescription(stateDescription);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
+            Api19Impl.getExtras(mInfo).putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
         }
     }
 
@@ -3023,7 +3056,7 @@ public class AccessibilityNodeInfoCompat {
         if (BuildCompat.isAtLeastT()) {
             return mInfo.getUniqueId();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getString(UNIQUE_ID_KEY);
+            return Api19Impl.getExtras(mInfo).getString(UNIQUE_ID_KEY);
         }
         return null;
     }
@@ -3044,7 +3077,7 @@ public class AccessibilityNodeInfoCompat {
         if (BuildCompat.isAtLeastT()) {
             mInfo.setUniqueId(uniqueId);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putString(UNIQUE_ID_KEY, uniqueId);
+            Api19Impl.getExtras(mInfo).putString(UNIQUE_ID_KEY, uniqueId);
         }
     }
 
@@ -3054,10 +3087,10 @@ public class AccessibilityNodeInfoCompat {
      * <strong>Note:</strong> You must not touch the object after calling this function.
      *
      * @throws IllegalStateException If the info is already recycled.
+     * @deprecated Accessibility Object recycling is no longer necessary or functional.
      */
-    public void recycle() {
-        mInfo.recycle();
-    }
+    @Deprecated
+    public void recycle() { }
 
     /**
      * Sets the fully qualified resource name of the source view's id.
@@ -3372,7 +3405,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 26) {
             return mInfo.getHintText();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getCharSequence(HINT_TEXT_KEY);
+            return Api19Impl.getExtras(mInfo).getCharSequence(HINT_TEXT_KEY);
         }
         return null;
     }
@@ -3394,7 +3427,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 26) {
             mInfo.setHintText(hintText);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putCharSequence(HINT_TEXT_KEY, hintText);
+            Api19Impl.getExtras(mInfo).putCharSequence(HINT_TEXT_KEY, hintText);
         }
     }
 
@@ -3465,11 +3498,6 @@ public class AccessibilityNodeInfoCompat {
     /**
      * Gets the node info for which the view represented by this info serves as
      * a label for accessibility purposes.
-     * <p>
-     *   <strong>Note:</strong> It is a client responsibility to recycle the
-     *     received info by calling {@link AccessibilityNodeInfoCompat#recycle()}
-     *     to avoid creating of multiple instances.
-     * </p>
      *
      * @return The labeled info.
      */
@@ -3521,11 +3549,6 @@ public class AccessibilityNodeInfoCompat {
     /**
      * Gets the node info which serves as the label of the view represented by
      * this info for accessibility purposes.
-     * <p>
-     *   <strong>Note:</strong> It is a client responsibility to recycle the
-     *     received info by calling {@link AccessibilityNodeInfoCompat#recycle()}
-     *     to avoid creating of multiple instances.
-     * </p>
      *
      * @return The label.
      */
@@ -3573,11 +3596,6 @@ public class AccessibilityNodeInfoCompat {
      * resource name is "baz", the fully qualified resource id is "foo.bar:id/baz".
      *
      * <p>
-     *   <strong>Note:</strong> It is a client responsibility to recycle the
-     *     received info by calling {@link AccessibilityNodeInfoCompat#recycle()}
-     *     to avoid creating of multiple instances.
-     * </p>
-     * <p>
      *   <strong>Note:</strong> The primary usage of this API is for UI test automation
      *   and in order to report the fully qualified view id if an
      *   {@link AccessibilityNodeInfoCompat} the client has to set the
@@ -3617,7 +3635,7 @@ public class AccessibilityNodeInfoCompat {
      */
     public Bundle getExtras() {
         if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras();
+            return Api19Impl.getExtras(mInfo);
         } else {
             return new Bundle();
         }
@@ -4019,7 +4037,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.getTooltipText();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getCharSequence(TOOLTIP_TEXT_KEY);
+            return Api19Impl.getExtras(mInfo).getCharSequence(TOOLTIP_TEXT_KEY);
         }
         return null;
     }
@@ -4041,7 +4059,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 28) {
             mInfo.setTooltipText(tooltipText);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putCharSequence(TOOLTIP_TEXT_KEY, tooltipText);
+            Api19Impl.getExtras(mInfo).putCharSequence(TOOLTIP_TEXT_KEY, tooltipText);
         }
     }
 
@@ -4061,7 +4079,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 28) {
             mInfo.setPaneTitle(paneTitle);
         } else if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putCharSequence(PANE_TITLE_KEY, paneTitle);
+            Api19Impl.getExtras(mInfo).putCharSequence(PANE_TITLE_KEY, paneTitle);
         }
     }
 
@@ -4075,7 +4093,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.getPaneTitle();
         } else if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getCharSequence(PANE_TITLE_KEY);
+            return Api19Impl.getExtras(mInfo).getCharSequence(PANE_TITLE_KEY);
         }
         return null;
     }
@@ -4221,11 +4239,44 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets whether the node has {@link #setRequestInitialAccessibilityFocus}.
+     *
+     * @return True if the node has requested initial accessibility focus.
+     */
+    @SuppressLint("KotlinPropertyAccess")
+    public boolean hasRequestInitialAccessibilityFocus() {
+        return getBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS);
+    }
+
+    /**
+     * Sets whether the node has requested initial accessibility focus.
+     *
+     * <p>
+     * If the node {@link #hasRequestInitialAccessibilityFocus}, this node would be one of
+     * candidates to be accessibility focused when the window appears.
+     * </p>
+     *
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param requestInitialAccessibilityFocus True if the node requests to receive initial
+     *                                         accessibility focus.
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    @SuppressLint("GetterSetterNames")
+    public void setRequestInitialAccessibilityFocus(boolean requestInitialAccessibilityFocus) {
+        setBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS,
+                requestInitialAccessibilityFocus);
+    }
+
+    /**
      * Refreshes this info with the latest state of the view it represents.
      * <p>
      * <strong>Note:</strong> If this method returns false this info is obsolete
-     * since it represents a view that is no longer in the view tree and should
-     * be recycled.
+     * since it represents a view that is no longer in the view tree.
      * </p>
      * @return Whether the refresh succeeded.
      */
@@ -4243,7 +4294,7 @@ public class AccessibilityNodeInfoCompat {
      */
     public @Nullable CharSequence getRoleDescription() {
         if (Build.VERSION.SDK_INT >= 19) {
-            return mInfo.getExtras().getCharSequence(ROLE_DESCRIPTION_KEY);
+            return Api19Impl.getExtras(mInfo).getCharSequence(ROLE_DESCRIPTION_KEY);
         } else {
             return null;
         }
@@ -4275,7 +4326,7 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setRoleDescription(@Nullable CharSequence roleDescription) {
         if (Build.VERSION.SDK_INT >= 19) {
-            mInfo.getExtras().putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
+            Api19Impl.getExtras(mInfo).putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
         }
     }
 
@@ -4439,7 +4490,7 @@ public class AccessibilityNodeInfoCompat {
         return (extras.getInt(BOOLEAN_PROPERTY_KEY, 0) & property) == property;
     }
 
-    private static String getActionSymbolicName(int action) {
+    static String getActionSymbolicName(int action) {
         switch (action) {
             case ACTION_FOCUS:
                 return "ACTION_FOCUS";
@@ -4548,6 +4599,18 @@ public class AccessibilityNodeInfoCompat {
         @DoNotInline
         public static void setTextSelectable(AccessibilityNodeInfo info, boolean selectable) {
             info.setTextSelectable(selectable);
+        }
+    }
+
+    @RequiresApi(19)
+    private static class Api19Impl {
+        private Api19Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static Bundle getExtras(AccessibilityNodeInfo info) {
+            return info.getExtras();
         }
     }
 }

@@ -44,6 +44,7 @@ import androidx.health.platform.client.request.UpsertDataRequest
 import androidx.health.platform.client.service.IHealthDataService
 import androidx.health.platform.client.service.IHealthDataService.MIN_API_VERSION
 import com.google.common.util.concurrent.ListenableFuture
+import kotlin.math.min
 
 /** An IPC backed HealthDataClient implementation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -85,6 +86,18 @@ class ServiceBackedHealthDataClient(
                 getRequestContext(),
                 permissions.map { Permission(it) }.toList(),
                 GetGrantedPermissionsCallback(resultFuture)
+            )
+        }
+    }
+
+    override fun filterGrantedPermissions(
+        permissions: Set<PermissionProto.Permission>,
+    ): ListenableFuture<Set<PermissionProto.Permission>> {
+        return executeWithVersionCheck(min(MIN_API_VERSION, 5)) { service, resultFuture ->
+            service.filterGrantedPermissions(
+                getRequestContext(),
+                permissions.map { Permission(it) }.toList(),
+                FilterGrantedPermissionsCallback(resultFuture)
             )
         }
     }
@@ -194,7 +207,7 @@ class ServiceBackedHealthDataClient(
     override fun registerForDataNotifications(
         request: RequestProto.RegisterForDataNotificationsRequest,
     ): ListenableFuture<Void> =
-        executeWithVersionCheck(/* minApiVersion = */ 2) { service, resultFuture ->
+        executeWithVersionCheck(min(MIN_API_VERSION, 2)) { service, resultFuture ->
             service.registerForDataNotifications(
                 getRequestContext(),
                 RegisterForDataNotificationsRequest(request),
@@ -205,7 +218,7 @@ class ServiceBackedHealthDataClient(
     override fun unregisterFromDataNotifications(
         request: RequestProto.UnregisterFromDataNotificationsRequest,
     ): ListenableFuture<Void> =
-        executeWithVersionCheck(/* minApiVersion = */ 2) { service, resultFuture ->
+        executeWithVersionCheck(min(MIN_API_VERSION, 2)) { service, resultFuture ->
             service.unregisterFromDataNotifications(
                 getRequestContext(),
                 UnregisterFromDataNotificationsRequest(request),

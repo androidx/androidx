@@ -21,10 +21,10 @@ import android.os.Trace
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import java.io.Closeable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.io.Closeable
 
 /**
  * Wrapper around [Trace.beginSection] and [Trace.endSection] which helps reduce boilerplate by
@@ -48,7 +48,7 @@ public class TraceEvent(traceName: String) : Closeable {
  * RAII like [Trace.endAsyncSection] in a try block, and by dealing with API version support.
  *
  * @hide
- **/
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AsyncTraceEvent(private val traceName: String) : Closeable {
     internal companion object {
@@ -90,14 +90,11 @@ public class AsyncTraceEvent(private val traceName: String) : Closeable {
 
 /**
  * Wrapper around [CoroutineScope.launch] with an async trace event.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun CoroutineScope.launchWithTracing(
     traceEventName: String,
     block: suspend CoroutineScope.() -> Unit
-): Job = launch {
-    TraceEvent(traceEventName).use {
-        block.invoke(this)
-    }
-}
+): Job = launch { TraceEvent(traceEventName).use { block.invoke(this) } }

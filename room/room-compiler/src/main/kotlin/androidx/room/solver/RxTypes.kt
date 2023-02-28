@@ -16,16 +16,16 @@
 
 package androidx.room.solver
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.processor.ProcessorErrors
-import com.squareup.javapoet.ClassName
 
 internal enum class RxType(
     val version: RxVersion,
-    val className: ClassName,
+    val className: XClassName,
     val factoryMethodName: String? = null,
     val canBeNull: Boolean = false
 ) {
@@ -82,8 +82,8 @@ internal enum class RxType(
 }
 
 internal enum class RxVersion(
-    val rxRoomClassName: ClassName,
-    val emptyResultExceptionClassName: ClassName,
+    val rxRoomClassName: XClassName,
+    val emptyResultExceptionClassName: XClassName,
     val missingArtifactMessage: String
 ) {
     TWO(

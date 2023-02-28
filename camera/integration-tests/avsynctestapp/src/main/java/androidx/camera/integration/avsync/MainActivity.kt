@@ -29,7 +29,7 @@ private const val DEFAULT_BEEP_FREQUENCY = 1500
 private const val DEFAULT_BEEP_ENABLED = true
 private const val MIN_SCREEN_BRIGHTNESS = 0F
 private const val MAX_SCREEN_BRIGHTNESS = 1F
-private const val DEFAULT_SCREEN_BRIGHTNESS = 0.5F
+private const val DEFAULT_SCREEN_BRIGHTNESS = 0.8F
 
 class MainActivity : ComponentActivity() {
 

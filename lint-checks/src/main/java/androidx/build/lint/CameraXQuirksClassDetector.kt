@@ -20,6 +20,7 @@ import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
@@ -38,7 +39,7 @@ class CameraXQuirksClassDetector : Detector(), Detector.UastScanner {
     override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
 
         override fun visitClass(node: UClass) {
-            val isQuirk = node.implementsList?.referenceElements?.find { it ->
+            val isQuirk = node.implementsList?.referenceElements?.find {
                 it.referenceName!!.endsWith("Quirk")
             } != null
 
@@ -59,12 +60,13 @@ class CameraXQuirksClassDetector : Detector(), Detector.UastScanner {
                          *     Device(s):
                         """.trimIndent()
 
-                    context.report(
-                        CameraXQuirksClassDetector.ISSUE, node,
-                        context.getNameLocation(node),
-                        "CameraX quirks should include this template in the javadoc:" +
-                            "\n\n$implForInsertion\n\n"
-                    )
+                    val incident = Incident(context)
+                        .issue(ISSUE)
+                        .message("CameraX quirks should include this template in the javadoc:" +
+                            "\n\n$implForInsertion\n\n")
+                        .location(context.getNameLocation(node))
+                        .scope(node)
+                    context.report(incident)
                 }
             }
         }

@@ -22,13 +22,13 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,6 +37,7 @@ import java.util.Objects;
 /** Information about a maneuver that the driver will be required to perform. */
 // TODO(b/154671667): Update when host(s) updates or a scheme for auto sync is established.
 @CarProtocol
+@KeepFields
 public final class Maneuver {
     /**
      * Possible maneuver types.
@@ -433,14 +434,10 @@ public final class Maneuver {
     @Type
     public static final int TYPE_FERRY_TRAIN_RIGHT = 50;
 
-    @Keep
     @Type
     private final int mType;
-    @Keep
     private final int mRoundaboutExitNumber;
-    @Keep
     private final int mRoundaboutExitAngle;
-    @Keep
     @Nullable
     private final CarIcon mIcon;
 

@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.security:security-crypto:1.1.0-alpha03")
+    api(project(":security:security-crypto"))
 
     api(libs.kotlinStdlib)
     androidTestImplementation(libs.junit)
@@ -36,7 +36,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 21
     }
     namespace "androidx.security.ktx"
 }
@@ -45,7 +45,6 @@ androidx {
     name = "AndroidX Security Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SECURITY
-    mavenGroup = LibraryGroups.SECURITY
     inceptionYear = "2020"
     description = "Kotlin Extensions for the androidx.security:Security-crypto artifact"
 }

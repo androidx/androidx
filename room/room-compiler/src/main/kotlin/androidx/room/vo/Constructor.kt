@@ -16,6 +16,7 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.isConstructor
@@ -54,11 +55,15 @@ data class Constructor(val element: XExecutableElement, val params: List<Param>)
             element.isMethod() -> {
                 // TODO when we generate Kotlin code, we need to handle not having enclosing
                 //  elements.
+                val methodName = when (builder.language) {
+                    CodeLanguage.JAVA -> element.jvmName
+                    CodeLanguage.KOTLIN -> element.name
+                }
                 builder.addStatement(
                     "%L = %T.%L(%L)",
                     outVar,
                     element.enclosingElement.asClassName(),
-                    element.jvmName,
+                    methodName,
                     args
                 )
             }

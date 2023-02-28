@@ -48,7 +48,6 @@ import java.security.KeyStore;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 public class MasterKeySecureTest {
     private static final String PREFS_FILE = "test_shared_prefs";
-    private static final int KEY_SIZE = 256;
 
     @Before
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -56,10 +55,11 @@ public class MasterKeySecureTest {
         final Context context = ApplicationProvider.getApplicationContext();
 
         KeyguardManager keyguardManager = context.getSystemService(KeyguardManager.class);
-        Assume.assumeTrue(keyguardManager != null && keyguardManager.isDeviceSecure());
+        Assume.assumeTrue(keyguardManager != null);
+        // You need to enable screen lock to pass this assumption
+        Assume.assumeTrue(keyguardManager.isDeviceSecure());
 
         // Delete all previous keys and shared preferences.
-
         String filePath = context.getFilesDir().getParent() + "/shared_prefs/"
                 + "__androidx_security__crypto_encrypted_prefs__";
         File deletePrefFile = new File(filePath);

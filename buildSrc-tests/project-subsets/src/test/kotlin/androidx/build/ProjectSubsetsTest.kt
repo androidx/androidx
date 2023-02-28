@@ -64,6 +64,25 @@ public class ProjectSubsetsTest {
         validateSubset("glance")
     }
 
+    @Test
+    fun testSubsetTools() {
+        validateSubset("tools")
+    }
+
+    @Test
+    fun testSubsetKmp() {
+        validateSubset("kmp")
+    }
+
+    @Test
+    fun testSubsetNative() {
+        validateSubset("native")
+    }
+
+    @Test
+    fun testSubsetWindow() {
+        validateSubset("window")
+    }
     /**
      * Validates a specific project subset
      */
@@ -73,9 +92,17 @@ public class ProjectSubsetsTest {
         if (outDir == null || outDir == "") {
             outDir = File(projectDir, "../../out").normalize().toString()
         }
+        // --dependency-verification=off is set because we don't have to do validation of
+        // dependencies during these tests, it is already handled by the main build.
+        // Having it validate here breaks in androidx-studio-integration case where we
+        // might get new dependencies from AGP that are missinng signatures.
+
+        // Run buildOnServer to validate project dependencies and constraints
         GradleRunner.create()
             .withProjectDir(projectDir)
-            .withArguments("-Pandroidx.projects=$name", "tasks")
+            .withArguments(
+                "-Pandroidx.projects=$name", "buildOnServer", "-m", "--dependency-verification=off"
+            )
             .withTestKitDir(File(outDir, ".gradle-testkit"))
             .build(); // fails the test if the build fails
     }

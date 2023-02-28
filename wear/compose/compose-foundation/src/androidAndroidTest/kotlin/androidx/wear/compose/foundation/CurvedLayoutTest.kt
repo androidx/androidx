@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -35,19 +34,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlin.math.PI
-import kotlin.math.abs
-import kotlin.math.atan2
-import kotlin.math.min
 import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
-import kotlin.test.assertTrue
-
-// When components are laid out, position is specified by integers, so we can't expect
-// much precision.
-internal const val FLOAT_TOLERANCE = 1f
 
 class CurvedLayoutTest {
     @get:Rule
@@ -399,7 +388,7 @@ class CurvedLayoutTest {
 
             CurvedLayout(modifier = Modifier.fillMaxSize()) {
                 repeat(num) {
-                    curvedComposable() {
+                    curvedComposable {
                         Box(modifier = Modifier.size(20.dp).testTag("Node$it"))
                     }
                 }
@@ -411,129 +400,5 @@ class CurvedLayoutTest {
         rule.onNodeWithTag("Node0").assertExists()
         rule.onNodeWithTag("Node1").assertExists()
         rule.onNodeWithTag("Node2").assertDoesNotExist()
-    }
-}
-
-internal const val TEST_TAG = "test-item"
-
-fun checkAngle(expected: Float, actual: Float) {
-    var d = abs(expected - actual)
-    d = min(d, 360 - d)
-    if (d > FLOAT_TOLERANCE) {
-        fail("Angle is out of tolerance. Expected: $expected, actual: $actual")
-    }
-}
-
-private fun checkSpy(dimensions: RadialDimensions, capturedInfo: CapturedInfo) =
-    checkCurvedLayoutInfo(dimensions.asCurvedLayoutInfo(), capturedInfo.lastLayoutInfo!!)
-
-private fun checkCurvedLayoutInfo(expected: CurvedLayoutInfo, actual: CurvedLayoutInfo) {
-    checkAngle(expected.sweepRadians.toDegrees(), actual.sweepRadians.toDegrees())
-    assertEquals(expected.outerRadius, actual.outerRadius, FLOAT_TOLERANCE)
-    assertEquals(expected.thickness, actual.thickness, FLOAT_TOLERANCE)
-    assertEquals(expected.centerOffset.x, actual.centerOffset.x, FLOAT_TOLERANCE)
-    assertEquals(expected.centerOffset.y, actual.centerOffset.y, FLOAT_TOLERANCE)
-    checkAngle(expected.startAngleRadians.toDegrees(), actual.startAngleRadians.toDegrees())
-}
-
-private fun Float.toRadians() = this * PI.toFloat() / 180f
-private fun Float.toDegrees() = this * 180f / PI.toFloat()
-
-private data class RadialPoint(val distance: Float, val angle: Float)
-
-// Utility class to compute the dimensions of the annulus segment corresponding to a given component
-// given that component's and the parent CurvedRow's LayoutCoordinates, and a boolean to indicate
-// if the layout is clockwise or counterclockwise
-private class RadialDimensions(
-    absoluteClockwise: Boolean,
-    rowCoords: LayoutCoordinates,
-    coords: LayoutCoordinates
-) {
-    // Row dimmensions
-    val rowCenter: Offset
-    val rowRadius: Float
-    // Component dimensions.
-    val innerRadius: Float
-    val outerRadius: Float
-    val centerRadius
-        get() = (innerRadius + outerRadius) / 2
-    val sweep: Float
-    val startAngle: Float
-    val middleAngle: Float
-    val endAngle: Float
-
-    init {
-        // Find the radius and center of the CurvedRow, all radial coordinates are relative to this
-        // center
-        rowRadius = min(rowCoords.size.width, rowCoords.size.height) / 2f
-        rowCenter = rowCoords.localToRoot(
-            Offset(rowRadius, rowRadius)
-        )
-
-        // Compute the radial coordinates (relative to the center of the CurvedRow) of the found
-        // corners of the component's box and its center
-        val width = coords.size.width.toFloat()
-        val height = coords.size.height.toFloat()
-
-        val topLeft = toRadialCoordinates(coords, 0f, 0f)
-        val topRight = toRadialCoordinates(coords, width, 0f)
-        val center = toRadialCoordinates(coords, width / 2f, height / 2f)
-        val bottomLeft = toRadialCoordinates(coords, 0f, height)
-        val bottomRight = toRadialCoordinates(coords, width, height)
-
-        // Ensure the bottom corners are in the same circle
-        assertEquals(bottomLeft.distance, bottomRight.distance, FLOAT_TOLERANCE)
-        // Same with top corners
-        assertEquals(topLeft.distance, topRight.distance, FLOAT_TOLERANCE)
-
-        // Compute the four dimensions of the annulus sector
-        // Note that startAngle is always before endAngle (even when going counterclockwise)
-        if (absoluteClockwise) {
-            innerRadius = bottomLeft.distance
-            outerRadius = topLeft.distance
-            startAngle = bottomLeft.angle.toDegrees()
-            endAngle = bottomRight.angle.toDegrees()
-        } else {
-            // When components are laid out counterclockwise, they are rotated 180 degrees
-            innerRadius = topLeft.distance
-            outerRadius = bottomLeft.distance
-            startAngle = topRight.angle.toDegrees()
-            endAngle = topLeft.angle.toDegrees()
-        }
-
-        middleAngle = center.angle.toDegrees()
-        sweep = if (endAngle > startAngle) {
-            endAngle - startAngle
-        } else {
-            endAngle + 360f - startAngle
-        }
-
-        // All sweep angles are well between 0 and 90
-        assertTrue(
-                (FLOAT_TOLERANCE..90f - FLOAT_TOLERANCE).contains(sweep),
-                "sweep = $sweep"
-        )
-
-        // The outerRadius is greater than the innerRadius
-        assertTrue(
-                outerRadius > innerRadius + FLOAT_TOLERANCE,
-                "innerRadius = $innerRadius, outerRadius = $outerRadius"
-        )
-    }
-
-    // TODO: When we finalize CurvedLayoutInfo's API, eliminate the RadialDimensions class and
-    // inline this function to directly convert between LayoutCoordinates and CurvedLayoutInfo.
-    fun asCurvedLayoutInfo() = CurvedLayoutInfo(
-        sweepRadians = sweep.toRadians(),
-        outerRadius = outerRadius,
-        thickness = outerRadius - innerRadius,
-        centerOffset = rowCenter,
-        measureRadius = (outerRadius + innerRadius) / 2,
-        startAngleRadians = startAngle.toRadians()
-    )
-
-    fun toRadialCoordinates(coords: LayoutCoordinates, x: Float, y: Float): RadialPoint {
-        val vector = coords.localToRoot(Offset(x, y)) - rowCenter
-        return RadialPoint(vector.getDistance(), atan2(vector.y, vector.x))
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.constraintlayout.core.state;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.core.motion.CustomAttribute;
 import androidx.constraintlayout.core.motion.CustomVariable;
 import androidx.constraintlayout.core.motion.utils.TypedBundle;
@@ -318,6 +319,13 @@ public class WidgetFrame {
         this.widget = widget;
         update();
         return this;
+    }
+
+    /**
+     * Return whether this WidgetFrame contains a custom property of the given name.
+     */
+    public boolean containsCustom(@NonNull String name) {
+        return mCustom.containsKey(name);
     }
 
     // @TODO: add description

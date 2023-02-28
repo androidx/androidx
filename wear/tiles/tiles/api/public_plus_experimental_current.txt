@@ -886,6 +886,7 @@ package androidx.wear.tiles {
   }
 
   public static final class RequestBuilders.ResourcesRequest {
+    method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters getDeviceConfiguration();
     method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
     method public java.util.List<java.lang.String!> getResourceIds();
     method public String getVersion();
@@ -895,11 +896,14 @@ package androidx.wear.tiles {
     ctor public RequestBuilders.ResourcesRequest.Builder();
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder addResourceId(String);
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest build();
+    method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setDeviceConfiguration(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.RequestBuilders.ResourcesRequest.Builder setVersion(String);
   }
 
   public static final class RequestBuilders.TileRequest {
+    method public androidx.wear.protolayout.StateBuilders.State getCurrentState();
+    method public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters getDeviceConfiguration();
     method public androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters? getDeviceParameters();
     method public androidx.wear.tiles.StateBuilders.State? getState();
   }
@@ -907,6 +911,8 @@ package androidx.wear.tiles {
   public static final class RequestBuilders.TileRequest.Builder {
     ctor public RequestBuilders.TileRequest.Builder();
     method public androidx.wear.tiles.RequestBuilders.TileRequest build();
+    method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setCurrentState(androidx.wear.protolayout.StateBuilders.State);
+    method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setDeviceConfiguration(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setDeviceParameters(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.RequestBuilders.TileRequest.Builder setState(androidx.wear.tiles.StateBuilders.State);
   }
@@ -986,6 +992,8 @@ package androidx.wear.tiles {
   public static final class TileBuilders.Tile {
     method public long getFreshnessIntervalMillis();
     method public String getResourcesVersion();
+    method public androidx.wear.protolayout.StateBuilders.State? getState();
+    method public androidx.wear.protolayout.TimelineBuilders.Timeline? getTileTimeline();
     method public androidx.wear.tiles.TimelineBuilders.Timeline? getTimeline();
   }
 
@@ -994,6 +1002,8 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.TileBuilders.Tile build();
     method public androidx.wear.tiles.TileBuilders.Tile.Builder setFreshnessIntervalMillis(long);
     method public androidx.wear.tiles.TileBuilders.Tile.Builder setResourcesVersion(String);
+    method public androidx.wear.tiles.TileBuilders.Tile.Builder setState(androidx.wear.protolayout.StateBuilders.State);
+    method public androidx.wear.tiles.TileBuilders.Tile.Builder setTileTimeline(androidx.wear.protolayout.TimelineBuilders.Timeline);
     method public androidx.wear.tiles.TileBuilders.Tile.Builder setTimeline(androidx.wear.tiles.TimelineBuilders.Timeline);
   }
 
@@ -1001,12 +1011,13 @@ package androidx.wear.tiles {
     ctor public TileService();
     method public static androidx.wear.tiles.TileUpdateRequester getUpdater(android.content.Context);
     method public android.os.IBinder? onBind(android.content.Intent);
-    method @MainThread protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
+    method @MainThread protected com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources!> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
     method @MainThread protected void onTileAddEvent(androidx.wear.tiles.EventBuilders.TileAddEvent);
     method @MainThread protected void onTileEnterEvent(androidx.wear.tiles.EventBuilders.TileEnterEvent);
     method @MainThread protected void onTileLeaveEvent(androidx.wear.tiles.EventBuilders.TileLeaveEvent);
     method @MainThread protected void onTileRemoveEvent(androidx.wear.tiles.EventBuilders.TileRemoveEvent);
     method @MainThread protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile!> onTileRequest(androidx.wear.tiles.RequestBuilders.TileRequest);
+    method @MainThread protected com.google.common.util.concurrent.ListenableFuture<androidx.wear.protolayout.ResourceBuilders.Resources!> onTileResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest);
     field public static final String ACTION_BIND_TILE_PROVIDER = "androidx.wear.tiles.action.BIND_TILE_PROVIDER";
     field public static final String EXTRA_CLICKABLE_ID = "androidx.wear.tiles.extra.CLICKABLE_ID";
     field public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";

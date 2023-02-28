@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -49,4 +51,7 @@ dependencies {
     androidTestImplementation(libs.kotlinReflect)
     androidTestImplementation(libs.kotlinTestCommon)
     androidTestImplementation(libs.truth)
+}
+androidx {
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }

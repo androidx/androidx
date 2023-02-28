@@ -25,7 +25,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
@@ -51,6 +50,7 @@ import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.Collections;
 import java.util.List;
@@ -80,41 +80,33 @@ import java.util.Objects;
  * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
  */
 @CarProtocol
+@KeepFields
 public final class PlaceListNavigationTemplate implements Template {
-    @Keep
     private final boolean mIsLoading;
     /**
      * @deprecated Use the Header to set up the Title.
      */
     // TODO(b/225914724): remove after hosts switch over to setHeader().
-    @Keep
     @Nullable
     @Deprecated
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final ItemList mItemList;
-    @Keep
     @Nullable
     private final Header mHeader;
     /**
      * @deprecated Use the Header to set up the HeaderAction.
      */
     // TODO(b/225914724): remove after hosts switch over to setHeader().
-    @Keep
     @Nullable
     @Deprecated
     private final Action mHeaderAction;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
-    @Keep
     @Nullable
     private final ActionStrip mMapActionStrip;
-    @Keep
     @Nullable
     private final PanModeDelegate mPanModeDelegate;
-    @Keep
     @Nullable
     private final OnContentRefreshDelegate mOnContentRefreshDelegate;
 
@@ -366,7 +358,6 @@ public final class PlaceListNavigationTemplate implements Template {
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
          *                                  requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
-         *
          * @deprecated use {@link #setHeader(Header)}
          */
         // TODO(b/225914724): remove after hosts switch over to setHeader().

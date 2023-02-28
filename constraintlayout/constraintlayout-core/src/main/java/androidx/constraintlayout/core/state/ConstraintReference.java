@@ -20,6 +20,7 @@ import static androidx.constraintlayout.core.widgets.ConstraintWidget.HORIZONTAL
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.UNKNOWN;
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.VERTICAL;
 
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.core.motion.utils.TypedBundle;
 import androidx.constraintlayout.core.motion.utils.TypedValues;
 import androidx.constraintlayout.core.state.helpers.Facade;
@@ -116,8 +117,10 @@ public class ConstraintReference implements Reference {
     protected Object mEndToEnd = null;
     protected Object mTopToTop = null;
     protected Object mTopToBottom = null;
+    @Nullable Object mTopToBaseline = null;
     protected Object mBottomToTop = null;
     protected Object mBottomToBottom = null;
+    @Nullable Object mBottomToBaseline = null;
     Object mBaselineToBaseline = null;
     Object mBaselineToTop = null;
     Object mBaselineToBottom = null;
@@ -585,6 +588,12 @@ public class ConstraintReference implements Reference {
         return this;
     }
 
+    ConstraintReference topToBaseline(Object reference) {
+        mLast = State.Constraint.TOP_TO_BASELINE;
+        mTopToBaseline = reference;
+        return this;
+    }
+
     // @TODO: add description
     public ConstraintReference bottomToTop(Object reference) {
         mLast = State.Constraint.BOTTOM_TO_TOP;
@@ -596,6 +605,12 @@ public class ConstraintReference implements Reference {
     public ConstraintReference bottomToBottom(Object reference) {
         mLast = State.Constraint.BOTTOM_TO_BOTTOM;
         mBottomToBottom = reference;
+        return this;
+    }
+
+    ConstraintReference bottomToBaseline(Object reference) {
+        mLast = State.Constraint.BOTTOM_TO_BASELINE;
+        mBottomToBaseline = reference;
         return this;
     }
 
@@ -715,12 +730,14 @@ public class ConstraintReference implements Reference {
                 }
                 break;
                 case TOP_TO_TOP:
-                case TOP_TO_BOTTOM: {
+                case TOP_TO_BOTTOM:
+                case TOP_TO_BASELINE: {
                     mMarginTop = value;
                 }
                 break;
                 case BOTTOM_TO_TOP:
-                case BOTTOM_TO_BOTTOM: {
+                case BOTTOM_TO_BOTTOM:
+                case BOTTOM_TO_BASELINE: {
                     mMarginBottom = value;
                 }
                 break;
@@ -773,12 +790,14 @@ public class ConstraintReference implements Reference {
                 }
                 break;
                 case TOP_TO_TOP:
-                case TOP_TO_BOTTOM: {
+                case TOP_TO_BOTTOM:
+                case TOP_TO_BASELINE: {
                     mMarginTopGone = value;
                 }
                 break;
                 case BOTTOM_TO_TOP:
-                case BOTTOM_TO_BOTTOM: {
+                case BOTTOM_TO_BOTTOM:
+                case BOTTOM_TO_BASELINE: {
                     mMarginBottomGone = value;
                 }
                 break;
@@ -835,8 +854,10 @@ public class ConstraintReference implements Reference {
             case CENTER_VERTICALLY:
             case TOP_TO_TOP:
             case TOP_TO_BOTTOM:
+            case TOP_TO_BASELINE:
             case BOTTOM_TO_TOP:
-            case BOTTOM_TO_BOTTOM: {
+            case BOTTOM_TO_BOTTOM:
+            case BOTTOM_TO_BASELINE: {
                 mVerticalBias = value;
             }
             break;
@@ -918,17 +939,21 @@ public class ConstraintReference implements Reference {
                 }
                 break;
                 case TOP_TO_TOP:
-                case TOP_TO_BOTTOM: {
+                case TOP_TO_BOTTOM:
+                case TOP_TO_BASELINE: {
                     mTopToTop = null;
                     mTopToBottom = null;
+                    mTopToBaseline = null;
                     mMarginTop = 0;
                     mMarginTopGone = 0;
                 }
                 break;
                 case BOTTOM_TO_TOP:
-                case BOTTOM_TO_BOTTOM: {
+                case BOTTOM_TO_BOTTOM:
+                case BOTTOM_TO_BASELINE: {
                     mBottomToTop = null;
                     mBottomToBottom = null;
+                    mBottomToBaseline = null;
                     mMarginBottom = 0;
                     mMarginBottomGone = 0;
                 }
@@ -1021,6 +1046,11 @@ public class ConstraintReference implements Reference {
                         ConstraintAnchor.Type.BOTTOM), mMarginTop, mMarginTopGone, false);
             }
             break;
+            case TOP_TO_BASELINE: {
+                widget.immediateConnect(ConstraintAnchor.Type.TOP, target,
+                        ConstraintAnchor.Type.BASELINE, mMarginTop, mMarginTopGone);
+            }
+            break;
             case BOTTOM_TO_TOP: {
                 widget.getAnchor(ConstraintAnchor.Type.BOTTOM).connect(target.getAnchor(
                         ConstraintAnchor.Type.TOP), mMarginBottom, mMarginBottomGone, false);
@@ -1029,6 +1059,11 @@ public class ConstraintReference implements Reference {
             case BOTTOM_TO_BOTTOM: {
                 widget.getAnchor(ConstraintAnchor.Type.BOTTOM).connect(target.getAnchor(
                         ConstraintAnchor.Type.BOTTOM), mMarginBottom, mMarginBottomGone, false);
+            }
+            break;
+            case BOTTOM_TO_BASELINE: {
+                widget.immediateConnect(ConstraintAnchor.Type.BOTTOM, target,
+                        ConstraintAnchor.Type.BASELINE, mMarginBottom, mMarginBottomGone);
             }
             break;
             case BASELINE_TO_BASELINE: {
@@ -1069,8 +1104,10 @@ public class ConstraintReference implements Reference {
         applyConnection(mConstraintWidget, mEndToEnd, State.Constraint.END_TO_END);
         applyConnection(mConstraintWidget, mTopToTop, State.Constraint.TOP_TO_TOP);
         applyConnection(mConstraintWidget, mTopToBottom, State.Constraint.TOP_TO_BOTTOM);
+        applyConnection(mConstraintWidget, mTopToBaseline, State.Constraint.TOP_TO_BASELINE);
         applyConnection(mConstraintWidget, mBottomToTop, State.Constraint.BOTTOM_TO_TOP);
         applyConnection(mConstraintWidget, mBottomToBottom, State.Constraint.BOTTOM_TO_BOTTOM);
+        applyConnection(mConstraintWidget, mBottomToBaseline, State.Constraint.BOTTOM_TO_BASELINE);
         applyConnection(mConstraintWidget, mBaselineToBaseline,
                 State.Constraint.BASELINE_TO_BASELINE);
         applyConnection(mConstraintWidget, mBaselineToTop, State.Constraint.BASELINE_TO_TOP);

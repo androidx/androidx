@@ -16,14 +16,14 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.T
-import androidx.room.ext.arrayTypeName
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.ArrayLiteral
+import androidx.room.ext.CallableTypeSpecBuilder
+import androidx.room.ext.CommonTypeNames
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.FieldSpec
 
 /**
  * Converts the query into a LiveData and returns it. No query is run until necessary.
@@ -37,32 +37,46 @@ class LiveDataQueryResultBinder(
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
-        dbField: FieldSpec,
+        dbProperty: XPropertySpec,
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
-            createRunQueryAndReturnStatements(
-                builder = this,
-                roomSQLiteQueryVar = roomSQLiteQueryVar,
-                inTransaction = inTransaction,
-                dbField = dbField,
-                scope = scope,
-                cancellationSignalVar = "null" // LiveData can't be cancelled
+        val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
+            addCode(
+                XCodeBlock.builder(language).apply {
+                    createRunQueryAndReturnStatements(
+                        builder = this,
+                        roomSQLiteQueryVar = roomSQLiteQueryVar,
+                        inTransaction = inTransaction,
+                        dbProperty = dbProperty,
+                        scope = scope,
+                        cancellationSignalVar = "null" // LiveData can't be cancelled
+                    )
+                }.build()
             )
         }.apply {
             if (canReleaseQuery) {
-                addMethod(createFinalizeMethod(roomSQLiteQueryVar))
+                createFinalizeMethod(roomSQLiteQueryVar)
             }
         }.build()
 
-        scope.builder().apply {
-            val tableNamesList = tableNames.joinToString(",") { "\"$it\"" }
+        scope.builder.apply {
+            val arrayOfTableNamesLiteral = ArrayLiteral(
+                scope.language,
+                CommonTypeNames.STRING,
+                *tableNames.toTypedArray()
+            )
+            // Use property syntax in Kotlin and getter in Java
+            val getInvalidationTracker = when (language) {
+                CodeLanguage.JAVA -> "getInvalidationTracker()"
+                CodeLanguage.KOTLIN -> "invalidationTracker"
+            }
+
             addStatement(
-                "return $N.getInvalidationTracker().createLiveData(new $T{$L}, $L, $L)",
-                dbField,
-                String::class.arrayTypeName,
-                tableNamesList,
+                "return %N.%L.createLiveData(%L, %L, %L)",
+                dbProperty,
+                getInvalidationTracker,
+                arrayOfTableNamesLiteral,
                 if (inTransaction) "true" else "false",
                 callableImpl
             )

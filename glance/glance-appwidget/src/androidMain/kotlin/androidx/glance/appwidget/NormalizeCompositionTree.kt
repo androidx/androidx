@@ -26,6 +26,8 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.ImageProvider
 import androidx.glance.action.ActionModifier
+import androidx.glance.action.LambdaAction
+import androidx.glance.appwidget.action.CompoundButtonAction
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.background
 import androidx.glance.extractModifier
@@ -52,8 +54,28 @@ internal fun normalizeCompositionTree(root: RemoteViewsRoot) {
     }
 }
 
+/**
+ * Ensure that [container] has only one direct child.
+ *
+ * If [container] has multiple children, wrap them in an [EmittableBox] and make that the only child
+ * of container. If [container] contains only children of type [EmittableSizeBox], then we will make
+ * sure each of the [EmittableSizeBox]es has one child by wrapping their children in an
+ * [EmittableBox].
+ */
 private fun coerceToOneChild(container: EmittableWithChildren) {
-    if (container.children.size == 1) return
+    if (container.children.isNotEmpty() && container.children.all { it is EmittableSizeBox }) {
+        for (item in container.children) {
+            item as EmittableSizeBox
+            if (item.children.size == 1) continue
+            val box = EmittableBox()
+            box.children += item.children
+            item.children.clear()
+            item.children += box
+        }
+        return
+    } else if (container.children.size == 1) {
+        return
+    }
     val box = EmittableBox()
     box.children += container.children
     container.children.clear()
@@ -97,6 +119,51 @@ private fun EmittableWithChildren.transformTree(block: (Emittable) -> Emittable)
     }
 }
 
+/**
+ * Walks through the Emittable tree and updates the key for all LambdaActions.
+ *
+ * This function updates the key such that the final key is equal to the original key plus a string
+ * indicating its index among its siblings. This is because sibling Composables will often have the
+ * same key due to how [androidx.compose.runtime.currentCompositeKeyHash] works. Adding the index
+ * makes sure that all of these keys are unique.
+ *
+ * Note that, because we run the same composition multiple times for different sizes in certain
+ * modes (see [ForEachSize]), action keys in one SizeBox should mirror the action keys in other
+ * SizeBoxes, so that if an action is triggered on the widget being displayed in one size, the state
+ * will be updated for the composition in all sizes. This is why there can be multiple LambdaActions
+ * for each key, even after de-duping.
+ */
+internal fun EmittableWithChildren.updateLambdaActionKeys(): Map<String, List<LambdaAction>> =
+    children.foldIndexed(
+        mutableMapOf<String, MutableList<LambdaAction>>()
+    ) { index, actions, child ->
+        val (action: LambdaAction?, modifiers: GlanceModifier) =
+            child.modifier.extractLambdaAction()
+        if (action != null && child !is EmittableSizeBox && child !is EmittableLazyListItem) {
+            val newKey = action.key + "+$index"
+            val newAction = LambdaAction(newKey, action.block)
+            actions.getOrPut(newKey) { mutableListOf() }.add(newAction)
+            child.modifier = modifiers.then(ActionModifier(newAction))
+        }
+        if (child is EmittableWithChildren) {
+            child.updateLambdaActionKeys().forEach { (key, childActions) ->
+                actions.getOrPut(key) { mutableListOf() }.addAll(childActions)
+            }
+        }
+        actions
+    }
+
+private fun GlanceModifier.extractLambdaAction(): Pair<LambdaAction?, GlanceModifier> =
+    extractModifier<ActionModifier>().let { (actionModifier, modifiers) ->
+        val action = actionModifier?.action
+        when {
+            action is LambdaAction -> action to modifiers
+            action is CompoundButtonAction && action.innerAction is LambdaAction ->
+                action.innerAction to modifiers
+            else -> null to modifiers
+        }
+    }
+
 private fun normalizeLazyListItem(view: EmittableLazyListItem) {
     if (view.children.size == 1 && view.alignment == Alignment.CenterStart) return
     val box = EmittableBox()
@@ -117,10 +184,9 @@ private fun normalizeLazyListItem(view: EmittableLazyListItem) {
  * convert the target emittable to an [EmittableText]
  */
 private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
-    // EmittableLazyListItem is a wrapper for its immediate only child,
-    // and does not get translated to its own element. We will transform
-    // the child instead.
-    if (this is EmittableLazyListItem) return this
+    // EmittableLazyListItem and EmittableSizeBox are wrappers for their immediate only child,
+    // and do not get translated to their own element. We will transform their child instead.
+    if (this is EmittableLazyListItem || this is EmittableSizeBox) return this
 
     var target = this
 
@@ -146,7 +212,7 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
     val (sizeModifiers, nonSizeModifiers) = notBgOrActionModifier.extractSizeModifiers()
     val boxModifiers = mutableListOf<GlanceModifier?>(sizeModifiers, actionModifier)
     val targetModifiers = mutableListOf<GlanceModifier?>(
-        nonSizeModifiers.fillMaxSize().doNotUnsetAction()
+        nonSizeModifiers.fillMaxSize()
     )
 
     // If we don't need to emulate the background, add the background modifier back to the target.
@@ -170,7 +236,7 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
 
         if (addBackground && bgModifier != null) {
             children += EmittableImage().apply {
-                modifier = GlanceModifier.fillMaxSize().doNotUnsetAction()
+                modifier = GlanceModifier.fillMaxSize()
                 provider = bgModifier.imageProvider
                 contentScale = bgModifier.contentScale
             }
@@ -178,7 +244,7 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
         children += target.apply { modifier = targetModifiers.collect() }
         if (addRipple) {
             children += EmittableImage().apply {
-                modifier = GlanceModifier.fillMaxSize().doNotUnsetAction()
+                modifier = GlanceModifier.fillMaxSize()
                 provider = ImageProvider(R.drawable.glance_ripple)
             }
         }

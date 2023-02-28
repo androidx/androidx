@@ -16,26 +16,39 @@
 
 package androidx.camera.testing.fakes;
 
-import android.util.Size;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType;
+import androidx.core.util.Supplier;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A fake {@link UseCase}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeUseCase extends UseCase {
+
     private volatile boolean mIsDetached = false;
+    private final AtomicInteger mStateAttachedCount = new AtomicInteger(0);
     private final CaptureType mCaptureType;
+    private boolean mMergedConfigRetrieved = false;
+    private int mPipelineCreationCount = 0;
+    private Supplier<SessionConfig> mSessionConfigSupplier;
+    private Set<Integer> mEffectTargets = Collections.emptySet();
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration and capture type.
@@ -69,7 +82,8 @@ public class FakeUseCase extends UseCase {
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
         return new FakeUseCaseConfig.Builder(config)
-                .setSessionOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> { });
+                .setSessionOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> {
+                });
     }
 
     /**
@@ -88,22 +102,136 @@ public class FakeUseCase extends UseCase {
         return config == null ? null : getUseCaseConfigBuilder(config).getUseCaseConfig();
     }
 
+    @NonNull
     @Override
-    public void onDetached() {
-        super.onDetached();
+    protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+        mMergedConfigRetrieved = true;
+        return builder.getUseCaseConfig();
+    }
+
+    @Override
+    public void onUnbind() {
+        super.onUnbind();
         mIsDetached = true;
     }
 
     @Override
+    public void onStateAttached() {
+        super.onStateAttached();
+        mStateAttachedCount.incrementAndGet();
+    }
+
+    @Override
+    public void onStateDetached() {
+        super.onStateDetached();
+        mStateAttachedCount.decrementAndGet();
+    }
+
+    @Override
     @NonNull
-    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        return suggestedResolution;
+    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
+        SessionConfig sessionConfig = createPipeline();
+        if (sessionConfig != null) {
+            updateSessionConfig(sessionConfig);
+        }
+        return suggestedStreamSpec;
+    }
+
+    @Nullable
+    SessionConfig createPipeline() {
+        mPipelineCreationCount++;
+        if (mSessionConfigSupplier != null) {
+            return mSessionConfigSupplier.get();
+        } else {
+            return null;
+        }
     }
 
     /**
-     * Returns true if {@link #onDetached()} has been called previously.
+     * Sets effect targets.
+     */
+    public void setSupportedEffectTargets(@NonNull Set<Integer> effectTargets) {
+        mEffectTargets = effectTargets;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @NonNull
+    @Override
+    public Set<Integer> getSupportedEffectTargets() {
+        return mEffectTargets;
+    }
+
+
+    /**
+     * Returns true if {@link #onUnbind()} has been called previously.
      */
     public boolean isDetached() {
         return mIsDetached;
+    }
+
+    /**
+     * Returns true if {@link #onStateAttached()} has been called previously.
+     */
+    public int getStateAttachedCount() {
+        return mStateAttachedCount.get();
+    }
+
+    /**
+     * Returns true if {@link #mergeConfigs} have been invoked.
+     */
+    public boolean getMergedConfigRetrieved() {
+        return mMergedConfigRetrieved;
+    }
+
+    /**
+     * Returns how many times the pipeline has been created.
+     */
+    public int getPipelineCreationCount() {
+        return mPipelineCreationCount;
+    }
+
+    /**
+     * Returns {@link CameraCaptureResult} received by this use case.
+     */
+    public void setSessionConfigSupplier(@NonNull Supplier<SessionConfig> sessionConfigSupplier) {
+        mSessionConfigSupplier = sessionConfigSupplier;
+    }
+
+    /**
+     * Calls the protected method {@link UseCase#updateSessionConfig}.
+     */
+    public void updateSessionConfigForTesting(@NonNull SessionConfig sessionConfig) {
+        updateSessionConfig(sessionConfig);
+    }
+
+    /**
+     * Calls the protected method {@link UseCase#notifyActive()}.
+     */
+    public void notifyActiveForTesting() {
+        notifyActive();
+    }
+
+    /**
+     * Calls the protected method {@link UseCase#notifyInactive()}.
+     */
+    public void notifyInactiveForTesting() {
+        notifyInactive();
+    }
+
+    /**
+     * Calls the protected method {@link UseCase#notifyUpdated()}.
+     */
+    public void notifyUpdatedForTesting() {
+        notifyUpdated();
+    }
+
+    /**
+     * Calls the protected method {@link UseCase#notifyReset()}.
+     */
+    public void notifyResetForTesting() {
+        notifyReset();
     }
 }

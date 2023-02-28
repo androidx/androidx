@@ -33,6 +33,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import android.os.Build;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -58,6 +59,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -873,9 +875,14 @@ public class SpringTests {
 
     }
 
+    @Ignore // b/268534501
     @Test
-    @SdkSuppress(minSdkVersion = 33)
+    @SdkSuppress(minSdkVersion = 33, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testDurationScaleChangeListener() throws InterruptedException {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         final SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.Y, 0f);
         final CountDownLatch registerUnregisterLatch = new CountDownLatch(2);
 

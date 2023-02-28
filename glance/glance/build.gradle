@@ -30,14 +30,16 @@ AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformE
 dependencies {
 
     api("androidx.annotation:annotation:1.2.0")
-    api("androidx.compose.runtime:runtime:1.1.0-beta01")
-    api("androidx.compose.ui:ui-graphics:1.1.0-beta01")
-    api("androidx.compose.ui:ui-unit:1.1.0-beta01")
+    api("androidx.compose.runtime:runtime:1.1.1")
+    api("androidx.compose.ui:ui-graphics:1.1.1")
+    api("androidx.compose.ui:ui-unit:1.1.1")
     api("androidx.datastore:datastore-core:1.0.0")
     api("androidx.datastore:datastore-preferences-core:1.0.0")
     api("androidx.datastore:datastore-preferences:1.0.0")
 
     implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.work:work-runtime:2.7.1")
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
     implementation(libs.kotlinStdlib)
     implementation(project(":compose:runtime:runtime"))
 
@@ -50,11 +52,13 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinReflect)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation("androidx.datastore:datastore-core:1.0.0")
     testImplementation("androidx.datastore:datastore-preferences-core:1.0.0")
-    testImplementation("androidx.datastore:datastore-preferences:1.0.0-rc02")
+    testImplementation("androidx.datastore:datastore-preferences:1.0.0")
+    testImplementation("androidx.room:room-runtime:2.4.3")
+    testImplementation("androidx.work:work-testing:2.7.1")
     testImplementation("com.google.android.material:material:1.6.0")
 }
 
@@ -68,7 +72,6 @@ android {
 androidx {
     name = "Glance Core Library"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.GLANCE
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
             "Compose-style API."

@@ -16,30 +16,22 @@
 
 package androidx.camera.core.imagecapture
 
-import android.graphics.BitmapFactory
-import android.graphics.Color.BLUE
-import android.graphics.Color.YELLOW
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.imagecapture.Utils.EXIF_DESCRIPTION
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.OUTPUT_FILE_OPTIONS
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
 import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.WIDTH
-import androidx.camera.core.imagecapture.Utils.createCaptureBundle
 import androidx.camera.core.imagecapture.Utils.createProcessingRequest
-import androidx.camera.core.impl.utils.Exif.createFromFileString
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.isSequentialExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
-import androidx.camera.core.internal.utils.ImageUtil
-import androidx.camera.testing.ExifUtil.updateExif
-import androidx.camera.testing.TestImageUtil.createBitmap
+import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.TestImageUtil.createJpegBytes
 import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
-import androidx.camera.testing.TestImageUtil.getAverageDiff
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
@@ -50,6 +42,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.util.ReflectionHelpers.setStaticField
 
 /**
  * Unit tests for [ProcessingNode].
@@ -81,7 +74,8 @@ class ProcessingNodeTest {
             ROTATION_DEGREES,
             /*jpegQuality=*/100,
             SENSOR_TO_BUFFER,
-            callback
+            callback,
+            Futures.immediateFuture(null)
         )
 
         // Act: process the request.
@@ -92,55 +86,6 @@ class ProcessingNodeTest {
 
         // Assert: the image is not saved.
         assertThat(callback.onDiskResult).isNull()
-    }
-
-    @Test
-    fun cropRectEqualsImageRect_croppingNotInvoked() {
-        // Arrange: create a request with no cropping
-        val callback = FakeTakePictureCallback()
-        val request = ProcessingRequest(
-            { listOf() },
-            OUTPUT_FILE_OPTIONS,
-            Rect(0, 0, WIDTH, HEIGHT),
-            ROTATION_DEGREES,
-            /*jpegQuality=*/100,
-            SENSOR_TO_BUFFER,
-            callback
-        )
-        val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
-        val image = createJpegFakeImageProxy(jpegBytes)
-        // Track if cropping is invoked.
-        var croppingInvoked = false
-        node.injectJpegBytes2CroppedBitmapForTesting {
-            croppingInvoked = true
-            JpegBytes2CroppedBitmap().apply(it)
-        }
-
-        // Act.
-        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image))
-        shadowOf(getMainLooper()).idle()
-        val filePath = callback.onDiskResult!!.savedUri!!.path!!
-
-        // Assert: restored image is not cropped.
-        val restoredBitmap = BitmapFactory.decodeFile(filePath)
-        assertThat(getAverageDiff(createBitmap(WIDTH, HEIGHT), restoredBitmap)).isEqualTo(0)
-        // Assert: cropping was not invoked.
-        assertThat(croppingInvoked).isFalse()
-    }
-
-    @Test
-    fun inMemoryInputPacket_callbackInvoked() {
-        // Arrange.
-        val callback = FakeTakePictureCallback()
-        val request = FakeProcessingRequest(createCaptureBundle(intArrayOf()), callback)
-        val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
-        val image = createJpegFakeImageProxy(jpegBytes)
-        // Act.
-        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image))
-        shadowOf(getMainLooper()).idle()
-        // Assert: the output image is identical to the input.
-        val restoredJpeg = ImageUtil.jpegImageToJpegByteArray(callback.inMemoryResult!!)
-        assertThat(getAverageDiff(jpegBytes, restoredJpeg)).isEqualTo(0)
     }
 
     @Test
@@ -161,27 +106,12 @@ class ProcessingNodeTest {
     }
 
     @Test
-    fun saveJpegOnDisk_verifyOutput() {
-        // Arrange: create a on-disk processing request.
-        val takePictureCallback = FakeTakePictureCallback()
-        val jpegBytes = updateExif(createJpegBytes(640, 480)) {
-            it.description = EXIF_DESCRIPTION
+    fun singleExecutorForLowMemoryQuirkEnabled() {
+        listOf("sm-a520w", "motog3").forEach { model ->
+            setStaticField(Build::class.java, "MODEL", model)
+            assertThat(
+                isSequentialExecutor(ProcessingNode(mainThreadExecutor()).mBlockingExecutor)
+            ).isTrue()
         }
-        val image = createJpegFakeImageProxy(jpegBytes)
-        val processingRequest = createProcessingRequest(takePictureCallback)
-        val input = ProcessingNode.InputPacket.of(processingRequest, image)
-
-        // Act: send input to the edge and wait for the saved URI
-        processingNodeIn.edge.accept(input)
-        shadowOf(getMainLooper()).idle()
-        val filePath = takePictureCallback.onDiskResult!!.savedUri!!.path!!
-
-        // Assert: image content is cropped correctly
-        val bitmap = BitmapFactory.decodeFile(filePath)
-        assertThat(getAverageDiff(bitmap, Rect(0, 0, 320, 240), BLUE)).isEqualTo(0)
-        assertThat(getAverageDiff(bitmap, Rect(321, 0, WIDTH, 240), YELLOW)).isEqualTo(0)
-        // Assert: Exif info is saved correctly.
-        val exif = createFromFileString(filePath)
-        assertThat(exif.description).isEqualTo(EXIF_DESCRIPTION)
     }
 }

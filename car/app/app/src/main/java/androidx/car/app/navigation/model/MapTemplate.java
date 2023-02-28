@@ -23,7 +23,6 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
@@ -43,6 +42,7 @@ import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.List;
 import java.util.Objects;
@@ -64,20 +64,16 @@ import java.util.Objects;
  */
 @RequiresCarApi(5)
 @CarProtocol
+@KeepFields
 public final class MapTemplate implements Template {
-    @Keep
     @Nullable
     private final MapController mMapController;
-    @Keep
     @Nullable
     private final Pane mPane;
-    @Keep
     @Nullable
     private final ItemList mItemList;
-    @Keep
     @Nullable
     private final Header mHeader;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
 

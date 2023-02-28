@@ -95,6 +95,27 @@ object FragmentStrictMode {
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun onWrongNestedHierarchy(
+        fragment: Fragment,
+        expectedParentFragment: Fragment,
+        containerId: Int
+    ) {
+        val violation: Violation =
+            WrongNestedHierarchyViolation(fragment, expectedParentFragment, containerId)
+        logIfDebuggingEnabled(violation)
+        val policy = getNearestPolicy(fragment)
+        if (policy.flags.contains(Flag.DETECT_WRONG_NESTED_HIERARCHY) &&
+            shouldHandlePolicyViolation(policy, fragment.javaClass, violation.javaClass)
+        ) {
+            handlePolicyViolation(policy, violation)
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @JvmStatic
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun onSetRetainInstanceUsage(fragment: Fragment) {
         val violation: Violation = SetRetainInstanceUsageViolation(fragment)
         logIfDebuggingEnabled(violation)
@@ -284,6 +305,7 @@ object FragmentStrictMode {
         PENALTY_DEATH,
         DETECT_FRAGMENT_REUSE,
         DETECT_FRAGMENT_TAG_USAGE,
+        DETECT_WRONG_NESTED_HIERARCHY,
         DETECT_RETAIN_INSTANCE_USAGE,
         DETECT_SET_USER_VISIBLE_HINT,
         DETECT_TARGET_FRAGMENT_USAGE,
@@ -375,6 +397,13 @@ object FragmentStrictMode {
             @SuppressLint("BuilderSetStyle")
             fun detectFragmentTagUsage(): Builder {
                 flags.add(Flag.DETECT_FRAGMENT_TAG_USAGE)
+                return this
+            }
+
+            /** Detects nested fragments that do not use the expected parent's childFragmentManager.  */
+            @SuppressLint("BuilderSetStyle")
+            fun detectWrongNestedHierarchy(): Builder {
+                flags.add(Flag.DETECT_WRONG_NESTED_HIERARCHY)
                 return this
             }
 

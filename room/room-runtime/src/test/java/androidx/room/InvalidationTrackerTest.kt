@@ -37,6 +37,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.fail
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,7 +77,7 @@ class InvalidationTrackerTest {
         doReturn(statement).whenever(mSqliteDb)
             .compileStatement(eq(InvalidationTracker.RESET_UPDATED_TABLES_SQL))
         doReturn(mSqliteDb).whenever(mOpenHelper).writableDatabase
-        doReturn(true).whenever(mRoomDatabase).isOpen
+        doReturn(true).whenever(mRoomDatabase).isOpenInternal
         doReturn(ArchTaskExecutor.getIOThreadExecutor()).whenever(mRoomDatabase).queryExecutor
         val closeLock = ReentrantLock()
         doReturn(closeLock).whenever(mRoomDatabase).getCloseLock()
@@ -177,6 +178,7 @@ class InvalidationTrackerTest {
         drainTasks()
     }
 
+    @Ignore // b/253058904
     @Test
     fun refreshCheckTasks() {
         whenever(mRoomDatabase.query(any<SimpleSQLiteQuery>(), isNull())).thenReturn(mock<Cursor>())
@@ -245,7 +247,7 @@ class InvalidationTrackerTest {
 
     @Test
     fun closedDb() {
-        doReturn(false).whenever(mRoomDatabase).isOpen
+        doReturn(false).whenever(mRoomDatabase).isOpenInternal
         doThrow(IllegalStateException("foo")).whenever(mOpenHelper).writableDatabase
         mTracker.addObserver(LatchObserver(1, "a", "b"))
         mTracker.refreshRunnable.run()

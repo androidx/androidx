@@ -16,12 +16,24 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.generator.poet.AidlFileSpec
+import androidx.privacysandbox.tools.core.generator.poet.AidlInterfaceSpec
+import androidx.privacysandbox.tools.core.generator.poet.AidlInterfaceSpec.Companion.aidlInterface
+import androidx.privacysandbox.tools.core.generator.poet.AidlMethodSpec
+import androidx.privacysandbox.tools.core.generator.poet.AidlParcelableSpec.Companion.aidlParcelable
+import androidx.privacysandbox.tools.core.generator.poet.AidlTypeKind
+import androidx.privacysandbox.tools.core.generator.poet.AidlTypeSpec
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.model.Types
+import androidx.privacysandbox.tools.core.model.Types.asNonNull
 import androidx.privacysandbox.tools.core.model.getOnlyService
+import androidx.privacysandbox.tools.core.model.hasSuspendFunctions
+import androidx.privacysandbox.tools.core.model.hasUiInterfaces
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -45,6 +57,8 @@ class AidlGenerator private constructor(
         }
 
         const val cancellationSignalName = "ICancellationSignal"
+        const val throwableParcelName = "PrivacySandboxThrowableParcel"
+        const val parcelableStackFrameName = "ParcelableStackFrame"
     }
 
     private fun generate(): List<GeneratedSource> {
@@ -58,20 +72,25 @@ class AidlGenerator private constructor(
             val aidlFile = getAidlFile(workingDir, it)
             aidlFile.parentFile.mkdirs()
             aidlFile.createNewFile()
-            aidlFile.writeText(it.fileContents)
-            GeneratedSource(it.packageName, it.interfaceName, aidlFile)
+            aidlFile.writeText(it.getFileContent())
+            GeneratedSource(it.type.packageName, it.type.simpleName, aidlFile)
         }
         return aidlSources
     }
 
     private fun compileAidlInterfaces(aidlSources: List<GeneratedSource>): List<GeneratedSource> {
         aidlCompiler.compile(workingDir, aidlSources.map { it.file.toPath() })
-        val javaSources = aidlSources.map {
-            GeneratedSource(
-                packageName = it.packageName,
-                interfaceName = it.interfaceName,
-                file = getJavaFileForAidlFile(it.file)
-            )
+        val javaSources = aidlSources.mapNotNull {
+            if (it.packageName == bundleType().packageName) {
+                // TODO(b/265266769): use framework stubs so we can stop special Bundle treatment
+                null
+            } else {
+                GeneratedSource(
+                    packageName = it.packageName,
+                    interfaceName = it.interfaceName,
+                    file = getJavaFileForAidlFile(it.file)
+                )
+            }
         }
         javaSources.forEach {
             check(it.file.exists()) {
@@ -81,87 +100,167 @@ class AidlGenerator private constructor(
         return javaSources
     }
 
-    private fun generateAidlContent(): List<InMemorySource> {
-        // TODO: implement better tooling to generate AIDL (AidlPoet).
-        val transactionCallbacks = generateTransactionCallbacks()
-        val service =
-            InMemorySource(
-                packageName(),
-                api.getOnlyService().aidlName(),
-                generateAidlService(transactionCallbacks)
+    private fun generateAidlContent(): List<AidlFileSpec> {
+        val values = api.values.map(::generateValue)
+        val service = aidlInterface(api.getOnlyService())
+        val customCallbacks = api.callbacks.flatMap(::aidlInterface)
+        val interfaces = api.interfaces.flatMap(::aidlInterface)
+        val suspendFunctionUtilities = generateSuspendFunctionUtilities()
+        val fakeBundle = generateFakeBundle()
+        return suspendFunctionUtilities +
+            service +
+            values +
+            customCallbacks +
+            interfaces +
+            fakeBundle
+    }
+
+    private fun aidlInterface(annotatedInterface: AnnotatedInterface): List<AidlFileSpec> {
+        val interfaceFile = aidlInterface(
+            Type(annotatedInterface.type.packageName, annotatedInterface.aidlName())
+        ) {
+            annotatedInterface.methods.forEach { addMethod(it) }
+        }
+
+        return buildList {
+            if (annotatedInterface.inheritsSandboxedUiAdapter) {
+                add(uiAidlWrapper(annotatedInterface))
+            }
+            add(interfaceFile)
+        }
+    }
+
+    private fun uiAidlWrapper(annotatedInterface: AnnotatedInterface) =
+        aidlParcelable(annotatedInterface.uiAdapterAidlWrapper()) {
+            addProperty(
+                "coreLibInfo",
+                AidlTypeSpec(bundleType(), kind = AidlTypeKind.PARCELABLE)
             )
-        return transactionCallbacks + generateICancellationSignal() + service
-    }
+            addProperty("binder", annotatedInterface.aidlType())
+        }
 
-    private fun generateAidlService(
-        transactionCallbacks: List<InMemorySource>
-    ): String {
-        val transactionCallbackImports =
-            transactionCallbacks.map {
-                "import ${it.packageName}.${it.interfaceName};"
-            }.sorted().joinToString(separator = "\n|")
-        val generatedMethods = api.getOnlyService().methods.map(::generateAidlMethod).sorted()
-            .joinToString("\n|    ")
-        return """
-                |package ${packageName()};
-                |$transactionCallbackImports
-                |interface ${api.getOnlyService().aidlName()} {
-                |    $generatedMethods
-                |}
-            """.trimMargin()
-    }
-
-    private fun generateAidlMethod(method: Method): String {
-        val parameters = buildList {
-            addAll(method.parameters.map(::generateAidlParameter))
+    private fun AidlInterfaceSpec.Builder.addMethod(method: Method) {
+        addMethod(method.name) {
+            method.parameters.forEach { addParameter(it) }
             if (method.isSuspend) {
-                add("${method.returnType.transactionCallbackName()} transactionCallback")
+                addParameter(
+                    "transactionCallback",
+                    transactionCallback(wrapWithListIfNeeded(method.returnType))
+                )
             }
         }
-        // TODO remove return type.
-        val returnType = if (method.isSuspend) "void" else method.returnType.toAidlType()
-        return "$returnType ${method.name}(${parameters.joinToString()});"
     }
 
-    private fun generateAidlParameter(parameter: Parameter) =
-        // TODO validate that parameter type is not Unit
-        "${parameter.type.toAidlType()} ${parameter.name}"
+    private fun AidlMethodSpec.Builder.addParameter(parameter: Parameter) {
+        check(parameter.type != Types.unit) {
+            "Void cannot be a parameter type."
+        }
+        val aidlType = getAidlTypeDeclaration(parameter.type)
 
-    private fun generateTransactionCallbacks(): List<InMemorySource> {
-        return api.getOnlyService().methods.filter(Method::isSuspend)
-            .map(Method::returnType).toSet()
+        addParameter(parameter.name, aidlType)
+    }
+
+    // TODO(b/265266769): Use framework stubs for Bundle
+    private fun generateFakeBundle(): List<AidlFileSpec> {
+        if (!api.hasUiInterfaces()) return emptyList()
+        return listOf(aidlParcelable(bundleType()))
+    }
+
+    private fun generateSuspendFunctionUtilities(): List<AidlFileSpec> {
+        if (!api.hasSuspendFunctions()) return emptyList()
+        return generateTransactionCallbacks() +
+            generateParcelableFailure() +
+            generateParcelableStackTrace() +
+            generateICancellationSignal()
+    }
+
+    private fun generateTransactionCallbacks(): List<AidlFileSpec> {
+        val annotatedInterfaces = api.services + api.interfaces
+        return annotatedInterfaces
+            .flatMap(AnnotatedInterface::methods)
+            .filter(Method::isSuspend)
+            .map { wrapWithListIfNeeded(it.returnType) }.toSet()
             .map { generateTransactionCallback(it) }
     }
 
-    private fun generateTransactionCallback(type: Type): InMemorySource {
-        val interfaceName = type.transactionCallbackName()
-        val onSuccessParameter = type.toAidlType().let { if (it == "void") "" else "$it result" }
-        return InMemorySource(
-            packageName = packageName(), interfaceName = interfaceName, fileContents = """
-                    package ${packageName()};
-                    import ${packageName()}.$cancellationSignalName;
-                    oneway interface $interfaceName {
-                        void onCancellable($cancellationSignalName cancellationSignal);
-                        void onSuccess($onSuccessParameter);
-                        void onFailure(int errorCode, String errorMessage);
-                    }
-                """.trimIndent()
-        )
+    private fun generateTransactionCallback(type: Type): AidlFileSpec {
+        return aidlInterface(Type(packageName(), type.transactionCallbackName())) {
+            addMethod("onCancellable") {
+                addParameter("cancellationSignal", cancellationSignalType())
+            }
+            addMethod("onSuccess") {
+                val interfaceType = api.interfaceMap[type]
+                if (interfaceType != null && interfaceType.inheritsSandboxedUiAdapter) {
+                    // Bypass getAidlTypeDeclaration, since we want to specify the UI wrapper
+                    // parcelable rather than the interface.
+                    addParameter(
+                        "result",
+                        AidlTypeSpec(
+                            interfaceType.uiAdapterAidlWrapper(),
+                            kind = AidlTypeKind.PARCELABLE
+                        )
+                    )
+                } else if (type != Types.unit) {
+                    addParameter(Parameter("result", type))
+                }
+            }
+            addMethod("onFailure") {
+                addParameter(
+                    "throwableParcel",
+                    AidlTypeSpec(throwableParcelType(), kind = AidlTypeKind.PARCELABLE)
+                )
+            }
+        }
     }
 
-    private fun generateICancellationSignal() = InMemorySource(
-        packageName = packageName(), interfaceName = "$cancellationSignalName", fileContents = """
-                package ${packageName()};
-                oneway interface $cancellationSignalName {
-                    void cancel();
-                }
-            """.trimIndent()
-    )
+    private fun generateICancellationSignal() = aidlInterface(cancellationSignalType().innerType) {
+        addMethod("cancel")
+    }
 
-    private fun getAidlFile(rootPath: Path, aidlSource: InMemorySource) = Paths.get(
+    private fun generateParcelableFailure(): AidlFileSpec {
+        return aidlParcelable(throwableParcelType()) {
+            addProperty("exceptionClass", primitive("String"))
+            addProperty("errorMessage", primitive("String"))
+            addProperty(
+                "stackTrace",
+                AidlTypeSpec(
+                    parcelableStackFrameType(),
+                    isList = true,
+                    kind = AidlTypeKind.PARCELABLE
+                )
+            )
+            addProperty(
+                "cause",
+                AidlTypeSpec(throwableParcelType(), isList = true, kind = AidlTypeKind.PARCELABLE)
+            )
+            addProperty(
+                "suppressedExceptions",
+                AidlTypeSpec(throwableParcelType(), isList = true, kind = AidlTypeKind.PARCELABLE)
+            )
+        }
+    }
+
+    private fun generateParcelableStackTrace(): AidlFileSpec {
+        return aidlParcelable(parcelableStackFrameType()) {
+            addProperty("declaringClass", primitive("String"))
+            addProperty("methodName", primitive("String"))
+            addProperty("fileName", primitive("String"))
+            addProperty("lineNumber", primitive("int"))
+        }
+    }
+
+    private fun generateValue(value: AnnotatedValue): AidlFileSpec {
+        return aidlParcelable(value.aidlType().innerType) {
+            for (property in value.properties) {
+                addProperty(property.name, getAidlTypeDeclaration(property.type))
+            }
+        }
+    }
+
+    private fun getAidlFile(rootPath: Path, aidlSource: AidlFileSpec) = Paths.get(
         rootPath.toString(),
-        *aidlSource.packageName.split(".").toTypedArray(),
-        aidlSource.interfaceName + ".aidl"
+        *aidlSource.type.packageName.split(".").toTypedArray(),
+        aidlSource.type.simpleName + ".aidl"
     ).toFile()
 
     private fun getJavaFileForAidlFile(aidlFile: File): File {
@@ -171,20 +270,45 @@ class AidlGenerator private constructor(
         return aidlFile.resolveSibling("${aidlFile.nameWithoutExtension}.java")
     }
 
-    private fun packageName() = api.getOnlyService().packageName
+    private fun packageName() = api.getOnlyService().type.packageName
+    private fun cancellationSignalType() =
+        AidlTypeSpec(Type(packageName(), cancellationSignalName), kind = AidlTypeKind.INTERFACE)
+
+    private fun throwableParcelType() = Type(packageName(), throwableParcelName)
+    private fun parcelableStackFrameType() = Type(packageName(), parcelableStackFrameName)
+    private fun bundleType() = Type("android.os", "Bundle")
+
+    private fun transactionCallback(type: Type) =
+        AidlTypeSpec(
+            Type(api.getOnlyService().type.packageName, type.transactionCallbackName()),
+            kind = AidlTypeKind.INTERFACE
+        )
+
+    private fun getAidlTypeDeclaration(rawType: Type): AidlTypeSpec {
+        val type = wrapWithListIfNeeded(rawType)
+        api.valueMap[type]?.let { return it.aidlType() }
+        api.callbackMap[type]?.let { return it.aidlType() }
+        api.interfaceMap[type]?.let { return it.aidlType() }
+        return when (type.qualifiedName) {
+            Boolean::class.qualifiedName -> primitive("boolean")
+            Int::class.qualifiedName -> primitive("int")
+            Long::class.qualifiedName -> primitive("long")
+            Float::class.qualifiedName -> primitive("float")
+            Double::class.qualifiedName -> primitive("double")
+            String::class.qualifiedName -> primitive("String")
+            Char::class.qualifiedName -> primitive("char")
+            // TODO: AIDL doesn't support short, make sure it's handled correctly.
+            Short::class.qualifiedName -> primitive("int")
+            Unit::class.qualifiedName -> primitive("void")
+            List::class.qualifiedName -> getAidlTypeDeclaration(type.typeParameters[0]).listSpec()
+            else -> throw IllegalArgumentException(
+                "Unsupported type conversion ${type.qualifiedName}"
+            )
+        }
+    }
 }
 
-data class InMemorySource(
-    val packageName: String,
-    val interfaceName: String,
-    val fileContents: String
-)
-
-data class GeneratedSource(
-    val packageName: String,
-    val interfaceName: String,
-    val file: File
-)
+data class GeneratedSource(val packageName: String, val interfaceName: String, val file: File)
 
 internal fun File.ensureDirectory() {
     check(exists()) {
@@ -195,20 +319,47 @@ internal fun File.ensureDirectory() {
     }
 }
 
-fun AnnotatedInterface.aidlName() = "I$name"
+fun AnnotatedInterface.aidlName(): String = "I${type.simpleName}"
 
-fun Type.transactionCallbackName() = "I${name.split(".").last()}TransactionCallback"
+fun Type.transactionCallbackName() =
+    "I${simpleName}${typeParameters.joinToString("") { it.simpleName }}TransactionCallback"
 
-internal fun Type.toAidlType() = when (name) {
-    Boolean::class.qualifiedName -> "boolean"
-    Int::class.qualifiedName -> "int"
-    Long::class.qualifiedName -> "long"
-    Float::class.qualifiedName -> "float"
-    Double::class.qualifiedName -> "double"
-    String::class.qualifiedName -> "String"
-    Char::class.qualifiedName -> "char"
-    // TODO: AIDL doesn't support short, make sure it's handled correctly.
-    Short::class.qualifiedName -> "int"
-    Unit::class.qualifiedName -> "void"
-    else -> throw IllegalArgumentException("Unsupported type conversion ${this.name}")
+internal fun AnnotatedValue.aidlType() =
+    AidlTypeSpec(
+        Type(type.packageName, "Parcelable${type.simpleName}"),
+        kind = AidlTypeKind.PARCELABLE
+    )
+
+internal fun AnnotatedInterface.aidlType() =
+    AidlTypeSpec(Type(type.packageName, aidlName()), kind = AidlTypeKind.INTERFACE)
+
+internal fun AnnotatedInterface.uiAdapterAidlWrapper(): Type {
+    if (!inheritsSandboxedUiAdapter) {
+        throw IllegalArgumentException(
+            "Cannot get UI adapter AIDL wrapper type of non-UI interface"
+        )
+    }
+    return Type(type.packageName, "I${type.simpleName}CoreLibInfoAndBinderWrapper")
+}
+
+internal fun AnnotatedInterface.coreLibInfoConverterName() =
+    uiAdapterAidlWrapper().simpleName + "Converter"
+
+internal fun primitive(name: String, isList: Boolean = false) =
+    AidlTypeSpec(Type("", name), isList = isList, kind = AidlTypeKind.PRIMITIVE)
+
+/**
+ * Removes nullability from a type, and applies necessary changes to represent it in AIDL.
+ *
+ * For primitives, this means wrapping it inside a list, since AIDL doesn't support nullable
+ * primitives.
+ */
+fun wrapWithListIfNeeded(type: Type): Type {
+    if (!type.isNullable) return type
+    val nonNullType = type.asNonNull()
+    // Nullable primitives are represented with lists.
+    if (Types.primitiveTypes.contains(nonNullType)) {
+        return Types.list(nonNullType)
+    }
+    return nonNullType
 }

@@ -79,4 +79,33 @@ class FrameworkSQLiteDatabaseTest {
         val cursor2 = db.query("select * from user where idk=1")
         assertThat(cursor2.count).isEqualTo(0)
     }
+
+    @Test
+    fun testFrameWorkSQLiteDatabase_attachDbWorks() {
+        val openHelper2 = FrameworkSQLiteOpenHelper(
+            context,
+            "test2.db",
+            OpenHelperRecoveryTest.EmptyCallback(),
+            useNoBackupDirectory = false,
+            allowDataLossOnRecovery = false
+        )
+        val db1 = openHelper.writableDatabase
+        val db2 = openHelper2.writableDatabase
+
+        db1.execSQL(
+            "ATTACH DATABASE '${db2.path}' AS database2"
+        )
+
+        val cursor = db1.query("pragma database_list")
+        val expected = buildList<Pair<String, String>> {
+            while (cursor.moveToNext()) {
+                add(cursor.getString(1) to cursor.getString(2))
+            }
+        }
+        cursor.close()
+        openHelper2.close()
+
+        val actual = db1.attachedDbs?.map { it.first to it.second }
+        assertThat(expected).isEqualTo(actual)
+    }
 }

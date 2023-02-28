@@ -16,6 +16,7 @@
 
 package androidx.health.services.client.data
 
+import android.util.Log
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import java.time.Duration
@@ -28,7 +29,7 @@ import java.time.Instant
 // TODO(b/177504986): Remove all @Keep annotations once we figure out why this class gets stripped
 // away by proguard.
 internal object DataPoints {
-
+    private const val TAG = "DataPoints"
     /**
      * Creates a new [IntervalDataPoint] of type [DataType.STEPS] with the given [steps].
      *
@@ -36,8 +37,6 @@ internal object DataPoints {
      * Range from 0 to 1000000.
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [steps] is out of range
      */
     @JvmStatic
     public fun steps(
@@ -45,16 +44,15 @@ internal object DataPoints {
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
     ): IntervalDataPoint<Long> {
-        if (steps in 0..1000000) {
-            return IntervalDataPoint(
-                dataType = DataType.STEPS,
-                value = steps,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot,
-            )
-        } else {
-            throw IllegalArgumentException("steps value $steps is out of range")
+        if (steps !in 0..1000000) {
+            Log.w(TAG, "steps value $steps is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.STEPS,
+            value = steps,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
+        )
     }
 
     /**
@@ -63,23 +61,20 @@ internal object DataPoints {
      *
      * @param stepsPerMinute step rate at [timeDurationFromBoot], Range from 0 to 1000000
      * @param timeDurationFromBoot the point in time [stepsPerMinute] is accurate
-     *
-     * @throws IllegalArgumentException if [stepsPerMinute] is out of range
      */
     @JvmStatic
     public fun stepsPerMinute(
         @IntRange(from = 0, to = 1000000) stepsPerMinute: Long,
         timeDurationFromBoot: Duration
     ): SampleDataPoint<Long> {
-        if (stepsPerMinute in 0..1000000) {
-            return SampleDataPoint(
-                dataType = DataType.STEPS_PER_MINUTE,
-                value = stepsPerMinute,
-                timeDurationFromBoot = timeDurationFromBoot
-            )
-        } else {
-            throw IllegalArgumentException("stepsPerMinute value $stepsPerMinute is out of range")
+        if (stepsPerMinute !in 0..1000000) {
+            Log.w(TAG, "stepsPerMinute value $stepsPerMinute is out of range")
         }
+        return SampleDataPoint(
+            dataType = DataType.STEPS_PER_MINUTE,
+            value = stepsPerMinute,
+            timeDurationFromBoot = timeDurationFromBoot
+        )
     }
 
     /**
@@ -89,8 +84,6 @@ internal object DataPoints {
      * , Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [meters] is out of range
      */
     @JvmStatic
     public fun distance(
@@ -98,16 +91,15 @@ internal object DataPoints {
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
     ): IntervalDataPoint<Double> {
-        if (meters in 0.0..1000000.0) {
-            return IntervalDataPoint(
-                dataType = DataType.DISTANCE,
-                value = meters,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot,
-            )
-        } else {
-            throw IllegalArgumentException("meters value $meters is out of range")
+        if (meters !in 0.0..1000000.0) {
+            Log.w(TAG, "distance value $meters is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.DISTANCE,
+            value = meters,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
+        )
     }
 
     /**
@@ -117,8 +109,6 @@ internal object DataPoints {
      * 0.0 to 1000000.0
      * @param startTime the point in time this data point begins
      * @param endTime the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [meters] is out of range
      */
     @JvmStatic
     public fun distanceTotal(
@@ -126,16 +116,15 @@ internal object DataPoints {
         startTime: Instant,
         endTime: Instant
     ): CumulativeDataPoint<Double> {
-        if (meters in 0.0..1000000.0) {
-            return CumulativeDataPoint(
-                dataType = DataType.DISTANCE_TOTAL,
-                total = meters,
-                start = startTime,
-                end = endTime
-            )
-        } else {
-            throw IllegalArgumentException("meters value $meters is out of range")
+        if (meters !in 0.0..1000000.0) {
+            Log.w(TAG, "distanceTotal value $meters is out of range")
         }
+        return CumulativeDataPoint(
+            dataType = DataType.DISTANCE_TOTAL,
+            total = meters,
+            start = startTime,
+            end = endTime
+        )
     }
 
     /**
@@ -145,8 +134,6 @@ internal object DataPoints {
      * Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [meters] is out of range
      */
     @JvmStatic
     public fun elevationGain(
@@ -154,16 +141,15 @@ internal object DataPoints {
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
     ): IntervalDataPoint<Double> {
-        if (meters in 0.0..1000000.0) {
-            return IntervalDataPoint(
-                dataType = DataType.ELEVATION_GAIN,
-                value = meters,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot,
-            )
-        } else {
-            throw IllegalArgumentException("meters value $meters is out of range")
+        if (meters !in 0.0..1000000.0) {
+            Log.w(TAG, "elevationGain value $meters is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.ELEVATION_GAIN,
+            value = meters,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
+        )
     }
 
     /**
@@ -173,8 +159,6 @@ internal object DataPoints {
      * Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [meters] is out of range
      */
     @JvmStatic
     public fun elevationLoss(
@@ -182,16 +166,15 @@ internal object DataPoints {
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
     ): IntervalDataPoint<Double> {
-        if (meters in 0.0..1000000.0) {
-            return IntervalDataPoint(
-                dataType = DataType.ELEVATION_LOSS,
-                value = meters,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot,
-            )
-        } else {
-            throw IllegalArgumentException("meters value $meters is out of range")
+        if (meters !in 0.0..1000000.0) {
+            Log.w(TAG, "elevationLoss value $meters is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.ELEVATION_LOSS,
+            value = meters,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
+        )
     }
 
     /**
@@ -201,23 +184,20 @@ internal object DataPoints {
      * @param meters absolute elevation in meters at [timeDurationFromBoot], Range
      * from -1000000.0 to 1000000.0
      * @param timeDurationFromBoot the point in time [stepsPerMinute] is accurate
-     *
-     * @throws IllegalArgumentException if [meters] is out of range
      */
     @JvmStatic
     public fun absoluteElevation(
         @FloatRange(from = -1000000.0, to = 1000000.0) meters: Double,
         timeDurationFromBoot: Duration,
     ): SampleDataPoint<Double> {
-        if (meters in -1000000.0..1000000.0) {
-            return SampleDataPoint(
-                dataType = DataType.ABSOLUTE_ELEVATION,
-                value = meters,
-                timeDurationFromBoot = timeDurationFromBoot,
-            )
-        } else {
-            throw IllegalArgumentException("meters value $meters is out of range")
+        if (meters !in -1000000.0..1000000.0) {
+            Log.w(TAG, "absoluteElevation value $meters is out of range")
         }
+        return SampleDataPoint(
+            dataType = DataType.ABSOLUTE_ELEVATION,
+            value = meters,
+            timeDurationFromBoot = timeDurationFromBoot,
+        )
     }
 
     /**
@@ -232,9 +212,6 @@ internal object DataPoints {
      * Range from -1000000.0 to 1000000.0
      * @param startTime the point in time this data point begins
      * @param endTime the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [minAbsoluteElevationMeters] or
-     * [maxAbsoluteElevationMeters] or [averageAbsoluteElevationMeters] are out of range
      */
     @JvmStatic
     public fun absoluteElevationStats(
@@ -246,15 +223,15 @@ internal object DataPoints {
     ): StatisticalDataPoint<Double> {
 
         if (minAbsoluteElevationMeters !in -1000000.0..1000000.0) {
-            throw IllegalArgumentException("minAbsoluteElevationMeters value " +
+            Log.w(TAG, "absoluteElevationStats: minAbsoluteElevationMeters value " +
                 "$minAbsoluteElevationMeters is out of range")
         }
         if (maxAbsoluteElevationMeters !in -1000000.0..1000000.0) {
-            throw IllegalArgumentException("maxAbsoluteElevationMeters value " +
+            Log.w(TAG, "absoluteElevationStats: maxAbsoluteElevationMeters value " +
                 "$maxAbsoluteElevationMeters is out of range")
         }
         if (averageAbsoluteElevationMeters !in -1000000.0..1000000.0) {
-            throw IllegalArgumentException("averageAbsoluteElevationMeters value " +
+            Log.w(TAG, "absoluteElevationStats: averageAbsoluteElevationMeters value " +
                 "$averageAbsoluteElevationMeters is out of range")
         }
         return StatisticalDataPoint(
@@ -274,8 +251,6 @@ internal object DataPoints {
      * Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [floors] is out of range
      */
     @JvmStatic
     public fun floors(
@@ -283,16 +258,15 @@ internal object DataPoints {
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
     ): IntervalDataPoint<Double> {
-        if (floors in 0.0..1000000.0) {
-            return IntervalDataPoint(
-                dataType = DataType.FLOORS,
-                value = floors,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot,
-            )
-        } else {
-            throw IllegalArgumentException("floors value $floors is out of range")
+        if (floors !in 0.0..1000000.0) {
+            Log.w(TAG, "floors value $floors is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.FLOORS,
+            value = floors,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
+        )
     }
 
     /**
@@ -302,8 +276,6 @@ internal object DataPoints {
      * [endDurationFromBoot], Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [kilocalories] is out of range
      */
     @JvmStatic
     public fun calories(
@@ -311,16 +283,15 @@ internal object DataPoints {
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
     ): IntervalDataPoint<Double> {
-        if (kilocalories in 0.0..1000000.0) {
-            return IntervalDataPoint(
-                dataType = DataType.CALORIES,
-                value = kilocalories,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot,
-            )
-        } else {
-            throw IllegalArgumentException("kilocalories value $kilocalories is out of range")
+        if (kilocalories !in 0.0..1000000.0) {
+            Log.w(TAG, "calories value $kilocalories is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.CALORIES,
+            value = kilocalories,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
+        )
     }
 
     /**
@@ -331,8 +302,6 @@ internal object DataPoints {
      * [endTime], Range from 0.0 to 1000000.0
      * @param startTime the point in time this data point begins
      * @param endTime the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [kilocalories] is out of range
      */
     @JvmStatic
     public fun caloriesTotal(
@@ -340,16 +309,15 @@ internal object DataPoints {
         startTime: Instant,
         endTime: Instant
     ): CumulativeDataPoint<Double> {
-        if (kilocalories in 0.0..1000000.0) {
-            return CumulativeDataPoint(
-                dataType = DataType.CALORIES_TOTAL,
-                total = kilocalories,
-                start = startTime,
-                end = endTime
-            )
-        } else {
-            throw IllegalArgumentException("kilocalories value $kilocalories is out of range")
+        if (kilocalories !in 0.0..1000000.0) {
+            Log.w(TAG, "caloriesTotal value $kilocalories is out of range")
         }
+        return CumulativeDataPoint(
+            dataType = DataType.CALORIES_TOTAL,
+            total = kilocalories,
+            start = startTime,
+            end = endTime
+        )
     }
 
     /**
@@ -360,8 +328,6 @@ internal object DataPoints {
      * [endDurationFromBoot], Range from 0 to 1000000
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [strokes] is out of range
      */
     @JvmStatic
     public fun swimmingStrokes(
@@ -369,16 +335,15 @@ internal object DataPoints {
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration
     ): IntervalDataPoint<Long> {
-        if (strokes in 0..1000000) {
-            return IntervalDataPoint(
-                dataType = DataType.SWIMMING_STROKES,
-                value = strokes,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot
-            )
-        } else {
-            throw IllegalArgumentException("strokes value $strokes is out of range")
+        if (strokes !in 0..1000000) {
+            Log.w(TAG, "swimmingStrokes value $strokes is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.SWIMMING_STROKES,
+            value = strokes,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot
+        )
     }
 
     /**
@@ -388,8 +353,6 @@ internal object DataPoints {
      * Range from 0 to 1000000
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [shots] is out of range
      */
     @JvmStatic
     public fun golfShotCount(
@@ -397,16 +360,15 @@ internal object DataPoints {
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
     ): IntervalDataPoint<Long> {
-        if (shots in 0..1000000) {
-            return IntervalDataPoint(
-                dataType = DataType.GOLF_SHOT_COUNT,
-                value = shots,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot,
-            )
-        } else {
-            throw IllegalArgumentException("shots value $shots is out of range")
+        if (shots !in 0..1000000) {
+            Log.w(TAG, "golfShotCount value $shots is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.GOLF_SHOT_COUNT,
+            value = shots,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot,
+        )
     }
 
     /**
@@ -422,9 +384,6 @@ internal object DataPoints {
      * [timeDurationFromBoot], Range from 0.0 (inclusive) to 360.0 (exclusive).
      * Value [LocationData.ALTITUDE_UNAVAILABLE] represents altitude is not available
      * @param accuracy optional [LocationAccuracy] describing this data or `null`
-     *
-     * @throws IllegalArgumentException if [latitude] or [longitude] or
-     * [altitude] or [bearing] are out of range
      */
     @JvmStatic
     @JvmOverloads
@@ -432,19 +391,18 @@ internal object DataPoints {
         @FloatRange(from = -90.0, to = 90.0) latitude: Double,
         @FloatRange(from = -180.0, to = 180.0) longitude: Double,
         timeDurationFromBoot: Duration,
-        @FloatRange altitude: Double = LocationData.ALTITUDE_UNAVAILABLE,
-        @FloatRange(from = -1.0, to = 360.0, toInclusive = false) bearing: Double =
-            LocationData.BEARING_UNAVAILABLE,
+        altitude: Double = LocationData.ALTITUDE_UNAVAILABLE,
+        bearing: Double = LocationData.BEARING_UNAVAILABLE,
         accuracy: LocationAccuracy? = null
     ): SampleDataPoint<LocationData> {
         if (latitude !in -90.0..90.0) {
-            throw IllegalArgumentException("latitude value $latitude is out of range")
+            Log.w(TAG, "location: latitude value $latitude is out of range")
         }
         if (longitude !in -180.0..180.0) {
-            throw IllegalArgumentException("longitude value $longitude is out of range")
+            Log.w(TAG, "location: longitude value $longitude is out of range")
         }
         if (bearing < -1.0 && bearing >= 360.0) {
-            throw IllegalArgumentException("bearing value $bearing is out of range")
+            Log.w(TAG, "location: bearing value $bearing is out of range")
         }
         return SampleDataPoint(
             dataType = DataType.LOCATION,
@@ -460,23 +418,20 @@ internal object DataPoints {
      * @param metersPerSecond speed in meters per second at [timeDurationFromBoot],
      * Range from 0.0 to 1000000.0
      * @param timeDurationFromBoot the point in time [metersPerSecond] was recorded
-     *
-     * @throws IllegalArgumentException if [metersPerSecond] is out of range
      */
     @JvmStatic
     public fun speed(
         @FloatRange(from = 0.0, to = 1000000.0) metersPerSecond: Double,
         timeDurationFromBoot: Duration,
     ): SampleDataPoint<Double> {
-        if (metersPerSecond in 0.0..1000000.0) {
-            return SampleDataPoint(
-                dataType = DataType.SPEED,
-                value = metersPerSecond,
-                timeDurationFromBoot = timeDurationFromBoot,
-            )
-        } else {
-            throw IllegalArgumentException("metersPerSecond value $metersPerSecond is out of range")
+        if (metersPerSecond !in 0.0..1000000.0) {
+            Log.w(TAG, "speed value $metersPerSecond is out of range")
         }
+        return SampleDataPoint(
+            dataType = DataType.SPEED,
+            value = metersPerSecond,
+            timeDurationFromBoot = timeDurationFromBoot,
+        )
     }
 
     /**
@@ -504,8 +459,6 @@ internal object DataPoints {
      * @param bpm heart rate given in beats per minute, Range from 0.0 to 300.0
      * @param timeDurationFromBoot the point in time this data was recorded
      * @param accuracy optional [HeartRateAccuracy] describing this data or `null`
-     *
-     * @throws IllegalArgumentException if [bpm] is out of range
      */
     @JvmStatic
     @JvmOverloads
@@ -514,16 +467,15 @@ internal object DataPoints {
         timeDurationFromBoot: Duration,
         accuracy: HeartRateAccuracy? = null
     ): SampleDataPoint<Double> {
-        if (bpm in 0.0..300.0) {
-            return SampleDataPoint(
-                dataType = DataType.HEART_RATE_BPM,
-                value = bpm,
-                timeDurationFromBoot = timeDurationFromBoot,
-                accuracy = accuracy
-            )
-        } else {
-            throw IllegalArgumentException("bpm value $bpm is out of range")
+        if (bpm !in 0.0..300.0) {
+            Log.w(TAG, "heartRate value $bpm is out of range")
         }
+        return SampleDataPoint(
+            dataType = DataType.HEART_RATE_BPM,
+            value = bpm,
+            timeDurationFromBoot = timeDurationFromBoot,
+            accuracy = accuracy
+        )
     }
 
     /**
@@ -538,8 +490,6 @@ internal object DataPoints {
      * Range from 0.0 to 300.0
      * @param startTime the point in time this data point begins
      * @param endTime the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [minBpm] or [maxBpm] or [averageBpm] are out of range
      */
     @JvmStatic
     public fun heartRateStats(
@@ -550,13 +500,13 @@ internal object DataPoints {
         endTime: Instant,
     ): StatisticalDataPoint<Double> {
         if (minBpm !in 0.0..300.0) {
-            throw IllegalArgumentException("minBpm value $minBpm is out of range")
+            Log.w(TAG, "heartRateStats: minBpm value $minBpm is out of range")
         }
         if (maxBpm !in 0.0..300.0) {
-            throw IllegalArgumentException("maxBpm value $maxBpm is out of range")
+            Log.w(TAG, "heartRateStats: maxBpm value $maxBpm is out of range")
         }
         if (averageBpm !in 0.0..300.0) {
-            throw IllegalArgumentException("averageBpm value $averageBpm is out of range")
+            Log.w(TAG, "heartRateStats: averageBpm value $averageBpm is out of range")
         }
         return StatisticalDataPoint(
             dataType = DataType.HEART_RATE_BPM_STATS,
@@ -575,8 +525,6 @@ internal object DataPoints {
      * [endDurationFromBoot], Range from 0 to 1000000
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [dailySteps] is out of range
      */
     @JvmStatic
     public fun dailySteps(
@@ -584,16 +532,15 @@ internal object DataPoints {
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration
     ): IntervalDataPoint<Long> {
-        if (dailySteps in 0..1000000) {
-            return IntervalDataPoint(
-                dataType = DataType.STEPS_DAILY,
-                value = dailySteps,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot
-            )
-        } else {
-            throw IllegalArgumentException("dailySteps value $dailySteps is out of range")
+        if (dailySteps !in 0..1000000) {
+            Log.w(TAG, "dailySteps value $dailySteps is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.STEPS_DAILY,
+            value = dailySteps,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot
+        )
     }
 
     /**
@@ -603,8 +550,6 @@ internal object DataPoints {
      * [endDurationFromBoot], Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [floors] is out of range
      */
     @JvmStatic
     public fun dailyFloors(
@@ -612,16 +557,15 @@ internal object DataPoints {
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration
     ): IntervalDataPoint<Double> {
-        if (floors in 0.0..1000000.0) {
-            return IntervalDataPoint(
-                dataType = DataType.FLOORS_DAILY,
-                value = floors,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot
-            )
-        } else {
-            throw IllegalArgumentException("floors value $floors is out of range")
+        if (floors !in 0.0..1000000.0) {
+            Log.w(TAG, "dailyFloors value $floors is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.FLOORS_DAILY,
+            value = floors,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot
+        )
     }
 
     /**
@@ -632,8 +576,6 @@ internal object DataPoints {
      * between [startDurationFromBoot] and [endDurationFromBoot], Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [calories] is out of range
      */
     @JvmStatic
     public fun dailyCalories(
@@ -642,15 +584,14 @@ internal object DataPoints {
         endDurationFromBoot: Duration
     ): IntervalDataPoint<Double> {
         if (calories in 0.0..1000000.0) {
-            return IntervalDataPoint(
-                dataType = DataType.CALORIES_DAILY,
-                value = calories,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot
-            )
-        } else {
-            throw IllegalArgumentException("calories value $calories is out of range")
+            Log.w(TAG, "dailyCalories value $calories is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.CALORIES_DAILY,
+            value = calories,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot
+        )
     }
 
     /**
@@ -660,8 +601,6 @@ internal object DataPoints {
      * [startDurationFromBoot] and [endDurationFromBoot], Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
-     *
-     * @throws IllegalArgumentException if [meters] is out of range
      */
     @JvmStatic
     public fun dailyDistance(
@@ -669,15 +608,14 @@ internal object DataPoints {
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
     ): IntervalDataPoint<Double> {
-        if (meters in 0.0..1000000.0) {
-            return IntervalDataPoint(
-                dataType = DataType.DISTANCE_DAILY,
-                value = meters,
-                startDurationFromBoot = startDurationFromBoot,
-                endDurationFromBoot = endDurationFromBoot
-            )
-        } else {
-            throw IllegalArgumentException("meters value $meters is out of range")
+        if (meters !in 0.0..1000000.0) {
+            Log.w(TAG, "dailyDistance value $meters is out of range")
         }
+        return IntervalDataPoint(
+            dataType = DataType.DISTANCE_DAILY,
+            value = meters,
+            startDurationFromBoot = startDurationFromBoot,
+            endDurationFromBoot = endDurationFromBoot
+        )
     }
 }

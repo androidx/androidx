@@ -27,6 +27,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -43,7 +44,7 @@ class ProviderCallbackTest {
 
     @Test
     fun onConfigurationChanged() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
             val fragment = CallbackFragment()
 
@@ -63,7 +64,7 @@ class ProviderCallbackTest {
 
     @Test
     fun onConfigurationChangedNestedFragments() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
             val parent = StrictViewFragment(R.layout.fragment_container_view)
             val child = CallbackFragment()
@@ -148,7 +149,7 @@ class ProviderCallbackTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun onMultiWindowModeChanged() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = CallbackFragment()
 
             withActivity {
@@ -166,7 +167,7 @@ class ProviderCallbackTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun onMultiWindowModeChangedNestedFragments() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val parent = StrictViewFragment(R.layout.fragment_container_view)
             val child = CallbackFragment()
 
@@ -250,7 +251,7 @@ class ProviderCallbackTest {
     @Suppress("DEPRECATION")
     @Test
     fun onPictureInPictureModeChanged() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = CallbackFragment()
 
             withActivity {
@@ -268,7 +269,7 @@ class ProviderCallbackTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun onPictureInPictureModeChangedNestedFragments() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val parent = StrictViewFragment(R.layout.fragment_container_view)
             val child = CallbackFragment()
 
@@ -351,7 +352,7 @@ class ProviderCallbackTest {
     @Suppress("DEPRECATION")
     @Test
     fun onLowMemory() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = CallbackFragment()
 
             withActivity {
@@ -367,7 +368,7 @@ class ProviderCallbackTest {
 
     @Test
     fun onLowMemoryNestedFragments() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val parent = StrictViewFragment(R.layout.fragment_container_view)
             val child = CallbackFragment()
 

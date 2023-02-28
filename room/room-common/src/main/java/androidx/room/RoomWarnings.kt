@@ -199,6 +199,14 @@ public open class RoomWarnings {
          * Reported when there is an ambiguous column on the result of a multimap query.
          */
         public const val AMBIGUOUS_COLUMN_IN_RESULT: String = "ROOM_AMBIGUOUS_COLUMN_IN_RESULT"
+
+        /**
+         * Reported when a nullable Collection, Array or Optional is returned from a DAO method.
+         * Room will return an empty Collection, Array or Optional respectively if no results are
+         * returned by such a query, hence using a nullable return type is unnecessary in this case.
+         */
+        public const val ROOM_UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE: String =
+            "UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE"
     }
 
     @Deprecated("This type should not be instantiated as it contains only static methods. ")

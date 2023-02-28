@@ -16,14 +16,17 @@
 
 package androidx.test.uiautomator;
 
-import android.view.accessibility.AccessibilityEvent;
+import android.app.UiAutomation.AccessibilityEventFilter;
 
 /**
  * An {@link EventCondition} is a condition which depends on an event or series of events having
  * occurred.
  */
-public abstract class EventCondition<U> extends Condition<AccessibilityEvent, Boolean> {
+public abstract class EventCondition<U> implements AccessibilityEventFilter {
 
-    @SuppressWarnings("HiddenAbstractMethod")
-    abstract U getResult();
+    /**
+     * returns a value obtained after applying the condition to a series of events.
+     * A non-null/non-false value indicates that the condition is satisfied.
+     */
+    public abstract U getResult();
 }

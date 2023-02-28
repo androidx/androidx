@@ -20,6 +20,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.video.Quality;
 
 /**
@@ -52,7 +53,8 @@ public class ExcludeStretchedVideoQualityQuirk implements VideoQualityQuirk {
 
     /** Checks if the given Quality type is a problematic quality. */
     @Override
-    public boolean isProblematicVideoQuality(@NonNull Quality quality) {
+    public boolean isProblematicVideoQuality(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull Quality quality) {
         if (isSamsungJ4()) {
             return quality == Quality.FHD || quality == Quality.UHD;
         }
@@ -61,4 +63,7 @@ public class ExcludeStretchedVideoQualityQuirk implements VideoQualityQuirk {
         }
         return false;
     }
+
+    // TODO: determine if the issue can be workaround by effect pipeline and if we want to do this,
+    //  then override workaroundBySurfaceProcessing().
 }

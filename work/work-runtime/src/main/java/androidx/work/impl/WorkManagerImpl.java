@@ -288,8 +288,7 @@ public class WorkManagerImpl extends WorkManager {
                 context,
                 configuration,
                 workTaskExecutor,
-                database,
-                schedulers);
+                database);
         internalInit(context, configuration, workTaskExecutor, database, schedulers, processor);
     }
 
@@ -717,7 +716,7 @@ public class WorkManagerImpl extends WorkManager {
             @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
         mWorkTaskExecutor
                 .executeOnTaskThread(
-                        new StartWorkRunnable(this, workSpecId, runtimeExtras));
+                        new StartWorkRunnable(mProcessor, workSpecId, runtimeExtras));
     }
 
     /**
@@ -726,7 +725,7 @@ public class WorkManagerImpl extends WorkManager {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopWork(@NonNull StartStopToken workSpecId) {
-        mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(this, workSpecId, false));
+        mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(mProcessor, workSpecId, false));
     }
 
     /**
@@ -736,7 +735,7 @@ public class WorkManagerImpl extends WorkManager {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopForegroundWork(@NonNull WorkGenerationalId id) {
-        mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(this,
+        mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(mProcessor,
                 new StartStopToken(id), true));
     }
 
@@ -822,7 +821,8 @@ public class WorkManagerImpl extends WorkManager {
         mProcessor = processor;
         mPreferenceUtils = new PreferenceUtils(workDatabase);
         mForceStopRunnableCompleted = false;
-
+        Schedulers.registerRescheduling(schedulers, processor,
+                workTaskExecutor.getSerialTaskExecutor(), workDatabase, configuration);
         // Check for direct boot mode
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Api24Impl.isDeviceProtectedStorage(
                 context)) {
