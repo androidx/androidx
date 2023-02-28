@@ -181,6 +181,32 @@ class SuspendingQueryTest : TestDatabaseTest() {
     }
 
     @Test
+    fun allBookSuspend_closed() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        context.deleteDatabase("autoClose.db")
+        val db = Room.databaseBuilder(
+            context = context,
+            klass = TestDatabase::class.java,
+            name = "test.db"
+        ).build()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            StrictMode.setThreadPolicy(
+                ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .penaltyDeath()
+                    .build()
+            )
+            runBlocking {
+                // Opens DB, isOpen && inTransaction check should not cause violation
+                db.booksDao().getBooksSuspend()
+                // DB is open, isOpen && inTransaction check should not cause violation
+                db.booksDao().getBooksSuspend()
+            }
+        }
+    }
+
+    @Test
     @Suppress("DEPRECATION")
     fun suspendingBlock_beginEndTransaction() {
         runBlocking {

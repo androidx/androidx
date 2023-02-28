@@ -162,7 +162,8 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
 
         private fun innerGetDatabase(writable: Boolean): SQLiteDatabase {
             val name = databaseName
-            if (name != null) {
+            val isOpen = opened
+            if (name != null && !isOpen) {
                 val databaseFile = context.getDatabasePath(name)
                 val parentFile = databaseFile.parentFile
                 if (parentFile != null) {
