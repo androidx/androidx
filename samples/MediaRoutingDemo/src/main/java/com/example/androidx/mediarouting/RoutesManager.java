@@ -23,6 +23,7 @@ import static com.example.androidx.mediarouting.data.RouteItem.PlaybackStream.MU
 import static com.example.androidx.mediarouting.data.RouteItem.PlaybackType.REMOTE;
 import static com.example.androidx.mediarouting.data.RouteItem.VolumeHandling.VARIABLE;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
 
@@ -34,6 +35,7 @@ import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.MediaRouterParams;
 import androidx.mediarouter.media.RouteListingPreference;
 
+import com.example.androidx.mediarouting.activities.MainActivity;
 import com.example.androidx.mediarouting.data.RouteItem;
 
 import java.util.ArrayList;
@@ -318,6 +320,8 @@ public final class RoutesManager {
             routeListingPreference =
                     new RouteListingPreference.Builder()
                             .setItems(items)
+                            .setLinkedItemComponentName(
+                                    new ComponentName(mContext, MainActivity.class))
                             .setUseSystemOrdering(mRouteListingSystemOrderingPreferred)
                             .build();
         }

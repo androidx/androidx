@@ -37,6 +37,7 @@
             android:label="@string/main_activity_label">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.media.action.TRANSFER_MEDIA"/>
                 <category android:name="com.example.androidx.SAMPLE_CODE" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />

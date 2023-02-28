@@ -136,6 +136,14 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
         Spinner routeSpinner = dialogView.findViewById(R.id.rlp_item_dialog_route_name_spinner);
         List<RouteListingPreferenceItemHolder> spinnerEntries = new ArrayList<>();
 
+        Spinner selectionBehaviorSpinner =
+                dialogView.findViewById(R.id.rlp_item_dialog_selection_behavior_spinner);
+        UiUtils.setUpEnumBasedSpinner(
+                /* context= */ this,
+                selectionBehaviorSpinner,
+                RouteListingPreferenceItemSelectionBehavior.SELECTION_BEHAVIOR_TRANSFER,
+                (unused) -> {});
+
         CheckBox ongoingSessionCheckBox =
                 dialogView.findViewById(R.id.rlp_item_dialog_ongoing_session_checkbox);
         CheckBox sessionManagedCheckBox =
@@ -145,18 +153,27 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
 
         Spinner subtextSpinner = dialogView.findViewById(R.id.rlp_item_dialog_subtext_spinner);
         UiUtils.setUpEnumBasedSpinner(
-                this,
+                /* context= */ this,
                 subtextSpinner,
                 RouteListingPreferenceItemSubtext.SUBTEXT_NONE,
                 (unused) -> {});
 
         if (itemPositionInList < routeListingPreference.size()) {
-            RouteListingPreferenceItemHolder itemToEdit =
+            RouteListingPreferenceItemHolder itemHolder =
                     routeListingPreference.get(itemPositionInList);
-            spinnerEntries.add(itemToEdit);
-            ongoingSessionCheckBox.setChecked(itemToEdit.hasFlag(FLAG_ONGOING_SESSION));
-            sessionManagedCheckBox.setChecked(itemToEdit.hasFlag(FLAG_ONGOING_SESSION_MANAGED));
-            suggestedRouteCheckBox.setChecked(itemToEdit.hasFlag(FLAG_SUGGESTED));
+            spinnerEntries.add(itemHolder);
+            int selectionBehaviorOrdinalIndex =
+                    RouteListingPreferenceItemSelectionBehavior.fromConstant(
+                                    itemHolder.mItem.getSelectionBehavior())
+                            .ordinal();
+            selectionBehaviorSpinner.setSelection(selectionBehaviorOrdinalIndex);
+            ongoingSessionCheckBox.setChecked(itemHolder.hasFlag(FLAG_ONGOING_SESSION));
+            sessionManagedCheckBox.setChecked(itemHolder.hasFlag(FLAG_ONGOING_SESSION_MANAGED));
+            suggestedRouteCheckBox.setChecked(itemHolder.hasFlag(FLAG_SUGGESTED));
+            int subtextOrdinalIndex =
+                    RouteListingPreferenceItemSubtext.fromConstant(itemHolder.mItem.getSubText())
+                            .ordinal();
+            subtextSpinner.setSelection(subtextOrdinalIndex);
         }
         for (MediaRouter.RouteInfo routeInfo : routesWithNoAssociatedListingPreferenceItem) {
             spinnerEntries.add(
@@ -177,6 +194,9 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                                     RouteListingPreferenceItemHolder item =
                                             (RouteListingPreferenceItemHolder)
                                                     routeSpinner.getSelectedItem();
+                                    RouteListingPreferenceItemSelectionBehavior selectionBehavior =
+                                            (RouteListingPreferenceItemSelectionBehavior)
+                                                    selectionBehaviorSpinner.getSelectedItem();
                                     int flags = 0;
                                     flags |=
                                             ongoingSessionCheckBox.isChecked()
@@ -194,6 +214,7 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                                     onEditRlpItemDialogAccepted(
                                             item.mItem.getRouteId(),
                                             item.mRouteName,
+                                            selectionBehavior.mConstant,
                                             flags,
                                             subtext.mConstant,
                                             itemPositionInList);
@@ -205,13 +226,19 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
     }
 
     private void onEditRlpItemDialogAccepted(
-            String routeId, String routeName, int flags, int subtext, int itemPositionInList) {
+            String routeId,
+            String routeName,
+            int selectionBehavior,
+            int flags,
+            int subtext,
+            int itemPositionInList) {
         ArrayList<RouteListingPreferenceItemHolder> newRouteListingPreference =
                 new ArrayList<>(mRoutesManager.getRouteListingPreferenceItems());
         RecyclerView.Adapter<?> adapter = mRouteListingPreferenceRecyclerView.getAdapter();
         RouteListingPreference.Item newItem =
                 new RouteListingPreference.Item.Builder(routeId)
                         .setFlags(flags)
+                        .setSelectionBehavior(selectionBehavior)
                         .setSubText(subtext)
                         .build();
         RouteListingPreferenceItemHolder newItemAndNamePair =
@@ -351,6 +378,42 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
         }
     }
 
+    private enum RouteListingPreferenceItemSelectionBehavior {
+        SELECTION_BEHAVIOR_NONE(RouteListingPreference.Item.SELECTION_BEHAVIOR_NONE, "None"),
+        SELECTION_BEHAVIOR_TRANSFER(
+                RouteListingPreference.Item.SELECTION_BEHAVIOR_TRANSFER, "Transfer"),
+        SELECTION_BEHAVIOR_GO_TO_APP(
+                RouteListingPreference.Item.SELECTION_BEHAVIOR_GO_TO_APP, "Go to app");
+
+        public final int mConstant;
+        public final String mHumanReadableString;
+
+        RouteListingPreferenceItemSelectionBehavior(
+                int constant, @NonNull String humanReadableString) {
+            mConstant = constant;
+            mHumanReadableString = humanReadableString;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return mHumanReadableString;
+        }
+
+        public static RouteListingPreferenceItemSelectionBehavior fromConstant(int constant) {
+            switch (constant) {
+                case RouteListingPreference.Item.SELECTION_BEHAVIOR_NONE:
+                    return SELECTION_BEHAVIOR_NONE;
+                case RouteListingPreference.Item.SELECTION_BEHAVIOR_TRANSFER:
+                    return SELECTION_BEHAVIOR_TRANSFER;
+                case RouteListingPreference.Item.SELECTION_BEHAVIOR_GO_TO_APP:
+                    return SELECTION_BEHAVIOR_GO_TO_APP;
+                default:
+                    throw new IllegalArgumentException("Illegal selection behavior: " + constant);
+            }
+        }
+    }
+
     private enum RouteListingPreferenceItemSubtext {
         SUBTEXT_NONE(RouteListingPreference.Item.SUBTEXT_NONE, "None"),
         SUBTEXT_ERROR_UNKNOWN(RouteListingPreference.Item.SUBTEXT_ERROR_UNKNOWN, "Unknown error"),
@@ -379,6 +442,29 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
         @Override
         public String toString() {
             return mHumanReadableString;
+        }
+
+        public static RouteListingPreferenceItemSubtext fromConstant(int constant) {
+            switch (constant) {
+                case RouteListingPreference.Item.SUBTEXT_NONE:
+                    return SUBTEXT_NONE;
+                case RouteListingPreference.Item.SUBTEXT_ERROR_UNKNOWN:
+                    return SUBTEXT_ERROR_UNKNOWN;
+                case RouteListingPreference.Item.SUBTEXT_SUBSCRIPTION_REQUIRED:
+                    return SUBTEXT_SUBSCRIPTION_REQUIRED;
+                case RouteListingPreference.Item.SUBTEXT_DOWNLOADED_CONTENT_ROUTING_DISALLOWED:
+                    return SUBTEXT_DOWNLOADED_CONTENT_ROUTING_DISALLOWED;
+                case RouteListingPreference.Item.SUBTEXT_AD_ROUTING_DISALLOWED:
+                    return SUBTEXT_AD_ROUTING_DISALLOWED;
+                case RouteListingPreference.Item.SUBTEXT_DEVICE_LOW_POWER:
+                    return SUBTEXT_DEVICE_LOW_POWER;
+                case RouteListingPreference.Item.SUBTEXT_UNAUTHORIZED:
+                    return SUBTEXT_UNAUTHORIZED;
+                case RouteListingPreference.Item.SUBTEXT_TRACK_UNSUPPORTED:
+                    return SUBTEXT_TRACK_UNSUPPORTED;
+                default:
+                    throw new IllegalArgumentException("Illegal subtext constant: " + constant);
+            }
         }
     }
 }
