@@ -18,7 +18,15 @@ package androidx.compose.material3
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.platform.LocalConfiguration
 
-internal expect val is24HourFormat: Boolean
-  @Composable
-  @ReadOnlyComposable get
+@OptIn(ExperimentalMaterial3Api::class)
+internal actual val defaultTimePickerLayoutType: TimePickerLayoutType
+    @Composable
+    @ReadOnlyComposable get() = with(LocalConfiguration.current) {
+        if (screenHeightDp < screenWidthDp) {
+            TimePickerLayoutType.Horizontal
+        } else {
+            TimePickerLayoutType.Vertical
+        }
+    }

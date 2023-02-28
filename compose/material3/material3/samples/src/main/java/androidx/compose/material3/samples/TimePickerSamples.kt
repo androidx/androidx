@@ -165,11 +165,7 @@ fun TimePickerSwitchableSample() {
 
     if (showTimePicker) {
         TimePickerDialog(
-            title = if (showingPicker.value) {
-                "Select Time "
-            } else {
-                "Enter Time"
-            },
+            title = if (showingPicker.value) { "Select Time " } else { "Enter Time" },
             onCancel = { showTimePicker = false },
             onConfirm = {
                 val cal = Calendar.getInstance()
@@ -237,7 +233,9 @@ fun TimePickerDialog(
 ) {
     Dialog(
         onDismissRequest = onCancel,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        ),
     ) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
