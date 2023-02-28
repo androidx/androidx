@@ -340,6 +340,7 @@ package androidx.compose.material3 {
     method public int getDisplayMode();
     method public Long? getSelectedDateMillis();
     method public void setDisplayMode(int);
+    method public void setSelection(Long? dateMillis);
     property public final int displayMode;
     property public final Long? selectedDateMillis;
     field public static final androidx.compose.material3.DatePickerState.Companion Companion;
@@ -366,6 +367,7 @@ package androidx.compose.material3 {
     method public Long? getSelectedEndDateMillis();
     method public Long? getSelectedStartDateMillis();
     method public void setDisplayMode(int);
+    method public void setSelection(Long? startDateMillis, Long? endDateMillis);
     property public final int displayMode;
     property public final Long? selectedEndDateMillis;
     property public final Long? selectedStartDateMillis;

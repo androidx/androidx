@@ -276,10 +276,23 @@ class DatePickerState private constructor(internal val stateData: StateData) {
      * from the epoch.
      *
      * In case no date was selected or provided, the state will hold a `null` value.
+     *
+     * @see [setSelection]
      */
-    @get:Suppress("AutoBoxing")
-    val selectedDateMillis by derivedStateOf {
-        stateData.selectedStartDate.value?.utcTimeMillis
+    val selectedDateMillis: Long?
+        @Suppress("AutoBoxing") get() = stateData.selectedStartDate.value?.utcTimeMillis
+
+    /**
+     * Sets the selected date.
+     *
+     * @param dateMillis timestamp in _UTC_ milliseconds from the epoch that represents the date
+     * selection, or `null` to indicate no selection.
+     *
+     * @throws IllegalArgumentException in case the given timestamps do not fall within the year
+     * range this state was created with.
+     */
+    fun setSelection(@Suppress("AutoBoxing") dateMillis: Long?) {
+        stateData.setSelection(startDateMillis = dateMillis, endDateMillis = null)
     }
 
     /**
@@ -827,44 +840,24 @@ internal class StateData constructor(
     /**
      * A mutable state of [CalendarDate] that represents the start date for a selection.
      */
-    var selectedStartDate = mutableStateOf(
-        if (initialSelectedStartDateMillis != null) {
-            val date = calendarModel.getCanonicalDate(
-                initialSelectedStartDateMillis
-            )
-            require(yearRange.contains(date.year)) {
-                "The initial selected start date's year (${date.year}) is out of the years range " +
-                    "of $yearRange."
-            }
-            date
-        } else {
-            null
-        }
-    )
+    var selectedStartDate = mutableStateOf<CalendarDate?>(null)
 
     /**
      * A mutable state of [CalendarDate] that represents the end date for a selection.
      *
      * Single date selection states that use this [StateData] should always have this as `null`.
      */
-    var selectedEndDate = mutableStateOf(
-        // Set to null in case the provided value is "undefined" or <= than the start date.
-        if (initialSelectedEndDateMillis != null &&
-            initialSelectedStartDateMillis != null &&
-            initialSelectedEndDateMillis > initialSelectedStartDateMillis
-        ) {
-            val date = calendarModel.getCanonicalDate(
-                initialSelectedEndDateMillis
-            )
-            require(yearRange.contains(date.year)) {
-                "The initial selected end date's year (${date.year}) is out of the years range " +
-                    "of $yearRange."
-            }
-            date
-        } else {
-            null
-        }
-    )
+    var selectedEndDate = mutableStateOf<CalendarDate?>(null)
+
+    /**
+     * Initialize the state with the provided initial selections.
+     */
+    init {
+        setSelection(
+            startDateMillis = initialSelectedStartDateMillis,
+            endDateMillis = initialSelectedEndDateMillis
+        )
+    }
 
     /**
      * A mutable state for the month that is displayed to the user. In case an initial month was not
@@ -911,6 +904,56 @@ internal class StateData constructor(
      */
     val totalMonthsInRange: Int
         get() = (yearRange.last - yearRange.first + 1) * 12
+
+    /**
+     * Sets a start and end selection dates.
+     *
+     * The function expects the dates to be within the state's year-range, and for the start date to
+     * appear before the end date. Also, if an end date is provided (e.g. not `null`), a start date
+     * is also expected to be provided. In any other case, an [IllegalArgumentException] is thrown.
+     *
+     * @param startDateMillis timestamp in _UTC_ milliseconds from the epoch that represents the
+     * start date selection. Provide a `null` to indicate no selection.
+     * @param endDateMillis timestamp in _UTC_ milliseconds from the epoch that represents the
+     * end date selection. Provide a `null` to indicate no selection.
+     * @throws IllegalArgumentException in case the given timestamps do not comply with the expected
+     * values specified above.
+     */
+    fun setSelection(startDateMillis: Long?, endDateMillis: Long?) {
+        val startDate = if (startDateMillis != null) {
+            calendarModel.getCanonicalDate(startDateMillis)
+        } else {
+            null
+        }
+        val endDate = if (endDateMillis != null) {
+            calendarModel.getCanonicalDate(endDateMillis)
+        } else {
+            null
+        }
+        // Validate that both dates are within the valid years range.
+        startDate?.let {
+            require(yearRange.contains(it.year)) {
+                "The provided start date year (${it.year}) is out of the years range of $yearRange."
+            }
+        }
+        endDate?.let {
+            require(yearRange.contains(it.year)) {
+                "The provided end date year (${it.year}) is out of the years range of $yearRange."
+            }
+        }
+        // Validate that an end date cannot be set without a start date.
+        if (endDate != null) {
+            requireNotNull(startDate) {
+                "An end date was provided without a start date."
+            }
+            // Validate that the end date appears after the start date.
+            require(startDate.utcTimeMillis < endDate.utcTimeMillis) {
+                "The provided end date appears before the start date."
+            }
+        }
+        selectedStartDate.value = startDate
+        selectedEndDate.value = endDate
+    }
 
     fun switchDisplayMode(displayMode: DisplayMode) {
         // Update the displayed month, if needed, and change the mode to a  date-picker.
