@@ -18,6 +18,7 @@ package androidx.core.animation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -31,9 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 @SmallTest
@@ -44,9 +43,6 @@ public class AnimatorInflaterTest {
 
     @ClassRule
     public static AnimatorTestRule sAnimatorTestRule = new AnimatorTestRule();
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
 
     @UiThreadTest
     @Test
@@ -122,45 +118,54 @@ public class AnimatorInflaterTest {
 
     @Test
     public void pathInterpolator_wrongControlPoint() {
-        expectedException.expect(InflateException.class);
-        expectedException.expectMessage("requires the controlY1 attribute");
-        AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
-                R.interpolator.wrong_control_point_interpolator);
+        InflateException exception = assertThrows(InflateException.class, () -> {
+            AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
+                    R.interpolator.wrong_control_point_interpolator);
+        });
+        assertEquals("pathInterpolator requires the controlY1 attribute", exception.getMessage());
     }
 
     @Test
     public void pathInterpolator_wrongControlPoints() {
-        expectedException.expect(InflateException.class);
-        expectedException.expectMessage("requires both controlX2 and controlY2 for cubic Beziers");
-        AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
-                R.interpolator.wrong_control_points_interpolator);
+
+
+        InflateException exception = assertThrows(InflateException.class, () -> {
+            AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
+                    R.interpolator.wrong_control_points_interpolator);
+        });
+        assertEquals("pathInterpolator requires both controlX2 and controlY2 for cubic Beziers.",
+                exception.getMessage());
     }
 
     @Test
     public void pathInterpolator_wrongStartEnd() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("The Path must start at (0,0) and end at (1,1)");
-        AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
-                R.interpolator.wrong_path_interpolator_1);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
+                    R.interpolator.wrong_path_interpolator_1);
+        });
+        assertEquals("The Path must start at (0,0) and end at (1,1)", exception.getMessage());
     }
 
     @Test
     public void pathInterpolator_loopBack() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("The Path cannot loop back on itself");
-        AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
-                R.interpolator.wrong_path_interpolator_2);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
+                    R.interpolator.wrong_path_interpolator_2);
+        });
+        assertEquals("The Path cannot loop back on itself.", exception.getMessage());
+
     }
 
     @Test
     public void pathInterpolator_discontinuity() {
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage(Build.VERSION.SDK_INT >= 26
-                ? "The Path cannot have discontinuity in the X axis"
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
+                    R.interpolator.wrong_path_interpolator_3);
+        });
+        assertEquals(Build.VERSION.SDK_INT >= 26
+                ? "The Path cannot have discontinuity in the X axis."
                 // Older APIs don't detect discontinuity, but they report it as loop back.
-                : "The Path cannot loop back on itself");
-        AnimatorInflater.loadInterpolator(ApplicationProvider.getApplicationContext(),
-                R.interpolator.wrong_path_interpolator_3);
+                : "The Path cannot loop back on itself.", exception.getMessage());
     }
 
     static class TestObject {

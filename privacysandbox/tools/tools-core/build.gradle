@@ -22,15 +22,19 @@ import androidx.build.SdkHelperKt
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
+    id("com.google.protobuf")
 }
 
 dependencies {
     api(libs.kotlinStdlib)
-    implementation(libs.kotlinPoet)
+    api(libs.protobufLite)
+    api(libs.kotlinPoet)
+    implementation project(path: ':privacysandbox:tools:tools')
 
-    testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(project(":privacysandbox:tools:tools-testing"))
+    testImplementation(project(":room:room-compiler-processing-testing"))
     // Include android jar for compilation of generated sources.
     testImplementation(fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
@@ -48,11 +52,24 @@ dependencies {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = libs.protobufCompiler.get()
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option "lite"
+                }
+            }
+        }
+    }
+}
+
 androidx {
     name = "androidx.privacysandbox.tools:tools-core"
-    type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
+    type = LibraryType.ANNOTATION_PROCESSOR_UTILS
     inceptionYear = "2022"
     description = "Core utilities for Privacy Sandbox Tools."
-    runApiTasks = new RunApiTasks.No("Tools-core is an implementation detail of other libraries.")
 }

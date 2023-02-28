@@ -18,14 +18,12 @@ package androidx.recyclerview.widget;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
-
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
 public class SortedListBatchedCallbackTest {
@@ -41,7 +39,7 @@ public class SortedListBatchedCallbackTest {
     @Test
     public void onChange() {
         mBatchedCallback.onChanged(1, 2);
-        verifyZeroInteractions(mMockCallback);
+        verifyNoMoreInteractions(mMockCallback);
         mBatchedCallback.dispatchLastEvent();
         verify(mMockCallback).onChanged(1, 2, null);
         verifyNoMoreInteractions(mMockCallback);
@@ -51,7 +49,7 @@ public class SortedListBatchedCallbackTest {
     public void onChangeWithPayload() {
         final Object payload = 7;
         mBatchedCallback.onChanged(1, 2, payload);
-        verifyZeroInteractions(mMockCallback);
+        verifyNoMoreInteractions(mMockCallback);
         mBatchedCallback.dispatchLastEvent();
         verify(mMockCallback).onChanged(1, 2, payload);
         verifyNoMoreInteractions(mMockCallback);
@@ -60,7 +58,7 @@ public class SortedListBatchedCallbackTest {
     @Test
     public void onRemoved() {
         mBatchedCallback.onRemoved(2, 3);
-        verifyZeroInteractions(mMockCallback);
+        verifyNoMoreInteractions(mMockCallback);
         mBatchedCallback.dispatchLastEvent();
         verify(mMockCallback).onRemoved(2, 3);
         verifyNoMoreInteractions(mMockCallback);

@@ -38,6 +38,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -79,6 +80,7 @@ public class WebViewFeature {
             SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL,
             WEB_MESSAGE_PORT_POST_MESSAGE,
             WEB_MESSAGE_PORT_CLOSE,
+            WEB_MESSAGE_GET_MESSAGE_PAYLOAD,
             WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK,
             CREATE_WEB_MESSAGE_CHANNEL,
             POST_WEB_MESSAGE,
@@ -100,11 +102,23 @@ public class WebViewFeature {
             ALGORITHMIC_DARKENING,
             ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,
             GET_COOKIE_INFO,
-            SET_DATA_DIRECTORY_SUFFIX,
+            REQUESTED_WITH_HEADER_ALLOW_LIST,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
     public @interface WebViewSupportFeature {}
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @StringDef(value = {
+            STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
+            STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
+    public @interface WebViewStartupFeature {}
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
@@ -337,6 +351,16 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
+     * {@link WebMessagePortCompat#postMessage(WebMessageCompat)} with ArrayBuffer type, and
+     * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)} with ArrayBuffer type.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String WEB_MESSAGE_GET_MESSAGE_PAYLOAD = "WEB_MESSAGE_GET_MESSAGE_PAYLOAD";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
      * {@link androidx.webkit.WebMessagePortCompat#setWebMessageCallback(
      * WebMessagePortCompat.WebMessageCallbackCompat)}, and
      * {@link androidx.webkit.WebMessagePortCompat#setWebMessageCallback(Handler,
@@ -497,19 +521,37 @@ public class WebViewFeature {
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
      * {@link CookieManagerCompat#getCookieInfo(CookieManager, String)}.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String GET_COOKIE_INFO = "GET_COOKIE_INFO";
+
+    /**
+     * Feature for {@link #isStartupFeatureSupported(Context, String)}.
+     * This feature covers
+     * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(String)}.
+     */
+    public static final String STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX =
+            "STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX";
+
+    /**
+     * Feature for {@link #isStartupFeatureSupported(Context, String)}.
+     * This feature covers
+     * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePath(String, String)}.
+     */
+    public static final String STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH =
+            "STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(String)}.
+     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)],
+     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderAllowList(WebSettings, Set)},
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getRequestedWithHeaderAllowList(WebSettings)}, and
+     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setRequestedWithHeaderAllowList(WebSettings, Set)}.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String SET_DATA_DIRECTORY_SUFFIX = "SET_DATA_DIRECTORY_SUFFIX";
+    public static final String REQUESTED_WITH_HEADER_ALLOW_LIST =
+            "REQUESTED_WITH_HEADER_ALLOW_LIST";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
@@ -517,6 +559,11 @@ public class WebViewFeature {
      * supported, depending on the combination of the desired feature, the Android version of
      * device, and the WebView APK on the device. If running on a device with a lower API level,
      * this will always return {@code false}.
+     *
+     * <p class="note"><b>Note:</b> This method is different from
+     * {@link #isStartupFeatureSupported(String, Context)} and this method only accepts
+     * certain features. Please verify that the correct feature checking method is used for a
+     * particular feature.
      *
      * <p class="note"><b>Note:</b> If this method returns {@code false}, it is not safe to invoke
      * the methods requiring the desired feature. Furthermore, if this method returns {@code false}
@@ -527,5 +574,31 @@ public class WebViewFeature {
      */
     public static boolean isFeatureSupported(@NonNull @WebViewSupportFeature String feature) {
         return WebViewFeatureInternal.isSupported(feature);
+    }
+
+    /**
+     * Return whether a startup feature is supported at run-time. On devices running Android
+     * version {@link
+     * android.os.Build.VERSION_CODES#LOLLIPOP} and higher, this will check whether a startup
+     * feature is
+     * supported, depending on the combination of the desired feature, the Android version of
+     * device, and the WebView APK on the device. If running on a device with a lower API level,
+     * this will always return {@code false}.
+     *
+     * <p class="note"><b>Note:</b> This method is different from
+     * {@link #isFeatureSupported(String)} and this method only accepts startup features. Please
+     * verify that the correct feature checking method is used for a particular feature.
+     *
+     * <p class="note"><b>Note:</b> If this method returns {@code false}, it is not safe to invoke
+     * the methods requiring the desired feature. Furthermore, if this method returns {@code false}
+     * for a particular feature, any callback guarded by that feature will not be invoked.
+     *
+     * @param context a Context to access application assets This value cannot be null.
+     * @param startupFeature the startup feature to be checked
+     * @return whether the feature is supported given the current platform SDK and webview version
+     */
+    public static boolean isStartupFeatureSupported(@NonNull Context context,
+            @NonNull @WebViewStartupFeature String startupFeature) {
+        return WebViewFeatureInternal.isStartupFeatureSupported(startupFeature, context);
     }
 }

@@ -17,6 +17,8 @@
 package androidx.glance.appwidget.lazy
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
+import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
@@ -57,7 +59,6 @@ private fun applyListScope(
     alignment: Alignment,
     content: LazyListScope.() -> Unit
 ): @Composable () -> Unit {
-    var nextImplicitItemId = ReservedItemIdRangeEnd
     val itemList = mutableListOf<Pair<Long?, @Composable LazyItemScope.() -> Unit>>()
     val listScopeImpl = object : LazyListScope {
         override fun item(itemId: Long, content: @Composable LazyItemScope.() -> Unit) {
@@ -82,8 +83,9 @@ private fun applyListScope(
     }
     listScopeImpl.apply(content)
     return {
-        itemList.forEach { (itemId, composable) ->
-            val id = itemId.takeIf { it != LazyListScope.UnspecifiedItemId } ?: nextImplicitItemId--
+        itemList.forEachIndexed { index, (itemId, composable) ->
+            val id = itemId.takeIf { it != LazyListScope.UnspecifiedItemId }
+                ?: (ReservedItemIdRangeEnd - index)
             check(id != LazyListScope.UnspecifiedItemId) { "Implicit list item ids exhausted." }
             LazyListItem(id, alignment) {
                 object : LazyItemScope { }.apply { composable() }
@@ -98,14 +100,18 @@ private fun LazyListItem(
     alignment: Alignment,
     content: @Composable () -> Unit
 ) {
-    GlanceNode(
-        factory = ::EmittableLazyListItem,
-        update = {
-            this.set(itemId) { this.itemId = it }
-            this.set(alignment) { this.alignment = it }
-        },
-        content = content
-    )
+    // We wrap LazyListItem in the key composable to ensure that lambda actions declared within each
+    // item's scope will get a unique ID based on the currentCompositeKeyHash.
+    key(itemId) {
+        GlanceNode(
+            factory = ::EmittableLazyListItem,
+            update = {
+                this.set(itemId) { this.itemId = it }
+                this.set(alignment) { this.alignment = it }
+            },
+            content = content
+        )
+    }
 }
 
 /**
@@ -123,6 +129,7 @@ annotation class LazyScopeMarker
 @LazyScopeMarker
 interface LazyItemScope
 
+@JvmDefaultWithCompatibility
 /**
  * Receiver scope which is used by [LazyColumn].
  */
@@ -252,9 +259,21 @@ internal class EmittableLazyListItem : EmittableWithChildren() {
     var itemId: Long = 0
     var alignment: Alignment = Alignment.CenterStart
 
+    override fun copy(): Emittable = EmittableLazyListItem().also {
+        it.itemId = itemId
+        it.alignment = alignment
+        it.children.addAll(children.map { it.copy() })
+    }
+
     override fun toString() =
         "EmittableLazyListItem(modifier=$modifier, alignment=$alignment, " +
             "children=[\n${childrenToString()}\n])"
 }
 
-internal class EmittableLazyColumn : EmittableLazyList()
+internal class EmittableLazyColumn : EmittableLazyList() {
+    override fun copy(): Emittable = EmittableLazyColumn().also {
+        it.modifier = modifier
+        it.horizontalAlignment = horizontalAlignment
+        it.children.addAll(children.map { it.copy() })
+    }
+}

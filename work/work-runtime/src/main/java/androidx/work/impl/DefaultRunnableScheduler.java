@@ -21,7 +21,6 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.os.HandlerCompat;
 import androidx.work.RunnableScheduler;
 
@@ -38,11 +37,6 @@ public class DefaultRunnableScheduler implements RunnableScheduler {
 
     public DefaultRunnableScheduler() {
         mHandler = HandlerCompat.createAsync(Looper.getMainLooper());
-    }
-
-    @VisibleForTesting
-    public DefaultRunnableScheduler(@NonNull Handler handler) {
-        mHandler = handler;
     }
 
     @NonNull

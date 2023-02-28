@@ -17,9 +17,6 @@
 package androidx.collection
 
 import androidx.benchmark.junit4.BenchmarkRule
-import androidx.benchmark.junit4.measureRepeated
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,33 +25,14 @@ import org.junit.runners.Parameterized.Parameters
 
 @RunWith(Parameterized::class)
 class CircularArrayBenchmarkTest(size: Int) {
-
-    val seed = mutableListOf<String>().apply {
-        for (i in 0 until size) {
-            add("element $i")
-        }
-    }
+    private val seed = createSeed(size)
 
     @get:Rule
     val benchmark = BenchmarkRule()
 
     @Test
     fun addFromHeadAndPopFromTail() {
-        benchmark.measureRepeated {
-            val array = CircularArray<String>()
-            for (e in seed) {
-                array.addFirst(e)
-            }
-            runWithTimingDisabled {
-                assertEquals(seed.size, array.size())
-            }
-            repeat(seed.size) {
-                array.popLast()
-            }
-            runWithTimingDisabled {
-                assertTrue(array.isEmpty())
-            }
-        }
+        benchmark.runCollectionBenchmark(CircularyArrayAddFromHeadAndPopFromTailBenchmark(seed))
     }
 
     companion object {

@@ -58,14 +58,17 @@ public class HorizontalChainReference extends ChainReference {
                 } else {
                     // No constraint declared, default to Parent.
                     String refKey = reference.getKey().toString();
-                    first.startToStart(State.PARENT).margin(getPreMargin(refKey));
+                    first.startToStart(State.PARENT).margin(getPreMargin(refKey)).marginGone(
+                            getPreGoneMargin(refKey));
                 }
             }
             if (previous != null) {
                 String preKey = previous.getKey().toString();
                 String refKey = reference.getKey().toString();
-                previous.endToStart(reference.getKey()).margin(getPostMargin(preKey));
-                reference.startToEnd(previous.getKey()).margin(getPreMargin(refKey));
+                previous.endToStart(reference.getKey()).margin(getPostMargin(preKey)).marginGone(
+                        getPostGoneMargin(preKey));
+                reference.startToEnd(previous.getKey()).margin(getPreMargin(refKey)).marginGone(
+                        getPreGoneMargin(refKey));
             }
             float weight = getWeight(key.toString());
             if (weight != UNKNOWN) {
@@ -88,7 +91,8 @@ public class HorizontalChainReference extends ChainReference {
             } else {
                 // No constraint declared, default to Parent.
                 String preKey = previous.getKey().toString();
-                previous.endToEnd(State.PARENT).margin(getPostMargin(preKey));
+                previous.endToEnd(State.PARENT).margin(getPostMargin(preKey)).marginGone(
+                        getPostGoneMargin(preKey));
             }
         }
 

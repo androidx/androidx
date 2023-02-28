@@ -14,9 +14,10 @@
   limitations under the License.
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <attr name="defaultOptionIndex" format="integer" />
     <attr name="displayName" format="string" />
+    <attr name="nameForScreenReaders" format="string|reference" tools:ignore="MissingDefaultResource" />
     <attr name="id" format="reference|string" />
     <attr name="description" format="string" />
     <attr name="accessibilityTraversalIndex" format="integer" />
@@ -178,6 +179,9 @@
         <attr name="id" />
         <!-- A displayName is required. Consider referencing a string resource for localization. -->
         <attr name="displayName" />
+        <!-- A nameForScreenReaders is optional. Consider referencing a string resource for
+        localization. -->
+        <attr name="nameForScreenReaders" />
         <!-- A link to a companion editor icon is optional but encouraged. -->
         <attr name="android:icon" />
     </declare-styleable>
@@ -189,6 +193,9 @@
         <attr name="id" />
         <!-- A displayName is required. Consider referencing a string resource for localization. -->
         <attr name="displayName" />
+        <!-- A nameForScreenReaders is optional. Consider referencing a string resource for
+        localization. -->
+        <attr name="nameForScreenReaders" />
         <!-- A link to a companion editor icon is optional but encouraged. -->
         <attr name="android:icon" />
     </declare-styleable>

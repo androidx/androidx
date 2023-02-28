@@ -1,0 +1,278 @@
+// Signature format: 4.0
+package androidx.wear.protolayout.expression {
+
+  public final class AnimationParameterBuilders {
+    field public static final int REPEAT_MODE_RESTART = 1; // 0x1
+    field public static final int REPEAT_MODE_REVERSE = 2; // 0x2
+    field public static final int REPEAT_MODE_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class AnimationParameterBuilders.AnimationSpec {
+    method public int getDurationMillis();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing? getEasing();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable? getRepeatable();
+    method public int getStartDelayMillis();
+  }
+
+  public static final class AnimationParameterBuilders.AnimationSpec.Builder {
+    ctor public AnimationParameterBuilders.AnimationSpec.Builder();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec build();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setDurationMillis(int);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setEasing(androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setInfiniteRepeatable(int);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setRepeatable(androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setStartDelayMillis(int);
+  }
+
+  public static final class AnimationParameterBuilders.CubicBezierEasing implements androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing {
+    method public float getX1();
+    method public float getX2();
+    method public float getY1();
+    method public float getY2();
+  }
+
+  public static final class AnimationParameterBuilders.CubicBezierEasing.Builder {
+    ctor public AnimationParameterBuilders.CubicBezierEasing.Builder();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.CubicBezierEasing build();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.CubicBezierEasing.Builder setX1(float);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.CubicBezierEasing.Builder setX2(float);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.CubicBezierEasing.Builder setY1(float);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.CubicBezierEasing.Builder setY2(float);
+  }
+
+  public static interface AnimationParameterBuilders.Easing {
+    method public static androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing fromByteArray(byte[]);
+    method public default byte[] toEasingByteArray();
+  }
+
+  public static class AnimationParameterBuilders.EasingFunctions {
+    field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing FAST_OUT_LINEAR_IN_EASING;
+    field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing FAST_OUT_SLOW_IN_EASING;
+    field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing LINEAR_OUT_SLOW_IN_EASING;
+  }
+
+  public static final class AnimationParameterBuilders.Repeatable {
+    method public int getForwardRepeatDelayMillis();
+    method public int getIterations();
+    method public int getRepeatMode();
+    method public int getReverseRepeatDelayMillis();
+    method public boolean hasInfiniteIteration();
+  }
+
+  public static final class AnimationParameterBuilders.Repeatable.Builder {
+    ctor public AnimationParameterBuilders.Repeatable.Builder();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable build();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setForwardRepeatDelayMillis(int);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setIterations(@IntRange(from=1) int);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setRepeatMode(int);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setReverseRepeatDelayMillis(int);
+  }
+
+  public class ConditionScopes {
+  }
+
+  public static class ConditionScopes.ConditionScope<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType, RawT> {
+    method public androidx.wear.protolayout.expression.ConditionScopes.IfTrueScope<T!,RawT!> use(T!);
+    method public androidx.wear.protolayout.expression.ConditionScopes.IfTrueScope<T!,RawT!> use(RawT!);
+  }
+
+  public static class ConditionScopes.IfTrueScope<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType, RawT> {
+    method public T! elseUse(T!);
+    method public T! elseUse(RawT!);
+  }
+
+  public final class DynamicBuilders {
+  }
+
+  public static interface DynamicBuilders.DynamicBool extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool and(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool constant(boolean);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool fromByteArray(byte[]);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool fromState(String);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool isFalse();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool isTrue();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool or(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
+    method public default byte[] toDynamicBoolByteArray();
+  }
+
+  public static interface DynamicBuilders.DynamicColor extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor animate(@ColorInt int, @ColorInt int);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor animate(@ColorInt int, @ColorInt int, androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor animate(String);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor animate(String, androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor animate(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor animate();
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor constant(@ColorInt int);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor fromByteArray(byte[]);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor fromState(String);
+    method public default byte[] toDynamicColorByteArray();
+  }
+
+  public static interface DynamicBuilders.DynamicDuration extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration fromByteArray(byte[]);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getHoursPart();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getIntDaysPart();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getMinutesPart();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getSecondsPart();
+    method public default byte[] toDynamicDurationByteArray();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntDays();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntHours();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntMinutes();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 toIntSeconds();
+  }
+
+  public static interface DynamicBuilders.DynamicFloat extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat animate(float, float);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat animate(float, float, androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat animate(String);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat animate(String, androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat animate(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat animate();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 asInt();
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat constant(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat div(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat div(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat div(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool eq(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool eq(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat fromByteArray(byte[]);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat fromState(String);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool gt(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool gt(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool gte(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool gte(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool lt(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool lt(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool lte(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool lte(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat minus(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat minus(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat minus(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool ne(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool ne(float);
+    method public static androidx.wear.protolayout.expression.ConditionScopes.ConditionScope<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!,java.lang.Float!> onCondition(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat plus(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat plus(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat plus(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat rem(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat rem(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat rem(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat times(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat times(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat times(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default byte[] toDynamicFloatByteArray();
+  }
+
+  public static class DynamicBuilders.DynamicFloat.FloatFormatter {
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter groupingUsed(boolean);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter maxFractionDigits(@IntRange(from=0) int);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter minFractionDigits(@IntRange(from=0) int);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter minIntegerDigits(@IntRange(from=0) int);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat.FloatFormatter with();
+  }
+
+  public static interface DynamicBuilders.DynamicInstant extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration durationUntil(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant fromByteArray(byte[]);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant platformTimeWithSecondsPrecision();
+    method public default byte[] toDynamicInstantByteArray();
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant withSecondsPrecision(java.time.Instant);
+  }
+
+  public static interface DynamicBuilders.DynamicInt32 extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate(int, int);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate(int, int, androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate(String);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate(String, androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 animate();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat asFloat();
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 constant(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 div(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat div(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 div(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat div(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool eq(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool eq(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format();
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 fromByteArray(byte[]);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 fromState(String);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool gt(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool gt(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool gte(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool gte(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool lt(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool lt(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool lte(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool lte(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 minus(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat minus(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 minus(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat minus(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool ne(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool ne(int);
+    method public static androidx.wear.protolayout.expression.ConditionScopes.ConditionScope<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32!,java.lang.Integer!> onCondition(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 plus(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat plus(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 plus(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat plus(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 rem(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat rem(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 rem(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat rem(float);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 times(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat times(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 times(int);
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat times(float);
+    method public default byte[] toDynamicInt32ByteArray();
+  }
+
+  public static class DynamicBuilders.DynamicInt32.IntFormatter {
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter groupingUsed(boolean);
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter minIntegerDigits(@IntRange(from=0) int);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter with();
+  }
+
+  public static interface DynamicBuilders.DynamicString extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicString concat(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString constant(String);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString fromByteArray(byte[]);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString fromState(String);
+    method public static androidx.wear.protolayout.expression.ConditionScopes.ConditionScope<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString!,java.lang.String!> onCondition(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
+    method public default byte[] toDynamicStringByteArray();
+  }
+
+  public static interface DynamicBuilders.DynamicType {
+  }
+
+  public final class StateEntryBuilders {
+  }
+
+  public static interface StateEntryBuilders.StateEntryValue {
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromBool(boolean);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromColor(@ColorInt int);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromFloat(float);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromInt(int);
+    method public static androidx.wear.protolayout.expression.StateEntryBuilders.StateEntryValue fromString(String);
+  }
+
+  public final class VersionBuilders {
+  }
+
+  public static final class VersionBuilders.VersionInfo {
+    method public int getMajor();
+    method public int getMinor();
+  }
+
+  public static final class VersionBuilders.VersionInfo.Builder {
+    ctor public VersionBuilders.VersionInfo.Builder();
+    method public androidx.wear.protolayout.expression.VersionBuilders.VersionInfo build();
+    method public androidx.wear.protolayout.expression.VersionBuilders.VersionInfo.Builder setMajor(int);
+    method public androidx.wear.protolayout.expression.VersionBuilders.VersionInfo.Builder setMinor(int);
+  }
+
+}
+

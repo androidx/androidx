@@ -14,9 +14,11 @@
      limitations under the License.
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:compat="http://schemas.android.com/apk/res-auto" >
     <item android:id="@+id/force_refresh"
-        android:showAsAction="ifRoom"
+        compat:showAsAction="ifRoom"
         android:icon="@drawable/refresh"
         android:title="Refresh" />
 </menu>

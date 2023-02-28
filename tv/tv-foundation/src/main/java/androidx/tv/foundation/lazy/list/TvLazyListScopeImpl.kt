@@ -18,8 +18,10 @@ package androidx.tv.foundation.lazy.list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.IntervalList
+import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
+import androidx.tv.foundation.ExperimentalTvFoundationApi
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @OptIn(ExperimentalFoundationApi::class)
@@ -61,10 +63,25 @@ internal class TvLazyListScopeImpl : TvLazyListScope {
             )
         )
     }
+
+    @ExperimentalTvFoundationApi
+    override fun stickyHeader(
+        key: Any?,
+        contentType: Any?,
+        content: @Composable TvLazyListItemScope.() -> Unit
+    ) {
+        val headersIndexes = _headerIndexes ?: mutableListOf<Int>().also {
+            _headerIndexes = it
+        }
+        headersIndexes.add(_intervals.size)
+
+        item(key, contentType, content)
+    }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 internal class LazyListIntervalContent(
-    val key: ((index: Int) -> Any)?,
-    val type: ((index: Int) -> Any?),
+    override val key: ((index: Int) -> Any)?,
+    override val type: ((index: Int) -> Any?),
     val item: @Composable TvLazyListItemScope.(index: Int) -> Unit
-)
+) : LazyLayoutIntervalContent

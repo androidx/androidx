@@ -31,4 +31,7 @@
     <dialog
         android:id="@+id/dialog_fragment"
         android:name="androidx.navigation.fragment.EmptyDialogFragment"/>
+    <dialog
+        android:id="@+id/testDialog_fragment"
+        android:name="androidx.navigation.fragment.TestDialogFragment"/>
 </navigation>

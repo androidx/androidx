@@ -44,6 +44,7 @@ dependencies {
 
 android {
     defaultConfig {
+        minSdkVersion 31
         multiDexEnabled = true
     }
 
@@ -53,7 +54,6 @@ android {
 androidx {
     name = "androidx.core.uwb:uwb-rxjava3"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.CORE_UWB
     inceptionYear = "2022"
     description = "RxJava3 integration for UWB module"
 }

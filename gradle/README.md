@@ -4,7 +4,7 @@ Keeps track of Gradle version used by androidx. When updating the version a new 
 
 ## libs.versions.toml
 
-Keeps track of library and plugin dependencies used by androidx. Adding or updating a library there requires running `./development/importMaven/import_maven_artifacts.py -n myartifact:here:1.0.0`
+Keeps track of library and plugin dependencies used by androidx. Adding or updating a library there requires running `./development/importMaven/importMaven.sh myartifact:here:1.0.0`
 
 ## verification-keyring.keys
 

@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.annotation.RestrictTo
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.DataPointAccuracy.HrAccuracy as HrAccuracyProto
@@ -99,19 +98,11 @@ public class HeartRateAccuracy(public val sensorStatus: SensorStatus) : DataPoin
         }
     }
 
-    /** @hide */
-    override val proto: DataProto.DataPointAccuracy =
-        DataProto.DataPointAccuracy.newBuilder()
+    internal fun getDataPointAccuracyProto(): DataProto.DataPointAccuracy {
+        return DataProto.DataPointAccuracy.newBuilder()
             .setHrAccuracy(HrAccuracyProto.newBuilder().setSensorStatus(sensorStatus.toProto()))
             .build()
+    }
 
     override fun toString(): String = "HrAccuracy(sensorStatus=$sensorStatus)"
-
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<HeartRateAccuracy> = newCreator {
-            val proto = DataProto.DataPointAccuracy.parseFrom(it)
-            HeartRateAccuracy(proto)
-        }
-    }
 }

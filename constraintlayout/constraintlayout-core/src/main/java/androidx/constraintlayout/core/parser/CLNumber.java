@@ -66,7 +66,8 @@ public class CLNumber extends CLElement {
 
     @Override
     public int getInt() {
-        if (Float.isNaN(mValue)) {
+        if (Float.isNaN(mValue) && hasContent()) {
+            // If the value is undefined, attempt to define it from the content
             mValue = Integer.parseInt(content());
         }
         return (int) mValue;
@@ -74,7 +75,8 @@ public class CLNumber extends CLElement {
 
     @Override
     public float getFloat() {
-        if (Float.isNaN(mValue)) {
+        if (Float.isNaN(mValue) && hasContent()) {
+            // If the value is undefined, attempt to define it from the content
             mValue = Float.parseFloat(content());
         }
         return mValue;
@@ -85,4 +87,30 @@ public class CLNumber extends CLElement {
         this.mValue = value;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof CLNumber) {
+            float thisFloat = getFloat();
+            float otherFloat = ((CLNumber) obj).getFloat();
+            if (Float.isNaN(thisFloat) && Float.isNaN(otherFloat)) {
+                // Consider equal if both elements have a NaN value
+                return true;
+            }
+            return thisFloat == otherFloat;
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        // Auto-generated with Intellij Action "equals() and hashcode()"
+        int result = super.hashCode();
+        result = 31 * result + (mValue != 0.0f ? Float.floatToIntBits(mValue) : 0);
+        return result;
+    }
 }

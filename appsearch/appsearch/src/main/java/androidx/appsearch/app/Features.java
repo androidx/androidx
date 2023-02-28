@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
  * the feature will be available forever on that AppSearch storage implementation, at that
  * Android API level, on that device.
  */
-// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/Features.java)
 public interface Features {
 
     /**
@@ -67,6 +66,74 @@ public interface Features {
      * {@link SetSchemaRequest.Builder#clearRequiredPermissionsForSchemaTypeVisibility}
      */
     String ADD_PERMISSIONS_AND_GET_VISIBILITY = "ADD_PERMISSIONS_AND_GET_VISIBILITY";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.StringPropertyConfig#TOKENIZER_TYPE_RFC822}.
+     */
+    String TOKENIZER_TYPE_RFC822 = "TOKENIZER_TYPE_RFC822";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_RANGE} and all other numeric search
+     * features.
+     */
+    String NUMERIC_SEARCH = "NUMERIC_SEARCH";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.StringPropertyConfig#TOKENIZER_TYPE_VERBATIM} and all other
+     * verbatim search features within the query language that allows clients to search using the
+     * verbatim string operator.
+     *
+     * <p>Ex. '"foo/bar" OR baz' will ensure that 'foo/bar' is treated as a single 'verbatim' token.
+     */
+    String VERBATIM_SEARCH = "VERBATIM_SEARCH";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers the
+     * expansion of the query language to conform to the definition of the list
+     * filters language (https://aip.dev/160). This includes:
+     * <ul>
+     * <li>addition of explicit 'AND' and 'NOT' operators</li>
+     * <li>property restricts are allowed with grouping (ex. "prop:(a OR b)")</li>
+     * <li>addition of custom functions to control matching</li>
+     * </ul>
+     *
+     * <p>The newly added custom functions covered by this feature are:
+     * <ul>
+     * <li>createList(String...)</li>
+     * <li>termSearch(String, List<String>)</li>
+     * </ul>
+     *
+     * <p>createList takes a variable number of strings and returns a list of strings.
+     * It is for use with termSearch.
+     *
+     * <p>termSearch takes a query string that will be parsed according to the supported
+     * query language and an optional list of strings that specify the properties to be
+     * restricted to. This exists as a convenience for multiple property restricts. So,
+     * for example, the query "(subject:foo OR body:foo) (subject:bar OR body:bar)"
+     * could be rewritten as "termSearch(\"foo bar\", createList(\"subject\", \"bar\"))"
+     */
+    String LIST_FILTER_QUERY_LANGUAGE = "LIST_FILTER_QUERY_LANGUAGE";
+
+    /** Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SearchSpec.Builder#setPropertyWeights}.
+     */
+    String SEARCH_SPEC_PROPERTY_WEIGHTS = "SEARCH_SPEC_PROPERTY_WEIGHTS";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SearchSpec.Builder#setRankingStrategy(String)}.
+     */
+    String SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION = "SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSchema.StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID},
+     * {@link SearchSpec.Builder#setJoinSpec}, and all other join features.
+     */
+    String JOIN_SPEC_AND_QUALIFIED_ID = "JOIN_SPEC_AND_QUALIFIED_ID";
 
     /**
      * Returns whether a feature is supported at run-time. Feature support depends on the

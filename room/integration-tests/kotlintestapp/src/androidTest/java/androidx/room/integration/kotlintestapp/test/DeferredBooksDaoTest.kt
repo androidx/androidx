@@ -142,14 +142,14 @@ class DeferredBooksDaoTest : TestDatabaseTest() {
     @Test
     fun deleteBookWithIds() {
         booksDao.deleteBookWithIds(TestUtil.BOOK_1.bookId)
-        assertThat(booksDao.getBook(TestUtil.BOOK_1.bookId), nullValue())
+        assertThat(booksDao.getBookNullable(TestUtil.BOOK_1.bookId), nullValue())
     }
 
     @Test
     fun deleteBookWithIdsSuspend() {
         runBlocking {
             booksDao.deleteBookWithIdsSuspend(TestUtil.BOOK_1.bookId)
-            assertThat(booksDao.getBookSuspend(TestUtil.BOOK_1.bookId), nullValue())
+            assertThat(booksDao.getBookNullableSuspend(TestUtil.BOOK_1.bookId), nullValue())
         }
     }
 

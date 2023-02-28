@@ -69,6 +69,7 @@ dependencies {
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation(project(":concurrent:concurrent-futures"))
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.3")
     // camera-testing added as 'implementation' dependency to include camera-testing activity in APK

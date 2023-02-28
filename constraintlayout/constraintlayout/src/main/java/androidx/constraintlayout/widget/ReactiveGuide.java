@@ -23,6 +23,7 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 
 /**
@@ -135,7 +136,7 @@ public class ReactiveGuide extends View implements SharedValues.SharedValuesList
      */
     @SuppressLint("MissingSuperCall")
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
     }
 
     /**

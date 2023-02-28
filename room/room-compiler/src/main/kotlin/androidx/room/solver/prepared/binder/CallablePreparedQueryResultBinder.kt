@@ -16,13 +16,13 @@
 
 package androidx.room.solver.prepared.binder
 
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.TypeSpec
 
 /**
  * Binder for deferred queries.
@@ -33,7 +33,10 @@ import com.squareup.javapoet.TypeSpec
  */
 class CallablePreparedQueryResultBinder private constructor(
     val returnType: XType,
-    val addStmntBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit,
+    val addStmntBlock: XCodeBlock.Builder.(
+        callableImpl: XTypeSpec,
+        dbProperty: XPropertySpec
+    ) -> Unit,
     adapter: PreparedQueryResultAdapter?
 ) : PreparedQueryResultBinder(adapter) {
 
@@ -41,29 +44,32 @@ class CallablePreparedQueryResultBinder private constructor(
         fun createPreparedBinder(
             returnType: XType,
             adapter: PreparedQueryResultAdapter?,
-            addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
+            addCodeBlock: XCodeBlock.Builder.(
+                callableImpl: XTypeSpec,
+                dbProperty: XPropertySpec
+            ) -> Unit
         ) = CallablePreparedQueryResultBinder(returnType, addCodeBlock, adapter)
     }
 
     override fun executeAndReturn(
         prepareQueryStmtBlock: CodeGenScope.() -> String,
-        preparedStmtField: String?,
-        dbField: FieldSpec,
+        preparedStmtProperty: XPropertySpec?,
+        dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
         val binderScope = scope.fork()
-        val callableImpl = CallableTypeSpecBuilder(returnType.typeName) {
+        val callableImpl = CallableTypeSpecBuilder(scope.language, returnType.asTypeName()) {
             adapter?.executeAndReturn(
                 binderScope.prepareQueryStmtBlock(),
-                preparedStmtField,
-                dbField,
+                preparedStmtProperty,
+                dbProperty,
                 binderScope
             )
-            addCode(binderScope.builder().build())
+            addCode(binderScope.generate())
         }.build()
 
-        scope.builder().apply {
-            addStmntBlock(callableImpl, dbField)
+        scope.builder.apply {
+            addStmntBlock(callableImpl, dbProperty)
         }
     }
 }

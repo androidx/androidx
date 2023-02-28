@@ -22,3 +22,48 @@ fun ParsedApi.getOnlyService(): AnnotatedInterface {
     }
     return services.first()
 }
+
+fun ParsedApi.hasSuspendFunctions(): Boolean {
+    val annotatedInterfaces = services + interfaces
+    return annotatedInterfaces
+        .flatMap(AnnotatedInterface::methods)
+        .any(Method::isSuspend)
+}
+
+fun ParsedApi.hasUiInterfaces(): Boolean {
+    return interfaces.any { it.inheritsSandboxedUiAdapter }
+}
+
+object Types {
+    val unit = Type(packageName = "kotlin", simpleName = "Unit")
+    val boolean = Type(packageName = "kotlin", simpleName = "Boolean")
+    val int = Type(packageName = "kotlin", simpleName = "Int")
+    val long = Type(packageName = "kotlin", simpleName = "Long")
+    val float = Type(packageName = "kotlin", simpleName = "Float")
+    val double = Type(packageName = "kotlin", simpleName = "Double")
+    val string = Type(packageName = "kotlin", simpleName = "String")
+    val char = Type(packageName = "kotlin", simpleName = "Char")
+    val short = Type(packageName = "kotlin", simpleName = "Short")
+    val primitiveTypes = setOf(unit, boolean, int, long, float, double, string, char, short)
+
+    val any = Type("kotlin", simpleName = "Any")
+    val sandboxedUiAdapter =
+        Type(packageName = "androidx.privacysandbox.ui.core", simpleName = "SandboxedUiAdapter")
+
+    fun list(elementType: Type) = Type(
+        packageName = "kotlin.collections",
+        simpleName = "List",
+        typeParameters = listOf(elementType)
+    )
+
+    fun Type.asNullable(): Type {
+        if (isNullable)
+            return this
+        return copy(isNullable = true)
+    }
+    fun Type.asNonNull(): Type {
+        if (isNullable)
+            return copy(isNullable = false)
+        return this
+    }
+}

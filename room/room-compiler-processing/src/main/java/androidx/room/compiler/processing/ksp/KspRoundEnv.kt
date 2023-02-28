@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
@@ -40,6 +41,9 @@ internal class KspRoundEnv(
     }
 
     override fun getElementsAnnotatedWith(annotationQualifiedName: String): Set<XElement> {
+        if (annotationQualifiedName == "*") {
+            return emptySet()
+        }
         return env.resolver.getSymbolsWithAnnotation(annotationQualifiedName)
             .map { symbol ->
                 when (symbol) {
@@ -47,7 +51,10 @@ internal class KspRoundEnv(
                         KspFieldElement.create(env, symbol)
                     }
                     is KSClassDeclaration -> {
-                        KspTypeElement.create(env, symbol)
+                        when (symbol.classKind) {
+                            ClassKind.ENUM_ENTRY -> KspEnumEntry.create(env, symbol)
+                            else -> KspTypeElement.create(env, symbol)
+                        }
                     }
                     is KSFunctionDeclaration -> {
                         KspExecutableElement.create(env, symbol)
@@ -60,6 +67,12 @@ internal class KspRoundEnv(
                     }
                     else -> error("Unsupported $symbol with annotation $annotationQualifiedName")
                 }
+            }.filter {
+                // Due to the bug in https://github.com/google/ksp/issues/1198, KSP may incorrectly
+                // copy annotations from a constructor KSValueParameter to its KSPropertyDeclaration
+                // which we remove manually, so check here to make sure this is in sync with the
+                // actual annotations on the element.
+                it.getAllAnnotations().any { it.qualifiedName == annotationQualifiedName }
             }.toSet()
     }
 }

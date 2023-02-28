@@ -19,6 +19,7 @@ package androidx.privacysandbox.tools.testing
 import androidx.room.compiler.processing.util.Source
 import java.io.File
 
+/** Load files in the given directory as Room's [Source]s. */
 fun loadSourcesFromDirectory(directory: File): List<Source> {
     check(directory.exists()) { "${directory.path} doesn't exist." }
     check(directory.isDirectory) { "${directory.path} is not a directory." }
@@ -26,5 +27,14 @@ fun loadSourcesFromDirectory(directory: File): List<Source> {
         val relativePath = directory.toPath().relativize(it.toPath()).toString()
         val qualifiedName = relativePath.removeSuffix(".${it.extension}").replace('/', '.')
         Source.load(file = it, qName = qualifiedName, relativePath = relativePath)
+    }.toList()
+}
+
+/** Load files in the given directory as pairs <relative path, content>. */
+fun loadFilesFromDirectory(directory: File): List<Pair<String, String>> {
+    check(directory.exists()) { "${directory.path} doesn't exist." }
+    check(directory.isDirectory) { "${directory.path} is not a directory." }
+    return directory.walk().filter { it.isFile }.map {
+        directory.toPath().relativize(it.toPath()).toString() to it.readText()
     }.toList()
 }

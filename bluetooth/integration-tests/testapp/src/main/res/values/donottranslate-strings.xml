@@ -14,21 +14,18 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
 <resources>
-    <string name="app_name">BluetoothX Test App</string>
+    <string name="app_name">AndroidX Bluetooth Test App</string>
 
-    <!-- Strings used for fragments for navigation -->
-    <string name="fwk_fragment_label">Framework Bluetooth Fragment</string>
-    <string name="btx_fragment_label">BluetoothX Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="title_home">AndroidX Bluetooth</string>
 
-    <string name="scan_using_fwk">Scan using Framework Bluetooth APIs</string>
-    <string name="scan_using_btx">Scan using BluetoothX APIs</string>
+    <string name="scan_using_androidx_bluetooth">Scan using AndroidX Bluetooth APIs</string>
+    <string name="scan_start_message">Scan started. Results are in Logcat</string>
+    <string name="stop_scanning">Stop scanning</string>
 
-    <string name="scan_start_message">Scan should have started. Results are in Logcat</string>
-
-    <string name="advertise_using_fwk">Advertise using Framework Bluetooth APIs</string>
+    <string name="advertise_using_androidx_bluetooth">Advertise using AndroidX Bluetooth APIs</string>
     <string name="advertise_start_message">Advertise started</string>
+
+    <string name="open_gatt_server_using_androidx_bluetooth">Open GATT Server using AndroidX Bluetooth APIs</string>
+    <string name="gatt_server_open">GATT Server open</string>
 </resources>

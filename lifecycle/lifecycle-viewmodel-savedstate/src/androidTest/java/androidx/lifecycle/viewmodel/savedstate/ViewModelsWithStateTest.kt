@@ -251,14 +251,16 @@ class DecorateWithCreationExtras(
     SavedStateRegistryOwner by ssrOwner,
     HasDefaultViewModelProviderFactory {
 
-    override fun getDefaultViewModelProviderFactory(): Factory {
-        throw UnsupportedOperationException()
-    }
+    override val defaultViewModelProviderFactory: Factory
+        get() {
+            throw UnsupportedOperationException()
+        }
 
-    override fun getDefaultViewModelCreationExtras(): CreationExtras {
-        val extras = MutableCreationExtras()
-        extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
-        extras[VIEW_MODEL_STORE_OWNER_KEY] = this
-        return extras
-    }
+    override val defaultViewModelCreationExtras: CreationExtras
+        get() {
+            val extras = MutableCreationExtras()
+            extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
+            extras[VIEW_MODEL_STORE_OWNER_KEY] = this
+            return extras
+        }
 }

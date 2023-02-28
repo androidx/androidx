@@ -45,12 +45,16 @@ package androidx.activity {
     method @Deprecated public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
   }
 
-  public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner {
+  public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner {
     ctor public ComponentDialog(android.content.Context context, optional @StyleRes int themeResId);
     ctor public ComponentDialog(android.content.Context context);
-    method public final androidx.lifecycle.Lifecycle getLifecycle();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method @CallSuper public void onBackPressed();
+    property public androidx.lifecycle.Lifecycle lifecycle;
+    property public final androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
+    property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
   }
 
   public final class FullyDrawnReporter {
@@ -73,25 +77,31 @@ package androidx.activity {
   }
 
   public abstract class OnBackPressedCallback {
-    ctor public OnBackPressedCallback(boolean);
+    ctor public OnBackPressedCallback(boolean enabled);
     method @MainThread public abstract void handleOnBackPressed();
     method @MainThread public final boolean isEnabled();
     method @MainThread public final void remove();
     method @MainThread public final void setEnabled(boolean);
+    property @MainThread public final boolean isEnabled;
   }
 
   public final class OnBackPressedDispatcher {
+    ctor public OnBackPressedDispatcher(optional Runnable? fallbackOnBackPressed);
     ctor public OnBackPressedDispatcher();
-    ctor public OnBackPressedDispatcher(Runnable?);
-    method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback);
-    method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
+    method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback onBackPressedCallback);
+    method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner owner, androidx.activity.OnBackPressedCallback onBackPressedCallback);
     method @MainThread public boolean hasEnabledCallbacks();
     method @MainThread public void onBackPressed();
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher);
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher invoker);
+  }
+
+  public final class OnBackPressedDispatcherKt {
+    method public static androidx.activity.OnBackPressedCallback addCallback(androidx.activity.OnBackPressedDispatcher, optional androidx.lifecycle.LifecycleOwner? owner, optional boolean enabled, kotlin.jvm.functions.Function1<? super androidx.activity.OnBackPressedCallback,kotlin.Unit> onBackPressed);
   }
 
   public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    property public abstract androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
   }
 
   public final class ViewTreeFullyDrawnReporterOwner {
@@ -109,22 +119,26 @@ package androidx.activity {
 package androidx.activity.contextaware {
 
   public interface ContextAware {
-    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
     method public android.content.Context? peekAvailableContext();
-    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
   }
 
   public final class ContextAwareHelper {
     ctor public ContextAwareHelper();
-    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
     method public void clearAvailableContext();
-    method public void dispatchOnContextAvailable(android.content.Context);
+    method public void dispatchOnContextAvailable(android.content.Context context);
     method public android.content.Context? peekAvailableContext();
-    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
   }
 
-  public interface OnContextAvailableListener {
-    method public void onContextAvailable(android.content.Context);
+  public final class ContextAwareKt {
+    method public static suspend inline <R> Object? withContextAvailable(androidx.activity.contextaware.ContextAware, kotlin.jvm.functions.Function1<android.content.Context,R> onContextAvailable, kotlin.coroutines.Continuation<R>);
+  }
+
+  public fun interface OnContextAvailableListener {
+    method public void onContextAvailable(android.content.Context context);
   }
 
 }
@@ -141,8 +155,8 @@ package androidx.activity.result {
     field public static final android.os.Parcelable.Creator<androidx.activity.result.ActivityResult!> CREATOR;
   }
 
-  public interface ActivityResultCallback<O> {
-    method public void onActivityResult(O!);
+  public fun interface ActivityResultCallback<O> {
+    method public void onActivityResult(O? result);
   }
 
   public interface ActivityResultCaller {
@@ -171,6 +185,7 @@ package androidx.activity.result {
 
   public interface ActivityResultRegistryOwner {
     method public androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
+    property public abstract androidx.activity.result.ActivityResultRegistry activityResultRegistry;
   }
 
   public final class IntentSenderRequest implements android.os.Parcelable {
@@ -179,16 +194,24 @@ package androidx.activity.result {
     method public int getFlagsMask();
     method public int getFlagsValues();
     method public android.content.IntentSender getIntentSender();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest!> CREATOR;
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final android.content.Intent? fillInIntent;
+    property public final int flagsMask;
+    property public final int flagsValues;
+    property public final android.content.IntentSender intentSender;
+    field public static final android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest> CREATOR;
+    field public static final androidx.activity.result.IntentSenderRequest.Companion Companion;
   }
 
   public static final class IntentSenderRequest.Builder {
-    ctor public IntentSenderRequest.Builder(android.content.IntentSender);
-    ctor public IntentSenderRequest.Builder(android.app.PendingIntent);
+    ctor public IntentSenderRequest.Builder(android.content.IntentSender intentSender);
+    ctor public IntentSenderRequest.Builder(android.app.PendingIntent pendingIntent);
     method public androidx.activity.result.IntentSenderRequest build();
-    method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent?);
-    method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int, int);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent? fillInIntent);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int values, int mask);
+  }
+
+  public static final class IntentSenderRequest.Companion {
   }
 
   public final class PickVisualMediaRequest {
@@ -289,17 +312,21 @@ package androidx.activity.result.contract {
     method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
   }
 
-  public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
+  @RequiresApi(19) public static class ActivityResultContracts.PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,android.net.Uri> {
     ctor public ActivityResultContracts.PickVisualMedia();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
-    method public static final boolean isPhotoPickerAvailable();
+    method @Deprecated public static final boolean isPhotoPickerAvailable();
+    method public static final boolean isPhotoPickerAvailable(android.content.Context context);
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
+    field public static final String ACTION_SYSTEM_FALLBACK_PICK_IMAGES = "androidx.activity.result.contract.action.PICK_IMAGES";
     field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion Companion;
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX = "androidx.activity.result.contract.extra.PICK_IMAGES_MAX";
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.Companion {
-    method public boolean isPhotoPickerAvailable();
+    method @Deprecated public boolean isPhotoPickerAvailable();
+    method public boolean isPhotoPickerAvailable(android.content.Context context);
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.ImageAndVideo implements androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType {

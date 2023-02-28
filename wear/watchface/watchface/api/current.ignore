@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+RemovedClass: androidx.wear.watchface.ComplicationSlotsManagerKt:
+    Removed class androidx.wear.watchface.ComplicationSlotsManagerKt
+RemovedClass: androidx.wear.watchface.RenderBufferTextureKt:
+    Removed class androidx.wear.watchface.RenderBufferTextureKt
+RemovedClass: androidx.wear.watchface.RendererKt:
+    Removed class androidx.wear.watchface.RendererKt
+RemovedClass: androidx.wear.watchface.WatchFaceKt:
+    Removed class androidx.wear.watchface.WatchFaceKt
+RemovedClass: androidx.wear.watchface.WatchFaceServiceKt:
+    Removed class androidx.wear.watchface.WatchFaceServiceKt

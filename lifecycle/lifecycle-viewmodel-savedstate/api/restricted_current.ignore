@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.lifecycle.AbstractSavedStateViewModelFactory#create(Class<T>):
+    Removed method androidx.lifecycle.AbstractSavedStateViewModelFactory.create(Class<T>)
+RemovedMethod: androidx.lifecycle.AbstractSavedStateViewModelFactory#create(Class<T>, androidx.lifecycle.viewmodel.CreationExtras):
+    Removed method androidx.lifecycle.AbstractSavedStateViewModelFactory.create(Class<T>,androidx.lifecycle.viewmodel.CreationExtras)

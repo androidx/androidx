@@ -29,10 +29,10 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
-import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
@@ -52,12 +52,8 @@ internal class Controller3AUpdate3ATest {
     private val fakeCaptureSequenceProcessor = FakeCaptureSequenceProcessor()
     private val fakeGraphRequestProcessor = GraphRequestProcessor.from(fakeCaptureSequenceProcessor)
     private val listener3A = Listener3A()
-    private val controller3A = Controller3A(
-        graphProcessor,
-        FakeCameraMetadata(),
-        graphState3A,
-        listener3A
-    )
+    private val controller3A =
+        Controller3A(graphProcessor, FakeCameraMetadata(), graphState3A, listener3A)
 
     @Test
     fun testUpdate3AUpdatesState3A() {
@@ -87,18 +83,15 @@ internal class Controller3AUpdate3ATest {
         val result = controller3A.update3A(afMode = AfMode.OFF)
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
-                        CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF
-                    )
+                    resultMetadata =
+                    mapOf(CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF)
                 )
             )
         }
@@ -114,16 +107,15 @@ internal class Controller3AUpdate3ATest {
         val result = controller3A.update3A(aeMode = AeMode.ON_ALWAYS_FLASH)
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
+                    resultMetadata =
+                    mapOf(
                         CaptureResult.CONTROL_AE_MODE to
                             CaptureResult.CONTROL_AE_MODE_ON_ALWAYS_FLASH
                     )
@@ -142,16 +134,15 @@ internal class Controller3AUpdate3ATest {
         val result = controller3A.update3A(awbMode = AwbMode.CLOUDY_DAYLIGHT)
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
+                    resultMetadata =
+                    mapOf(
                         CaptureResult.CONTROL_AWB_MODE to
                             CaptureResult.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT
                     )
@@ -170,19 +161,17 @@ internal class Controller3AUpdate3ATest {
         val result = controller3A.update3A(afRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
+                    resultMetadata =
+                    mapOf(
                         CaptureResult.CONTROL_AF_REGIONS to
-                            Array(1) { MeteringRectangle(1, 1, 99, 99, 2) }
-                    )
+                            Array(1) { MeteringRectangle(1, 1, 99, 99, 2) })
                 )
             )
         }
@@ -198,19 +187,17 @@ internal class Controller3AUpdate3ATest {
         val result = controller3A.update3A(aeRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
+                    resultMetadata =
+                    mapOf(
                         CaptureResult.CONTROL_AE_REGIONS to
-                            Array(1) { MeteringRectangle(1, 1, 99, 99, 2) }
-                    )
+                            Array(1) { MeteringRectangle(1, 1, 99, 99, 2) })
                 )
             )
         }
@@ -223,26 +210,21 @@ internal class Controller3AUpdate3ATest {
     fun testAwbRegionsUpdate() = runTest {
         initGraphProcessor()
 
-        val result = controller3A.update3A(
-            awbRegions = listOf(
-                MeteringRectangle(1, 1, 100, 100, 2)
-            )
-        )
+        val result =
+            controller3A.update3A(awbRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2)))
         launch {
             listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(
-                    requestNumber = RequestNumber(1)
-                )
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
             )
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(
+                    resultMetadata =
+                    mapOf(
                         CaptureResult.CONTROL_AWB_REGIONS to
-                            Array(1) { MeteringRectangle(1, 1, 99, 99, 2) }
-                    )
+                            Array(1) { MeteringRectangle(1, 1, 99, 99, 2) })
                 )
             )
         }

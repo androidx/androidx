@@ -32,7 +32,7 @@ data class AutoMigration(
     val schemaDiff: SchemaDiffResult,
     val isSpecProvided: Boolean,
 ) {
-    val specClassName = specElement?.className
+    val specClassName = specElement?.asClassName()
 
     fun getImplTypeName(databaseClassName: XClassName): XClassName {
         return XClassName.get(

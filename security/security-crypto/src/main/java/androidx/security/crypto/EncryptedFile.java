@@ -26,10 +26,10 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.google.crypto.tink.KeyTemplate;
+import com.google.crypto.tink.KeyTemplates;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.StreamingAead;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
-import com.google.crypto.tink.streamingaead.AesGcmHkdfStreamingKeyManager;
 import com.google.crypto.tink.streamingaead.StreamingAeadConfig;
 
 import java.io.File;
@@ -45,15 +45,37 @@ import java.security.GeneralSecurityException;
 
 /**
  * Class used to create and read encrypted files.
+ * <br />
+ * <br />
+ * <b>WARNING</b>: The encrypted file should not be backed up with Auto Backup. When restoring the
+ * file it is likely the key used to encrypt it will no longer be present. You should exclude all
+ * <code>EncryptedFile</code>s from backup using
+ * <a href="https://developer.android.com/guide/topics/data/autobackup#IncludingFiles">backup rules</a>.
+ * Be aware that if you are not explicitly calling <code>setKeysetPrefName()</code> there is also a
+ * silently-created default preferences file created at
+ * <pre>
+ *     ApplicationProvider
+ *          .getApplicationContext()
+ *          .getFilesDir()
+ *          .getParent() + "/shared_prefs/__androidx_security_crypto_encrypted_file_pref__"
+ * </pre>
+ *
+ * This preferences file (or any others created with a custom specified location) also should be
+ * excluded from backups.
+ * <br />
+ * <br />
+ * Basic use of the class:
  *
  * <pre>
- *  String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
+ *  MasterKey masterKey = new MasterKey.Builder(context)
+ *      .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+ *      .build();
  *
  *  File file = new File(context.getFilesDir(), "secret_data");
  *  EncryptedFile encryptedFile = EncryptedFile.Builder(
- *      file,
  *      context,
- *      masterKeyAlias,
+ *      file,
+ *      masterKey,
  *      EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
  *  ).build();
  *
@@ -92,24 +114,23 @@ public final class EncryptedFile {
      */
     public enum FileEncryptionScheme {
         /**
-         * The file content is encrypted using
-         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/streamingaead/StreamingAead.html">StreamingAead</a> with AES-GCM, with the
-         * file name as associated data.
+         * The file content is encrypted using StreamingAead with AES-GCM, with the file name as
+         * associated data.
          *
-         * For more information please see the Tink documentation:
+         * <p>For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.4.0/com/google/crypto/tink/streamingaead/AesGcmHkdfStreamingKeyManager.html">AesGcmHkdfStreamingKeyManager</a>.aes256GcmHkdf4KBTemplate()
+         * <p><a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/streamingaead/AesGcmHkdfStreamingKeyManager.html">AesGcmHkdfStreamingKeyManager</a>.aes256GcmHkdf4KBTemplate()
          */
-        AES256_GCM_HKDF_4KB(AesGcmHkdfStreamingKeyManager.aes256GcmHkdf4KBTemplate());
+        AES256_GCM_HKDF_4KB("AES256_GCM_HKDF_4KB");
 
-        private final KeyTemplate mStreamingAeadKeyTemplate;
+        private final String mKeyTemplateName;
 
-        FileEncryptionScheme(KeyTemplate keyTemplate) {
-            mStreamingAeadKeyTemplate = keyTemplate;
+        FileEncryptionScheme(String keyTemplateName) {
+            mKeyTemplateName = keyTemplateName;
         }
 
-        KeyTemplate getKeyTemplate() {
-            return mStreamingAeadKeyTemplate;
+        KeyTemplate getKeyTemplate() throws GeneralSecurityException {
+            return KeyTemplates.get(mKeyTemplateName);
         }
     }
 
@@ -117,9 +138,14 @@ public final class EncryptedFile {
      * Builder class to configure EncryptedFile
      */
     public static final class Builder {
+        private static final Object sLock = new Object();
 
         /**
          * Builder for an EncryptedFile.
+         *
+         * <p>If the <code>masterKeyAlias</code> used here is for a key that is not yet
+         * created, this method will not be thread safe. Use the alternate signature that is not
+         * deprecated for multi-threaded contexts.
          *
          * @deprecated Use {@link #Builder(Context, File, MasterKey, FileEncryptionScheme)} instead.
          */
@@ -194,14 +220,22 @@ public final class EncryptedFile {
         public EncryptedFile build() throws GeneralSecurityException, IOException {
             StreamingAeadConfig.register();
 
-            KeysetHandle streadmingAeadKeysetHandle = new AndroidKeysetManager.Builder()
+            AndroidKeysetManager.Builder keysetManagerBuilder = new AndroidKeysetManager.Builder()
                     .withKeyTemplate(mFileEncryptionScheme.getKeyTemplate())
                     .withSharedPref(mContext, mKeysetAlias, mKeysetPrefName)
-                    .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKeyAlias)
-                    .build().getKeysetHandle();
+                    .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKeyAlias);
 
+            // Building the keyset manager involves shared pref filesystem operations. To control
+            // access to this global state in multi-threaded contexts we need to ensure mutual
+            // exclusion of the build() function.
+            AndroidKeysetManager androidKeysetManager;
+            synchronized (sLock) {
+                androidKeysetManager = keysetManagerBuilder.build();
+            }
+
+            KeysetHandle streamingAeadKeysetHandle = androidKeysetManager.getKeysetHandle();
             StreamingAead streamingAead =
-                    streadmingAeadKeysetHandle.getPrimitive(StreamingAead.class);
+                    streamingAeadKeysetHandle.getPrimitive(StreamingAead.class);
 
             return new EncryptedFile(mFile, mKeysetAlias, streamingAead, mContext);
         }
@@ -211,7 +245,7 @@ public final class EncryptedFile {
      * Opens a FileOutputStream for writing that automatically encrypts the data based on the
      * provided settings.
      *
-     * Please ensure that the same master key and keyset are  used to decrypt or it
+     * <p>Please ensure that the same master key and keyset are  used to decrypt or it
      * will cause failures.
      *
      * @return The FileOutputStream that encrypts all data.
@@ -234,7 +268,7 @@ public final class EncryptedFile {
     /**
      * Opens a FileInputStream that reads encrypted files based on the previous settings.
      *
-     * Please ensure that the same master key and keyset are  used to decrypt or it
+     * <p>Please ensure that the same master key and keyset are  used to decrypt or it
      * will cause failures.
      *
      * @return The input stream to read previously encrypted data.
@@ -307,6 +341,8 @@ public final class EncryptedFile {
 
         private final InputStream mEncryptedInputStream;
 
+        private final Object mLock = new Object();
+
         EncryptedFileInputStream(FileDescriptor descriptor,
                 InputStream encryptedInputStream) {
             super(descriptor);
@@ -350,13 +386,17 @@ public final class EncryptedFile {
         }
 
         @Override
-        public synchronized void mark(int readlimit) {
-            mEncryptedInputStream.mark(readlimit);
+        public void mark(int readLimit) {
+            synchronized (mLock) {
+                mEncryptedInputStream.mark(readLimit);
+            }
         }
 
         @Override
-        public synchronized void reset() throws IOException {
-            mEncryptedInputStream.reset();
+        public void reset() throws IOException {
+            synchronized (mLock) {
+                mEncryptedInputStream.reset();
+            }
         }
 
         @Override

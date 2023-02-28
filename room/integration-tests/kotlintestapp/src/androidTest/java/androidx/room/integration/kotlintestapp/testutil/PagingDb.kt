@@ -25,5 +25,5 @@ import androidx.room.RoomDatabase
     entities = [PagingEntity::class]
 )
 abstract class PagingDb : RoomDatabase() {
-    abstract val dao: PagingEntityDao
+    abstract fun getDao(): PagingEntityDao
 }

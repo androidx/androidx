@@ -16,10 +16,13 @@
 
 package androidx.webkit;
 
+import android.content.Context;
+
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
-import androidx.webkit.internal.ApiFeature;
+import androidx.webkit.internal.ApiHelperForP;
+import androidx.webkit.internal.StartupApiFeature;
 import androidx.webkit.internal.WebViewFeatureInternal;
 
 import org.chromium.support_lib_boundary.ProcessGlobalConfigConstants;
@@ -27,7 +30,6 @@ import org.chromium.support_lib_boundary.ProcessGlobalConfigConstants;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -36,7 +38,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * WebView has some process-global configuration parameters that cannot be changed once WebView has
  * been loaded. This class allows apps to set these parameters.
  * <p>
- * If it is used, the configuration should be set and {@link #apply()} should be called prior to
+ * If it is used, the configuration should be set and
+ * {@link #apply(androidx.webkit.ProcessGlobalConfig)} should be called prior to
  * loading WebView into the calling process. Most of the methods in
  * {@link android.webkit} and {@link androidx.webkit} packages load WebView, so the
  * configuration should be applied before calling any of these methods.
@@ -44,90 +47,32 @@ import java.util.concurrent.atomic.AtomicReference;
  * The following code configures the data directory suffix that WebView
  * uses and then applies the configuration. WebView uses this configuration when it is loaded.
  * <pre class="prettyprint">
- * ProcessGlobalConfig.createInstance()
- *                    .setDataDirectorySuffix("random_suffix")
- *                    .apply();
+ * ProcessGlobalConfig config = new ProcessGlobalConfig();
+ * config.setDataDirectorySuffix("random_suffix")
+ * ProcessGlobalConfig.apply(config);
  * </pre>
  * <p>
- * Restrictions are in place to ensure that {@link #createInstance()} can only be called once.
- * The setters and {@link #apply()} can also only be called once.
+ * {@link ProcessGlobalConfig#apply(androidx.webkit.ProcessGlobalConfig)} can only be called once.
  * <p>
  * Only a single thread should access this class at a given time.
  * <p>
  * The configuration should be set up as early as possible during application startup, to ensure
  * that it happens before any other thread can call a method that loads WebView.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ProcessGlobalConfig {
     private static final AtomicReference<HashMap<String, Object>> sProcessGlobalConfig =
             new AtomicReference<HashMap<String, Object>>();
-    private static AtomicBoolean sInstanceCreated = new AtomicBoolean(false);
-    private boolean mApplyCalled = false;
-    private String mDataDirectorySuffix;
-
-    private ProcessGlobalConfig() {
-    }
-
-    /**
-     * Creates instance of {@link ProcessGlobalConfig}.
-     *
-     * This method can only be called once.
-     *
-     * @return {@link ProcessGlobalConfig} object where configuration can be set and applied
-     *
-     * @throws IllegalStateException if this method was called before
-     */
-    @NonNull
-    public static ProcessGlobalConfig createInstance() {
-        if (!sInstanceCreated.compareAndSet(false, true)) {
-            throw new IllegalStateException("ProcessGlobalConfig#createInstance() was already "
-                    + "called before");
-        }
-        return new ProcessGlobalConfig();
-    }
+    private static final Object sLock = new Object();
+    @GuardedBy("sLock")
+    private static boolean sApplyCalled = false;
+    String mDataDirectorySuffix;
+    String mDataDirectoryBasePath;
+    String mCacheDirectoryBasePath;
 
     /**
-     * Applies the configuration to be used by WebView on loading.
-     *
-     * If this method is not called, the configuration that is set will not be applied.
-     * This method can only be called once.
-     * <p>
-     * Calling this method will not cause WebView to be loaded and will not block the calling
-     * thread.
-     *
-     * @throws IllegalStateException if WebView has already been initialized
-     *                               in the current process or if this method was called before
+     * Creates a {@link ProcessGlobalConfig} object.
      */
-    public void apply() {
-        // TODO(crbug.com/1355297): We can check if we are storing the config in the place that
-        //  WebView is going to look for it, and throw if they are not the same.
-        //  For this, we would need to reflect into Android Framework internals to get
-        //  ActivityThread.currentApplication().getClassLoader() and see if it is the same as
-        //  this.getClass().getClassLoader(). This would add reflection that we might not add a
-        //  framework API for. Once we know what framework path we will take for
-        //  ProcessGlobalConfig, revisit this.
-        HashMap<String, Object> configMap = new HashMap<String, Object>();
-        if (mApplyCalled) {
-            throw new IllegalStateException("ProcessGlobalConfig#apply() was already called "
-                    + "before");
-        }
-        mApplyCalled = true;
-        if (webViewCurrentlyLoaded()) {
-            throw new IllegalStateException(
-                    "WebView has already been initialized in the current process");
-        }
-        final ApiFeature.P feature = WebViewFeatureInternal.SET_DATA_DIRECTORY_SUFFIX;
-        if (feature.isSupportedByFramework()) {
-            androidx.webkit.internal.ApiHelperForP.setDataDirectorySuffix(mDataDirectorySuffix);
-        } else {
-            configMap.put(ProcessGlobalConfigConstants.DATA_DIRECTORY_SUFFIX, mDataDirectorySuffix);
-        }
-        if (!sProcessGlobalConfig.compareAndSet(null, configMap)) {
-            throw new RuntimeException("Attempting to set ProcessGlobalConfig"
-                    + "#sProcessGlobalConfig when it was already set");
-        }
+    public ProcessGlobalConfig() {
     }
 
     /**
@@ -155,24 +100,23 @@ public class ProcessGlobalConfig {
      * This is a compatibility method for
      * {@link android.webkit.WebView#setDataDirectorySuffix(String)}
      *
+     * @param context a Context to access application assets This value cannot be null.
      * @param suffix The directory name suffix to be used for the current
      *               process. Must not contain a path separator and should not be empty.
-     * @throws IllegalStateException if WebView has already been initialized
-     *                               in the current process or if this method was called before
+     * @return the ProcessGlobalConfig that has the value set to allow chaining of setters
+     * @throws UnsupportedOperationException if underlying WebView does not support the use of
+     *                                       the method.
      * @throws IllegalArgumentException if the suffix contains a path separator or is empty.
      */
-    @RequiresFeature(name = WebViewFeature.SET_DATA_DIRECTORY_SUFFIX,
+    @RequiresFeature(name = WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
             enforcement =
-                    "androidx.webkit.WebViewFeature#isFeatureSupported")
+                    "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
     @NonNull
-    public ProcessGlobalConfig setDataDirectorySuffix(@NonNull String suffix) {
-        if (mDataDirectorySuffix != null) {
-            throw new IllegalStateException(
-                    "ProcessGlobalConfig#setDataDirectorySuffix(String) was already "
-                            + "called");
-        }
-        final ApiFeature.P feature = WebViewFeatureInternal.SET_DATA_DIRECTORY_SUFFIX;
-        if (!feature.isSupported()) {
+    public ProcessGlobalConfig setDataDirectorySuffix(@NonNull Context context,
+            @NonNull String suffix) {
+        final StartupApiFeature.P feature =
+                WebViewFeatureInternal.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX;
+        if (!feature.isSupported(context)) {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
         if (suffix.equals("")) {
@@ -186,7 +130,129 @@ public class ProcessGlobalConfig {
         return this;
     }
 
-    private boolean webViewCurrentlyLoaded() {
+    /**
+     * Set the base directories that WebView will use for the current process.
+     *
+     * If this method is not used, WebView uses the default base paths defined by the Android
+     * framework.
+     * <p>
+     * WebView will create and use a subdirectory under each of the base paths supplied to this
+     * method.
+     * <p>
+     * This method can be used in conjunction with {@link #setDataDirectorySuffix(Context, String)}.
+     * A different subdirectory is created for each suffix.
+     * <p>
+     * The base paths must be absolute paths.
+     * <p>
+     * The data directory must not be under the Android cache directory, as Android may delete
+     * cache files when disk space is low and WebView may not function properly if this occurs.
+     * Refer to
+     * <a href="https://developer.android.com/training/data-storage/app-specific#internal-remove-cache">this</a>
+     *  link.
+     * <p>
+     * If the specified directories already exist then they must be readable and writable by the
+     * current process. If they do not already exist, WebView will attempt to create them during
+     * initialization, along with any missing parent directories. In such a case, the directory
+     * in which WebView creates missing directories must be readable and writable by the
+     * current process.
+     *
+     * @param context a Context to access application assets. This value cannot be null.
+     * @param dataDirectoryBasePath the base path for the WebView data directory.
+     * @param cacheDirectoryBasePath the base path for the WebView cache directory.
+     * @return the ProcessGlobalConfig that has the value set to allow chaining of setters
+     * @throws UnsupportedOperationException if underlying WebView does not support the use of
+     *                                       the method.
+     * @throws IllegalArgumentException if the paths supplied do not have the right permissions
+     */
+    @RequiresFeature(name = WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH,
+            enforcement =
+                    "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
+    @NonNull
+    public ProcessGlobalConfig setDirectoryBasePath(@NonNull Context context,
+            @NonNull String dataDirectoryBasePath, @NonNull String cacheDirectoryBasePath) {
+        final StartupApiFeature.NoFramework feature =
+                WebViewFeatureInternal.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH;
+        if (!feature.isSupported(context)) {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+        if (!dataDirectoryBasePath.startsWith("/")) {
+            throw new IllegalArgumentException("dataDirectoryBasePath must be a non-empty absolute"
+                    + " path");
+        }
+        if (!cacheDirectoryBasePath.startsWith("/")) {
+            throw new IllegalArgumentException("cacheDirectoryBasePath must be a non-empty absolute"
+                    + " path");
+        }
+        mDataDirectoryBasePath = dataDirectoryBasePath;
+        mCacheDirectoryBasePath = cacheDirectoryBasePath;
+        return this;
+    }
+
+    /**
+     * Applies the configuration to be used by WebView on loading.
+     *
+     * This method can only be called once.
+     * <p>
+     * Calling this method will not cause WebView to be loaded and will not block the calling
+     * thread.
+     *
+     * @param config the config to be applied
+     * @throws IllegalStateException if WebView has already been initialized
+     *                               in the current process or if this method was called before
+     */
+    public static void apply(@NonNull ProcessGlobalConfig config) {
+        // TODO(crbug.com/1355297): We can check if we are storing the config in the place that
+        //  WebView is going to look for it, and throw if they are not the same.
+        //  For this, we would need to reflect into Android Framework internals to get
+        //  ActivityThread.currentApplication().getClassLoader() and see if it is the same as
+        //  this.getClass().getClassLoader(). This would add reflection that we might not add a
+        //  framework API for. Once we know what framework path we will take for
+        //  ProcessGlobalConfig, revisit this.
+        synchronized (sLock) {
+            if (sApplyCalled) {
+                throw new IllegalStateException("ProcessGlobalConfig#apply was "
+                        + "called more than once, which is an illegal operation. The configuration "
+                        + "settings provided by ProcessGlobalConfig take effect only once, when "
+                        + "WebView is first loaded into the current process. Every process should "
+                        + "only ever create a single instance of ProcessGlobalConfig and apply it "
+                        + "once, before any calls to android.webkit APIs, such as during early app "
+                        + "startup."
+                );
+            }
+            sApplyCalled = true;
+        }
+        HashMap<String, Object> configMap = new HashMap<String, Object>();
+        if (webViewCurrentlyLoaded()) {
+            throw new IllegalStateException("WebView has already been loaded in the current "
+                    + "process, so any attempt to apply the settings in ProcessGlobalConfig will "
+                    + "have no effect. ProcessGlobalConfig#apply needs to be called before any "
+                    + "calls to android.webkit APIs, such as during early app startup.");
+        }
+        if (config.mDataDirectorySuffix != null) {
+            final StartupApiFeature.P feature =
+                    WebViewFeatureInternal.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX;
+            if (feature.isSupportedByFramework()) {
+                ApiHelperForP.setDataDirectorySuffix(config.mDataDirectorySuffix);
+            } else {
+                configMap.put(ProcessGlobalConfigConstants.DATA_DIRECTORY_SUFFIX,
+                        config.mDataDirectorySuffix);
+            }
+        }
+        if (config.mDataDirectoryBasePath != null) {
+            configMap.put(ProcessGlobalConfigConstants.DATA_DIRECTORY_BASE_PATH,
+                    config.mDataDirectoryBasePath);
+        }
+        if (config.mCacheDirectoryBasePath != null) {
+            configMap.put(ProcessGlobalConfigConstants.CACHE_DIRECTORY_BASE_PATH,
+                    config.mCacheDirectoryBasePath);
+        }
+        if (!sProcessGlobalConfig.compareAndSet(null, configMap)) {
+            throw new RuntimeException("Attempting to set ProcessGlobalConfig"
+                    + "#sProcessGlobalConfig when it was already set");
+        }
+    }
+
+    private static boolean webViewCurrentlyLoaded() {
         // TODO(crbug.com/1355297): This is racy but it is the best we can do for now since we can't
         //  access the lock for sProviderInstance in WebView. Evaluate a framework path for
         //  ProcessGlobalConfig.

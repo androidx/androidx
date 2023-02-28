@@ -36,6 +36,10 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
+
+    @NonNull
+    private CaptureType mLastRequestedCaptureType;
+
     /**
      * Returns the configuration for the given capture type, or <code>null</code> if the
      * configuration cannot be produced.
@@ -45,11 +49,17 @@ public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
     public Config getConfig(
             @NonNull CaptureType captureType,
             @CaptureMode int captureMode) {
+        mLastRequestedCaptureType = captureType;
         MutableOptionsBundle mutableConfig = MutableOptionsBundle.create();
 
         mutableConfig.insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, (config, builder) -> {});
         mutableConfig.insertOption(OPTION_SESSION_CONFIG_UNPACKER, (config, builder) -> {});
 
         return OptionsBundle.from(mutableConfig);
+    }
+
+    @NonNull
+    public CaptureType getLastRequestedCaptureType() {
+        return mLastRequestedCaptureType;
     }
 }

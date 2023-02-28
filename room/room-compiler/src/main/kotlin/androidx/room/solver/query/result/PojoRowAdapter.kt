@@ -16,18 +16,7 @@
 
 package androidx.room.solver.query.result
 
-import androidx.room.compiler.codegen.CodeLanguage
-import androidx.room.compiler.codegen.VisibilityModifier
-import androidx.room.compiler.codegen.XClassName
-import androidx.room.compiler.codegen.XFunSpec
-import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.compiler.codegen.addOriginatingElement
-import androidx.room.compiler.codegen.toJavaPoet
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.AndroidTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.T
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
@@ -39,8 +28,6 @@ import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
 import androidx.room.writer.FieldReadWriteWriter
-import androidx.room.writer.TypeWriter
-import kotlin.math.abs
 
 /**
  * Creates the entity from the given info.
@@ -81,14 +68,18 @@ class PojoRowAdapter(
             if (nonNulls.isNotEmpty()) {
                 context.logger.e(
                     ProcessorErrors.pojoMissingNonNull(
-                        pojoTypeName = pojo.typeName.toJavaPoet(),
+                        pojoTypeName = pojo.typeName.toString(context.codeLanguage),
                         missingPojoFields = nonNulls.map { it.name },
                         allQueryColumns = info.columns.map { it.name }
                     )
                 )
             }
             if (matchedFields.isEmpty()) {
-                context.logger.e(ProcessorErrors.cannotFindQueryResultAdapter(out.typeName))
+                context.logger.e(
+                    ProcessorErrors.cannotFindQueryResultAdapter(
+                        out.asTypeName().toString(context.codeLanguage)
+                    )
+                )
             }
         } else {
             matchedFields = remainingFields.map { it }
@@ -132,76 +123,28 @@ class PojoRowAdapter(
     private fun emitRelationCollectorsReady(cursorVarName: String, scope: CodeGenScope) {
         if (relationCollectors.isNotEmpty()) {
             relationCollectors.forEach { it.writeInitCode(scope) }
-            scope.builder().apply {
-                beginControlFlow("while ($L.moveToNext())", cursorVarName).apply {
+            scope.builder.apply {
+                beginControlFlow("while (%L.moveToNext())", cursorVarName).apply {
                     relationCollectors.forEach {
                         it.writeReadParentKeyCode(cursorVarName, fieldsWithIndices, scope)
                     }
                 }
                 endControlFlow()
+                addStatement("%L.moveToPosition(-1)", cursorVarName)
             }
-            scope.builder().addStatement("$L.moveToPosition(-1)", cursorVarName)
-            relationCollectors.forEach { it.writeCollectionCode(scope) }
+            relationCollectors.forEach { it.writeFetchRelationCall(scope) }
         }
     }
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
-        fun doReadFromCursor(outVarName: String, scope: CodeGenScope) {
-            FieldReadWriteWriter.readFromCursor(
-                outVar = outVarName,
-                outPojo = pojo,
-                cursorVar = cursorVarName,
-                fieldsWithIndices = fieldsWithIndices,
-                relationCollectors = relationCollectors,
-                scope = scope
-            )
-        }
-        // TODO(b/127483380): Inline in code gen scope once Kotlin code gen progresses.
-        if (relationCollectors.isEmpty() && context.codeLanguage == CodeLanguage.KOTLIN) {
-            // The name of the class is based on the query, possible to be collisions, but good,
-            // enough for now.
-            val nameHash = abs(query?.original?.hashCode() ?: out.asTypeName().hashCode())
-            val className = XClassName.get("androidx.room.temp", "PojoRowAdapter_$nameHash")
-            object : TypeWriter(CodeLanguage.KOTLIN) {
-                override fun createTypeSpecBuilder(): XTypeSpec.Builder {
-                    val readFunction = XFunSpec.builder(
-                        CodeLanguage.KOTLIN,
-                        "readFromCursor",
-                        VisibilityModifier.PUBLIC
-                    )
-                        .returns(out.asTypeName())
-                        .addParameter(AndroidTypeNames.CURSOR, cursorVarName)
-                        .apply {
-                            fieldsWithIndices.forEach {
-                                addParameter(XTypeName.PRIMITIVE_INT, it.indexVar)
-                            }
-                        }
-                        .addCode(
-                            CodeGenScope(this).apply {
-                                builder.addLocalVariable(outVarName, out.asTypeName())
-                                doReadFromCursor(outVarName, this)
-                                builder.addStatement("return %L", outVarName)
-                            }.generate()
-                        )
-                        .build()
-                    return XTypeSpec.classBuilder(codeLanguage, className)
-                        .addOriginatingElement(pojo.element)
-                        .addFunction(readFunction)
-                }
-            }.write(context.processingEnv)
-            scope.builder().apply {
-                addStatement("$L = new $T().readFromCursor($L, $L)",
-                    outVarName,
-                    className.toJavaPoet(),
-                    cursorVarName,
-                    fieldsWithIndices.joinToString { it.indexVar }
-                )
-            }
-        } else {
-            scope.builder().apply {
-                doReadFromCursor(outVarName, scope)
-            }
-        }
+        FieldReadWriteWriter.readFromCursor(
+            outVar = outVarName,
+            outPojo = pojo,
+            cursorVar = cursorVarName,
+            fieldsWithIndices = fieldsWithIndices,
+            relationCollectors = relationCollectors,
+            scope = scope
+        )
     }
 
     override fun getDefaultIndexAdapter() = indexAdapter

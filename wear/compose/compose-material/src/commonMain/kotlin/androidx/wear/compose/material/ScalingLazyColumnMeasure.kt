@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.wear.compose.material
 
 import androidx.compose.animation.core.Easing
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.LazyListItemInfo
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.lerp
+import androidx.wear.compose.foundation.lazy.ScaleAndAlpha
+import androidx.wear.compose.foundation.lazy.inverseLerp
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -93,6 +96,8 @@ import kotlin.math.roundToInt
  * point for each item.
  */
 @Stable
+@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
+    "Please use it instead")
 public interface ScalingParams {
     /**
      * What fraction of the full size of the item to scale it by when most
@@ -334,6 +339,7 @@ internal fun calculateScaleAndAlpha(
  * allow for content padding in order to determine the adjusted position of the item within the
  * viewport in order to correctly calculate the scaling to apply.
  * @param viewportHeightPx the height of the viewport in pixels
+ * @param viewportCenterLinePx the center line of the viewport in pixels
  * @param scalingParams the scaling params to use for determining the scaled size of the item
  * @param beforeContentPaddingPx the number of pixels of padding before the first item
  * @param anchorType the type of pivot to use for the center item when calculating position and
@@ -347,6 +353,7 @@ internal fun calculateItemInfo(
     item: LazyListItemInfo,
     verticalAdjustment: Int,
     viewportHeightPx: Int,
+    viewportCenterLinePx: Int,
     scalingParams: ScalingParams,
     beforeContentPaddingPx: Int,
     anchorType: ScalingLazyListAnchorType,
@@ -372,14 +379,14 @@ internal fun calculateItemInfo(
     val offset = convertToCenterOffset(
         anchorType = anchorType,
         itemScrollOffset = scaledItemTop,
-        viewPortSizeInPx = viewportHeightPx,
+        viewportCenterLinePx = viewportCenterLinePx,
         beforeContentPaddingInPx = beforeContentPaddingPx,
         itemSizeInPx = scaledHeight
     )
     val unadjustedOffset = convertToCenterOffset(
         anchorType = anchorType,
         itemScrollOffset = item.offset,
-        viewPortSizeInPx = viewportHeightPx,
+        viewportCenterLinePx = viewportCenterLinePx,
         beforeContentPaddingInPx = beforeContentPaddingPx,
         itemSizeInPx = item.size
     )
@@ -397,7 +404,7 @@ internal fun calculateItemInfo(
 }
 
 internal class DefaultScalingLazyListLayoutInfo(
-    override val visibleItemsInfo: List<ScalingLazyListItemInfo>,
+    internal val internalVisibleItemsInfo: List<ScalingLazyListItemInfo>,
     override val viewportStartOffset: Int,
     override val viewportEndOffset: Int,
     override val totalItemsCount: Int,
@@ -416,8 +423,13 @@ internal class DefaultScalingLazyListLayoutInfo(
     internal val readyForInitialScroll: Boolean,
     // Flag to indicate that initialization is complete and initial scroll index and offset have
     // been set.
-    internal val initialized: Boolean
-) : ScalingLazyListLayoutInfo
+    internal val initialized: Boolean,
+) : ScalingLazyListLayoutInfo {
+    override val visibleItemsInfo: List<ScalingLazyListItemInfo>
+        // Do not report visible items until initialization is complete and the items are
+        // actually visible and correctly positioned.
+        get() = if (initialized) internalVisibleItemsInfo else emptyList()
+}
 
 internal class DefaultScalingLazyListItemInfo(
     override val index: Int,
@@ -436,15 +448,31 @@ internal class DefaultScalingLazyListItemInfo(
     }
 }
 
-@Immutable
-internal data class ScaleAndAlpha(
-    val scale: Float,
-    val alpha: Float
-
-) {
-    companion object {
-        internal val noScaling = ScaleAndAlpha(1.0f, 1.0f)
-    }
+/**
+ * Calculate the offset from the viewport center line of the Start|Center of an items unadjusted
+ * or scaled size. The for items with an height that is an odd number and that have
+ * ScalingLazyListAnchorType.Center the offset will be rounded down. E.g. An item which is 19 pixels
+ * in height will have a center offset of 9 pixes.
+ *
+ * @param anchorType the anchor type of the ScalingLazyColumn
+ * @param itemScrollOffset the LazyListItemInfo offset of the item
+ * @param viewportCenterLinePx the value to use as the center line of the viewport
+ * @param beforeContentPaddingInPx any content padding that has been applied before the contents
+ * @param itemSizeInPx the size of the item
+ */
+internal fun convertToCenterOffset(
+    anchorType: ScalingLazyListAnchorType,
+    itemScrollOffset: Int,
+    viewportCenterLinePx: Int,
+    beforeContentPaddingInPx: Int,
+    itemSizeInPx: Int
+): Int {
+    return itemScrollOffset - viewportCenterLinePx + beforeContentPaddingInPx +
+        if (anchorType == ScalingLazyListAnchorType.ItemStart) {
+            0
+        } else {
+            itemSizeInPx / 2
+        }
 }
 
 /**
@@ -467,11 +495,3 @@ internal fun ScalingLazyListItemInfo.unadjustedStartOffset(anchorType: ScalingLa
     } else {
         0f
     }
-
-/**
- * Inverse linearly interpolate, return what fraction (0f..1f) that [value] is between [start] and
- * [stop]. Returns 0f if value =< start and 1f if value >= stop.
- */
-internal fun inverseLerp(start: Float, stop: Float, value: Float): Float {
-    return ((value - start) / (stop - start)).coerceIn(0f, 1f)
-}

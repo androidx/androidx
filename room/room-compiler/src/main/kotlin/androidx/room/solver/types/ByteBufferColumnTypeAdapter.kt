@@ -16,16 +16,14 @@
 
 package androidx.room.solver.types
 
-import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
-import androidx.room.ext.T
+import androidx.room.ext.CommonTypeNames
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.TypeName
-import java.nio.ByteBuffer
 
-class ByteBufferColumnTypeAdapter private constructor(out: XType) : ColumnTypeAdapter(
+class ByteBufferColumnTypeAdapter constructor(out: XType) : ColumnTypeAdapter(
     out = out,
     typeAffinity = SQLTypeAffinity.BLOB
 ) {
@@ -35,17 +33,25 @@ class ByteBufferColumnTypeAdapter private constructor(out: XType) : ColumnTypeAd
         indexVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            beginControlFlow("if ($L.isNull($L))", cursorVarName, indexVarName).apply {
-                addStatement("$L = null", outVarName)
-            }
-            nextControlFlow("else").apply {
+        scope.builder.apply {
+            fun XCodeBlock.Builder.addGetBlobStatement() {
                 addStatement(
-                    "$L = $T.wrap($L.getBlob($L))",
-                    outVarName, TypeName.get(ByteBuffer::class.java), cursorVarName, indexVarName
+                    "%L = %T.wrap(%L.getBlob(%L))",
+                    outVarName,
+                    CommonTypeNames.BYTE_BUFFER,
+                    cursorVarName,
+                    indexVarName
                 )
             }
-            endControlFlow()
+            if (out.nullability == XNullability.NONNULL) {
+                addGetBlobStatement()
+            } else {
+                beginControlFlow("if (%L.isNull(%L))", cursorVarName, indexVarName)
+                    .addStatement("%L = null", outVarName)
+                nextControlFlow("else")
+                    .addGetBlobStatement()
+                endControlFlow()
+            }
         }
     }
 
@@ -55,27 +61,23 @@ class ByteBufferColumnTypeAdapter private constructor(out: XType) : ColumnTypeAd
         valueVarName: String,
         scope: CodeGenScope
     ) {
-        scope.builder().apply {
-            beginControlFlow("if ($L == null)", valueVarName)
-                .addStatement("$L.bindNull($L)", stmtName, indexVarName)
-            nextControlFlow("else")
-                .addStatement("$L.bindBlob($L, $L.array())", stmtName, indexVarName, valueVarName)
-            endControlFlow()
-        }
-    }
-
-    companion object {
-        fun create(env: XProcessingEnv): List<ByteBufferColumnTypeAdapter> {
-            val byteBufferType = env.requireType("java.nio.ByteBuffer")
-            return if (env.backend == XProcessingEnv.Backend.KSP) {
-                listOf(
-                    ByteBufferColumnTypeAdapter(byteBufferType.makeNonNullable()),
-                    ByteBufferColumnTypeAdapter(byteBufferType.makeNullable()),
+        scope.builder.apply {
+            fun XCodeBlock.Builder.addBindBlobStatement() {
+                addStatement(
+                    "%L.bindBlob(%L, %L.array())",
+                    stmtName,
+                    indexVarName,
+                    valueVarName
                 )
+            }
+            if (out.nullability == XNullability.NONNULL) {
+                addBindBlobStatement()
             } else {
-                listOf(
-                    ByteBufferColumnTypeAdapter(byteBufferType)
-                )
+                beginControlFlow("if (%L == null)", valueVarName)
+                    .addStatement("%L.bindNull(%L)", stmtName, indexVarName)
+                nextControlFlow("else")
+                    .addBindBlobStatement()
+                endControlFlow()
             }
         }
     }

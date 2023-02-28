@@ -23,8 +23,6 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Variance
-import com.squareup.kotlinpoet.ARRAY
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
 
@@ -66,7 +64,7 @@ internal sealed class KspArrayType(
             val componentTypeName = componentType.asTypeName()
             XTypeName(
                 java = JArrayTypeName.of(componentTypeName.java.box()),
-                kotlin = ARRAY.parameterizedBy(componentTypeName.kotlin),
+                kotlin = ksType.asKTypeName(env.resolver),
                 nullability = nullability,
             )
         }

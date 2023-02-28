@@ -150,7 +150,15 @@ internal class EmittableCurvedRow : EmittableWithChildren() {
     var anchorType: AnchorType = AnchorType.Center
     var radialAlignment: RadialAlignment = RadialAlignment.Center
 
-    override fun toString() =
+    override fun copy(): Emittable = EmittableCurvedRow().also {
+        it.modifier = modifier
+        it.anchorDegrees = anchorDegrees
+        it.anchorType = anchorType
+        it.radialAlignment = radialAlignment
+        it.children.addAll(children.map { it.copy() })
+    }
+
+    override fun toString(): String =
         "EmittableCurvedRow(modifier=$modifier, anchorDegrees=$anchorDegrees," +
             "anchorType=$anchorType, children=[\n{${childrenToString()}}\n])"
 }
@@ -159,6 +167,18 @@ internal class EmittableCurvedChild : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
 
     var rotateContent: Boolean = false
+
+    override fun copy(): Emittable = EmittableCurvedChild().also {
+        it.modifier = modifier
+        it.rotateContent = rotateContent
+        it.children.addAll(children.map { it.copy() })
+    }
+
+    override fun toString(): String = "EmittableCurvedChild(" +
+        "modifier=$modifier, " +
+        "rotateContent=$rotateContent" +
+        "children=[\n${childrenToString()}\n]" +
+        ")"
 }
 
 internal class EmittableCurvedText : Emittable {
@@ -167,6 +187,20 @@ internal class EmittableCurvedText : Emittable {
     var curvedModifier: GlanceCurvedModifier = GlanceCurvedModifier
     var text: String = ""
     var style: CurvedTextStyle? = null
+
+    override fun copy(): Emittable = EmittableCurvedText().also {
+        it.modifier = modifier
+        it.curvedModifier = curvedModifier
+        it.text = text
+        it.style = style
+    }
+
+    override fun toString(): String = "EmittableCurvedText(" +
+        "modifier=$modifier, " +
+        "curvedModifier=$curvedModifier, " +
+        "text=$text, " +
+        "style=$style" +
+        ")"
 }
 
 internal class EmittableCurvedLine : Emittable {
@@ -174,12 +208,34 @@ internal class EmittableCurvedLine : Emittable {
 
     var color: ColorProvider = ColorProvider(Color.Transparent)
     var curvedModifier: GlanceCurvedModifier = GlanceCurvedModifier
+
+    override fun copy(): Emittable = EmittableCurvedLine().also {
+        it.modifier = modifier
+        it.color = color
+        it.curvedModifier = curvedModifier
+    }
+
+    override fun toString(): String = "EmittableCurvedLine(" +
+        "modifier=$modifier, " +
+        "color=$color, " +
+        "curvedModifier=$curvedModifier" +
+        ")"
 }
 
 internal class EmittableCurvedSpacer : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
 
     var curvedModifier: GlanceCurvedModifier = GlanceCurvedModifier
+
+    override fun copy(): Emittable = EmittableCurvedSpacer().also {
+        it.modifier = modifier
+        it.curvedModifier = curvedModifier
+    }
+
+    override fun toString(): String = "EmittableCurvedSpacer(" +
+        "modifier=$modifier, " +
+        "curvedModifier=$curvedModifier" +
+        ")"
 }
 
 @DslMarker
@@ -188,6 +244,7 @@ annotation class CurvedScopeMarker
 @CurvedScopeMarker
 interface CurvedChildScope
 
+@JvmDefaultWithCompatibility
 /** A scope for elements which can only be contained within a [CurvedRow]. */
 @CurvedScopeMarker
 interface CurvedScope {

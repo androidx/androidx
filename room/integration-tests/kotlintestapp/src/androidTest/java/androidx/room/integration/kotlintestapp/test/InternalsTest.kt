@@ -41,7 +41,7 @@ class InternalsTest {
         exportSchema = false
     )
     internal abstract class InternalDb : RoomDatabase() {
-        abstract val dao: InternalDao
+        abstract fun getDao(): InternalDao
     }
 
     @Entity
@@ -113,18 +113,18 @@ class InternalsTest {
             it.internalFieldProp = "ifp"
             it.publicFieldProp = "pfp"
         }
-        db.dao.insert(entity)
+        db.getDao().insert(entity)
         assertThat(
-            db.dao.byInternalField(field = "if")
+            db.getDao().byInternalField(field = "if")
         ).containsExactly(entity)
         assertThat(
-            db.dao.byPublicField(field = "pf")
+            db.getDao().byPublicField(field = "pf")
         ).containsExactly(entity)
         assertThat(
-            db.dao.byInternalFieldProp(field = "ifp")
+            db.getDao().byInternalFieldProp(field = "ifp")
         ).containsExactly(entity)
         assertThat(
-            db.dao.byPublicFieldProp(field = "pfp")
+            db.getDao().byPublicFieldProp(field = "pfp")
         ).containsExactly(entity)
     }
 }

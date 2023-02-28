@@ -22,11 +22,14 @@ import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.util.BundleUtil;
 import androidx.collection.ArrayMap;
+import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -64,6 +67,10 @@ public final class SearchSpec {
     static final String PROJECTION_TYPE_PROPERTY_PATHS_FIELD = "projectionTypeFieldMasks";
     static final String RESULT_GROUPING_TYPE_FLAGS = "resultGroupingTypeFlags";
     static final String RESULT_GROUPING_LIMIT = "resultGroupingLimit";
+    static final String TYPE_PROPERTY_WEIGHTS_FIELD = "typePropertyWeightsField";
+    static final String JOIN_SPEC = "joinSpec";
+    static final String ADVANCED_RANKING_EXPRESSION = "advancedRankingExpression";
+    static final String ENABLED_FEATURES_FIELD = "enabledFeatures";
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -118,6 +125,8 @@ public final class SearchSpec {
             RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP,
             RANKING_STRATEGY_SYSTEM_USAGE_COUNT,
             RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP,
+            RANKING_STRATEGY_JOIN_AGGREGATE_SCORE,
+            RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface RankingStrategy {
@@ -139,6 +148,18 @@ public final class SearchSpec {
     public static final int RANKING_STRATEGY_SYSTEM_USAGE_COUNT = 6;
     /** Ranked by timestamp of last usage from a system UI surface. */
     public static final int RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP = 7;
+    /**
+     * Ranked by the aggregated ranking signal of the joined documents.
+     *
+     * <p> Which aggregation strategy is used to determine a ranking signal is specified in the
+     * {@link JoinSpec} set by {@link Builder#setJoinSpec}. This ranking strategy may not be used
+     * if no {@link JoinSpec} is provided.
+     *
+     * @see Builder#build
+     */
+    public static final int RANKING_STRATEGY_JOIN_AGGREGATE_SCORE = 8;
+    /** Ranked by the advanced ranking expression provided. */
+    public static final int RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION = 9;
 
     /**
      * Order for query result.
@@ -293,6 +314,8 @@ public final class SearchSpec {
      *
      * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
      * by this function, rather than calling it multiple times.
+     *
+     * @return A mapping of schema types to lists of projection strings.
      */
     @NonNull
     public Map<String, List<String>> getProjections() {
@@ -314,6 +337,8 @@ public final class SearchSpec {
      *
      * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
      * by this function, rather than calling it multiple times.
+     *
+     * @return A mapping of schema types to lists of projection {@link PropertyPath} objects.
      */
     @NonNull
     public Map<String, List<PropertyPath>> getProjectionPaths() {
@@ -329,6 +354,61 @@ public final class SearchSpec {
             typePropertyPathsMap.put(schema, copy);
         }
         return typePropertyPathsMap;
+    }
+
+    /**
+     * Returns properties weights to be used for scoring.
+     *
+     * <p>Calling this function repeatedly is inefficient. Prefer to retain the {@link Map} returned
+     * by this function, rather than calling it multiple times.
+     *
+     * @return a {@link Map} of schema type to an inner-map of property paths of the schema type to
+     * the weight to set for that property.
+     */
+    @NonNull
+    public Map<String, Map<String, Double>> getPropertyWeights() {
+        Bundle typePropertyWeightsBundle = mBundle.getBundle(TYPE_PROPERTY_WEIGHTS_FIELD);
+        Set<String> schemaTypes = typePropertyWeightsBundle.keySet();
+        Map<String, Map<String, Double>> typePropertyWeightsMap = new ArrayMap<>(
+                schemaTypes.size());
+        for (String schemaType : schemaTypes) {
+            Bundle propertyPathBundle = typePropertyWeightsBundle.getBundle(schemaType);
+            Set<String> propertyPaths = propertyPathBundle.keySet();
+            Map<String, Double> propertyPathWeights = new ArrayMap<>(propertyPaths.size());
+            for (String propertyPath : propertyPaths) {
+                propertyPathWeights.put(propertyPath, propertyPathBundle.getDouble(propertyPath));
+            }
+            typePropertyWeightsMap.put(schemaType, propertyPathWeights);
+        }
+        return typePropertyWeightsMap;
+    }
+
+    /**
+     * Returns properties weights to be used for scoring.
+     *
+     * <p>Calling this function repeatedly is inefficient. Prefer to retain the {@link Map} returned
+     * by this function, rather than calling it multiple times.
+     *
+     * @return a {@link Map} of schema type to an inner-map of property paths of the schema type to
+     * the weight to set for that property.
+     */
+    @NonNull
+    public Map<String, Map<PropertyPath, Double>> getPropertyWeightPaths() {
+        Bundle typePropertyWeightsBundle = mBundle.getBundle(TYPE_PROPERTY_WEIGHTS_FIELD);
+        Set<String> schemaTypes = typePropertyWeightsBundle.keySet();
+        Map<String, Map<PropertyPath, Double>> typePropertyWeightsMap = new ArrayMap<>(
+                schemaTypes.size());
+        for (String schemaType : schemaTypes) {
+            Bundle propertyPathBundle = typePropertyWeightsBundle.getBundle(schemaType);
+            Set<String> propertyPaths = propertyPathBundle.keySet();
+            Map<PropertyPath, Double> propertyPathWeights = new ArrayMap<>(propertyPaths.size());
+            for (String propertyPath : propertyPaths) {
+                propertyPathWeights.put(new PropertyPath(propertyPath),
+                        propertyPathBundle.getDouble(propertyPath));
+            }
+            typePropertyWeightsMap.put(schemaType, propertyPathWeights);
+        }
+        return typePropertyWeightsMap;
     }
 
     /**
@@ -349,12 +429,68 @@ public final class SearchSpec {
         return mBundle.getInt(RESULT_GROUPING_LIMIT, Integer.MAX_VALUE);
     }
 
+    /**
+     * Returns specification on which documents need to be joined.
+     */
+    @Nullable
+    public JoinSpec getJoinSpec() {
+        Bundle joinSpec = mBundle.getBundle(JOIN_SPEC);
+        if (joinSpec == null) {
+            return null;
+        }
+        return new JoinSpec(joinSpec);
+    }
+
+    /**
+     * Get the advanced ranking expression, or "" if {@link Builder#setRankingStrategy(String)}
+     * was not called.
+     */
+    @NonNull
+    public String getAdvancedRankingExpression() {
+        return mBundle.getString(ADVANCED_RANKING_EXPRESSION, "");
+    }
+
+    /**
+     * Returns whether the {@link Features#NUMERIC_SEARCH} feature is enabled.
+     */
+    public boolean isNumericSearchEnabled() {
+        return getEnabledFeatures().contains(Features.NUMERIC_SEARCH);
+    }
+
+    /**
+     * Returns whether the {@link Features#VERBATIM_SEARCH} feature is enabled.
+     */
+    public boolean isVerbatimSearchEnabled() {
+        return getEnabledFeatures().contains(Features.VERBATIM_SEARCH);
+    }
+
+    /**
+     * Returns whether the {@link Features#LIST_FILTER_QUERY_LANGUAGE} feature is enabled.
+     */
+    public boolean isListFilterQueryLanguageEnabled() {
+        return getEnabledFeatures().contains(Features.LIST_FILTER_QUERY_LANGUAGE);
+    }
+
+    /**
+     * Get the list of enabled features that the caller is intending to use in this search call.
+     *
+     * @return the set of {@link Features} enabled in this {@link SearchSpec} Entry.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public List<String> getEnabledFeatures() {
+        return mBundle.getStringArrayList(ENABLED_FEATURES_FIELD);
+    }
+
     /** Builder for {@link SearchSpec objects}. */
     public static final class Builder {
         private ArrayList<String> mSchemas = new ArrayList<>();
         private ArrayList<String> mNamespaces = new ArrayList<>();
         private ArrayList<String> mPackageNames = new ArrayList<>();
+        private ArraySet<String> mEnabledFeatures = new ArraySet<>();
         private Bundle mProjectionTypePropertyMasks = new Bundle();
+        private Bundle mTypePropertyWeights = new Bundle();
 
         private int mResultCountPerPage = DEFAULT_NUM_PER_PAGE;
         private @TermMatch int mTermMatchType = TERM_MATCH_PREFIX;
@@ -365,6 +501,8 @@ public final class SearchSpec {
         private @Order int mOrder = ORDER_DESCENDING;
         private @GroupingType int mGroupingTypeFlags = 0;
         private int mGroupingLimit = 0;
+        private JoinSpec mJoinSpec;
+        private String mAdvancedRankingExpression = "";
         private boolean mBuilt = false;
 
         /**
@@ -533,9 +671,121 @@ public final class SearchSpec {
         @NonNull
         public Builder setRankingStrategy(@RankingStrategy int rankingStrategy) {
             Preconditions.checkArgumentInRange(rankingStrategy, RANKING_STRATEGY_NONE,
-                    RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP, "Result ranking strategy");
+                    RANKING_STRATEGY_JOIN_AGGREGATE_SCORE, "Result ranking strategy");
             resetIfBuilt();
             mRankingStrategy = rankingStrategy;
+            mAdvancedRankingExpression = "";
+            return this;
+        }
+
+        /**
+         * Enables advanced ranking to score based on {@code advancedRankingExpression}.
+         *
+         * <p>This method will set RankingStrategy to
+         * {@link #RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION}.
+         *
+         * <p>The ranking expression is a mathematical expression that will be evaluated to a
+         * floating-point number of double type representing the score of each document.
+         *
+         * <p>Numeric literals, arithmetic operators, mathematical functions, and document-based
+         * functions are supported to build expressions.
+         *
+         * <p>The following are examples of numeric literals:
+         * <ul>
+         *     <li>Integer
+         *     <p>Example: 0, 1, 2, 13
+         *     <li>Floating-point number
+         *     <p>Example: 0.333, 0.5, 123.456
+         *     <li>Negative number
+         *     <p>Example: -5, -10.5, -100.123
+         * </ul>
+         *
+         * <p>The following are supported arithmetic operators:
+         * <ul>
+         *     <li>Addition(+)
+         *     <p>Example: "1 + 1" will be evaluated to 2.
+         *     <li>Subtraction(-)
+         *     <p>Example: "2 - 1.5" will be evaluated to 0.5.
+         *     <li>Multiplication(*)
+         *     <p>Example: "2 * -2" will be evaluated to -4.
+         *     <li>Division(/)
+         *     <p>Example: "5 / 2" will be evaluated to 2.5.
+         * </ul>
+         *
+         * <p>Multiplication and division have higher precedences than addition and subtraction,
+         * but multiplication has the same precedence as division, and addition has the same
+         * precedence as subtraction. Parentheses are supported to change precedences.
+         *
+         * <p>For example:
+         * <ul>
+         *     <li>"2 + 3 - 4 * 5" will be evaluated to -15
+         *     <li>"(2 + 3) - (4 * 5)" will be evaluated to -15
+         *     <li>"2 + (3 - 4) * 5" will be evaluated to -3
+         * </ul>
+         *
+         * <p>The following are supported mathematical functions:
+         * <ul>
+         *     <li>log(x) - the natural log of x
+         *     <li>log(x, y) - the log of y with base x
+         *     <li>pow(x, y) - x to the power of y
+         *     <li>max(v1, v2, ..., vn) with n > 0 - the maximum value among v1, ..., vn
+         *     <li>min(v1, v2, ..., vn) with n > 0 - the minimum value among v1, ..., vn
+         *     <li>sqrt(x) - the square root of x
+         *     <li>abs(x) - the absolute value of x
+         *     <li>sin(x), cos(x), tan(x) - trigonometric functions of x
+         *     <li>Example: "max(abs(-100), 10) + pow(2, 10)" will be evaluated to 1124
+         * </ul>
+         *
+         * <p>Document-based functions must be called via "this", which represents the current
+         * document being scored. The following are supported document-based functions:
+         * <ul>
+         *     <li>this.documentScore()
+         *     <p>Get the app-provided document score of the current document. This is the same
+         *     score that is returned for {@link #RANKING_STRATEGY_DOCUMENT_SCORE}.
+         *     <li>this.creationTimestamp()
+         *     <p>Get the creation timestamp of the current document. This is the same score that
+         *     is returned for {@link #RANKING_STRATEGY_CREATION_TIMESTAMP}.
+         *     <li>this.relevanceScore()
+         *     <p>Get the BM25F relevance score of the current document in relation to the query
+         *     string. This is the same score that is returned for
+         *     {@link #RANKING_STRATEGY_RELEVANCE_SCORE}.
+         *     <li>this.usageCount(type) and this.usageLastUsedTimestamp(type)
+         *     <p>Get the number of usages or the timestamp of last usage by type for the current
+         *     document, where type must be evaluated to an integer from 1 to 2. Type 1 refers to
+         *     usages reported by {@link AppSearchSession#reportUsageAsync}, and type 2 refers to
+         *     usages reported by {@link GlobalSearchSession#reportSystemUsageAsync}.
+         * </ul>
+         *
+         * <p>Some errors may occur when using advanced ranking.
+         * <ul>
+         *     <li>Syntax Error: the expression violates the syntax of the advanced ranking
+         *     language, such as unbalanced parenthesis.
+         *     <li>Type Error: the expression fails a static type check, such as getting the wrong
+         *     number of arguments for a function.
+         *     <li>Evaluation Error: an error occurred while evaluating the value of the
+         *     expression, such as getting a non-finite value in the middle of evaluation.
+         *     Expressions like "1 / 0" and "log(0) fall into this category.
+         * </ul>
+         *
+         * <p>Syntax errors and type errors will fail the entire search and will cause
+         * {@link SearchResults#getNextPageAsync()} to throw an {@link AppSearchException}.
+         * <p>Evaluation errors will result in the offending documents receiving the default score.
+         * For {@link #ORDER_DESCENDING}, the default score will be 0, for
+         * {@link #ORDER_ASCENDING} the default score will be infinity.
+         *
+         * @param advancedRankingExpression a non-empty string representing the ranking expression.
+         */
+        @NonNull
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION)
+        // @exportToFramework:endStrip()
+        public Builder setRankingStrategy(@NonNull String advancedRankingExpression) {
+            Preconditions.checkStringNotEmpty(advancedRankingExpression);
+            resetIfBuilt();
+            mRankingStrategy = RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION;
+            mAdvancedRankingExpression = advancedRankingExpression;
             return this;
         }
 
@@ -587,7 +837,7 @@ public final class SearchSpec {
         @NonNull
         public SearchSpec.Builder setSnippetCountPerProperty(
                 @IntRange(from = 0, to = MAX_SNIPPET_PER_PROPERTY_COUNT)
-                        int snippetCountPerProperty) {
+                int snippetCountPerProperty) {
             Preconditions.checkArgumentInRange(snippetCountPerProperty,
                     0, MAX_SNIPPET_PER_PROPERTY_COUNT, "snippetCountPerProperty");
             resetIfBuilt();
@@ -624,6 +874,9 @@ public final class SearchSpec {
          * it will be ignored for that result. Property paths cannot be null.
          *
          * @see #addProjectionPaths
+         *
+         * @param schema a string corresponding to the schema to add projections to.
+         * @param propertyPaths the projections to add.
          */
         @NonNull
         public SearchSpec.Builder addProjection(
@@ -699,6 +952,9 @@ public final class SearchSpec {
          *   subject: "IMPORTANT"
          * }
          * }</pre>
+         *
+         * @param schema a string corresponding to the schema to add projections to.
+         * @param propertyPaths the projections to add.
          */
         @NonNull
         public SearchSpec.Builder addProjectionPaths(
@@ -712,8 +968,56 @@ public final class SearchSpec {
             return addProjection(schema, propertyPathsArrayList);
         }
 
+// @exportToFramework:startStrip()
         /**
-         * Set the maximum number of results to return for each group, where groups are defined
+         * Adds property paths for the Document class to be used for projection. If property
+         * paths are added for a document class, then only the properties referred to will be
+         * retrieved for results of that type. If a property path that is specified isn't present
+         * in a result, it will be ignored for that result. Property paths cannot be null.
+         *
+         * @see #addProjection
+         *
+         * @param documentClass a class, annotated with @Document, corresponding to the schema to
+         *                      add projections to.
+         * @param propertyPaths the projections to add.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Projections available from getProjections
+        @NonNull
+        public SearchSpec.Builder addProjectionsForDocumentClass(
+                @NonNull Class<?> documentClass, @NonNull Collection<String> propertyPaths)
+                throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            resetIfBuilt();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return addProjection(factory.getSchemaName(), propertyPaths);
+        }
+
+        /**
+         * Adds property paths for the specified Document class to be used for projection.
+         * @see #addProjectionPaths
+         *
+         * @param documentClass a class, annotated with @Document, corresponding to the schema to
+         *                      add projections to.
+         * @param propertyPaths the projections to add.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Projections available from getProjections
+        @NonNull
+        public SearchSpec.Builder addProjectionPathsForDocumentClass(
+                @NonNull Class<?> documentClass, @NonNull Collection<PropertyPath> propertyPaths)
+                throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            resetIfBuilt();
+            ArrayList<String> propertyPathsArrayList = new ArrayList<>(propertyPaths.size());
+            for (PropertyPath propertyPath : propertyPaths) {
+                propertyPathsArrayList.add(propertyPath.toString());
+            }
+            return addProjectionsForDocumentClass(documentClass, propertyPathsArrayList);
+        }
+// @exportToFramework:endStrip()
+
+        /**
+         * Sets the maximum number of results to return for each group, where groups are defined
          * by grouping type.
          *
          * <p>Calling this method will override any previous calls. So calling
@@ -741,13 +1045,349 @@ public final class SearchSpec {
             return this;
         }
 
-        /** Constructs a new {@link SearchSpec} from the contents of this builder. */
+        /**
+         * Sets property weights by schema type and property path.
+         *
+         * <p>Property weights are used to promote and demote query term matches within a
+         * {@link GenericDocument} property when applying scoring.
+         *
+         * <p>Property weights must be positive values (greater than 0). A property's weight is
+         * multiplied with that property's scoring contribution. This means weights set between 0.0
+         * and 1.0 demote scoring contributions by a term match within the property. Weights set
+         * above 1.0 promote scoring contributions by a term match within the property.
+         *
+         * <p>Properties that exist in the {@link AppSearchSchema}, but do not have a weight
+         * explicitly set will be given a default weight of 1.0.
+         *
+         * <p>Weights set for property paths that do not exist in the {@link AppSearchSchema} will
+         * be discarded and not affect scoring.
+         *
+         * <p><b>NOTE:</b> Property weights only affect scoring for query-dependent scoring
+         * strategies, such as {@link #RANKING_STRATEGY_RELEVANCE_SCORE}.
+         *
+         * <!--@exportToFramework:ifJetpack()-->
+         * <p>This information may not be available depending on the backend and Android API
+         * level. To ensure it is available, call {@link Features#isFeatureSupported}.
+         * <!--@exportToFramework:else()-->
+         *
+         * @param schemaType          the schema type to set property weights for.
+         * @param propertyPathWeights a {@link Map} of property paths of the schema type to the
+         *                            weight to set for that property.
+         * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
+         */
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
+        // @exportToFramework:endStrip()
+        @NonNull
+        public SearchSpec.Builder setPropertyWeights(@NonNull String schemaType,
+                @NonNull Map<String, Double> propertyPathWeights) {
+            Preconditions.checkNotNull(schemaType);
+            Preconditions.checkNotNull(propertyPathWeights);
+
+            Bundle propertyPathBundle = new Bundle();
+            for (Map.Entry<String, Double> propertyPathWeightEntry :
+                    propertyPathWeights.entrySet()) {
+                String propertyPath = Preconditions.checkNotNull(propertyPathWeightEntry.getKey());
+                Double weight = Preconditions.checkNotNull(propertyPathWeightEntry.getValue());
+                if (weight <= 0.0) {
+                    throw new IllegalArgumentException("Cannot set non-positive property weight "
+                            + "value " + weight + " for property path: " + propertyPath);
+                }
+                propertyPathBundle.putDouble(propertyPath, weight);
+            }
+            mTypePropertyWeights.putBundle(schemaType, propertyPathBundle);
+            return this;
+        }
+
+        /**
+         * Specifies which documents to join with, and how to join.
+         *
+         * <p> If the ranking strategy is {@link #RANKING_STRATEGY_JOIN_AGGREGATE_SCORE}, and the
+         * JoinSpec is null, {@link #build} will throw an {@link AppSearchException}.
+         *
+         * @param joinSpec a specification on how to perform the Join operation.
+         */
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.JOIN_SPEC_AND_QUALIFIED_ID)
+        // @exportToFramework:endStrip()
+        @NonNull
+        public Builder setJoinSpec(@NonNull JoinSpec joinSpec) {
+            resetIfBuilt();
+            mJoinSpec = Preconditions.checkNotNull(joinSpec);
+            return this;
+        }
+
+        /**
+         * Sets property weights by schema type and property path.
+         *
+         * <p>Property weights are used to promote and demote query term matches within a
+         * {@link GenericDocument} property when applying scoring.
+         *
+         * <p>Property weights must be positive values (greater than 0). A property's weight is
+         * multiplied with that property's scoring contribution. This means weights set between 0.0
+         * and 1.0 demote scoring contributions by a term match within the property. Weights set
+         * above 1.0 promote scoring contributions by a term match within the property.
+         *
+         * <p>Properties that exist in the {@link AppSearchSchema}, but do not have a weight
+         * explicitly set will be given a default weight of 1.0.
+         *
+         * <p>Weights set for property paths that do not exist in the {@link AppSearchSchema} will
+         * be discarded and not affect scoring.
+         *
+         * <p><b>NOTE:</b> Property weights only affect scoring for query-dependent scoring
+         * strategies, such as {@link #RANKING_STRATEGY_RELEVANCE_SCORE}.
+         *
+         * <!--@exportToFramework:ifJetpack()-->
+         * <p>This information may not be available depending on the backend and Android API
+         * level. To ensure it is available, call {@link Features#isFeatureSupported}.
+         * <!--@exportToFramework:else()-->
+         *
+         * @param schemaType          the schema type to set property weights for.
+         * @param propertyPathWeights a {@link Map} of property paths of the schema type to the
+         *                            weight to set for that property.
+         * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
+         */
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
+        // @exportToFramework:endStrip()
+        @NonNull
+        public SearchSpec.Builder setPropertyWeightPaths(@NonNull String schemaType,
+                @NonNull Map<PropertyPath, Double> propertyPathWeights) {
+            Preconditions.checkNotNull(propertyPathWeights);
+
+            Map<String, Double> propertyWeights = new ArrayMap<>(propertyPathWeights.size());
+            for (Map.Entry<PropertyPath, Double> propertyPathWeightEntry :
+                    propertyPathWeights.entrySet()) {
+                PropertyPath propertyPath =
+                        Preconditions.checkNotNull(propertyPathWeightEntry.getKey());
+                propertyWeights.put(propertyPath.toString(), propertyPathWeightEntry.getValue());
+            }
+            return setPropertyWeights(schemaType, propertyWeights);
+        }
+
+// @exportToFramework:startStrip()
+
+        /**
+         * Sets property weights by schema type and property path.
+         *
+         * <p>Property weights are used to promote and demote query term matches within a
+         * {@link GenericDocument} property when applying scoring.
+         *
+         * <p>Property weights must be positive values (greater than 0). A property's weight is
+         * multiplied with that property's scoring contribution. This means weights set between 0.0
+         * and 1.0 demote scoring contributions by a term match within the property. Weights set
+         * above 1.0 promote scoring contributions by a term match within the property.
+         *
+         * <p>Properties that exist in the {@link AppSearchSchema}, but do not have a weight
+         * explicitly set will be given a default weight of 1.0.
+         *
+         * <p>Weights set for property paths that do not exist in the {@link AppSearchSchema} will
+         * be discarded and not affect scoring.
+         *
+         * <p><b>NOTE:</b> Property weights only affect scoring for query-dependent scoring
+         * strategies, such as {@link #RANKING_STRATEGY_RELEVANCE_SCORE}.
+         *
+         * <!--@exportToFramework:ifJetpack()-->
+         * <p>This information may not be available depending on the backend and Android API
+         * level. To ensure it is available, call {@link Features#isFeatureSupported}.
+         * <!--@exportToFramework:else()-->
+         *
+         * @param documentClass a class, annotated with @Document, corresponding to the schema to
+         *                      set property weights for.
+         * @param propertyPathWeights a {@link Map} of property paths of the schema type to the
+         *                            weight to set for that property.
+         * @throws AppSearchException if no factory for this document class could be found on the
+         *                            classpath
+         * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
+        @NonNull
+        public SearchSpec.Builder setPropertyWeightsForDocumentClass(
+                @NonNull Class<?> documentClass,
+                @NonNull Map<String, Double> propertyPathWeights) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return setPropertyWeights(factory.getSchemaName(), propertyPathWeights);
+        }
+
+        /**
+         * Sets property weights by schema type and property path.
+         *
+         * <p>Property weights are used to promote and demote query term matches within a
+         * {@link GenericDocument} property when applying scoring.
+         *
+         * <p>Property weights must be positive values (greater than 0). A property's weight is
+         * multiplied with that property's scoring contribution. This means weights set between 0.0
+         * and 1.0 demote scoring contributions by a term match within the property. Weights set
+         * above 1.0 promote scoring contributions by a term match within the property.
+         *
+         * <p>Properties that exist in the {@link AppSearchSchema}, but do not have a weight
+         * explicitly set will be given a default weight of 1.0.
+         *
+         * <p>Weights set for property paths that do not exist in the {@link AppSearchSchema} will
+         * be discarded and not affect scoring.
+         *
+         * <p><b>NOTE:</b> Property weights only affect scoring for query-dependent scoring
+         * strategies, such as {@link #RANKING_STRATEGY_RELEVANCE_SCORE}.
+         *
+         * <!--@exportToFramework:ifJetpack()-->
+         * <p>This information may not be available depending on the backend and Android API
+         * level. To ensure it is available, call {@link Features#isFeatureSupported}.
+         * <!--@exportToFramework:else()-->
+         *
+         * @param documentClass a class, annotated with @Document, corresponding to the schema to
+         *                      set property weights for.
+         * @param propertyPathWeights a {@link Map} of property paths of the schema type to the
+         *                            weight to set for that property.
+         * @throws AppSearchException if no factory for this document class could be found on the
+         *                            classpath
+         * @throws IllegalArgumentException if a weight is equal to or less than 0.0.
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_PROPERTY_WEIGHTS)
+        @NonNull
+        public SearchSpec.Builder setPropertyWeightPathsForDocumentClass(
+                @NonNull Class<?> documentClass,
+                @NonNull Map<PropertyPath, Double> propertyPathWeights) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return setPropertyWeightPaths(factory.getSchemaName(), propertyPathWeights);
+        }
+// @exportToFramework:endStrip()
+
+        /**
+         * Sets the {@link Features#NUMERIC_SEARCH} feature as enabled/disabled according to the
+         * enabled parameter.
+         *
+         * @param enabled Enables the feature if true, otherwise disables it.
+         *
+         * <p>If disabled, disallows use of
+         * {@link AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_RANGE} and all other numeric
+         * querying features.
+         */
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.NUMERIC_SEARCH)
+        // @exportToFramework:endStrip()
+        @NonNull
+        public Builder setNumericSearchEnabled(boolean enabled) {
+            modifyEnabledFeature(Features.NUMERIC_SEARCH, enabled);
+            return this;
+        }
+
+        /**
+         * Sets the {@link Features#VERBATIM_SEARCH} feature as enabled/disabled according to the
+         * enabled parameter.
+         *
+         * @param enabled Enables the feature if true, otherwise disables it
+         *
+         * <p>If disabled, disallows use of
+         * {@link AppSearchSchema.StringPropertyConfig#TOKENIZER_TYPE_VERBATIM} and all other
+         * verbatim search features within the query language that allows clients to search
+         * using the verbatim string operator.
+         *
+         * <p>Ex. The verbatim string operator '"foo/bar" OR baz' will ensure that 'foo/bar' is
+         * treated as a single 'verbatim' token.
+         */
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.VERBATIM_SEARCH)
+        // @exportToFramework:endStrip()
+        @NonNull
+        public Builder setVerbatimSearchEnabled(boolean enabled) {
+            modifyEnabledFeature(Features.VERBATIM_SEARCH, enabled);
+            return this;
+        }
+
+        /**
+         * Sets the {@link Features#LIST_FILTER_QUERY_LANGUAGE} feature as enabled/disabled
+         * according to the enabled parameter.
+         *
+         * @param enabled Enables the feature if true, otherwise disables it.
+         *
+         * This feature covers the expansion of the query language to conform to the definition
+         * of the list filters language (https://aip.dev/160). This includes:
+         * <ul>
+         * <li>addition of explicit 'AND' and 'NOT' operators</li>
+         * <li>property restricts are allowed with grouping (ex. "prop:(a OR b)")</li>
+         * <li>addition of custom functions to control matching</li>
+         * </ul>
+         *
+         * <p>The newly added custom functions covered by this feature are:
+         * <ul>
+         * <li>createList(String...)</li>
+         * <li>termSearch(String, List<String>)</li>
+         * </ul>
+         *
+         * <p>createList takes a variable number of strings and returns a list of strings.
+         * It is for use with termSearch.
+         *
+         * <p>termSearch takes a query string that will be parsed according to the supported
+         * query language and an optional list of strings that specify the properties to be
+         * restricted to. This exists as a convenience for multiple property restricts. So,
+         * for example, the query "(subject:foo OR body:foo) (subject:bar OR body:bar)"
+         * could be rewritten as "termSearch(\"foo bar\", createList(\"subject\", \"bar\"))"
+         */
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.LIST_FILTER_QUERY_LANGUAGE)
+        // @exportToFramework:endStrip()
+        @NonNull
+        public Builder setListFilterQueryLanguageEnabled(boolean enabled) {
+            modifyEnabledFeature(Features.LIST_FILTER_QUERY_LANGUAGE, enabled);
+            return this;
+        }
+
+        /**
+         * Constructs a new {@link SearchSpec} from the contents of this builder.
+         *
+         * @throws IllegalArgumentException if property weights are provided with a
+         *                                  ranking strategy that isn't
+         *                                  RANKING_STRATEGY_RELEVANCE_SCORE.
+         * @throws IllegalStateException if the ranking strategy is
+         * {@link #RANKING_STRATEGY_JOIN_AGGREGATE_SCORE} and {@link #setJoinSpec} has never been
+         * called.
+         * @throws IllegalStateException if the aggregation scoring strategy has been set in
+         * {@link JoinSpec#getAggregationScoringStrategy()} but the ranking strategy is not
+         * {@link #RANKING_STRATEGY_JOIN_AGGREGATE_SCORE}.
+         *
+         */
         @NonNull
         public SearchSpec build() {
             Bundle bundle = new Bundle();
+            if (mJoinSpec != null) {
+                if (mRankingStrategy != RANKING_STRATEGY_JOIN_AGGREGATE_SCORE
+                        && mJoinSpec.getAggregationScoringStrategy()
+                        != JoinSpec.AGGREGATION_SCORING_OUTER_RESULT_RANKING_SIGNAL) {
+                    throw new IllegalStateException("Aggregate scoring strategy has been set in "
+                            + "the nested JoinSpec, but ranking strategy is not "
+                            + "RANKING_STRATEGY_JOIN_AGGREGATE_SCORE");
+                }
+                bundle.putBundle(JOIN_SPEC, mJoinSpec.getBundle());
+            } else if (mRankingStrategy == RANKING_STRATEGY_JOIN_AGGREGATE_SCORE) {
+                throw new IllegalStateException("Attempting to rank based on joined documents, but "
+                        + "no JoinSpec provided");
+            }
             bundle.putStringArrayList(SCHEMA_FIELD, mSchemas);
             bundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
             bundle.putStringArrayList(PACKAGE_NAME_FIELD, mPackageNames);
+            bundle.putStringArrayList(ENABLED_FEATURES_FIELD, new ArrayList<>(mEnabledFeatures));
             bundle.putBundle(PROJECTION_TYPE_PROPERTY_PATHS_FIELD, mProjectionTypePropertyMasks);
             bundle.putInt(NUM_PER_PAGE_FIELD, mResultCountPerPage);
             bundle.putInt(TERM_MATCH_TYPE_FIELD, mTermMatchType);
@@ -758,6 +1398,13 @@ public final class SearchSpec {
             bundle.putInt(ORDER_FIELD, mOrder);
             bundle.putInt(RESULT_GROUPING_TYPE_FLAGS, mGroupingTypeFlags);
             bundle.putInt(RESULT_GROUPING_LIMIT, mGroupingLimit);
+            if (!mTypePropertyWeights.isEmpty()
+                    && RANKING_STRATEGY_RELEVANCE_SCORE != mRankingStrategy) {
+                throw new IllegalArgumentException("Property weights are only compatible with the "
+                        + "RANKING_STRATEGY_RELEVANCE_SCORE ranking strategy.");
+            }
+            bundle.putBundle(TYPE_PROPERTY_WEIGHTS_FIELD, mTypePropertyWeights);
+            bundle.putString(ADVANCED_RANKING_EXPRESSION, mAdvancedRankingExpression);
             mBuilt = true;
             return new SearchSpec(bundle);
         }
@@ -768,7 +1415,17 @@ public final class SearchSpec {
                 mNamespaces = new ArrayList<>(mNamespaces);
                 mPackageNames = new ArrayList<>(mPackageNames);
                 mProjectionTypePropertyMasks = BundleUtil.deepCopy(mProjectionTypePropertyMasks);
+                mTypePropertyWeights = BundleUtil.deepCopy(mTypePropertyWeights);
                 mBuilt = false;
+            }
+        }
+
+        private void modifyEnabledFeature(@NonNull String feature, boolean enabled) {
+            resetIfBuilt();
+            if (enabled) {
+                mEnabledFeatures.add(feature);
+            } else {
+                mEnabledFeatures.remove(feature);
             }
         }
     }

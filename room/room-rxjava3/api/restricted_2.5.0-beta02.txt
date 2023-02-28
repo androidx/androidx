@@ -1,0 +1,18 @@
+// Signature format: 4.0
+package androidx.room.rxjava3 {
+
+  public final class EmptyResultSetException extends java.lang.RuntimeException {
+    ctor public EmptyResultSetException(String);
+  }
+
+  public final class RxRoom {
+    method public static io.reactivex.rxjava3.core.Flowable<java.lang.Object!> createFlowable(androidx.room.RoomDatabase, java.lang.String!...);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Flowable<T!> createFlowable(androidx.room.RoomDatabase, boolean, String![], java.util.concurrent.Callable<T!>);
+    method public static io.reactivex.rxjava3.core.Observable<java.lang.Object!> createObservable(androidx.room.RoomDatabase, java.lang.String!...);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Observable<T!> createObservable(androidx.room.RoomDatabase, boolean, String![], java.util.concurrent.Callable<T!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Single<T!> createSingle(java.util.concurrent.Callable<T!>);
+    field public static final Object NOTHING;
+  }
+
+}
+

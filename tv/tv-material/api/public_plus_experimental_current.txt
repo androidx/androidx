@@ -1,76 +1,318 @@
 // Signature format: 4.0
-package androidx.tv.material {
+package androidx.tv.material3 {
 
-  @kotlin.RequiresOptIn(message="This tv-material API is experimental and likely to change or be removed in the future.") public @interface ExperimentalTvMaterialApi {
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselDefaults {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public void IndicatorRow(int slideCount, int activeSlideIndex, optional androidx.compose.ui.Modifier modifier, optional float spacing, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> indicator);
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransform();
+    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransform;
+    field public static final androidx.tv.material3.CarouselDefaults INSTANCE;
+    field public static final long TimeToDisplaySlideMillis = 5000L; // 0x1388L
   }
 
-}
-
-package androidx.tv.material.carousel {
-
-  @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselDefaults {
-    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public void Indicator(androidx.tv.material.carousel.CarouselState carouselState, int slideCount, optional androidx.compose.ui.Modifier modifier);
-    method public androidx.compose.animation.EnterTransition getEnterTransition();
-    method public androidx.compose.animation.ExitTransition getExitTransition();
-    method public long getTimeToDisplaySlideMillis();
-    property public final androidx.compose.animation.EnterTransition EnterTransition;
-    property public final androidx.compose.animation.ExitTransition ExitTransition;
-    property public final long TimeToDisplaySlideMillis;
-    field public static final androidx.tv.material.carousel.CarouselDefaults INSTANCE;
-  }
-
-  @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselItemDefaults {
-    method public androidx.compose.animation.EnterTransition getOverlayEnterTransition();
-    method public long getOverlayEnterTransitionStartDelayMillis();
-    method public androidx.compose.animation.ExitTransition getOverlayExitTransition();
-    property public final androidx.compose.animation.EnterTransition OverlayEnterTransition;
-    property public final long OverlayEnterTransitionStartDelayMillis;
-    property public final androidx.compose.animation.ExitTransition OverlayExitTransition;
-    field public static final androidx.tv.material.carousel.CarouselItemDefaults INSTANCE;
-  }
-
-  public final class CarouselItemKt {
-    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public static void CarouselItem(kotlin.jvm.functions.Function0<kotlin.Unit> background, optional androidx.compose.ui.Modifier modifier, optional long overlayEnterTransitionStartDelayMillis, optional androidx.compose.animation.EnterTransition overlayEnterTransition, optional androidx.compose.animation.ExitTransition overlayExitTransition, kotlin.jvm.functions.Function0<kotlin.Unit> overlay);
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselItemDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformBackward();
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformForward();
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformLeftToRight();
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformRightToLeft();
+    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformBackward;
+    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformForward;
+    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformLeftToRight;
+    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformRightToLeft;
+    field public static final androidx.tv.material3.CarouselItemDefaults INSTANCE;
   }
 
   public final class CarouselKt {
-    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public static void Carousel(int slideCount, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material.carousel.CarouselState carouselState, optional long timeToDisplaySlideMillis, optional androidx.compose.animation.EnterTransition enterTransition, optional androidx.compose.animation.ExitTransition exitTransition, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> carouselIndicator, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Carousel(int slideCount, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.CarouselState carouselState, optional long autoScrollDurationMillis, optional androidx.compose.animation.ContentTransform contentTransformForward, optional androidx.compose.animation.ContentTransform contentTransformBackward, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> carouselIndicator, kotlin.jvm.functions.Function2<? super androidx.tv.material3.CarouselScope,? super java.lang.Integer,kotlin.Unit> content);
   }
 
-  @androidx.compose.runtime.Stable @androidx.tv.material.ExperimentalTvMaterialApi public final class CarouselState {
-    ctor public CarouselState(optional int initialSlideIndex);
-    method public int getSlideIndex();
-    method public androidx.tv.material.carousel.ScrollPauseHandle pauseAutoScroll(int slideIndex);
-    property public final int slideIndex;
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselScope {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public void CarouselItem(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> background, optional androidx.compose.animation.ContentTransform contentTransformForward, optional androidx.compose.animation.ContentTransform contentTransformBackward, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
-  @androidx.tv.material.ExperimentalTvMaterialApi public sealed interface ScrollPauseHandle {
-    method public void resumeAutoScroll();
+  @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselState {
+    ctor public CarouselState(optional int initialActiveSlideIndex);
+    method public int getActiveSlideIndex();
+    method public androidx.tv.material3.ScrollPauseHandle pauseAutoScroll(int slideIndex);
+    property public final int activeSlideIndex;
   }
 
-}
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceColor {
+  }
 
-package androidx.tv.material.immersivelist {
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableSurfaceColor color(optional long color, optional long focusedColor, optional long pressedColor, optional long disabledColor);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableSurfaceColor contentColor(optional long color, optional long focusedColor, optional long pressedColor, optional long disabledColor);
+    method public androidx.tv.material3.ClickableSurfaceGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ClickableSurfaceScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ClickableSurfaceShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    field public static final androidx.tv.material3.ClickableSurfaceDefaults INSTANCE;
+  }
 
-  @androidx.compose.runtime.Immutable @androidx.tv.material.ExperimentalTvMaterialApi public final class ImmersiveListBackgroundScope implements androidx.compose.foundation.layout.BoxScope {
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceGlow {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceScale {
+    field public static final androidx.tv.material3.ClickableSurfaceScale.Companion Companion;
+  }
+
+  public static final class ClickableSurfaceScale.Companion {
+    method public androidx.tv.material3.ClickableSurfaceScale getNone();
+    property public final androidx.tv.material3.ClickableSurfaceScale None;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceShape {
+  }
+
+  @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ColorScheme {
+    ctor public ColorScheme(long primary, long onPrimary, long primaryContainer, long onPrimaryContainer, long inversePrimary, long secondary, long onSecondary, long secondaryContainer, long onSecondaryContainer, long tertiary, long onTertiary, long tertiaryContainer, long onTertiaryContainer, long background, long onBackground, long surface, long onSurface, long surfaceVariant, long onSurfaceVariant, long surfaceTint, long inverseSurface, long inverseOnSurface, long error, long onError, long errorContainer, long onErrorContainer, long outline, long outlineVariant, long scrim);
+    method public androidx.tv.material3.ColorScheme copy(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long outline, optional long outlineVariant, optional long scrim);
+    method public long getBackground();
+    method public long getError();
+    method public long getErrorContainer();
+    method public long getInverseOnSurface();
+    method public long getInversePrimary();
+    method public long getInverseSurface();
+    method public long getOnBackground();
+    method public long getOnError();
+    method public long getOnErrorContainer();
+    method public long getOnPrimary();
+    method public long getOnPrimaryContainer();
+    method public long getOnSecondary();
+    method public long getOnSecondaryContainer();
+    method public long getOnSurface();
+    method public long getOnSurfaceVariant();
+    method public long getOnTertiary();
+    method public long getOnTertiaryContainer();
+    method public long getOutline();
+    method public long getOutlineVariant();
+    method public long getPrimary();
+    method public long getPrimaryContainer();
+    method public long getScrim();
+    method public long getSecondary();
+    method public long getSecondaryContainer();
+    method public long getSurface();
+    method public long getSurfaceTint();
+    method public long getSurfaceVariant();
+    method public long getTertiary();
+    method public long getTertiaryContainer();
+    property public final long background;
+    property public final long error;
+    property public final long errorContainer;
+    property public final long inverseOnSurface;
+    property public final long inversePrimary;
+    property public final long inverseSurface;
+    property public final long onBackground;
+    property public final long onError;
+    property public final long onErrorContainer;
+    property public final long onPrimary;
+    property public final long onPrimaryContainer;
+    property public final long onSecondary;
+    property public final long onSecondaryContainer;
+    property public final long onSurface;
+    property public final long onSurfaceVariant;
+    property public final long onTertiary;
+    property public final long onTertiaryContainer;
+    property public final long outline;
+    property public final long outlineVariant;
+    property public final long primary;
+    property public final long primaryContainer;
+    property public final long scrim;
+    property public final long secondary;
+    property public final long secondaryContainer;
+    property public final long surface;
+    property public final long surfaceTint;
+    property public final long surfaceVariant;
+    property public final long tertiary;
+    property public final long tertiaryContainer;
+  }
+
+  public final class ColorSchemeKt {
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static long contentColorFor(androidx.tv.material3.ColorScheme, long backgroundColor);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static long contentColorFor(long backgroundColor);
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.ColorScheme darkColorScheme(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long outline, optional long outlineVariant, optional long scrim);
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.ColorScheme lightColorScheme(optional long primary, optional long onPrimary, optional long primaryContainer, optional long onPrimaryContainer, optional long inversePrimary, optional long secondary, optional long onSecondary, optional long secondaryContainer, optional long onSecondaryContainer, optional long tertiary, optional long onTertiary, optional long tertiaryContainer, optional long onTertiaryContainer, optional long background, optional long onBackground, optional long surface, optional long onSurface, optional long surfaceVariant, optional long onSurfaceVariant, optional long surfaceTint, optional long inverseSurface, optional long inverseOnSurface, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer, optional long outline, optional long outlineVariant, optional long scrim);
+    method @androidx.tv.material3.ExperimentalTvMaterial3Api public static long surfaceColorAtElevation(androidx.tv.material3.ColorScheme, float elevation);
+  }
+
+  public final class ContentColorKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalContentColor();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
+  }
+
+  @kotlin.RequiresOptIn(message="This tv-material API is experimental and likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTvMaterial3Api {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class Glow {
+    ctor public Glow(long elevationColor, float elevation);
+    method public androidx.tv.material3.Glow copy(optional androidx.compose.ui.graphics.Color? glowColor, optional androidx.compose.ui.unit.Dp? glowElevation);
+    method public float getElevation();
+    method public long getElevationColor();
+    property public final float elevation;
+    property public final long elevationColor;
+    field public static final androidx.tv.material3.Glow.Companion Companion;
+  }
+
+  public static final class Glow.Companion {
+    method public androidx.tv.material3.Glow getNone();
+    property public final androidx.tv.material3.Glow None;
+  }
+
+  @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class GlowIndication implements androidx.compose.foundation.Indication {
+    ctor public GlowIndication(long color, androidx.compose.ui.graphics.Shape shape, float glowBlurRadius, float offsetX, float offsetY);
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.IndicationInstance rememberUpdatedInstance(androidx.compose.foundation.interaction.InteractionSource interactionSource);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ImmersiveListBackgroundScope implements androidx.compose.foundation.layout.BoxScope {
     method @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Composable public void AnimatedContent(int targetState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentScope<java.lang.Integer>,androidx.compose.animation.ContentTransform> transitionSpec, optional androidx.compose.ui.Alignment contentAlignment, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedVisibilityScope,? super java.lang.Integer,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public void AnimatedVisibility(boolean visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
   }
 
-  @androidx.tv.material.ExperimentalTvMaterialApi public final class ImmersiveListDefaults {
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ImmersiveListDefaults {
     method public androidx.compose.animation.EnterTransition getEnterTransition();
     method public androidx.compose.animation.ExitTransition getExitTransition();
     property public final androidx.compose.animation.EnterTransition EnterTransition;
     property public final androidx.compose.animation.ExitTransition ExitTransition;
-    field public static final androidx.tv.material.immersivelist.ImmersiveListDefaults INSTANCE;
+    field public static final androidx.tv.material3.ImmersiveListDefaults INSTANCE;
   }
 
   public final class ImmersiveListKt {
-    method @androidx.compose.runtime.Composable @androidx.tv.material.ExperimentalTvMaterialApi public static void ImmersiveList(kotlin.jvm.functions.Function3<? super androidx.tv.material.immersivelist.ImmersiveListBackgroundScope,? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> background, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment listAlignment, kotlin.jvm.functions.Function1<? super androidx.tv.material.immersivelist.ImmersiveListScope,kotlin.Unit> list);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void ImmersiveList(kotlin.jvm.functions.Function3<? super androidx.tv.material3.ImmersiveListBackgroundScope,? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> background, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment listAlignment, kotlin.jvm.functions.Function1<? super androidx.tv.material3.ImmersiveListScope,kotlin.Unit> list);
   }
 
-  @androidx.compose.runtime.Immutable @androidx.tv.material.ExperimentalTvMaterialApi public final class ImmersiveListScope {
-    method public androidx.compose.ui.Modifier focusableItem(androidx.compose.ui.Modifier, int index);
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ImmersiveListScope {
+    method public androidx.compose.ui.Modifier immersiveListItem(androidx.compose.ui.Modifier, int index);
+  }
+
+  public final class IndicationsKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.GlowIndication rememberGlowIndication(optional long color, optional androidx.compose.ui.graphics.Shape shape, optional float glowBlurRadius, optional float offsetX, optional float offsetY);
+  }
+
+  public final class MaterialTheme {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ColorScheme getColorScheme();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.Shapes getShapes();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.Typography getTypography();
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public final androidx.tv.material3.ColorScheme colorScheme;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.tv.material3.Shapes shapes;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.tv.material3.Typography typography;
+    field public static final androidx.tv.material3.MaterialTheme INSTANCE;
+  }
+
+  public final class MaterialThemeKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void MaterialTheme(optional androidx.tv.material3.ColorScheme colorScheme, optional androidx.tv.material3.Shapes shapes, optional androidx.tv.material3.Typography typography, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ScaleIndication implements androidx.compose.foundation.Indication {
+    ctor public ScaleIndication(float scale);
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.IndicationInstance rememberUpdatedInstance(androidx.compose.foundation.interaction.InteractionSource interactionSource);
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public sealed interface ScrollPauseHandle {
+    method public void resumeAutoScroll();
+  }
+
+  public final class ShapeDefaults {
+    method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();
+    method public androidx.compose.foundation.shape.CornerBasedShape getExtraSmall();
+    method public androidx.compose.foundation.shape.CornerBasedShape getLarge();
+    method public androidx.compose.foundation.shape.CornerBasedShape getMedium();
+    method public androidx.compose.foundation.shape.CornerBasedShape getSmall();
+    property public final androidx.compose.foundation.shape.CornerBasedShape ExtraLarge;
+    property public final androidx.compose.foundation.shape.CornerBasedShape ExtraSmall;
+    property public final androidx.compose.foundation.shape.CornerBasedShape Large;
+    property public final androidx.compose.foundation.shape.CornerBasedShape Medium;
+    property public final androidx.compose.foundation.shape.CornerBasedShape Small;
+    field public static final androidx.tv.material3.ShapeDefaults INSTANCE;
+  }
+
+  @androidx.compose.runtime.Immutable public final class Shapes {
+    ctor public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
+    method public androidx.tv.material3.Shapes copy(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
+    method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();
+    method public androidx.compose.foundation.shape.CornerBasedShape getExtraSmall();
+    method public androidx.compose.foundation.shape.CornerBasedShape getLarge();
+    method public androidx.compose.foundation.shape.CornerBasedShape getMedium();
+    method public androidx.compose.foundation.shape.CornerBasedShape getSmall();
+    property public final androidx.compose.foundation.shape.CornerBasedShape extraLarge;
+    property public final androidx.compose.foundation.shape.CornerBasedShape extraSmall;
+    property public final androidx.compose.foundation.shape.CornerBasedShape large;
+    property public final androidx.compose.foundation.shape.CornerBasedShape medium;
+    property public final androidx.compose.foundation.shape.CornerBasedShape small;
+  }
+
+  public final class SurfaceKt {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Surface(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional float tonalElevation, optional androidx.tv.material3.ClickableSurfaceShape shape, optional androidx.tv.material3.ClickableSurfaceColor color, optional androidx.tv.material3.ClickableSurfaceColor contentColor, optional androidx.tv.material3.ClickableSurfaceScale scale, optional androidx.tv.material3.ClickableSurfaceGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> getLocalAbsoluteTonalElevation();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalAbsoluteTonalElevation;
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class TabColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class TabDefaults {
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.TabColors pillIndicatorTabColors(optional long activeContentColor, optional long contentColor, optional long selectedContentColor, optional long focusedContentColor, optional long focusedSelectedContentColor, optional long disabledActiveContentColor, optional long disabledContentColor, optional long disabledSelectedContentColor);
+    method @androidx.compose.runtime.Composable public androidx.tv.material3.TabColors underlinedIndicatorTabColors(optional long activeContentColor, optional long contentColor, optional long selectedContentColor, optional long focusedContentColor, optional long focusedSelectedContentColor, optional long disabledActiveContentColor, optional long disabledContentColor, optional long disabledSelectedContentColor);
+    field public static final androidx.tv.material3.TabDefaults INSTANCE;
+  }
+
+  public final class TabKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Tab(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional boolean enabled, optional androidx.tv.material3.TabColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class TabRowDefaults {
+    method @androidx.compose.runtime.Composable public void PillIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
+    method @androidx.compose.runtime.Composable public void TabSeparator();
+    method @androidx.compose.runtime.Composable public void UnderlinedIndicator(androidx.compose.ui.unit.DpRect currentTabPosition, optional androidx.compose.ui.Modifier modifier, optional long activeColor, optional long inactiveColor);
+    method @androidx.compose.runtime.Composable public long contentColor();
+    method public long getContainerColor();
+    property public final long ContainerColor;
+    field public static final androidx.tv.material3.TabRowDefaults INSTANCE;
+  }
+
+  public final class TabRowKt {
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void TabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function0<kotlin.Unit> separator, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.ui.unit.DpRect>,kotlin.Unit> indicator, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
+  }
+
+  public final class TextKt {
+    method @androidx.compose.runtime.Composable public static void ProvideTextStyle(androidx.compose.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
+    method @androidx.compose.runtime.Composable public static void Text(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> getLocalTextStyle();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
+  }
+
+  @androidx.compose.runtime.Immutable public final class Typography {
+    ctor public Typography(optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle headlineLarge, optional androidx.compose.ui.text.TextStyle headlineMedium, optional androidx.compose.ui.text.TextStyle headlineSmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall);
+    method public androidx.tv.material3.Typography copy(optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle headlineLarge, optional androidx.compose.ui.text.TextStyle headlineMedium, optional androidx.compose.ui.text.TextStyle headlineSmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall);
+    method public androidx.compose.ui.text.TextStyle getBodyLarge();
+    method public androidx.compose.ui.text.TextStyle getBodyMedium();
+    method public androidx.compose.ui.text.TextStyle getBodySmall();
+    method public androidx.compose.ui.text.TextStyle getDisplayLarge();
+    method public androidx.compose.ui.text.TextStyle getDisplayMedium();
+    method public androidx.compose.ui.text.TextStyle getDisplaySmall();
+    method public androidx.compose.ui.text.TextStyle getHeadlineLarge();
+    method public androidx.compose.ui.text.TextStyle getHeadlineMedium();
+    method public androidx.compose.ui.text.TextStyle getHeadlineSmall();
+    method public androidx.compose.ui.text.TextStyle getLabelLarge();
+    method public androidx.compose.ui.text.TextStyle getLabelMedium();
+    method public androidx.compose.ui.text.TextStyle getLabelSmall();
+    method public androidx.compose.ui.text.TextStyle getTitleLarge();
+    method public androidx.compose.ui.text.TextStyle getTitleMedium();
+    method public androidx.compose.ui.text.TextStyle getTitleSmall();
+    property public final androidx.compose.ui.text.TextStyle bodyLarge;
+    property public final androidx.compose.ui.text.TextStyle bodyMedium;
+    property public final androidx.compose.ui.text.TextStyle bodySmall;
+    property public final androidx.compose.ui.text.TextStyle displayLarge;
+    property public final androidx.compose.ui.text.TextStyle displayMedium;
+    property public final androidx.compose.ui.text.TextStyle displaySmall;
+    property public final androidx.compose.ui.text.TextStyle headlineLarge;
+    property public final androidx.compose.ui.text.TextStyle headlineMedium;
+    property public final androidx.compose.ui.text.TextStyle headlineSmall;
+    property public final androidx.compose.ui.text.TextStyle labelLarge;
+    property public final androidx.compose.ui.text.TextStyle labelMedium;
+    property public final androidx.compose.ui.text.TextStyle labelSmall;
+    property public final androidx.compose.ui.text.TextStyle titleLarge;
+    property public final androidx.compose.ui.text.TextStyle titleMedium;
+    property public final androidx.compose.ui.text.TextStyle titleSmall;
   }
 
 }

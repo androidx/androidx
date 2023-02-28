@@ -621,7 +621,7 @@ public class BenchmarkState internal constructor(
         internal const val MIN_TEST_ITERATIONS = 1
 
         private const val THROTTLE_MAX_RETRIES = 2
-        private const val THROTTLE_BACKOFF_S = 90L
+        private val THROTTLE_BACKOFF_S = Arguments.thermalThrottleSleepDurationSeconds
 
         private var firstBenchmark = true
 

@@ -16,7 +16,6 @@
 package androidx.emoji2.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.annotation.SuppressLint;
@@ -47,7 +46,7 @@ public abstract class EmojiSpan extends ReplacementSpan {
      * using the singleton EmojiCompat instance.
      */
     @NonNull
-    private final EmojiMetadata mMetadata;
+    private final TypefaceEmojiRasterizer mRasterizer;
 
     /**
      * Cached width of the span. Width is calculated according to the font metrics.
@@ -67,14 +66,14 @@ public abstract class EmojiSpan extends ReplacementSpan {
     /**
      * Default constructor.
      *
-     * @param metadata information about the emoji, cannot be {@code null}
+     * @param rasterizer information about the emoji, cannot be {@code null}
      *
      * @hide
      */
     @RestrictTo(LIBRARY)
-    EmojiSpan(@NonNull final EmojiMetadata metadata) {
-        Preconditions.checkNotNull(metadata, "metadata cannot be null");
-        mMetadata = metadata;
+    EmojiSpan(@NonNull final TypefaceEmojiRasterizer rasterizer) {
+        Preconditions.checkNotNull(rasterizer, "rasterizer cannot be null");
+        mRasterizer = rasterizer;
     }
 
     @Override
@@ -87,9 +86,9 @@ public abstract class EmojiSpan extends ReplacementSpan {
         paint.getFontMetricsInt(mTmpFontMetrics);
         final int fontHeight = Math.abs(mTmpFontMetrics.descent - mTmpFontMetrics.ascent);
 
-        mRatio = fontHeight * 1.0f / mMetadata.getHeight();
-        mHeight = (short) (mMetadata.getHeight() * mRatio);
-        mWidth = (short) (mMetadata.getWidth() * mRatio);
+        mRatio = fontHeight * 1.0f / mRasterizer.getHeight();
+        mHeight = (short) (mRasterizer.getHeight() * mRatio);
+        mWidth = (short) (mRasterizer.getWidth() * mRatio);
 
         if (fm != null) {
             fm.ascent = mTmpFontMetrics.ascent;
@@ -102,12 +101,13 @@ public abstract class EmojiSpan extends ReplacementSpan {
     }
 
     /**
-     * @hide
+     * Get the rasterizer that draws this emoji.
+     *
+     * @return rasterizer to draw emoji
      */
     @NonNull
-    @RestrictTo(LIBRARY_GROUP)
-    public final EmojiMetadata getMetadata() {
-        return mMetadata;
+    public final TypefaceEmojiRasterizer getTypefaceRasterizer() {
+        return mRasterizer;
     }
 
     /**
@@ -145,6 +145,6 @@ public abstract class EmojiSpan extends ReplacementSpan {
      */
     @RestrictTo(TESTS)
     public final int getId() {
-        return getMetadata().getId();
+        return getTypefaceRasterizer().getId();
     }
 }

@@ -69,7 +69,7 @@ internal class LazyMeasuredLine constructor(
         offset: Int,
         layoutWidth: Int,
         layoutHeight: Int
-    ): List<TvLazyGridPositionedItem> {
+    ): List<LazyGridPositionedItem> {
         var usedCrossAxis = 0
         var usedSpan = 0
         return items.mapIndexed { itemIndex, item ->
@@ -81,13 +81,12 @@ internal class LazyMeasuredLine constructor(
             }
 
             item.position(
-                rawMainAxisOffset = offset,
-                rawCrossAxisOffset = usedCrossAxis,
+                mainAxisOffset = offset,
+                crossAxisOffset = usedCrossAxis,
                 layoutWidth = layoutWidth,
                 layoutHeight = layoutHeight,
                 row = if (isVertical) index.value else startSlot,
-                column = if (isVertical) startSlot else index.value,
-                lineMainAxisSize = mainAxisSize
+                column = if (isVertical) startSlot else index.value
             ).also {
                 usedCrossAxis += item.crossAxisSize + crossAxisSpacing
                 usedSpan += span

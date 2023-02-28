@@ -28,56 +28,46 @@ import androidx.wear.watchface.BroadcastsReceiver.BroadcastEventObserver
 /**
  * This class decouples [BroadcastEventObserver]s from the actual broadcast event receivers to make
  * testing easier.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BroadcastsReceiver constructor(
-    private val context: Context,
-    private val observer: BroadcastEventObserver
-) {
+public class BroadcastsReceiver
+constructor(private val context: Context, private val observer: BroadcastEventObserver) {
 
     public interface BroadcastEventObserver {
         /** Called when we receive [Intent.ACTION_TIME_TICK]. */
-        @UiThread
-        public fun onActionTimeTick()
+        @UiThread public fun onActionTimeTick()
 
         /** Called when we receive [Intent.ACTION_TIMEZONE_CHANGED]. */
-        @UiThread
-        public fun onActionTimeZoneChanged()
+        @UiThread public fun onActionTimeZoneChanged()
 
         /** Called when we receive [Intent.ACTION_TIME_CHANGED]. */
-        @UiThread
-        public fun onActionTimeChanged()
+        @UiThread public fun onActionTimeChanged()
 
         /** Called when we receive [Intent.ACTION_BATTERY_LOW]. */
-        @UiThread
-        public fun onActionBatteryLow()
+        @UiThread public fun onActionBatteryLow()
 
         /** Called when we receive [Intent.ACTION_BATTERY_OKAY]. */
-        @UiThread
-        public fun onActionBatteryOkay()
+        @UiThread public fun onActionBatteryOkay()
 
         /** Called when we receive [Intent.ACTION_POWER_CONNECTED]. */
-        @UiThread
-        public fun onActionPowerConnected()
+        @UiThread public fun onActionPowerConnected()
 
         /** Called when we receive [Intent.ACTION_POWER_DISCONNECTED]. */
-        @UiThread
-        public fun onActionPowerDisconnected()
+        @UiThread public fun onActionPowerDisconnected()
 
         /** Called when we receive [WatchFaceImpl.MOCK_TIME_INTENT]. */
-        @UiThread
-        public fun onMockTime(intent: Intent)
+        @UiThread public fun onMockTime(intent: Intent)
 
         /** Called when we receive [Intent.ACTION_SCREEN_OFF] */
-        @UiThread
-        public fun onActionScreenOff() {
-        }
+        @UiThread public fun onActionScreenOff() {}
 
         /** Called when we receive [Intent.ACTION_SCREEN_ON] */
-        @UiThread
-        public fun onActionScreenOn() {
-        }
+        @UiThread public fun onActionScreenOn() {}
+
+        /** Called when we receive [Intent.ACTION_USER_PRESENT] */
+        @UiThread public fun onActionUserPresent() {}
     }
 
     companion object {
@@ -88,24 +78,26 @@ public class BroadcastsReceiver constructor(
         internal const val INITIAL_LOW_BATTERY_THRESHOLD = 15f
     }
 
-    internal val receiver: BroadcastReceiver = object : BroadcastReceiver() {
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onReceive(context: Context, intent: Intent) {
-            when (intent.action) {
-                Intent.ACTION_BATTERY_LOW -> observer.onActionBatteryLow()
-                Intent.ACTION_BATTERY_OKAY -> observer.onActionBatteryOkay()
-                Intent.ACTION_POWER_CONNECTED -> observer.onActionPowerConnected()
-                Intent.ACTION_POWER_DISCONNECTED -> observer.onActionPowerDisconnected()
-                Intent.ACTION_TIME_CHANGED -> observer.onActionTimeChanged()
-                Intent.ACTION_TIME_TICK -> observer.onActionTimeTick()
-                Intent.ACTION_TIMEZONE_CHANGED -> observer.onActionTimeZoneChanged()
-                Intent.ACTION_SCREEN_OFF -> observer.onActionScreenOff()
-                Intent.ACTION_SCREEN_ON -> observer.onActionScreenOn()
-                WatchFaceImpl.MOCK_TIME_INTENT -> observer.onMockTime(intent)
-                else -> System.err.println("<< IGNORING $intent")
+    internal val receiver: BroadcastReceiver =
+        object : BroadcastReceiver() {
+            @SuppressWarnings("SyntheticAccessor")
+            override fun onReceive(context: Context, intent: Intent) {
+                when (intent.action) {
+                    Intent.ACTION_BATTERY_LOW -> observer.onActionBatteryLow()
+                    Intent.ACTION_BATTERY_OKAY -> observer.onActionBatteryOkay()
+                    Intent.ACTION_POWER_CONNECTED -> observer.onActionPowerConnected()
+                    Intent.ACTION_POWER_DISCONNECTED -> observer.onActionPowerDisconnected()
+                    Intent.ACTION_TIME_CHANGED -> observer.onActionTimeChanged()
+                    Intent.ACTION_TIME_TICK -> observer.onActionTimeTick()
+                    Intent.ACTION_TIMEZONE_CHANGED -> observer.onActionTimeZoneChanged()
+                    Intent.ACTION_SCREEN_OFF -> observer.onActionScreenOff()
+                    Intent.ACTION_SCREEN_ON -> observer.onActionScreenOn()
+                    Intent.ACTION_USER_PRESENT -> observer.onActionUserPresent()
+                    WatchFaceImpl.MOCK_TIME_INTENT -> observer.onMockTime(intent)
+                    else -> System.err.println("<< IGNORING $intent")
+                }
             }
         }
-    }
 
     init {
         context.registerReceiver(
@@ -119,6 +111,7 @@ public class BroadcastsReceiver constructor(
                 addAction(Intent.ACTION_BATTERY_OKAY)
                 addAction(Intent.ACTION_POWER_CONNECTED)
                 addAction(Intent.ACTION_POWER_DISCONNECTED)
+                addAction(Intent.ACTION_USER_PRESENT)
                 addAction(WatchFaceImpl.MOCK_TIME_INTENT)
             }
         )
@@ -127,19 +120,22 @@ public class BroadcastsReceiver constructor(
     /** Called to send observers initial battery state in advance of receiving any broadcasts. */
     internal fun processBatteryStatus(batteryStatus: Intent?) {
         val status = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-        if (status == BatteryManager.BATTERY_STATUS_CHARGING ||
-            status == BatteryManager.BATTERY_STATUS_FULL
+        if (
+            status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL
         ) {
             observer.onActionPowerConnected()
         } else {
             observer.onActionPowerDisconnected()
         }
 
-        val batteryPercent: Float = batteryStatus?.let { intent ->
-            val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-            val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-            level * 100 / scale.toFloat()
-        } ?: 100.0f
+        val batteryPercent: Float =
+            batteryStatus?.let { intent ->
+                val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+                val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+                level * 100 / scale.toFloat()
+            }
+                ?: 100.0f
         if (batteryPercent < INITIAL_LOW_BATTERY_THRESHOLD) {
             observer.onActionBatteryLow()
         } else {

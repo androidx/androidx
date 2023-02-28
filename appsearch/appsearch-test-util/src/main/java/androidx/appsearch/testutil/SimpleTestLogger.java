@@ -27,6 +27,10 @@ import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
+import androidx.appsearch.stats.SchemaMigrationStats;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Non-thread-safe simple logger implementation for testing.
@@ -54,8 +58,11 @@ public final class SimpleTestLogger implements AppSearchLogger {
     @Nullable
     public OptimizeStats mOptimizeStats;
     /** Holds {@link SetSchemaStats} after logging. */
+    @NonNull
+    public List<SetSchemaStats> mSetSchemaStats = new ArrayList<>();
+    /** Holds {@link androidx.appsearch.stats.SchemaMigrationStats} after logging. */
     @Nullable
-    public SetSchemaStats mSetSchemaStats;
+    public SchemaMigrationStats mSchemaMigrationStats;
 
     @Override
     public void logStats(@NonNull CallStats stats) {
@@ -89,6 +96,11 @@ public final class SimpleTestLogger implements AppSearchLogger {
 
     @Override
     public void logStats(@NonNull SetSchemaStats stats) {
-        mSetSchemaStats = stats;
+        mSetSchemaStats.add(stats);
+    }
+
+    @Override
+    public void logStats(@NonNull SchemaMigrationStats stats) {
+        mSchemaMigrationStats = stats;
     }
 }

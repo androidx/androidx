@@ -24,12 +24,14 @@ import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 
@@ -41,6 +43,7 @@ import java.util.Objects;
  * Represents a grid item with an image and an optional title.
  */
 @CarProtocol
+@KeepFields
 public final class GridItem implements Item {
     /**
      * The type of images supported within grid items.
@@ -74,23 +77,19 @@ public final class GridItem implements Item {
      */
     public static final int IMAGE_TYPE_LARGE = (1 << 1);
 
-    @Keep
     private final boolean mIsLoading;
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final CarText mText;
-    @Keep
     @Nullable
     private final CarIcon mImage;
-    @Keep
     @GridItemImageType
     private final int mImageType;
-    @Keep
     @Nullable
     private final OnClickDelegate mOnClickDelegate;
+    @Nullable
+    private final Badge mBadge;
 
     /**
      * Returns whether the grid item is in a loading state.
@@ -147,6 +146,19 @@ public final class GridItem implements Item {
         return mOnClickDelegate;
     }
 
+    /**
+     * Returns the {@link Badge} that is displayed over the grid item image or {@code null} if not
+     * set.
+     *
+     * @see Builder#setBadge(Badge)
+     */
+    @ExperimentalCarApi
+    @Nullable
+    @RequiresCarApi(7)
+    public Badge getBadge() {
+        return mBadge;
+    }
+
     @Override
     @NonNull
     public String toString() {
@@ -158,12 +170,15 @@ public final class GridItem implements Item {
                 + mImage
                 + ", isLoading: "
                 + mIsLoading
+                + ", badge: "
+                + mBadge
                 + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIsLoading, mTitle, mImage, mImageType, mOnClickDelegate == null);
+        return Objects.hash(mIsLoading, mTitle, mImage, mImageType, mOnClickDelegate == null,
+                mBadge);
     }
 
     @Override
@@ -181,6 +196,7 @@ public final class GridItem implements Item {
                 && Objects.equals(mText, otherGridItem.mText)
                 && Objects.equals(mImage, otherGridItem.mImage)
                 && Objects.equals(mOnClickDelegate == null, otherGridItem.mOnClickDelegate == null)
+                && Objects.equals(mBadge, otherGridItem.mBadge)
                 && mImageType == otherGridItem.mImageType;
     }
 
@@ -191,6 +207,7 @@ public final class GridItem implements Item {
         mImage = builder.mImage;
         mImageType = builder.mImageType;
         mOnClickDelegate = builder.mOnClickDelegate;
+        mBadge = builder.mBadge;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -201,6 +218,7 @@ public final class GridItem implements Item {
         mImage = null;
         mImageType = IMAGE_TYPE_LARGE;
         mOnClickDelegate = null;
+        mBadge = null;
     }
 
     /** A builder of {@link GridItem}. */
@@ -216,6 +234,8 @@ public final class GridItem implements Item {
         @Nullable
         OnClickDelegate mOnClickDelegate;
         boolean mIsLoading;
+        @Nullable
+        Badge mBadge;
 
         /**
          * Sets whether the item is in a loading state.
@@ -307,7 +327,7 @@ public final class GridItem implements Item {
          *
          * This text is truncated at the end to fit in a single line below the title
          *
-         * @throws NullPointerException if {@code text} is {@code null}
+         * @throws NullPointerException     if {@code text} is {@code null}
          * @throws IllegalArgumentException if {@code text} contains unsupported spans
          */
         @NonNull
@@ -374,11 +394,29 @@ public final class GridItem implements Item {
         }
 
         /**
+         * Sets a {@link Badge} to be displayed over the grid item image.
+         *
+         * <p>A badge denotes some sort of call to action, notification, alert, etc.
+         *
+         * <p>A badge can only be set if an image is also set on the grid item.
+         *
+         * @param badge the {@link Badge} to display.
+         */
+        @NonNull
+        @ExperimentalCarApi
+        @RequiresCarApi(7)
+        public Builder setBadge(@NonNull Badge badge) {
+            mBadge = badge;
+            return this;
+        }
+
+        /**
          * Constructs the {@link GridItem} defined by this builder.
          *
          * @throws IllegalStateException if the grid item's title is not set, if the grid item's
-         *                               image is set when it is loading or vice versa, or if
-         *                               the grid item is loading but the click listener is set
+         *                               image is set when it is loading or vice versa, if
+         *                               the grid item is loading but the click listener is set,
+         *                               or if a badge is set and an image is not set
          */
         @NonNull
         public GridItem build() {
@@ -394,6 +432,11 @@ public final class GridItem implements Item {
             if (mIsLoading && mOnClickDelegate != null) {
                 throw new IllegalStateException(
                         "The click listener must not be set on the grid item when it is loading");
+            }
+
+            if (mImage == null && mBadge != null) {
+                throw new IllegalStateException("A badge can only be set when a grid item image "
+                        + "is also provided");
             }
 
             return new GridItem(this);

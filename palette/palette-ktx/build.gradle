@@ -39,7 +39,6 @@ dependencies {
 androidx {
     name = "Palette Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenGroup = LibraryGroups.PALETTE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'palette' artifact"
 }

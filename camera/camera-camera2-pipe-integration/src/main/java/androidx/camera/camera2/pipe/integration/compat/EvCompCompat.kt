@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
@@ -37,21 +38,22 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.CameraControl
 import dagger.Binds
 import dagger.Module
+import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 interface EvCompCompat {
     val supported: Boolean
     val range: Range<Int>
     val step: Rational
 
-    fun stopRunningTask()
+    fun stopRunningTask(throwable: Throwable)
 
     fun applyAsync(
         evCompIndex: Int,
-        camera: UseCaseCamera
+        camera: UseCaseCamera,
+        cancelPreviousTask: Boolean,
     ): Deferred<Int>
 
     @Module
@@ -90,18 +92,38 @@ class EvCompImpl @Inject constructor(
     private var updateSignal: CompletableDeferred<Int>? = null
     private var updateListener: Request.Listener? = null
 
-    override fun stopRunningTask() {
+    override fun stopRunningTask(throwable: Throwable) {
         threads.sequentialScope.launch {
-            stopRunningTaskInternal()
+            updateSignal?.completeExceptionally(throwable)
         }
     }
 
-    override fun applyAsync(evCompIndex: Int, camera: UseCaseCamera): Deferred<Int> {
+    override fun applyAsync(
+        evCompIndex: Int,
+        camera: UseCaseCamera,
+        cancelPreviousTask: Boolean,
+    ): Deferred<Int> {
         val signal = CompletableDeferred<Int>()
 
         threads.sequentialScope.launch {
-            stopRunningTaskInternal()
+            updateSignal?.let { previousUpdateSignal ->
+                if (cancelPreviousTask) {
+                    // Cancel the previous request signal if exist.
+                    previousUpdateSignal.completeExceptionally(
+                        CameraControl.OperationCanceledException(
+                            "Cancelled by another setExposureCompensationIndex()"
+                        )
+                    )
+                } else {
+                    // Propagate the result to the previous updateSignal
+                    signal.propagateTo(previousUpdateSignal)
+                }
+            }
             updateSignal = signal
+            updateListener?.let {
+                comboRequestListener.removeListener(it)
+                updateListener = null
+            }
 
             camera.setParameterAsync(CONTROL_AE_EXPOSURE_COMPENSATION, evCompIndex)
 
@@ -110,7 +132,7 @@ class EvCompImpl @Inject constructor(
                 override fun onComplete(
                     requestMetadata: RequestMetadata,
                     frameNumber: FrameNumber,
-                    result: FrameInfo
+                    result: FrameInfo,
                 ) {
                     val state = result.metadata[CaptureResult.CONTROL_AE_STATE]
                     val evResult = result.metadata[CaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION]
@@ -121,7 +143,6 @@ class EvCompImpl @Inject constructor(
                             CaptureResult.CONTROL_AE_STATE_LOCKED ->
                                 if (evResult == evCompIndex) {
                                     signal.complete(evCompIndex)
-                                    comboRequestListener.removeListener(this)
                                 }
                             else -> {
                             }
@@ -130,32 +151,14 @@ class EvCompImpl @Inject constructor(
                         // If AE state is null, only wait for the exposure result to the desired
                         // value.
                         signal.complete(evCompIndex)
-
-                        // Remove the capture result listener. The updateSignal and
-                        // updateListener will be cleared before the next set exposure task.
-                        comboRequestListener.removeListener(this)
                     }
                 }
+            }.also { requestListener ->
+                comboRequestListener.addListener(requestListener, threads.sequentialExecutor)
+                signal.invokeOnCompletion { comboRequestListener.removeListener(requestListener) }
             }
-            comboRequestListener.addListener(updateListener!!, threads.sequentialExecutor)
         }
 
         return signal
-    }
-
-    private fun stopRunningTaskInternal() {
-        updateSignal?.let {
-            it.completeExceptionally(
-                CameraControl.OperationCanceledException(
-                    "Cancelled by another setExposureCompensationIndex()"
-                )
-            )
-            updateSignal = null
-        }
-
-        updateListener?.let {
-            comboRequestListener.removeListener(it)
-            updateListener = null
-        }
     }
 }

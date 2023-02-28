@@ -28,8 +28,11 @@ import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates.ContentProviderIconsDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates.RadioButtonListDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates.SecondaryActionsAndDecorationDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates.SectionedItemListDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates.TextAndIconsDemosScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates.ToggleButtonListDemoScreen;
+import androidx.car.app.versioning.CarAppApiLevels;
 
 /**
  * Creates a screen that demonstrates usage of the full screen {@link ListTemplate} to display a
@@ -53,6 +56,14 @@ public final class ListTemplateDemoScreen extends Screen {
                 R.string.text_icons_demo_title));
         listBuilder.addItem(buildRowForTemplate(new ContentProviderIconsDemoScreen(getCarContext()),
                 R.string.content_provider_icons_demo_title));
+        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_6) {
+            listBuilder.addItem(buildRowForTemplate(
+                    new SecondaryActionsAndDecorationDemoScreen(getCarContext()),
+                    R.string.secondary_actions_decoration_button_demo_title));
+        }
+        listBuilder.addItem(buildRowForTemplate(
+                new SectionedItemListDemoScreen(getCarContext()),
+                R.string.sectioned_item_list_demo_title));
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
                 .setTitle(getCarContext().getString(R.string.list_template_demo_title))

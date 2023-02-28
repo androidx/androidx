@@ -18,6 +18,7 @@ package androidx.fragment.app.strictmode
 
 import android.os.Looper
 import androidx.fragment.app.StrictFragment
+import androidx.fragment.app.StrictViewFragment
 import androidx.fragment.app.executePendingTransactions
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
@@ -26,10 +27,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -39,6 +43,9 @@ public class FragmentStrictModeTest {
     private val fragmentClass = StrictFragment::class.java
 
     private lateinit var originalPolicy: FragmentStrictMode.Policy
+
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
 
     @Before
     public fun setup() {
@@ -75,7 +82,7 @@ public class FragmentStrictModeTest {
             .penaltyListener { lastTriggeredPolicy = name }
             .build()
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
 
             val parentFragment = StrictFragment()
@@ -118,7 +125,7 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.defaultPolicy = policy
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
 
             val fragment = StrictFragment()
@@ -142,7 +149,7 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.defaultPolicy = policy
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = StrictFragment()
 
@@ -178,7 +185,7 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.defaultPolicy = policy
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = StrictFragment()
 
@@ -215,7 +222,7 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.defaultPolicy = policy
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity { setContentView(R.layout.activity_inflated_fragment) }
             val fragment = withActivity {
                 supportFragmentManager.findFragmentById(R.id.inflated_fragment)!!
@@ -224,6 +231,87 @@ public class FragmentStrictModeTest {
             assertThat(violation).isInstanceOf(FragmentTagUsageViolation::class.java)
             assertThat(violation).hasMessageThat().contains(
                 "Attempting to use <fragment> tag to add fragment $fragment to container $container"
+            )
+        }
+    }
+
+    @Test
+    public fun detectWrongNestedHierarchyNoParent() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectWrongNestedHierarchy()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.defaultPolicy = policy
+
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+            val outerFragment = StrictViewFragment(R.layout.scene1)
+            val innerFragment = StrictViewFragment(R.layout.fragment_a)
+
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, outerFragment)
+                .setReorderingAllowed(false)
+                .commit()
+            // Here we add childFragment to a layout within parentFragment, but we
+            // specifically don't use parentFragment.childFragmentManager
+            fm.beginTransaction()
+                .add(R.id.squareContainer, innerFragment)
+                .setReorderingAllowed(false)
+                .commit()
+            executePendingTransactions()
+
+            assertThat(violation).isInstanceOf(WrongNestedHierarchyViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to nest fragment $innerFragment within the view " +
+                    "of parent fragment $outerFragment via container with ID " +
+                    "${R.id.squareContainer} without using parent's childFragmentManager"
+            )
+        }
+    }
+
+    @Test
+    public fun detectWrongNestedHierarchyWrongParent() {
+        var violation: Violation? = null
+        val policy = FragmentStrictMode.Policy.Builder()
+            .detectWrongNestedHierarchy()
+            .penaltyListener { violation = it }
+            .build()
+        FragmentStrictMode.defaultPolicy = policy
+
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+            val grandParent = StrictViewFragment(R.layout.scene1)
+            val parentFragment = StrictViewFragment(R.layout.scene5)
+            val childFragment = StrictViewFragment(R.layout.fragment_a)
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, grandParent)
+                .setReorderingAllowed(false)
+                .commit()
+            executePendingTransactions()
+            grandParent.childFragmentManager.beginTransaction()
+                .add(R.id.squareContainer, parentFragment)
+                .setReorderingAllowed(false)
+                .commit()
+            executePendingTransactions()
+            // Here we use the grandParent.childFragmentManager for the child
+            // fragment, though we should actually be using parentFragment.childFragmentManager
+            grandParent.childFragmentManager.beginTransaction()
+                .add(R.id.sharedElementContainer, childFragment)
+                .setReorderingAllowed(false)
+                .commit()
+            executePendingTransactions(parentFragment.childFragmentManager)
+            assertThat(violation).isInstanceOf(WrongNestedHierarchyViolation::class.java)
+            assertThat(violation).hasMessageThat().contains(
+                "Attempting to nest fragment $childFragment within the view " +
+                    "of parent fragment $parentFragment via container with ID " +
+                    "${R.id.sharedElementContainer} without using parent's childFragmentManager"
             )
         }
     }
@@ -315,7 +403,7 @@ public class FragmentStrictModeTest {
             .build()
         FragmentStrictMode.defaultPolicy = policy
 
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
 
             val fragment1 = StrictFragment()

@@ -19,6 +19,7 @@ package androidx.glance
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.glance.action.Action
+import androidx.glance.action.action
 import androidx.glance.action.clickable
 import androidx.glance.text.EmittableText
 import androidx.glance.text.TextStyle
@@ -43,7 +44,41 @@ fun Button(
     modifier: GlanceModifier = GlanceModifier,
     enabled: Boolean = true,
     style: TextStyle? = null,
-    colors: ButtonColors = DEFAULT_COLORS,
+    colors: ButtonColors = defaultButtonColors(),
+    maxLines: Int = Int.MAX_VALUE,
+) = ButtonElement(text, onClick, modifier, enabled, style, colors, maxLines)
+
+/**
+ * Adds a button view to the glance view.
+ *
+ * @param text The text that this button will show.
+ * @param onClick The action to be performed when this button is clicked.
+ * @param modifier The modifier to be applied to this button.
+ * @param enabled If false, the button will not be clickable.
+ * @param style The style to be applied to the text in this button.
+ * @param colors The colors to use for the background and content of the button.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated.
+ */
+@Composable
+fun Button(
+    text: String,
+    onClick: () -> Unit,
+    modifier: GlanceModifier = GlanceModifier,
+    enabled: Boolean = true,
+    style: TextStyle? = null,
+    colors: ButtonColors = defaultButtonColors(),
+    maxLines: Int = Int.MAX_VALUE,
+) = ButtonElement(text, action(block = onClick), modifier, enabled, style, colors, maxLines)
+
+@Composable
+internal fun ButtonElement(
+    text: String,
+    onClick: Action,
+    modifier: GlanceModifier = GlanceModifier,
+    enabled: Boolean = true,
+    style: TextStyle? = null,
+    colors: ButtonColors = defaultButtonColors(),
     maxLines: Int = Int.MAX_VALUE,
 ) {
     var finalModifier = if (enabled) modifier.clickable(onClick) else modifier
@@ -70,9 +105,18 @@ class EmittableButton : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
     var text: String = ""
     var style: TextStyle? = null
-    var colors: ButtonColors = DEFAULT_COLORS
+    var colors: ButtonColors? = null
     var enabled: Boolean = true
     var maxLines: Int = Int.MAX_VALUE
+
+    override fun copy(): Emittable = EmittableButton().also {
+        it.modifier = modifier
+        it.text = text
+        it.style = style
+        it.colors = colors
+        it.enabled = enabled
+        it.maxLines = maxLines
+    }
 
     override fun toString(): String = "EmittableButton('$text', enabled=$enabled, style=$style, " +
         "colors=$colors modifier=$modifier, maxLines=$maxLines)"
@@ -108,7 +152,8 @@ class ButtonColors(val backgroundColor: ColorProvider, val contentColor: ColorPr
     }
 }
 
-internal val DEFAULT_COLORS = ButtonColors(
-    ColorProvider(R.color.glance_colorPrimary),
-    ColorProvider(R.color.glance_colorOnPrimary)
+@Composable
+internal fun defaultButtonColors() = ButtonColors(
+    GlanceTheme.colors.primary,
+    GlanceTheme.colors.onPrimary
 )

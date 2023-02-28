@@ -38,16 +38,21 @@ import java.time.ZoneOffset
  * @see SleepStageRecord
  */
 public class SleepSessionRecord(
-    /** Title of the session. Optional field. */
-    public val title: String? = null,
-    /** Additional notes for the session. Optional field. */
-    public val notes: String? = null,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    /** Title of the session. Optional field. */
+    public val title: String? = null,
+    /** Additional notes for the session. Optional field. */
+    public val notes: String? = null,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
+
+    init {
+        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SleepSessionRecord) return false

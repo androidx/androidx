@@ -114,8 +114,8 @@ class RemoveUnusedColumnsTest {
 
         runProcessorTest(
             sources = sources,
-            createProcessingStep = {
-                DatabaseProcessingStep()
+            createProcessingSteps = {
+                listOf(DatabaseProcessingStep())
             },
             options = mapOf(
                 "room.expandProjection" to enableExpandProjection.toString()

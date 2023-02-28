@@ -16,16 +16,19 @@
 
 package androidx.benchmark.macro
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
+import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24Helper.shaderDir
 import androidx.benchmark.macro.perfetto.forceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.tracing.trace
+import java.io.File
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
@@ -33,7 +36,7 @@ import androidx.tracing.trace
  */
 public class MacrobenchmarkScope(
     /**
-     * Package name of the app being tested.
+     * ApplicationId / Package name of the app being tested.
      */
     val packageName: String,
     /**
@@ -67,11 +70,12 @@ public class MacrobenchmarkScope(
     val device: UiDevice = UiDevice.getInstance(instrumentation)
 
     /**
-     * Start an activity, by default the default launch of the package, and wait until
+     * Start an activity, by default the launcher activity of the package, and wait until
      * its launch completes.
      *
      * This call will ignore any parcelable extras on the intent, as the start is performed by
-     * converting the Intent to a URI, and starting via `am start` shell command.
+     * converting the Intent to a URI, and starting via `am start` shell command. Note that from
+     * api 33 the launch intent needs to have category {@link android.intent.category.LAUNCHER}.
      *
      * @throws IllegalStateException if unable to acquire intent for package.
      *
@@ -122,7 +126,7 @@ public class MacrobenchmarkScope(
         Log.d(TAG, "Starting activity with command: $cmd")
 
         // executeShellScript used to access stderr, and avoid need to escape special chars like `;`
-        val result = Shell.executeScriptWithStderr(cmd)
+        val result = Shell.executeScriptCaptureStdoutStderr(cmd)
 
         val outputLines = result.stdout
             .split("\n")
@@ -188,7 +192,7 @@ public class MacrobenchmarkScope(
                 // we use framestats here because it gives us not just frame counts, but actual
                 // timestamps for new activity starts. Frame counts would mostly work, but would
                 // have false positives if some window of the app is still animating/rendering.
-                Shell.executeCommand("dumpsys gfxinfo $processName framestats")
+                Shell.executeScriptCaptureStdout("dumpsys gfxinfo $processName framestats")
             }
             FrameStatsResult.parse(frameStatsOutput)
         }
@@ -225,19 +229,27 @@ public class MacrobenchmarkScope(
     }
 
     /**
-     * Deletes the Shader cache for an application.
+     * Deletes the shader cache for an application.
      *
-     * Enables measurement of shader-cache startup cost during
-     * [cold starts](androidx.benchmark.macro.StartupMode.COLD).
+     * Used by `measureRepeated(startupMode = StartupMode.COLD)` to remove compiled shaders for each
+     * measurement, to ensure their cost is captured each time.
+     *
+     * Requires `profileinstaller` 1.3.0-alpha02 to be used by the target, or a rooted device.
+     *
+     * @throws IllegalStateException if the device is not rooted, and the target app cannot be
+     * signalled to drop its shader cache.
      */
     public fun dropShaderCache() {
         Log.d(TAG, "Dropping shader cache for $packageName")
-        // Shader cache is stored in the codeCacheDirectory
-        // https://source.corp.google.com/android-internal/frameworks/base/core/java/android/app/ActivityThread.java;l=6410
-        val shaderCachePath = instrumentation.targetContext.codeCacheDir.absolutePath
-        val output = Shell.executeScript("rm -rf $shaderCachePath")
-        check(output.isBlank()) {
-            "Unable to drop shader cache for $packageName ($output)"
+        val dropError = ProfileInstallBroadcast.dropShaderCache(packageName)
+        if (dropError != null) {
+            if (Shell.isSessionRooted()) {
+                // fall back to root approach
+                val path = getShaderCachePath(packageName)
+                Shell.executeScriptSilent("find $path -type f | xargs rm")
+            } else {
+                throw IllegalStateException(dropError)
+            }
         }
     }
 
@@ -249,14 +261,14 @@ public class MacrobenchmarkScope(
      */
     @RequiresApi(31)
     private fun dropKernelPageCacheSetProp() {
-        val result = Shell.executeScriptWithStderr("setprop perf.drop_caches 3")
+        val result = Shell.executeScriptCaptureStdoutStderr("setprop perf.drop_caches 3")
         check(result.stdout.isEmpty() && result.stderr.isEmpty()) {
             "Failed to trigger drop cache via setprop: $result"
         }
         // Polling duration is very conservative, on Pixel 4L finishes in ~150ms
         repeat(50) {
             Thread.sleep(50)
-            when (val getPropResult = Shell.executeCommand("getprop perf.drop_caches").trim()) {
+            when (val getPropResult = Shell.getprop("perf.drop_caches")) {
                 "0" -> return // completed!
                 "3" -> {} // not completed, continue
                 else -> throw IllegalStateException(
@@ -282,16 +294,39 @@ public class MacrobenchmarkScope(
         if (Build.VERSION.SDK_INT >= 31) {
             dropKernelPageCacheSetProp()
         } else {
-            val result = Shell.executeScript(
+            val result = Shell.executeScriptCaptureStdoutStderr(
                 "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
-            ).trim()
+            )
             // Older user builds don't allow drop caches, should investigate workaround
-            if (result != "Success") {
+            if (result.stdout.trim() != "Success") {
                 if (DeviceInfo.isRooted && !Shell.isSessionRooted()) {
                     throw IllegalStateException("Failed to drop caches - run `adb root`")
                 }
                 Log.w(TAG, "Failed to drop kernel page cache, result: '$result'")
             }
+        }
+    }
+
+    internal companion object {
+        fun getShaderCachePath(packageName: String): String {
+            val context = InstrumentationRegistry.getInstrumentation().context
+
+            // Shader paths sourced from ActivityThread.java
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                context.shaderDir
+            } else {
+                // getCodeCacheDir was added in L, but not used by platform for shaders until M
+                // as M is minApi of this library, that's all we support here
+                context.codeCacheDir
+            }.absolutePath.replace(context.packageName, packageName)
+        }
+
+        @RequiresApi(Build.VERSION_CODES.N)
+        internal object Api24Helper {
+            val Context.shaderDir: File
+                get() =
+                    // shaders started using device protected storage context once it was added in N
+                    createDeviceProtectedStorageContext().codeCacheDir
         }
     }
 }

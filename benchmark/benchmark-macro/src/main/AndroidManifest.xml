@@ -25,7 +25,7 @@
     -->
 
     <!-- usesCleartextTraffic is required for perfetto trace shell processor http server-->
-    <application android:usesCleartextTraffic="true" />
+    <application android:networkSecurityConfig="@xml/network_security_config" />
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />

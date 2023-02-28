@@ -17,7 +17,6 @@
 package androidx.window.embedding
 
 import androidx.window.core.ActivityComponentInfo
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.MatcherUtils.areComponentsMatching
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -26,7 +25,6 @@ import org.junit.Test
 /**
  * Unit tests for [MatcherUtils].
  */
-@OptIn(ExperimentalWindowApi::class)
 class MatcherUtilsTest {
 
     @Test

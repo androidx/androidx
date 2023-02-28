@@ -23,13 +23,13 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.Toggle.OnCheckedChangeListener;
 import androidx.car.app.utils.RemoteUtils;
 
@@ -40,9 +40,8 @@ import androidx.car.app.utils.RemoteUtils;
  */
 @RestrictTo(LIBRARY)
 @CarProtocol
+@KeepFields
 public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
-
-    @Keep
     @Nullable
     private final IOnCheckedChangeListener mStub;
 
@@ -72,8 +71,9 @@ public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
         return new OnCheckedChangeDelegateImpl(listener);
     }
 
-    @Keep // We need to keep these stub for Bundler serialization logic.
-    private static class OnCheckedChangeListenerStub extends IOnCheckedChangeListener.Stub {
+    @KeepFields // We need to keep these stub for Bundler serialization logic.
+    private static class OnCheckedChangeListenerStub extends
+            IOnCheckedChangeListener.Stub {
         private final OnCheckedChangeListener mListener;
 
         OnCheckedChangeListenerStub(OnCheckedChangeListener listener) {

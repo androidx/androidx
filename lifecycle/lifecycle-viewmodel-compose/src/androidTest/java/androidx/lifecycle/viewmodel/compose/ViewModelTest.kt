@@ -30,7 +30,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
@@ -67,7 +67,7 @@ public class ViewModelTest {
                 dialog.show()
                 dialog.window?.decorView?.run {
                     // Specifically only set the LifecycleOwner and SavedStateRegistryOwner
-                    ViewTreeLifecycleOwner.set(this, lifecycleOwner)
+                    setViewTreeLifecycleOwner(lifecycleOwner)
                     setViewTreeSavedStateRegistryOwner(savedStateRegistryOwner)
                 }
 
@@ -270,6 +270,6 @@ private class FakeViewModelStoreOwner : ViewModelStoreOwner, HasDefaultViewModel
     val store = ViewModelStore()
     val factory = FakeViewModelProviderFactory()
 
-    override fun getViewModelStore(): ViewModelStore = store
-    override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory = factory
+    override val viewModelStore: ViewModelStore = store
+    override val defaultViewModelProviderFactory = factory
 }

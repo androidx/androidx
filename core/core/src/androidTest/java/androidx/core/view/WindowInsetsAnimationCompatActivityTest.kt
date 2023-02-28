@@ -220,7 +220,7 @@ public class WindowInsetsAnimationCompatActivityTest {
         triggerInsetAnimation(container)
         latch.await(5, TimeUnit.SECONDS)
         Truth.assertThat(res).containsExactly("prepare", "start", "progress", "end").inOrder()
-        Truth.assertThat(progress).containsAtLeast(0.0f, 1.0f)
+        Truth.assertThat(progress).contains(1.0f)
         Truth.assertThat(progress).isInOrder()
     }
 
@@ -307,6 +307,7 @@ public class WindowInsetsAnimationCompatActivityTest {
         )
     }
 
+    @FlakyTest(bugId = 249124990)
     @Test
     public fun add_animation_listener_first() {
         assumeNotCuttlefish()

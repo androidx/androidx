@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Preview;
 import androidx.camera.core.internal.ThreadConfig;
@@ -32,13 +31,6 @@ public final class PreviewConfig
         ThreadConfig {
 
     // Options declarations
-
-    public static final Option<ImageInfoProcessor> IMAGE_INFO_PROCESSOR = Option.create(
-            "camerax.core.preview.imageInfoProcessor", ImageInfoProcessor.class);
-    public static final Option<CaptureProcessor> OPTION_PREVIEW_CAPTURE_PROCESSOR =
-            Option.create("camerax.core.preview.captureProcessor", CaptureProcessor.class);
-    public static final Option<Boolean> OPTION_RGBA8888_SURFACE_REQUIRED =
-            Option.create("camerax.core.preview.isRgba8888SurfaceRequired", Boolean.class);
     private final OptionsBundle mConfig;
 
     /** Creates a new configuration instance. */
@@ -52,50 +44,6 @@ public final class PreviewConfig
         return mConfig;
     }
 
-    /**
-     * Returns the {@link ImageInfoProcessor}.
-     *
-     * @return The stored value, if it exists in this configuration.
-     */
-    @Nullable
-    public ImageInfoProcessor getImageInfoProcessor(@Nullable ImageInfoProcessor valueIfMissing) {
-        return retrieveOption(IMAGE_INFO_PROCESSOR, valueIfMissing);
-    }
-
-    @NonNull
-    ImageInfoProcessor getImageInfoProcessor() {
-        return retrieveOption(IMAGE_INFO_PROCESSOR);
-    }
-
-    /**
-     * Returns the {@link CaptureProcessor}.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
-    public CaptureProcessor getCaptureProcessor(@Nullable CaptureProcessor valueIfMissing) {
-        return retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, valueIfMissing);
-    }
-
-    /**
-     * Returns the {@link CaptureProcessor}.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @NonNull
-    public CaptureProcessor getCaptureProcessor() {
-        return retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR);
-    }
-
-    /**
-     * Returns if the preview surface requires RGBA8888 format.
-     */
-    public boolean isRgba8888SurfaceRequired(boolean valueIfMissing) {
-        return retrieveOption(OPTION_RGBA8888_SURFACE_REQUIRED, valueIfMissing);
-    }
     /**
      * Retrieves the format of the image that is fed as input.
      *

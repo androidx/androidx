@@ -14,24 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.camera.camera2.internal
+
 import android.content.Context
+import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
 import android.graphics.ImageFormat
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
-import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.CamcorderProfile
-import android.media.MediaRecorder
+import android.media.CamcorderProfile.QUALITY_1080P
+import android.media.CamcorderProfile.QUALITY_2160P
+import android.media.CamcorderProfile.QUALITY_480P
+import android.media.CamcorderProfile.QUALITY_720P
 import android.os.Build
 import android.util.Pair
+import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import android.view.WindowManager
 import androidx.annotation.NonNull
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.internal.SupportedOutputSizesCollectorTest.Companion.createUseCaseByResolutionSelector
+import androidx.camera.camera2.internal.SupportedOutputSizesCollectorTest.Companion.setupCamera
+import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector.LensFacing
@@ -43,30 +50,36 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.MutableStateObservable
+import androidx.camera.core.impl.SizeCoordinate
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize
 import androidx.camera.core.impl.SurfaceConfig.ConfigType
 import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3
+import androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio
+import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1440P
+import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_720P
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA
-import androidx.camera.testing.CamcorderProfileUtil
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.Configs
+import androidx.camera.testing.EncoderProfilesUtil
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.SurfaceTextureProvider.SurfaceTextureCallback
-import androidx.camera.testing.fakes.FakeCamcorderProfileProvider
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.video.FallbackStrategy
 import androidx.camera.video.MediaSpec
@@ -91,17 +104,14 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.shadow.api.Shadow
-import org.robolectric.shadows.ShadowCameraCharacteristics
-import org.robolectric.shadows.ShadowCameraManager
 
 private const val FAKE_USE_CASE = 0
 private const val PREVIEW_USE_CASE = 1
 private const val IMAGE_CAPTURE_USE_CASE = 2
 private const val IMAGE_ANALYSIS_USE_CASE = 3
-private const val VIDEO_CAPTURE_USE_CASE = 4
 private const val UNKNOWN_ROTATION = -1
 private const val UNKNOWN_ASPECT_RATIO = -1
 private const val DEFAULT_CAMERA_ID = "0"
@@ -124,7 +134,6 @@ private val DEFAULT_SUPPORTED_SIZES = arrayOf(
     Size(1920, 1080), // 16:9
     Size(1280, 960), // 4:3
     Size(1280, 720), // 16:9
-    Size(1280, 720), // duplicate the size since Nexus 5X emulator has the case.
     Size(960, 544), // a mod16 version of resolution with 16:9 aspect ratio.
     Size(800, 450), // 16:9
     Size(640, 480), // 4:3
@@ -137,7 +146,7 @@ private val DEFAULT_SUPPORTED_SIZES = arrayOf(
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class SupportedSurfaceCombinationTest() {
+class SupportedSurfaceCombinationTest {
     private val mockCamcorderProfileHelper = Mockito.mock(
         CamcorderProfileHelper::class.java
     )
@@ -145,22 +154,108 @@ class SupportedSurfaceCombinationTest() {
         CamcorderProfile::class.java
     )
     private var cameraManagerCompat: CameraManagerCompat? = null
-    private val profileUhd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_2160P, RECORD_SIZE.getWidth(), RECORD_SIZE.getHeight()
+    private val profileUhd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        RECORD_SIZE.width, RECORD_SIZE.height
     )
-    private val profileFhd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_1080P, 1920, 1080
+    private val profileFhd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        1920, 1080
     )
-    private val profileHd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_720P, PREVIEW_SIZE.getWidth(), PREVIEW_SIZE.getHeight()
+    private val profileHd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        PREVIEW_SIZE.width, PREVIEW_SIZE.height
     )
-    private val profileSd = CamcorderProfileUtil.createCamcorderProfileProxy(
-        CamcorderProfile.QUALITY_480P, RESOLUTION_VGA.getWidth(),
-        RESOLUTION_VGA.getHeight()
+    private val profileSd = EncoderProfilesUtil.createFakeEncoderProfilesProxy(
+        RESOLUTION_VGA.width, RESOLUTION_VGA.height
     )
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private var cameraFactory: FakeCameraFactory? = null
     private var useCaseConfigFactory: UseCaseConfigFactory? = null
+
+    private val legacyUseCaseCreator = object : UseCaseCreator {
+        override fun createUseCase(
+            useCaseType: Int,
+            targetRotation: Int,
+            preferredAspectRatio: Int,
+            preferredResolution: Size?,
+            targetFrameRate: Range<Int>?,
+            surfaceOccupancyPriority: Int,
+            maxResolution: Size?,
+            highResolutionEnabled: Boolean,
+            defaultResolution: Size?,
+            supportedResolutions: List<Pair<Int, Array<Size>>>?,
+            customOrderedResolutions: List<Size>?,
+        ): UseCase {
+            return createUseCaseByLegacyApi(
+                useCaseType,
+                targetRotation,
+                preferredAspectRatio,
+                preferredResolution,
+                targetFrameRate,
+                surfaceOccupancyPriority,
+                maxResolution,
+                defaultResolution,
+                supportedResolutions,
+                customOrderedResolutions,
+            )
+        }
+    }
+
+    private val resolutionSelectorUseCaseCreator = object : UseCaseCreator {
+        override fun createUseCase(
+            useCaseType: Int,
+            targetRotation: Int,
+            preferredAspectRatio: Int,
+            preferredResolution: Size?,
+            targetFrameRate: Range<Int>?,
+            surfaceOccupancyPriority: Int,
+            maxResolution: Size?,
+            highResolutionEnabled: Boolean,
+            defaultResolution: Size?,
+            supportedResolutions: List<Pair<Int, Array<Size>>>?,
+            customOrderedResolutions: List<Size>?,
+        ): UseCase {
+            return createUseCaseByResolutionSelector(
+                useCaseType,
+                preferredAspectRatio,
+                preferredResolution,
+                sizeCoordinate = SizeCoordinate.CAMERA_SENSOR,
+                maxResolution,
+                highResolutionEnabled,
+                highResolutionForceDisabled = false,
+                defaultResolution,
+                supportedResolutions,
+                customOrderedResolutions,
+            )
+        }
+    }
+
+    private val viewSizeResolutionSelectorUseCaseCreator = object : UseCaseCreator {
+        override fun createUseCase(
+            useCaseType: Int,
+            targetRotation: Int,
+            preferredAspectRatio: Int,
+            preferredResolution: Size?,
+            targetFrameRate: Range<Int>?,
+            surfaceOccupancyPriority: Int,
+            maxResolution: Size?,
+            highResolutionEnabled: Boolean,
+            defaultResolution: Size?,
+            supportedResolutions: List<Pair<Int, Array<Size>>>?,
+            customOrderedResolutions: List<Size>?,
+        ): UseCase {
+            return createUseCaseByResolutionSelector(
+                useCaseType,
+                preferredAspectRatio,
+                preferredResolution,
+                sizeCoordinate = SizeCoordinate.ANDROID_VIEW,
+                maxResolution,
+                highResolutionEnabled,
+                highResolutionForceDisabled = false,
+                defaultResolution,
+                supportedResolutions,
+                customOrderedResolutions
+            )
+        }
+    }
 
     @Suppress("DEPRECATION") // defaultDisplay
     @Before
@@ -194,7 +289,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLegacySupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isTrue()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -205,7 +301,7 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLegacySupportedCombinationList().also {
-            assertThat(isAllSubConfigListSupported(supportedSurfaceCombination, it)).isTrue()
+            assertThat(isAllSubConfigListSupported(false, supportedSurfaceCombination, it)).isTrue()
         }
     }
 
@@ -216,7 +312,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isFalse()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -227,7 +324,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isFalse()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -238,7 +336,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isFalse()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -251,7 +350,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isTrue()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -264,7 +364,7 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().also {
-            assertThat(isAllSubConfigListSupported(supportedSurfaceCombination, it)).isTrue()
+            assertThat(isAllSubConfigListSupported(false, supportedSurfaceCombination, it)).isTrue()
         }
     }
 
@@ -277,7 +377,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isFalse()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -290,7 +391,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isFalse()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -303,7 +405,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isTrue()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -316,7 +419,7 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().also {
-            assertThat(isAllSubConfigListSupported(supportedSurfaceCombination, it)).isTrue()
+            assertThat(isAllSubConfigListSupported(false, supportedSurfaceCombination, it)).isTrue()
         }
     }
 
@@ -329,7 +432,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isFalse()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -343,7 +447,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isTrue()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -357,7 +462,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLegacySupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isTrue()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -371,7 +477,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isTrue()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -385,7 +492,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getRAWSupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isTrue()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -398,7 +506,8 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
-            assertThat(supportedSurfaceCombination.checkSupported(it.surfaceConfigList)).isTrue()
+            assertThat(supportedSurfaceCombination.checkSupported(
+                false, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -411,23 +520,68 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().also {
-            assertThat(isAllSubConfigListSupported(supportedSurfaceCombination, it)).isTrue()
+            assertThat(isAllSubConfigListSupported(false, supportedSurfaceCombination, it)).isTrue()
         }
     }
 
     @Test
-    fun checkTargetAspectRatioInLegacyDevice() {
+    fun checkConcurrentSurfaceCombinationSupportedInConcurrentCameraMode() {
+        shadowOf(context.packageManager).setSystemFeature(
+            FEATURE_CAMERA_CONCURRENT, true)
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        GuaranteedConfigurationsUtil.getConcurrentSupportedCombinationList().forEach {
+            assertThat(supportedSurfaceCombination.checkSupported(
+                true, it.surfaceConfigList)).isTrue()
+        }
+    }
+
+    @Test
+    fun checkConcurrentSurfaceCombinationSubListSupportedInConcurrentCameraMode() {
+        shadowOf(context.packageManager).setSystemFeature(
+            FEATURE_CAMERA_CONCURRENT, true)
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        GuaranteedConfigurationsUtil.getConcurrentSupportedCombinationList().also {
+            assertThat(isAllSubConfigListSupported(
+                true, supportedSurfaceCombination, it)).isTrue()
+        }
+    }
+
+    @Test
+    fun checkTargetAspectRatioInLegacyDevice_LegacyApi() {
+        checkTargetAspectRatioInLegacyDevice(legacyUseCaseCreator)
+    }
+
+    @Test
+    fun checkTargetAspectRatioInLegacyDevice_ResolutionSelector() {
+        checkTargetAspectRatioInLegacyDevice(resolutionSelectorUseCaseCreator)
+    }
+
+    private fun checkTargetAspectRatioInLegacyDevice(useCaseCreator: UseCaseCreator) {
         setupCameraAndInitCameraX()
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val targetAspectRatio = ASPECT_RATIO_16_9
-        val useCase = createUseCase(FAKE_USE_CASE, targetAspectRatio = AspectRatio.RATIO_16_9)
+        val useCase = useCaseCreator.createUseCase(
+            FAKE_USE_CASE,
+            preferredAspectRatio = AspectRatio.RATIO_16_9
+        )
         val maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG)
         val maxJpegAspectRatio = Rational(maxJpegSize.width, maxJpegSize.height)
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
-        val selectedSize = suggestedResolutionMap[useCase]
-        val resultAspectRatio = Rational(selectedSize!!.width, selectedSize.height)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false, supportedSurfaceCombination, useCase)
+        val selectedSize = suggestedStreamSpecMap[useCase]!!.resolution
+        val resultAspectRatio = Rational(selectedSize.width, selectedSize.height)
         // The targetAspectRatio value will only be set to the same aspect ratio as maximum
         // supported jpeg size in Legacy + API 21 combination. For other combinations, it should
         // keep the original targetAspectRatio set for the use case.
@@ -443,15 +597,30 @@ class SupportedSurfaceCombinationTest() {
     }
 
     @Test
-    fun checkResolutionForMixedUseCase_AfterBindToLifecycle_InLegacyDevice() {
+    fun checkResolutionForMixedUseCase_AfterBindToLifecycle_InLegacyDevice_LegacyApi() {
+        checkResolutionForMixedUseCase_AfterBindToLifecycle_InLegacyDevice(legacyUseCaseCreator)
+    }
+
+    @Test
+    fun checkResolutionForMixedUseCase_AfterBindToLifecycle_InLegacyDevice_ResolutionSelector() {
+        checkResolutionForMixedUseCase_AfterBindToLifecycle_InLegacyDevice(
+            resolutionSelectorUseCaseCreator
+        )
+    }
+
+    private fun checkResolutionForMixedUseCase_AfterBindToLifecycle_InLegacyDevice(
+        useCaseCreator: UseCaseCreator
+    ) {
         setupCameraAndInitCameraX()
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         // The test case make sure the selected result is expected after the regular flow.
         val targetAspectRatio = ASPECT_RATIO_16_9
-        val preview =
-            createUseCase(PREVIEW_USE_CASE, targetAspectRatio = AspectRatio.RATIO_16_9) as Preview
+        val preview = useCaseCreator.createUseCase(
+            PREVIEW_USE_CASE,
+            preferredAspectRatio = AspectRatio.RATIO_16_9
+        ) as Preview
         preview.setSurfaceProvider(
             CameraXExecutors.directExecutor(),
             SurfaceTextureProvider.createSurfaceTextureProvider(
@@ -460,19 +629,25 @@ class SupportedSurfaceCombinationTest() {
                 )
             )
         )
-        val imageCapture =
-            createUseCase(IMAGE_CAPTURE_USE_CASE, targetAspectRatio = AspectRatio.RATIO_16_9)
-        val imageAnalysis =
-            createUseCase(IMAGE_ANALYSIS_USE_CASE, targetAspectRatio = AspectRatio.RATIO_16_9)
+        val imageCapture = useCaseCreator.createUseCase(
+            IMAGE_CAPTURE_USE_CASE,
+            preferredAspectRatio = AspectRatio.RATIO_16_9
+        )
+        val imageAnalysis = useCaseCreator.createUseCase(
+            IMAGE_ANALYSIS_USE_CASE,
+            preferredAspectRatio = AspectRatio.RATIO_16_9
+        )
         val maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG)
         val maxJpegAspectRatio = Rational(maxJpegSize.width, maxJpegSize.height)
-        val suggestedResolutionMap = getSuggestedResolutionMap(
-            supportedSurfaceCombination, preview,
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination,
+            preview,
             imageCapture, imageAnalysis
         )
-        val previewResolution = suggestedResolutionMap[preview]
-        val imageCaptureResolution = suggestedResolutionMap[imageCapture]
-        val imageAnalysisResolution = suggestedResolutionMap[imageAnalysis]
+        val previewResolution = suggestedStreamSpecMap[preview]!!.resolution
+        val imageCaptureResolution = suggestedStreamSpecMap[imageCapture]!!.resolution
+        val imageAnalysisResolution = suggestedStreamSpecMap[imageAnalysis]!!.resolution
         // The targetAspectRatio value will only be set to the same aspect ratio as maximum
         // supported jpeg size in Legacy + API 21 combination. For other combinations, it should
         // keep the original targetAspectRatio set for the use case.
@@ -480,16 +655,16 @@ class SupportedSurfaceCombinationTest() {
             // Checks targetAspectRatio and maxJpegAspectRatio, which is the ratio of maximum size
             // in the mSupportedSizes, are not equal to make sure this test case is valid.
             assertThat(targetAspectRatio).isNotEqualTo(maxJpegAspectRatio)
-            assertThat(hasMatchingAspectRatio(previewResolution!!, maxJpegAspectRatio)).isTrue()
+            assertThat(hasMatchingAspectRatio(previewResolution, maxJpegAspectRatio)).isTrue()
             assertThat(
                 hasMatchingAspectRatio(
-                    imageCaptureResolution!!,
+                    imageCaptureResolution,
                     maxJpegAspectRatio
                 )
             ).isTrue()
             assertThat(
                 hasMatchingAspectRatio(
-                    imageAnalysisResolution!!,
+                    imageAnalysisResolution,
                     maxJpegAspectRatio
                 )
             ).isTrue()
@@ -497,19 +672,19 @@ class SupportedSurfaceCombinationTest() {
             // Checks no correction is needed.
             assertThat(
                 hasMatchingAspectRatio(
-                    previewResolution!!,
+                    previewResolution,
                     targetAspectRatio
                 )
             ).isTrue()
             assertThat(
                 hasMatchingAspectRatio(
-                    imageCaptureResolution!!,
+                    imageCaptureResolution,
                     targetAspectRatio
                 )
             ).isTrue()
             assertThat(
                 hasMatchingAspectRatio(
-                    imageAnalysisResolution!!,
+                    imageAnalysisResolution,
                     targetAspectRatio
                 )
             ).isTrue()
@@ -517,14 +692,25 @@ class SupportedSurfaceCombinationTest() {
     }
 
     @Test
-    fun checkDefaultAspectRatioAndResolutionForMixedUseCase() {
+    fun checkDefaultAspectRatioAndResolutionForMixedUseCase_LegacyApi() {
+        checkDefaultAspectRatioAndResolutionForMixedUseCase(legacyUseCaseCreator)
+    }
+
+    @Test
+    fun checkDefaultAspectRatioAndResolutionForMixedUseCase_ResolutionSelector() {
+        checkDefaultAspectRatioAndResolutionForMixedUseCase(resolutionSelectorUseCaseCreator)
+    }
+
+    private fun checkDefaultAspectRatioAndResolutionForMixedUseCase(
+        useCaseCreator: UseCaseCreator
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val preview = createUseCase(PREVIEW_USE_CASE) as Preview
+        val preview = useCaseCreator.createUseCase(PREVIEW_USE_CASE) as Preview
         preview.setSurfaceProvider(
             CameraXExecutors.directExecutor(),
             SurfaceTextureProvider.createSurfaceTextureProvider(
@@ -533,19 +719,20 @@ class SupportedSurfaceCombinationTest() {
                 )
             )
         )
-        val imageCapture = createUseCase(IMAGE_CAPTURE_USE_CASE)
-        val imageAnalysis = createUseCase(IMAGE_ANALYSIS_USE_CASE)
+        val imageCapture = useCaseCreator.createUseCase(IMAGE_CAPTURE_USE_CASE)
+        val imageAnalysis = useCaseCreator.createUseCase(IMAGE_ANALYSIS_USE_CASE)
 
         // Preview/ImageCapture/ImageAnalysis' default config settings that will be applied after
         // bound to lifecycle. Calling bindToLifecycle here to make sure sizes matching to
         // default aspect ratio will be selected.
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
             supportedSurfaceCombination, preview,
             imageCapture, imageAnalysis
         )
-        val previewSize = suggestedResolutionMap[preview]!!
-        val imageCaptureSize = suggestedResolutionMap[imageCapture]!!
-        val imageAnalysisSize = suggestedResolutionMap[imageAnalysis]!!
+        val previewSize = suggestedStreamSpecMap[preview]!!.resolution
+        val imageCaptureSize = suggestedStreamSpecMap[imageCapture]!!.resolution
+        val imageAnalysisSize = suggestedStreamSpecMap[imageAnalysis]!!.resolution
 
         val previewAspectRatio = Rational(previewSize.width, previewSize.height)
         val imageCaptureAspectRatio = Rational(imageCaptureSize.width, imageCaptureSize.height)
@@ -577,9 +764,13 @@ class SupportedSurfaceCombinationTest() {
         */
         val displayWidth = 1080
         val displayHeight = 2220
-        val preview =
-            createUseCase(PREVIEW_USE_CASE, targetResolution = Size(displayHeight, displayWidth))
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, preview)
+        val preview = createUseCaseByLegacyApi(
+            PREVIEW_USE_CASE,
+            targetResolution = Size(displayHeight, displayWidth)
+        )
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination, preview)
         // Checks the preconditions.
         val preconditionSize = Size(256, 144)
         val targetRatio = Rational(displayHeight, displayWidth)
@@ -588,12 +779,26 @@ class SupportedSurfaceCombinationTest() {
             assertThat(Rational(it.width, it.height)).isNotEqualTo(targetRatio)
         }
         // Checks the mechanism has filtered out the sizes which are smaller than default size 480p.
-        val previewSize = suggestedResolutionMap[preview]
+        val previewSize = suggestedStreamSpecMap[preview]
         assertThat(previewSize).isNotEqualTo(preconditionSize)
     }
 
     @Test
-    fun checkAspectRatioMatchedSizeCanBeSelected() {
+    fun checkAllSupportedSizesCanBeSelected_LegacyApi() {
+        checkAllSupportedSizesCanBeSelected(legacyUseCaseCreator)
+    }
+
+    @Test
+    fun checkAllSupportedSizesCanBeSelected_ResolutionSelector_SensorSize() {
+        checkAllSupportedSizesCanBeSelected(resolutionSelectorUseCaseCreator)
+    }
+
+    @Test
+    fun checkAllSupportedSizesCanBeSelected_ResolutionSelector_ViewSize() {
+        checkAllSupportedSizesCanBeSelected(viewSizeResolutionSelectorUseCaseCreator)
+    }
+
+    private fun checkAllSupportedSizesCanBeSelected(useCaseCreator: UseCaseCreator) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
@@ -605,93 +810,103 @@ class SupportedSurfaceCombinationTest() {
         // will be selected as the result. This test can also verify that size smaller than
         // 640x480 can be selected after set as target resolution.
         DEFAULT_SUPPORTED_SIZES.forEach {
-            val imageCapture = createUseCase(
+            val imageCapture = useCaseCreator.createUseCase(
                 IMAGE_CAPTURE_USE_CASE,
                 Surface.ROTATION_90,
-                targetResolution = it
+                preferredResolution = it
             )
-            val suggestedResolutionMap =
-                getSuggestedResolutionMap(supportedSurfaceCombination, imageCapture)
-            assertThat(it).isEqualTo(suggestedResolutionMap[imageCapture])
+            val suggestedStreamSpecMap =
+                getSuggestedStreamSpecMap(
+                    false, supportedSurfaceCombination, imageCapture)
+            assertThat(it).isEqualTo(suggestedStreamSpecMap[imageCapture]!!.resolution)
         }
     }
 
     @Test
-    fun checkCorrectAspectRatioNotMatchedSizeCanBeSelected() {
+    fun checkCorrectAspectRatioNotMatchedSizeCanBeSelected_LegacyApi() {
+        // Sets target resolution as 1280x640, all supported resolutions will be put into
+        // aspect ratio not matched list. Then, 1280x720 will be the nearest matched one.
+        // Finally, checks whether 1280x720 is selected or not.
+        checkCorrectAspectRatioNotMatchedSizeCanBeSelected(legacyUseCaseCreator, Size(1280, 720))
+    }
+
+    // 1280x640 is not included in the supported sizes list. So, the smallest size of the
+    // default aspect ratio 4:3 which is 1280x960 will be finally selected.
+    @Test
+    fun checkCorrectAspectRatioNotMatchedSizeCanBeSelected_ResolutionSelector_SensorSize() {
+        checkCorrectAspectRatioNotMatchedSizeCanBeSelected(
+            resolutionSelectorUseCaseCreator,
+            Size(1280, 960)
+        )
+    }
+
+    @Test
+    fun checkCorrectAspectRatioNotMatchedSizeCanBeSelected_ResolutionSelector_ViewSize() {
+        checkCorrectAspectRatioNotMatchedSizeCanBeSelected(
+            viewSizeResolutionSelectorUseCaseCreator,
+            Size(1280, 960)
+        )
+    }
+
+    private fun checkCorrectAspectRatioNotMatchedSizeCanBeSelected(
+        useCaseCreator: UseCaseCreator,
+        expectedResult: Size
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        // Sets target resolution as 1200x720, all supported resolutions will be put into aspect
+        // Sets target resolution as 1280x640, all supported resolutions will be put into aspect
         // ratio not matched list. Then, 1280x720 will be the nearest matched one. Finally,
         // checks whether 1280x720 is selected or not.
-        val resolution = Size(1200, 720)
-        val useCase = createUseCase(
+        val resolution = Size(1280, 640)
+        val useCase = useCaseCreator.createUseCase(
             FAKE_USE_CASE,
             Surface.ROTATION_90,
-            targetResolution = resolution
+            preferredResolution = resolution
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
-        assertThat(Size(1280, 720)).isEqualTo(
-            suggestedResolutionMap[useCase]
-        )
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false, supportedSurfaceCombination, useCase)
+        assertThat(suggestedStreamSpecMap[useCase]!!.resolution).isEqualTo(expectedResult)
     }
 
     @Test
-    fun legacyVideo_suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
+    fun suggestedStreamSpecsForMixedUseCaseNotSupportedInLegacyDevice_LegacyApi() {
+        suggestedStreamSpecsForMixedUseCaseNotSupportedInLegacyDevice(legacyUseCaseCreator)
+    }
+
+    @Test
+    fun suggestedStreamSpecsForMixedUseCaseNotSupportedInLegacyDevice_ResolutionSelector() {
+        suggestedStreamSpecsForMixedUseCaseNotSupportedInLegacyDevice(
+            resolutionSelectorUseCaseCreator
+        )
+    }
+
+    private fun suggestedStreamSpecsForMixedUseCaseNotSupportedInLegacyDevice(
+        useCaseCreator: UseCaseCreator
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val imageCapture = createUseCase(
+        val imageCapture = useCaseCreator.createUseCase(
             IMAGE_CAPTURE_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
-        )
-        val videoCapture = createUseCase(
-            VIDEO_CAPTURE_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
-        )
-        val preview = createUseCase(
-            PREVIEW_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
-        )
-        // An IllegalArgumentException will be thrown because a LEGACY level device can't support
-        // ImageCapture + VideoCapture + Preview
-        assertThrows(IllegalArgumentException::class.java) {
-            getSuggestedResolutionMap(
-                supportedSurfaceCombination,
-                imageCapture,
-                videoCapture,
-                preview
-            )
-        }
-    }
-
-    @Test
-    fun suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
-        setupCameraAndInitCameraX(
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-        val imageCapture = createUseCase(
-            IMAGE_CAPTURE_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
+            preferredAspectRatio = AspectRatio.RATIO_16_9
         )
         val videoCapture = createVideoCapture()
-        val preview = createUseCase(
+        val preview = useCaseCreator.createUseCase(
             PREVIEW_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
+            preferredAspectRatio = AspectRatio.RATIO_16_9
         )
         // An IllegalArgumentException will be thrown because a LEGACY level device can't support
         // ImageCapture + VideoCapture + Preview
         assertThrows(IllegalArgumentException::class.java) {
-            getSuggestedResolutionMap(
+            getSuggestedStreamSpecMap(
+                false,
                 supportedSurfaceCombination,
                 imageCapture,
                 videoCapture,
@@ -701,38 +916,20 @@ class SupportedSurfaceCombinationTest() {
     }
 
     @Test
-    fun legacyVideo_suggestedResolutionsForCustomizeResolutionsNotSupportedInLegacyDevice() {
-        setupCameraAndInitCameraX(
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-        // Legacy camera only support (PRIV, PREVIEW) + (PRIV, PREVIEW)
-        val videoResolutionsPairs = listOf(
-            Pair.create(ImageFormat.PRIVATE, arrayOf(RECORD_SIZE))
-        )
-        val previewResolutionsPairs = listOf(
-            Pair.create(ImageFormat.PRIVATE, arrayOf(PREVIEW_SIZE))
-        )
-        val videoCapture = createUseCase(
-            VIDEO_CAPTURE_USE_CASE,
-            maxResolution = RECORD_SIZE, // Override the default max resolution in VideoCapture
-            supportedResolutions = videoResolutionsPairs
-        )
-        val preview = createUseCase(
-            PREVIEW_USE_CASE,
-            supportedResolutions = previewResolutionsPairs
-        )
-        // An IllegalArgumentException will be thrown because the VideoCapture requests to only
-        // support a RECORD size but the configuration can't be supported on a LEGACY level device.
-        assertThrows(IllegalArgumentException::class.java) {
-            getSuggestedResolutionMap(supportedSurfaceCombination, videoCapture, preview)
-        }
+    fun suggestedStreamSpecsForCustomizeResolutionsNotSupportedInLegacyDevice_LegacyApi() {
+        suggestedStreamSpecsForCustomizeResolutionsNotSupportedInLegacyDevice(legacyUseCaseCreator)
     }
 
     @Test
-    fun suggestedResolutionsForCustomizeResolutionsNotSupportedInLegacyDevice() {
+    fun suggestedStreamSpecsForCustomizeResolutionsNotSupportedInLegacyDevice_ResolutionSelector() {
+        suggestedStreamSpecsForCustomizeResolutionsNotSupportedInLegacyDevice(
+            resolutionSelectorUseCaseCreator
+        )
+    }
+
+    private fun suggestedStreamSpecsForCustomizeResolutionsNotSupportedInLegacyDevice(
+        useCaseCreator: UseCaseCreator
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
         )
@@ -744,76 +941,57 @@ class SupportedSurfaceCombinationTest() {
             Pair.create(ImageFormat.PRIVATE, arrayOf(PREVIEW_SIZE))
         )
         val videoCapture: VideoCapture<TestVideoOutput> = createVideoCapture(Quality.UHD)
-        val preview = createUseCase(
+        val preview = useCaseCreator.createUseCase(
             PREVIEW_USE_CASE,
             supportedResolutions = previewResolutionsPairs
         )
         // An IllegalArgumentException will be thrown because the VideoCapture requests to only
         // support a RECORD size but the configuration can't be supported on a LEGACY level device.
         assertThrows(IllegalArgumentException::class.java) {
-            getSuggestedResolutionMap(supportedSurfaceCombination, videoCapture, preview)
+            getSuggestedStreamSpecMap(
+                false, supportedSurfaceCombination, videoCapture, preview)
         }
     }
 
     @Test
-    fun legacyVideo_getSuggestedResolutionsForMixedUseCaseInLimitedDevice() {
-        setupCameraAndInitCameraX(
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-        val imageCapture = createUseCase(
-            IMAGE_CAPTURE_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
-        )
-        val videoCapture = createUseCase(
-            VIDEO_CAPTURE_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
-        )
-        val preview = createUseCase(
-            PREVIEW_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
-        )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
-            supportedSurfaceCombination,
-            imageCapture,
-            videoCapture,
-            preview
-        )
-        // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(RECORD_SIZE)
-        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(LEGACY_VIDEO_MAXIMUM_SIZE)
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(PREVIEW_SIZE)
+    fun getsuggestedStreamSpecsForMixedUseCaseInLimitedDevice_LegacyApi() {
+        getsuggestedStreamSpecsForMixedUseCaseInLimitedDevice(legacyUseCaseCreator)
     }
 
     @Test
-    fun getSuggestedResolutionsForMixedUseCaseInLimitedDevice() {
+    fun getsuggestedStreamSpecsForMixedUseCaseInLimitedDevice_ResolutionSelector() {
+        getsuggestedStreamSpecsForMixedUseCaseInLimitedDevice(resolutionSelectorUseCaseCreator)
+    }
+
+    private fun getsuggestedStreamSpecsForMixedUseCaseInLimitedDevice(
+        useCaseCreator: UseCaseCreator
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val imageCapture = createUseCase(
+        val imageCapture = useCaseCreator.createUseCase(
             IMAGE_CAPTURE_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
+            preferredAspectRatio = AspectRatio.RATIO_16_9
         )
         val videoCapture = createVideoCapture(Quality.HIGHEST)
-        val preview = createUseCase(
+        val preview = useCaseCreator.createUseCase(
             PREVIEW_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
+            preferredAspectRatio = AspectRatio.RATIO_16_9
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
             supportedSurfaceCombination,
             imageCapture,
             videoCapture,
             preview
         )
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(RECORD_SIZE)
-        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(RECORD_SIZE)
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[imageCapture]!!.resolution).isEqualTo(RECORD_SIZE)
+        assertThat(suggestedStreamSpecMap[videoCapture]!!.resolution).isEqualTo(RECORD_SIZE)
+        assertThat(suggestedStreamSpecMap[preview]!!.resolution).isEqualTo(PREVIEW_SIZE)
     }
 
     // For the use case in b/230651237,
@@ -821,26 +999,42 @@ class SupportedSurfaceCombinationTest() {
     // VideoCapture should have higher priority to choose size than ImageCapture.
     @Test
     @Throws(CameraUnavailableException::class)
-    fun getSuggestedResolutionsInFullDevice_videoHasHigherPriorityThanImage() {
+    fun getsuggestedStreamSpecsInFullDevice_videoHasHigherPriorityThanImage_LegacyApi() {
+        getsuggestedStreamSpecsInFullDevice_videoHasHigherPriorityThanImage(
+            legacyUseCaseCreator)
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class)
+    fun getsuggestedStreamSpecsInFullDevice_videoHasHigherPriorityThanImage_ResolutionSelector() {
+        getsuggestedStreamSpecsInFullDevice_videoHasHigherPriorityThanImage(
+            resolutionSelectorUseCaseCreator
+        )
+    }
+
+    private fun getsuggestedStreamSpecsInFullDevice_videoHasHigherPriorityThanImage(
+        useCaseCreator: UseCaseCreator
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val imageCapture = createUseCase(
+        val imageCapture = useCaseCreator.createUseCase(
             IMAGE_CAPTURE_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
+            preferredAspectRatio = AspectRatio.RATIO_16_9
         )
         val videoCapture = createVideoCapture(QualitySelector.from(
             Quality.UHD,
             FallbackStrategy.lowerQualityOrHigherThan(Quality.UHD)
         ))
-        val preview = createUseCase(
+        val preview = useCaseCreator.createUseCase(
             PREVIEW_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
+            preferredAspectRatio = AspectRatio.RATIO_16_9
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
             supportedSurfaceCombination,
             imageCapture,
             videoCapture,
@@ -849,33 +1043,48 @@ class SupportedSurfaceCombinationTest() {
         // There are two possible combinations in Full level device
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD) => should be applied
         // (PRIV, PREVIEW) + (PRIV, PREVIEW) + (JPEG, MAXIMUM)
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(RECORD_SIZE)
-        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(RECORD_SIZE)
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[imageCapture]!!.resolution).isEqualTo(RECORD_SIZE)
+        assertThat(suggestedStreamSpecMap[videoCapture]!!.resolution).isEqualTo(RECORD_SIZE)
+        assertThat(suggestedStreamSpecMap[preview]!!.resolution).isEqualTo(PREVIEW_SIZE)
     }
 
     @Test
-    fun getSuggestedResolutionsInFullDevice_videoRecordSizeLowPriority_imageCanGetMaxSize() {
+    fun imageCaptureCanGetMaxSizeInFullDevice_videoRecordSizeLowPriority_LegacyApi() {
+        imageCaptureCanGetMaxSizeInFullDevice_videoRecordSizeLowPriority(
+            legacyUseCaseCreator)
+    }
+
+    @Test
+    fun imageCaptureCanGetMaxSizeInFullDevice_videoRecordSizeLowPriority_ResolutionSelector() {
+        imageCaptureCanGetMaxSizeInFullDevice_videoRecordSizeLowPriority(
+            resolutionSelectorUseCaseCreator
+        )
+    }
+
+    private fun imageCaptureCanGetMaxSizeInFullDevice_videoRecordSizeLowPriority(
+        useCaseCreator: UseCaseCreator
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val imageCapture = createUseCase(
+        val imageCapture = useCaseCreator.createUseCase(
             IMAGE_CAPTURE_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_4_3 // mMaximumSize(4032x3024) is 4:3
+            preferredAspectRatio = AspectRatio.RATIO_4_3 // mMaximumSize(4032x3024) is 4:3
         )
         val videoCapture = createVideoCapture(
             QualitySelector.fromOrderedList(
-                listOf<androidx.camera.video.Quality>(Quality.HD, Quality.FHD, Quality.UHD)
+                listOf<Quality>(Quality.HD, Quality.FHD, Quality.UHD)
             )
         )
-        val preview = createUseCase(
+        val preview = useCaseCreator.createUseCase(
             PREVIEW_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
+            preferredAspectRatio = AspectRatio.RATIO_16_9
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
             supportedSurfaceCombination,
             imageCapture,
             videoCapture,
@@ -884,15 +1093,57 @@ class SupportedSurfaceCombinationTest() {
         // There are two possible combinations in Full level device
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
         // (PRIV, PREVIEW) + (PRIV, PREVIEW) + (JPEG, MAXIMUM) => should be applied
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(MAXIMUM_SIZE)
-        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(PREVIEW_SIZE) // Quality.HD
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[imageCapture]!!.resolution).isEqualTo(MAXIMUM_SIZE)
+        // Quality.HD
+        assertThat(suggestedStreamSpecMap[videoCapture]!!.resolution).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[preview]!!.resolution).isEqualTo(PREVIEW_SIZE)
     }
 
     @Test
-    fun getSuggestedResolutionsWithSameSupportedListForDifferentUseCases() {
+    fun getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases_LegacyApi() {
+        getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases(
+            legacyUseCaseCreator,
+            DISPLAY_SIZE
+        )
+    }
+
+    @Test
+    fun getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases_RS_SensorSize() {
+        getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases(
+            resolutionSelectorUseCaseCreator,
+            PREVIEW_SIZE
+        )
+    }
+
+    @Test
+    fun getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases_RS_ViewSize() {
+        getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases(
+            viewSizeResolutionSelectorUseCaseCreator,
+            PREVIEW_SIZE
+        )
+    }
+
+    private fun getsuggestedStreamSpecsWithSameSupportedListForDifferentUseCases(
+        useCaseCreator: UseCaseCreator,
+        preferredResolution: Size
+    ) {
         setupCameraAndInitCameraX(
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            supportedSizes = arrayOf(
+                Size(4032, 3024), // 4:3
+                Size(3840, 2160), // 16:9
+                Size(1920, 1440), // 4:3
+                Size(1920, 1080), // 16:9
+                Size(1280, 960), // 4:3
+                Size(1280, 720), // 16:9
+                Size(1280, 720), // duplicate the size since Nexus 5X emulator has the case.
+                Size(960, 544), // a mod16 version of resolution with 16:9 aspect ratio.
+                Size(800, 450), // 16:9
+                Size(640, 480), // 4:3
+                Size(320, 240), // 4:3
+                Size(320, 180), // 16:9
+                Size(256, 144) // 16:9 For checkSmallSizesAreFilteredOut test.
+            )
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
@@ -903,41 +1154,62 @@ class SupportedSurfaceCombinationTest() {
         2. supportedOutputSizes for ImageCapture and Preview in
         SupportedSurfaceCombination#getAllPossibleSizeArrangements are the same.
         */
-        val imageCapture = createUseCase(IMAGE_CAPTURE_USE_CASE, targetResolution = DISPLAY_SIZE)
-        val preview = createUseCase(PREVIEW_USE_CASE, targetResolution = DISPLAY_SIZE)
-        val imageAnalysis = createUseCase(IMAGE_ANALYSIS_USE_CASE, targetResolution = DISPLAY_SIZE)
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val imageCapture = useCaseCreator.createUseCase(
+            IMAGE_CAPTURE_USE_CASE,
+            preferredResolution = preferredResolution
+        )
+        val preview = useCaseCreator.createUseCase(
+            PREVIEW_USE_CASE,
+            preferredResolution = preferredResolution
+        )
+        val imageAnalysis = useCaseCreator.createUseCase(
+            IMAGE_ANALYSIS_USE_CASE,
+            preferredResolution = preferredResolution
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
             supportedSurfaceCombination,
             imageCapture,
             imageAnalysis,
             preview
         )
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(PREVIEW_SIZE)
-        assertThat(suggestedResolutionMap[imageAnalysis]).isEqualTo(PREVIEW_SIZE)
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[imageCapture]!!.resolution).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[imageAnalysis]!!.resolution).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[preview]!!.resolution).isEqualTo(PREVIEW_SIZE)
     }
 
     @Test
-    fun setTargetAspectRatioForMixedUseCases() {
+    fun setTargetAspectRatioForMixedUseCases_LegacyApi() {
+        setTargetAspectRatioForMixedUseCases(legacyUseCaseCreator)
+    }
+
+    @Test
+    fun setTargetAspectRatioForMixedUseCases_ResolutionSelector() {
+        setTargetAspectRatioForMixedUseCases(resolutionSelectorUseCaseCreator)
+    }
+
+    private fun setTargetAspectRatioForMixedUseCases(useCaseCreator: UseCaseCreator) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val preview = createUseCase(
+        val preview = useCaseCreator.createUseCase(
             PREVIEW_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
+            preferredAspectRatio = AspectRatio.RATIO_16_9
         )
-        val imageCapture = createUseCase(
+        val imageCapture = useCaseCreator.createUseCase(
             IMAGE_CAPTURE_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
+            preferredAspectRatio = AspectRatio.RATIO_16_9
         )
-        val imageAnalysis = createUseCase(
+        val imageAnalysis = useCaseCreator.createUseCase(
             IMAGE_ANALYSIS_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9
+            preferredAspectRatio = AspectRatio.RATIO_16_9
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
             supportedSurfaceCombination,
             preview,
             imageCapture,
@@ -945,26 +1217,37 @@ class SupportedSurfaceCombinationTest() {
         )
         assertThat(
             hasMatchingAspectRatio(
-                suggestedResolutionMap[preview]!!,
+                suggestedStreamSpecMap[preview]!!.resolution,
                 ASPECT_RATIO_16_9
             )
         ).isTrue()
         assertThat(
             hasMatchingAspectRatio(
-                suggestedResolutionMap[imageCapture]!!,
+                suggestedStreamSpecMap[imageCapture]!!.resolution,
                 ASPECT_RATIO_16_9
             )
         ).isTrue()
         assertThat(
             hasMatchingAspectRatio(
-                suggestedResolutionMap[imageAnalysis]!!,
+                suggestedStreamSpecMap[imageAnalysis]!!.resolution,
                 ASPECT_RATIO_16_9
             )
         ).isTrue()
     }
 
     @Test
-    fun legacyVideo_getSuggestedResolutionsForCustomizedSupportedResolutions() {
+    fun getsuggestedStreamSpecsForCustomizedSupportedResolutions_LegacyApi() {
+        getsuggestedStreamSpecsForCustomizedSupportedResolutions(legacyUseCaseCreator)
+    }
+
+    @Test
+    fun getsuggestedStreamSpecsForCustomizedSupportedResolutions_ResolutionSelector() {
+        getsuggestedStreamSpecsForCustomizedSupportedResolutions(resolutionSelectorUseCaseCreator)
+    }
+
+    private fun getsuggestedStreamSpecsForCustomizedSupportedResolutions(
+        useCaseCreator: UseCaseCreator
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
@@ -977,63 +1260,26 @@ class SupportedSurfaceCombinationTest() {
             add(Pair.create(ImageFormat.PRIVATE, arrayOf(RESOLUTION_VGA)))
         }
         // Sets use cases customized supported resolutions to 640x480 only.
-        val imageCapture = createUseCase(
-            IMAGE_CAPTURE_USE_CASE,
-            supportedResolutions = formatResolutionsPairList
-        )
-        val videoCapture = createUseCase(
-            VIDEO_CAPTURE_USE_CASE,
-            supportedResolutions = formatResolutionsPairList
-        )
-        val preview = createUseCase(
-            PREVIEW_USE_CASE,
-            supportedResolutions = formatResolutionsPairList
-        )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
-            supportedSurfaceCombination,
-            imageCapture,
-            videoCapture,
-            preview
-        )
-        // Checks all suggested resolutions will become 640x480.
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(RESOLUTION_VGA)
-        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(RESOLUTION_VGA)
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(RESOLUTION_VGA)
-    }
-
-    @Test
-    fun getSuggestedResolutionsForCustomizedSupportedResolutions() {
-        setupCameraAndInitCameraX(
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
-        )
-        val supportedSurfaceCombination = SupportedSurfaceCombination(
-            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
-        )
-        val formatResolutionsPairList = arrayListOf<Pair<Int, Array<Size>>>().apply {
-            add(Pair.create(ImageFormat.JPEG, arrayOf(RESOLUTION_VGA)))
-            add(Pair.create(ImageFormat.YUV_420_888, arrayOf(RESOLUTION_VGA)))
-            add(Pair.create(ImageFormat.PRIVATE, arrayOf(RESOLUTION_VGA)))
-        }
-        // Sets use cases customized supported resolutions to 640x480 only.
-        val imageCapture = createUseCase(
+        val imageCapture = useCaseCreator.createUseCase(
             IMAGE_CAPTURE_USE_CASE,
             supportedResolutions = formatResolutionsPairList
         )
         val videoCapture = createVideoCapture(Quality.SD)
-        val preview = createUseCase(
+        val preview = useCaseCreator.createUseCase(
             PREVIEW_USE_CASE,
             supportedResolutions = formatResolutionsPairList
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
             supportedSurfaceCombination,
             imageCapture,
             videoCapture,
             preview
         )
-        // Checks all suggested resolutions will become 640x480.
-        assertThat(suggestedResolutionMap[imageCapture]).isEqualTo(RESOLUTION_VGA)
-        assertThat(suggestedResolutionMap[videoCapture]).isEqualTo(RESOLUTION_VGA)
-        assertThat(suggestedResolutionMap[preview]).isEqualTo(RESOLUTION_VGA)
+        // Checks all resolutions in suggested stream specs will become 640x480.
+        assertThat(suggestedStreamSpecMap[imageCapture]?.resolution).isEqualTo(RESOLUTION_VGA)
+        assertThat(suggestedStreamSpecMap[videoCapture]?.resolution).isEqualTo(RESOLUTION_VGA)
+        assertThat(suggestedStreamSpecMap[preview]?.resolution).isEqualTo(RESOLUTION_VGA)
     }
 
     @Test
@@ -1043,6 +1289,7 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.YUV_420_888, RESOLUTION_VGA
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.VGA)
@@ -1056,6 +1303,7 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.YUV_420_888, PREVIEW_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW)
@@ -1069,6 +1317,7 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.YUV_420_888, RECORD_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD)
@@ -1082,6 +1331,7 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.YUV_420_888, MAXIMUM_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM)
@@ -1095,6 +1345,7 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.JPEG, RESOLUTION_VGA
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.VGA)
@@ -1108,6 +1359,7 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.JPEG, PREVIEW_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.PREVIEW)
@@ -1121,6 +1373,7 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.JPEG, RECORD_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD)
@@ -1134,9 +1387,100 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            false,
             ImageFormat.JPEG, MAXIMUM_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithPRIVS720PSizeInConcurrentMode() {
+        shadowOf(context.packageManager).setSystemFeature(FEATURE_CAMERA_CONCURRENT, true)
+        setupCameraAndInitCameraX()
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.PRIVATE, RESOLUTION_720P
+        )
+        val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s720p)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithYUVS720PSizeInConcurrentMode() {
+        shadowOf(context.packageManager).setSystemFeature(FEATURE_CAMERA_CONCURRENT, true)
+        setupCameraAndInitCameraX()
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.YUV_420_888, RESOLUTION_720P
+        )
+        val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.s720p)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithJPEGS720PSizeInConcurrentMode() {
+        shadowOf(context.packageManager).setSystemFeature(FEATURE_CAMERA_CONCURRENT, true)
+        setupCameraAndInitCameraX()
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.JPEG, RESOLUTION_720P
+        )
+        val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.s720p)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithPRIVS1440PSizeInConcurrentMode() {
+        shadowOf(context.packageManager).setSystemFeature(FEATURE_CAMERA_CONCURRENT, true)
+        setupCameraAndInitCameraX()
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.PRIVATE, RESOLUTION_1440P
+        )
+        val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s1440p)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithYUVS1440PSizeInConcurrentMode() {
+        shadowOf(context.packageManager).setSystemFeature(FEATURE_CAMERA_CONCURRENT, true)
+        setupCameraAndInitCameraX()
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.YUV_420_888, RESOLUTION_1440P
+        )
+        val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.s1440p)
+        assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    fun transformSurfaceConfigWithJPEGS1440PSizeInConcurrentMode() {
+        shadowOf(context.packageManager).setSystemFeature(FEATURE_CAMERA_CONCURRENT, true)
+        setupCameraAndInitCameraX()
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
+            true,
+            ImageFormat.JPEG, RESOLUTION_1440P
+        )
+        val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.s1440p)
         assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
     }
 
@@ -1154,20 +1498,31 @@ class SupportedSurfaceCombinationTest() {
     }
 
     @Test
-    fun isAspectRatioMatchWithSupportedMod16Resolution() {
+    fun isAspectRatioMatchWithSupportedMod16Resolution_LegacyApi() {
+        isAspectRatioMatchWithSupportedMod16Resolution(legacyUseCaseCreator)
+    }
+
+    @Test
+    fun isAspectRatioMatchWithSupportedMod16Resolution_ResolutionSelector() {
+        isAspectRatioMatchWithSupportedMod16Resolution(resolutionSelectorUseCaseCreator)
+    }
+
+    private fun isAspectRatioMatchWithSupportedMod16Resolution(useCaseCreator: UseCaseCreator) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = useCaseCreator.createUseCase(
             FAKE_USE_CASE,
-            targetAspectRatio = AspectRatio.RATIO_16_9,
-            defaultResolution = MOD16_SIZE
+            Surface.ROTATION_90,
+            preferredAspectRatio = AspectRatio.RATIO_16_9,
+            preferredResolution = MOD16_SIZE
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(MOD16_SIZE)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false, supportedSurfaceCombination, useCase)
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(MOD16_SIZE)
     }
 
     @Test
@@ -1196,7 +1551,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(FAKE_USE_CASE)
+        val useCase = createUseCaseByLegacyApi(FAKE_USE_CASE)
         // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
         // removed. No any aspect ratio related setting. The returned sizes list will be sorted in
         // descending order.
@@ -1223,7 +1578,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetAspectRatio = AspectRatio.RATIO_4_3
         )
@@ -1249,14 +1604,14 @@ class SupportedSurfaceCombinationTest() {
     }
 
     @Test
-    fun getSupportedOutputSizes_aspectRatio16x9() {
+    fun getSupportedOutputSizes_aspectRatio16x9_InLimitedDevice() {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetAspectRatio = AspectRatio.RATIO_16_9
         )
@@ -1287,7 +1642,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetAspectRatio = AspectRatio.RATIO_16_9
         )
@@ -1305,13 +1660,9 @@ class SupportedSurfaceCombinationTest() {
                 Size(4032, 3024),
                 Size(1920, 1440),
                 Size(1280, 960),
-                Size(640, 480),
-                // Mismatched the same AspectRatio as maximum JPEG items, sorted by area size.
-                Size(3840, 2160),
-                Size(1920, 1080),
-                Size(1280, 720),
-                Size(960, 544),
-                Size(800, 450)
+                Size(640, 480)
+                // Non-matched items have been removed by OutputSizesCorrector due to
+                // TargetAspectRatio quirk.
             )
         } else {
             // Sizes of aspect ratio 16/9 will be in front of the returned sizes list and the
@@ -1335,14 +1686,14 @@ class SupportedSurfaceCombinationTest() {
     }
 
     @Test
-    fun getSupportedOutputSizes_targetResolution1080x1920InRotation0() {
+    fun getSupportedOutputSizes_targetResolution1080x1920InRotation0_InLimitedDevice() {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetResolution = Size(1080, 1920)
         )
@@ -1375,7 +1726,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetResolution = Size(1080, 1920)
         )
@@ -1392,12 +1743,9 @@ class SupportedSurfaceCombinationTest() {
                 // delta then area size.
                 Size(1920, 1440),
                 Size(1280, 960),
-                Size(640, 480),
-                // Mismatched the same AspectRatio as maximum JPEG items, sorted by area size.
-                Size(1920, 1080),
-                Size(1280, 720),
-                Size(960, 544),
-                Size(800, 450)
+                Size(640, 480)
+                // Non-matched items have been removed by OutputSizesCorrector due to
+                // TargetAspectRatio quirk.
             )
         } else {
             // The target resolution will be calibrated by default target rotation 0 degree. The
@@ -1429,7 +1777,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             targetResolution = Size(1280, 960)
@@ -1464,7 +1812,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             targetResolution = Size(320, 240)
@@ -1494,7 +1842,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             maxResolution = Size(320, 240)
         )
@@ -1518,7 +1866,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             targetResolution = Size(1800, 1440)
@@ -1553,7 +1901,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             targetResolution = Size(1280, 600)
@@ -1585,7 +1933,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             maxResolution = Size(1280, 720)
         )
@@ -1598,7 +1946,55 @@ class SupportedSurfaceCombinationTest() {
     }
 
     @Test
-    fun previewCanSelectResolutionLargerThanDisplay_withMaxResolution() {
+    fun getSupportedOutputSizes_setCustomOrderedResolutions() {
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val customOrderedResolutions = listOf(
+            Size(640, 480),
+            Size(1280, 720),
+            Size(1920, 1080),
+            Size(3840, 2160),
+        )
+        val useCase = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            customOrderedResolutions = customOrderedResolutions,
+            maxResolution = Size(1920, 1440),
+            defaultResolution = Size(1280, 720),
+            supportedResolutions = listOf(
+                Pair.create(
+                    ImageFormat.PRIVATE, arrayOf(
+                        Size(800, 450),
+                        Size(640, 480),
+                        Size(320, 240),
+                    )
+                )
+            )
+        )
+        // Custom ordered resolutions is fully respected, meaning it will not be sorted or filtered
+        // by other configurations such as max/default/target/supported resolutions.
+        val resultList = getSupportedOutputSizes(supportedSurfaceCombination, useCase)
+        assertThat(resultList).containsExactlyElementsIn(customOrderedResolutions).inOrder()
+    }
+
+    @Test
+    fun previewCanSelectResolutionLargerThanDisplay_withMaxResolution_LegacyApi() {
+        previewCanSelectResolutionLargerThanDisplay_withMaxResolution(legacyUseCaseCreator)
+    }
+
+    @Test
+    fun previewCanSelectResolutionLargerThanDisplay_withMaxResolution_ResolutionSelector() {
+        previewCanSelectResolutionLargerThanDisplay_withMaxResolution(
+            resolutionSelectorUseCaseCreator
+        )
+    }
+
+    private fun previewCanSelectResolutionLargerThanDisplay_withMaxResolution(
+        useCaseCreator: UseCaseCreator
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
@@ -1606,13 +2002,14 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         // The max resolution is expressed in the sensor coordinate.
-        val useCase = createUseCase(
+        val useCase = useCaseCreator.createUseCase(
             PREVIEW_USE_CASE,
             maxResolution = MAXIMUM_SIZE
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false, supportedSurfaceCombination, useCase)
         // Checks mMaximumSize is final selected for the use case.
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(MAXIMUM_SIZE)
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(MAXIMUM_SIZE)
     }
 
     @Test
@@ -1623,7 +2020,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             defaultResolution = Size(1280, 720)
         )
@@ -1644,7 +2041,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             defaultResolution = Size(1280, 720),
@@ -1685,7 +2082,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             targetResolution = Size(1920, 1080)
@@ -1712,7 +2109,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             maxResolution = Size(320, 240)
         )
@@ -1739,7 +2136,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             targetResolution = Size(320, 240),
@@ -1769,7 +2166,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             targetResolution = Size(320, 180),
@@ -1793,7 +2190,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             targetResolution = Size(3840, 2160),
@@ -1834,7 +2231,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             targetResolution = Size(320, 190),
@@ -1864,7 +2261,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             targetResolution = Size(192, 144)
@@ -1891,7 +2288,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             maxResolution = Size(192, 144)
         )
@@ -1917,7 +2314,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
             targetResolution = Size(185, 90)
@@ -1935,6 +2332,7 @@ class SupportedSurfaceCombinationTest() {
     @Test
     fun getSupportedOutputSizes_whenOneMod16SizeClosestToTargetResolution() {
         setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
             supportedSizes = arrayOf(
                 Size(1920, 1080),
                 Size(1440, 1080),
@@ -1951,7 +2349,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetResolution = Size(1080, 2016)
         )
@@ -1990,7 +2388,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetAspectRatio = AspectRatio.RATIO_16_9
         )
@@ -2036,7 +2434,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetAspectRatio = AspectRatio.RATIO_16_9
         )
@@ -2070,7 +2468,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetAspectRatio = AspectRatio.RATIO_16_9
         )
@@ -2113,7 +2511,7 @@ class SupportedSurfaceCombinationTest() {
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val useCase = createUseCase(
+        val useCase = createUseCaseByLegacyApi(
             FAKE_USE_CASE,
             targetAspectRatio = AspectRatio.RATIO_16_9
         )
@@ -2152,7 +2550,21 @@ class SupportedSurfaceCombinationTest() {
     }
 
     @Test
-    fun canGet640x480_whenAnotherGroupMatchedInMod16Exists() {
+    fun canGet640x480_whenAnotherGroupMatchedInMod16Exists_LegacyApi() {
+        canGet640x480_whenAnotherGroupMatchedInMod16Exists(legacyUseCaseCreator)
+    }
+
+    @Test
+    fun canGet640x480_whenAnotherGroupMatchedInMod16Exists_RS_SensorSize() {
+        canGet640x480_whenAnotherGroupMatchedInMod16Exists(resolutionSelectorUseCaseCreator)
+    }
+
+    @Test
+    fun canGet640x480_whenAnotherGroupMatchedInMod16Exists_RS_ViewSize() {
+        canGet640x480_whenAnotherGroupMatchedInMod16Exists(viewSizeResolutionSelectorUseCaseCreator)
+    }
+
+    private fun canGet640x480_whenAnotherGroupMatchedInMod16Exists(useCaseCreator: UseCaseCreator) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
             supportedSizes = arrayOf(
@@ -2171,18 +2583,32 @@ class SupportedSurfaceCombinationTest() {
         )
         // Sets the target resolution as 640x480 with target rotation as ROTATION_90 because the
         // sensor orientation is 90.
-        val useCase = createUseCase(
+        val useCase = useCaseCreator.createUseCase(
             FAKE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
-            targetResolution = RESOLUTION_VGA
+            preferredResolution = RESOLUTION_VGA
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false, supportedSurfaceCombination, useCase)
         // Checks 640x480 is final selected for the use case.
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(RESOLUTION_VGA)
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(RESOLUTION_VGA)
     }
 
     @Test
-    fun canGetSupportedSizeSmallerThan640x480_whenLargerMaxResolutionIsSet() {
+    fun canGetSupportedSizeSmallerThan640x480_whenLargerMaxResolutionIsSet_LegacyApi() {
+        canGetSupportedSizeSmallerThan640x480_whenLargerMaxResolutionIsSet(legacyUseCaseCreator)
+    }
+
+    @Test
+    fun canGetSupportedSizeSmallerThan640x480_whenLargerMaxResolutionIsSet_ResolutionSelector() {
+        canGetSupportedSizeSmallerThan640x480_whenLargerMaxResolutionIsSet(
+            resolutionSelectorUseCaseCreator
+        )
+    }
+
+    private fun canGetSupportedSizeSmallerThan640x480_whenLargerMaxResolutionIsSet(
+        useCaseCreator: UseCaseCreator
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
             supportedSizes = arrayOf(Size(480, 480))
@@ -2191,24 +2617,51 @@ class SupportedSurfaceCombinationTest() {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         // Sets the max resolution as 720x1280
-        val useCase = createUseCase(
+        val useCase = useCaseCreator.createUseCase(
             FAKE_USE_CASE,
             maxResolution = DISPLAY_SIZE
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(supportedSurfaceCombination, useCase)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false, supportedSurfaceCombination, useCase)
         // Checks 480x480 is final selected for the use case.
-        assertThat(suggestedResolutionMap[useCase]).isEqualTo(Size(480, 480))
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(Size(480, 480))
     }
 
     @Test
-    fun previewSizeIsSelectedForImageAnalysis_imageCaptureHasNoSetSizeInLimitedDevice() {
+    fun previewSizeIsSelectedForImageAnalysis_withImageCaptureInLimitedDevice_LegacyApi() {
+        previewSizeIsSelectedForImageAnalysis_withImageCaptureInLimitedDevice(
+            legacyUseCaseCreator, PREVIEW_SIZE
+        )
+    }
+
+    // For the ResolutionSelector API, RECORD_SIZE can't be used because it exceeds
+    // PREVIEW_SIZE. Therefore, the logic will fallback to select a 4:3 PREVIEW_SIZE. Then,
+    // 640x480 will be selected.
+    @Test
+    fun previewSizeIsSelectedForImageAnalysis_withImageCaptureInLimitedDevice_RS_SensorSize() {
+        previewSizeIsSelectedForImageAnalysis_withImageCaptureInLimitedDevice(
+            resolutionSelectorUseCaseCreator, RESOLUTION_VGA
+        )
+    }
+
+    @Test
+    fun previewSizeIsSelectedForImageAnalysis_withImageCaptureInLimitedDevice_RS_ViewSize() {
+        previewSizeIsSelectedForImageAnalysis_withImageCaptureInLimitedDevice(
+            viewSizeResolutionSelectorUseCaseCreator, RESOLUTION_VGA
+        )
+    }
+
+    private fun previewSizeIsSelectedForImageAnalysis_withImageCaptureInLimitedDevice(
+        useCaseCreator: UseCaseCreator,
+        expectedResult: Size
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val preview = createUseCase(PREVIEW_USE_CASE) as Preview
+        val preview = useCaseCreator.createUseCase(PREVIEW_USE_CASE) as Preview
         preview.setSurfaceProvider(
             CameraXExecutors.directExecutor(),
             SurfaceTextureProvider.createSurfaceTextureProvider(
@@ -2218,7 +2671,7 @@ class SupportedSurfaceCombinationTest() {
             )
         )
         // ImageCapture has no explicit target resolution setting
-        val imageCapture = createUseCase(IMAGE_CAPTURE_USE_CASE)
+        val imageCapture = useCaseCreator.createUseCase(IMAGE_CAPTURE_USE_CASE)
         // A LEGACY-level above device supports the following configuration.
         //     PRIV/PREVIEW + YUV/PREVIEW + JPEG/MAXIMUM
         //
@@ -2228,29 +2681,52 @@ class SupportedSurfaceCombinationTest() {
         // Even there is a RECORD size target resolution setting for ImageAnalysis, ImageCapture
         // will still have higher priority to have a MAXIMUM size resolution if the app doesn't
         // explicitly specify a RECORD size target resolution to ImageCapture.
-        val imageAnalysis = createUseCase(
+        val imageAnalysis = useCaseCreator.createUseCase(
             IMAGE_ANALYSIS_USE_CASE,
             targetRotation = Surface.ROTATION_90,
-            targetResolution = RECORD_SIZE
+            preferredResolution = RECORD_SIZE
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
             supportedSurfaceCombination,
             preview,
             imageCapture,
             imageAnalysis
         )
-        assertThat(suggestedResolutionMap[imageAnalysis]).isEqualTo(PREVIEW_SIZE)
+        assertThat(suggestedStreamSpecMap[imageAnalysis]?.resolution).isEqualTo(expectedResult)
     }
 
     @Test
-    fun recordSizeIsSelectedForImageAnalysis_imageCaptureHasExplicitSizeInLimitedDevice() {
+    fun imageAnalysisSelectRecordSize_imageCaptureHasExplicitSizeInLimitedDevice_LegacyApi() {
+        imageAnalysisSelectRecordSize_imageCaptureHasExplicitSizeInLimitedDevice(
+            legacyUseCaseCreator
+        )
+    }
+
+    @Test
+    fun imageAnalysisSelectRecordSize_imageCaptureHasExplicitSizeInLimitedDevice_RS_SensorSize() {
+        imageAnalysisSelectRecordSize_imageCaptureHasExplicitSizeInLimitedDevice(
+            resolutionSelectorUseCaseCreator
+        )
+    }
+
+    @Test
+    fun imageAnalysisSelectRecordSize_imageCaptureHasExplicitSizeInLimitedDevice_RS_ViewSize() {
+        imageAnalysisSelectRecordSize_imageCaptureHasExplicitSizeInLimitedDevice(
+            viewSizeResolutionSelectorUseCaseCreator
+        )
+    }
+
+    private fun imageAnalysisSelectRecordSize_imageCaptureHasExplicitSizeInLimitedDevice(
+        useCaseCreator: UseCaseCreator
+    ) {
         setupCameraAndInitCameraX(
             hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val preview = createUseCase(PREVIEW_USE_CASE) as Preview
+        val preview = useCaseCreator.createUseCase(PREVIEW_USE_CASE) as Preview
         preview.setSurfaceProvider(
             CameraXExecutors.directExecutor(),
             SurfaceTextureProvider.createSurfaceTextureProvider(
@@ -2260,10 +2736,10 @@ class SupportedSurfaceCombinationTest() {
             )
         )
         // ImageCapture has no explicit RECORD size target resolution setting
-        val imageCapture = createUseCase(
+        val imageCapture = useCaseCreator.createUseCase(
             IMAGE_CAPTURE_USE_CASE,
             targetRotation = Surface.ROTATION_90,
-            targetResolution = RECORD_SIZE
+            preferredResolution = RECORD_SIZE
         )
         // A LEGACY-level above device supports the following configuration.
         //     PRIV/PREVIEW + YUV/PREVIEW + JPEG/MAXIMUM
@@ -2274,18 +2750,449 @@ class SupportedSurfaceCombinationTest() {
         // A RECORD can be selected for ImageAnalysis if the ImageCapture has a explicit RECORD
         // size target resolution setting. It means that the application know the trade-off and
         // the ImageAnalysis has higher priority to get a larger resolution than ImageCapture.
-        val imageAnalysis = createUseCase(
+        val imageAnalysis = useCaseCreator.createUseCase(
             IMAGE_ANALYSIS_USE_CASE,
             targetRotation = Surface.ROTATION_90,
-            targetResolution = RECORD_SIZE
+            preferredResolution = RECORD_SIZE
         )
-        val suggestedResolutionMap = getSuggestedResolutionMap(
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
             supportedSurfaceCombination,
             preview,
             imageCapture,
             imageAnalysis
         )
-        assertThat(suggestedResolutionMap[imageAnalysis]).isEqualTo(RECORD_SIZE)
+        assertThat(suggestedStreamSpecMap[imageAnalysis]?.resolution).isEqualTo(RECORD_SIZE)
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.M)
+    @Test
+    fun highResolutionIsSelected_whenHighResolutionIsEnabled() {
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+            capabilities = intArrayOf(
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE
+            ),
+            supportedHighResolutionSizes = arrayOf(Size(8000, 6000), Size(8000, 4500))
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase = createUseCaseByResolutionSelector(FAKE_USE_CASE, highResolutionEnabled = true)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false, supportedSurfaceCombination, useCase)
+
+        // Checks 8000x6000 is final selected for the use case.
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(Size(8000, 6000))
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.M)
+    @Test
+    fun highResolutionIsNotSelected_whenHighResolutionIsEnabled_withoutBurstCaptureCapability() {
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+            supportedHighResolutionSizes = arrayOf(Size(8000, 6000), Size(8000, 4500))
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase = createUseCaseByResolutionSelector(FAKE_USE_CASE, highResolutionEnabled = true)
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false, supportedSurfaceCombination, useCase)
+
+        // Checks 8000x6000 is final selected for the use case.
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(Size(4032, 3024))
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.M)
+    @Test
+    fun highResolutionIsNotSelected_whenHighResolutionIsNotEnabled_targetResolution8000x6000() {
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+            capabilities = intArrayOf(
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE
+            ),
+            supportedHighResolutionSizes = arrayOf(Size(8000, 6000), Size(8000, 4500))
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase =
+            createUseCaseByResolutionSelector(FAKE_USE_CASE, preferredResolution = Size(8000, 6000))
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false, supportedSurfaceCombination, useCase)
+
+        // Checks 8000x6000 is final selected for the use case.
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(Size(4032, 3024))
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.M)
+    @Test
+    fun highResolutionIsSelected_whenHighResolutionIsEnabled_aspectRatio16x9() {
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+            capabilities = intArrayOf(
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE
+            ),
+            supportedHighResolutionSizes = arrayOf(Size(8000, 6000), Size(8000, 4500))
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase = createUseCaseByResolutionSelector(
+            FAKE_USE_CASE,
+            preferredAspectRatio = AspectRatio.RATIO_16_9,
+            highResolutionEnabled = true
+        )
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false, supportedSurfaceCombination, useCase)
+
+        // Checks 8000x6000 is final selected for the use case.
+        assertThat(suggestedStreamSpecMap[useCase]?.resolution).isEqualTo(Size(8000, 4500))
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_single_valid_targetFPS() {
+        // a valid target means the device is capable of that fps
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        // use case with target fps
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(25, 30)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination,
+            useCase1
+        )
+        // single selected size should be equal to 3840 x 2160
+        assertThat(suggestedStreamSpecMap[useCase1]!!.resolution).isEqualTo(Size(3840, 2160))
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_single_invalid_targetFPS() {
+        // an invalid target means the device would neve be able to reach that fps
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        // use case with target fps
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(65, 70)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination,
+            useCase1
+        )
+        // single selected size should be equal to 3840 x 2160
+        assertThat(suggestedStreamSpecMap[useCase1]!!.resolution).isEqualTo(Size(800, 450))
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_multiple_targetFPS_first_is_larger() {
+        // a valid target means the device is capable of that fps
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 35),
+            surfaceOccupancyPriority = 1
+        )
+
+        val useCase2 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(15, 25)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination,
+            useCase1,
+            useCase2
+        )
+        // both selected size should be no larger than 1920 x 1080
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1920, 1445)))
+            .isTrue()
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase2]!!.resolution, Size(1920, 1445)))
+            .isTrue()
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_multiple_targetFPS_first_is_smaller() {
+        // a valid target means the device is capable of that fps
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 35),
+            surfaceOccupancyPriority = 1
+        )
+
+        val useCase2 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(45, 50)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination,
+            useCase1,
+            useCase2
+        )
+        // both selected size should be no larger than 1920 x 1440
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase2]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_multiple_targetFPS_intersect() {
+        // first and second new use cases have target fps that intersect each other
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 40),
+            surfaceOccupancyPriority = 1
+        )
+
+        val useCase2 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(35, 45)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination,
+            useCase1,
+            useCase2
+        )
+        // effective target fps becomes 35-40
+        // both selected size should be no larger than 1920 x 1080
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1920, 1080)))
+            .isTrue()
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase2]!!.resolution, Size(1920, 1080)))
+            .isTrue()
+    }
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_multiple_cases_first_has_targetFPS() {
+        // first new use case has a target fps, second new use case does not
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 35),
+            surfaceOccupancyPriority = 1
+        )
+
+        val useCase2 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination,
+            useCase1,
+            useCase2
+        )
+        // both selected size should be no larger than 1920 x 1440
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase2]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_multiple_cases_second_has_targetFPS() {
+        // second new use case does not have a target fps, first new use case does not
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE
+        )
+        val useCase2 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 35)
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination,
+            useCase1,
+            useCase2
+        )
+        // both selected size should be no larger than 1920 x 1440
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase2]!!.resolution, Size(1920, 1440)))
+            .isTrue()
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_attached_with_targetFPS_no_new_targetFPS() {
+        // existing surface with target fps + new use case without a target fps
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        // existing surface w/ target fps
+        val attachedSurfaceInfo = AttachedSurfaceInfo.create(
+            SurfaceConfig.create(
+                ConfigType.JPEG,
+                ConfigSize.PREVIEW
+            ), ImageFormat.JPEG,
+            Size(1280, 720), Range(40, 50)
+        )
+
+        // new use case with no target fps
+        val useCase1 = createUseCaseByLegacyApi(FAKE_USE_CASE)
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination,
+            useCase1,
+            attachedSurfaces = listOf(attachedSurfaceInfo)
+        )
+        // size should be no larger than 1280 x 960
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1280, 960)))
+            .isTrue()
+    }
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_attached_with_targetFPS_and_new_targetFPS_no_intersect() {
+        // existing surface with target fps + new use case with target fps that does not intersect
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        // existing surface w/ target fps
+        val attachedSurfaceInfo = AttachedSurfaceInfo.create(
+            SurfaceConfig.create(
+                ConfigType.JPEG,
+                ConfigSize.PREVIEW
+            ), ImageFormat.JPEG,
+            Size(1280, 720), Range(40, 50)
+        )
+
+        // new use case with target fps
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(30, 35)
+
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination,
+            useCase1,
+            attachedSurfaces = listOf(attachedSurfaceInfo)
+        )
+        // size of new surface should be no larger than 1280 x 960
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1280, 960)))
+            .isTrue()
+    }
+
+    @Test
+    @Throws(CameraUnavailableException::class, CameraAccessExceptionCompat::class)
+    fun getSupportedOutputSizes_attached_with_targetFPS_and_new_targetFPS_with_intersect() {
+        // existing surface with target fps + new use case with target fps that intersect each other
+        setupCameraAndInitCameraX(
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+
+        // existing surface w/ target fps
+        val attachedSurfaceInfo = AttachedSurfaceInfo.create(
+            SurfaceConfig.create(
+                ConfigType.JPEG,
+                ConfigSize.PREVIEW
+            ), ImageFormat.JPEG,
+            Size(1280, 720), Range(40, 50)
+        )
+
+        // new use case with target fps
+        val useCase1 = createUseCaseByLegacyApi(
+            FAKE_USE_CASE,
+            targetFrameRate = Range<Int>(45, 50)
+
+        )
+
+        val suggestedStreamSpecMap = getSuggestedStreamSpecMap(
+            false,
+            supportedSurfaceCombination,
+            useCase1,
+            attachedSurfaces = listOf(attachedSurfaceInfo)
+        )
+        // size of new surface should be no larger than 1280 x 720
+        assertThat(sizeIsAtMost(suggestedStreamSpecMap[useCase1]!!.resolution, Size(1280, 720)))
+            .isTrue()
+    }
+
+    /**
+     * Helper function that returns whether size is <= maxSize
+     *
+     */
+    private fun sizeIsAtMost(size: Size, maxSize: Size): Boolean {
+        return (size.height * size.width) <= (maxSize.height * maxSize.width)
     }
 
     /**
@@ -2308,33 +3215,18 @@ class SupportedSurfaceCombinationTest() {
         sensorOrientation: Int = SENSOR_ORIENTATION_90,
         pixelArraySize: Size = LANDSCAPE_PIXEL_ARRAY_SIZE,
         supportedSizes: Array<Size> = DEFAULT_SUPPORTED_SIZES,
+        supportedHighResolutionSizes: Array<Size>? = null,
         capabilities: IntArray? = null
     ) {
-        val mockMap = Mockito.mock(StreamConfigurationMap::class.java).also {
-            Mockito.`when`(it.getOutputSizes(ArgumentMatchers.anyInt())).thenReturn(supportedSizes)
-            // ImageFormat.PRIVATE was supported since API level 23. Before that, the supported
-            // output sizes need to be retrieved via SurfaceTexture.class.
-            Mockito.`when`(it.getOutputSizes(SurfaceTexture::class.java)).thenReturn(supportedSizes)
-            // This is setup for the test to determine RECORD size from StreamConfigurationMap
-            Mockito.`when`(it.getOutputSizes(MediaRecorder::class.java)).thenReturn(supportedSizes)
-        }
-
-        val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
-        Shadow.extract<ShadowCameraCharacteristics>(characteristics).apply {
-            set(CameraCharacteristics.LENS_FACING, CameraCharacteristics.LENS_FACING_BACK)
-            set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, hardwareLevel)
-            set(CameraCharacteristics.SENSOR_ORIENTATION, sensorOrientation)
-            set(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE, pixelArraySize)
-            set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
-            capabilities?.let {
-                set(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES, it)
-            }
-        }
-
-        val cameraManager = ApplicationProvider.getApplicationContext<Context>()
-            .getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        (Shadow.extract<Any>(cameraManager) as ShadowCameraManager)
-            .addCamera(cameraId, characteristics)
+        setupCamera(
+            cameraId,
+            hardwareLevel,
+            sensorOrientation,
+            pixelArraySize,
+            supportedSizes,
+            supportedHighResolutionSizes,
+            capabilities
+        )
 
         @LensFacing val lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
             CameraCharacteristics.LENS_FACING_BACK
@@ -2345,15 +3237,12 @@ class SupportedSurfaceCombinationTest() {
             sensorOrientation,
             CameraCharacteristics.LENS_FACING_BACK
         ).apply {
-            camcorderProfileProvider = FakeCamcorderProfileProvider.Builder()
-                .addProfile(
-                    CamcorderProfileUtil.asHighQuality(profileUhd),
-                    profileUhd,
-                    profileFhd,
-                    profileHd,
-                    profileSd,
-                    CamcorderProfileUtil.asLowQuality(profileSd)
-                ).build()
+            encoderProfilesProvider = FakeEncoderProfilesProvider.Builder()
+                .add(QUALITY_2160P, profileUhd)
+                .add(QUALITY_1080P, profileFhd)
+                .add(QUALITY_720P, profileHd)
+                .add(QUALITY_480P, profileSd)
+                .build()
         }
 
         cameraFactory = FakeCameraFactory().apply {
@@ -2393,6 +3282,7 @@ class SupportedSurfaceCombinationTest() {
     }
 
     private fun isAllSubConfigListSupported(
+        isConcurrentCameraModeOn: Boolean,
         supportedSurfaceCombination: SupportedSurfaceCombination,
         combinationList: List<SurfaceCombination>
     ): Boolean {
@@ -2407,7 +3297,8 @@ class SupportedSurfaceCombinationTest() {
                     addAll(configList)
                     removeAt(index)
                 }
-                if (!supportedSurfaceCombination.checkSupported(subConfigurationList)) {
+                if (!supportedSurfaceCombination.checkSupported(
+                        isConcurrentCameraModeOn, subConfigurationList)) {
                     return false
                 }
             }
@@ -2419,30 +3310,34 @@ class SupportedSurfaceCombinationTest() {
      * Gets the suggested resolution map by the converted ResolutionSelector use case config which
      * will also be converted when a use case is bound to the lifecycle.
      */
-    private fun getSuggestedResolutionMap(
+    private fun getSuggestedStreamSpecMap(
+        isConcurrentCameraModeOn: Boolean,
         supportedSurfaceCombination: SupportedSurfaceCombination,
         vararg useCases: UseCase,
+        attachedSurfaces: List<AttachedSurfaceInfo>? = null,
         cameraFactory: CameraFactory = this.cameraFactory!!,
         cameraId: String = DEFAULT_CAMERA_ID,
         useCaseConfigFactory: UseCaseConfigFactory = this.useCaseConfigFactory!!
-    ): Map<UseCase, Size?> {
+    ): Map<UseCase, StreamSpec?> {
         // Generates the use case to new ResolutionSelector use case config map
         val useCaseToConfigMap = Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
             cameraFactory.getCamera(cameraId).cameraInfoInternal,
             listOf(*useCases),
             useCaseConfigFactory
         )
-        // Uses the use case config list to get suggested resolutions
-        val useCaseConfigResolutionMap = supportedSurfaceCombination.getSuggestedResolutions(
-            emptyList(),
-            mutableListOf<UseCaseConfig<*>?>().apply { addAll(useCaseToConfigMap.values) }
+        // Uses the use case config list to get suggested stream specs
+        val useCaseConfigStreamSpecMap = supportedSurfaceCombination
+            .getSuggestedStreamSpecifications(
+                isConcurrentCameraModeOn,
+                attachedSurfaces ?: emptyList(),
+                mutableListOf<UseCaseConfig<*>?>().apply { addAll(useCaseToConfigMap.values) }
         )
-        val useCaseResolutionMap = mutableMapOf<UseCase, Size?>()
+        val useCaseStreamSpecMap = mutableMapOf<UseCase, StreamSpec?>()
         // Maps the use cases to the suggestion resolutions
         for (useCase in useCases) {
-            useCaseResolutionMap[useCase] = useCaseConfigResolutionMap[useCaseToConfigMap[useCase]]
+            useCaseStreamSpecMap[useCase] = useCaseConfigStreamSpecMap[useCaseToConfigMap[useCase]]
         }
-        return useCaseResolutionMap
+        return useCaseStreamSpecMap
     }
 
     /**
@@ -2465,11 +3360,11 @@ class SupportedSurfaceCombinationTest() {
     }
 
     /**
-     * Creates [Preview], [ImageCapture], [ImageAnalysis], [androidx.camera.core.VideoCapture] or
-     * FakeUseCase according to the specified settings.
+     * Creates [Preview], [ImageCapture], [ImageAnalysis] or FakeUseCase according to the specified
+     * settings.
      *
-     * @param useCaseType Which of [Preview], [ImageCapture], [ImageAnalysis],
-     * [androidx.camera.core.VideoCapture] and FakeUseCase should be created.
+     * @param useCaseType Which of [Preview], [ImageCapture], [ImageAnalysis] and FakeUseCase should
+     * be created.
      * @param targetRotation the target rotation setting. Default is UNKNOWN_ROTATION and no target
      * rotation will be set to the created use case.
      * @param targetAspectRatio the target aspect ratio setting. Default is UNKNOWN_ASPECT_RATIO
@@ -2480,21 +3375,24 @@ class SupportedSurfaceCombinationTest() {
      * @param maxResolution the max resolution setting. Default is null.
      * @param defaultResolution the default resolution setting. Default is null.
      * @param supportedResolutions the customized supported resolutions. Default is null.
+     * @param customOrderedResolutions the custom ordered resolutions. Default is null.
      */
-    private fun createUseCase(
+    private fun createUseCaseByLegacyApi(
         useCaseType: Int,
         targetRotation: Int = UNKNOWN_ROTATION,
         targetAspectRatio: Int = UNKNOWN_ASPECT_RATIO,
         targetResolution: Size? = null,
+        targetFrameRate: Range<Int>? = null,
+        surfaceOccupancyPriority: Int = -1,
         maxResolution: Size? = null,
         defaultResolution: Size? = null,
         supportedResolutions: List<Pair<Int, Array<Size>>>? = null,
+        customOrderedResolutions: List<Size>? = null,
     ): UseCase {
         val builder = when (useCaseType) {
             PREVIEW_USE_CASE -> Preview.Builder()
             IMAGE_CAPTURE_USE_CASE -> ImageCapture.Builder()
             IMAGE_ANALYSIS_USE_CASE -> ImageAnalysis.Builder()
-            VIDEO_CAPTURE_USE_CASE -> androidx.camera.core.VideoCapture.Builder()
             else -> FakeUseCaseConfig.Builder(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE)
         }
         if (targetRotation != UNKNOWN_ROTATION) {
@@ -2503,10 +3401,15 @@ class SupportedSurfaceCombinationTest() {
         if (targetAspectRatio != UNKNOWN_ASPECT_RATIO) {
             builder.setTargetAspectRatio(targetAspectRatio)
         }
+        if (surfaceOccupancyPriority >= 0) {
+            builder.setSurfaceOccupancyPriority(surfaceOccupancyPriority)
+        }
+        builder.mutableConfig.insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate)
         targetResolution?.let { builder.setTargetResolution(it) }
         maxResolution?.let { builder.setMaxResolution(it) }
         defaultResolution?.let { builder.setDefaultResolution(it) }
         supportedResolutions?.let { builder.setSupportedResolutions(it) }
+        customOrderedResolutions?.let { builder.setCustomOrderedResolutions(it) }
         return builder.build()
     }
 
@@ -2515,9 +3418,9 @@ class SupportedSurfaceCombinationTest() {
         return createVideoCapture(VideoSpec.QUALITY_SELECTOR_AUTO)
     }
 
-    /** Creates a VideoCapture with a specific Quality  */
-    private fun createVideoCapture(quality: Quality): VideoCapture<TestVideoOutput> {
-        return createVideoCapture(QualitySelector.from(quality))
+    /** Creates a VideoCapture with one ore more specific Quality  */
+    private fun createVideoCapture(vararg quality: Quality): VideoCapture<TestVideoOutput> {
+        return createVideoCapture(QualitySelector.fromOrderedList(listOf(*quality)))
     }
 
     /** Creates a VideoCapture with a customized QualitySelector  */
@@ -2546,5 +3449,21 @@ class SupportedSurfaceCombinationTest() {
         override fun onSourceStateChanged(@NonNull sourceState: SourceState) {
             this.sourceState = sourceState
         }
+    }
+
+    private interface UseCaseCreator {
+        fun createUseCase(
+            useCaseType: Int,
+            targetRotation: Int = UNKNOWN_ROTATION,
+            preferredAspectRatio: Int = UNKNOWN_ASPECT_RATIO,
+            preferredResolution: Size? = null,
+            targetFrameRate: Range<Int>? = null,
+            surfaceOccupancyPriority: Int = -1,
+            maxResolution: Size? = null,
+            highResolutionEnabled: Boolean = false,
+            defaultResolution: Size? = null,
+            supportedResolutions: List<Pair<Int, Array<Size>>>? = null,
+            customOrderedResolutions: List<Size>? = null,
+        ): UseCase
     }
 }

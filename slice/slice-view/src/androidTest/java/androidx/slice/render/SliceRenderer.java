@@ -30,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.slice.Slice;
@@ -85,7 +86,7 @@ public class SliceRenderer {
             }
 
             @Override
-            protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+            protected boolean drawChild(@NonNull Canvas canvas, View child, long drawingTime) {
                 return false;
             }
         };

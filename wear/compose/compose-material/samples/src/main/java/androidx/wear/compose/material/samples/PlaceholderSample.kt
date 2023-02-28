@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Chip
@@ -227,6 +229,44 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
         delay(2500)
         secondaryLabelText = "A secondary label"
         delay(500)
+        labelText = "A label"
+    }
+    if (! chipPlaceholderState.isShowContent) {
+        LaunchedEffect(chipPlaceholderState) {
+            chipPlaceholderState.startPlaceholderAnimation()
+        }
+    }
+}
+
+/**
+ * This sample applies a placeholder and placeholderShimmer directly over a single composable.
+ *
+ * Note that the modifier ordering is important, the placeholderShimmer must be before
+ * the placeholder in the modifier chain - otherwise the shimmer will be drawn underneath the
+ * placeholder and will not be visible.
+ */
+@OptIn(ExperimentalWearMaterialApi::class)
+@Sampled
+@Composable
+fun TextPlaceholder() {
+    var labelText by remember { mutableStateOf("") }
+    val chipPlaceholderState = rememberPlaceholderState {
+        labelText.isNotEmpty()
+    }
+
+    Text(
+        text = labelText,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .width(90.dp)
+            .placeholderShimmer(chipPlaceholderState)
+            .placeholder(chipPlaceholderState)
+    )
+
+    // Simulate content loading
+    LaunchedEffect(Unit) {
+        delay(3000)
         labelText = "A label"
     }
     if (! chipPlaceholderState.isShowContent) {

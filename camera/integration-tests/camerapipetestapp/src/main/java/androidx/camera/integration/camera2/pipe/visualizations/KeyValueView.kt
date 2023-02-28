@@ -40,7 +40,7 @@ class KeyValueView(
     }
 
     /** Draws the value text and adjusts the size to fit the container */
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         var desiredTextSize = 20f
         val value = keyValueDataHolder.value
@@ -60,7 +60,7 @@ class KeyValueView(
 
         val bottom = heightFloat / 2 + bounds.height() / 2
 
-        canvas?.drawText(valueString, widthFloat, bottom, paint)
+        canvas.drawText(valueString, widthFloat, bottom, paint)
         postInvalidate()
     }
 }

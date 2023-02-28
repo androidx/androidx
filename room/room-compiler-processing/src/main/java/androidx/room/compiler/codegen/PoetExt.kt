@@ -16,12 +16,6 @@
 
 package androidx.room.compiler.codegen
 
-import androidx.room.compiler.processing.XNullability
-import com.squareup.kotlinpoet.javapoet.JClassName
-import com.squareup.kotlinpoet.javapoet.JTypeName
-import com.squareup.kotlinpoet.javapoet.toKClassName
-import com.squareup.kotlinpoet.javapoet.toKTypeName
-
 typealias JCodeBlock = com.squareup.javapoet.CodeBlock
 typealias JCodeBlockBuilder = com.squareup.javapoet.CodeBlock.Builder
 typealias JAnnotationSpecBuilder = com.squareup.javapoet.AnnotationSpec.Builder
@@ -30,6 +24,7 @@ typealias KCodeBlock = com.squareup.kotlinpoet.CodeBlock
 typealias KCodeBlockBuilder = com.squareup.kotlinpoet.CodeBlock.Builder
 typealias KAnnotationSpecBuilder = com.squareup.kotlinpoet.AnnotationSpec.Builder
 typealias KTypeSpecBuilder = com.squareup.kotlinpoet.TypeSpec.Builder
+typealias KMemberName = com.squareup.kotlinpoet.MemberName
 typealias JArrayTypeName = com.squareup.javapoet.ArrayTypeName
 
 // TODO(b/127483380): Recycle to room-compiler?
@@ -38,7 +33,3 @@ internal val T = "\$T"
 internal val N = "\$N"
 internal val S = "\$S"
 internal val W = "\$W"
-
-// TODO(b/247247366): Temporary migration API, delete me plz!
-fun JTypeName.toXTypeName() = XTypeName(this, this.toKTypeName(), XNullability.NONNULL)
-fun JClassName.toXClassName() = XClassName(this, this.toKClassName(), XNullability.NONNULL)

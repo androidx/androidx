@@ -58,6 +58,7 @@ internal class Result3AStateListenerImpl(
 
     @Volatile
     private var frameNumberOfFirstUpdate: FrameNumber? = null
+
     @Volatile
     private var timestampOfFirstUpdateNs: Long? = null
 
@@ -108,7 +109,8 @@ internal class Result3AStateListenerImpl(
         }
 
         val frameNumberOfFirstUpdate = frameNumberOfFirstUpdate
-        if (frameNumberOfFirstUpdate != null && frameLimit != null &&
+        if (frameNumberOfFirstUpdate != null &&
+            frameLimit != null &&
             currentFrameNumber.value - frameNumberOfFirstUpdate.value > frameLimit
         ) {
             _result.complete(Result3A(Result3A.Status.FRAME_LIMIT_REACHED, frameMetadata))

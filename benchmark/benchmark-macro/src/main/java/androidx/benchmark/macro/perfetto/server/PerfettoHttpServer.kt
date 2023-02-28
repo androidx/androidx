@@ -16,30 +16,51 @@
 
 package androidx.benchmark.macro.perfetto.server
 
+import android.os.Build
+import android.security.NetworkSecurityPolicy
 import android.util.Log
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
 import androidx.benchmark.ShellScript
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.userspaceTrace
-import okhttp3.MediaType
-import okhttp3.RequestBody
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.net.ConnectException
+import java.net.HttpURLConnection
+import java.net.URL
 import perfetto.protos.AppendTraceDataResult
 import perfetto.protos.ComputeMetricArgs
 import perfetto.protos.ComputeMetricResult
 import perfetto.protos.QueryArgs
+import perfetto.protos.QueryResult
 import perfetto.protos.StatusResult
-import retrofit2.Call
 
 /**
  * Wrapper around perfetto trace_shell_processor that communicates via http. The implementation
  * is based on the python one of the official repo:
  * https://github.com/google/perfetto/blob/master/python/perfetto/trace_processor/http.py
  */
-internal class PerfettoHttpServer(private val port: Int) {
+internal class PerfettoHttpServer {
 
     companion object {
+        private const val HTTP_ADDRESS = "http://localhost"
+        private const val METHOD_GET = "GET"
+        private const val METHOD_POST = "POST"
+        private const val PATH_QUERY = "/query"
+        private const val PATH_COMPUTE_METRIC = "/compute_metric"
+        private const val PATH_PARSE = "/parse"
+        private const val PATH_NOTIFY_EOF = "/notify_eof"
+        private const val PATH_STATUS = "/status"
+        private const val PATH_RESTORE_INITIAL_TABLES = "/restore_initial_tables"
+
         private const val TAG = "PerfettoHttpServer"
         private const val SERVER_START_TIMEOUT_MS = 5000
+        private const val READ_TIMEOUT_SECONDS = 300000
+        private const val SERVER_PROCESS_NAME = "trace_processor_shell"
+
         private var shellScript: ShellScript? = null
 
         /**
@@ -52,8 +73,8 @@ internal class PerfettoHttpServer(private val port: Int) {
             if (instance != null) {
                 return@synchronized instance
             }
-            val script =
-                """echo pid:$$ ; exec ${PerfettoTraceProcessor.shellPath} -D --http-port "$@" """
+            val script = "echo pid:$$ ; exec ${PerfettoTraceProcessor.shellPath} -D" +
+                " --http-port \"${PerfettoTraceProcessor.PORT}\" "
             instance = Shell.createShellScript(script)
             shellScript = instance
             instance
@@ -68,7 +89,6 @@ internal class PerfettoHttpServer(private val port: Int) {
         }
     }
 
-    private val perfettoApi by lazy { PerfettoApi.create("http://localhost:$port/") }
     private var processId: Int? = null
 
     /**
@@ -76,13 +96,28 @@ internal class PerfettoHttpServer(private val port: Int) {
      *
      * @throws IllegalStateException if the server is not running by the end of the timeout.
      */
-    fun startServer() = userspaceTrace("PerfettoHttpServer#startServer port $port") {
+    fun startServer() = userspaceTrace("PerfettoHttpServer#startServer") {
         if (processId != null) {
             Log.w(TAG, "Tried to start a trace shell processor that is already running.")
             return@userspaceTrace
         }
 
-        val shellScript = getOrCreateShellScript().start(port.toString())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+            !Api24Impl.isCleartextTrafficPermittedForLocalhost()
+        ) {
+            throw IOException(
+                """
+                Macrobenchmark requires cleartext HTTP traffic to the on-device localhost to enable
+                querying data from perfetto traces, such as timestamps that are used to calculate
+                metrics. This should be enabled by default via manifest merging when building with
+                Gradle.  Please refer to
+                https://d.android.com/training/articles/security-config#CleartextTrafficPermitted
+                and enable cleartext http requests towards localhost in your test android manifest.
+            """.trimIndent()
+            )
+        }
+
+        val shellScript = getOrCreateShellScript().start()
 
         processId = shellScript
             .stdOutLineSequence()
@@ -96,13 +131,30 @@ internal class PerfettoHttpServer(private val port: Int) {
             Thread.sleep(5)
             elapsed += 5
             if (elapsed >= SERVER_START_TIMEOUT_MS) {
-                throw IllegalStateException(
-                    """
+
+                // In the event that the instrumentation app cannot connect to the
+                // trace_processor_shell server, trying to read the full stderr may make the
+                // process hang. Here we check if the process is still running to determine if
+                // that's the case and throw the correct exception.
+
+                val processRunning =
+                    processId?.let { Shell.isProcessAlive(it, SERVER_PROCESS_NAME) } ?: false
+
+                if (processRunning) {
+                    throw IllegalStateException(
+                        """
+                        The instrumentation app cannot connect to the trace_processor_shell server.
+                        """.trimIndent()
+                    )
+                } else {
+                    throw IllegalStateException(
+                        """
                         Perfetto trace_processor_shell did not start correctly.
                         Process stderr:
                         ${shellScript.getOutputAndClose().stderr}
-                    """.trimIndent()
-                )
+                        """.trimIndent()
+                    )
+                }
             }
         }
         Log.i(TAG, "Perfetto trace processor shell server started (pid=$processId).")
@@ -111,23 +163,23 @@ internal class PerfettoHttpServer(private val port: Int) {
     /**
      * Stops the server killing the associated process
      */
-    fun stopServer() = userspaceTrace("PerfettoHttpServer#stopServer port $port") {
+    fun stopServer() = userspaceTrace("PerfettoHttpServer#stopServer") {
         if (processId == null) {
             Log.w(TAG, "Tried to stop trace shell processor http server without starting it.")
             return@userspaceTrace
         }
-        Shell.executeCommand("kill -TERM $processId")
+        Shell.executeScriptSilent("kill -TERM $processId")
         Log.i(TAG, "Perfetto trace processor shell server stopped (pid=$processId).")
     }
 
     /**
      * Returns true whether the server is running, false otherwise.
      */
-    fun isRunning(): Boolean = userspaceTrace("PerfettoHttpServer#isRunning port $port") {
+    fun isRunning(): Boolean = userspaceTrace("PerfettoHttpServer#isRunning") {
         return@userspaceTrace try {
-            status()
-            true
-        } catch (e: Exception) {
+            val statusResult = status()
+            return@userspaceTrace statusResult.api_version != null && statusResult.api_version > 0
+        } catch (e: ConnectException) {
             false
         }
     }
@@ -136,47 +188,103 @@ internal class PerfettoHttpServer(private val port: Int) {
      * Executes the given [sqlQuery] on a previously parsed trace and returns the result as a
      * query result iterator.
      */
-    fun executeQuery(sqlQuery: String): QueryResultIterator =
-        QueryResultIterator(perfettoApi.query(QueryArgs(sqlQuery)).executeAndGetBody())
+    fun query(sqlQuery: String): QueryResultIterator =
+        QueryResultIterator(
+            httpRequest(
+                method = METHOD_POST,
+                url = PATH_QUERY,
+                encodeBlock = { QueryArgs.ADAPTER.encode(it, QueryArgs(sqlQuery)) },
+                decodeBlock = { QueryResult.ADAPTER.decode(it) }
+            )
+        )
 
     /**
      * Computes the given metrics on a previously parsed trace.
      */
     fun computeMetric(metrics: List<String>): ComputeMetricResult =
-        perfettoApi.computeMetric(ComputeMetricArgs(metrics)).executeAndGetBody()
+        httpRequest(
+            method = METHOD_POST,
+            url = PATH_COMPUTE_METRIC,
+            encodeBlock = { ComputeMetricArgs.ADAPTER.encode(it, ComputeMetricArgs(metrics)) },
+            decodeBlock = { ComputeMetricResult.ADAPTER.decode(it) }
+        )
 
     /**
      * Parses the trace file in chunks. Note that [notifyEof] should be called at the end to let
      * the processor know that no more chunks will be sent.
      */
-    fun parse(chunk: ByteArray): AppendTraceDataResult {
-        val bytes = RequestBody.create(MediaType.parse("application/octet-stream"), chunk)
-        return perfettoApi.parse(bytes).executeAndGetBody()
-    }
+    fun parse(bytes: ByteArray): AppendTraceDataResult =
+        httpRequest(
+            method = METHOD_POST,
+            url = PATH_PARSE,
+            encodeBlock = { it.write(bytes) },
+            decodeBlock = { AppendTraceDataResult.ADAPTER.decode(it) }
+        )
 
     /**
      * Notifies that the entire trace has been uploaded and no more chunks will be sent.
      */
-    fun notifyEof(): Unit =
-        perfettoApi.notifyEof().executeAndGetBody()
-
-    /**
-     * Checks the status of the trace_shell_processor http server.
-     */
-    fun status(): StatusResult =
-        perfettoApi.status().executeAndGetBody()
+    fun notifyEof() =
+        httpRequest(
+            method = METHOD_GET,
+            url = PATH_NOTIFY_EOF,
+            encodeBlock = null,
+            decodeBlock = { }
+        )
 
     /**
      * Clears the loaded trace and restore the state of the initial tables
      */
-    fun restoreInitialTables(): Unit =
-        perfettoApi.restoreInitialTables().executeAndGetBody()
+    fun restoreInitialTables() =
+        httpRequest(
+            method = METHOD_GET,
+            url = PATH_RESTORE_INITIAL_TABLES,
+            encodeBlock = null,
+            decodeBlock = { }
+        )
 
-    private fun <T> Call<T>.executeAndGetBody(): T {
-        val response = execute()
-        if (!response.isSuccessful) {
-            throw IllegalStateException(response.message())
+    /**
+     * Checks the status of the trace_shell_processor http server.
+     */
+    private fun status(): StatusResult =
+        httpRequest(
+            method = METHOD_GET,
+            url = PATH_STATUS,
+            encodeBlock = null,
+            decodeBlock = { StatusResult.ADAPTER.decode(it) }
+        )
+
+    private fun <T> httpRequest(
+        method: String,
+        url: String,
+        contentType: String = "application/octet-stream",
+        encodeBlock: ((OutputStream) -> Unit)?,
+        decodeBlock: ((InputStream) -> T)
+    ): T {
+        with(
+            URL("$HTTP_ADDRESS:${PerfettoTraceProcessor.PORT}$url")
+                .openConnection() as HttpURLConnection
+        ) {
+            requestMethod = method
+            readTimeout = READ_TIMEOUT_SECONDS
+            setRequestProperty("Content-Type", contentType)
+            if (encodeBlock != null) {
+                doOutput = true
+                encodeBlock(outputStream)
+                outputStream.close()
+            }
+            val value = decodeBlock(inputStream)
+            if (responseCode != 200) {
+                throw IllegalStateException(responseMessage)
+            }
+            return value
         }
-        return response.body()!!
     }
+}
+
+@RequiresApi(24)
+private object Api24Impl {
+    @DoNotInline
+    fun isCleartextTrafficPermittedForLocalhost() =
+        NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted("localhost")
 }

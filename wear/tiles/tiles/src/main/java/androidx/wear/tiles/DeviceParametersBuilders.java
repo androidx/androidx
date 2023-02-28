@@ -24,7 +24,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.tiles.proto.DeviceParametersProto;
+import androidx.wear.protolayout.proto.DeviceParametersProto;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

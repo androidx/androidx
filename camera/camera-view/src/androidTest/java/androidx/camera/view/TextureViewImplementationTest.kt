@@ -50,7 +50,7 @@ class TextureViewImplementationTest {
     private val surfaceRequest: SurfaceRequest
         get() {
             if (_surfaceRequest == null) {
-                _surfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera(), false)
+                _surfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera()) {}
             }
             return _surfaceRequest!!
         }

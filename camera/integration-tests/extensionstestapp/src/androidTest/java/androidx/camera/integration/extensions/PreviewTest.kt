@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.extensions
 
-import android.Manifest
 import android.content.Context
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.extensions.ExtensionsManager
@@ -25,6 +24,7 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.ass
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
@@ -33,7 +33,6 @@ import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
@@ -50,7 +49,7 @@ import org.junit.runners.Parameterized
  */
 @LargeTest
 @RunWith(Parameterized::class)
-class PreviewTest(private val cameraId: String, private val extensionMode: Int) {
+class PreviewTest(private val config: CameraIdExtensionModePair) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
@@ -58,15 +57,11 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 
-    @get:Rule
-    val storagePermissionRule =
-        GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
-
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var extensionsManager: ExtensionsManager
 
     companion object {
-        @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
+        @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
         fun parameters() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
@@ -92,7 +87,7 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
             cameraProvider
         )[10000, TimeUnit.MILLISECONDS]
 
-        assumeExtensionModeSupported(extensionsManager, cameraId, extensionMode)
+        assumeExtensionModeSupported(extensionsManager, config.cameraId, config.extensionMode)
     }
 
     @After
@@ -120,7 +115,7 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
      */
     @Test
     fun previewWithExtensionModeCanEnterStreamingState() {
-        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
+        val activityScenario = launchCameraExtensionsActivity(config.cameraId, config.extensionMode)
 
         with(activityScenario) {
             use {
@@ -134,7 +129,7 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
             ApplicationProvider.getApplicationContext(),
             extensionsManager,
             cameraId,
-            extensionMode
+            config.extensionMode
         )
         assumeTrue(
             "Cannot find next camera id that supports extensions mode($extensionsMode)",
@@ -146,8 +141,8 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
      */
     @Test
     fun previewCanEnterStreamingStateAfterSwitchingCamera() {
-        assumeNextCameraIdExtensionModeSupported(cameraId, extensionMode)
-        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
+        assumeNextCameraIdExtensionModeSupported(config.cameraId, config.extensionMode)
+        val activityScenario = launchCameraExtensionsActivity(config.cameraId, config.extensionMode)
 
         with(activityScenario) {
             use {

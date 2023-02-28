@@ -193,7 +193,10 @@ public class ExtensionsTestUtil {
      */
     private static boolean isSpecificSkippedDevice() {
         return (Build.BRAND.equalsIgnoreCase("SONY") && (Build.MODEL.equalsIgnoreCase("G8142")
-                || Build.MODEL.equalsIgnoreCase("G8342"))) || Build.MODEL.contains("Cuttlefish");
+                || Build.MODEL.equalsIgnoreCase("G8342")))
+                || Build.MODEL.contains("Cuttlefish")
+                || Build.MODEL.equalsIgnoreCase("Pixel XL")
+                || Build.MODEL.equalsIgnoreCase("Pixel");
     }
 
     /**
@@ -207,10 +210,7 @@ public class ExtensionsTestUtil {
     /**
      * Returns whether extensions is disabled by quirk.
      */
-    public static boolean extensionsDisabledByQuirk(@CameraSelector.LensFacing int lensFacing,
-            @ExtensionMode.Mode int extensionMode) {
-
-        return new ExtensionDisabledValidator().shouldDisableExtension(
-                CameraUtil.getCameraIdWithLensFacing(lensFacing), extensionMode);
+    public static boolean extensionsDisabledByQuirk() {
+        return new ExtensionDisabledValidator().shouldDisableExtension();
     }
 }

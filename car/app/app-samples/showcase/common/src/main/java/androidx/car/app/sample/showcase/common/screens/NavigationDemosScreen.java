@@ -30,13 +30,18 @@ import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.MapTemplateWithListDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.MapTemplateWithPaneDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.MapTemplateWithToggleDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.NavigationMapOnlyScreen;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.NavigationNotificationsDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.NavigationTemplateDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.PlaceListNavigationTemplateDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.PlaceListTemplateBrowseDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutePreviewDemoScreen;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /** A screen showing a list of navigation demos */
 public final class NavigationDemosScreen extends Screen {
@@ -61,42 +66,55 @@ public final class NavigationDemosScreen extends Screen {
         int listLimit = getCarContext().getCarService(ConstraintManager.class).getContentLimit(
                 ConstraintManager.CONTENT_LIMIT_TYPE_LIST);
 
-        Row[] screenArray = new Row[]{
-                createRow(buildCarIcon(R.drawable.ic_explore_white_24dp),
-                        getCarContext().getString(R.string.nav_template_demos_title),
-                        new NavigationTemplateDemoScreen(getCarContext())),
-                createRow(getCarContext().getString(
-                                R.string.place_list_nav_template_demo_title),
-                        new PlaceListNavigationTemplateDemoScreen(getCarContext())),
-                createRow(getCarContext().getString(
-                                        R.string.route_preview_template_demo_title),
-                                new RoutePreviewDemoScreen(getCarContext())),
-                createRow(getCarContext().getString(
-                                R.string.notification_template_demo_title),
-                        new NavigationNotificationsDemoScreen(getCarContext())),
-                createRow(getCarContext().getString(R.string.nav_map_template_demo_title),
-                        new NavigationMapOnlyScreen(getCarContext())),
-                createRow(
-                        getCarContext().getString(R.string.place_list_template_demo_title),
-                        new PlaceListTemplateBrowseDemoScreen(getCarContext())),
-                createRow(getCarContext().getString(R.string.map_template_list_demo_title),
-                        new MapTemplateWithListDemoScreen(getCarContext())),
-                createRow(getCarContext().getString(R.string.map_template_pane_demo_title),
-                        new MapTemplateWithPaneDemoScreen(getCarContext()))
-        };
+        List<Row> screenList = new ArrayList<>();
+
+        screenList.add(createRow(buildCarIcon(R.drawable.ic_explore_white_24dp),
+                getCarContext().getString(R.string.nav_template_demos_title),
+                new NavigationTemplateDemoScreen(getCarContext())));
+
+        screenList.add(createRow(getCarContext().getString(
+                        R.string.place_list_nav_template_demo_title),
+                new PlaceListNavigationTemplateDemoScreen(getCarContext())));
+
+        screenList.add(createRow(getCarContext().getString(
+                        R.string.route_preview_template_demo_title),
+                new RoutePreviewDemoScreen(getCarContext())));
+
+        screenList.add(createRow(getCarContext().getString(
+                        R.string.notification_template_demo_title),
+                new NavigationNotificationsDemoScreen(getCarContext())));
+
+        screenList.add(createRow(getCarContext().getString(R.string.nav_map_template_demo_title),
+                new NavigationMapOnlyScreen(getCarContext())));
+
+        screenList.add(createRow(
+                getCarContext().getString(R.string.place_list_template_demo_title),
+                new PlaceListTemplateBrowseDemoScreen(getCarContext())));
+
+        screenList.add(createRow(getCarContext().getString(R.string.map_template_list_demo_title),
+                new MapTemplateWithListDemoScreen(getCarContext())));
+
+        screenList.add(createRow(getCarContext().getString(R.string.map_template_pane_demo_title),
+                new MapTemplateWithPaneDemoScreen(getCarContext())));
+
+        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_6) {
+            screenList.add(
+                    createRow(getCarContext().getString(R.string.map_template_toggle_demo_title),
+                        new MapTemplateWithToggleDemoScreen(getCarContext())));
+        }
 
         // If the screenArray size is under the limit, we will show all of them on the first page.
         // Otherwise we will show them in multiple pages.
-        if (screenArray.length <= listLimit) {
-            for (int i = 0; i < listLimit; i++) {
-                listBuilder.addItem(screenArray[i]);
+        if (screenList.size() <= listLimit) {
+            for (int i = 0; i < screenList.size(); i++) {
+                listBuilder.addItem(screenList.get(i));
             }
         } else {
             int currentItemStartIndex = mPage * listLimit;
             int currentItemEndIndex = Math.min(currentItemStartIndex + listLimit,
-                    screenArray.length);
+                    screenList.size());
             for (int i = currentItemStartIndex; i < currentItemEndIndex; i++) {
-                listBuilder.addItem(screenArray[i]);
+                listBuilder.addItem(screenList.get(i));
             }
         }
 
@@ -106,7 +124,7 @@ public final class NavigationDemosScreen extends Screen {
                 .setHeaderAction(Action.BACK);
 
         // If the current page does not cover the last item, we will show a More button
-        if ((mPage + 1) * listLimit < screenArray.length && mPage + 1 < MAX_PAGES) {
+        if ((mPage + 1) * listLimit < screenList.size() && mPage + 1 < MAX_PAGES) {
             builder.setActionStrip(new ActionStrip.Builder()
                     .addAction(new Action.Builder()
                             .setTitle(getCarContext().getString(R.string.more_action_title))

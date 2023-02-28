@@ -18,6 +18,7 @@ package androidx.camera.video.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.video.Quality;
 
@@ -31,5 +32,13 @@ import androidx.camera.video.Quality;
 public interface VideoQualityQuirk extends Quirk {
 
     /** Checks if the given Quality type is a problematic quality. */
-    boolean isProblematicVideoQuality(@NonNull Quality quality);
+    boolean isProblematicVideoQuality(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull Quality quality);
+
+    /**
+     * Returns true if the problem can be workaround by surface processing and we want to enable it.
+     */
+    default boolean workaroundBySurfaceProcessing() {
+        return false;
+    }
 }

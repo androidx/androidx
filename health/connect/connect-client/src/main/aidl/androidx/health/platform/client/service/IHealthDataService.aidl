@@ -36,6 +36,7 @@ import androidx.health.platform.client.service.IDeleteDataCallback;
 import androidx.health.platform.client.service.IDeleteDataRangeCallback;
 import androidx.health.platform.client.service.IReadDataRangeCallback;
 import androidx.health.platform.client.service.IUpdateDataCallback;
+import androidx.health.platform.client.service.IFilterGrantedPermissionsCallback;
 import androidx.health.platform.client.service.IUpsertExerciseRouteCallback;
 import androidx.health.platform.client.service.IInsertDataCallback;
 import androidx.health.platform.client.service.IReadDataCallback;
@@ -50,11 +51,11 @@ interface IHealthDataService {
    * API version of the AIDL interface. Should be incremented every time a new
    * method is added.
    */
-  const int CURRENT_API_VERSION = 3;
+  const int CURRENT_API_VERSION = 5;
 
   const int MIN_API_VERSION = 1;
 
-  // Next Id: 22
+  // Next Id: 23
 
   /**
    * Returns version of this AIDL interface.
@@ -65,6 +66,8 @@ interface IHealthDataService {
   int getApiVersion() = 0;
 
   void getGrantedPermissions(in RequestContext context, in List<Permission> permissions, in IGetGrantedPermissionsCallback callback) = 3;
+
+  void filterGrantedPermissions(in RequestContext context, in List<Permission> permissions, in IFilterGrantedPermissionsCallback callback) = 22;
 
   void revokeAllPermissions(in RequestContext context, in IRevokeAllPermissionsCallback callback) = 8;
 

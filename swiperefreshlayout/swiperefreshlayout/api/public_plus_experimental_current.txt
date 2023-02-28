@@ -3,7 +3,7 @@ package androidx.swiperefreshlayout.widget {
 
   public class CircularProgressDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Animatable {
     ctor public CircularProgressDrawable(android.content.Context);
-    method public void draw(android.graphics.Canvas!);
+    method public void draw(android.graphics.Canvas);
     method public boolean getArrowEnabled();
     method public float getArrowHeight();
     method public float getArrowScale();

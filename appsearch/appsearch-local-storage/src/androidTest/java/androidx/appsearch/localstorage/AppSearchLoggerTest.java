@@ -190,6 +190,9 @@ public class AppSearchLoggerTest {
         int nativeRankingLatencyMillis = 15;
         int nativeNumResultsWithSnippets = 16;
         int nativeDocumentRetrievingLatencyMillis = 17;
+        int nativeLockAcquisitionLatencyMillis = 18;
+        int javaToNativeJniLatencyMillis = 19;
+        int nativeToJavaJniLatencyMillis = 20;
         QueryStatsProto nativeQueryStats = QueryStatsProto.newBuilder()
                 .setLatencyMs(nativeLatencyMillis)
                 .setNumTerms(nativeNumTerms)
@@ -207,6 +210,9 @@ public class AppSearchLoggerTest {
                 .setRankingLatencyMs(nativeRankingLatencyMillis)
                 .setNumResultsWithSnippets(nativeNumResultsWithSnippets)
                 .setDocumentRetrievalLatencyMs(nativeDocumentRetrievingLatencyMillis)
+                .setLockAcquisitionLatencyMs(nativeLockAcquisitionLatencyMillis)
+                .setJavaToNativeJniLatencyMs(javaToNativeJniLatencyMillis)
+                .setNativeToJavaJniLatencyMs(nativeToJavaJniLatencyMillis)
                 .build();
         SearchStats.Builder qBuilder = new SearchStats.Builder(SearchStats.VISIBILITY_SCOPE_LOCAL,
                 PACKAGE_NAME).setDatabase(DATABASE);
@@ -233,6 +239,12 @@ public class AppSearchLoggerTest {
         assertThat(sStats.getResultWithSnippetsCount()).isEqualTo(nativeNumResultsWithSnippets);
         assertThat(sStats.getDocumentRetrievingLatencyMillis()).isEqualTo(
                 nativeDocumentRetrievingLatencyMillis);
+        assertThat(sStats.getNativeLockAcquisitionLatencyMillis()).isEqualTo(
+                nativeLockAcquisitionLatencyMillis);
+        assertThat(sStats.getJavaToNativeJniLatencyMillis()).isEqualTo(
+                javaToNativeJniLatencyMillis);
+        assertThat(sStats.getNativeToJavaJniLatencyMillis()).isEqualTo(
+                nativeToJavaJniLatencyMillis);
     }
 
     @Test

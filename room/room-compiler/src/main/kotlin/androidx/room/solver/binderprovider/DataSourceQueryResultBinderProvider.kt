@@ -30,11 +30,15 @@ import androidx.room.solver.query.result.QueryResultBinder
 
 class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
     private val dataSourceType: XRawType? by lazy {
-        context.processingEnv.findType(PagingTypeNames.DATA_SOURCE)?.rawType
+        context.processingEnv.findType(
+            PagingTypeNames.DATA_SOURCE.canonicalName
+        )?.rawType
     }
 
     private val positionalDataSourceType: XRawType? by lazy {
-        context.processingEnv.findType(PagingTypeNames.POSITIONAL_DATA_SOURCE)?.rawType
+        context.processingEnv.findType(
+            PagingTypeNames.POSITIONAL_DATA_SOURCE.canonicalName
+        )?.rawType
     }
 
     override fun provide(

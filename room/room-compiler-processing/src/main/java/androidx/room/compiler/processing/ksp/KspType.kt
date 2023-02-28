@@ -24,11 +24,16 @@ import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.tryUnbox
 import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeArgument
+import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability
+import com.google.devtools.ksp.symbol.Variance
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.WildcardTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
 import kotlin.reflect.KClass
@@ -42,13 +47,13 @@ import kotlin.reflect.KClass
  * Similarly, we may not be able to get a [KSType] (e.g. if it resolves to error).
  */
 internal abstract class KspType(
-    val env: KspProcessingEnv,
+    env: KspProcessingEnv,
     val ksType: KSType,
     /**
      * Type resolver to convert KSType into its JVM representation.
      */
     protected val jvmTypeResolver: KspJvmTypeResolver?
-) : XType, XEquality {
+) : KspAnnotated(env), XType, XEquality {
     override val rawType by lazy {
         KspRawType(this)
     }
@@ -91,13 +96,60 @@ internal abstract class KspType(
     }
 
     override val superTypes: List<XType> by lazy {
-        val declaration = ksType.declaration as? KSClassDeclaration
-        declaration?.superTypes?.toList()?.map {
+        if (xTypeName == XTypeName.ANY_OBJECT) {
+            // The object class doesn't have any supertypes.
+            return@lazy emptyList<XType>()
+        }
+        val resolvedTypeArguments: Map<String, KSTypeArgument> =
+            ksType.declaration.typeParameters.mapIndexed { i, parameter ->
+                parameter.name.asString() to ksType.arguments[i]
+            }.toMap()
+        val superTypes = (ksType.declaration as? KSClassDeclaration)?.superTypes?.toList()?.map {
             env.wrap(
-                ksType = it.resolve(),
+                ksType = resolveTypeArguments(it.resolve(), resolvedTypeArguments),
                 allowPrimitives = false
             )
         } ?: emptyList()
+        val (superClasses, superInterfaces) = superTypes.partition {
+            it.typeElement?.isClass() == true
+        }
+        // Per documentation, always return the class before the interfaces.
+        if (superClasses.isEmpty()) {
+            // Return Object when there's no explicit super class specified on the class/interface.
+            // This matches javac's Types#directSupertypes().
+            listOf(env.requireType(TypeName.OBJECT)) + superInterfaces
+        } else {
+            check(superClasses.size == 1)
+            superClasses + superInterfaces
+        }
+    }
+
+    private fun resolveTypeArguments(
+        type: KSType,
+        resolvedTypeArguments: Map<String, KSTypeArgument>
+    ): KSType {
+        return type.replace(
+            type.arguments.map { argument ->
+                val argDeclaration = argument.type?.resolve()?.declaration
+                if (argDeclaration is KSTypeParameter) {
+                    // If this is a type parameter, replace it with the resolved type argument.
+                    resolvedTypeArguments[argDeclaration.name.asString()] ?: argument
+                } else if (
+                    argument.type != null && argument.type?.resolve()?.arguments?.isEmpty() == false
+                ) {
+                    // If this is a type with arguments, the arguments may contain a type parameter,
+                    // e.g. Foo<T>, so try to resolve the type and then convert to a type argument.
+                    env.resolver.getTypeArgument(
+                        env.resolver.createKSTypeReferenceFromKSType(
+                            resolveTypeArguments(argument.type!!.resolve(), resolvedTypeArguments)
+                        ),
+                        variance = Variance.INVARIANT
+                    )
+                } else {
+                    argument
+                }
+            }.toList()
+        )
     }
 
     override val typeElement by lazy {
@@ -124,9 +176,7 @@ internal abstract class KspType(
         if (env.resolver.isJavaRawType(ksType)) {
             emptyList()
         } else {
-            ksType.arguments.mapIndexed { index, arg ->
-                env.wrap(ksType.declaration.typeParameters[index], arg)
-            }
+            ksType.arguments.map { env.wrap(it) }
         }
     }
 
@@ -136,7 +186,14 @@ internal abstract class KspType(
     }
 
     override fun isError(): Boolean {
-        return ksType.isError
+        // Avoid returning true if this type represents a java wildcard type, e.g. "? extends Foo"
+        // since in that case the wildcard type is not the error type itself. Instead, the error
+        // type should be on the XType#extendsBound() type, "Foo", instead.
+        return ksType.isError && !isJavaWildcardType()
+    }
+
+    private fun isJavaWildcardType(): Boolean {
+        return asTypeName().java is WildcardTypeName
     }
 
     override fun defaultValue(): String {
@@ -156,6 +213,8 @@ internal abstract class KspType(
             else -> "null"
         }
     }
+
+    override fun annotations(): Sequence<KSAnnotation> = ksType.annotations
 
     override fun isNone(): Boolean {
         // even void is converted to Unit so we don't have none type in KSP

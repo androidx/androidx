@@ -18,6 +18,7 @@ package androidx.compose.ui.text.android
 import android.graphics.Canvas
 import android.graphics.Paint.FontMetricsInt
 import android.graphics.Path
+import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Trace
 import android.text.BoringLayout
@@ -67,6 +68,11 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
+
+/**
+ * We swap canvas delegates, and can share the wrapper.
+ */
+private val SharedTextAndroidCanvas: TextAndroidCanvas = TextAndroidCanvas()
 
 /**
  * Wrapper for Static Text Layout classes.
@@ -131,6 +137,31 @@ class TextLayout constructor(
         textDirectionHeuristic
     )
 ) {
+    companion object {
+        // This is used for benchmarks in HyphensLineBreakBenchmark.kt
+        @VisibleForTesting
+        fun constructStaticLayout(
+            charSequence: CharSequence,
+            width: Int,
+            textPaint: TextPaint,
+            hyphenationFrequency: Int,
+            lineBreakStyle: Int,
+            breakStrategy: Int,
+            lineBreakWordStyle: Int
+        ): StaticLayout {
+            val layout = StaticLayoutFactory.create(
+                text = charSequence,
+                paint = textPaint,
+                width = width,
+                hyphenationFrequency = hyphenationFrequency,
+                lineBreakStyle = lineBreakStyle,
+                breakStrategy = breakStrategy,
+                lineBreakWordStyle = lineBreakWordStyle
+            )
+            return layout
+        }
+    }
+
     val maxIntrinsicWidth: Float
         get() = layoutIntrinsics.maxIntrinsicWidth
 
@@ -205,13 +236,9 @@ class TextLayout constructor(
      */
     private val lastLineExtra: Int
 
-    val lineHeightSpans: Array<LineHeightStyleSpan>
+    private val lineHeightSpans: Array<LineHeightStyleSpan>
 
-    /**
-     * Android Canvas object that overrides the `getClipBounds` method and delegates the rest
-     * to the Canvas object that it wraps. See [TextAndroidCanvas] for more details.
-     */
-    private val textCanvas = TextAndroidCanvas()
+    private val rect: Rect = Rect()
 
     init {
         val end = charSequence.length
@@ -691,12 +718,26 @@ class TextLayout constructor(
     }
 
     fun paint(canvas: Canvas) {
+        // Fix "mDirect" optimization in BoringLayout that directly draws text when it's simple
+        // in the case of an empty canvas, we don't need to do anything (which would typically be
+        // done in Layout.draw), so this skips all work when canvas clips to empty - matching the
+        // behavior in Layout.kt
+        if (!canvas.getClipBounds(rect)) {
+            // this is a pure "no-work" optimization for avoiding work when text is simple enough
+            // to hit BoringLayout mDirect optimization and canvas clips to empty
+
+            // this avoids calling Canvas.drawText on an empty canvas
+            return
+        }
+
         if (topPadding != 0) {
             canvas.translate(0f, topPadding.toFloat())
         }
 
-        textCanvas.setCanvas(canvas)
-        layout.draw(textCanvas)
+        with(SharedTextAndroidCanvas) {
+            setCanvas(canvas)
+            layout.draw(this)
+        }
 
         if (topPadding != 0) {
             canvas.translate(0f, -1 * topPadding.toFloat())

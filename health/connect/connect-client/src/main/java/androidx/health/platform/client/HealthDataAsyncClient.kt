@@ -38,6 +38,14 @@ interface HealthDataAsyncClient {
         permissions: Set<PermissionProto.Permission>
     ): ListenableFuture<Set<PermissionProto.Permission>>
 
+    /**
+     * Returns a set of [Permission] granted by the user to this app, out of the input [Permission]
+     * set.
+     */
+    fun filterGrantedPermissions(
+        permissions: Set<PermissionProto.Permission>
+    ): ListenableFuture<Set<PermissionProto.Permission>>
+
     /** Allows an app to relinquish app permissions granted to itself by calling this method. */
     fun revokeAllPermissions(): ListenableFuture<Unit>
 

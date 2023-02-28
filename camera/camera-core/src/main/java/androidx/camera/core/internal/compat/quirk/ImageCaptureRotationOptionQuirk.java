@@ -44,7 +44,7 @@ import androidx.camera.core.impl.Quirk;
 public final class ImageCaptureRotationOptionQuirk implements Quirk {
 
     static boolean load() {
-        return isHuaweiMate20Lite() || isHonor9X();
+        return isHuaweiMate20Lite() || isHonor9X() || isEmulatorAndApi21();
     }
 
     private static boolean isHuaweiMate20Lite() {
@@ -54,6 +54,23 @@ public final class ImageCaptureRotationOptionQuirk implements Quirk {
     private static boolean isHonor9X() {
         return "HONOR".equalsIgnoreCase(Build.BRAND) && "STK-LX1".equalsIgnoreCase(
                 Build.MODEL);
+    }
+
+    private static boolean isEmulatorAndApi21() {
+        return isEmulator() && Build.VERSION.SDK_INT == 21;
+    }
+
+    private static boolean isEmulator() {
+        return Build.FINGERPRINT.startsWith("generic")
+                || Build.FINGERPRINT.startsWith("unknown")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Cuttlefish")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || Build.PRODUCT.equals("google_sdk")
+                || Build.HARDWARE.contains("ranchu");
     }
 
     /**

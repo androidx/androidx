@@ -17,4 +17,5 @@
 package androidx.glance.preview
 
 @RequiresOptIn("This API is experimental and is likely to change in the future.")
+@Retention(AnnotationRetention.BINARY)
 annotation class ExperimentalGlancePreviewApi

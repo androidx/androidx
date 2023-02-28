@@ -31,6 +31,7 @@ import android.graphics.drawable.Drawable;
 import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -322,7 +323,7 @@ public class DrawerArrowDrawable extends Drawable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         Rect bounds = getBounds();
 
         final boolean flipToPointRight;

@@ -19,15 +19,15 @@ package androidx.camera.video
 import android.Manifest
 import android.content.Context
 import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
 import androidx.camera.core.Logger
@@ -35,6 +35,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
@@ -77,13 +78,20 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 23) // Requires CaptureCallback.onCaptureBufferLost
 class VideoRecordingFrameDropTest(
-    private val cameraName: String,
+    private val implName: String,
     private val cameraSelector: CameraSelector,
-    private val perSelectorTestData: PerSelectorTestData
+    private val perSelectorTestData: PerSelectorTestData,
+    private val cameraConfig: CameraXConfig
 ) {
+
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName.contains(CameraPipeConfig::class.simpleName!!),
+    )
+
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 
     // Due to the flaky nature of this test, it should only be run in the lab
@@ -112,8 +120,30 @@ class VideoRecordingFrameDropTest(
         @Parameterized.Parameters(name = "{0}")
         fun data(): Collection<Array<Any>> {
             return listOf(
-                arrayOf("Back", CameraSelector.DEFAULT_BACK_CAMERA, PerSelectorTestData()),
-                arrayOf("Front", CameraSelector.DEFAULT_FRONT_CAMERA, PerSelectorTestData()),
+                arrayOf(
+                    "back+" + Camera2Config::class.simpleName,
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    PerSelectorTestData(),
+                    Camera2Config.defaultConfig()
+                ),
+                arrayOf(
+                    "front+" + Camera2Config::class.simpleName,
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    PerSelectorTestData(),
+                    Camera2Config.defaultConfig()
+                ),
+                arrayOf(
+                    "back+" + CameraPipeConfig::class.simpleName,
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    PerSelectorTestData(),
+                    CameraPipeConfig.defaultConfig()
+                ),
+                arrayOf(
+                    "front+" + CameraPipeConfig::class.simpleName,
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    PerSelectorTestData(),
+                    CameraPipeConfig.defaultConfig()
+                ),
             )
         }
     }
@@ -156,19 +186,36 @@ class VideoRecordingFrameDropTest(
     @LabTestRule.LabTestOnly
     @Test
     fun droppedNoFrames() {
-        assertThat(perSelectorTestData.numDroppedFrames).isEqualTo(0)
+        verifyFrameDropForCamera2Config(0)
     }
 
     @LabTestRule.LabTestOnly
     @Test
     fun droppedLessThanFiveFrames() {
-        assertThat(perSelectorTestData.numDroppedFrames).isLessThan(5)
+        verifyFrameDropForCamera2Config(5)
     }
 
     @LabTestRule.LabTestOnly
     @Test
     fun droppedLessThanTenFrames() {
-        assertThat(perSelectorTestData.numDroppedFrames).isLessThan(10)
+        verifyFrameDropForCamera2Config(10)
+    }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    fun droppedLessThanFifteenFrames() {
+        assertThat(perSelectorTestData.numDroppedFrames).isLessThan(15)
+    }
+
+    private fun verifyFrameDropForCamera2Config(numberOfDroppedFrames: Int) {
+        // Run this test only for Camera2 configuration to continue tracking framedrops
+        // for Camera2 Configuration
+        Assume.assumeTrue(implName.endsWith(Camera2Config::class.simpleName!!))
+        if (numberOfDroppedFrames == 0) {
+            assertThat(perSelectorTestData.numDroppedFrames).isEqualTo(numberOfDroppedFrames)
+        } else {
+            assertThat(perSelectorTestData.numDroppedFrames).isLessThan(numberOfDroppedFrames)
+        }
     }
 
     private suspend fun runRecordingRoutineAndReturnNumDroppedFrames(): Int = coroutineScope {
@@ -193,13 +240,14 @@ class VideoRecordingFrameDropTest(
             droppedFrameFlow.asSharedFlow().collect { droppedFrames.add(it) }
         }
 
-        val camInfo = cameraSelector.filter(cameraProvider.availableCameraInfos).first()
-            .let { Camera2CameraInfo.from(it) }
         val aspectRatio = AspectRatio.RATIO_16_9
 
         // Create video capture with a recorder
-        val videoCapture = VideoCapture.withOutput(Recorder.Builder().setQualitySelector(
-            QualitySelector.from(Quality.HIGHEST)).build())
+        val videoCapture = VideoCapture.withOutput(
+            Recorder.Builder().setQualitySelector(
+                QualitySelector.from(Quality.HIGHEST)
+            ).build()
+        )
 
         // Add Preview to ensure the preview stream does not drop frames during/after recordings
         val preview = Preview.Builder()
@@ -207,22 +255,10 @@ class VideoRecordingFrameDropTest(
             .apply { Camera2Interop.Extender(this).setSessionCaptureCallback(captureCallback) }
             .build()
 
-        val useCaseGroup = UseCaseGroup.Builder()
-            .addUseCase(videoCapture)
-            .addUseCase(preview)
-            .apply {
-                val hardwareLevel =
-                    camInfo.getCameraCharacteristic(
-                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
-
-                if (hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-                    val imageCapture = ImageCapture.Builder()
-                        .setTargetAspectRatio(aspectRatio)
-                        .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
-                        .build()
-                    addUseCase(imageCapture)
-                }
-            }.build()
+        val imageCapture = ImageCapture.Builder()
+            .setTargetAspectRatio(aspectRatio)
+            .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
+            .build()
 
         withContext(Dispatchers.Main) {
             val lifecycleOwner = FakeLifecycleOwner()
@@ -230,6 +266,28 @@ class VideoRecordingFrameDropTest(
             preview.setSurfaceProvider(
                 SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()
             )
+            val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector)
+
+            val isImageCaptureSupportedAs3rdUseCase = camera.isUseCasesCombinationSupported(
+                preview,
+                videoCapture,
+                imageCapture
+            )
+            val useCaseGroup = UseCaseGroup.Builder()
+                .addUseCase(videoCapture)
+                .addUseCase(preview)
+                .apply {
+                    if (isImageCaptureSupportedAs3rdUseCase) {
+                        addUseCase(imageCapture)
+                    } else {
+                        Logger.d(
+                            TAG, "Skipping ImageCapture use case, because this device" +
+                                " doesn't support 3 use case combination" +
+                                " (Preview, Video, ImageCapture)."
+                        )
+                    }
+                }.build()
+
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCaseGroup)
 
             val files = mutableListOf<File>()

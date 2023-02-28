@@ -42,7 +42,7 @@ import kotlinx.coroutines.isActive
 @PublishedApi
 @ExperimentalMotionApi
 internal inline fun Modifier.motionPointerInput(
-    key: Any = Unit,
+    key: Any,
     motionProgress: MotionProgress,
     measurer: MotionMeasurer
 ): Modifier = composed(
@@ -67,10 +67,8 @@ internal inline fun Modifier.motionPointerInput(
             if (isTouchUp && swipeHandler.pendingProgressWhileTouchUp()) {
                 // Loop until there's no need to update the progress or the there's a touch down
                 swipeHandler.updateProgressWhileTouchUp()
-                // TODO: Once the progress while Up ends, snap the progress to target (0 or 1)
             } else {
                 if (dragState == null) {
-                    // TODO: Investigate if it's worth skipping some drag events
                     dragState = dragChannel.receive()
                 }
                 coroutineContext.ensureActive()

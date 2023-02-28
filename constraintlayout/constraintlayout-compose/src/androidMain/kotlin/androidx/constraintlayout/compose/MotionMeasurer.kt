@@ -27,13 +27,12 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.constraintlayout.core.motion.Motion
 import androidx.constraintlayout.core.state.Dimension
@@ -43,10 +42,10 @@ import androidx.constraintlayout.core.widgets.Optimizer
 
 @ExperimentalMotionApi
 @PublishedApi
-internal class MotionMeasurer : Measurer() {
+internal class MotionMeasurer(density: Density) : Measurer(density) {
     private val DEBUG = false
     private var lastProgressInInterpolation = 0f
-    val transition = Transition()
+    val transition = Transition { with(density) { it.dp.toPx() } }
 
     // TODO: Explicitly declare `getDesignInfo` so that studio tooling can identify the method, also
     //  make sure that the constraints/dimensions returned are for the start/current ConstraintSet
@@ -59,6 +58,7 @@ internal class MotionMeasurer : Measurer() {
     ) {
         state.reset()
         constraintSet.applyTo(state, measurables)
+        buildMapping(state, measurables)
         state.apply(root)
         root.children.fastForEach { it.isAnimated = true }
         applyRootSize(constraints)
@@ -83,23 +83,13 @@ internal class MotionMeasurer : Measurer() {
         layoutDirection: LayoutDirection,
         constraintSetStart: ConstraintSet,
         constraintSetEnd: ConstraintSet,
-        @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl?,
+        @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl,
         measurables: List<Measurable>,
         optimizationLevel: Int,
         progress: Float,
-        motionLayoutFlags: Set<MotionLayoutFlag> = setOf<MotionLayoutFlag>(),
-        measureScope: MeasureScope
+        compositionSource: CompositionSource
     ): IntSize {
-        this.density = measureScope
-        this.measureScope = measureScope
-
-        var needsRemeasure = false
-        var flag = motionLayoutFlags.firstOrNull()
-        if (flag == MotionLayoutFlag.Default || flag == null) {
-            needsRemeasure = needsRemeasure(constraints)
-        } else if (flag == MotionLayoutFlag.FullMeasure) {
-            needsRemeasure = true
-        }
+        val needsRemeasure = needsRemeasure(constraints, compositionSource)
 
         if (lastProgressInInterpolation != progress ||
             (layoutInformationReceiver?.getForcedWidth() != Int.MIN_VALUE &&
@@ -129,7 +119,7 @@ internal class MotionMeasurer : Measurer() {
      * MotionLayout size might change from its parent Layout, and in some cases the children size
      * might change (eg: A Text layout has a longer string appended).
      */
-    private fun needsRemeasure(constraints: Constraints): Boolean {
+    private fun needsRemeasure(constraints: Constraints, source: CompositionSource): Boolean {
         if (this.transition.isEmpty || frameCache.isEmpty()) {
             // Nothing measured (by MotionMeasurer)
             return true
@@ -142,18 +132,8 @@ internal class MotionMeasurer : Measurer() {
             return true
         }
 
-        return root.children.fastAny { child ->
-            // Check if measurables have changed their size
-            val measurable = (child.companionWidget as? Measurable) ?: return@fastAny false
-            val interpolatedFrame = this.transition.getInterpolated(child) ?: return@fastAny false
-            val placeable = placeables[measurable] ?: return@fastAny false
-            val currentWidth = placeable.width
-            val currentHeight = placeable.height
-
-            // Need to recalculate interpolation if the size of any element changed
-            return@fastAny currentWidth != interpolatedFrame.width() ||
-                currentHeight != interpolatedFrame.height()
-        }
+        // Content recomposed
+        return source == CompositionSource.Content
     }
 
     /**
@@ -178,7 +158,6 @@ internal class MotionMeasurer : Measurer() {
         if (remeasure) {
             this.transition.clear()
             resetMeasureState()
-            state.reset()
             // Define the size of the ConstraintLayout.
             state.width(
                 if (constraints.hasFixedWidth) {
@@ -196,7 +175,7 @@ internal class MotionMeasurer : Measurer() {
             )
             // Build constraint set and apply it to the state.
             state.rootIncomingConstraints = constraints
-            state.layoutDirection = layoutDirection
+            state.isLtr = layoutDirection == LayoutDirection.Ltr
 
             measureConstraintSet(
                 optimizationLevel, constraintSetStart, measurables, constraints
@@ -207,28 +186,24 @@ internal class MotionMeasurer : Measurer() {
             )
             this.transition.updateFrom(root, Transition.END)
             transition?.applyKeyFramesTo(this.transition)
+        } else {
+            // Have to remap even if there's no reason to remeasure
+            buildMapping(state, measurables)
         }
-
         this.transition.interpolate(root.width, root.height, progress)
         root.width = this.transition.interpolatedWidth
         root.height = this.transition.interpolatedHeight
+        // Update measurables to interpolated dimensions
         root.children.fastForEach { child ->
             // Update measurables to the interpolated dimensions
             val measurable = (child.companionWidget as? Measurable) ?: return@fastForEach
             val interpolatedFrame = this.transition.getInterpolated(child) ?: return@fastForEach
-            val placeable = placeables[measurable]
-            val currentWidth = placeable?.width
-            val currentHeight = placeable?.height
-            if (placeable == null ||
-                currentWidth != interpolatedFrame.width() ||
-                currentHeight != interpolatedFrame.height()
-            ) {
-                measurable.measure(
-                    Constraints.fixed(interpolatedFrame.width(), interpolatedFrame.height())
-                ).also { newPlaceable ->
-                    placeables[measurable] = newPlaceable
-                }
-            }
+            placeables[measurable] = measurable.measure(
+                Constraints.fixed(
+                    interpolatedFrame.width(),
+                    interpolatedFrame.height()
+                )
+            )
             frameCache[measurable] = interpolatedFrame
         }
 
@@ -314,32 +289,59 @@ internal class MotionMeasurer : Measurer() {
         layoutInformationReceiver?.setLayoutInformation(json.toString())
     }
 
-    fun DrawScope.drawDebug() {
-        var index = 0
+    /**
+     * Draws debug information related to the current Transition.
+     *
+     * Typically, this means drawing the bounds of each widget at the start/end positions, the path
+     * they take and indicators for KeyPositions.
+     */
+    fun DrawScope.drawDebug(
+        drawBounds: Boolean = true,
+        drawPaths: Boolean = true,
+        drawKeyPositions: Boolean = true,
+    ) {
         val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+
         for (child in root.children) {
             val startFrame = transition.getStart(child)
             val endFrame = transition.getEnd(child)
-            translate(2f, 2f) {
-                drawFrameDebug(
-                    size.width,
-                    size.height,
-                    startFrame,
-                    endFrame,
-                    pathEffect,
-                    Color.White
-                )
+            if (drawBounds) {
+                // Draw widget bounds at the start and end
+                drawFrame(frame = startFrame, pathEffect = pathEffect, color = Color.Blue)
+                drawFrame(frame = endFrame, pathEffect = pathEffect, color = Color.Blue)
+                translate(2f, 2f) {
+                    // Do an additional offset draw in case the bounds are not visible/obstructed
+                    drawFrame(frame = startFrame, pathEffect = pathEffect, color = Color.White)
+                    drawFrame(frame = endFrame, pathEffect = pathEffect, color = Color.White)
+                }
             }
-            drawFrameDebug(
-                size.width,
-                size.height,
-                startFrame,
-                endFrame,
-                pathEffect,
-                Color.Blue
+            drawPaths(
+                parentWidth = size.width,
+                parentHeight = size.height,
+                startFrame = startFrame,
+                drawPath = drawPaths,
+                drawKeyPositions = drawKeyPositions
             )
-            index++
         }
+    }
+
+    private fun DrawScope.drawPaths(
+        parentWidth: Float,
+        parentHeight: Float,
+        startFrame: WidgetFrame,
+        drawPath: Boolean,
+        drawKeyPositions: Boolean
+    ) {
+        val debugRender = MotionRenderDebug(23f)
+        debugRender.basicDraw(
+            drawContext.canvas.nativeCanvas,
+            transition.getMotion(startFrame.widget.stringId),
+            1000,
+            parentWidth.toInt(),
+            parentHeight.toInt(),
+            drawPath,
+            drawKeyPositions
+        )
     }
 
     private fun DrawScope.drawFrameDebug(
@@ -479,17 +481,20 @@ internal class MotionMeasurer : Measurer() {
      * ConstraintWidget corresponding to [id], the value is calculated at the given [progress] value
      * on the current Transition.
      *
-     * Returns [Color.Black] if the custom property doesn't exist.
+     * Returns [Color.Unspecified] if the custom property doesn't exist.
      */
     fun getCustomColor(id: String, name: String, progress: Float): Color {
         if (!transition.contains(id)) {
-            return Color.Black
+            return Color.Unspecified
         }
         transition.interpolate(root.width, root.height, progress)
 
         val interpolatedFrame = transition.getInterpolated(id)
-        val color = interpolatedFrame.getCustomColor(name)
-        return Color(color)
+
+        if (!interpolatedFrame.containsCustom(name)) {
+            return Color.Unspecified
+        }
+        return Color(interpolatedFrame.getCustomColor(name))
     }
 
     /**
@@ -497,13 +502,14 @@ internal class MotionMeasurer : Measurer() {
      * ConstraintWidget corresponding to [id], the value is calculated at the given [progress] value
      * on the current Transition.
      *
-     * Returns `0f` if the custom property doesn't exist.
+     * Returns [Float.NaN] if the custom property doesn't exist.
      */
     fun getCustomFloat(id: String, name: String, progress: Float): Float {
         if (!transition.contains(id)) {
-            return 0f
+            return Float.NaN
         }
         transition.interpolate(root.width, root.height, progress)
+
         val interpolatedFrame = transition.getInterpolated(id)
         return interpolatedFrame.getCustomFloat(name)
     }
@@ -517,26 +523,24 @@ internal class MotionMeasurer : Measurer() {
     fun initWith(
         start: ConstraintSet,
         end: ConstraintSet,
-        density: Density,
         layoutDirection: LayoutDirection,
-        @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl?,
+        @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl,
         progress: Float
     ) {
         clearConstraintSets()
 
-        // FIXME: tempState is a hack to populate initial custom properties with DSL
-        val tempState = State(density).apply { this.layoutDirection = layoutDirection }
-        start.applyTo(tempState, emptyList())
+        state.isLtr = layoutDirection == LayoutDirection.Ltr
+        start.applyTo(state, emptyList())
         start.applyTo(this.transition, Transition.START)
-        tempState.apply(root)
+        state.apply(root)
         this.transition.updateFrom(root, Transition.START)
 
-        start.applyTo(tempState, emptyList())
+        start.applyTo(state, emptyList())
         end.applyTo(this.transition, Transition.END)
-        tempState.apply(root)
+        state.apply(root)
         this.transition.updateFrom(root, Transition.END)
 
         this.transition.interpolate(0, 0, progress)
-        transition?.applyAllTo(this.transition)
+        transition.applyAllTo(this.transition)
     }
 }

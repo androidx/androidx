@@ -21,6 +21,7 @@ import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
@@ -59,17 +60,23 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
      * </ul>
      * Otherwise, the input VideoEncoderInfo will be returned.
      *
+     * <p>Exception: if the input videoEncoderInfo is already a wrapper, then it will not be
+     * wrapped again and will be returned directly.
+     *
      * @param videoEncoderInfo the input VideoEncoderInfo.
-     * @param validSizeToCheck a valid size to check.
+     * @param validSizeToCheck a valid size to check or null if no valid size to check.
      * @return a wrapped VideoEncoderInfo or the input VideoEncoderInfo.
      */
     @NonNull
     public static VideoEncoderInfo from(@NonNull VideoEncoderInfo videoEncoderInfo,
-            @NonNull Size validSizeToCheck) {
-        boolean toWrap = false;
-        if (DeviceQuirks.get(MediaCodecInfoReportIncorrectInfoQuirk.class) != null) {
+            @Nullable Size validSizeToCheck) {
+        boolean toWrap;
+        if (videoEncoderInfo instanceof VideoEncoderInfoWrapper) {
+            toWrap = false;
+        } else if (DeviceQuirks.get(MediaCodecInfoReportIncorrectInfoQuirk.class) != null) {
             toWrap = true;
-        } else if (!isSizeSupported(videoEncoderInfo, validSizeToCheck)) {
+        } else if (validSizeToCheck != null && !videoEncoderInfo.isSizeSupported(
+                validSizeToCheck.getWidth(), validSizeToCheck.getHeight())) {
             // If the device does not support a size that should be valid, assume the device
             // reports incorrect information. This is used to detect devices that we haven't
             // discovered incorrect information yet.
@@ -79,6 +86,8 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
                     videoEncoderInfo.getSupportedWidths(),
                     videoEncoderInfo.getSupportedHeights()));
             toWrap = true;
+        } else {
+            toWrap = false;
         }
         return toWrap ? new VideoEncoderInfoWrapper(videoEncoderInfo) : videoEncoderInfo;
     }
@@ -103,6 +112,14 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
         return mVideoEncoderInfo.getName();
     }
 
+    @Override
+    public boolean isSizeSupported(int width, int height) {
+        return mSupportedWidths.contains(width)
+                && mSupportedHeights.contains(height)
+                && width % mVideoEncoderInfo.getWidthAlignment() == 0
+                && height % mVideoEncoderInfo.getHeightAlignment() == 0;
+    }
+
     @NonNull
     @Override
     public Range<Integer> getSupportedWidths() {
@@ -118,16 +135,22 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
     @NonNull
     @Override
     public Range<Integer> getSupportedWidthsFor(int height) {
-        Preconditions.checkArgument(mSupportedHeights.contains(height),
-                "Not supported height: " + height + " in " + mSupportedHeights);
+        Preconditions.checkArgument(mSupportedHeights.contains(height)
+                        && height % mVideoEncoderInfo.getHeightAlignment() == 0,
+                "Not supported height: " + height + " which is not in " + mSupportedHeights
+                        + " or can not be divided by alignment "
+                        + mVideoEncoderInfo.getHeightAlignment());
         return mSupportedWidths;
     }
 
     @NonNull
     @Override
     public Range<Integer> getSupportedHeightsFor(int width) {
-        Preconditions.checkArgument(mSupportedWidths.contains(width),
-                "Not supported width: " + width + " in " + mSupportedWidths);
+        Preconditions.checkArgument(mSupportedWidths.contains(width)
+                        && width % mVideoEncoderInfo.getWidthAlignment() == 0,
+                "Not supported width: " + width + " which is not in " + mSupportedWidths
+                        + " or can not be divided by alignment "
+                        + mVideoEncoderInfo.getWidthAlignment());
         return mSupportedHeights;
     }
 
@@ -141,22 +164,9 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
         return mVideoEncoderInfo.getHeightAlignment();
     }
 
-    private static boolean isSizeSupported(@NonNull VideoEncoderInfo videoEncoderInfo,
-            @NonNull Size size) {
-        if (!videoEncoderInfo.getSupportedWidths().contains(size.getWidth())
-                || !videoEncoderInfo.getSupportedHeights().contains(size.getHeight())) {
-            return false;
-        }
-        try {
-            if (!videoEncoderInfo.getSupportedHeightsFor(size.getWidth()).contains(size.getHeight())
-                    || !videoEncoderInfo.getSupportedWidthsFor(size.getHeight()).contains(
-                    size.getWidth())) {
-                return false;
-            }
-        } catch (IllegalArgumentException e) {
-            Logger.w(TAG, "size is not supported", e);
-            return false;
-        }
-        return true;
+    @NonNull
+    @Override
+    public Range<Integer> getSupportedBitrateRange() {
+        return mVideoEncoderInfo.getSupportedBitrateRange();
     }
 }

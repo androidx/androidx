@@ -22,6 +22,8 @@ import androidx.appsearch.app.GenericDocument;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class StopwatchLapTest {
     @Test
     public void testBuilder() {
@@ -29,6 +31,12 @@ public class StopwatchLapTest {
                 .setDocumentScore(1)
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
+                .setName("my stopwatch lap")
+                .addAlternateName("my alternate stopwatch lap")
+                .addAlternateName("my alternate stopwatch lap 2")
+                .setDescription("this is my stopwatch lap")
+                .setImage("content://images/stopwatchlap1")
+                .setUrl("content://stopwatchlap/1")
                 .setLapNumber(2)
                 .setLapDurationMillis(100)
                 .setAccumulatedLapDurationMillis(1100)
@@ -39,6 +47,13 @@ public class StopwatchLapTest {
         assertThat(stopwatchLap.getDocumentScore()).isEqualTo(1);
         assertThat(stopwatchLap.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(stopwatchLap.getDocumentTtlMillis()).isEqualTo(6000);
+        assertThat(stopwatchLap.getName()).isEqualTo("my stopwatch lap");
+        assertThat(stopwatchLap.getAlternateNames()).isNotNull();
+        assertThat(stopwatchLap.getAlternateNames())
+                .containsExactly("my alternate stopwatch lap", "my alternate stopwatch lap 2");
+        assertThat(stopwatchLap.getDescription()).isEqualTo("this is my stopwatch lap");
+        assertThat(stopwatchLap.getImage()).isEqualTo("content://images/stopwatchlap1");
+        assertThat(stopwatchLap.getUrl()).isEqualTo("content://stopwatchlap/1");
         assertThat(stopwatchLap.getLapNumber()).isEqualTo(2);
         assertThat(stopwatchLap.getLapDurationMillis()).isEqualTo(100);
         assertThat(stopwatchLap.getAccumulatedLapDurationMillis()).isEqualTo(1100);
@@ -50,6 +65,12 @@ public class StopwatchLapTest {
                 .setDocumentScore(1)
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
+                .setName("my stopwatch lap")
+                .addAlternateName("my alternate stopwatch lap")
+                .addAlternateName("my alternate stopwatch lap 2")
+                .setDescription("this is my stopwatch lap")
+                .setImage("content://images/stopwatchlap1")
+                .setUrl("content://stopwatchlap/1")
                 .setLapNumber(2)
                 .setLapDurationMillis(100)
                 .setAccumulatedLapDurationMillis(1100)
@@ -63,6 +84,12 @@ public class StopwatchLapTest {
                 .isEqualTo(stopwatchLap2.getCreationTimestampMillis());
         assertThat(stopwatchLap1.getDocumentTtlMillis())
                 .isEqualTo(stopwatchLap2.getDocumentTtlMillis());
+        assertThat(stopwatchLap1.getName()).isEqualTo(stopwatchLap2.getName());
+        assertThat(stopwatchLap1.getAlternateNames())
+                .containsExactlyElementsIn(stopwatchLap2.getAlternateNames());
+        assertThat(stopwatchLap1.getDescription()).isEqualTo(stopwatchLap2.getDescription());
+        assertThat(stopwatchLap1.getImage()).isEqualTo(stopwatchLap2.getImage());
+        assertThat(stopwatchLap1.getUrl()).isEqualTo(stopwatchLap2.getUrl());
         assertThat(stopwatchLap1.getLapNumber()).isEqualTo(stopwatchLap2.getLapNumber());
         assertThat(stopwatchLap1.getLapDurationMillis())
                 .isEqualTo(stopwatchLap2.getLapDurationMillis());
@@ -76,6 +103,12 @@ public class StopwatchLapTest {
                 .setDocumentScore(1)
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
+                .setName("my stopwatch lap")
+                .addAlternateName("my alternate stopwatch lap")
+                .addAlternateName("my alternate stopwatch lap 2")
+                .setDescription("this is my stopwatch lap")
+                .setImage("content://images/stopwatchlap1")
+                .setUrl("content://stopwatchlap/1")
                 .setLapNumber(2)
                 .setLapDurationMillis(100)
                 .setAccumulatedLapDurationMillis(1100)
@@ -88,6 +121,16 @@ public class StopwatchLapTest {
         assertThat(genericDocument.getScore()).isEqualTo(1);
         assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(genericDocument.getTtlMillis()).isEqualTo(6000);
+        assertThat(genericDocument.getPropertyString("name")).isEqualTo("my stopwatch lap");
+        assertThat(genericDocument.getPropertyStringArray("alternateNames")).isNotNull();
+        assertThat(Arrays.asList(genericDocument.getPropertyStringArray("alternateNames")))
+                .containsExactly("my alternate stopwatch lap", "my alternate stopwatch lap 2");
+        assertThat(genericDocument.getPropertyString("description"))
+                .isEqualTo("this is my stopwatch lap");
+        assertThat(genericDocument.getPropertyString("image"))
+                .isEqualTo("content://images/stopwatchlap1");
+        assertThat(genericDocument.getPropertyString("url"))
+                .isEqualTo("content://stopwatchlap/1");
         assertThat(genericDocument.getPropertyLong("lapNumber")).isEqualTo(2);
         assertThat(genericDocument.getPropertyLong("lapDurationMillis")).isEqualTo(100);
         assertThat(genericDocument.getPropertyLong("accumulatedLapDurationMillis"))

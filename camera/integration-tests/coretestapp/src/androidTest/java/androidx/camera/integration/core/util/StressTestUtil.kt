@@ -18,9 +18,8 @@ package androidx.camera.integration.core.util
 
 import android.content.Context
 import android.content.Intent
-import androidx.annotation.OptIn
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop
+import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
@@ -28,6 +27,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.integration.core.CameraXActivity
 import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_ANALYSIS
 import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_CAPTURE
@@ -36,6 +36,7 @@ import androidx.camera.integration.core.CameraXActivity.BIND_VIDEO_CAPTURE
 import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_CAMERA_ID
 import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_USE_CASE_COMBINATION
 import androidx.camera.integration.core.waitForViewfinderIdle
+import androidx.camera.testing.CameraUtil
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.test.core.app.ActivityScenario
@@ -80,9 +81,7 @@ object StressTestUtil {
 
         activityScenario.onActivity {
             // Checks that the camera id is correct
-            val camera2CameraInfo = Camera2CameraInfo.from(it.camera!!.cameraInfo)
-
-            if (camera2CameraInfo.cameraId != cameraId) {
+            if ((it.camera!!.cameraInfo as CameraInfoInternal).cameraId != cameraId) {
                 it.finish()
                 throw IllegalArgumentException("The activity is not launched with the correct" +
                     " camera of expected id.")
@@ -131,17 +130,40 @@ object StressTestUtil {
     }
 
     @JvmStatic
-    @OptIn(ExperimentalCamera2Interop::class)
     fun createCameraSelectorById(cameraId: String) =
         CameraSelector.Builder().addCameraFilter(CameraFilter { cameraInfos ->
             cameraInfos.forEach {
-                if (Camera2CameraInfo.from(it).cameraId.equals(cameraId)) {
+                if ((it as CameraInfoInternal).cameraId == cameraId) {
                     return@CameraFilter listOf<CameraInfo>(it)
                 }
             }
 
             throw IllegalArgumentException("No camera can be find for id: $cameraId")
         }).build()
+
+    @JvmStatic
+    fun getAllCameraXConfigCameraIdCombinations() = mutableListOf<Array<Any?>>().apply {
+        val cameraxConfigs =
+            listOf(Camera2Config::class.simpleName, CameraPipeConfig::class.simpleName)
+
+        cameraxConfigs.forEach { configImplName ->
+            CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
+                add(
+                    arrayOf(
+                        configImplName,
+                        when (configImplName) {
+                            CameraPipeConfig::class.simpleName ->
+                                CameraPipeConfig.defaultConfig()
+                            Camera2Config::class.simpleName ->
+                                Camera2Config.defaultConfig()
+                            else -> Camera2Config.defaultConfig()
+                        },
+                        cameraId
+                    )
+                )
+            }
+        }
+    }
 
     /**
      * Large stress test repeat count to run the test

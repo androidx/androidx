@@ -22,9 +22,8 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
-import java.io.Closeable
 
-internal class GraphTestContext : Closeable {
+internal class GraphTestContext : AutoCloseable {
     val streamId = StreamId(0)
     val surfaceMap = mapOf(streamId to Surface(SurfaceTexture(1)))
     val captureSequenceProcessor = FakeCaptureSequenceProcessor()

@@ -25,6 +25,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.constraintlayout.widget.R;
@@ -579,7 +580,7 @@ public class Grid extends VirtualLayout {
      * @param canvas canvas to visualize the boxViews
      */
     @Override
-    public void onDraw(Canvas canvas) {
+    public void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         // Visualize the viewBoxes if isInEditMode() is true
         if (!isInEditMode()) {

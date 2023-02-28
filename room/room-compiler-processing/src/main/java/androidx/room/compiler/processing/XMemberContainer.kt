@@ -28,21 +28,20 @@ import com.squareup.javapoet.ClassName
 interface XMemberContainer : XElement {
 
     override val name: String
-        get() = if (this is XTypeElement) this.name else className.simpleName()
+        get() = if (this is XTypeElement) this.name else asClassName().simpleNames.first()
 
     /**
      * The JVM ClassName for this container.
      *
      * For top level members of a Kotlin file, you can use this [ClassName] for code generation.
      */
-    // TODO(b/247248619): Deprecate when more progress is made, otherwise -werror fails the build.
-    // @Deprecated(
-    //     message = "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
-    //     replaceWith = ReplaceWith(
-    //         expression = "asClassName().toJavaPoet()",
-    //         imports = ["androidx.room.compiler.codegen.toJavaPoet"]
-    //     )
-    // )
+     @Deprecated(
+         message = "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+         replaceWith = ReplaceWith(
+             expression = "asClassName().toJavaPoet()",
+             imports = ["androidx.room.compiler.codegen.toJavaPoet"]
+         )
+     )
     val className: ClassName
 
     /**

@@ -30,6 +30,8 @@ import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowBuild
 import org.robolectric.shadows.ShadowCameraCharacteristics
 
+private const val CAMERA_ID_0 = "0"
+
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -60,8 +62,8 @@ class FlashTooSlowQuirkTest(
             lensFacing
         )
         val characteristicsCompat =
-            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics)
-        return CameraQuirks.get("0" /* don't care */, characteristicsCompat)
+            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics, CAMERA_ID_0)
+        return CameraQuirks.get(CAMERA_ID_0, characteristicsCompat)
     }
 
     @Test

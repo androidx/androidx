@@ -16,8 +16,6 @@
 
 package androidx.wear.watchface
 
-@RequiresOptIn(
-    "This is an experimental API that may change or be removed without warning."
-)
+@RequiresOptIn("This is an experimental API that may change or be removed without warning.")
 @Retention(AnnotationRetention.BINARY)
 annotation class WatchFaceExperimental

@@ -28,7 +28,6 @@ dependencies {
 androidx {
     name = "AndroidX Wear Watchface Samples app"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2021"
     description = "APK for the sample code for the Androidx Wear Watchface library"
 }

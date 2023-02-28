@@ -49,7 +49,21 @@ android {
 androidx {
     name = "Android Wear Compose Navigation Samples"
     type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.WEAR_COMPOSE
     inceptionYear = "2021"
     description = "Contains the sample code for the Android Wear Compose Navigation Classes"
+}
+
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
+                using project(":lifecycle:lifecycle-viewmodel")
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel-ktx:")).
+                using project(":lifecycle:lifecycle-viewmodel-ktx")
+        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
+                using project(":lifecycle:lifecycle-runtime")
+        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
+                using project(":lifecycle:lifecycle-runtime-ktx")
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel-savedstate:")).
+                using project(":lifecycle:lifecycle-viewmodel-savedstate")
+    }
 }

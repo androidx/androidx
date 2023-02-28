@@ -83,9 +83,8 @@ public final class CoordinateTransform {
         //  the transform from sensor to surface. But it will require the view artifact to
         //  depend on a new internal API in the core artifact, which we can't do at the
         //  moment because of the version mismatch between view and core.
-        if (!isAspectRatioMatchingWithRoundingError(
-                source.getViewPortSize(), /* isAccurate1= */ false,
-                target.getViewPortSize(), /* isAccurate2= */ false)) {
+        if (!isAspectRatioMatchingWithRoundingError(source.getViewPortSize(),
+                target.getViewPortSize())) {
             // Mismatched aspect ratio means the outputs are not associated with the same Viewport.
             Logger.w(TAG, String.format(MISMATCH_MSG, source.getViewPortSize(),
                     target.getViewPortSize()));

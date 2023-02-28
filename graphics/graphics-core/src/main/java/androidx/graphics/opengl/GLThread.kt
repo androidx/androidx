@@ -134,6 +134,9 @@ internal class GLThread(
         }
     }
 
+    @AnyThread
+    fun execute(runnable: Runnable) = withHandler { post(runnable) }
+
     /**
      * Removes the corresponding [android.view.Surface] from management of the GLThread.
      * This destroys the EGLSurface associated with this surface and subsequent requests

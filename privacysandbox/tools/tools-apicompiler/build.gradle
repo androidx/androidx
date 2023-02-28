@@ -23,6 +23,8 @@ plugins {
     id("kotlin")
 }
 
+androidx.configureAarAsJarForConfiguration("testImplementation")
+
 dependencies {
     api(libs.kotlinStdlib)
     implementation(libs.kspApi)
@@ -32,6 +34,8 @@ dependencies {
 
     testImplementation(project(":privacysandbox:tools:tools-testing"))
     testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementationAarAsJar(project(":privacysandbox:ui:ui-core"))
+    testImplementationAarAsJar(project(":privacysandbox:ui:ui-provider"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinCoroutinesCore)
@@ -55,7 +59,6 @@ dependencies {
 androidx {
     name = "androidx.privacysandbox.tools:tools-apicompiler"
     type = LibraryType.ANNOTATION_PROCESSOR
-    mavenGroup = LibraryGroups.PRIVACYSANDBOX_TOOLS
     inceptionYear = "2022"
     description = "Compiler for Privacy Sandbox API annotations."
 }

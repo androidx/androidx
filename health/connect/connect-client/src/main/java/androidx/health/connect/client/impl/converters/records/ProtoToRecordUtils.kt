@@ -65,6 +65,16 @@ internal fun DataPointOrBuilder.getEnum(key: String): String? {
     return valuesMap[key]?.enumVal
 }
 
+/** Maps a string enum field to public API integers. */
+internal fun DataPointOrBuilder.mapEnum(
+    key: String,
+    stringToIntMap: Map<String, Int>,
+    default: Int
+): Int {
+    val value = getEnum(key) ?: return default
+    return stringToIntMap.getOrDefault(value, default)
+}
+
 internal fun SeriesValueOrBuilder.getLong(key: String, defaultVal: Long = 0): Long =
     valuesMap[key]?.longVal ?: defaultVal
 
@@ -84,15 +94,13 @@ internal val DataProto.DataPoint.metadata: Metadata
             lastModifiedTime = Instant.ofEpochMilli(updateTimeMillis),
             clientRecordId = if (hasClientId()) clientId else null,
             clientRecordVersion = clientVersion,
-            device = toDevice(device)
+            device = device.toDevice()
         )
 
-private fun toDevice(proto: DataProto.Device): Device {
-    return with(proto) {
-        Device(
-            manufacturer = if (hasManufacturer()) manufacturer else null,
-            model = if (hasModel()) model else null,
-            type = if (hasType()) type else null
-        )
-    }
+internal fun DataProto.Device.toDevice(): Device {
+    return Device(
+        manufacturer = if (hasManufacturer()) manufacturer else null,
+        model = if (hasModel()) model else null,
+        type = DEVICE_TYPE_STRING_TO_INT_MAP.getOrDefault(type, Device.TYPE_UNKNOWN)
+    )
 }

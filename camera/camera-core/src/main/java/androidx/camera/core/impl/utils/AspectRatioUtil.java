@@ -18,6 +18,7 @@ package androidx.camera.core.impl.utils;
 
 import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 
+import android.graphics.RectF;
 import android.util.Rational;
 import android.util.Size;
 
@@ -38,6 +39,7 @@ public final class AspectRatioUtil {
     public static final Rational ASPECT_RATIO_3_4 = new Rational(3, 4);
     public static final Rational ASPECT_RATIO_16_9 = new Rational(16, 9);
     public static final Rational ASPECT_RATIO_9_16 = new Rational(9, 16);
+
     private static final int ALIGN16 = 16;
 
     private AspectRatioUtil() {
@@ -45,22 +47,34 @@ public final class AspectRatioUtil {
 
     /**
      * Returns true if the supplied resolution is a mod16 matching with the supplied aspect ratio.
+     *
+     * <p>A default lower bound resolution {@link SizeUtil#RESOLUTION_VGA} is adopted. That means
+     * only do mod 16 calculation if the size is equal to or larger than
+     * {@link SizeUtil#RESOLUTION_VGA}. It is because the aspect ratio will be affected
+     * critically by mod 16 calculation if the size is small. It may result in unexpected outcome
+     * such like 256x144 will be considered as 18.5:9.
      */
     public static boolean hasMatchingAspectRatio(@NonNull Size resolution,
             @Nullable Rational aspectRatio) {
+        return hasMatchingAspectRatio(resolution, aspectRatio, SizeUtil.RESOLUTION_VGA);
+    }
+
+    /**
+     * Returns true if the supplied resolution is a mod16 matching with the supplied aspect ratio.
+     *
+     * <p>Mod 16 calculation take effects only when the input resolution is smaller than
+     * {@code mod16ResolutionLowerBound}.
+     */
+    public static boolean hasMatchingAspectRatio(@NonNull Size resolution,
+            @Nullable Rational aspectRatio, @NonNull Size mod16ResolutionLowerBound) {
         boolean isMatch = false;
         if (aspectRatio == null) {
             isMatch = false;
         } else if (aspectRatio.equals(
                 new Rational(resolution.getWidth(), resolution.getHeight()))) {
             isMatch = true;
-        } else if (getArea(resolution) >= getArea(SizeUtil.RESOLUTION_VGA)) {
-            // Only do mod 16 calculation if the size is equal to or larger than 640x480. It is
-            // because the aspect ratio will be affected critically by mod 16 calculation if the
-            // size is small. It may result in unexpected outcome such like 256x144 will be
-            // considered as 18.5:9.
-            isMatch = isPossibleMod16FromAspectRatio(resolution,
-                    aspectRatio);
+        } else if (getArea(resolution) >= getArea(mod16ResolutionLowerBound)) {
+            isMatch = isPossibleMod16FromAspectRatio(resolution, aspectRatio);
         }
         return isMatch;
     }
@@ -94,7 +108,6 @@ public final class AspectRatioUtil {
         return false;
     }
 
-
     private static boolean ratioIntersectsMod16Segment(int height, int mod16Width,
             Rational aspectRatio) {
         Preconditions.checkArgument(mod16Width % 16 == 0);
@@ -104,14 +117,26 @@ public final class AspectRatioUtil {
                 mod16Width + ALIGN16);
     }
 
-    /** Comparator based on how close they are to the target aspect ratio. */
+    /**
+     * Comparator based on how close they are to the target aspect ratio by comparing the
+     * transformed mapping area in the full FOV ratio space.
+     *
+     * The mapping area will be the region that the images of the specific aspect ratio cropped
+     * from the full FOV images. Therefore, we can compare the mapping areas to know which one is
+     * closer to the mapping area of the target aspect ratio setting.
+     */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-    public static final class CompareAspectRatiosByDistanceToTargetRatio implements
+    public static final class CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace implements
             Comparator<Rational> {
-        private Rational mTargetRatio;
+        private final Rational mTargetRatio;
+        private final RectF mTransformedMappingArea;
+        private final Rational mFullFovRatio;
 
-        public CompareAspectRatiosByDistanceToTargetRatio(@NonNull Rational targetRatio) {
+        public CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
+                @NonNull Rational targetRatio, @Nullable Rational fullFovRatio) {
             mTargetRatio = targetRatio;
+            mFullFovRatio = fullFovRatio != null ? fullFovRatio : new Rational(4, 3);
+            mTransformedMappingArea = getTransformedMappingArea(mTargetRatio);
         }
 
         @Override
@@ -120,11 +145,81 @@ public final class AspectRatioUtil {
                 return 0;
             }
 
-            final Float lhsRatioDelta = Math.abs(lhs.floatValue() - mTargetRatio.floatValue());
-            final Float rhsRatioDelta = Math.abs(rhs.floatValue() - mTargetRatio.floatValue());
+            RectF lhsMappingArea = getTransformedMappingArea(lhs);
+            RectF rhsMappingArea = getTransformedMappingArea(rhs);
 
-            int result = (int) Math.signum(lhsRatioDelta - rhsRatioDelta);
-            return result;
+            boolean isCoveredByLhs = isMappingAreaCovered(lhsMappingArea,
+                    mTransformedMappingArea);
+            boolean isCoveredByRhs = isMappingAreaCovered(rhsMappingArea,
+                    mTransformedMappingArea);
+
+            if (isCoveredByLhs && isCoveredByRhs) {
+                // When both ratios can cover the transformed target aspect mapping area in the
+                // full FOV space, checks which area is smaller to determine which ratio is
+                // closer to the target aspect ratio.
+                return (int) Math.signum(
+                        getMappingAreaSize(lhsMappingArea) - getMappingAreaSize(rhsMappingArea));
+            } else if (isCoveredByLhs) {
+                return -1;
+            } else if (isCoveredByRhs) {
+                return 1;
+            } else {
+                // When both ratios can't cover the transformed target aspect mapping area in the
+                // full FOV space, checks which overlapping area is larger to determine which
+                // ratio is closer to the target aspect ratio.
+                float lhsOverlappingArea = getOverlappingAreaSize(lhsMappingArea,
+                        mTransformedMappingArea);
+                float rhsOverlappingArea = getOverlappingAreaSize(rhsMappingArea,
+                        mTransformedMappingArea);
+                return -((int) Math.signum(lhsOverlappingArea - rhsOverlappingArea));
+            }
+        }
+
+        /**
+         * Returns the rectangle after transforming the input rational into full FOV aspect ratio
+         * space.
+         */
+        private RectF getTransformedMappingArea(Rational ratio) {
+            if (ratio.floatValue() == mFullFovRatio.floatValue()) {
+                return new RectF(0, 0, mFullFovRatio.getNumerator(),
+                        mFullFovRatio.getDenominator());
+            } else if (ratio.floatValue() > mFullFovRatio.floatValue()) {
+                return new RectF(0, 0, mFullFovRatio.getNumerator(),
+                        (float) ratio.getDenominator() * (float) mFullFovRatio.getNumerator()
+                                / (float) ratio.getNumerator());
+            } else {
+                return new RectF(0, 0,
+                        (float) ratio.getNumerator() * (float) mFullFovRatio.getDenominator()
+                                / (float) ratio.getDenominator(), mFullFovRatio.getDenominator());
+            }
+        }
+
+        /**
+         * Returns {@code true} if the source transformed mapping area can fully cover the target
+         * transformed mapping area. Otherwise, returns {@code false};
+         */
+        private boolean isMappingAreaCovered(RectF sourceMappingArea, RectF targetMappingArea) {
+            return sourceMappingArea.width() >= targetMappingArea.width()
+                    && sourceMappingArea.height() >= targetMappingArea.height();
+        }
+
+        /**
+         * Returns the input mapping area's size value.
+         */
+        private float getMappingAreaSize(RectF mappingArea) {
+            return mappingArea.width() * mappingArea.height();
+        }
+
+        /**
+         * Returns the overlapping area value between the input two mapping areas in the full FOV
+         * space.
+         */
+        private float getOverlappingAreaSize(RectF mappingArea1, RectF mappingArea2) {
+            float overlappingAreaWidth = mappingArea1.width() < mappingArea2.width()
+                    ? mappingArea1.width() : mappingArea2.width();
+            float overlappingAreaHeight = mappingArea1.height() < mappingArea2.height()
+                    ? mappingArea1.height() : mappingArea2.height();
+            return overlappingAreaWidth * overlappingAreaHeight;
         }
     }
 }

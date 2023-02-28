@@ -49,6 +49,13 @@ interface IJsSandboxService {
     const String WASM_FROM_ARRAY_BUFFER = "WASM_FROM_ARRAY_BUFFER";
 
     /**
+     * Feature flag indicating that JavaScript script evaluation is not bound
+     * by the Binder transaction limit size.
+     */
+    const String EVALUATE_WITHOUT_TRANSACTION_LIMIT =
+      "EVALUATE_WITHOUT_TRANSACTION_LIMIT:DEV";
+
+    /**
      * @return A list of feature names supported by this implementation.
      */
     List<String> getSupportedFeatures() = 1;

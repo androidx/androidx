@@ -39,88 +39,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".media.SampleMediaRouterActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/sample_media_router_activity_dark"
-            android:theme="@style/Theme.SampleMediaRouter">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.androidx.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-        <!-- MediaRouter Support Samples -->
-
-        <activity
-            android:name=".media.SampleMediaRouterActivity$Light"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/sample_media_router_activity_light"
-            android:theme="@style/Theme.SampleMediaRouter.Light">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.androidx.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".media.SampleMediaRouterActivity$LightWithDarkActionBar"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/sample_media_router_activity_light_with_dark_action_bar"
-            android:theme="@style/Theme.SampleMediaRouter.Light.DarkActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.androidx.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".media.SampleMediaRouterActivity$DynamicGroupActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/sample_media_router_activity_dynamic_group"
-            android:theme="@style/Theme.SampleMediaRouter">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.androidx.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".media.SampleMediaRouterActivity$OutputSwitcherActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/sample_media_router_activity_output_switcher"
-            android:theme="@style/Theme.SampleMediaRouter">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.androidx.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".media.SampleMediaRouterActivity$LegacyMediaRouterActivity"
-            android:configChanges="orientation|screenSize"
-            android:exported="true"
-            android:label="@string/sample_media_router_activity_legacy"
-            android:theme="@style/Theme.SampleMediaRouter">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.androidx.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".media.SampleMediaRouteSettingsActivity"
-            android:exported="true"
-            android:label="@string/sample_media_route_settings_activity"
-            android:theme="@style/Theme.AppCompat.Light">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
 
         <activity
             android:name=".view.GridLayout1"
@@ -925,48 +843,12 @@
             android:name=".app.RecentSuggestionsProvider"
             android:authorities="com.example.androidx.RecentSuggestionsProvider" />
 
-        <!-- Selection helper single selection demo activity -->
-        <receiver android:name=".media.SampleMediaButtonReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </receiver>
-
-        <!-- Selection helper rudimentary demo activity -->
-        <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver"
-            android:exported="true" />
-
-        <!-- Selection helper "the whole kit and caboodle" demo activity -->
-        <service
-            android:name=".media.SampleMediaRouteProviderService"
-            android:exported="true"
-            android:label="@string/sample_media_route_provider_service"
-            android:process=":mrp">
-            <intent-filter>
-                <action android:name="android.media.MediaRouteProviderService" />
-                <action android:name="android.media.MediaRoute2ProviderService" />
-            </intent-filter>
-        </service>
-
-        <!-- Custom drawable activity -->
-        <service
-            android:name=".media.SampleDynamicGroupMrpService"
-            android:label="@string/sample_media_route_provider_service"
-            android:exported="true"
-            android:process=":dynamic_mrp">
-            <intent-filter>
-                <action android:name="android.media.MediaRouteProviderService" />
-                <action android:name="android.media.MediaRoute2ProviderService" />
-            </intent-filter>
-        </service>
-
     </application>
-    <!-- Permission for SYSTEM_ALERT_WINDOW is only required for emulating
-         remote display using system alert window. -->
+
     <supports-screens
         android:compatibleWidthLimitDp="480"
         android:requiresSmallestWidthDp="320" />
+
     <!-- Permission for READ_EXTERNAL_STORAGE is explicitly required for
          reading images from the media store from API v19+. -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -979,7 +861,5 @@
          so allow the compatibility mode button to be shown (mostly because
          this is just convenient for testing). -->
     <uses-permission android:name="android.permission.INTERNET" />
-
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
 </manifest>

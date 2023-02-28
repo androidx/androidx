@@ -15,25 +15,21 @@
  */
 package androidx.health.connect.client.records
 
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
-import androidx.annotation.StringDef
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /**
- * Captures a description of how heavy a user's menstrual flow was (spotting, light, medium, or
- * heavy). Each record represents a description of how heavy the user's menstrual bleeding was.
+ * Captures a description of how heavy a user's menstrual flow was (light, medium, or heavy). Each
+ * record represents a description of how heavy the user's menstrual bleeding was.
  */
 public class MenstruationFlowRecord(
-    /**
-     * How heavy the user's menstrual flow was. Optional field. Allowed values: [Flow].
-     *
-     * @see Flow
-     */
-    @property:Flows public val flow: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    /** How heavy the user's menstrual flow was. Optional field. */
+    @property:Flows public val flow: Int = FLOW_UNKNOWN,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
     override fun equals(other: Any?): Boolean {
@@ -49,36 +45,35 @@ public class MenstruationFlowRecord(
     }
 
     override fun hashCode(): Int {
-        var result = 0
-        result = 31 * result + flow.hashCode()
+        var result = flow
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
     }
 
-    /** How heavy the user's menstruation flow was. */
-    public object Flow {
-        const val SPOTTING = "spotting"
-        const val LIGHT = "light"
-        const val MEDIUM = "medium"
-        const val HEAVY = "heavy"
-    }
+    companion object {
+        const val FLOW_UNKNOWN = 0
+        const val FLOW_LIGHT = 1
+        const val FLOW_MEDIUM = 2
+        const val FLOW_HEAVY = 3
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val FLOW_TYPE_STRING_TO_INT_MAP: Map<String, Int> =
+            mapOf("light" to FLOW_LIGHT, "medium" to FLOW_MEDIUM, "heavy" to FLOW_HEAVY)
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val FLOW_TYPE_INT_TO_STRING_MAP: Map<Int, String> =
+            FLOW_TYPE_STRING_TO_INT_MAP.entries.associateBy({ it.value }, { it.key })
+    }
     /**
      * How heavy the user's menstruation flow was.
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
-    @StringDef(
-        value =
-            [
-                MenstruationFlowRecord.Flow.SPOTTING,
-                MenstruationFlowRecord.Flow.LIGHT,
-                MenstruationFlowRecord.Flow.MEDIUM,
-                MenstruationFlowRecord.Flow.HEAVY,
-            ]
-    )
+    @IntDef(value = [FLOW_UNKNOWN, FLOW_LIGHT, FLOW_MEDIUM, FLOW_HEAVY])
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     annotation class Flows
 }

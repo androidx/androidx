@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.PowerCategory
 import androidx.benchmark.macro.PowerMetric.Companion.MEASURE_BLOCK_SECTION_NAME
 import androidx.benchmark.macro.createTempFileFromAsset
@@ -28,6 +29,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalMetricApi::class)
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(AndroidJUnit4::class)
 @SmallTest

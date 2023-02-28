@@ -16,7 +16,6 @@
 
 package androidx.health.services.client.data
 
-import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 
 /**
@@ -32,26 +31,17 @@ public class MeasureCapabilities(
      * data (e.g. HR).
      */
     public val supportedDataTypesMeasure: Set<DeltaDataType<*, *>>,
-) : ProtoParcelable<DataProto.MeasureCapabilities>() {
+) {
 
     internal constructor(
         proto: DataProto.MeasureCapabilities
     ) : this(proto.supportedDataTypesList.map { DataType.deltaFromProto(it) }.toSet())
 
-    /** @hide */
-    override val proto: DataProto.MeasureCapabilities =
+    internal val proto: DataProto.MeasureCapabilities =
         DataProto.MeasureCapabilities.newBuilder()
             .addAllSupportedDataTypes(supportedDataTypesMeasure.map { it.proto })
             .build()
 
     override fun toString(): String =
         "MeasureCapabilities(supportedDataTypesMeasure=$supportedDataTypesMeasure)"
-
-    public companion object {
-        @JvmField
-        public val CREATOR: Parcelable.Creator<MeasureCapabilities> = newCreator { bytes ->
-            val proto = DataProto.MeasureCapabilities.parseFrom(bytes)
-            MeasureCapabilities(proto)
-        }
-    }
 }

@@ -25,7 +25,10 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.testing.fakes.FakeImageInfo
 import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.truth.Truth.assertThat
+import com.google.common.util.concurrent.ListenableFuture
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,6 +49,8 @@ class RequestWithCallbackTest {
     private lateinit var otherError: ImageCaptureException
     private lateinit var imageResult: ImageProxy
     private lateinit var fileResult: ImageCapture.OutputFileResults
+    private lateinit var retryControl: FakeRetryControl
+    private lateinit var captureRequestFuture: ListenableFuture<Void>
 
     @Before
     fun setUp() {
@@ -53,27 +58,100 @@ class RequestWithCallbackTest {
         otherError = ImageCaptureException(ERROR_CAPTURE_FAILED, "", null)
         imageResult = FakeImageProxy(FakeImageInfo())
         fileResult = ImageCapture.OutputFileResults(null)
+        retryControl = FakeRetryControl()
+        captureRequestFuture = CallbackToFutureAdapter.getFuture { "captureRequestFuture" }
+    }
+
+    @After
+    fun tearDown() {
+        captureRequestFuture.cancel(true)
+    }
+
+    @Test
+    fun failCaptureWithRemainingRetries_requestIsRetried() {
+        // Arrange: create a request the a retry counter of 1.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        request.incrementRetryCounter()
+        assertThat(request.remainingRetries).isEqualTo(1)
+        val callback = RequestWithCallback(request, retryControl)
+
+        // Act.
+        callback.onCaptureFailure(otherError)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert.
+        assertThat(retryControl.retriedRequest).isEqualTo(request)
+        assertThat(request.remainingRetries).isEqualTo(0)
+    }
+
+    @Test
+    fun failCaptureWithoutRemainingRetries_requestNotRetried() {
+        // Arrange: create a request the a retry counter of 0.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        assertThat(request.remainingRetries).isEqualTo(0)
+        val callback = RequestWithCallback(request, retryControl)
+
+        // Act.
+        callback.onCaptureFailure(otherError)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert.
+        assertThat(retryControl.retriedRequest).isNull()
+        assertThat(request.exceptionReceived).isEqualTo(otherError)
+    }
+
+    @Test
+    fun abortAndRetryAfterSuccess_abortIsNoOp() {
+        // Arrange.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        val callback = RequestWithCallback(request, retryControl)
+
+        // Act: deliver result then abort
+        callback.onImageCaptured()
+        callback.onFinalResult(imageResult)
+        callback.abortSilentlyAndRetry()
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: retry is not queued.
+        assertThat(retryControl.retriedRequest).isNull()
+    }
+
+    @Test
+    fun abortAndFailAfterFail_abortIsNoOp() {
+        // Arrange.
+        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
+        val callback = RequestWithCallback(request, retryControl)
+
+        // Fail request then abort
+        callback.onCaptureFailure(otherError)
+        callback.abortAndSendErrorToApp(abortError)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert:
+        assertThat(request.exceptionReceived).isEqualTo(otherError)
     }
 
     @Test
     fun abortRequestThenSendOtherErrors_receiveAbortError() {
         // Arrange.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
-        val callback = RequestWithCallback(request)
+        val callback = RequestWithCallback(request, retryControl)
+        callback.setCaptureRequestFuture(captureRequestFuture)
         // Act.
-        callback.abort(abortError)
+        callback.abortAndSendErrorToApp(abortError)
         callback.onCaptureFailure(otherError)
         callback.onProcessFailure(otherError)
         shadowOf(getMainLooper()).idle()
         // Assert.
         assertThat(request.exceptionReceived).isEqualTo(abortError)
+        assertThat(captureRequestFuture.isCancelled).isTrue()
     }
 
     @Test
     fun sendInMemoryResult_receiveResult() {
         // Arrange.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
-        val callback = RequestWithCallback(request)
+        val callback = RequestWithCallback(request, retryControl)
         // Act.
         callback.onImageCaptured()
         callback.onFinalResult(imageResult)
@@ -86,20 +164,22 @@ class RequestWithCallbackTest {
     fun abortRequestAndSendInMemoryResult_doNotReceiveResult() {
         // Arrange.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
-        val callback = RequestWithCallback(request)
+        val callback = RequestWithCallback(request, retryControl)
+        callback.setCaptureRequestFuture(captureRequestFuture)
         // Act.
-        callback.abort(abortError)
+        callback.abortAndSendErrorToApp(abortError)
         callback.onFinalResult(imageResult)
         shadowOf(getMainLooper()).idle()
         // Assert.
         assertThat(request.imageReceived).isNull()
+        assertThat(captureRequestFuture.isCancelled).isTrue()
     }
 
     @Test
     fun sendOnDiskResult_receiveResult() {
         // Arrange.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.ON_DISK)
-        val callback = RequestWithCallback(request)
+        val callback = RequestWithCallback(request, retryControl)
         // Act.
         callback.onImageCaptured()
         callback.onFinalResult(fileResult)
@@ -112,12 +192,14 @@ class RequestWithCallbackTest {
     fun abortRequestAndSendOnDiskResult_doNotReceiveResult() {
         // Arrange.
         val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.ON_DISK)
-        val callback = RequestWithCallback(request)
+        val callback = RequestWithCallback(request, retryControl)
+        callback.setCaptureRequestFuture(captureRequestFuture)
         // Act.
-        callback.abort(abortError)
+        callback.abortAndSendErrorToApp(abortError)
         callback.onFinalResult(imageResult)
         shadowOf(getMainLooper()).idle()
         // Assert.
         assertThat(request.imageReceived).isNull()
+        assertThat(captureRequestFuture.isCancelled).isTrue()
     }
 }

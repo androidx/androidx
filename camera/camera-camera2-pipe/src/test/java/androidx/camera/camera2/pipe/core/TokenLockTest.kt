@@ -79,9 +79,7 @@ internal class TokenLockTest {
         val token1 = tokenLock.acquire(1)
 
         // This should suspend, and then cancel the request for the token.
-        val token2: TokenLock.Token? = withTimeoutOrNull(10) {
-            tokenLock.acquire(2)
-        }
+        val token2: TokenLock.Token? = withTimeoutOrNull(10) { tokenLock.acquire(2) }
 
         assertThat(token2).isNull()
         assertThat(tokenLock.available).isEqualTo(1)
@@ -252,9 +250,7 @@ internal class TokenLockTest {
     fun tokensAreClosedWithUseKeyword() = runBlocking {
         val tokenLock = TokenLockImpl(1)
 
-        tokenLock.acquire(1).use {
-            assertThat(tokenLock.size).isEqualTo(1)
-        }
+        tokenLock.acquire(1).use { assertThat(tokenLock.size).isEqualTo(1) }
         assertThat(tokenLock.size).isEqualTo(0)
     }
 
@@ -262,9 +258,7 @@ internal class TokenLockTest {
     fun testWithTokenExtension() = runBlocking {
         val tokenLock = TokenLockImpl(1)
 
-        tokenLock.withToken(1) {
-            assertThat(tokenLock.size).isEqualTo(1)
-        }
+        tokenLock.withToken(1) { assertThat(tokenLock.size).isEqualTo(1) }
         assertThat(tokenLock.size).isEqualTo(0)
     }
 

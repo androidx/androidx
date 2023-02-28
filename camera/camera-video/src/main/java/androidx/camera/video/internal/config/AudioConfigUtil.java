@@ -16,6 +16,8 @@
 
 package androidx.camera.video.internal.config;
 
+import static java.util.Objects.requireNonNull;
+
 import android.util.Range;
 import android.util.Rational;
 
@@ -23,11 +25,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
-import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.AudioSpec;
 import androidx.camera.video.MediaSpec;
-import androidx.camera.video.internal.AudioSource;
+import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
+import androidx.camera.video.internal.audio.AudioSettings;
+import androidx.camera.video.internal.audio.AudioSource;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
 import androidx.core.util.Supplier;
 
@@ -60,48 +64,48 @@ public final class AudioConfigUtil {
      * Resolves the audio mime information into a {@link MimeInfo}.
      *
      * @param mediaSpec        the media spec to resolve the mime info.
-     * @param camcorderProfile the camcorder profile to resolve the mime info. It can be null if
-     *                         there is no relevant camcorder profile.
+     * @param encoderProfiles  the encoder profiles to resolve the mime info. It can be null if
+     *                         there is no relevant encoder profiles.
      * @return the audio MimeInfo.
      */
     @NonNull
     public static MimeInfo resolveAudioMimeInfo(@NonNull MediaSpec mediaSpec,
-            @Nullable CamcorderProfileProxy camcorderProfile) {
+            @Nullable VideoValidatedEncoderProfilesProxy encoderProfiles) {
         String mediaSpecAudioMime = MediaSpec.outputFormatToAudioMime(mediaSpec.getOutputFormat());
         int mediaSpecAudioProfile =
                 MediaSpec.outputFormatToAudioProfile(mediaSpec.getOutputFormat());
         String resolvedAudioMime = mediaSpecAudioMime;
         int resolvedAudioProfile = mediaSpecAudioProfile;
-        boolean camcorderProfileIsCompatible = false;
-        if (camcorderProfile != null) {
-            String camcorderProfileAudioMime = camcorderProfile.getAudioCodecMimeType();
-            int camcorderProfileAudioProfile = camcorderProfile.getRequiredAudioProfile();
+        boolean encoderProfilesIsCompatible = false;
+        if (encoderProfiles != null && encoderProfiles.getDefaultAudioProfile() != null) {
+            AudioProfileProxy audioProfile = encoderProfiles.getDefaultAudioProfile();
+            String encoderProfileAudioMime = audioProfile.getMediaType();
+            int encoderProfileAudioProfile = audioProfile.getProfile();
 
-            if (camcorderProfileAudioMime == null) {
-                Logger.d(TAG, "CamcorderProfile contains undefined AUDIO mime type so cannot be "
+            if (Objects.equals(encoderProfileAudioMime, AudioProfileProxy.MEDIA_TYPE_NONE)) {
+                Logger.d(TAG, "EncoderProfiles contains undefined AUDIO mime type so cannot be "
                         + "used. May rely on fallback defaults to derive settings [chosen mime "
                         + "type: "
                         + resolvedAudioMime + "(profile: " + resolvedAudioProfile + ")]");
             } else if (mediaSpec.getOutputFormat() == MediaSpec.OUTPUT_FORMAT_AUTO) {
-                camcorderProfileIsCompatible = true;
-                resolvedAudioMime = camcorderProfileAudioMime;
-                resolvedAudioProfile = camcorderProfileAudioProfile;
-                Logger.d(TAG, "MediaSpec contains OUTPUT_FORMAT_AUTO. Using CamcorderProfile "
+                encoderProfilesIsCompatible = true;
+                resolvedAudioMime = encoderProfileAudioMime;
+                resolvedAudioProfile = encoderProfileAudioProfile;
+                Logger.d(TAG, "MediaSpec contains OUTPUT_FORMAT_AUTO. Using EncoderProfiles "
                         + "to derive AUDIO settings [mime type: "
                         + resolvedAudioMime + "(profile: " + resolvedAudioProfile + ")]");
-            } else if (Objects.equals(mediaSpecAudioMime, camcorderProfileAudioMime)
-                    && mediaSpecAudioProfile == camcorderProfileAudioProfile) {
-                camcorderProfileIsCompatible = true;
-                resolvedAudioMime = camcorderProfileAudioMime;
-                resolvedAudioProfile = camcorderProfileAudioProfile;
-                Logger.d(TAG, "MediaSpec audio mime/profile matches CamcorderProfile. "
-                        + "Using CamcorderProfile to derive AUDIO settings [mime type: "
+            } else if (Objects.equals(mediaSpecAudioMime, encoderProfileAudioMime)
+                    && mediaSpecAudioProfile == encoderProfileAudioProfile) {
+                encoderProfilesIsCompatible = true;
+                resolvedAudioMime = encoderProfileAudioMime;
+                Logger.d(TAG, "MediaSpec audio mime/profile matches EncoderProfiles. "
+                        + "Using EncoderProfiles to derive AUDIO settings [mime type: "
                         + resolvedAudioMime + "(profile: " + resolvedAudioProfile + ")]");
             } else {
-                Logger.d(TAG, "MediaSpec audio mime or profile does not match CamcorderProfile, so "
-                        + "CamcorderProfile settings cannot be used. May rely on fallback "
-                        + "defaults to derive AUDIO settings [CamcorderProfile mime type: "
-                        + camcorderProfileAudioMime + "(profile: " + camcorderProfileAudioProfile
+                Logger.d(TAG, "MediaSpec audio mime or profile does not match EncoderProfiles, so "
+                        + "EncoderProfiles settings cannot be used. May rely on fallback defaults"
+                        + " to derive AUDIO settings [EncoderProfiles mime type: "
+                        + encoderProfileAudioMime + "(profile: " + encoderProfileAudioProfile
                         + "), chosen mime type: "
                         + resolvedAudioMime + "(profile: " + resolvedAudioProfile + ")]");
             }
@@ -109,29 +113,30 @@ public final class AudioConfigUtil {
 
         MimeInfo.Builder mimeInfoBuilder = MimeInfo.builder(resolvedAudioMime)
                 .setProfile(resolvedAudioProfile);
-        if (camcorderProfileIsCompatible) {
-            mimeInfoBuilder.setCompatibleCamcorderProfile(camcorderProfile);
+        if (encoderProfilesIsCompatible) {
+            mimeInfoBuilder.setCompatibleEncoderProfiles(encoderProfiles);
         }
 
         return mimeInfoBuilder.build();
     }
 
     /**
-     * Resolves the audio source settings into a {@link AudioSource.Settings}.
+     * Resolves the audio source settings into an {@link AudioSettings}.
      *
      * @param audioMimeInfo the audio mime info.
      * @param audioSpec     the audio spec.
-     * @return a AudioSource.Settings.
+     * @return an AudioSettings.
      */
     @NonNull
-    public static AudioSource.Settings resolveAudioSourceSettings(@NonNull MimeInfo audioMimeInfo,
+    public static AudioSettings resolveAudioSettings(@NonNull MimeInfo audioMimeInfo,
             @NonNull AudioSpec audioSpec) {
-        Supplier<AudioSource.Settings> settingsSupplier;
-        if (audioMimeInfo.getCompatibleCamcorderProfile() != null) {
-            settingsSupplier = new AudioSourceSettingsCamcorderProfileResolver(audioSpec,
-                    audioMimeInfo.getCompatibleCamcorderProfile());
+        Supplier<AudioSettings> settingsSupplier;
+        VideoValidatedEncoderProfilesProxy profiles = audioMimeInfo.getCompatibleEncoderProfiles();
+        if (profiles != null) {
+            AudioProfileProxy audioProfile = requireNonNull(profiles.getDefaultAudioProfile());
+            settingsSupplier = new AudioSettingsAudioProfileResolver(audioSpec, audioProfile);
         } else {
-            settingsSupplier = new AudioSourceSettingsDefaultResolver(audioSpec);
+            settingsSupplier = new AudioSettingsDefaultResolver(audioSpec);
         }
 
         return settingsSupplier.get();
@@ -142,22 +147,24 @@ public final class AudioConfigUtil {
      *
      * @param audioMimeInfo       the audio mime info.
      * @param inputTimebase       the timebase of the input frame.
-     * @param audioSourceSettings the audio source settings.
+     * @param audioSettings       the audio settings.
      * @param audioSpec           the audio spec.
      * @return a AudioEncoderConfig.
      */
     @NonNull
     public static AudioEncoderConfig resolveAudioEncoderConfig(@NonNull MimeInfo audioMimeInfo,
-            @NonNull Timebase inputTimebase, @NonNull AudioSource.Settings audioSourceSettings,
+            @NonNull Timebase inputTimebase, @NonNull AudioSettings audioSettings,
             @NonNull AudioSpec audioSpec) {
         Supplier<AudioEncoderConfig> configSupplier;
-        if (audioMimeInfo.getCompatibleCamcorderProfile() != null) {
-            configSupplier = new AudioEncoderConfigCamcorderProfileResolver(
+        VideoValidatedEncoderProfilesProxy profiles = audioMimeInfo.getCompatibleEncoderProfiles();
+        if (profiles != null) {
+            AudioProfileProxy audioProfile = requireNonNull(profiles.getDefaultAudioProfile());
+            configSupplier = new AudioEncoderConfigAudioProfileResolver(
                     audioMimeInfo.getMimeType(), audioMimeInfo.getProfile(), inputTimebase,
-                    audioSpec, audioSourceSettings, audioMimeInfo.getCompatibleCamcorderProfile());
+                    audioSpec, audioSettings, audioProfile);
         } else {
             configSupplier = new AudioEncoderConfigDefaultResolver(audioMimeInfo.getMimeType(),
-                    audioMimeInfo.getProfile(), inputTimebase, audioSpec, audioSourceSettings);
+                    audioMimeInfo.getProfile(), inputTimebase, audioSpec, audioSettings);
         }
 
         return configSupplier.get();
@@ -218,7 +225,7 @@ public final class AudioConfigUtil {
                 Logger.d(TAG,
                         "Trying common sample rates in proximity order to target "
                                 + initialTargetSampleRate + "Hz");
-                sortedCommonSampleRates = new ArrayList<>(AudioSource.COMMON_SAMPLE_RATES);
+                sortedCommonSampleRates = new ArrayList<>(AudioSettings.COMMON_SAMPLE_RATES);
                 Collections.sort(sortedCommonSampleRates, (x, y) -> {
                     int relativeDifference = Math.abs(x - initialTargetSampleRate) - Math.abs(
                             y - initialTargetSampleRate);

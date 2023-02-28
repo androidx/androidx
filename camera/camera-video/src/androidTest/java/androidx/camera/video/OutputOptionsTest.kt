@@ -40,6 +40,9 @@ class OutputOptionsTest {
 
     companion object {
         private const val FILE_SIZE_LIMIT = 1024L
+        private const val DURATION_LIMIT = 10000L
+        private const val INVALID_FILE_SIZE_LIMIT = -1L
+        private const val INVALID_DURATION_LIMIT = -1L
     }
 
     @Test
@@ -48,12 +51,10 @@ class OutputOptionsTest {
         savedFile.deleteOnExit()
 
         val fileOutputOptions = FileOutputOptions.Builder(savedFile)
-            .setFileSizeLimit(FILE_SIZE_LIMIT)
             .build()
 
         assertThat(fileOutputOptions).isNotNull()
-        assertThat(fileOutputOptions.file).isNotNull()
-        assertThat(fileOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
+        assertThat(fileOutputOptions.file).isEqualTo(savedFile)
         savedFile.delete()
     }
 
@@ -71,14 +72,15 @@ class OutputOptionsTest {
         val mediaStoreOutputOptions = MediaStoreOutputOptions.Builder(
             contentResolver,
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        ).setContentValues(contentValues).setFileSizeLimit(FILE_SIZE_LIMIT).build()
+        ).setContentValues(contentValues)
+            .build()
 
+        assertThat(mediaStoreOutputOptions).isNotNull()
         assertThat(mediaStoreOutputOptions.contentResolver).isEqualTo(contentResolver)
         assertThat(mediaStoreOutputOptions.collectionUri).isEqualTo(
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         )
         assertThat(mediaStoreOutputOptions.contentValues).isEqualTo(contentValues)
-        assertThat(mediaStoreOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
     }
 
     @Test
@@ -90,23 +92,11 @@ class OutputOptionsTest {
             ParcelFileDescriptor.MODE_READ_WRITE
         ).use { pfd ->
             val fdOutputOptions = FileDescriptorOutputOptions.Builder(pfd)
-                .setFileSizeLimit(FILE_SIZE_LIMIT)
                 .build()
 
             assertThat(fdOutputOptions).isNotNull()
-            assertThat(fdOutputOptions.parcelFileDescriptor).isNotNull()
-            assertThat(fdOutputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
+            assertThat(fdOutputOptions.parcelFileDescriptor).isEqualTo(pfd)
         }
-        savedFile.delete()
-    }
-
-    @Test
-    fun file_builderContainsCorrectDefaults() {
-        val savedFile = File.createTempFile("CameraX", ".tmp")
-        savedFile.deleteOnExit()
-        val fileOutputOptions = FileOutputOptions.Builder(savedFile).build()
-
-        assertThat(fileOutputOptions.fileSizeLimit).isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
         savedFile.delete()
     }
 
@@ -122,29 +112,41 @@ class OutputOptionsTest {
 
         assertThat(mediaStoreOutputOptions.contentValues)
             .isEqualTo(MediaStoreOutputOptions.EMPTY_CONTENT_VALUES)
-        assertThat(mediaStoreOutputOptions.fileSizeLimit)
-            .isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
     }
 
     @Test
-    fun fileDescriptor_builderContainsCorrectDefaults() {
-        val savedFile = File.createTempFile("CameraX", ".tmp")
-        ParcelFileDescriptor.open(
-            savedFile,
-            ParcelFileDescriptor.MODE_READ_WRITE
-        ).use { pfd ->
-            val fdOutputOptions = FileDescriptorOutputOptions.Builder(pfd).build()
+    fun canBuildOutputOptions() {
+        val outputOptions = FakeOutputOptions.Builder()
+            .setFileSizeLimit(FILE_SIZE_LIMIT)
+            .setDurationLimitMillis(DURATION_LIMIT)
+            .build()
 
-            assertThat(fdOutputOptions.fileSizeLimit).isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
-        }
-        savedFile.delete()
+        assertThat(outputOptions).isNotNull()
+        assertThat(outputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
+        assertThat(outputOptions.durationLimitMillis).isEqualTo(DURATION_LIMIT)
     }
 
     @Test
-    fun defaultLocationIsNull() {
+    fun defaultValuesCorrect() {
         val outputOptions = FakeOutputOptions.Builder().build()
 
         assertThat(outputOptions.location).isNull()
+        assertThat(outputOptions.fileSizeLimit).isEqualTo(OutputOptions.FILE_SIZE_UNLIMITED)
+        assertThat(outputOptions.durationLimitMillis).isEqualTo(OutputOptions.DURATION_UNLIMITED)
+    }
+
+    @Test
+    fun invalidFileSizeLimit_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            FakeOutputOptions.Builder().setFileSizeLimit(INVALID_FILE_SIZE_LIMIT)
+        }
+    }
+
+    @Test
+    fun invalidDurationLimit_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            FakeOutputOptions.Builder().setDurationLimitMillis(INVALID_DURATION_LIMIT)
+        }
     }
 
     @Test

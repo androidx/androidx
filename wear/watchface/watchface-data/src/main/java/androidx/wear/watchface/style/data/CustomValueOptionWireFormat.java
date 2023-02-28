@@ -21,16 +21,14 @@ import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
- * Wire format for {@link
- * androidx.wear.watchface.style.CustomValueStyleSetting.CustomValueOption}.
+ * Wire format for {@link androidx.wear.watchface.style.CustomValueStyleSetting.CustomValueOption}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 public class CustomValueOptionWireFormat extends OptionWireFormat {
-    CustomValueOptionWireFormat() {
-    }
+    CustomValueOptionWireFormat() {}
 
     // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
 

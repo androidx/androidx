@@ -15,20 +15,20 @@
  */
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XType
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.TypeAdapterExtras
 import androidx.room.solver.query.result.QueryResultBinder
-import com.squareup.javapoet.TypeName
 
 /**
  * Common functionality for binder providers that require an additional artifact
  */
 fun QueryResultBinderProvider.requireArtifact(
     context: Context,
-    requiredType: TypeName,
+    requiredType: XClassName,
     missingArtifactErrorMsg: String
 ): QueryResultBinderProvider = QueryResultBinderProviderWithRequiredArtifact(
     context = context,
@@ -39,12 +39,12 @@ fun QueryResultBinderProvider.requireArtifact(
 
 private class QueryResultBinderProviderWithRequiredArtifact(
     val context: Context,
-    val requiredType: TypeName,
+    val requiredType: XClassName,
     val missingArtifactErrorMsg: String,
     val delegate: QueryResultBinderProvider
 ) : QueryResultBinderProvider {
     private val hasRequiredArtifact by lazy(LazyThreadSafetyMode.NONE) {
-        context.processingEnv.findTypeElement(requiredType) != null
+        context.processingEnv.findTypeElement(requiredType.canonicalName) != null
     }
 
     override fun provide(

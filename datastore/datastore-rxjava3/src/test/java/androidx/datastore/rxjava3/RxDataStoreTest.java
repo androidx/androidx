@@ -69,7 +69,8 @@ public class RxDataStoreTest {
                         .build();
 
         TestSubscriber<Byte> testSubscriber = byteStore.data().test();
-
+        // wait for the initial value
+        testSubscriber.awaitCount(1);
         byteStore.updateDataAsync(RxDataStoreTest::incrementByte);
         // Wait for our subscriber to see the second write, otherwise we may skip from 0 - 2
         testSubscriber.awaitCount(2);

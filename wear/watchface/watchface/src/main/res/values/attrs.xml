@@ -43,6 +43,8 @@
         <enum name="MONOCHROMATIC_IMAGE" value="6" />
         <enum name="SMALL_IMAGE" value="7" />
         <enum name="PHOTO_IMAGE" value="8" />
+        <enum name="GOAL_PROGRESS" value="13" />
+        <enum name="WEIGHTED_ELEMENTS" value="14" />
     </attr>
 
     <!-- Optional. Second of two non-system data source ComponentNames to be tried in turn. -->
@@ -58,6 +60,8 @@
         <enum name="MONOCHROMATIC_IMAGE" value="6" />
         <enum name="SMALL_IMAGE" value="7" />
         <enum name="PHOTO_IMAGE" value="8" />
+        <enum name="GOAL_PROGRESS" value="13" />
+        <enum name="WEIGHTED_ELEMENTS" value="14" />
     </attr>
 
     <!-- Required. Fallback in case none of the non-system data sources could be used.
@@ -88,6 +92,8 @@
         <enum name="MONOCHROMATIC_IMAGE" value="6" />
         <enum name="SMALL_IMAGE" value="7" />
         <enum name="PHOTO_IMAGE" value="8" />
+        <enum name="GOAL_PROGRESS" value="13" />
+        <enum name="WEIGHTED_ELEMENTS" value="14" />
     </attr>
 
     <!-- A ComplicationSlot may have a single ComplicationSlotBounds child node without a

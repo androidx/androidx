@@ -99,18 +99,17 @@ class FragmentViewModelLazyTest {
             enableSavedStateHandles()
         }
 
-        override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
-            return SavedStateViewModelFactory()
-        }
+        override val defaultViewModelProviderFactory = SavedStateViewModelFactory()
 
-        override fun getDefaultViewModelCreationExtras(): CreationExtras {
-            val extras = MutableCreationExtras()
-            extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] = application
-            extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
-            extras[VIEW_MODEL_STORE_OWNER_KEY] = this
-            extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
-            return extras
-        }
+        override val defaultViewModelCreationExtras: CreationExtras
+            get() {
+                val extras = MutableCreationExtras()
+                extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] = application
+                extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
+                extras[VIEW_MODEL_STORE_OWNER_KEY] = this
+                extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
+                return extras
+            }
     }
 
     class TestViewModel : ViewModel()

@@ -26,7 +26,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertWithMessage
+import leakcanary.DetectLeaksAfterTestSuccess
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -34,9 +37,12 @@ import org.junit.runner.RunWith
 @LargeTest
 class FragmentResultTest {
 
+    @get:Rule
+    val rule = DetectLeaksAfterTestSuccess()
+
     @Test
     fun testReplaceResult() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -78,7 +84,7 @@ class FragmentResultTest {
 
     @Test
     fun testClearResult() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -121,7 +127,7 @@ class FragmentResultTest {
 
     @Test
     fun testClearResultListener() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -150,7 +156,7 @@ class FragmentResultTest {
 
     @Test
     fun testClearResultListenerInCallback() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -195,7 +201,7 @@ class FragmentResultTest {
 
     @Test
     fun testResetResultListener() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -243,7 +249,7 @@ class FragmentResultTest {
 
     @Test
     fun testSetResultWhileResumed() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -276,7 +282,7 @@ class FragmentResultTest {
 
     @Test
     fun testStoredSetResultWhileResumed() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -311,7 +317,7 @@ class FragmentResultTest {
 
     @Test
     fun testReplaceResultSavedRestore() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             var fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -359,7 +365,7 @@ class FragmentResultTest {
 
     @Test
     fun testChildFragmentResult() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -386,7 +392,7 @@ class FragmentResultTest {
 
     @Test
     fun testReplaceResultWithParcelableOnRecreation() {
-        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             var fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager

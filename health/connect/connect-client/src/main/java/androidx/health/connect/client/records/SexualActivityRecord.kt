@@ -15,8 +15,8 @@
  */
 package androidx.health.connect.client.records
 
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
-import androidx.annotation.StringDef
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -26,15 +26,15 @@ import java.time.ZoneOffset
  * field is optional.
  */
 public class SexualActivityRecord(
+    override val time: Instant,
+    override val zoneOffset: ZoneOffset?,
     /**
      * Whether protection was used during sexual activity. Optional field, null if unknown. Allowed
      * values: [Protection].
      *
      * @see Protection
      */
-    @property:Protections public val protectionUsed: String? = null,
-    override val time: Instant,
-    override val zoneOffset: ZoneOffset?,
+    @property:Protections public val protectionUsed: Int = PROTECTION_USED_UNKNOWN,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
     override fun equals(other: Any?): Boolean {
@@ -50,16 +50,34 @@ public class SexualActivityRecord(
     }
 
     override fun hashCode(): Int {
-        var result = 0
-        result = 31 * result + protectionUsed.hashCode()
+        var result = protectionUsed
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
     }
 
+    companion object {
+        const val PROTECTION_USED_UNKNOWN = 0
+        const val PROTECTION_USED_PROTECTED = 1
+        const val PROTECTION_USED_UNPROTECTED = 2
+
+        /** Internal mappings useful for interoperability between integers and strings. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val PROTECTION_USED_STRING_TO_INT_MAP: Map<String, Int> =
+            mapOf(
+                Protection.PROTECTED to PROTECTION_USED_PROTECTED,
+                Protection.UNPROTECTED to PROTECTION_USED_UNPROTECTED,
+            )
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmField
+        val PROTECTION_USED_INT_TO_STRING_MAP = PROTECTION_USED_STRING_TO_INT_MAP.reverse()
+    }
+
     /** Whether protection was used during sexual activity. */
-    public object Protection {
+    internal object Protection {
         const val PROTECTED = "protected"
         const val UNPROTECTED = "unprotected"
     }
@@ -69,11 +87,11 @@ public class SexualActivityRecord(
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
-    @StringDef(
+    @IntDef(
         value =
             [
-                SexualActivityRecord.Protection.PROTECTED,
-                SexualActivityRecord.Protection.UNPROTECTED,
+                PROTECTION_USED_PROTECTED,
+                PROTECTION_USED_UNPROTECTED,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)

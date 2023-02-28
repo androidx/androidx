@@ -22,12 +22,12 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -47,19 +47,15 @@ import java.util.Objects;
  * @see Screen#onGetTemplate()
  */
 @RequiresCarApi(2)
+@KeepFields
 public final class LongMessageTemplate implements Template {
-    @Keep
     @Nullable
     private final CarText mTitle;
-    @Keep
     @Nullable
     private final CarText mMessage;
-    @Keep
     @Nullable
     private final Action mHeaderAction;
-    @Keep
     private final List<Action> mActionList;
-    @Keep
     @Nullable
     private final ActionStrip mActionStrip;
 

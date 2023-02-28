@@ -34,9 +34,9 @@ class ByMatcher {
 
     private static final String TAG = ByMatcher.class.getSimpleName();
 
-    private UiDevice mDevice;
-    private BySelector mSelector;
-    private boolean mShortCircuit;
+    private final UiDevice mDevice;
+    private final BySelector mSelector;
+    private final boolean mShortCircuit;
 
     /**
      * Constructs a new {@link ByMatcher} instance. Used by
@@ -89,7 +89,7 @@ class ByMatcher {
     static List<AccessibilityNodeInfo> findMatches(UiDevice device, BySelector selector,
             AccessibilityNodeInfo... roots) {
 
-        List<AccessibilityNodeInfo> ret = new ArrayList<AccessibilityNodeInfo>();
+        List<AccessibilityNodeInfo> ret = new ArrayList<>();
         ByMatcher matcher = new ByMatcher(device, selector, false);
         for (AccessibilityNodeInfo root : roots) {
             ret.addAll(matcher.findMatches(root));
@@ -108,13 +108,13 @@ class ByMatcher {
      */
     private List<AccessibilityNodeInfo> findMatches(AccessibilityNodeInfo root) {
         List<AccessibilityNodeInfo> ret =
-                findMatches(root, 0, 0, new SinglyLinkedList<PartialMatch>());
+                findMatches(root, 0, 0, new SinglyLinkedList<>());
 
         // If no matches were found
         if (ret.isEmpty()) {
             // Run watchers and retry
             mDevice.runWatchers();
-            ret = findMatches(root, 0, 0, new SinglyLinkedList<PartialMatch>());
+            ret = findMatches(root, 0, 0, new SinglyLinkedList<>());
         }
 
         return ret;
@@ -134,10 +134,11 @@ class ByMatcher {
      */
     private List<AccessibilityNodeInfo> findMatches(AccessibilityNodeInfo node,
             int index, int depth, SinglyLinkedList<PartialMatch> partialMatches) {
-        List<AccessibilityNodeInfo> ret = new ArrayList<AccessibilityNodeInfo>();
+        List<AccessibilityNodeInfo> ret = new ArrayList<>();
 
         // Don't bother searching the subtree if it is not visible
         if (!node.isVisibleToUser()) {
+            Log.v(TAG, String.format("Skipping invisible child: %s", node));
             return ret;
         }
 
@@ -159,7 +160,7 @@ class ByMatcher {
             AccessibilityNodeInfo child = node.getChild(i);
             if (child == null) {
                 if (!hasNullChild) {
-                    Log.w(TAG, String.format("Node returned null child: %s", node.toString()));
+                    Log.w(TAG, String.format("Node returned null child: %s", node));
                 }
                 hasNullChild = true;
                 Log.w(TAG, String.format("Skipping null child (%s of %s)", i, numChildren));
@@ -211,7 +212,7 @@ class ByMatcher {
     static private class PartialMatch {
         private final int matchDepth;
         private final BySelector matchSelector;
-        private final List<PartialMatch> partialMatches = new ArrayList<PartialMatch>();
+        private final List<PartialMatch> partialMatches = new ArrayList<>();
 
         /**
          * Private constructor. Should be instanciated by calling the
@@ -315,7 +316,7 @@ class ByMatcher {
          */
         public boolean finalizeMatch() {
             // Find out which of our child selectors were fully matched
-            Set<BySelector> matches = new HashSet<BySelector>();
+            Set<BySelector> matches = new HashSet<>();
             for (PartialMatch p : partialMatches) {
                 if (p.finalizeMatch()) {
                     matches.add(p.matchSelector);
@@ -346,7 +347,7 @@ class ByMatcher {
 
         /** Returns a new list obtained by prepending {@code data} to {@code rest}. */
         public static <T> SinglyLinkedList<T> prepend(T data, SinglyLinkedList<T> rest) {
-            return new SinglyLinkedList<T>(new Node<T>(data, rest.mHead));
+            return new SinglyLinkedList<>(new Node<>(data, rest.mHead));
         }
 
         @Override

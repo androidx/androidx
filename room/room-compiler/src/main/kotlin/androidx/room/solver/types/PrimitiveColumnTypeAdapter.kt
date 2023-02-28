@@ -85,8 +85,29 @@ class PrimitiveColumnTypeAdapter(
         valueVarName: String,
         scope: CodeGenScope
     ) {
+        // These primitives don't have an exact statement setter.
+        val castFunction = when (primitive) {
+            Primitive.INT, Primitive.SHORT, Primitive.BYTE, Primitive.CHAR -> "toLong"
+            Primitive.FLOAT -> "toDouble"
+            else -> null
+        }
+        val valueExpr = when (scope.language) {
+            CodeLanguage.JAVA -> {
+                // For Java, with the language's primitive type casting, value variable can be
+                // used as bind argument directly.
+                XCodeBlock.of(scope.language, "%L", valueVarName)
+            }
+            CodeLanguage.KOTLIN -> {
+                // For Kotlin, a converter function is emitted when a cast is needed.
+                if (castFunction != null) {
+                    XCodeBlock.of(scope.language, "%L.%L()", valueVarName, castFunction)
+                } else {
+                    XCodeBlock.of(scope.language, "%L", valueVarName)
+                }
+            }
+        }
         scope.builder
-            .addStatement("%L.%L(%L, %L)", stmtName, stmtSetter, indexVarName, valueVarName)
+            .addStatement("%L.%L(%L, %L)", stmtName, stmtSetter, indexVarName, valueExpr)
     }
 
     override fun readFromCursor(

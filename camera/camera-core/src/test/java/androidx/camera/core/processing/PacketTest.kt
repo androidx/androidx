@@ -24,6 +24,7 @@ import android.os.Build
 import android.util.Size
 import androidx.camera.testing.ExifUtil.createExif
 import androidx.camera.testing.TestImageUtil.createJpegBytes
+import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,7 +53,8 @@ class PacketTest {
             createExif(createJpegBytes(40, 30)),
             Rect(0, 0, 100, 200),
             0,
-            Matrix()
+            Matrix(),
+            FakeCameraCaptureResult()
         )
 
         // Assert.

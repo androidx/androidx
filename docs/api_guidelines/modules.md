@@ -125,18 +125,23 @@ module from within Android Studio.
     library, e.g. `androidx.room:room-testing`
 *   `-core` for a low-level artifact that *may* contain public APIs but is
     primarily intended for use by other libraries in the group
-*   `-ktx` for an Kotlin artifact that exposes idiomatic Kotlin APIs as an
-    extension to a Java-only library (see
-    [additional -ktx guidance](#module-ktx))
+*   `-common` for a low-level, platform-agnostic Kotlin multi-platform artifact
+    intended for both client use and use by other libraries in the group
+*   `-ktx` for a Kotlin artifact that exposes idiomatic Kotlin APIs as an
+    extension to a Java-only library. Note that new modules should be written in
+    Kotlin rather than using `-ktx` artifacts.
 *   `-samples` for sample code which can be inlined in documentation (see
     [Sample code in Kotlin modules](#sample-code-in-kotlin-modules)
 *   `-<third-party>` for an artifact that integrates an optional third-party API
-    surface, e.g. `-proto` or `-rxjava2`. Note that a major version is included
-    in the sub-feature name for third-party API surfaces where the major version
-    indicates binary compatibility (only needed for post-1.x).
+    surface, e.g. `-proto`, `-guava`, or `-rxjava2`. This is common for Kotlin
+    libraries adapting their async APIs for Java clients. Note that a major
+    version is included in the sub-feature name (ex. `rxjava3`) for third-party
+    API surfaces where the major version indicates binary compatibility (only
+    needed for post-1.x).
 
 Artifacts **should not** use `-impl` or `-base` to indicate that a library is an
-implementation detail shared within the group. Instead, use `-core`.
+implementation detail shared within the group. Instead, use `-core` or `-common`
+as appropriate.
 
 #### Splitting existing modules
 
@@ -219,7 +224,18 @@ Potential drawbacks include:
 
 There is one exception to the same-version policy: newly-added libraries within
 an atomic group may be "quarantined" from other libraries to allow for rapid
-iteration until they are API-stable.
+iteration until they are API-stable. For example:
+
+```groovy
+androidx {
+    name = "androidx.emoji2:emoji2-emojipicker"
+    mavenVersion = LibraryVersions.EMOJI2_QUARANTINE
+}
+```
+
+```groovy
+EMOJI2_QUARANTINE = "1.0.0-alpha01"
+```
 
 A quarantined library must stay within the `1.0.0-alphaXX` cycle until it is
 ready to conform to the same-version policy. While in quarantime, a library is
@@ -235,6 +251,47 @@ When the library would like to leave quarantine, it must wait for its atomic
 group to be within a `beta` cycle and then match the version. It is okay for a
 library in this situation to skip versions, e.g. move directly from
 `1.0.0-alpha02` to `2.1.3-beta06`.
+
+#### Kotlin Multiplatform library versions {#modules-kmp-versioning}
+
+When a library adds [Kotlin Multiplatform](/company/teams/androidx/kmp.md)
+support, it is permitted to have different versions for the multiplatform
+artifacts until they reach alpha quality.
+
+##### Atomic Kotlin Multiplatform versions
+
+To specify an atomic version group for the Kotlin Multiplatform artifacts, use
+the `multiplatformGroupVersion` property in the `libraryversions.toml` file.
+
+```
+[versions]
+DATASTORE = "1.2.3"
+DATASTORE_KMP = "1.2.3-dev05"
+[groups]
+DATASTORE = { group = "androidx.datastore", atomicGroupVersion = "versions.DATASTORE", multiplatformGroupVersion = "versions.DATASTORE_KMP" }
+```
+
+Note that you can specify a `multiplatformGroupVersion` if and only if you are
+also specifying a `atomicGroupVersion`.
+
+##### Non atomic Kotlin Multiplatform versions
+
+If your Kotlin Multiplatform Library does not have atomic version groups, you
+can specify a KMP specifc version in the `build gradle` file:
+
+```groovy
+import androidx.build.KmpPlatformsKt
+...
+
+androidx {
+    name = "Android Support Library collections"
+    type = LibraryType.KMP_LIBRARY
+    mavenGroup = LibraryGroups.COLLECTION
+    mavenVersion = KmpPlatformsKt.enableNative(project) ? LibraryVersions.COLLECTION_KMP : LibraryVersions.KMP
+    inceptionYear = "2018"
+    description = "Standalone efficient collections."
+}
+```
 
 ### Choosing a `minSdkVersion` {#module-minsdkversion}
 
@@ -263,21 +320,24 @@ Note that this pattern is *not recommended* because it leads to confusion for
 external developers and should be considered a last-resort when backporting
 behavior is not feasible.
 
-### Kotlin extension `-ktx` libraries {#module-ktx}
+### Extension libraries (`-ktx`, `-guava`, etc.) {#module-ktx}
 
 New libraries should prefer Kotlin sources with built-in Java compatibility via
-`@JvmName` and other affordances of the Kotlin language; however, existing Java
-sourced libraries may benefit from extending their API surface with
-Kotlin-friendly APIs in a `-ktx` library.
+`@JvmName` and other affordances of the Kotlin language. They may optionally
+expose framework- or language-specific extension libraries like `-guava` or
+`-rxjava3`.
 
-A Kotlin extension library **may only** provide extensions for a single base
-library's API surface and its name **must** match the base library exactly. For
-example, `work:work-ktx` may only provide extensions for APIs exposed by
-`work:work`.
+Existing Java-sourced libraries may benefit from extending their API surface
+with Kotlin-friendly APIs in a `-ktx` extension library.
+
+Extension libraries **may only** provide extensions for a single base library's
+API surface and its name **must** match the base library exactly. For example,
+`work:work-ktx` may only provide extensions for APIs exposed by `work:work`.
 
 Additionally, an extension library **must** specify an `api`-type dependency on
 the base library and **must** be versioned and released identically to the base
 library.
 
-Kotlin extension libraries *should not* expose new functionality; they should
-only provide Kotlin-friendly versions of existing Java-facing functionality.
+Extension libraries *should not* expose new functionality; they should only
+provide language- or framework-friendly versions of existing library
+functionality.

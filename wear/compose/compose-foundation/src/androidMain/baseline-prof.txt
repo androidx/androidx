@@ -6,6 +6,8 @@ HSPLandroidx/wear/compose/foundation/BasicCurvedTextKt**->**(**)**
 HSPLandroidx/wear/compose/foundation/ContainerChild;->**(**)**
 Landroidx/wear/compose/foundation/CurvedAlignment;
 HSPLandroidx/wear/compose/foundation/CurvedChild;->**(**)**
+Landroidx/wear/compose/foundation/CurvedComposableChild;
+HSPLandroidx/wear/compose/foundation/CurvedComposableKt**->**(**)**
 HSPLandroidx/wear/compose/foundation/CurvedDirection;->**(**)**
 HSPLandroidx/wear/compose/foundation/CurvedLayoutDirection;->**(**)**
 HSPLandroidx/wear/compose/foundation/CurvedLayoutInfo;->**(**)**

@@ -205,8 +205,9 @@ class PreviewViewMeteringPointFactoryDeviceTest(
         val previewTransformation = PreviewTransformation()
         previewTransformation.scaleType = scaleType
         previewTransformation.setTransformationInfo(
-            SurfaceRequest.TransformationInfo.of
-            (cropRect, rotationDegrees, FAKE_TARGET_ROTATION),
+            SurfaceRequest.TransformationInfo.of(
+                cropRect, rotationDegrees, FAKE_TARGET_ROTATION, /*hasCameraTransform=*/true
+            ),
             surfaceSize, isFrontCamera
         )
         val meteringPointFactory = PreviewViewMeteringPointFactory(previewTransformation)

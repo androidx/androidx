@@ -47,8 +47,6 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
             Option.create("camerax.core.imageCapture.flashMode", int.class);
     public static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
             Option.create("camerax.core.imageCapture.captureBundle", CaptureBundle.class);
-    public static final Option<CaptureProcessor> OPTION_CAPTURE_PROCESSOR =
-            Option.create("camerax.core.imageCapture.captureProcessor", CaptureProcessor.class);
     public static final Option<Integer> OPTION_BUFFER_FORMAT =
             Option.create("camerax.core.imageCapture.bufferFormat", Integer.class);
     public static final Option<Integer> OPTION_MAX_CAPTURE_STAGES =
@@ -141,29 +139,6 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     @NonNull
     public CaptureBundle getCaptureBundle() {
         return retrieveOption(OPTION_CAPTURE_BUNDLE);
-    }
-
-    /**
-     * Returns the {@link CaptureProcessor}.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
-    public CaptureProcessor getCaptureProcessor(@Nullable CaptureProcessor valueIfMissing) {
-        return retrieveOption(OPTION_CAPTURE_PROCESSOR, valueIfMissing);
-    }
-
-    /**
-     * Returns the {@link CaptureProcessor}.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @NonNull
-    public CaptureProcessor getCaptureProcessor() {
-        return retrieveOption(OPTION_CAPTURE_PROCESSOR);
     }
 
     /**

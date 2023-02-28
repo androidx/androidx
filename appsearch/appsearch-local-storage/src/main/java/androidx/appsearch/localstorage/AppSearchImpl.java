@@ -43,6 +43,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
+import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
@@ -474,9 +475,15 @@ public final class AppSearchImpl implements Closeable {
             boolean forceOverride,
             int version,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder) throws AppSearchException {
+        long javaLockAcquisitionLatencyStartMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
+            if (setSchemaStatsBuilder != null) {
+                setSchemaStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime()
+                                - javaLockAcquisitionLatencyStartMillis));
+            }
             if (mObserverManager.isPackageObserved(packageName)) {
                 return doSetSchemaWithChangeNotificationLocked(
                         packageName,
@@ -521,12 +528,21 @@ public final class AppSearchImpl implements Closeable {
         // whether each registered observer can access each type. Once VisibilityStore is updated
         // by the setSchema call, the information of which observers could see which types will be
         // lost.
+        long getOldSchemaStartTimeMillis = SystemClock.elapsedRealtime();
         GetSchemaResponse oldSchema = getSchema(
                 packageName,
                 databaseName,
                 // A CallerAccess object for internal use that has local access to this database.
                 new CallerAccess(/*callingPackageName=*/packageName));
+        long getOldSchemaEndTimeMillis = SystemClock.elapsedRealtime();
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setIsPackageObserved(true)
+                    .setGetOldSchemaLatencyMillis(
+                            (int) (getOldSchemaEndTimeMillis - getOldSchemaStartTimeMillis));
+        }
 
+        int getOldSchemaObserverStartTimeMillis =
+                (int) (SystemClock.elapsedRealtime() - getOldSchemaEndTimeMillis);
         // Cache some lookup tables to help us work with the old schema
         Set<AppSearchSchema> oldSchemaTypes = oldSchema.getSchemas();
         Map<String, AppSearchSchema> oldSchemaNameToType = new ArrayMap<>(oldSchemaTypes.size());
@@ -546,6 +562,8 @@ public final class AppSearchImpl implements Closeable {
                             mVisibilityStoreLocked,
                             mVisibilityCheckerLocked));
         }
+        int getOldSchemaObserverLatencyMillis =
+                (int) (SystemClock.elapsedRealtime() - getOldSchemaObserverStartTimeMillis);
 
         // Apply the new schema
         InternalSetSchemaResponse internalSetSchemaResponse = doSetSchemaNoChangeNotificationLocked(
@@ -563,6 +581,7 @@ public final class AppSearchImpl implements Closeable {
             return internalSetSchemaResponse;
         }
 
+        long getNewSchemaObserverStartTimeMillis = SystemClock.elapsedRealtime();
         // Cache some lookup tables to help us work with the new schema
         Map<String, AppSearchSchema> newSchemaNameToType = new ArrayMap<>(schemas.size());
         // Maps unprefixed schema name to the set of listening packages that have visibility into
@@ -581,7 +600,14 @@ public final class AppSearchImpl implements Closeable {
                             mVisibilityStoreLocked,
                             mVisibilityCheckerLocked));
         }
+        long getNewSchemaObserverEndTimeMillis = SystemClock.elapsedRealtime();
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setGetObserverLatencyMillis(getOldSchemaObserverLatencyMillis
+                    + (int) (getNewSchemaObserverEndTimeMillis
+                    - getNewSchemaObserverStartTimeMillis));
+        }
 
+        long preparingChangeNotificationStartTimeMillis = SystemClock.elapsedRealtime();
         // Create a unified set of all schema names mentioned in either the old or new schema.
         Set<String> allSchemaNames = new ArraySet<>(oldSchemaNameToType.keySet());
         allSchemaNames.addAll(newSchemaNameToType.keySet());
@@ -650,6 +676,11 @@ public final class AppSearchImpl implements Closeable {
                 }
             }
         }
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setPreparingChangeNotificationLatencyMillis(
+                    (int) (SystemClock.elapsedRealtime()
+                            - preparingChangeNotificationStartTimeMillis));
+        }
 
         return internalSetSchemaResponse;
     }
@@ -672,6 +703,7 @@ public final class AppSearchImpl implements Closeable {
             boolean forceOverride,
             int version,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder) throws AppSearchException {
+        long setRewriteSchemaLatencyMillis = SystemClock.elapsedRealtime();
         SchemaProto.Builder existingSchemaBuilder = getSchemaProtoLocked().toBuilder();
 
         SchemaProto.Builder newSchemaBuilder = SchemaProto.newBuilder();
@@ -689,17 +721,27 @@ public final class AppSearchImpl implements Closeable {
                 existingSchemaBuilder,
                 newSchemaBuilder.build());
 
+        long rewriteSchemaEndTimeMillis = SystemClock.elapsedRealtime();
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setRewriteSchemaLatencyMillis(
+                    (int) (rewriteSchemaEndTimeMillis - setRewriteSchemaLatencyMillis));
+        }
+
         // Apply schema
+        long nativeLatencyStartTimeMillis = SystemClock.elapsedRealtime();
         SchemaProto finalSchema = existingSchemaBuilder.build();
         LogUtil.piiTrace(TAG, "setSchema, request", finalSchema.getTypesCount(), finalSchema);
         SetSchemaResultProto setSchemaResultProto =
                 mIcingSearchEngineLocked.setSchema(finalSchema, forceOverride);
         LogUtil.piiTrace(
                 TAG, "setSchema, response", setSchemaResultProto.getStatus(), setSchemaResultProto);
-
+        long nativeLatencyEndTimeMillis = SystemClock.elapsedRealtime();
         if (setSchemaStatsBuilder != null) {
-            setSchemaStatsBuilder.setStatusCode(statusProtoToResultCode(
-                    setSchemaResultProto.getStatus()));
+            setSchemaStatsBuilder
+                    .setTotalNativeLatencyMillis(
+                            (int) (nativeLatencyEndTimeMillis - nativeLatencyStartTimeMillis))
+                    .setStatusCode(statusProtoToResultCode(
+                            setSchemaResultProto.getStatus()));
             AppSearchLoggerHelper.copyNativeStats(setSchemaResultProto,
                     setSchemaStatsBuilder);
         }
@@ -727,6 +769,7 @@ public final class AppSearchImpl implements Closeable {
             }
         }
 
+        long saveVisibilitySettingStartTimeMillis = SystemClock.elapsedRealtime();
         // Update derived data structures.
         for (SchemaTypeConfigProto schemaTypeConfigProto :
                 rewrittenSchemaResults.mRewrittenPrefixedTypes.values()) {
@@ -768,8 +811,24 @@ public final class AppSearchImpl implements Closeable {
             mVisibilityStoreLocked.removeVisibility(deprecatedVisibilityDocuments);
             mVisibilityStoreLocked.setVisibility(prefixedVisibilityDocuments);
         }
-        return newSuccessfulSetSchemaResponse(SetSchemaResponseToProtoConverter
-                .toSetSchemaResponse(setSchemaResultProto, prefix));
+        long saveVisibilitySettingEndTimeMillis = SystemClock.elapsedRealtime();
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setVisibilitySettingLatencyMillis(
+                    (int) (saveVisibilitySettingEndTimeMillis
+                            - saveVisibilitySettingStartTimeMillis));
+        }
+
+        long convertToResponseStartTimeMillis = SystemClock.elapsedRealtime();
+        InternalSetSchemaResponse setSchemaResponse = newSuccessfulSetSchemaResponse(
+                SetSchemaResponseToProtoConverter
+                        .toSetSchemaResponse(setSchemaResultProto, prefix));
+        long convertToResponseEndTimeMillis = SystemClock.elapsedRealtime();
+        if (setSchemaStatsBuilder != null) {
+            setSchemaStatsBuilder.setConvertToResponseLatencyMillis(
+                    (int) (convertToResponseEndTimeMillis
+                            - convertToResponseStartTimeMillis));
+        }
+        return setSchemaResponse;
     }
 
     /**
@@ -1245,8 +1304,14 @@ public final class AppSearchImpl implements Closeable {
                             packageName).setDatabase(databaseName);
         }
 
+        long javaLockAcquisitionLatencyStartMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.readLock().lock();
         try {
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime()
+                                - javaLockAcquisitionLatencyStartMillis));
+            }
             throwIfClosedLocked();
 
             List<String> filterPackageNames = searchSpec.getFilterPackageNames();
@@ -1314,10 +1379,17 @@ public final class AppSearchImpl implements Closeable {
                             callerAccess.getCallingPackageName());
         }
 
+        long javaLockAcquisitionLatencyStartMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.readLock().lock();
         try {
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime()
+                                - javaLockAcquisitionLatencyStartMillis));
+            }
             throwIfClosedLocked();
 
+            long aclLatencyStartMillis = SystemClock.elapsedRealtime();
             // Convert package filters to prefix filters
             Set<String> packageFilters = new ArraySet<>(searchSpec.getFilterPackageNames());
             Set<String> prefixFilters = new ArraySet<>();
@@ -1345,6 +1417,10 @@ public final class AppSearchImpl implements Closeable {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
                 return new SearchResultPage(Bundle.EMPTY);
+            }
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setAclCheckLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime() - aclLatencyStartMillis));
             }
             SearchResultPage searchResultPage =
                     doQueryLocked(
@@ -1464,7 +1540,8 @@ public final class AppSearchImpl implements Closeable {
                     new SearchSuggestionSpecToProtoConverter(suggestionQueryExpression,
                             searchSuggestionSpec,
                             Collections.singleton(prefix),
-                            mNamespaceMapLocked);
+                            mNamespaceMapLocked,
+                            mSchemaMapLocked);
 
             if (searchSuggestionSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
@@ -1531,12 +1608,18 @@ public final class AppSearchImpl implements Closeable {
      */
     @NonNull
     public SearchResultPage getNextPage(@NonNull String packageName, long nextPageToken,
-            @Nullable SearchStats.Builder statsBuilder)
+            @Nullable SearchStats.Builder sStatsBuilder)
             throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
 
+        long javaLockAcquisitionLatencyStartMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.readLock().lock();
         try {
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                        (int) (SystemClock.elapsedRealtime()
+                                - javaLockAcquisitionLatencyStartMillis));
+            }
             throwIfClosedLocked();
 
             LogUtil.piiTrace(TAG, "getNextPage, request", nextPageToken);
@@ -1544,10 +1627,10 @@ public final class AppSearchImpl implements Closeable {
             SearchResultProto searchResultProto = mIcingSearchEngineLocked.getNextPage(
                     nextPageToken);
 
-            if (statsBuilder != null) {
-                statsBuilder.setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()));
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()));
                 AppSearchLoggerHelper.copyNativeStats(searchResultProto.getQueryStats(),
-                        statsBuilder);
+                        sStatsBuilder);
             }
 
             LogUtil.piiTrace(
@@ -1572,16 +1655,16 @@ public final class AppSearchImpl implements Closeable {
             // Rewrite search result before we return.
             SearchResultPage searchResultPage = SearchResultToProtoConverter
                     .toSearchResultPage(searchResultProto, mSchemaMapLocked);
-            if (statsBuilder != null) {
-                statsBuilder.setRewriteSearchResultLatencyMillis(
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setRewriteSearchResultLatencyMillis(
                         (int) (SystemClock.elapsedRealtime()
                                 - rewriteSearchResultLatencyStartMillis));
             }
             return searchResultPage;
         } finally {
             mReadWriteLock.readLock().unlock();
-            if (statsBuilder != null) {
-                statsBuilder.setTotalLatencyMillis(
+            if (sStatsBuilder != null) {
+                sStatsBuilder.setTotalLatencyMillis(
                         (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis));
             }
         }
@@ -1743,18 +1826,26 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>This method belongs to mutate group.
      *
+     * <p> {@link SearchSpec} objects containing a {@link JoinSpec} are not allowed here.
+     *
      * @param packageName        The package name that owns the documents.
      * @param databaseName       The databaseName the document is in.
      * @param queryExpression    Query String to search.
      * @param searchSpec         Defines what and how to remove
      * @param removeStatsBuilder builder for {@link RemoveStats} to hold stats for remove
      * @throws AppSearchException on IcingSearchEngine error.
+     * @throws IllegalArgumentException if the {@link SearchSpec} contains a {@link JoinSpec}.
      */
     public void removeByQuery(@NonNull String packageName, @NonNull String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
             @Nullable RemoveStats.Builder removeStatsBuilder)
             throws AppSearchException {
+        if (searchSpec.getJoinSpec() != null) {
+            throw new IllegalArgumentException("JoinSpec not allowed in removeByQuery, but "
+                    + "JoinSpec was provided");
+        }
+
         long totalLatencyStartTimeMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.writeLock().lock();
         try {

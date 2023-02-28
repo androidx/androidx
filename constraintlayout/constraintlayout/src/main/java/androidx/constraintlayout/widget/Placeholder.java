@@ -26,6 +26,7 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.core.widgets.ConstraintWidget;
 
 /**
@@ -126,7 +127,7 @@ public class Placeholder extends View {
      *
      */
     @Override
-    public void onDraw(Canvas canvas) {
+    public void onDraw(@NonNull Canvas canvas) {
         if (isInEditMode()) {
             canvas.drawRGB(223, 223, 223);
 

@@ -144,12 +144,15 @@ class XProcessingEnvTest {
         runProcessorTest(
             listOf(source)
         ) { invocation ->
-            PRIMITIVE_TYPES.flatMap {
-                listOf(it, it.box())
-            }.forEach {
-                val targetType = invocation.processingEnv.findType(it.toString())
-                assertThat(targetType?.typeName).isEqualTo(it)
-                assertThat(targetType?.boxed()?.typeName).isEqualTo(it.box())
+            PRIMITIVE_TYPES.zip(BOXED_PRIMITIVE_TYPES).forEach { (primitive, boxed) ->
+                val targetType = invocation.processingEnv.requireType(primitive)
+                assertThat(targetType.asTypeName()).isEqualTo(primitive)
+                assertThat(targetType.boxed().asTypeName()).isEqualTo(boxed)
+            }
+            BOXED_PRIMITIVE_TYPES.forEach { boxed ->
+                val targetType = invocation.processingEnv.requireType(boxed)
+                assertThat(targetType.asTypeName()).isEqualTo(boxed)
+                assertThat(targetType.boxed().asTypeName()).isEqualTo(boxed)
             }
         }
     }
@@ -274,6 +277,7 @@ class XProcessingEnvTest {
                     """.trimIndent()
                 )
             ),
+            javacArguments = listOf("-source", "11"),
             kotlincArguments = listOf("-Xjvm-target 11")
         ) {
             if (it.processingEnv.backend == XProcessingEnv.Backend.KSP) {
@@ -316,14 +320,25 @@ class XProcessingEnvTest {
 
     companion object {
         val PRIMITIVE_TYPES = listOf(
-            TypeName.BOOLEAN,
-            TypeName.BYTE,
-            TypeName.SHORT,
-            TypeName.INT,
-            TypeName.LONG,
-            TypeName.CHAR,
-            TypeName.FLOAT,
-            TypeName.DOUBLE,
+            XTypeName.PRIMITIVE_BOOLEAN,
+            XTypeName.PRIMITIVE_BYTE,
+            XTypeName.PRIMITIVE_SHORT,
+            XTypeName.PRIMITIVE_INT,
+            XTypeName.PRIMITIVE_LONG,
+            XTypeName.PRIMITIVE_CHAR,
+            XTypeName.PRIMITIVE_FLOAT,
+            XTypeName.PRIMITIVE_DOUBLE,
+        )
+
+        val BOXED_PRIMITIVE_TYPES = listOf(
+            XTypeName.BOXED_BOOLEAN,
+            XTypeName.BOXED_BYTE,
+            XTypeName.BOXED_SHORT,
+            XTypeName.BOXED_INT,
+            XTypeName.BOXED_LONG,
+            XTypeName.BOXED_CHAR,
+            XTypeName.BOXED_FLOAT,
+            XTypeName.BOXED_DOUBLE,
         )
     }
 }

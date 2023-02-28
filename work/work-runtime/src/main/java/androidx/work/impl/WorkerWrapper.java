@@ -80,7 +80,6 @@ public class WorkerWrapper implements Runnable {
     // Avoid Synthetic accessor
     Context mAppContext;
     private final String mWorkSpecId;
-    private List<Scheduler> mSchedulers;
     private WorkerParameters.RuntimeExtras mRuntimeExtras;
     // Avoid Synthetic accessor
     WorkSpec mWorkSpec;
@@ -118,7 +117,6 @@ public class WorkerWrapper implements Runnable {
         mForegroundProcessor = builder.mForegroundProcessor;
         mWorkSpec = builder.mWorkSpec;
         mWorkSpecId = mWorkSpec.id;
-        mSchedulers = builder.mSchedulers;
         mRuntimeExtras = builder.mRuntimeExtras;
         mWorker = builder.mWorker;
 
@@ -365,19 +363,6 @@ public class WorkerWrapper implements Runnable {
             }
         }
 
-        // Try to schedule any newly-unblocked workers, and workers requiring rescheduling (such as
-        // periodic work using AlarmManager).  This code runs after runWorker() because it should
-        // happen in its own transaction.
-
-        // Cancel this work in other schedulers.  For example, if this work was
-        // handled by GreedyScheduler, we should make sure JobScheduler is informed
-        // that it should remove this job and AlarmManager should remove all related alarms.
-        if (mSchedulers != null) {
-            for (Scheduler scheduler : mSchedulers) {
-                scheduler.cancel(mWorkSpecId);
-            }
-            Schedulers.schedule(mConfiguration, mWorkDatabase, mSchedulers);
-        }
     }
 
     /**
@@ -641,7 +626,6 @@ public class WorkerWrapper implements Runnable {
         @NonNull Configuration mConfiguration;
         @NonNull WorkDatabase mWorkDatabase;
         @NonNull WorkSpec mWorkSpec;
-        List<Scheduler> mSchedulers;
         private final List<String> mTags;
         @NonNull
         WorkerParameters.RuntimeExtras mRuntimeExtras = new WorkerParameters.RuntimeExtras();
@@ -661,16 +645,6 @@ public class WorkerWrapper implements Runnable {
             mWorkDatabase = database;
             mWorkSpec = workSpec;
             mTags = tags;
-        }
-
-        /**
-         * @param schedulers The list of {@link Scheduler}s used for scheduling {@link Worker}s.
-         * @return The instance of {@link Builder} for chaining.
-         */
-        @NonNull
-        public Builder withSchedulers(@NonNull List<Scheduler> schedulers) {
-            mSchedulers = schedulers;
-            return this;
         }
 
         /**

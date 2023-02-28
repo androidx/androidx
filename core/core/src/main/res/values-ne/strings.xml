@@ -18,4 +18,11 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="status_bar_notification_info_overflow" msgid="6277540029070332960">"९९९+"</string>
+    <string name="call_notification_answer_action" msgid="881409763997275156">"जवाफ दिनुहोस्"</string>
+    <string name="call_notification_answer_video_action" msgid="8793775615905189152">"भिडियो"</string>
+    <string name="call_notification_decline_action" msgid="3229508546291798546">"काट्नुहोस्"</string>
+    <string name="call_notification_hang_up_action" msgid="2659457946726154263">"फोन राख्नुहोस्"</string>
+    <string name="call_notification_incoming_text" msgid="6107532579223922871">"आगमन कल"</string>
+    <string name="call_notification_ongoing_text" msgid="8623827134497363134">"भइरहेको कल"</string>
+    <string name="call_notification_screening_text" msgid="59049573811482460">"आगमन कल जाँचिँदै छ"</string>
 </resources>

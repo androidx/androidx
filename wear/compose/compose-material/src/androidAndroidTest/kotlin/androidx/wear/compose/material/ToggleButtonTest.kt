@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -386,12 +387,13 @@ class ToggleButtonColorTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun gives_checked_disabled_alpha() =
+    fun gives_disabled_primary_checked_contrasting_content_color() =
         verifyColors(
             Status.Disabled,
             checked = true,
             { MaterialTheme.colors.primary },
-            { MaterialTheme.colors.onPrimary }
+            { MaterialTheme.colors.background },
+            applyAlphaForDisabledContent = false,
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -605,7 +607,8 @@ class ToggleButtonColorTest {
         status: Status,
         checked: Boolean,
         backgroundColor: @Composable () -> Color,
-        contentColor: @Composable () -> Color
+        contentColor: @Composable () -> Color,
+        applyAlphaForDisabledContent: Boolean = true,
     ) {
         val testBackgroundColor = Color.Magenta
         var expectedBackground = Color.Transparent
@@ -642,7 +645,10 @@ class ToggleButtonColorTest {
                     .assertContainsColor(expectedBackground, 50.0f)
             }
         } else {
-            assertEquals(expectedContent.copy(alpha = actualDisabledAlpha), actualContent)
+            if (applyAlphaForDisabledContent) {
+                expectedContent = expectedContent.copy(alpha = actualDisabledAlpha)
+            }
+            assertEquals(expectedContent, actualContent)
             if (expectedBackground != Color.Transparent) {
                 rule.onNodeWithTag(TEST_TAG)
                     .captureToImage()
@@ -653,6 +659,55 @@ class ToggleButtonColorTest {
             }
         }
     }
+}
+
+class ToggleButtonRoleTest {
+    @get:Rule
+    val rule = createComposeRule()
+
+    @Test
+    fun default_role_checkbox() {
+
+        rule.setContentWithTheme {
+            Box(modifier = Modifier.fillMaxSize()) {
+                ToggleButton(
+                    checked = false,
+                    onCheckedChange = {},
+                    enabled = false,
+                    content = { TestImage() },
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        }
+
+        rule.onNode(withRole(Role.Checkbox)).assertExists()
+    }
+
+    @Test
+    fun allows_custom_role() {
+        val role = Role.Button
+
+        rule.setContentWithTheme {
+            Box(modifier = Modifier.fillMaxSize()) {
+                ToggleButton(
+                    checked = false,
+                    onCheckedChange = {},
+                    role = role,
+                    enabled = false,
+                    content = { TestImage() },
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        }
+
+        rule.onNode(withRole(role)).assertExists()
+    }
+
+    private fun withRole(role: Role) =
+        SemanticsMatcher("${SemanticsProperties.Role.name} contains '$role'") {
+            val roleProperty = it.config.getOrNull(SemanticsProperties.Role) ?: false
+            roleProperty == role
+        }
 }
 
 private fun ComposeContentTestRule.verifyTapSize(

@@ -40,8 +40,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
@@ -68,7 +70,7 @@ public class MockedCarTestBase {
     public static final ImmutableList<Set<CarZone>> CAR_ZONES =
             ImmutableList.<Set<CarZone>>builder().add(Collections.singleton(
                     new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                    .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build())).build();
+                            .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build())).build();
     public static final ImmutableMap<Set<CarZone>, Pair<Integer, Integer>>
             CAR_ZONE_SET_TO_MIN_MAX_RANGE = ImmutableMap.<Set<CarZone>,
                     Pair<Integer, Integer>>builder()
@@ -79,6 +81,9 @@ public class MockedCarTestBase {
                     Set<Integer>>builder()
             .put(CAR_ZONES.get(0), Set.of(1, 2)).buildKeepingLast();
     public static final Integer[] FAN_DIRECTION_VALUE = {1, 2};
+
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock
     private CarPropertyValue<Integer> mModelYearValueMock;
@@ -116,9 +121,8 @@ public class MockedCarTestBase {
     private CarPropertyManager mCarPropertyManagerMock;
 
     @Before
+    @SuppressWarnings("deprecation")
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
         // Mock car
         ShadowCar.setCar(mCarMock);
         when(mCarMock.getCarManager(anyString())).thenReturn(mCarPropertyManagerMock);

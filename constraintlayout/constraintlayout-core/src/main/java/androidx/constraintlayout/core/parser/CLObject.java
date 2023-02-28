@@ -103,4 +103,10 @@ public class CLObject extends CLContainer implements Iterable<CLKey> {
             return key;
         }
     }
+
+    @Override
+    public CLObject clone() {
+        // Overriding to get expected return type
+        return (CLObject) super.clone();
+    }
 }

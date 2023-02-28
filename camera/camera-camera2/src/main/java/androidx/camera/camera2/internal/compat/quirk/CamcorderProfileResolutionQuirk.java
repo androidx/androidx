@@ -16,20 +16,19 @@
 
 package androidx.camera.camera2.internal.compat.quirk;
 
-import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
-import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
-import androidx.camera.camera2.internal.compat.workaround.CamcorderProfileResolutionValidator;
+import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.EncoderProfilesResolutionValidator;
 import androidx.camera.core.impl.ImageFormatConstants;
-import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.quirk.ProfileResolutionQuirk;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,10 +52,10 @@ import java.util.List;
  *                  resolution is contained in the list returned.
  *     Device(s): All legacy devices
  *     @see CamcorderProfile#hasProfile
- *     @see CamcorderProfileResolutionValidator
+ *     @see EncoderProfilesResolutionValidator
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class CamcorderProfileResolutionQuirk implements Quirk {
+public class CamcorderProfileResolutionQuirk implements ProfileResolutionQuirk {
     private static final String TAG = "CamcorderProfileResolutionQuirk";
 
     static boolean load(@NonNull CameraCharacteristicsCompat characteristicsCompat) {
@@ -65,34 +64,28 @@ public class CamcorderProfileResolutionQuirk implements Quirk {
         return level != null && level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
-    private final List<Size> mSupportedResolutions;
+    private final StreamConfigurationMapCompat mStreamConfigurationMapCompat;
+    private List<Size> mSupportedResolutions = null;
 
     public CamcorderProfileResolutionQuirk(
             @NonNull CameraCharacteristicsCompat characteristicsCompat) {
-        StreamConfigurationMap map =
-                characteristicsCompat.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-        if (map == null) {
-            Logger.e(TAG, "StreamConfigurationMap is null");
-        }
-        Size[] sizes;
-        // Before Android 23, use {@link SurfaceTexture} will finally mapped to 0x22 in
-        // StreamConfigurationMap to retrieve the output sizes information.
-        if (Build.VERSION.SDK_INT < 23) {
-            sizes = map != null ? map.getOutputSizes(SurfaceTexture.class) : null;
-        } else {
-            sizes = map != null ? map.getOutputSizes(
-                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) : null;
-        }
-
-        mSupportedResolutions = sizes != null ? Arrays.asList(sizes.clone())
-                : Collections.emptyList();
-
-        Logger.d(TAG, "mSupportedResolutions = " + mSupportedResolutions);
+        mStreamConfigurationMapCompat =
+                characteristicsCompat.getStreamConfigurationMapCompat();
     }
 
     /** Returns the supported video resolutions. */
+    @Override
     @NonNull
     public List<Size> getSupportedResolutions() {
+        if (mSupportedResolutions == null) {
+            Size[] sizes = mStreamConfigurationMapCompat.getOutputSizes(
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+            mSupportedResolutions = sizes != null ? Arrays.asList(sizes.clone())
+                    : Collections.emptyList();
+
+            Logger.d(TAG, "mSupportedResolutions = " + mSupportedResolutions);
+        }
+
         return new ArrayList<>(mSupportedResolutions);
     }
 }

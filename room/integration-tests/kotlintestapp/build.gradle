@@ -92,6 +92,7 @@ dependencies {
     kaptAndroidTestWithKapt(
             project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     )
+    androidTestImplementation(projectOrArtifact(":arch:core:core-runtime"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -122,7 +123,7 @@ dependencies {
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(libs.rxjava2)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoCore4)
 }
 
 // KSP does not support argument per flavor so we set schema location globally, for other per
@@ -130,8 +131,13 @@ dependencies {
 ksp {
     arg("room.schemaLocation","$projectDir/schemas-ksp".toString())
 }
+
+// Commented out as workaround suggested by KSP team due to bug in KSP 1.8.10-1.0.9
+// TODO: Tracking as b/267692813
+/*
 tasks.withType(KspTask).configureEach { kspTask ->
     if (kspTask.name.contains("GenKotlin")) {
         kspTask.apOptions.put("room.generateKotlin", "true")
     }
 }
+*/

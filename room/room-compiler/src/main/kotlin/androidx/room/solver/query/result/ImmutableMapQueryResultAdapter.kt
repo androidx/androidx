@@ -16,15 +16,12 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.L
-import androidx.room.ext.T
+import androidx.room.ext.GuavaTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.solver.CodeGenScope
-import com.google.common.collect.ImmutableMap
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
 
 class ImmutableMapQueryResultAdapter(
     context: Context,
@@ -34,19 +31,21 @@ class ImmutableMapQueryResultAdapter(
     private val resultAdapter: QueryResultAdapter
 ) : MultimapQueryResultAdapter(context, parsedQuery, resultAdapter.rowAdapters) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
-        scope.builder().apply {
+        scope.builder.apply {
             val mapVarName = scope.getTmpVar("_mapResult")
             resultAdapter.convert(mapVarName, cursorVarName, scope)
-            addStatement(
-                "final $T $L = $T.copyOf($L)",
-                ParameterizedTypeName.get(
-                    ClassName.get(ImmutableMap::class.java),
-                    keyTypeArg.typeName,
-                    valueTypeArg.typeName
+            addLocalVariable(
+                name = outVarName,
+                typeName = GuavaTypeNames.IMMUTABLE_MAP.parametrizedBy(
+                    keyTypeArg.asTypeName(),
+                    valueTypeArg.asTypeName()
                 ),
-                outVarName,
-                ClassName.get(ImmutableMap::class.java),
-                mapVarName
+                assignExpr = XCodeBlock.of(
+                    language = language,
+                    format = "%T.copyOf(%L)",
+                    GuavaTypeNames.IMMUTABLE_MAP,
+                    mapVarName
+                ),
             )
         }
     }

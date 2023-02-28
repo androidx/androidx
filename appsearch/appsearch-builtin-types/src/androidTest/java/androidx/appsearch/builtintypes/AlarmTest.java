@@ -24,6 +24,7 @@ import androidx.appsearch.app.GenericDocument;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Calendar;
 
 public class AlarmTest {
@@ -40,6 +41,11 @@ public class AlarmTest {
                 .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
                 .setName("my alarm")
+                .addAlternateName("my alternate alarm")
+                .addAlternateName("my alternate alarm 2")
+                .setDescription("this is my alarm")
+                .setImage("content://images/alarm1")
+                .setUrl("content://alarm/1")
                 .setEnabled(true)
                 .setDaysOfWeek(Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
                         Calendar.THURSDAY, Calendar.FRIDAY)
@@ -59,6 +65,12 @@ public class AlarmTest {
         assertThat(alarm.getDocumentTtlMillis()).isEqualTo(20000);
         assertThat(alarm.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(alarm.getName()).isEqualTo("my alarm");
+        assertThat(alarm.getAlternateNames()).isNotNull();
+        assertThat(alarm.getAlternateNames())
+                .containsExactly("my alternate alarm", "my alternate alarm 2");
+        assertThat(alarm.getDescription()).isEqualTo("this is my alarm");
+        assertThat(alarm.getImage()).isEqualTo("content://images/alarm1");
+        assertThat(alarm.getUrl()).isEqualTo("content://alarm/1");
         assertThat(alarm.isEnabled()).isTrue();
         assertThat(alarm.getDaysOfWeek()).asList().containsExactly(Calendar.MONDAY,
                 Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY);
@@ -85,6 +97,11 @@ public class AlarmTest {
                 .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
                 .setName("my alarm")
+                .addAlternateName("my alternate alarm")
+                .addAlternateName("my alternate alarm 2")
+                .setDescription("this is my alarm")
+                .setImage("content://images/alarm1")
+                .setUrl("content://alarm/1")
                 .setEnabled(true)
                 .setDaysOfWeek(Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
                         Calendar.THURSDAY, Calendar.FRIDAY)
@@ -106,6 +123,11 @@ public class AlarmTest {
         assertThat(alarm1.getCreationTimestampMillis())
                 .isEqualTo(alarm2.getCreationTimestampMillis());
         assertThat(alarm1.getName()).isEqualTo(alarm2.getName());
+        assertThat(alarm1.getAlternateNames())
+                .containsExactlyElementsIn(alarm2.getAlternateNames());
+        assertThat(alarm1.getDescription()).isEqualTo(alarm2.getDescription());
+        assertThat(alarm1.getImage()).isEqualTo(alarm2.getImage());
+        assertThat(alarm1.getUrl()).isEqualTo(alarm2.getUrl());
         assertThat(alarm1.isEnabled()).isEqualTo(alarm2.isEnabled());
         assertThat(alarm1.getDaysOfWeek()).isEqualTo(alarm2.getDaysOfWeek());
         assertThat(alarm1.getHour()).isEqualTo(alarm2.getHour());
@@ -135,6 +157,11 @@ public class AlarmTest {
                 .setDocumentTtlMillis(20000)
                 .setCreationTimestampMillis(100)
                 .setName("my alarm")
+                .addAlternateName("my alternate alarm")
+                .addAlternateName("my alternate alarm 2")
+                .setDescription("this is my alarm")
+                .setImage("content://images/alarm1")
+                .setUrl("content://alarm/1")
                 .setEnabled(true)
                 .setDaysOfWeek(Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
                         Calendar.THURSDAY, Calendar.FRIDAY)
@@ -156,6 +183,15 @@ public class AlarmTest {
         assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(genericDocument.getTtlMillis()).isEqualTo(20000);
         assertThat(genericDocument.getPropertyString("name")).isEqualTo("my alarm");
+        assertThat(genericDocument.getPropertyStringArray("alternateNames")).isNotNull();
+        assertThat(Arrays.asList(genericDocument.getPropertyStringArray("alternateNames")))
+                .containsExactly("my alternate alarm", "my alternate alarm 2");
+        assertThat(genericDocument.getPropertyString("description"))
+                .isEqualTo("this is my alarm");
+        assertThat(genericDocument.getPropertyString("image"))
+                .isEqualTo("content://images/alarm1");
+        assertThat(genericDocument.getPropertyString("url"))
+                .isEqualTo("content://alarm/1");
         assertThat(genericDocument.getPropertyBoolean("enabled")).isTrue();
         assertThat(genericDocument.getPropertyLongArray("daysOfWeek")).asList()
                 .containsExactly(2L, 3L, 4L, 5L, 6L);

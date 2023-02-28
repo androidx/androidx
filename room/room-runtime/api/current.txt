@@ -24,9 +24,6 @@ package androidx.room {
     field public final java.util.List<java.lang.Object> typeConverters;
   }
 
-  public final class EntityUpsertionAdapterKt {
-  }
-
   public class InvalidationTracker {
     method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer observer);
     method public void refreshVersionsAsync();
@@ -148,21 +145,14 @@ package androidx.room {
 package androidx.room.migration {
 
   public interface AutoMigrationSpec {
-    method public default void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase);
+    method public default void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
   }
 
   public abstract class Migration {
-    ctor public Migration(int, int);
-    method public abstract void migrate(androidx.sqlite.db.SupportSQLiteDatabase);
+    ctor public Migration(int startVersion, int endVersion);
+    method public abstract void migrate(androidx.sqlite.db.SupportSQLiteDatabase db);
     field public final int endVersion;
     field public final int startVersion;
-  }
-
-}
-
-package androidx.room.util {
-
-  public final class TableInfoKt {
   }
 
 }

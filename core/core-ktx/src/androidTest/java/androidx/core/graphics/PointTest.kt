@@ -96,6 +96,38 @@ class PointTest {
         assertEquals(-3.0f, y)
     }
 
+    @Test fun multiplyPoint() {
+        var (x, y) = Point(2, 3) * 5f
+        assertEquals(10, x)
+        assertEquals(15, y)
+        val (x1, y1) = Point(2, 3) * 5.1f
+        assertEquals(10, x1)
+        assertEquals(15, y1)
+    }
+
+    val Epsilon = 1e-4f
+
+    @Test fun multiplyPointF() {
+        var (x, y) = PointF(2f, 3f) * 5f
+        assertEquals(10f, x, Epsilon)
+        assertEquals(15f, y, Epsilon)
+    }
+
+    @Test fun dividePoint() {
+        var (x, y) = Point(10, 15) / 5f
+        assertEquals(2, x)
+        assertEquals(3, y)
+        val (x1, y1) = Point(10, 15) / 5.1f
+        assertEquals(2, x1)
+        assertEquals(3, y1)
+    }
+
+    @Test fun dividePointF() {
+        var (x, y) = PointF(10f, 15f) / 5f
+        assertEquals(2f, x, Epsilon)
+        assertEquals(3f, y, Epsilon)
+    }
+
     @Test fun toPointF() {
         val pointF = Point(1, 2).toPointF()
         assertEquals(1f, pointF.x, 0f)

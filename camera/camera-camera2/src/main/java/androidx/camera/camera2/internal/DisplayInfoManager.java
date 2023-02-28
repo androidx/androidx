@@ -32,6 +32,8 @@ import androidx.camera.camera2.internal.compat.workaround.MaxPreviewSize;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class DisplayInfoManager {
+
+    private static final String TAG = "DisplayInfoManager";
     private static final Size MAX_PREVIEW_SIZE = new Size(1920, 1080);
     private static final Object INSTANCE_LOCK = new Object();
     private static volatile DisplayInfoManager sInstance;
@@ -85,10 +87,25 @@ public class DisplayInfoManager {
             return displays[0];
         }
 
-        Display maxDisplay = null;
-        int maxDisplaySize = -1;
+        Display maxDisplayWhenStateOn = null;
+        int maxDisplaySizeWhenStateOn = -1;
         for (Display display : displays) {
             if (display.getState() != Display.STATE_OFF) {
+                Point displaySize = new Point();
+                display.getRealSize(displaySize);
+                if (displaySize.x * displaySize.y > maxDisplaySizeWhenStateOn) {
+                    maxDisplaySizeWhenStateOn = displaySize.x * displaySize.y;
+                    maxDisplayWhenStateOn = display;
+                }
+            }
+        }
+
+        if (maxDisplayWhenStateOn == null) {
+            // If there is no display found with state on, search display with state off as well.
+            // If still no display found, throw IllegalArgumentException.
+            Display maxDisplay = null;
+            int maxDisplaySize = -1;
+            for (Display display : displays) {
                 Point displaySize = new Point();
                 display.getRealSize(displaySize);
                 if (displaySize.x * displaySize.y > maxDisplaySize) {
@@ -96,13 +113,15 @@ public class DisplayInfoManager {
                     maxDisplay = display;
                 }
             }
-        }
 
-        if (maxDisplay == null) {
-            throw new IllegalArgumentException("No display can be found from the input display "
-                    + "manager!");
+            if (maxDisplay == null) {
+                throw new IllegalArgumentException("No display can be found from the input display "
+                        + "manager!");
+            }
+
+            return maxDisplay;
         }
-        return maxDisplay;
+        return maxDisplayWhenStateOn;
     }
 
     /**

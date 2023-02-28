@@ -30,11 +30,10 @@ import perfetto.protos.TraceMetrics
  * Enables parsing perfetto traces on-device
  */
 @RestrictTo(LIBRARY_GROUP) // for internal benchmarking only
-class PerfettoTraceProcessor(httpServerPort: Int = DEFAULT_HTTP_SERVER_PORT) {
+class PerfettoTraceProcessor {
 
     companion object {
-        private const val TAG = "PerfettoTraceProcessor"
-        private const val DEFAULT_HTTP_SERVER_PORT = 9001
+        const val PORT = 9001
 
         /**
          * The actual [File] path to the `trace_processor_shell`.
@@ -53,14 +52,13 @@ class PerfettoTraceProcessor(httpServerPort: Int = DEFAULT_HTTP_SERVER_PORT) {
          */
         fun <T> runServer(
             absoluteTracePath: String? = null,
-            httpServerPort: Int = DEFAULT_HTTP_SERVER_PORT,
             block: PerfettoTraceProcessor.() -> T
         ): T = userspaceTrace("PerfettoTraceProcessor#runServer") {
             var perfettoTraceProcessor: PerfettoTraceProcessor? = null
             try {
 
                 // Initializes the server process
-                perfettoTraceProcessor = PerfettoTraceProcessor(httpServerPort).startServer()
+                perfettoTraceProcessor = PerfettoTraceProcessor().startServer()
 
                 // Loads a trace if required
                 if (absoluteTracePath != null) {
@@ -77,7 +75,7 @@ class PerfettoTraceProcessor(httpServerPort: Int = DEFAULT_HTTP_SERVER_PORT) {
         }
     }
 
-    private val perfettoHttpServer: PerfettoHttpServer = PerfettoHttpServer(httpServerPort)
+    private val perfettoHttpServer: PerfettoHttpServer = PerfettoHttpServer()
     private var traceLoaded = false
 
     private fun startServer(): PerfettoTraceProcessor =
@@ -158,7 +156,7 @@ class PerfettoTraceProcessor(httpServerPort: Int = DEFAULT_HTTP_SERVER_PORT) {
             require(perfettoHttpServer.isRunning()) {
                 "Perfetto trace_shell_process is not running."
             }
-            return@userspaceTrace perfettoHttpServer.executeQuery(query)
+            return@userspaceTrace perfettoHttpServer.query(query)
         }
 
     /**
@@ -166,7 +164,7 @@ class PerfettoTraceProcessor(httpServerPort: Int = DEFAULT_HTTP_SERVER_PORT) {
      *
      * Note that sliceNames may include wildcard matches, such as `foo%`
      */
-    internal fun querySlices(
+    fun querySlices(
         vararg sliceNames: String
     ): List<Slice> {
         require(perfettoHttpServer.isRunning()) { "Perfetto trace_shell_process is not running." }

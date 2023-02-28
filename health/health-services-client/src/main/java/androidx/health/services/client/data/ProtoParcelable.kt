@@ -27,8 +27,11 @@ import com.google.protobuf.MessageLite
  *
  * Provided [proto] represents everything important to subclasses, they need not implement [equals]
  * and [hashCode].
+ *
+ * @hide
  */
 @Suppress("ParcelCreator", "ParcelNotFinal")
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class ProtoParcelable<T : MessageLite> : Parcelable {
 
     /** Proto representation of this object. */

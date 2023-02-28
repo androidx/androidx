@@ -184,7 +184,7 @@ internal fun NavType.addSavedStateGetStatement(
     is ObjectArrayType -> builder.apply {
         val baseType = (arg.type.typeName() as ParameterizedTypeName).typeArguments.first()
         addStatement(
-            "%L = %L.get<Array<%T>>(%S)?.map { it as %T }?.toTypedArray()",
+            "%L = %L.get<Array<%T>>(%S)?.map·{ it as %T }?.toTypedArray()",
             lValue, savedStateHandle, PARCELABLE_CLASSNAME, arg.name, baseType
         )
     }

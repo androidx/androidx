@@ -41,6 +41,11 @@ package androidx.javascriptengine {
     field public static final String JS_FEATURE_WASM_COMPILATION = "JS_FEATURE_WASM_COMPILATION";
   }
 
+  public final class MemoryLimitExceededException extends androidx.javascriptengine.JavaScriptException {
+    ctor public MemoryLimitExceededException(String);
+    ctor public MemoryLimitExceededException();
+  }
+
   public final class SandboxDeadException extends androidx.javascriptengine.JavaScriptException {
     ctor public SandboxDeadException();
   }

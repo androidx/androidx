@@ -19,5 +19,5 @@ package io.reactivex.rxjava3.core;
 import java.util.concurrent.Callable;
 
 public abstract class Completable {
-    public static Completable fromCallable(Callable callable) {return null;}
+    public static Completable fromCallable(Callable<?> callable) {return null;}
 }

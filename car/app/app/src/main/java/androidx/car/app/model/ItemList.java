@@ -22,10 +22,11 @@ import android.annotation.SuppressLint;
 import android.os.Looper;
 
 import androidx.annotation.IntRange;
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import java.util.Objects;
  * ListTemplate}.
  */
 @CarProtocol
+@KeepFields
 public final class ItemList {
     /**
      * A listener for handling selection events for lists with selectable items.
@@ -73,17 +75,12 @@ public final class ItemList {
         void onItemVisibilityChanged(int startIndex, int endIndex);
     }
 
-    @Keep
     private final int mSelectedIndex;
-    @Keep
     private final List<Item> mItems;
-    @Keep
     @Nullable
     private final OnSelectedDelegate mOnSelectedDelegate;
-    @Keep
     @Nullable
     private final OnItemVisibilityChangedDelegate mOnItemVisibilityChangedDelegate;
-    @Keep
     @Nullable
     private final CarText mNoItemsMessage;
 
@@ -197,6 +194,14 @@ public final class ItemList {
         mOnItemVisibilityChangedDelegate = null;
     }
 
+    /**
+     * Creates and returns a new {@link Builder} initialized with this {@link ItemList}'s data.
+     */
+    @ExperimentalCarApi
+    @NonNull
+    public Builder toBuilder() {
+        return new Builder(this);
+    }
 
     @Nullable
     static OnClickDelegate getOnClickDelegate(Item item) {
@@ -220,7 +225,7 @@ public final class ItemList {
 
     /** A builder of {@link ItemList}. */
     public static final class Builder {
-        final List<Item> mItems = new ArrayList<>();
+        final List<Item> mItems;
         int mSelectedIndex;
         @Nullable
         OnSelectedDelegate mOnSelectedDelegate;
@@ -316,6 +321,14 @@ public final class ItemList {
             return this;
         }
 
+        /** Removes all {@link Item}s added via {@link #addItem(Item)} */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder clearItems() {
+            mItems.clear();
+            return this;
+        }
+
         /**
          * Constructs the item list defined by this builder.
          *
@@ -361,6 +374,18 @@ public final class ItemList {
 
         /** Returns an empty {@link Builder} instance. */
         public Builder() {
+            mItems = new ArrayList<>();
+        }
+
+        /** Creates a new {@link Builder}, populated from the input {@link ItemList} */
+        Builder(@NonNull ItemList itemList) {
+            mSelectedIndex = itemList.getSelectedIndex();
+            mOnSelectedDelegate = itemList.getOnSelectedDelegate();
+            mOnItemVisibilityChangedDelegate = itemList.getOnItemVisibilityChangedDelegate();
+            mNoItemsMessage = itemList.getNoItemsMessage();
+
+            // Must be mutable
+            mItems = new ArrayList<>(itemList.getItems());
         }
     }
 }

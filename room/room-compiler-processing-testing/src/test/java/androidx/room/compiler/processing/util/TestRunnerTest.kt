@@ -27,6 +27,7 @@ import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
+import androidx.room.compiler.processing.util.compiler.steps.KaptCompilationStep
 import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
@@ -372,6 +373,110 @@ class TestRunnerTest {
                 // by the processor
                 compilationDidFail()
             }
+        }
+    }
+
+    @Test
+    fun correctErrorTypes() {
+        val subjectSrc = Source.kotlin(
+            "Foo.kt",
+            """
+            class Foo {
+                val errorField : DoesNotExist = TODO()
+            }
+            """.trimIndent()
+        )
+
+        runKaptTest(
+            sources = listOf(subjectSrc)
+        ) { invocation ->
+            val field = invocation.processingEnv.requireTypeElement("Foo")
+                .getDeclaredFields()
+                .single()
+            assertThat(field.type.typeName.toString())
+                .isEqualTo("error.NonExistentClass")
+            invocation.assertCompilationResult {
+                this.hasErrorContaining("Unresolved reference")
+            }
+        }
+
+        runKaptTest(
+            sources = listOf(subjectSrc),
+            kotlincArguments = listOf(
+                "-P",
+                "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true"
+            )
+        ) { invocation ->
+            val field = invocation.processingEnv.requireTypeElement("Foo")
+                .getDeclaredFields()
+                .single()
+            assertThat(field.type.typeName.toString())
+                .isEqualTo("DoesNotExist")
+            invocation.assertCompilationResult {
+                this.hasErrorContaining("Unresolved reference")
+            }
+        }
+    }
+    @Test
+    fun testPluginOptions() {
+        KaptCompilationStep.getPluginOptions(
+            "org.jetbrains.kotlin.kapt3",
+            listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true")
+        ).let { options ->
+            assertThat(options).containsExactly("correctErrorTypes", "true")
+        }
+
+        // zero args
+        KaptCompilationStep.getPluginOptions(
+            "org.jetbrains.kotlin.kapt3",
+            emptyList()
+        ).let { options ->
+            assertThat(options).isEmpty()
+        }
+
+        // odd number of args
+        KaptCompilationStep.getPluginOptions(
+            "org.jetbrains.kotlin.kapt3",
+            listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true", "-verbose")
+        ).let { options ->
+            assertThat(options).containsExactly("correctErrorTypes", "true")
+        }
+
+        // illegal format (missing "=")
+        KaptCompilationStep.getPluginOptions(
+            "org.jetbrains.kotlin.kapt3",
+            listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypestrue")
+        ).let { options ->
+            assertThat(options).isEmpty()
+        }
+
+        // illegal format (missing "-P")
+        KaptCompilationStep.getPluginOptions(
+            "org.jetbrains.kotlin.kapt3",
+            listOf("plugin:org.jetbrains.kotlin.kapt3:correctErrorTypestrue")
+        ).let { options ->
+            assertThat(options).isEmpty()
+        }
+
+        // illegal format (wrong plugin id)
+        KaptCompilationStep.getPluginOptions(
+            "org.jetbrains.kotlin.kapt3",
+            listOf("-P", "plugin:abc:correctErrorTypes=true")
+        ).let { options ->
+            assertThat(options).isEmpty()
+        }
+
+        KaptCompilationStep.getPluginOptions(
+            "org.jetbrains.kotlin.kapt3",
+            listOf(
+                "-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true",
+                "-P", "plugin:org.jetbrains.kotlin.kapt3:sources=build/kapt/sources"
+            )
+        ).let { options ->
+            assertThat(options).containsExactly(
+                "correctErrorTypes", "true",
+                "sources", "build/kapt/sources"
+            )
         }
     }
 

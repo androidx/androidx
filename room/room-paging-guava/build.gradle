@@ -48,7 +48,6 @@ dependencies {
 androidx {
     name = "Room Paging Guava"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2022"
     description = "Guava integration in Room Paging"
     publish = Publish.SNAPSHOT_AND_RELEASE

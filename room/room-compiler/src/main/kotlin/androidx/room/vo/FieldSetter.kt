@@ -16,18 +16,81 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.capitalize
+import androidx.room.solver.CodeGenScope
+import androidx.room.solver.types.CursorValueReader
+import java.util.Locale
 
-data class FieldSetter(val jvmName: String, val type: XType, val callType: CallType) {
+data class FieldSetter(
+    val fieldName: String,
+    val jvmName: String,
+    val type: XType,
+    val callType: CallType
+) {
     fun writeSet(ownerVar: String, inVar: String, builder: XCodeBlock.Builder) {
-        val stmt = when (callType) {
-            CallType.FIELD -> "%L.%L = %L"
-            CallType.METHOD -> "%L.%L(%L)"
-            CallType.CONSTRUCTOR -> null
+        if (callType == CallType.CONSTRUCTOR) {
+            return
         }
-        if (stmt != null) {
-            builder.addStatement(stmt, ownerVar, jvmName, inVar)
+        when (builder.language) {
+            CodeLanguage.JAVA -> {
+                val stmt = when (callType) {
+                    CallType.FIELD -> "%L.%L = %L"
+                    CallType.METHOD, CallType.SYNTHETIC_METHOD -> "%L.%L(%L)"
+                    else -> error("Unknown call type: $callType")
+                }
+                builder.addStatement(stmt, ownerVar, jvmName, inVar)
+            }
+            CodeLanguage.KOTLIN -> {
+                builder.addStatement("%L.%L = %L", ownerVar, fieldName, inVar)
+            }
+        }
+    }
+
+    fun writeSetFromCursor(
+        ownerVar: String,
+        cursorVar: String,
+        indexVar: String,
+        reader: CursorValueReader,
+        scope: CodeGenScope
+    ) {
+        when (scope.language) {
+            CodeLanguage.JAVA -> when (callType) {
+                CallType.FIELD -> {
+                    val outFieldName = "$ownerVar.$jvmName"
+                    reader.readFromCursor(outFieldName, cursorVar, indexVar, scope)
+                }
+                CallType.METHOD, CallType.SYNTHETIC_METHOD -> {
+                    val tmpField = scope.getTmpVar("_tmp${fieldName.capitalize(Locale.US)}")
+                    scope.builder.apply {
+                        addLocalVariable(tmpField, type.asTypeName())
+                        reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
+                        addStatement("%L.%L(%L)", ownerVar, jvmName, tmpField)
+                    }
+                }
+                CallType.CONSTRUCTOR -> {
+                    // no code, field is set via constructor
+                }
+            }
+            CodeLanguage.KOTLIN -> when (callType) {
+                CallType.FIELD, CallType.SYNTHETIC_METHOD -> {
+                    val outFieldName = "$ownerVar.$fieldName"
+                    reader.readFromCursor(outFieldName, cursorVar, indexVar, scope)
+                }
+                CallType.METHOD -> {
+                    val tmpField = scope.getTmpVar("_tmp${fieldName.capitalize(Locale.US)}")
+                    scope.builder.apply {
+                        addLocalVariable(tmpField, type.asTypeName())
+                        reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
+                        addStatement("%L.%L(%L)", ownerVar, jvmName, tmpField)
+                    }
+                }
+                CallType.CONSTRUCTOR -> {
+                    // no code, field is set via constructor
+                }
+            }
         }
     }
 }
