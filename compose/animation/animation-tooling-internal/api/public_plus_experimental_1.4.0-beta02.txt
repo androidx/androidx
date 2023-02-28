@@ -24,7 +24,7 @@ package androidx.compose.animation.tooling {
   }
 
   public enum ComposeAnimationType {
-    method public static androidx.compose.animation.tooling.ComposeAnimationType valueOf(String name) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.animation.tooling.ComposeAnimationType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.animation.tooling.ComposeAnimationType[] values();
     enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType ANIMATABLE;
     enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType ANIMATED_CONTENT;
