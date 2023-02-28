@@ -702,7 +702,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             buildTestApksTask.configure {
                 it.dependsOn(variant.assembleProvider)
             }
-            variant.configureApkZipping(project, true)
+            variant.configureApkZipping(project)
         }
 
         // AGP warns if we use project.buildDir (or subdirs) for CMake's generated
@@ -723,15 +723,11 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
      */
     @Suppress("DEPRECATION") // ApkVariant
     private fun com.android.build.gradle.api.ApkVariant.configureApkZipping(
-        project: Project,
-        testApk: Boolean
+        project: Project
     ) {
         packageApplicationProvider.get().let { packageTask ->
             AffectedModuleDetector.configureTaskGuard(packageTask)
-            // Skip copying AndroidTest apks if they have no source code (no tests to run).
-            if (!testApk || project.hasAndroidTestSourceCode()) {
-                addToTestZips(project, packageTask)
-            }
+            addToTestZips(project, packageTask)
         }
         // This task needs to be guarded by AffectedModuleDetector due to guarding test
         // APK building above. It can only be removed if we stop using AMD for test APKs.
@@ -859,7 +855,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                     it.dependsOn(variant.assembleProvider)
                 }
             }
-            variant.configureApkZipping(project, false)
+            variant.configureApkZipping(project)
         }
     }
 
