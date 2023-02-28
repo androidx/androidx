@@ -39,6 +39,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -52,19 +53,19 @@ final class TaskSlotProcessor {
     /** perform an in-app search for an ungrounded ParamValue */
     private static <T> ListenableFuture<AppGroundingResult> ground(
             ParamValue ungroundedParamValue, TaskParamBinding<T> binding, Executor executor) {
-        GenericResolverInternal<T> fieldResolver = binding.resolver();
-        if (!binding.entityConverter().isPresent()) {
+        GenericResolverInternal<T> fieldResolver = binding.getResolver();
+        if (binding.getEntityConverter() == null) {
             return Futures.immediateFailedFuture(
                     new MissingEntityConverterException(
                             "No entity converter found in the binding."));
         }
-        if (!binding.searchActionConverter().isPresent()) {
+        if (binding.getSearchActionConverter() == null) {
             return Futures.immediateFailedFuture(
                     new MissingSearchActionConverterException(
                             "No search action converter found in the binding."));
         }
-        DisambigEntityConverter<T> entityConverter = binding.entityConverter().get();
-        SearchActionConverter<T> searchActionConverter = binding.searchActionConverter().get();
+        DisambigEntityConverter<T> entityConverter = binding.getEntityConverter();
+        SearchActionConverter<T> searchActionConverter = binding.getSearchActionConverter();
         try {
             SearchAction<T> searchAction =
                     searchActionConverter.toSearchAction(ungroundedParamValue);
@@ -97,7 +98,7 @@ final class TaskSlotProcessor {
     private static <T> ListenableFuture<ValidationResult> invokeValueChange(
             List<ParamValue> updatedValue, TaskParamBinding<T> binding) {
         try {
-            return binding.resolver().notifyValueChange(updatedValue, binding.converter());
+            return binding.getResolver().notifyValueChange(updatedValue, binding.getConverter());
         } catch (StructConversionException e) {
             return Futures.immediateFailedFuture(e);
         }
@@ -111,9 +112,9 @@ final class TaskSlotProcessor {
     static ListenableFuture<SlotProcessingResult> processSlot(
             String name,
             List<CurrentValue> pendingArgs,
-            TaskParamRegistry taskParamRegistry,
+            Map<String, TaskParamBinding<?>> taskParamMap,
             Executor executor) {
-        TaskParamBinding<?> taskParamBinding = taskParamRegistry.bindings().get(name);
+        TaskParamBinding<?> taskParamBinding = taskParamMap.get(name);
         if (taskParamBinding == null) {
             // TODO(b/234655571) use slot metadata to ensure that we never auto accept values for
             // reference slots.
@@ -144,7 +145,7 @@ final class TaskSlotProcessor {
                                 groundedValues,
                                 ungroundedValues,
                                 executor);
-            } else if (taskParamBinding.groundingPredicate().test(pendingValue.getValue())) {
+            } else if (taskParamBinding.getGroundingPredicate().invoke(pendingValue.getValue())) {
                 // app-driven disambiguation
                 groundingFuture =
                         consumeGroundingResult(
@@ -340,7 +341,7 @@ final class TaskSlotProcessor {
                         .map(Entity::getIdentifier)
                         .collect(toImmutableList());
         try {
-            return binding.resolver().invokeEntityRender(entityIds);
+            return binding.getResolver().invokeEntityRender(entityIds);
         } catch (InvalidResolverException e) {
             return Futures.immediateFailedFuture(e);
         }
