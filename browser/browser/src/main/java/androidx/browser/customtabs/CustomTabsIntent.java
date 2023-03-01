@@ -20,6 +20,7 @@ import static androidx.annotation.Dimension.DP;
 import static androidx.annotation.Dimension.PX;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -535,12 +536,13 @@ public final class CustomTabsIntent {
         private final CustomTabColorSchemeParams.Builder mDefaultColorSchemeBuilder =
                 new CustomTabColorSchemeParams.Builder();
         @Nullable private ArrayList<Bundle> mMenuItems;
-        @Nullable private Bundle mStartAnimationBundle;
+        @Nullable private ActivityOptions mActivityOptions;
         @Nullable private ArrayList<Bundle> mActionButtons;
         @Nullable private SparseArray<Bundle> mColorSchemeParamBundles;
         @Nullable private Bundle mDefaultColorSchemeBundle;
         @ShareState private int mShareState = SHARE_STATE_DEFAULT;
         private boolean mInstantAppsEnabled = true;
+        private boolean mShareIdentity;
 
         /**
          * Creates a {@link CustomTabsIntent.Builder} object associated with no
@@ -913,8 +915,13 @@ public final class CustomTabsIntent {
         @SuppressWarnings("NullAway") // TODO: b/141869399
         public Builder setStartAnimations(
                 @NonNull Context context, @AnimRes int enterResId, @AnimRes int exitResId) {
-            mStartAnimationBundle = ActivityOptionsCompat.makeCustomAnimation(
-                    context, enterResId, exitResId).toBundle();
+            // We use ActivityOptions, not ActivityOptionsCompat, to build the start activity
+            // options, since we might set another option (share identity, which is not
+            // available yet via ActivityOptionsCompat) before turning it to a Bundle.
+            // TODO(b/296463161): Update androidx.core.core lib to support the new option via
+            // ActivityOptionsCompat and use it here instead of ActivityOptions.
+            mActivityOptions = ActivityOptions.makeCustomAnimation(
+                    context, enterResId, exitResId);
             return this;
         }
 
@@ -1161,6 +1168,16 @@ public final class CustomTabsIntent {
         }
 
         /**
+         * Allow Custom Tabs to obtain the caller's identity i.e. package name.
+         * @param enabled Whether the identity sharing is enabled.
+         */
+        @NonNull
+        public Builder setShareIdentityEnabled(boolean enabled) {
+            mShareIdentity = enabled;
+            return this;
+        }
+
+        /**
          * Combines all the options that have been set and returns a new {@link CustomTabsIntent}
          * object.
          */
@@ -1195,7 +1212,14 @@ public final class CustomTabsIntent {
                 setCurrentLocaleAsDefaultAcceptLanguage();
             }
 
-            return new CustomTabsIntent(mIntent, mStartAnimationBundle);
+            Bundle bundle = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                setShareIdentityEnabled();
+            }
+            if (mActivityOptions != null) {
+                bundle = mActivityOptions.toBundle();
+            }
+            return new CustomTabsIntent(mIntent, bundle);
         }
 
         /**
@@ -1213,6 +1237,14 @@ public final class CustomTabsIntent {
                     mIntent.putExtra(Browser.EXTRA_HEADERS, header);
                 }
             }
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        private void setShareIdentityEnabled() {
+            if (mActivityOptions == null) {
+                mActivityOptions = Api23Impl.makeBasicActivityOptions();
+            }
+            Api34Impl.setShareIdentityEnabled(mActivityOptions, mShareIdentity);
         }
     }
 
@@ -1395,6 +1427,14 @@ public final class CustomTabsIntent {
         return intent.getBooleanExtra(EXTRA_SHOW_ON_TOOLBAR, false);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private static class Api23Impl {
+        @DoNotInline
+        static ActivityOptions makeBasicActivityOptions() {
+            return ActivityOptions.makeBasic();
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     private static class Api24Impl {
         @DoNotInline
@@ -1402,6 +1442,14 @@ public final class CustomTabsIntent {
         static String getDefaultLocale() {
             LocaleList defaultLocaleList = LocaleList.getAdjustedDefault();
             return (defaultLocaleList.size() > 0) ? defaultLocaleList.get(0).toLanguageTag(): null;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private static class Api34Impl {
+        @DoNotInline
+        static void setShareIdentityEnabled(ActivityOptions activityOptions, boolean enabled) {
+            activityOptions.setShareIdentityEnabled(enabled);
         }
     }
 }
