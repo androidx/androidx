@@ -30,6 +30,8 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
@@ -37,6 +39,7 @@ import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.NavigatorState
 import androidx.navigation.fragment.FragmentNavigator.Destination
+import java.lang.ref.WeakReference
 
 /**
  * Navigator that navigates through [fragment transactions][FragmentTransaction]. Every
@@ -103,6 +106,13 @@ public open class FragmentNavigator(
                 }
             }
             fragment.lifecycle.addObserver(fragmentObserver)
+            // We need to ensure that if the fragment has its state saved and then that state
+            // later cleared without the restoring the fragment that we also clear the state
+            // of the associated entry.
+            val viewModel = ViewModelProvider(fragment)[ClearEntryStateViewModel::class.java]
+            val entry = state.backStack.value.lastOrNull { it.id == fragment.tag }
+            viewModel.completeTransition =
+                WeakReference { entry?.let { state.markTransitionComplete(it) } }
         }
 
         fragmentManager.addOnBackStackChangedListener(object : OnBackStackChangedListener {
@@ -566,5 +576,13 @@ public open class FragmentNavigator(
     private companion object {
         private const val TAG = "FragmentNavigator"
         private const val KEY_SAVED_IDS = "androidx-nav-fragment:navigator:savedIds"
+    }
+
+    internal class ClearEntryStateViewModel : ViewModel() {
+        lateinit var completeTransition: WeakReference<() -> Unit>
+        override fun onCleared() {
+            super.onCleared()
+            completeTransition.get()?.invoke()
+        }
     }
 }
