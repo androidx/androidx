@@ -36,6 +36,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.streamsharing.StreamSharing;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -148,6 +149,8 @@ public final class StreamUseCaseUtil {
             sUseCaseToStreamUseCaseMapping.put(ImageCapture.class,
                     Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE));
             sUseCaseToStreamUseCaseMapping.put(MediaCodec.class,
+                    Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD));
+            sUseCaseToStreamUseCaseMapping.put(StreamSharing.class,
                     Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD));
         }
         return sUseCaseToStreamUseCaseMapping;

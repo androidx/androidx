@@ -36,6 +36,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.filters.SdkSuppress;
@@ -115,6 +116,21 @@ public class StreamUseCaseTest {
         StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
                 sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat(), true);
         assertTrue(streamUseCaseMap.isEmpty());
+    }
+
+    @Test
+    public void getStreamUseCaseFromUseCaseStreamSharing() {
+        Map<DeferrableSurface, Long> streamUseCaseMap = new HashMap<>();
+        mMockSurface.setContainerClass(StreamSharing.class);
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addSurface(mMockSurface).build();
+        ArrayList<SessionConfig> sessionConfigs = new ArrayList<>();
+        sessionConfigs.add(sessionConfig);
+        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
+                sessionConfigs, streamUseCaseMap, getCameraCharacteristicsCompat(), true);
+        assertTrue(streamUseCaseMap.get(mMockSurface)
+                == CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD);
     }
 
     @Test
