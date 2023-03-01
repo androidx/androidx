@@ -40,7 +40,7 @@ class TestUwbClientSessionScope(
     private var sessionStarted = false
     private val uwbDevice = createForAddress(ByteArray(0))
     val defaultRangingParameters = RangingParameters(
-        RangingParameters.UWB_CONFIG_ID_1,
+        RangingParameters.CONFIG_UNICAST_DS_TWR,
         0,
         null,
         null,
