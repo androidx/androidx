@@ -480,60 +480,6 @@ class InteractionController {
     }
 
     /**
-     * Rotates right and also freezes rotation in that position by
-     * disabling the sensors. If you want to un-freeze the rotation
-     * and re-enable the sensors see {@link #unfreezeRotation()}. Note
-     * that doing so may cause the screen contents to rotate
-     * depending on the current physical position of the test device.
-     * @throws RemoteException
-     */
-    public void setRotationRight() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_270);
-    }
-
-    /**
-     * Rotates left and also freezes rotation in that position by
-     * disabling the sensors. If you want to un-freeze the rotation
-     * and re-enable the sensors see {@link #unfreezeRotation()}. Note
-     * that doing so may cause the screen contents to rotate
-     * depending on the current physical position of the test device.
-     * @throws RemoteException
-     */
-    public void setRotationLeft() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_90);
-    }
-
-    /**
-     * Rotates up and also freezes rotation in that position by
-     * disabling the sensors. If you want to un-freeze the rotation
-     * and re-enable the sensors see {@link #unfreezeRotation()}. Note
-     * that doing so may cause the screen contents to rotate
-     * depending on the current physical position of the test device.
-     * @throws RemoteException
-     */
-    public void setRotationNatural() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_0);
-    }
-
-    /**
-     * Disables the sensors and freezes the device rotation at its
-     * current rotation state.
-     * @throws RemoteException
-     */
-    public void freezeRotation() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_CURRENT);
-    }
-
-    /**
-     * Re-enables the sensors and un-freezes the device rotation
-     * allowing its contents to rotate with the device physical rotation.
-     * @throws RemoteException
-     */
-    public void unfreezeRotation() {
-        getUiAutomation().setRotation(UiAutomation.ROTATION_UNFREEZE);
-    }
-
-    /**
      * This method simply presses the power button if the screen is OFF else
      * it does nothing if the screen is already ON.
      * On API 20 or later devices, this will press the wakeup button instead.
