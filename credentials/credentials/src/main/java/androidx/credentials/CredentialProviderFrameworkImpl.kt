@@ -16,6 +16,7 @@
 
 package androidx.credentials
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.credentials.CredentialManager
@@ -134,6 +135,19 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         }
 
         credentialManager!!.createCredential(
+            convertCreateRequestToFrameworkClass(request, activity),
+            activity,
+            cancellationSignal,
+            Executors.newSingleThreadExecutor(),
+            outcome
+        )
+    }
+
+    private fun convertCreateRequestToFrameworkClass(
+        request: CreateCredentialRequest,
+        activity: Activity
+    ): android.credentials.CreateCredentialRequest {
+        val createCredentialRequestBuilder: android.credentials.CreateCredentialRequest.Builder =
             android.credentials.CreateCredentialRequest
                 .Builder(FrameworkImplHelper.getFinalCreateCredentialData(request, activity),
                     request.candidateQueryData)
@@ -141,12 +155,18 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
                 .setIsSystemProviderRequired(request.isSystemProviderRequired)
                 // TODO("change to taking value from the request when ready")
                 .setAlwaysSendAppInfoToProvider(true)
-                .build(),
-            activity,
-            cancellationSignal,
-            Executors.newSingleThreadExecutor(),
-            outcome
-        )
+        setOriginForCreateRequest(request, createCredentialRequestBuilder)
+        return createCredentialRequestBuilder.build()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setOriginForCreateRequest(
+        request: CreateCredentialRequest,
+        builder: android.credentials.CreateCredentialRequest.Builder
+    ) {
+        if (request.origin != null) {
+            builder.setOrigin(request.origin)
+        }
     }
 
     private fun convertGetRequestToFrameworkClass(request: GetCredentialRequest):
@@ -159,7 +179,18 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
                 )
             )
         }
+        setOriginForGetRequest(request, builder)
         return builder.build()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setOriginForGetRequest(
+        request: GetCredentialRequest,
+        builder: android.credentials.GetCredentialRequest.Builder
+    ) {
+        if (request.origin != null) {
+            builder.setOrigin(request.origin)
+        }
     }
 
     private fun createFrameworkClearCredentialRequest():

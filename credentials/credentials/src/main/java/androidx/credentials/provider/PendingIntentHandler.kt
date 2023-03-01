@@ -74,7 +74,8 @@ class PendingIntentHandler {
                         frameworkReq.type,
                         frameworkReq.data,
                         frameworkReq.data,
-                        requireSystemProvider = false) ?: return null,
+                        requireSystemProvider = false,
+                        frameworkReq.callingAppInfo.origin) ?: return null,
                 frameworkReq.callingAppInfo)
         }
 
