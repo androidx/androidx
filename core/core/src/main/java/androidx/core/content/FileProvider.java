@@ -570,6 +570,17 @@ public class FileProvider extends ContentProvider {
     }
 
     /**
+     * Unrestricted version of getType
+     * called, when caller does not have corresponding permissions
+     */
+    //@Override
+    @SuppressWarnings("MissingOverride")
+    @Nullable
+    public String getTypeAnonymous(@NonNull Uri uri) {
+        return "application/octet-stream";
+    }
+
+    /**
      * By default, this method throws an {@link UnsupportedOperationException}. You must
      * subclass FileProvider if you want to provide different functionality.
      */
