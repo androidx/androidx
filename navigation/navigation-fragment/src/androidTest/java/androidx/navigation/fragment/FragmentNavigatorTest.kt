@@ -31,14 +31,19 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavOptions
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.test.EmptyFragment
+import androidx.navigation.fragment.test.NavigationActivity
 import androidx.navigation.fragment.test.R
 import androidx.navigation.navOptions
 import androidx.navigation.testing.TestNavigatorState
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
@@ -706,6 +711,66 @@ class FragmentNavigatorTest {
 
         assertThat(entry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
         assertThat(restoredEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @Test
+    fun testNavigatePopUpToGraphInterrupt() {
+        withUse(ActivityScenario.launch(NavigationActivity::class.java)) {
+            val navController1 = withActivity { findNavController(R.id.nav_host) }
+            val fragNavigator1 = navController1.navigatorProvider.getNavigator(
+                FragmentNavigator::class.java
+            )
+
+            // navigated to entry1
+            assertThat(fragNavigator1.backStack.value.size).isEqualTo(1)
+            val entry1 = fragNavigator1.backStack.value[0]
+            val fm = withActivity {
+                supportFragmentManager.findFragmentById(R.id.nav_host)!!.childFragmentManager
+                    .also { it.executePendingTransactions() }
+            }
+
+            assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+            assertThat(fragNavigator1.backStack.value.size).isEqualTo(1)
+            val fragment1 = fm.findFragmentById(R.id.nav_host)
+            assertThat(fragment1).isNotNull()
+
+            // setup pop options
+            val popUpToOptions = NavOptions.Builder()
+                .setPopUpTo((navController1.graph.id), false, false)
+                .build()
+
+            // navigate to entry2
+            onActivity {
+                navController1.navigate(R.id.empty_fragment, null, popUpToOptions)
+            }
+
+            assertThat(fragNavigator1.backStack.value.size).isEqualTo(1)
+            val entry2 = fragNavigator1.backStack.value[0]
+            assertThat(entry2.id).isNotEqualTo(entry1.id)
+
+            // navigate to entry3 immediately
+            onActivity {
+                navController1.navigate(R.id.empty_fragment_2, null, popUpToOptions)
+            }
+
+            assertThat(fragNavigator1.backStack.value.size).isEqualTo(1)
+            val entry3 = fragNavigator1.backStack.value[0]
+            assertThat(entry3.id).isNotEqualTo(entry2.id)
+
+            // execute operations
+            onActivity { fm.executePendingTransactions() }
+
+            val fragment2 = fm.findFragmentById(R.id.nav_host)
+            assertThat(fragment2).isNotNull()
+            assertThat(fragment2!!.tag).isEqualTo(entry3.id)
+
+            assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+            assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+            assertThat(entry3.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+            assertThat(fragment1!!.lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+            assertThat(fragment2.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        }
     }
 
     @LargeTest
