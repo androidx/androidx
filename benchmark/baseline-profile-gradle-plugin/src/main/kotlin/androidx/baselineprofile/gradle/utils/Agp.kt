@@ -16,6 +16,7 @@
 
 package androidx.baselineprofile.gradle.utils
 
+import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.variant.AndroidComponentsExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -31,20 +32,29 @@ private val gradleSyncProps by lazy {
 internal fun Project.isGradleSyncRunning() =
     gradleSyncProps.any { it in properties && properties[it].toString().toBoolean() }
 
-internal fun Project.checkAgpVersion() {
-    val extension = project.extensions.findByType(AndroidComponentsExtension::class.java)
-        ?: if (!isGradleSyncRunning()) {
-            throw GradleException(
-                """
-                    The module $name does not have a registered `AndroidComponentsExtension`. This can
-                    only happen if this is not an Android module. Please review your build.gradle to
-                    ensure this plugin is applied to the correct module.
+private fun Project.agpVersion(): AndroidPluginVersion? {
+    val version = project
+        .extensions
+        .findByType(AndroidComponentsExtension::class.java)
+        ?.pluginVersion
+    if (version == null && !isGradleSyncRunning()) {
+        throw GradleException(
+            """
+                The module $name does not have a registered `AndroidComponentsExtension`. This can
+                only happen if this is not an Android module. Please review your build.gradle to
+                ensure this plugin is applied to the correct module.
                 """.trimIndent()
-            )
-        } else return
+        )
+    }
+    return version
+}
 
-    val agpVersion = extension.pluginVersion
-    if (agpVersion < MIN_AGP_VERSION_REQUIRED || agpVersion > MAX_AGP_VERSION_REQUIRED) {
+internal fun Project.checkAgpVersion(
+    min: AndroidPluginVersion = MIN_AGP_VERSION_REQUIRED,
+    max: AndroidPluginVersion = MAX_AGP_VERSION_REQUIRED,
+) {
+    val agpVersion = agpVersion() ?: return
+    if (agpVersion < min || agpVersion > max) {
         throw GradleException(
             """
             This version of the Baseline Profile Gradle Plugin only works with Android Gradle plugin
@@ -53,4 +63,9 @@ internal fun Project.checkAgpVersion() {
             """.trimIndent()
         )
     }
+}
+
+internal fun Project.isAgpVersionAtLeast(minVersion: AndroidPluginVersion): Boolean {
+    val agpVersion = agpVersion() ?: return false
+    return agpVersion >= minVersion
 }
