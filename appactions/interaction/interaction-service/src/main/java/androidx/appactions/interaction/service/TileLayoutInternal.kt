@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.service
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.service.proto.AppActionsServiceProto
+import androidx.appactions.interaction.service.proto.AppInteractionServiceProto
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.ResourceBuilders
 import com.google.protobuf.ByteString
@@ -33,8 +33,8 @@ data class TileLayoutInternal(
     val resources: ResourceBuilders.Resources
 ) {
 
-    fun toProto(): AppActionsServiceProto.TileLayout {
-        return AppActionsServiceProto.TileLayout.newBuilder()
+    fun toProto(): AppInteractionServiceProto.TileLayout {
+        return AppInteractionServiceProto.TileLayout.newBuilder()
             .setLayout(ByteString.copyFrom(layout.toByteArray()))
             .setResources(ByteString.copyFrom(resources.toByteArray()))
             .build()

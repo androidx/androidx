@@ -25,7 +25,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appactions.interaction.capabilities.core.ActionCapability;
-import androidx.appactions.interaction.service.proto.AppActionsServiceGrpc;
+import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -121,7 +121,7 @@ public abstract class AppInteractionService extends Service {
         IBinderReceiver binderReceiver = new IBinderReceiver();
         ServerSecurityPolicy serverSecurityPolicy =
                 ServerSecurityPolicy.newBuilder()
-                        .servicePolicy(AppActionsServiceGrpc.SERVICE_NAME, getSecurityPolicy())
+                        .servicePolicy(AppInteractionServiceGrpc.SERVICE_NAME, getSecurityPolicy())
                         .build();
         Server server =
                 BinderServerBuilder.forAddress(
