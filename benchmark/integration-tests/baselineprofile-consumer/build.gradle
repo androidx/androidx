@@ -39,7 +39,6 @@ dependencies {
 }
 
 baselineProfile {
-    onDemandGeneration = false
     filter {
         include "androidx.benchmark.integration.baselineprofile.consumer.**"
     }
