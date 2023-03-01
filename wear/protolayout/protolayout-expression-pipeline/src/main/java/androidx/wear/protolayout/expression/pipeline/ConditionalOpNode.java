@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ class ConditionalOpNode<T> implements DynamicDataNode<T> {
     @Nullable T mLastFalseValue;
 
     // Counters to track how many "in-flight" updates are pending for each input. If any of these
-    // are >0, then we're still waiting for onData() to be called for one of the callbacks,
-    // so we shouldn't emit any values until they have all resolved.
+    // are >0, then we're still waiting for onData() to be called for one of the callbacks, so we
+    // shouldn't emit any values until they have all resolved.
     int mPendingConditionalUpdates = 0;
     int mPendingTrueValueUpdates = 0;
     int mPendingFalseValueUpdates = 0;

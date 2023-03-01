@@ -49,7 +49,7 @@ class QuotaAwareAnimator {
     @Nullable private final TypeEvaluator<?> mEvaluator;
 
     interface UpdateCallback {
-        abstract void onUpdate(@NonNull Object animatedValue);
+        void onUpdate(@NonNull Object animatedValue);
     }
 
     QuotaAwareAnimator(@NonNull QuotaManager quotaManager, @NonNull AnimationSpec spec) {
@@ -67,17 +67,34 @@ class QuotaAwareAnimator {
         mQuotaManager = quotaManager;
         mAnimator = new ValueAnimator();
         mUiHandler = new Handler(Looper.getMainLooper());
-        mListener = new QuotaReleasingAnimatorListener(quotaManager);
-        mAnimator.addListener(mListener);
-        mAnimator.addPauseListener(mListener);
         applyAnimationSpecToAnimator(mAnimator, spec);
 
         // The start delay would be handled outside ValueAnimator, to make sure that the quota was
         // not consumed during the delay.
         mStartDelay = mAnimator.getStartDelay();
         mAnimator.setStartDelay(0);
+
+        long forwardRepeatDelay = 0;
+        long reverseRepeatDelay = 0;
+        if ((mAnimator.getRepeatCount() > 0 || mAnimator.getRepeatCount() == ValueAnimator.INFINITE)
+                && spec.hasRepeatable()) {
+            forwardRepeatDelay = spec.getRepeatable().getForwardRepeatDelayMillis();
+            reverseRepeatDelay = spec.getRepeatable().getReverseRepeatDelayMillis();
+        }
+        mListener =
+                new QuotaReleasingAnimatorListener(
+                        quotaManager,
+                        mAnimator.getRepeatMode(),
+                        forwardRepeatDelay,
+                        reverseRepeatDelay,
+                        mAnimator::resume,
+                        mUiHandler);
+        mAnimator.addListener(mListener);
+        mAnimator.addPauseListener(mListener);
+
         mEvaluator = evaluator;
     }
+
     /**
      * Adds a listener that is sent update events through the life of the animation. This method is
      * called on every frame of the animation after the values of the animation have been
@@ -190,6 +207,8 @@ class QuotaAwareAnimator {
         if (isInfiniteAnimator()) {
             // remove pending call to start the animation if any
             mUiHandler.removeCallbacks(mAcquireQuotaAndAnimateRunnable);
+            // remove resume callback if the animation is during the repeat delay
+            mUiHandler.removeCallbacks(mListener.mResumeRepeatRunnable);
             mAnimator.pause();
             if (mListener.mIsUsingQuota.compareAndSet(true, false)) {
                 mQuotaManager.releaseQuota(1);
@@ -218,12 +237,17 @@ class QuotaAwareAnimator {
 
     /** Returns whether this node has a running animation. */
     boolean isRunning() {
-        return mAnimator.isRunning();
+        return mAnimator.isRunning()
+                // During repeat delay
+                || (mAnimator.isPaused()
+                        && HandlerCompat.hasCallbacks(mUiHandler, mListener.mResumeRepeatRunnable));
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     boolean isPaused() {
-        return mAnimator.isPaused();
+        return mAnimator.isPaused()
+                // Not during repeat delay
+                && !HandlerCompat.hasCallbacks(mUiHandler, mListener.mResumeRepeatRunnable);
     }
 
     /**
@@ -241,8 +265,34 @@ class QuotaAwareAnimator {
         // android.animation.Animator#end()} because no quota is available.
         @NonNull final AtomicBoolean mIsUsingQuota = new AtomicBoolean(false);
 
-        QuotaReleasingAnimatorListener(@NonNull QuotaManager quotaManager) {
+        private final int mRepeatMode;
+        private final long mForwardRepeatDelay;
+        private final long mReverseRepeatDelay;
+        @NonNull private final Handler mHandler;
+        @NonNull final Runnable mResumeRepeatRunnable;
+        private boolean mIsReverse;
+
+        QuotaReleasingAnimatorListener(
+                @NonNull QuotaManager quotaManager,
+                int repeatMode,
+                long forwardRepeatDelay,
+                long reverseRepeatDelay,
+                @NonNull Runnable resumeRepeatRunnable,
+                @NonNull Handler uiHandler) {
             this.mQuotaManager = quotaManager;
+            this.mRepeatMode = repeatMode;
+            this.mForwardRepeatDelay = forwardRepeatDelay;
+            this.mReverseRepeatDelay = reverseRepeatDelay;
+            this.mResumeRepeatRunnable = resumeRepeatRunnable;
+            this.mHandler = uiHandler;
+            mIsReverse = false;
+        }
+
+        @Override
+        @UiThread
+        public void onAnimationStart(Animator animation, boolean isReverse) {
+            super.onAnimationStart(animation, isReverse);
+            mIsReverse = isReverse;
         }
 
         @Override
@@ -250,6 +300,25 @@ class QuotaAwareAnimator {
         public void onAnimationEnd(Animator animation) {
             if (mIsUsingQuota.compareAndSet(true, false)) {
                 mQuotaManager.releaseQuota(1);
+            }
+            mHandler.removeCallbacks(mResumeRepeatRunnable);
+        }
+
+        @Override
+        @UiThread
+        public void onAnimationRepeat(Animator animation) {
+            if (mRepeatMode == ValueAnimator.REVERSE) {
+                mIsReverse = !mIsReverse;
+            } else {
+                mIsReverse = false;
+            }
+
+            if (mForwardRepeatDelay > 0 && !mIsReverse) {
+                animation.pause();
+                mHandler.postDelayed(mResumeRepeatRunnable, mForwardRepeatDelay);
+            } else if (mReverseRepeatDelay > 0 && mIsReverse) {
+                animation.pause();
+                mHandler.postDelayed(mResumeRepeatRunnable, mReverseRepeatDelay);
             }
         }
     }
