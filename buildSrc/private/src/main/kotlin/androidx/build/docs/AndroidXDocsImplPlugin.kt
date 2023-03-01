@@ -225,16 +225,12 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             task.into(destinationDirectory)
             task.from(
                 sources.elements.map { jars ->
-                    jars.map { jar ->
-                        localVar.zipTree(jar).matching {
-                            it.exclude("**/META-INF/MANIFEST.MF")
-                        }
+                    jars.map {
+                        localVar.zipTree(it)
                     }
                 }
             )
-            // Files with the same path in different source jars of the same library will lead to
-            // some classes/methods not appearing in the docs.
-            task.duplicatesStrategy = DuplicatesStrategy.WARN
+            task.duplicatesStrategy = DuplicatesStrategy.INCLUDE
         }
     }
 
