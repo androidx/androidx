@@ -872,12 +872,13 @@ public abstract class WatchFaceService : WallpaperService() {
                     val complicationData = ArrayList<IdAndComplicationDataWireFormat>()
                     val numComplications = objectInputStream.readInt()
                     for (i in 0 until numComplications) {
+                        val id = objectInputStream.readInt()
+                        val wireFormatComplication =
+                            (objectInputStream.readObject() as WireComplicationData)
                         complicationData.add(
-                            IdAndComplicationDataWireFormat(
-                                objectInputStream.readInt(),
-                                (objectInputStream.readObject() as WireComplicationData)
-                            )
+                            IdAndComplicationDataWireFormat(id, wireFormatComplication)
                         )
+                        Log.d(TAG, "Read cached complication $id = $wireFormatComplication")
                     }
                     objectInputStream.close()
                     complicationData
@@ -2024,7 +2025,16 @@ public abstract class WatchFaceService : WallpaperService() {
                     initialComplications = readComplicationDataCache(_context, params.instanceId)
                 }
                 if (!initialComplications.isNullOrEmpty()) {
+                    Log.d(TAG, "Initial complications for ${params.instanceId}")
+                    for (idAndComplication in initialComplications) {
+                        Log.d(
+                            TAG,
+                            "${idAndComplication.id} = ${idAndComplication.complicationData}"
+                        )
+                    }
                     setComplicationDataList(initialComplications)
+                } else {
+                    Log.d(TAG, "No initial complications for ${params.instanceId}")
                 }
 
                 createWatchFaceInternal(watchState, getWallpaperSurfaceHolderOverride(), _createdBy)
