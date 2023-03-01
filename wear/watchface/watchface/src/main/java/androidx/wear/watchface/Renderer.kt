@@ -636,7 +636,7 @@ constructor(
             TraceEvent("CanvasRenderer.renderScreenshotToSurface").use {
                 renderAndComposite(canvas, zonedDateTime)
             }
-            surfaceHolder.unlockCanvasAndPost(canvas)
+            surfaceHolder.surface.unlockCanvasAndPost(canvas)
             this.renderParameters = prevRenderParameters
             renderParameters.isForScreenshot = originalIsForScreenshot
             surfaceHolder = originalSurfaceHolder
