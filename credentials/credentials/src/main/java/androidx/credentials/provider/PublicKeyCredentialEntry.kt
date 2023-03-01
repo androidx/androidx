@@ -286,7 +286,7 @@ class PublicKeyCredentialEntry internal constructor(
                     icon!!,
                     lastUsedTime,
                     autoSelectAllowed,
-                    BeginGetPublicKeyCredentialOption.createFrom(
+                    BeginGetPublicKeyCredentialOption.createFromEntrySlice(
                         Bundle(),
                         beginGetPublicKeyCredentialOptionId!!.toString()
                     ),

@@ -61,6 +61,12 @@ class BeginGetPasswordOption constructor(
             return BeginGetPasswordOption(data, id)
         }
 
+        /** @hide */
+        @JvmStatic
+        internal fun createFromEntrySlice(data: Bundle, id: String): BeginGetPasswordOption {
+            return BeginGetPasswordOption(data, id)
+        }
+
         @JvmField val CREATOR: Parcelable.Creator<BeginGetPasswordOption> = object :
             Parcelable.Creator<BeginGetPasswordOption> {
             override fun createFromParcel(p0: Parcel?): BeginGetPasswordOption {

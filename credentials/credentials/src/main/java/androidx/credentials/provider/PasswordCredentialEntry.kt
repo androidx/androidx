@@ -304,7 +304,7 @@ class PasswordCredentialEntry internal constructor(
                     lastUsedTime,
                     icon!!,
                     autoSelectAllowed,
-                    BeginGetPasswordOption.createFrom(
+                    BeginGetPasswordOption.createFromEntrySlice(
                         Bundle(),
                         beginGetPasswordOptionId!!.toString()
                     ),
