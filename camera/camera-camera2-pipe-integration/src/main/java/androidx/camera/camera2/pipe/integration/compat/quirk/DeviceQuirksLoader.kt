@@ -45,6 +45,9 @@ object DeviceQuirksLoader {
         if (InvalidVideoProfilesQuirk.isEnabled()) {
             quirks.add(InvalidVideoProfilesQuirk())
         }
+        if (ExcludedSupportedSizesQuirk.load()) {
+            quirks.add(ExcludedSupportedSizesQuirk())
+        }
 
         if (PreviewPixelHDRnetQuirk.isEnabled()) {
             quirks.add(PreviewPixelHDRnetQuirk())
