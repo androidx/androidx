@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,6 +55,7 @@ class DesktopParagraphTest {
         )
 
     @Test
+    @Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
     fun getBoundingBox_basic() {
         with(defaultDensity) {
             val text = "abc"
