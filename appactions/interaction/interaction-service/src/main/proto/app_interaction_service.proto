@@ -22,7 +22,7 @@ import "grounding.proto";
 import "touch_event.proto";
 
 option java_package = "androidx.appactions.interaction.service.proto";
-option java_outer_classname = "AppActionsServiceProto";
+option java_outer_classname = "AppInteractionServiceProto";
 
 // Request from host client (Assistant) to service provider (app) as part of the
 // RequestFulfillment streaming call. Throughout a dialog facilitated by the
@@ -235,7 +235,7 @@ message CollectionResponse {
 
 // Service between Assistant app and 3P app. The 3P app acts as the server and the Assistant app is
 // the client that binds to it. This GRPC service facilitates the communication with the 3P app.
-service AppActionsService {
+service AppInteractionService {
   // Start up a session.
   rpc StartUpSession(stream StartSessionRequest)
       returns (stream StartSessionResponse);

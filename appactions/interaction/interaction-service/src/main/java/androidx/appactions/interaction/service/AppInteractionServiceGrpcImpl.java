@@ -16,13 +16,13 @@
 
 package androidx.appactions.interaction.service;
 
-import androidx.appactions.interaction.service.proto.AppActionsServiceGrpc.AppActionsServiceImplBase;
+import androidx.appactions.interaction.service.proto.AppInteractionServiceGrpc.AppInteractionServiceImplBase;
 
 /**
- * Implementation of {@link AppActionsServiceImplBase} generated from the GRPC proto file. This
+ * Implementation of {@link AppInteractionServiceImplBase} generated from the GRPC proto file. This
  * class delegates the requests to the appropriate capability session.
  */
-final class AppInteractionServiceGrpcImpl extends AppActionsServiceImplBase {
+final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase {
 
     // TODO(b/268069897): Migrate ActionsServiceGrpcImpl.
     @SuppressWarnings("unused")
