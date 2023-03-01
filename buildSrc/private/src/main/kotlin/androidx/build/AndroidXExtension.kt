@@ -123,6 +123,8 @@ open class AndroidXExtension(val project: Project) {
             chooseProjectVersion()
         }
 
+    internal var projectDirectlySpecifiesMavenVersion: Boolean = false
+
     fun getOtherProjectsInSameGroup(): List<SettingsParser.IncludedProject> {
         val allProjects = listProjectsService.get().allPossibleProjects
         val ourGroup = chooseLibraryGroup()
@@ -226,6 +228,7 @@ open class AndroidXExtension(val project: Project) {
         val groupVersion: Version? = mavenGroup?.atomicGroupVersion
         val mavenVersion: Version? = mavenVersion
         if (mavenVersion != null) {
+            projectDirectlySpecifiesMavenVersion = true
             if (groupVersion != null && !isGroupVersionOverrideAllowed()) {
                 throw GradleException(
                     "Cannot set mavenVersion (" + mavenVersion +
@@ -238,6 +241,7 @@ open class AndroidXExtension(val project: Project) {
                 version = mavenVersion
             }
         } else {
+            projectDirectlySpecifiesMavenVersion = false
             if (groupVersion != null) {
                 verifyVersionExtraFormat(groupVersion)
                 version = groupVersion

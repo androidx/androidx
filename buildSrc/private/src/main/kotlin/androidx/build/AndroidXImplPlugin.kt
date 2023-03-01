@@ -1190,6 +1190,10 @@ fun Project.validateProjectParser(extension: AndroidXExtension) {
             "ProjectParser incorrectly computed shouldRelease() = ${parsed.shouldRelease()} " +
                 "instead of ${extension.shouldRelease()}"
         }
+        check(extension.projectDirectlySpecifiesMavenVersion == parsed.specifiesVersion) {
+            "ProjectParser incorrectly computed specifiesVersion = ${parsed.specifiesVersion}" +
+                "instead of ${extension.projectDirectlySpecifiesMavenVersion}"
+        }
     }
 }
 
