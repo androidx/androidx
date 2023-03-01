@@ -123,15 +123,19 @@ open class AndroidXExtension(val project: Project) {
             chooseProjectVersion()
         }
 
-    fun getAllProjectPathsInSameGroup(): List<String> {
-        val allProjectPaths = listProjectsService.get().allPossibleProjectPaths
+    fun getOtherProjectsInSameGroup(): List<SettingsParser.IncludedProject> {
+        val allProjects = listProjectsService.get().allPossibleProjects
         val ourGroup = chooseLibraryGroup()
         if (ourGroup == null)
-            return listOf(project.path)
-        val projectPathsInSameGroup = allProjectPaths.filter { otherPath ->
-            getLibraryGroupFromProjectPath(otherPath) == ourGroup
+            return listOf()
+        val otherProjectsInSameGroup = allProjects.filter { otherProject ->
+            if (otherProject.gradlePath == project.path) {
+                false
+            } else {
+                getLibraryGroupFromProjectPath(otherProject.gradlePath) == ourGroup
+            }
         }
-        return projectPathsInSameGroup
+        return otherProjectsInSameGroup
     }
 
     /**

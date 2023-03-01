@@ -900,13 +900,13 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                     configuration.extendsFrom(constraintConfiguration)
             }
 
-            val otherProjectPathsInSameGroup = extension.getAllProjectPathsInSameGroup()
+            val otherProjectsInSameGroup = extension.getOtherProjectsInSameGroup()
+            val otherProjectPathsInSameGroup = otherProjectsInSameGroup.map { otherProject ->
+                otherProject.gradlePath
+            }
             val constraints = project.dependencies.constraints
             val allProjectsExist = buildContainsAllStandardProjects()
             for (otherPath in otherProjectPathsInSameGroup) {
-                // don't need a constraint pointing at self
-                if (otherPath == project.path)
-                    continue
                 // We only enable constraints for builds that we intend to be able to publish from.
                 //   If a project isn't included in a build we intend to be able to publish from,
                 //   the project isn't going to be published.
