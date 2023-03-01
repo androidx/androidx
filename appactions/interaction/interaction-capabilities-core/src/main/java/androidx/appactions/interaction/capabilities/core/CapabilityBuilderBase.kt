@@ -16,13 +16,13 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.impl.SingleTurnCapabilityImpl
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
-import androidx.appactions.interaction.capabilities.core.task.impl.TaskCapabilityImpl
 import androidx.appactions.interaction.capabilities.core.task.impl.SessionBridge
+import androidx.appactions.interaction.capabilities.core.task.impl.TaskCapabilityImpl
 import java.util.function.Supplier
-import androidx.annotation.RestrictTo
 
 /**
  * An abstract Builder class for ActionCapability.
@@ -49,7 +49,9 @@ abstract class CapabilityBuilderBase<
     private var id: String? = null
     private var property: PropertyT? = null
     private var actionExecutor: ActionExecutor<ArgumentT, OutputT>? = null
+    private var actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>? = null
     private var sessionFactory: SessionFactory<SessionT>? = null
+
     /**
      * The SessionBridge object, which is used to normalize Session instances to TaskHandler.
      * see SessionBridge documentation for more information.
@@ -58,6 +60,7 @@ abstract class CapabilityBuilderBase<
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected open val sessionBridge: SessionBridge<SessionT, ConfirmationT>? = null
+
     /** The supplier of SessionUpdaterT instances. */
     protected open val sessionUpdaterSupplier: Supplier<SessionUpdaterT>? = null
 
@@ -85,17 +88,37 @@ abstract class CapabilityBuilderBase<
     /**
      * Sets the ActionExecutor for this capability.
      *
-     * setSessionFactory and setActionExecutor are mutually exclusive, so calling one will nullify the other.
+     * setSessionFactory and setExecutor are mutually exclusive, so calling one will nullify
+     * the other.
+     *
+     * This method accepts a coroutine-based ActionExecutor instance. There is also an overload
+     * which accepts the ActionExecutorAsync instead.
      */
-    fun setActionExecutor(actionExecutor: ActionExecutor<ArgumentT, OutputT>) = asBuilder().apply {
+    fun setExecutor(actionExecutor: ActionExecutor<ArgumentT, OutputT>) = asBuilder().apply {
+        this.actionExecutorAsync = null
         this.actionExecutor = actionExecutor
     }
 
     /**
-     * Sets the SessionFactory instance which is used to create Session instaces for this
+     * Sets the ActionExecutorAsync for this capability.
+     *
+     * setSessionFactory and setExecutor are mutually exclusive, so calling one will nullify
+     * the other.
+     *
+     * This method accepts the ActionExecutorAsync interface which returns a ListenableFuture.
+     */
+    fun setExecutor(
+        actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
+    ) = asBuilder().apply {
+        this.actionExecutor = null
+        this.actionExecutorAsync = actionExecutorAsync
+    }
+
+    /**
+     * Sets the SessionBuilder instance which is used to create Session instaces for this
      * capability.
      *
-     * setSessionFactory and setActionExecutor are mutually exclusive, so calling one will nullify the other.
+     * setSessionFactory and setExecutor are mutually exclusive, so calling one will nullify the other.
      */
     protected open fun setSessionFactory(
         sessionFactory: SessionFactory<SessionT>,
@@ -114,6 +137,13 @@ abstract class CapabilityBuilderBase<
                 checkedProperty,
                 actionExecutor!!,
             )
+        } else if (actionExecutorAsync != null) {
+            return SingleTurnCapabilityImpl(
+                checkedId,
+                actionSpec,
+                checkedProperty,
+                actionExecutorAsync!!,
+            )
         } else {
             return TaskCapabilityImpl(
                 checkedId,
@@ -121,7 +151,7 @@ abstract class CapabilityBuilderBase<
                 checkedProperty,
                 requireNotNull(
                     sessionFactory,
-                    { "either setActionExecutor or setSessionFactory must be called before build" },
+                    { "either setExecutor or setSessionFactory must be called before build" },
                 ),
                 sessionBridge!!,
                 sessionUpdaterSupplier!!,

@@ -19,8 +19,10 @@ package androidx.appactions.interaction.capabilities.core.impl
 import android.util.SizeF
 import androidx.appactions.interaction.capabilities.core.ActionCapability
 import androidx.appactions.interaction.capabilities.core.ActionExecutor
+import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
+import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -50,6 +52,13 @@ class SingleTurnCapabilityTest {
     @Ignore // b/271033076
     @Test
     fun oneShotCapability_successWithOutput() {
+        val actionExecutor = object : ActionExecutor<Argument, Output> {
+            override suspend fun execute(argument: Argument): ExecutionResult<Output> =
+                ExecutionResult.Builder<Output>().setOutput(
+                    Output.builder().setOptionalStringField("stringOutput")
+                        .build(),
+                ).build()
+        }
         val capability: ActionCapability =
             SingleTurnCapabilityImpl<Property, Argument, Output>(
                 "capabilityId",
@@ -59,13 +68,7 @@ class SingleTurnCapabilityTest {
                 ).setOptionalStringField(
                     StringProperty.Builder().setProhibited(true).build(),
                 ).build(),
-                object : ActionExecutor<Argument, Output> {
-                    override suspend fun execute(argument: Argument): ExecutionResult<Output> =
-                        ExecutionResult.Builder<Output>().setOutput(
-                            Output.builder().setOptionalStringField("stringOutput")
-                                .build(),
-                        ).build()
-                },
+                actionExecutor,
             )
         val expectedFulfillmentResponse: FulfillmentResponse =
             FulfillmentResponse.newBuilder().setExecutionOutput(
@@ -99,12 +102,10 @@ class SingleTurnCapabilityTest {
     }
 
     @Test
-    fun oneShotSession_uiHandle() {
-        val actionExecutor: ActionExecutor<Argument, Output> =
-            object : ActionExecutor<Argument, Output> {
-                override suspend fun execute(
-                    argument: Argument,
-                ): ExecutionResult<Output> = ExecutionResult.getDefaultInstance<Output>()
+    fun oneShotSession_uiHandle_withActionExecutor() {
+        val actionExecutor =
+            ActionExecutor<Argument, Output> {
+                ExecutionResult.getDefaultInstance()
             }
         val capability: ActionCapability =
             SingleTurnCapabilityImpl<Property, Argument, Output>(
@@ -117,6 +118,24 @@ class SingleTurnCapabilityTest {
             )
         val session = capability.createSession(hostProperties)
         assertThat(session.uiHandle).isSameInstanceAs(actionExecutor)
+    }
+
+    @Test
+    fun oneShotSession_uiHandle_withActionExecutorAsync() {
+        val actionExecutorAsync = ActionExecutorAsync<Argument, Output> {
+            Futures.immediateFuture(ExecutionResult.getDefaultInstance())
+        }
+        val capability: ActionCapability =
+            SingleTurnCapabilityImpl<Property, Argument, Output>(
+                "capabilityId",
+                ACTION_SPEC,
+                Property.newBuilder().setRequiredEntityField(
+                    EntityProperty.Builder().build(),
+                ).build(),
+                actionExecutorAsync,
+            )
+        val session = capability.createSession(hostProperties)
+        assertThat(session.uiHandle).isSameInstanceAs(actionExecutorAsync)
     }
 
     companion object {
