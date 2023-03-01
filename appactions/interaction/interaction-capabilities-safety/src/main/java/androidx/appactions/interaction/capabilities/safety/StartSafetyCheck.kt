@@ -49,24 +49,24 @@ private val ACTION_SPEC =
         .setOutput(StartSafetyCheck.Output::class.java)
         .bindStructParameter(
             "safetyCheck.duration",
-            StartSafetyCheck.Property::duration.getter,
+            { property -> Optional.ofNullable(property.duration) },
             StartSafetyCheck.Argument.Builder::setDuration,
             TypeConverters::toDuration
         )
         .bindStructParameter(
             "safetyCheck.checkInTime",
-            StartSafetyCheck.Property::checkInTime.getter,
+            { property -> Optional.ofNullable(property.checkInTime) },
             StartSafetyCheck.Argument.Builder::setCheckInTime,
             TypeConverters::toZonedDateTime
         )
         .bindOptionalOutput(
             "safetyCheck",
-            StartSafetyCheck.Output::safetyCheck.getter,
+            { output -> Optional.ofNullable(output.safetyCheck) },
             TypeConverters::toParamValue
         )
         .bindOptionalOutput(
             "executionStatus",
-            StartSafetyCheck.Output::executionStatus.getter,
+            { output -> Optional.ofNullable(output.executionStatus) },
             StartSafetyCheck.ExecutionStatus::toParamValue
         )
         .build()
@@ -87,8 +87,8 @@ class StartSafetyCheck private constructor() {
 
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor(
-        val duration: Optional<SimpleProperty>,
-        val checkInTime: Optional<SimpleProperty>
+        val duration: SimpleProperty?,
+        val checkInTime: SimpleProperty?
     ) {
         override fun toString(): String {
             return "Property(duration=$duration, checkInTime=$checkInTime)"
@@ -123,14 +123,13 @@ class StartSafetyCheck private constructor() {
             fun setCheckInTime(checkInTime: SimpleProperty): Builder =
                 apply { this.checkInTime = checkInTime }
 
-            fun build(): Property =
-                Property(Optional.ofNullable(duration), Optional.ofNullable(checkInTime))
+            fun build(): Property = Property(duration, checkInTime)
         }
     }
 
     class Argument internal constructor(
-        val duration: Optional<Duration>,
-        val checkInTime: Optional<ZonedDateTime>
+        val duration: Duration?,
+        val checkInTime: ZonedDateTime?
     ) {
         override fun toString(): String {
             return "Argument(duration=$duration, checkInTime=$checkInTime)"
@@ -165,15 +164,13 @@ class StartSafetyCheck private constructor() {
             fun setCheckInTime(checkInTime: ZonedDateTime): Builder =
                 apply { this.checkInTime = checkInTime }
 
-            override fun build(): Argument =
-                Argument(Optional.ofNullable(duration), Optional.ofNullable(checkInTime))
+            override fun build(): Argument = Argument(duration, checkInTime)
         }
     }
 
-    // TODO(b/267533126): Remove the use of optional once ActionSpecBuilder supports nullability.
     class Output internal constructor(
-        val safetyCheck: Optional<SafetyCheck>,
-        val executionStatus: Optional<ExecutionStatus>
+        val safetyCheck: SafetyCheck?,
+        val executionStatus: ExecutionStatus?
     ) {
         override fun toString(): String {
             return "Output(safetyCheck=$safetyCheck, executionStatus=$executionStatus)"
@@ -208,8 +205,7 @@ class StartSafetyCheck private constructor() {
             fun setExecutionStatus(executionStatus: ExecutionStatus): Builder =
                 apply { this.executionStatus = executionStatus }
 
-            fun build(): Output =
-                Output(Optional.ofNullable(safetyCheck), Optional.ofNullable(executionStatus))
+            fun build(): Output = Output(safetyCheck, executionStatus)
         }
     }
 
