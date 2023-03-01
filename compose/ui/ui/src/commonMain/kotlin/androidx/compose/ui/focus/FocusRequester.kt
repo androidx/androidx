@@ -50,7 +50,6 @@ private const val InvalidFocusRequesterInvocation = """
 @Stable
 class FocusRequester {
 
-    @OptIn(ExperimentalComposeUiApi::class)
     internal val focusRequesterNodes: MutableVector<FocusRequesterModifierNode> = mutableVectorOf()
 
     /**
@@ -94,7 +93,6 @@ class FocusRequester {
      *
      * @sample androidx.compose.ui.samples.CaptureFocusSample
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun captureFocus(): Boolean {
         check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
         focusRequesterNodes.forEach {
@@ -119,7 +117,6 @@ class FocusRequester {
      *
      * @sample androidx.compose.ui.samples.CaptureFocusSample
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     fun freeFocus(): Boolean {
         check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
         focusRequesterNodes.forEach {

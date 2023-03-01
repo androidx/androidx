@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.AlignmentLine
@@ -46,7 +45,6 @@ import androidx.compose.ui.unit.IntSize
  *
  * @see androidx.compose.ui.layout.Layout
  */
-@ExperimentalComposeUiApi
 interface LayoutModifierNode : Remeasurement, DelegatableNode {
     // NOTE(lmr): i guess RemeasurementModifier was created because there are some use
     //  cases where we want to call forceRemeasure but we don't want to implement MeasureNode.
@@ -132,7 +130,6 @@ interface LayoutModifierNode : Remeasurement, DelegatableNode {
  * This will invalidate the current node's layer, and ensure that the layer is redrawn for the next
  * frame.
  */
-@ExperimentalComposeUiApi
 fun LayoutModifierNode.invalidateLayer() =
     requireCoordinator(Nodes.Layout).invalidateLayer()
 
@@ -140,17 +137,14 @@ fun LayoutModifierNode.invalidateLayer() =
  * This will invalidate the current node's layout pass, and ensure that relayout of this node will
  * happen for the next frame.
  */
-@ExperimentalComposeUiApi
 fun LayoutModifierNode.invalidateLayout() = requireLayoutNode().requestRelayout()
 
 /**
  * This invalidates the current node's measure result, and ensures that a remeasurement of this node
  * will happen for the next frame.
  */
-@ExperimentalComposeUiApi
 fun LayoutModifierNode.invalidateMeasurements() = requireLayoutNode().invalidateMeasurements()
 
-@ExperimentalComposeUiApi
 internal fun LayoutModifierNode.requestRemeasure() = requireLayoutNode().requestRemeasure()
 
 /**
@@ -158,12 +152,10 @@ internal fun LayoutModifierNode.requestRemeasure() = requireLayoutNode().request
  * looking ahead. During measure pass, [measure] will be invoked with the constraints from the
  * look-ahead, as well as the target size.
  */
-@ExperimentalComposeUiApi
 interface IntermediateLayoutModifierNode : LayoutModifierNode {
     var targetSize: IntSize
 }
 
-@ExperimentalComposeUiApi
 private object NodeMeasuringIntrinsics {
     internal fun minWidth(
         node: LayoutModifierNode,

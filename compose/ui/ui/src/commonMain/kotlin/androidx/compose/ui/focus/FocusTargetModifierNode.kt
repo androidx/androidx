@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.InspectorInfo
  * This modifier node can be used to create a modifier that makes a component focusable.
  * Use a different instance of [FocusTargetModifierNode] for each focusable component.
  */
-@ExperimentalComposeUiApi
 class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node() {
     /**
      * The [FocusState] associated with this [FocusTargetModifierNode].
@@ -82,7 +81,6 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
      * [FocusPropertiesModifierNode.modifyFocusProperties] on each parent.
      * This effectively collects an aggregated focus state.
      */
-    @ExperimentalComposeUiApi
     internal fun fetchFocusProperties(): FocusProperties {
         val properties = FocusPropertiesImpl()
         visitAncestors(Nodes.FocusProperties or Nodes.FocusTarget) {
@@ -107,7 +105,7 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
      * This function prevents that re-entrant scenario by ensuring there is only one concurrent
      * invocation of this lambda.
      */
-    @ExperimentalComposeUiApi
+    @OptIn(ExperimentalComposeUiApi::class)
     internal inline fun fetchCustomEnter(
         focusDirection: FocusDirection,
         block: (FocusRequester) -> Unit
@@ -131,7 +129,7 @@ class FocusTargetModifierNode : ObserverNode, ModifierLocalNode, Modifier.Node()
      * This function prevents that re-entrant scenario by ensuring there is only one concurrent
      * invocation of this lambda.
      */
-    @ExperimentalComposeUiApi
+    @OptIn(ExperimentalComposeUiApi::class)
     internal inline fun fetchCustomExit(
         focusDirection: FocusDirection,
         block: (FocusRequester) -> Unit

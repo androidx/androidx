@@ -17,7 +17,6 @@
 package androidx.compose.ui.layout
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
@@ -33,7 +32,6 @@ import androidx.compose.ui.unit.Density
 @Stable
 fun Modifier.layoutId(layoutId: Any) = this then LayoutIdModifierElement(layoutId = layoutId)
 
-@OptIn(ExperimentalComposeUiApi::class)
 private data class LayoutIdModifierElement(
     private val layoutId: Any
 ) : ModifierNodeElement<LayoutIdModifier>() {
@@ -54,7 +52,6 @@ private data class LayoutIdModifierElement(
  * will act as parent data, and can be used for example by parent layouts to associate
  * composable children to [Measurable]s when doing layout, as shown below.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 private class LayoutIdModifier(
     layoutId: Any,
 ) : ParentDataModifierNode, LayoutIdParentData, Modifier.Node() {

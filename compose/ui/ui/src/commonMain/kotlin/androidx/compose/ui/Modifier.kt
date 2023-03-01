@@ -160,7 +160,6 @@ interface Modifier {
      * @see androidx.compose.ui.node.GlobalPositionAwareModifierNode
      * @see androidx.compose.ui.node.IntermediateLayoutModifierNode
      */
-    @ExperimentalComposeUiApi
     abstract class Node : DelegatableNode {
         @Suppress("LeakingThis")
         final override var node: Node = this

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.key
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -30,7 +29,6 @@ import androidx.compose.ui.platform.InspectorInfo
  * is called for the focused item. If the event is still not consumed, [onKeyEvent]() is called on
  * the focused item's parents.
  */
-@ExperimentalComposeUiApi
 interface KeyInputModifierNode : DelegatableNode {
 
     /**
@@ -50,7 +48,6 @@ interface KeyInputModifierNode : DelegatableNode {
     fun onPreKeyEvent(event: KeyEvent): Boolean
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal data class OnKeyEventElement(
     val onKeyEvent: (KeyEvent) -> Boolean
 ) : ModifierNodeElement<KeyInputInputModifierNodeImpl>() {
@@ -70,7 +67,6 @@ internal data class OnKeyEventElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal data class OnPreviewKeyEvent(
     val onPreviewKeyEvent: (KeyEvent) -> Boolean
 ) : ModifierNodeElement<KeyInputInputModifierNodeImpl>() {
@@ -89,7 +85,6 @@ internal data class OnPreviewKeyEvent(
     }
 }
 
-@ExperimentalComposeUiApi
 internal class KeyInputInputModifierNodeImpl(
     var onEvent: ((KeyEvent) -> Boolean)?,
     var onPreEvent: ((KeyEvent) -> Boolean)?
