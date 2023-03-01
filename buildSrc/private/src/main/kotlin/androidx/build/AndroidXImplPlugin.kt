@@ -155,6 +155,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             it.configureWithAndroidXExtension(extension)
         }
         project.configureConstraintsWithinGroup(extension)
+        project.validateProjectParser(extension)
     }
 
     private fun Project.registerProjectOrArtifact() {
@@ -1153,6 +1154,31 @@ fun Project.validateMultiplatformPluginHasNotBeenApplied() {
         throw GradleException(
             "The Kotlin multiplatform plugin should only be applied by the AndroidX plugin."
         )
+    }
+}
+
+/**
+ * Verifies that ProjectParser computes the correct values for this project
+ */
+fun Project.validateProjectParser(extension: AndroidXExtension) {
+    project.afterEvaluate {
+        val parsed = project.parse()
+        check(extension.type == parsed.libraryType) {
+            "ProjectParser incorrectly computed libraryType = ${parsed.libraryType} " +
+                "instead of ${extension.type}"
+        }
+        check(extension.publish == parsed.publish) {
+            "ProjectParser incorrectly computed publish = ${parsed.publish} " +
+                "instead of ${extension.publish}"
+        }
+        check(extension.shouldPublish() == parsed.shouldPublish()) {
+            "ProjectParser incorrectly computed shouldPublish() = ${parsed.shouldPublish()} " +
+                "instead of ${extension.shouldPublish()}"
+        }
+        check(extension.shouldRelease() == parsed.shouldRelease()) {
+            "ProjectParser incorrectly computed shouldRelease() = ${parsed.shouldRelease()} " +
+                "instead of ${extension.shouldRelease()}"
+        }
     }
 }
 
