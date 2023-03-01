@@ -85,15 +85,17 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
     @get:Rule
     val rule = createComposeRule()
 
-    private val itemSize: Float = 50f
+    // the numbers should be divisible by 8 to avoid the rounding issues as we run 4 or 8 frames
+    // of the animation.
+    private val itemSize: Float = 40f
     private var itemSizeDp: Dp = Dp.Infinity
-    private val itemSize2: Float = 30f
+    private val itemSize2: Float = 24f
     private var itemSize2Dp: Dp = Dp.Infinity
-    private val itemSize3: Float = 20f
+    private val itemSize3: Float = 16f
     private var itemSize3Dp: Dp = Dp.Infinity
     private val containerSize: Float = itemSize * 5
     private var containerSizeDp: Dp = Dp.Infinity
-    private val spacing: Float = 10f
+    private val spacing: Float = 8f
     private var spacingDp: Dp = Dp.Infinity
     private val itemSizePlusSpacing = itemSize + spacing
     private var itemSizePlusSpacingDp = Dp.Infinity
@@ -1534,6 +1536,173 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
+    @Test
+    fun scrollIsAffectingItemsMovingWithinViewport() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3))
+        val scrollDelta = spacing
+        rule.setContent {
+            LazyList(maxSize = itemSizeDp * 2) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            list = listOf(0, 2, 1, 3)
+        }
+
+        onAnimationFrame { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    0 to 0f,
+                    1 to itemSize,
+                    2 to itemSize * 2,
+                    fraction = fraction
+                )
+                rule.runOnUiThread {
+                    runBlocking { state.scrollBy(scrollDelta) }
+                }
+            }
+            assertPositions(
+                0 to -scrollDelta,
+                1 to itemSize - scrollDelta + itemSize * fraction,
+                2 to itemSize * 2 - scrollDelta - itemSize * fraction,
+                fraction = fraction
+            )
+        }
+    }
+
+    @Test
+    fun scrollIsNotAffectingItemMovingToTheBottomOutsideOfBounds() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        val scrollDelta = spacing
+        val containerSizeDp = itemSizeDp * 2
+        val containerSize = itemSize * 2
+        rule.setContent {
+            LazyList(maxSize = containerSizeDp) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            list = listOf(0, 4, 2, 3, 1)
+        }
+
+        onAnimationFrame { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    0 to 0f,
+                    1 to itemSize,
+                    fraction = fraction
+                )
+                rule.runOnUiThread {
+                    runBlocking { state.scrollBy(scrollDelta) }
+                }
+            }
+            assertPositions(
+                0 to -scrollDelta,
+                1 to itemSize + (containerSize - itemSize) * fraction,
+                fraction = fraction
+            )
+        }
+    }
+
+    @Test
+    fun scrollIsNotAffectingItemMovingToTheTopOutsideOfBounds() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        val scrollDelta = -spacing
+        val containerSizeDp = itemSizeDp * 2
+        rule.setContent {
+            LazyList(maxSize = containerSizeDp, startIndex = 2) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            list = listOf(3, 0, 1, 2, 4)
+        }
+
+        onAnimationFrame { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    2 to 0f,
+                    3 to itemSize,
+                    fraction = fraction
+                )
+                rule.runOnUiThread {
+                    runBlocking { state.scrollBy(scrollDelta) }
+                }
+            }
+            assertPositions(
+                2 to -scrollDelta,
+                3 to itemSize - (itemSize * 2 * fraction),
+                fraction = fraction
+            )
+        }
+    }
+
+    @Test
+    fun afterScrollingEnoughToReachNewPositionScrollDeltasStartAffectingPosition() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        val containerSizeDp = itemSizeDp * 2
+        val scrollDelta = spacing
+        rule.setContent {
+            LazyList(maxSize = containerSizeDp) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            list = listOf(0, 4, 2, 3, 1)
+        }
+
+        onAnimationFrame { fraction ->
+            if (fraction == 0f) {
+                assertPositions(
+                    0 to 0f,
+                    1 to itemSize,
+                    fraction = fraction
+                )
+                rule.runOnUiThread {
+                    runBlocking { state.scrollBy(itemSize * 2) }
+                }
+                assertPositions(
+                    2 to 0f,
+                    3 to itemSize,
+                    // after the first scroll the new position of item 1 is still not reached
+                    // so the target didn't change, we still aim to end right after the bounds
+                    1 to itemSize,
+                    fraction = fraction
+                )
+                rule.runOnUiThread {
+                    runBlocking { state.scrollBy(scrollDelta) }
+                }
+                assertPositions(
+                    2 to 0f - scrollDelta,
+                    3 to itemSize - scrollDelta,
+                    // after the second scroll the item 1 is visible, so we know its new target
+                    // position. the animation is now targeting the real end position and now
+                    // we are reacting on the scroll deltas
+                    1 to itemSize - scrollDelta,
+                    fraction = fraction
+                )
+            }
+            assertPositions(
+                2 to -scrollDelta,
+                3 to itemSize - scrollDelta,
+                1 to itemSize - scrollDelta + itemSize * fraction,
+                fraction = fraction
+            )
+        }
+    }
+
     private fun assertPositions(
         vararg expected: Pair<Any, Float>,
         crossAxis: List<Pair<Any, Float>>? = null,
@@ -1693,26 +1862,24 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         crossAxisSize: Dp = size,
         animSpec: FiniteAnimationSpec<IntOffset>? = AnimSpec
     ) {
-        Box(Modifier
-            .then(
-                if (isVertical) {
-                    Modifier
-                        .requiredHeight(size)
-                        .requiredWidth(crossAxisSize)
-                } else {
-                    Modifier
-                        .requiredWidth(size)
-                        .requiredHeight(crossAxisSize)
-                }
-            )
-            .testTag(tag.toString())
-            .then(
-                if (animSpec != null) {
-                    Modifier.animateItemPlacement(animSpec)
-                } else {
-                    Modifier
-                }
-            )
+        Box(
+            if (animSpec != null) {
+                Modifier.animateItemPlacement(animSpec)
+            } else {
+                Modifier
+            }
+                .then(
+                    if (isVertical) {
+                        Modifier
+                            .requiredHeight(size)
+                            .requiredWidth(crossAxisSize)
+                    } else {
+                        Modifier
+                            .requiredWidth(size)
+                            .requiredHeight(crossAxisSize)
+                    }
+                )
+                .testTag(tag.toString())
         )
     }
 

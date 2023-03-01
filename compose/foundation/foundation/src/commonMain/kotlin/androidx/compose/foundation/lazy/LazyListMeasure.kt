@@ -295,7 +295,8 @@ internal fun measureLazyList(
             layoutWidth = layoutWidth,
             layoutHeight = layoutHeight,
             positionedItems = positionedItems,
-            itemProvider = measuredItemProvider
+            itemProvider = measuredItemProvider,
+            isVertical = isVertical
         )
 
         val headerItem = if (headerIndexes.isNotEmpty()) {

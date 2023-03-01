@@ -214,7 +214,7 @@ class LazyListState constructor(
      */
     internal val awaitLayoutModifier = AwaitFirstLayoutModifier()
 
-    internal var placementAnimator by mutableStateOf<LazyListItemPlacementAnimator?>(null)
+    internal val placementAnimator = LazyListItemPlacementAnimator()
 
     /**
      * Constraints passed to the prefetcher for premeasuring the prefetched items.
@@ -248,7 +248,7 @@ class LazyListState constructor(
     internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
         scrollPosition.requestPosition(DataIndex(index), scrollOffset)
         // placement animation is not needed because we snap into a new position.
-        placementAnimator?.reset()
+        placementAnimator.reset()
         remeasurement?.forceRemeasure()
     }
 
