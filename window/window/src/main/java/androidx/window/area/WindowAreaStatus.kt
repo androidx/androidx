@@ -21,6 +21,9 @@ import androidx.window.extensions.area.WindowAreaComponent
 
 /**
  * Represents a window area status.
+ *
+ * @hide
+ *
  */
 @ExperimentalWindowApi
 class WindowAreaStatus private constructor(private val mDescription: String) {
