@@ -74,6 +74,22 @@ public open class FragmentNavigator(
      */
     private val toAttachObserver = mutableListOf<String>()
 
+    private val fragmentObserver = object : LifecycleEventObserver {
+        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                val fragment = source as Fragment
+                val entry = state.transitionsInProgress.value.lastOrNull { entry ->
+                    entry.id == fragment.tag
+                }
+                entry?.let {
+                    entriesToPop.remove(entry.id)
+                    state.markTransitionComplete(it)
+                }
+                fragment.lifecycle.removeObserver(this)
+            }
+        }
+    }
+
     override fun onAttach(state: NavigatorState) {
         super.onAttach(state)
 
@@ -86,6 +102,7 @@ public open class FragmentNavigator(
                     attachObserver(entry, fragment)
                 }
             }
+            fragment.lifecycle.addObserver(fragmentObserver)
         }
 
         fragmentManager.addOnBackStackChangedListener(object : OnBackStackChangedListener {
@@ -184,14 +201,14 @@ public open class FragmentNavigator(
             )
             return
         }
+        val beforePopList = state.backStack.value
+        // Get the set of entries that are going to be popped
+        val poppedList = beforePopList.subList(
+            beforePopList.indexOf(popUpTo),
+            beforePopList.size
+        )
         if (savedState) {
-            val beforePopList = state.backStack.value
             val initialEntry = beforePopList.first()
-            // Get the set of entries that are going to be popped
-            val poppedList = beforePopList.subList(
-                beforePopList.indexOf(popUpTo),
-                beforePopList.size
-            )
             // Now go through the list in reversed order (i.e., started from the most added)
             // and save the back stack state of each.
             for (entry in poppedList.reversed()) {
@@ -211,7 +228,10 @@ public open class FragmentNavigator(
                 FragmentManager.POP_BACK_STACK_INCLUSIVE
             )
         }
-        entriesToPop.add(popUpTo.id)
+        // Add all of the entries that are going to be popped to our set of entries to pop
+        poppedList.forEach {
+            entriesToPop.add(it.id)
+        }
         state.popWithTransition(popUpTo, savedState)
     }
 

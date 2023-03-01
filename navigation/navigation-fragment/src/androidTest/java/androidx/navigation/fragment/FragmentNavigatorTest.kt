@@ -713,6 +713,52 @@ class FragmentNavigatorTest {
         assertThat(restoredEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
     }
 
+    @UiThreadTest
+    @Test
+    fun testPopUpToDestroysIntermediateEntries() {
+        val entry1 = createBackStackEntry()
+
+        // navigate to first entry and verify it executed correctly
+        fragmentNavigator.navigate(listOf(entry1), null, null)
+        assertThat(navigatorState.backStack.value).containsExactly(entry1)
+        fragmentManager.executePendingTransactions()
+
+        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        val entry2 = createBackStackEntry(SECOND_FRAGMENT)
+        fragmentNavigator.navigate(listOf(entry2), null, null)
+        fragmentManager.executePendingTransactions()
+
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+
+        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        // assert entry received fragment lifecycle event to move it to resumed
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        val entry3 = createBackStackEntry(THIRD_FRAGMENT)
+        fragmentNavigator.navigate(listOf(entry3), null, null)
+        fragmentManager.executePendingTransactions()
+        // assert states
+        val fragment2 = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment2)
+            .isNotNull()
+
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        // assert entry received fragment lifecycle event to move it to resumed
+        assertThat(entry3.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        fragmentNavigator.popBackStack(entry2, false)
+        fragmentManager.executePendingTransactions()
+
+        assertThat(entry2.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(entry3.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
     @Test
     fun testNavigatePopUpToGraphInterrupt() {
         withUse(ActivityScenario.launch(NavigationActivity::class.java)) {
