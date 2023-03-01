@@ -74,6 +74,14 @@ class BeginGetPublicKeyCredentialOption constructor(
             }
         }
 
+        /** @hide */
+        @JvmStatic
+        internal fun createFromEntrySlice(data: Bundle, id: String):
+            BeginGetPublicKeyCredentialOption {
+            val requestJson = "dummy_request_json"
+            return BeginGetPublicKeyCredentialOption(data, id, requestJson)
+        }
+
         @JvmField val CREATOR: Parcelable.Creator<BeginGetPublicKeyCredentialOption> = object :
             Parcelable.Creator<BeginGetPublicKeyCredentialOption> {
             override fun createFromParcel(p0: Parcel?): BeginGetPublicKeyCredentialOption {
