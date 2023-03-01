@@ -376,6 +376,8 @@ public final class ImageAnalysis extends UseCase {
                 },
                 CameraXExecutors.mainThreadExecutor());
 
+        sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
+
         sessionConfigBuilder.addSurface(mDeferrableSurface);
 
 
