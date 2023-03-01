@@ -247,11 +247,12 @@ class ModalBottomSheetTest {
             ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
                 Box(
                     Modifier
-                        .fillMaxSize()
+                        // Deliberately use fraction != 1f
+                        .fillMaxSize(0.6f)
                         .testTag(sheetTag))
             }
         }
-        rule.waitForIdle()
+
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         assertThat(sheetState.requireOffset())
             .isWithin(1f)
@@ -319,7 +320,6 @@ class ModalBottomSheetTest {
                 }
             }
         }
-
         assertThat(sheetState.isVisible).isTrue()
 
         rule.onNodeWithTag(BackTestTag).performClick()
