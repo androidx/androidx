@@ -17,6 +17,7 @@
 package androidx.baselineprofile.gradle.consumer
 
 import org.gradle.api.Action
+import org.gradle.api.Incubating
 import org.gradle.api.Project
 
 /**
@@ -68,6 +69,15 @@ open class BaselineProfileConsumerExtension {
      *  aar is merged into a single one.
      */
     var mergeIntoMain: Boolean? = null
+
+    /**
+     * Enables R8 to rewrite the incoming human readable baseline profile rules to account for
+     * synthetics, so they are preserved after optimizations by R8.
+     * TODO: This feature is experimental and currently not working properly.
+     *  https://issuetracker.google.com/issue?id=271172067.
+     */
+    @Incubating
+    var enableR8BaselineProfileRewrite = false
 
     /**
      * Specifies a filtering rule to decide which profiles rules should be included in this
