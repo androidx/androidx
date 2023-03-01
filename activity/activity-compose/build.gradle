@@ -33,9 +33,6 @@ dependencies {
     api("androidx.lifecycle:lifecycle-viewmodel:2.6.0")
     api("androidx.compose.ui:ui:1.0.1")
 
-    // Need the dependency below to resolve conflict with compose deps using older lifecycle
-    // versions. Can remove this once compose deps are updated.
-    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.0")
     androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
     androidTestImplementation projectOrArtifact(":compose:material:material")
     androidTestImplementation projectOrArtifact(":compose:test-utils")
