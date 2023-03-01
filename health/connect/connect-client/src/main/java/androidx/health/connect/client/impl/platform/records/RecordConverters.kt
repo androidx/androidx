@@ -15,12 +15,11 @@
  */
 
 @file:RestrictTo(RestrictTo.Scope.LIBRARY)
-@file:RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@file:RequiresApi(api = 34)
 
 package androidx.health.connect.client.impl.platform.records
 
 import android.annotation.SuppressLint
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
@@ -166,7 +165,8 @@ private fun PlatformActiveCaloriesBurnedRecord.toSdkActiveCaloriesBurnedRecord()
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         energy = energy.toSdkEnergy(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformBasalBodyTemperatureRecord.toSdkBasalBodyTemperatureRecord() =
     BasalBodyTemperatureRecord(
@@ -174,14 +174,16 @@ private fun PlatformBasalBodyTemperatureRecord.toSdkBasalBodyTemperatureRecord()
         zoneOffset = zoneOffset,
         temperature = temperature.toSdkTemperature(),
         measurementLocation = measurementLocation,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformBasalMetabolicRateRecord.toSdkBasalMetabolicRateRecord() =
     BasalMetabolicRateRecord(
         time = time,
         zoneOffset = zoneOffset,
         basalMetabolicRate = basalMetabolicRate.toSdkPower(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformBloodGlucoseRecord.toSdkBloodGlucoseRecord() =
     BloodGlucoseRecord(
@@ -191,7 +193,8 @@ private fun PlatformBloodGlucoseRecord.toSdkBloodGlucoseRecord() =
         specimenSource = specimenSource,
         mealType = mealType,
         relationToMeal = relationToMeal,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformBloodPressureRecord.toSdkBloodPressureRecord() =
     BloodPressureRecord(
@@ -201,14 +204,16 @@ private fun PlatformBloodPressureRecord.toSdkBloodPressureRecord() =
         diastolic = diastolic.toSdkPressure(),
         bodyPosition = bodyPosition,
         measurementLocation = measurementLocation,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformBodyFatRecord.toSdkBodyFatRecord() =
     BodyFatRecord(
         time = time,
         zoneOffset = zoneOffset,
         percentage = percentage.toSdkPercentage(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformBodyTemperatureRecord.toSdkBodyTemperatureRecord() =
     BodyTemperatureRecord(
@@ -216,21 +221,24 @@ private fun PlatformBodyTemperatureRecord.toSdkBodyTemperatureRecord() =
         zoneOffset = zoneOffset,
         temperature = temperature.toSdkTemperature(),
         measurementLocation = measurementLocation,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformBodyWaterMassRecord.toSdkBodyWaterMassRecord() =
     BodyWaterMassRecord(
         time = time,
         zoneOffset = zoneOffset,
         mass = bodyWaterMass.toSdkMass(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformBoneMassRecord.toSdkBoneMassRecord() =
     BoneMassRecord(
         time = time,
         zoneOffset = zoneOffset,
         mass = mass.toSdkMass(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformCervicalMucusRecord.toSdkCervicalMucusRecord() =
     CervicalMucusRecord(
@@ -238,7 +246,8 @@ private fun PlatformCervicalMucusRecord.toSdkCervicalMucusRecord() =
         zoneOffset = zoneOffset,
         appearance = appearance,
         sensation = sensation,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformCyclingPedalingCadenceRecord.toSdkCyclingPedalingCadenceRecord() =
     CyclingPedalingCadenceRecord(
@@ -247,7 +256,8 @@ private fun PlatformCyclingPedalingCadenceRecord.toSdkCyclingPedalingCadenceReco
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         samples = samples.map { it.toSdkCyclingPedalingCadenceSample() },
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformDistanceRecord.toSdkDistanceRecord() =
     DistanceRecord(
@@ -256,7 +266,8 @@ private fun PlatformDistanceRecord.toSdkDistanceRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         distance = distance.toSdkLength(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformElevationGainedRecord.toSdkElevationGainedRecord() =
     ElevationGainedRecord(
@@ -265,7 +276,8 @@ private fun PlatformElevationGainedRecord.toSdkElevationGainedRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         elevation = elevation.toSdkLength(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformExerciseSessionRecord.toSdkExerciseSessionRecord() =
     ExerciseSessionRecord(
@@ -276,7 +288,8 @@ private fun PlatformExerciseSessionRecord.toSdkExerciseSessionRecord() =
         exerciseType = exerciseType,
         title = title?.toString(),
         notes = notes?.toString(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformFloorsClimbedRecord.toSdkFloorsClimbedRecord() =
     FloorsClimbedRecord(
@@ -285,7 +298,8 @@ private fun PlatformFloorsClimbedRecord.toSdkFloorsClimbedRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         floors = floors.toDouble(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformHeartRateRecord.toSdkHeartRateRecord() =
     HeartRateRecord(
@@ -294,21 +308,24 @@ private fun PlatformHeartRateRecord.toSdkHeartRateRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         samples = samples.map { it.toSdkHeartRateSample() },
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformHeartRateVariabilityRmssdRecord.toSdkHeartRateVariabilityRmssdRecord() =
     HeartRateVariabilityRmssdRecord(
         time = time,
         zoneOffset = zoneOffset,
         heartRateVariabilityMillis = heartRateVariabilityMillis,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformHeightRecord.toSdkHeightRecord() =
     HeightRecord(
         time = time,
         zoneOffset = zoneOffset,
         height = height.toSdkLength(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformHydrationRecord.toSdkHydrationRecord() =
     HydrationRecord(
@@ -317,22 +334,31 @@ private fun PlatformHydrationRecord.toSdkHydrationRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         volume = volume.toSdkVolume(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformIntermenstrualBleedingRecord.toSdkIntermenstrualBleedingRecord() =
     IntermenstrualBleedingRecord(
-        time = time, zoneOffset = zoneOffset, metadata = metadata.toSdkMetadata())
+        time = time,
+        zoneOffset = zoneOffset,
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformLeanBodyMassRecord.toSdkLeanBodyMassRecord() =
     LeanBodyMassRecord(
         time = time,
         zoneOffset = zoneOffset,
         mass = mass.toSdkMass(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformMenstruationFlowRecord.toSdkMenstruationFlowRecord() =
     MenstruationFlowRecord(
-        time = time, zoneOffset = zoneOffset, flow = flow, metadata = metadata.toSdkMetadata())
+        time = time,
+        zoneOffset = zoneOffset,
+        flow = flow,
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformMenstruationPeriodRecord.toSdkMenstruationPeriodRecord() =
     MenstruationPeriodRecord(
@@ -340,7 +366,8 @@ private fun PlatformMenstruationPeriodRecord.toSdkMenstruationPeriodRecord() =
         startZoneOffset = startZoneOffset,
         endTime = endTime,
         endZoneOffset = endZoneOffset,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformNutritionRecord.toSdkNutritionRecord() =
     NutritionRecord(
@@ -392,18 +419,24 @@ private fun PlatformNutritionRecord.toSdkNutritionRecord() =
         vitaminD = vitaminD?.toSdkMass(),
         vitaminE = vitaminE?.toSdkMass(),
         vitaminK = vitaminK?.toSdkMass(),
-        zinc = zinc?.toSdkMass())
+        zinc = zinc?.toSdkMass()
+    )
 
 private fun PlatformOvulationTestRecord.toSdkOvulationTestRecord() =
     OvulationTestRecord(
-        time = time, zoneOffset = zoneOffset, result = result, metadata = metadata.toSdkMetadata())
+        time = time,
+        zoneOffset = zoneOffset,
+        result = result,
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformOxygenSaturationRecord.toSdkOxygenSaturationRecord() =
     OxygenSaturationRecord(
         time = time,
         zoneOffset = zoneOffset,
         percentage = percentage.toSdkPercentage(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformPowerRecord.toSdkPowerRecord() =
     PowerRecord(
@@ -412,25 +445,32 @@ private fun PlatformPowerRecord.toSdkPowerRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         samples = samples.map { it.toSdkPowerRecordSample() },
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformRespiratoryRateRecord.toSdkRespiratoryRateRecord() =
     RespiratoryRateRecord(
-        time = time, zoneOffset = zoneOffset, rate = rate, metadata = metadata.toSdkMetadata())
+        time = time,
+        zoneOffset = zoneOffset,
+        rate = rate,
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformRestingHeartRateRecord.toSdkRestingHeartRateRecord() =
     RestingHeartRateRecord(
         time = time,
         zoneOffset = zoneOffset,
         beatsPerMinute = beatsPerMinute,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformSexualActivityRecord.toSdkSexualActivityRecord() =
     SexualActivityRecord(
         time = time,
         zoneOffset = zoneOffset,
         protectionUsed = protectionUsed,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformSleepSessionRecord.toSdkSleepSessionRecord() =
     SleepSessionRecord(
@@ -440,7 +480,8 @@ private fun PlatformSleepSessionRecord.toSdkSleepSessionRecord() =
         endZoneOffset = endZoneOffset,
         metadata = metadata.toSdkMetadata(),
         title = title?.toString(),
-        notes = notes?.toString())
+        notes = notes?.toString()
+    )
 
 private fun PlatformSpeedRecord.toSdkSpeedRecord() =
     SpeedRecord(
@@ -449,7 +490,8 @@ private fun PlatformSpeedRecord.toSdkSpeedRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         samples = samples.map { it.toSdkSpeedSample() },
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformStepsCadenceRecord.toSdkStepsCadenceRecord() =
     StepsCadenceRecord(
@@ -458,7 +500,8 @@ private fun PlatformStepsCadenceRecord.toSdkStepsCadenceRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         samples = samples.map { it.toSdkStepsCadenceSample() },
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformStepsRecord.toSdkStepsRecord() =
     StepsRecord(
@@ -467,7 +510,8 @@ private fun PlatformStepsRecord.toSdkStepsRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         count = count,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformTotalCaloriesBurnedRecord.toSdkTotalCaloriesBurnedRecord() =
     TotalCaloriesBurnedRecord(
@@ -476,7 +520,8 @@ private fun PlatformTotalCaloriesBurnedRecord.toSdkTotalCaloriesBurnedRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         energy = energy.toSdkEnergy(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformVo2MaxRecord.toSdkVo2MaxRecord() =
     Vo2MaxRecord(
@@ -484,14 +529,16 @@ private fun PlatformVo2MaxRecord.toSdkVo2MaxRecord() =
         zoneOffset = zoneOffset,
         vo2MillilitersPerMinuteKilogram = vo2MillilitersPerMinuteKilogram,
         measurementMethod = measurementMethod,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformWeightRecord.toSdkWeightRecord() =
     WeightRecord(
         time = time,
         zoneOffset = zoneOffset,
         weight = weight.toSdkMass(),
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun PlatformWheelchairPushesRecord.toWheelchairPushesRecord() =
     WheelchairPushesRecord(
@@ -500,14 +547,16 @@ private fun PlatformWheelchairPushesRecord.toWheelchairPushesRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         count = count,
-        metadata = metadata.toSdkMetadata())
+        metadata = metadata.toSdkMetadata()
+    )
 
 private fun ActiveCaloriesBurnedRecord.toPlatformActiveCaloriesBurnedRecord() =
     PlatformActiveCaloriesBurnedRecordBuilder(
             metadata.toPlatformMetadata(),
             startTime,
             endTime,
-            PlatformEnergy.fromJoules(energy.inJoules))
+            PlatformEnergy.fromJoules(energy.inJoules)
+        )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -520,13 +569,17 @@ private fun BasalBodyTemperatureRecord.toPlatformBasalBodyTemperatureRecord() =
             metadata.toPlatformMetadata(),
             time,
             measurementLocation,
-            temperature.toPlatformTemperature())
+            temperature.toPlatformTemperature()
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
 private fun BasalMetabolicRateRecord.toPlatformBasalMetabolicRateRecord() =
     PlatformBasalMetabolicRateRecordBuilder(
-            metadata.toPlatformMetadata(), time, basalMetabolicRate.toPlatformPower())
+            metadata.toPlatformMetadata(),
+            time,
+            basalMetabolicRate.toPlatformPower()
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
@@ -538,7 +591,8 @@ private fun BloodGlucoseRecord.toPlatformBloodGlucoseRecord() =
             specimenSource,
             level.toPlatformBloodGlucose(),
             relationToMeal,
-            mealType)
+            mealType
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
@@ -550,13 +604,17 @@ private fun BloodPressureRecord.toPlatformBloodPressureRecord() =
             measurementLocation,
             systolic.toPlatformPressure(),
             diastolic.toPlatformPressure(),
-            bodyPosition)
+            bodyPosition
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
 private fun BodyFatRecord.toPlatformBodyFatRecord() =
     PlatformBodyFatRecordBuilder(
-            metadata.toPlatformMetadata(), time, percentage.toPlatformPercentage())
+            metadata.toPlatformMetadata(),
+            time,
+            percentage.toPlatformPercentage()
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
@@ -566,7 +624,8 @@ private fun BodyTemperatureRecord.toPlatformBodyTemperatureRecord() =
             metadata.toPlatformMetadata(),
             time,
             measurementLocation,
-            temperature.toPlatformTemperature())
+            temperature.toPlatformTemperature()
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
@@ -591,7 +650,8 @@ private fun CyclingPedalingCadenceRecord.toPlatformCyclingPedalingCadenceRecord(
             metadata.toPlatformMetadata(),
             startTime,
             endTime,
-            samples.map { it.toPlatformCyclingPedalingCadenceSample() })
+            samples.map { it.toPlatformCyclingPedalingCadenceSample() }
+        )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -603,7 +663,11 @@ private fun CyclingPedalingCadenceRecord.Sample.toPlatformCyclingPedalingCadence
 
 private fun DistanceRecord.toPlatformDistanceRecord() =
     PlatformDistanceRecordBuilder(
-            metadata.toPlatformMetadata(), startTime, endTime, distance.toPlatformLength())
+            metadata.toPlatformMetadata(),
+            startTime,
+            endTime,
+            distance.toPlatformLength()
+        )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -612,7 +676,11 @@ private fun DistanceRecord.toPlatformDistanceRecord() =
 
 private fun ElevationGainedRecord.toPlatformElevationGainedRecord() =
     PlatformElevationGainedRecordBuilder(
-            metadata.toPlatformMetadata(), startTime, endTime, elevation.toPlatformLength())
+            metadata.toPlatformMetadata(),
+            startTime,
+            endTime,
+            elevation.toPlatformLength()
+        )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -621,7 +689,11 @@ private fun ElevationGainedRecord.toPlatformElevationGainedRecord() =
 
 private fun ExerciseSessionRecord.toPlatformExerciseSessionRecord() =
     PlatformExerciseSessionRecordBuilder(
-            metadata.toPlatformMetadata(), startTime, endTime, exerciseType)
+            metadata.toPlatformMetadata(),
+            startTime,
+            endTime,
+            exerciseType
+        )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -631,8 +703,7 @@ private fun ExerciseSessionRecord.toPlatformExerciseSessionRecord() =
         .build()
 
 private fun FloorsClimbedRecord.toPlatformFloorsClimbedRecord() =
-    PlatformFloorsClimbedRecordBuilder(
-            metadata.toPlatformMetadata(), startTime, endTime, floors)
+    PlatformFloorsClimbedRecordBuilder(metadata.toPlatformMetadata(), startTime, endTime, floors)
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -644,7 +715,8 @@ private fun HeartRateRecord.toPlatformHeartRateRecord() =
             metadata.toPlatformMetadata(),
             startTime,
             endTime,
-            samples.map { it.toPlatformHeartRateSample() })
+            samples.map { it.toPlatformHeartRateSample() }
+        )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -656,7 +728,10 @@ private fun HeartRateRecord.Sample.toPlatformHeartRateSample() =
 
 private fun HeartRateVariabilityRmssdRecord.toPlatformHeartRateVariabilityRmssdRecord() =
     PlatformHeartRateVariabilityRmssdRecordBuilder(
-            metadata.toPlatformMetadata(), time, heartRateVariabilityMillis)
+            metadata.toPlatformMetadata(),
+            time,
+            heartRateVariabilityMillis
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
@@ -667,7 +742,11 @@ private fun HeightRecord.toPlatformHeightRecord() =
 
 private fun HydrationRecord.toPlatformHydrationRecord() =
     PlatformHydrationRecordBuilder(
-            metadata.toPlatformMetadata(), startTime, endTime, volume.toPlatformVolume())
+            metadata.toPlatformMetadata(),
+            startTime,
+            endTime,
+            volume.toPlatformVolume()
+        )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -752,7 +831,10 @@ private fun OvulationTestRecord.toPlatformOvulationTestRecord() =
 
 private fun OxygenSaturationRecord.toPlatformOxygenSaturationRecord() =
     PlatformOxygenSaturationRecordBuilder(
-            metadata.toPlatformMetadata(), time, percentage.toPlatformPercentage())
+            metadata.toPlatformMetadata(),
+            time,
+            percentage.toPlatformPercentage()
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
@@ -761,7 +843,8 @@ private fun PowerRecord.toPlatformPowerRecord() =
             metadata.toPlatformMetadata(),
             startTime,
             endTime,
-            samples.map { it.toPlatformPowerRecordSample() })
+            samples.map { it.toPlatformPowerRecordSample() }
+        )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -802,7 +885,8 @@ private fun SpeedRecord.toPlatformSpeedRecord() =
             metadata.toPlatformMetadata(),
             startTime,
             endTime,
-            samples.map { it.toPlatformSpeedRecordSample() })
+            samples.map { it.toPlatformSpeedRecordSample() }
+        )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -825,7 +909,8 @@ private fun StepsCadenceRecord.toPlatformStepsCadenceRecord() =
             metadata.toPlatformMetadata(),
             startTime,
             endTime,
-            samples.map { it.toPlatformStepsCadenceSample() })
+            samples.map { it.toPlatformStepsCadenceSample() }
+        )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -837,7 +922,11 @@ private fun StepsCadenceRecord.Sample.toPlatformStepsCadenceSample() =
 
 private fun TotalCaloriesBurnedRecord.toPlatformTotalCaloriesBurnedRecord() =
     PlatformTotalCaloriesBurnedRecordBuilder(
-            metadata.toPlatformMetadata(), startTime, endTime, energy.toPlatformEnergy())
+            metadata.toPlatformMetadata(),
+            startTime,
+            endTime,
+            energy.toPlatformEnergy()
+        )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -847,7 +936,11 @@ private fun TotalCaloriesBurnedRecord.toPlatformTotalCaloriesBurnedRecord() =
 @SuppressLint("WrongConstant")
 private fun Vo2MaxRecord.toPlatformVo2MaxRecord() =
     PlatformVo2MaxRecordBuilder(
-            metadata.toPlatformMetadata(), time, measurementMethod, vo2MillilitersPerMinuteKilogram)
+            metadata.toPlatformMetadata(),
+            time,
+            measurementMethod,
+            vo2MillilitersPerMinuteKilogram
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
