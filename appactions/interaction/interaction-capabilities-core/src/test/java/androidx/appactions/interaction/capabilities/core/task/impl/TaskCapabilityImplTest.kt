@@ -37,8 +37,7 @@ import androidx.appactions.interaction.capabilities.core.properties.StringProper
 import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver
 import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult
-import androidx.appactions.interaction.capabilities.core.task.ValueListener.Companion.toValueListener
-import androidx.appactions.interaction.capabilities.core.task.ValueListenerAsync
+import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils.buildRequestArgs
 import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils.buildSearchActionParamValue
 import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.CB_TIMEOUT
@@ -187,7 +186,7 @@ class TaskCapabilityImplTest {
         }
     }
 
-    private class DeferredValueListener<T> : ValueListenerAsync<T> {
+    private class DeferredValueListener<T> : ValueListener<T> {
         val mCompleterRef: AtomicReference<Completer<ValidationResult>> =
             AtomicReference<Completer<ValidationResult>>()
 
@@ -197,7 +196,7 @@ class TaskCapabilityImplTest {
             completer.set(t)
         }
 
-        override fun onReceived(value: T): ListenableFuture<ValidationResult> {
+        override fun onReceivedAsync(value: T): ListenableFuture<ValidationResult> {
             return CallbackToFutureAdapter.getFuture { newCompleter ->
                 val oldCompleter: Completer<ValidationResult>? = mCompleterRef.getAndSet(
                     newCompleter,
@@ -268,11 +267,11 @@ class TaskCapabilityImplTest {
         val sessionBridge = SessionBridge<CapabilityTwoEntityValues.Session, Void> {
             TaskHandler.Builder<Void>().registerValueTaskParam(
                 "slotA",
-                AUTO_ACCEPT_ENTITY_VALUE.toValueListener(),
+                AUTO_ACCEPT_ENTITY_VALUE,
                 TypeConverters::toEntityValue,
             ).registerValueTaskParam(
                 "slotB",
-                AUTO_ACCEPT_ENTITY_VALUE.toValueListener(),
+                AUTO_ACCEPT_ENTITY_VALUE,
                 TypeConverters::toEntityValue,
             ).build()
         }
@@ -348,11 +347,11 @@ class TaskCapabilityImplTest {
         val sessionBridge = SessionBridge<CapabilityTwoEntityValues.Session, Void> {
             TaskHandler.Builder<Void>().registerValueTaskParam(
                 "slotA",
-                AUTO_ACCEPT_ENTITY_VALUE.toValueListener(),
+                AUTO_ACCEPT_ENTITY_VALUE,
                 TypeConverters::toEntityValue,
             ).registerValueTaskParam(
                 "slotB",
-                AUTO_REJECT_ENTITY_VALUE.toValueListener(),
+                AUTO_REJECT_ENTITY_VALUE,
                 TypeConverters::toEntityValue,
             ).build()
         }
@@ -491,7 +490,7 @@ class TaskCapabilityImplTest {
                                 )
                             }
 
-                            override fun onReceived(
+                            override fun onReceivedAsync(
                                 value: EntityValue,
                             ): ListenableFuture<ValidationResult> {
                                 return Futures.immediateFuture(ValidationResult.newAccepted())
@@ -654,7 +653,7 @@ class TaskCapabilityImplTest {
                 }
 
                 override fun getListItemListener() = object : AppEntityResolver<ListItem> {
-                    override fun onReceived(
+                    override fun onReceivedAsync(
                         value: ListItem,
                     ): ListenableFuture<ValidationResult> {
                         onReceivedCb.set(value)
@@ -906,7 +905,9 @@ class TaskCapabilityImplTest {
                     )
                 }
 
-                override fun onReceived(value: EntityValue): ListenableFuture<ValidationResult> {
+                override fun onReceivedAsync(
+                    value: EntityValue,
+                ): ListenableFuture<ValidationResult> {
                     return Futures.immediateFuture(ValidationResult.newAccepted())
                 }
             }
@@ -922,7 +923,9 @@ class TaskCapabilityImplTest {
                     )
                 }
 
-                override fun onReceived(value: EntityValue): ListenableFuture<ValidationResult> {
+                override fun onReceivedAsync(
+                    value: EntityValue,
+                ): ListenableFuture<ValidationResult> {
                     return Futures.immediateFuture(ValidationResult.newRejected())
                 }
             }

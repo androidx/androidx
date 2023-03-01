@@ -24,7 +24,6 @@ import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver
 import androidx.appactions.interaction.capabilities.core.task.InventoryListResolver
 import androidx.appactions.interaction.capabilities.core.task.InventoryResolver
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
-import androidx.appactions.interaction.capabilities.core.task.ValueListenerAsync.Companion.toValueListenerAsync
 import androidx.appactions.interaction.proto.ParamValue
 import java.util.function.Function
 
@@ -125,9 +124,7 @@ data class TaskHandler<ConfirmationT> (
             mutableTaskParamMap[paramName] = TaskParamBinding(
                 paramName,
                 GROUND_NEVER,
-                GenericResolverInternal.fromValueListener(
-                    listener.toValueListenerAsync(),
-                ),
+                GenericResolverInternal.fromValueListener(listener),
                 converter,
                 null,
                 null,
@@ -143,10 +140,7 @@ data class TaskHandler<ConfirmationT> (
             mutableTaskParamMap[paramName] = TaskParamBinding(
                 paramName,
                 GROUND_NEVER,
-                GenericResolverInternal.fromValueListListener(
-
-                    listener.toValueListenerAsync(),
-                ),
+                GenericResolverInternal.fromValueListListener(listener),
                 converter,
                 null,
                 null,

@@ -26,7 +26,7 @@ import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.task.InventoryListResolver;
 import androidx.appactions.interaction.capabilities.core.task.InventoryResolver;
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult;
-import androidx.appactions.interaction.capabilities.core.task.ValueListenerAsync;
+import androidx.appactions.interaction.capabilities.core.task.ValueListener;
 import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.InvalidResolverException;
 import androidx.appactions.interaction.capabilities.core.values.SearchAction;
 import androidx.appactions.interaction.proto.ParamValue;
@@ -48,13 +48,13 @@ import java.util.List;
 public abstract class GenericResolverInternal<ValueTypeT> {
     @NonNull
     public static <ValueTypeT> GenericResolverInternal<ValueTypeT> fromValueListener(
-            @NonNull ValueListenerAsync<ValueTypeT> valueListener) {
+            @NonNull ValueListener<ValueTypeT> valueListener) {
         return AutoOneOf_GenericResolverInternal.value(valueListener);
     }
 
     @NonNull
     public static <ValueTypeT> GenericResolverInternal<ValueTypeT> fromValueListListener(
-            @NonNull ValueListenerAsync<List<ValueTypeT>> valueListListener) {
+            @NonNull ValueListener<List<ValueTypeT>> valueListListener) {
         return AutoOneOf_GenericResolverInternal.valueList(valueListListener);
     }
 
@@ -87,9 +87,9 @@ public abstract class GenericResolverInternal<ValueTypeT> {
     @NonNull
     public abstract Kind getKind();
 
-    abstract ValueListenerAsync<ValueTypeT> value();
+    abstract ValueListener<ValueTypeT> value();
 
-    abstract ValueListenerAsync<List<ValueTypeT>> valueList();
+    abstract ValueListener<List<ValueTypeT>> valueList();
 
     abstract AppEntityResolver<ValueTypeT> appEntityResolver();
 
@@ -151,17 +151,19 @@ public abstract class GenericResolverInternal<ValueTypeT> {
 
         switch (getKind()) {
             case VALUE:
-                return value().onReceived(singularConverter.convert(paramValues));
+                return value().onReceivedAsync(singularConverter.convert(paramValues));
             case VALUE_LIST:
-                return valueList().onReceived(repeatedConverter.convert(paramValues));
+                return valueList().onReceivedAsync(repeatedConverter.convert(paramValues));
             case APP_ENTITY_RESOLVER:
-                return appEntityResolver().onReceived(singularConverter.convert(paramValues));
+                return appEntityResolver().onReceivedAsync(singularConverter.convert(paramValues));
             case APP_ENTITY_LIST_RESOLVER:
-                return appEntityListResolver().onReceived(repeatedConverter.convert(paramValues));
+                return appEntityListResolver()
+                        .onReceivedAsync(repeatedConverter.convert(paramValues));
             case INVENTORY_RESOLVER:
-                return inventoryResolver().onReceived(singularConverter.convert(paramValues));
+                return inventoryResolver().onReceivedAsync(singularConverter.convert(paramValues));
             case INVENTORY_LIST_RESOLVER:
-                return inventoryListResolver().onReceived(repeatedConverter.convert(paramValues));
+                return inventoryListResolver()
+                        .onReceivedAsync(repeatedConverter.convert(paramValues));
         }
         throw new IllegalStateException("unreachable");
     }
