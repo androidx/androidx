@@ -929,6 +929,13 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                     // publish it
                     continue
                 }
+                // Under certain circumstances, a project is allowed to override its
+                // version see ( isGroupVersionOverrideAllowed ), in which case it's
+                // not participating in the versioning policy yet and we don't emit
+                // version constraints referencing it
+                if (parsed.specifiesVersion) {
+                    continue
+                }
                 val dependencyConstraint = project(otherGradlePath)
                 constraints.add(
                     constraintConfiguration.name,
