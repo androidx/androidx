@@ -21,6 +21,7 @@ import android.util.SizeF
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
 import androidx.annotation.IdRes
+import androidx.annotation.RestrictTo
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.ResourceBuilders
 
@@ -29,8 +30,13 @@ import androidx.wear.tiles.ResourceBuilders
  * directly, it must be built from a [UiResponse] Builder.
  */
 class UiResponse {
-    internal val remoteViewsInternal: RemoteViewsInternal?
-    internal val tileLayoutInternal: TileLayoutInternal?
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    val remoteViewsInternal: RemoteViewsInternal?
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    val tileLayoutInternal: TileLayoutInternal?
 
     internal constructor(remoteViewsInternal: RemoteViewsInternal) {
         this.remoteViewsInternal = remoteViewsInternal

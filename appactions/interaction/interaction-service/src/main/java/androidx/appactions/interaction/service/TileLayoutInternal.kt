@@ -22,9 +22,13 @@ import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.ResourceBuilders
 import com.google.protobuf.ByteString
 
-/** Holder for TileLayout response. */
+/**
+ * Holder for TileLayout response.
+ *
+ * @hide
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal data class TileLayoutInternal(
+data class TileLayoutInternal(
     val layout: LayoutElementBuilders.Layout,
     val resources: ResourceBuilders.Resources
 ) {
