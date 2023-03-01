@@ -39,7 +39,7 @@ tasks {
 }
 
 androidx {
-    name = "andriodx.privacysandbox.plugins:privacysandbox-library"
+    name = "androidx.privacysandbox.plugins:privacysandbox-library"
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2023"
     description = "Android Privacy Sandbox Sdk Library Gradle Plugin"
