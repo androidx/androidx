@@ -30,10 +30,12 @@ import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpMeteringRegionCorrection
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.impl.State3AControl
@@ -86,6 +88,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.StreamConfigurationMapBuilder
 import org.robolectric.util.ReflectionHelpers
 
 private const val CAMERA_ID_0 = "0" // 640x480 sensor size
@@ -113,6 +116,7 @@ private val M_RECT_3 = Rect(
     SENSOR_WIDTH,
     SENSOR_HEIGHT
 )
+
 // the following rectangles are for metering point (0, 0)
 private val M_RECT_PVIEW_RATIO_16x9_SENSOR_640x480 = Rect(
     0, 60 - AREA_HEIGHT / 2,
@@ -1387,18 +1391,24 @@ class FocusMeteringControlTest {
         state3AControl: State3AControl = createState3AControl(cameraId),
         zoomCompat: ZoomCompat = FakeZoomCompat()
     ) = FocusMeteringControl(
-            cameraPropertiesMap[cameraId]!!,
-            MeteringRegionCorrection.Bindings.provideMeteringRegionCorrection(
-                CameraQuirks(cameraPropertiesMap[cameraId]!!.metadata)
-            ),
-            state3AControl,
-            useCaseThreads,
-            zoomCompat
-        ).apply {
-            fakeUseCaseCamera.runningUseCases = useCases
-            useCaseCamera = fakeUseCaseCamera
-            onRunningUseCasesChanged()
-        }
+        cameraPropertiesMap[cameraId]!!,
+        MeteringRegionCorrection.Bindings.provideMeteringRegionCorrection(
+            CameraQuirks(
+                cameraPropertiesMap[cameraId]!!.metadata,
+                StreamConfigurationMapCompat(
+                    StreamConfigurationMapBuilder.newBuilder().build(),
+                    OutputSizesCorrector(cameraPropertiesMap[cameraId]!!.metadata)
+                )
+            )
+        ),
+        state3AControl,
+        useCaseThreads,
+        zoomCompat
+    ).apply {
+        fakeUseCaseCamera.runningUseCases = useCases
+        useCaseCamera = fakeUseCaseCamera
+        onRunningUseCasesChanged()
+    }
 
     private fun initCameraProperties(
         cameraIdStr: String,

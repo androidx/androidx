@@ -24,6 +24,7 @@ import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.quirk.ProfileResolutionQuirk
 
@@ -48,14 +49,14 @@ import androidx.camera.core.impl.quirk.ProfileResolutionQuirk
  */
 @SuppressLint("CameraXQuirksClassDetector")
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-class CamcorderProfileResolutionQuirk(private val cameraMetadata: CameraMetadata) :
+class CamcorderProfileResolutionQuirk(
+    private val streamConfigurationMapCompat: StreamConfigurationMapCompat
+) :
     ProfileResolutionQuirk {
 
     private val supportedResolution: List<Size> by lazy {
-        val map: StreamConfigurationMap? =
-            cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
-        checkNotNull(map) { "StreamConfiguration is null" }
-        val sizes = map.getOutputSizes(ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
+        val sizes = streamConfigurationMapCompat
+            .getOutputSizes(ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
 
         val result: List<Size> = sizes?.asList() ?: emptyList()
         Log.debug { "supportedResolutions = $result" }

@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -24,6 +26,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowBuild
+import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
@@ -48,7 +51,13 @@ class JpegHalCorruptImageQuirkTest(
     fun canEnableQuirkCorrectly() {
         ShadowBuild.setDevice(device)
 
-        val cameraQuirks = CameraQuirks(FakeCameraMetadata()).quirks
+        val cameraQuirks = CameraQuirks(
+            FakeCameraMetadata(),
+            StreamConfigurationMapCompat(
+                StreamConfigurationMapBuilder.newBuilder().build(),
+                OutputSizesCorrector(FakeCameraMetadata())
+            )
+        ).quirks
 
         assertThat(cameraQuirks.contains(JpegHalCorruptImageQuirk::class.java))
             .isEqualTo(quirkEnablingExpected)

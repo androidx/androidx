@@ -22,6 +22,8 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.testing.EncoderProfilesUtil
 import com.google.common.truth.Truth.assertThat
@@ -69,7 +71,12 @@ class CamcorderProfileResolutionQuirkTest {
                     EncoderProfilesUtil.RESOLUTION_1080P
                 )
             )
-        val quirk = CamcorderProfileResolutionQuirk(cameraMetadata)
+        val quirk = CamcorderProfileResolutionQuirk(
+            StreamConfigurationMapCompat(
+                cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!,
+                OutputSizesCorrector(cameraMetadata)
+            )
+        )
 
         assertThat(quirk.supportedResolutions[0])
             .isEqualTo(EncoderProfilesUtil.RESOLUTION_2160P)
