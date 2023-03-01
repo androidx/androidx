@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.FinishComposingTextCommand
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 
@@ -57,7 +58,8 @@ internal class TextFieldKeyInput(
     val undoManager: UndoManager? = null,
     private val keyCombiner: DeadKeyCombiner,
     private val keyMapping: KeyMapping = platformDefaultKeyMapping,
-    private val onValueChange: (TextFieldValue) -> Unit = {}
+    private val onValueChange: (TextFieldValue) -> Unit = {},
+    private val imeAction: ImeAction,
 ) {
     private fun List<EditCommand>.apply() {
         val newTextFieldValue = state.processor.apply(
@@ -172,13 +174,13 @@ internal class TextFieldKeyInput(
                     if (!singleLine) {
                         CommitTextCommand("\n", 1).apply()
                     } else {
-                        consumed = false
+                        this@TextFieldKeyInput.state.onImeActionPerformed(imeAction)
                     }
                 KeyCommand.TAB ->
                     if (!singleLine) {
                         CommitTextCommand("\t", 1).apply()
                     } else {
-                        consumed = false
+                        consumed = false // let propagate to focus system
                     }
                 KeyCommand.SELECT_ALL -> selectAll()
                 KeyCommand.SELECT_LEFT_CHAR -> moveCursorLeft().selectMovement()
@@ -239,7 +241,8 @@ internal fun Modifier.textFieldKeyInput(
     editable: Boolean,
     singleLine: Boolean,
     offsetMapping: OffsetMapping,
-    undoManager: UndoManager
+    undoManager: UndoManager,
+    imeAction: ImeAction,
 ) = composed {
     val preparedSelectionState = remember { TextPreparedSelectionState() }
     val keyCombiner = remember { DeadKeyCombiner() }
@@ -253,7 +256,8 @@ internal fun Modifier.textFieldKeyInput(
         preparedSelectionState = preparedSelectionState,
         undoManager = undoManager,
         keyCombiner = keyCombiner,
-        onValueChange = onValueChange
+        onValueChange = onValueChange,
+        imeAction = imeAction,
     )
     Modifier.onKeyEvent(processor::process)
 }
