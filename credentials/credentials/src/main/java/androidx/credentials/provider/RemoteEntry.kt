@@ -66,6 +66,9 @@ class RemoteEntry constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.remoteEntry.SLICE_HINT_PENDING_INTENT"
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal const val SLICE_HINT_OPTION_ID =
+            "androidx.credentials.provider.remoteEntry.SLICE_HINT_OPTION_ID"
 
         /** @hide */
         @JvmStatic
