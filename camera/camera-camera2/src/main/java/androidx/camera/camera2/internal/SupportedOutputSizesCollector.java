@@ -22,7 +22,6 @@ import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_9_16;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio;
 
-import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
@@ -37,7 +36,6 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
-import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ResolutionSelector;
@@ -69,7 +67,6 @@ import java.util.Map;
 @RequiresApi(21)
 final class SupportedOutputSizesCollector {
     private static final String TAG = "SupportedOutputSizesCollector";
-    private final String mCameraId;
     @NonNull
     private final CameraCharacteristicsCompat mCharacteristics;
     @NonNull
@@ -77,7 +74,6 @@ final class SupportedOutputSizesCollector {
     private final ResolutionCorrector mResolutionCorrector = new ResolutionCorrector();
     private final Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
     private final Map<Integer, Size[]> mHighResolutionOutputSizesCache = new HashMap<>();
-    private final Map<Integer, Size> mMaxSizeCache = new HashMap<>();
     private final boolean mIsSensorLandscapeResolution;
     private final boolean mIsBurstCaptureSupported;
     private final Size mActiveArraySize;
@@ -87,7 +83,6 @@ final class SupportedOutputSizesCollector {
     SupportedOutputSizesCollector(@NonNull String cameraId,
             @NonNull CameraCharacteristicsCompat cameraCharacteristics,
             @NonNull DisplayInfoManager displayInfoManager) {
-        mCameraId = cameraId;
         mCharacteristics = cameraCharacteristics;
         mDisplayInfoManager = displayInfoManager;
 
@@ -236,7 +231,7 @@ final class SupportedOutputSizesCollector {
 
         // Moves the target size to the first position if it exists in the resolution candidate
         // list and there is no quirk that needs to select specific aspect ratio sizes in priority.
-        if (resultList.contains(targetSize) && canResolutionBeMovedToHead(targetSize)) {
+        if (resultList.contains(targetSize)) {
             resultList.remove(targetSize);
             resultList.add(0, targetSize);
         }
@@ -312,70 +307,30 @@ final class SupportedOutputSizesCollector {
     }
 
     /**
-     * Returns the target aspect ratio value corrected by quirks.
-     *
-     * The final aspect ratio is determined by the following order:
-     * 1. The aspect ratio returned by {@link TargetAspectRatio} if it is
-     * {@link TargetAspectRatio#RATIO_4_3}, {@link TargetAspectRatio#RATIO_16_9} or
-     * {@link TargetAspectRatio#RATIO_MAX_JPEG}.
-     * 2. The use case's original aspect ratio if {@link TargetAspectRatio} returns
-     * {@link TargetAspectRatio#RATIO_ORIGINAL} and the use case has target aspect ratio setting.
+     * Returns the target aspect ratio rational value.
      *
      * @param resolutionSelector the resolution selector of the use case.
      */
     @Nullable
     private Rational getTargetAspectRatioByResolutionSelector(
             @NonNull ResolutionSelector resolutionSelector) {
-        Rational outputRatio = getTargetAspectRatioFromQuirk();
-
-        if (outputRatio == null) {
-            @AspectRatio.Ratio int aspectRatio = resolutionSelector.getPreferredAspectRatio();
-            switch (aspectRatio) {
-                case AspectRatio.RATIO_4_3:
-                    outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3
-                            : ASPECT_RATIO_3_4;
-                    break;
-                case AspectRatio.RATIO_16_9:
-                    outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9
-                            : ASPECT_RATIO_9_16;
-                    break;
-                case AspectRatio.RATIO_DEFAULT:
-                    break;
-                default:
-                    Logger.e(TAG, "Undefined target aspect ratio: " + aspectRatio);
-            }
-        }
-        return outputRatio;
-    }
-
-    /**
-     * Returns the restricted target aspect ratio value from quirk. The returned value can be
-     * null which means that no quirk to restrict the use case to use a specific target aspect
-     * ratio value.
-     */
-    @Nullable
-    private Rational getTargetAspectRatioFromQuirk() {
         Rational outputRatio = null;
 
-        // Gets the corrected aspect ratio due to device constraints or null if no correction is
-        // needed.
-        @TargetAspectRatio.Ratio int targetAspectRatio =
-                new TargetAspectRatio().get(mCameraId, mCharacteristics);
-        switch (targetAspectRatio) {
-            case TargetAspectRatio.RATIO_4_3:
-                outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
+        @AspectRatio.Ratio int aspectRatio = resolutionSelector.getPreferredAspectRatio();
+        switch (aspectRatio) {
+            case AspectRatio.RATIO_4_3:
+                outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3
+                        : ASPECT_RATIO_3_4;
                 break;
-            case TargetAspectRatio.RATIO_16_9:
-                outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9 : ASPECT_RATIO_9_16;
+            case AspectRatio.RATIO_16_9:
+                outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9
+                        : ASPECT_RATIO_9_16;
                 break;
-            case TargetAspectRatio.RATIO_MAX_JPEG:
-                Size maxJpegSize = fetchMaxNormalOutputSize(ImageFormat.JPEG);
-                outputRatio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
+            case AspectRatio.RATIO_DEFAULT:
                 break;
-            case TargetAspectRatio.RATIO_ORIGINAL:
-                break;
+            default:
+                Logger.e(TAG, "Undefined target aspect ratio: " + aspectRatio);
         }
-
         return outputRatio;
     }
 
@@ -462,58 +417,6 @@ final class SupportedOutputSizesCollector {
         }
 
         return resultList;
-    }
-
-    /**
-     * Returns {@code true} if the input resolution can be moved to the head of resolution
-     * candidate list.
-     *
-     * The resolution possibly can't be moved to head due to some quirks that sizes of
-     * specific aspect ratio must be used to avoid problems.
-     */
-    private boolean canResolutionBeMovedToHead(@NonNull Size resolution) {
-        @TargetAspectRatio.Ratio int targetAspectRatio =
-                new TargetAspectRatio().get(mCameraId, mCharacteristics);
-
-        switch (targetAspectRatio) {
-            case TargetAspectRatio.RATIO_4_3:
-                return hasMatchingAspectRatio(resolution, ASPECT_RATIO_4_3);
-            case TargetAspectRatio.RATIO_16_9:
-                return hasMatchingAspectRatio(resolution, ASPECT_RATIO_16_9);
-            case TargetAspectRatio.RATIO_MAX_JPEG:
-                Size maxJpegSize = fetchMaxNormalOutputSize(ImageFormat.JPEG);
-                Rational maxJpegRatio = new Rational(maxJpegSize.getWidth(),
-                        maxJpegSize.getHeight());
-                return hasMatchingAspectRatio(resolution, maxJpegRatio);
-        }
-
-        return true;
-    }
-
-    private Size fetchMaxNormalOutputSize(int imageFormat) {
-        Size size = mMaxSizeCache.get(imageFormat);
-        if (size != null) {
-            return size;
-        }
-        Size maxSize = getMaxNormalOutputSizeByFormat(imageFormat);
-        mMaxSizeCache.put(imageFormat, maxSize);
-        return maxSize;
-    }
-
-    /**
-     * Gets max normal supported output size for specific image format.
-     *
-     * <p>Normal supported output sizes mean the sizes retrieved by the
-     * {@link StreamConfigurationMap#getOutputSizes(int)}. The high resolution sizes retrieved by
-     * the {@link StreamConfigurationMap#getHighResolutionOutputSizes(int)} are not included.
-     *
-     * @param imageFormat the image format info
-     * @return the max normal supported output size for the image format
-     */
-    private Size getMaxNormalOutputSizeByFormat(int imageFormat) {
-        Size[] outputSizes = getAllOutputSizesByFormat(imageFormat, false);
-
-        return SizeUtil.getMaxSize(Arrays.asList(outputSizes));
     }
 
     private boolean isBurstCaptureSupported() {
