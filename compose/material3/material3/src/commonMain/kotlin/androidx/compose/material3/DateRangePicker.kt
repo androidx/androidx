@@ -31,7 +31,6 @@ import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -198,8 +197,9 @@ class DateRangePickerState private constructor(internal val stateData: StateData
      * to
      * @param initialDisplayMode an initial [DisplayMode] that this state will hold
      * @see rememberDatePickerState
-     * @throws [IllegalArgumentException] if the initial selected date or displayed month represent
-     * a year that is out of the year range.
+     * @throws IllegalArgumentException if the initial timestamps do not fall within the year range
+     * this state is created with, or the end date precedes the start date, or when an end date is
+     * provided without a start date (e.g. the start date was null, while the end date was not).
      */
     constructor(
         @Suppress("AutoBoxing") initialSelectedStartDateMillis: Long?,
@@ -224,11 +224,12 @@ class DateRangePickerState private constructor(internal val stateData: StateData
      * epoch.
      *
      * In case a start date was not selected or provided, the state will hold a `null` value.
+     *
+     * @see [setSelection]
      */
-    @get:Suppress("AutoBoxing")
-    val selectedStartDateMillis by derivedStateOf {
-        stateData.selectedStartDate.value?.utcTimeMillis
-    }
+
+    val selectedStartDateMillis: Long?
+        @Suppress("AutoBoxing") get() = stateData.selectedStartDate.value?.utcTimeMillis
 
     /**
      * A timestamp that represents the selected range end date.
@@ -237,10 +238,29 @@ class DateRangePickerState private constructor(internal val stateData: StateData
      * epoch.
      *
      * In case an end date was not selected or provided, the state will hold a `null` value.
+     *
+     * @see [setSelection]
      */
-    @get:Suppress("AutoBoxing")
-    val selectedEndDateMillis by derivedStateOf {
-        stateData.selectedEndDate.value?.utcTimeMillis
+    val selectedEndDateMillis: Long?
+        @Suppress("AutoBoxing") get() = stateData.selectedEndDate.value?.utcTimeMillis
+
+    /**
+     * Sets the selected date.
+     *
+     * @param startDateMillis timestamp in _UTC_ milliseconds from the epoch that represents the
+     * start date selection, or `null` to indicate no selection.
+     * @param endDateMillis timestamp in _UTC_ milliseconds from the epoch that represents the end
+     * date selection, or `null` to indicate no selection.
+     *
+     * @throws IllegalArgumentException if the given timestamps do not fall within the year range
+     * this state was created with, or the end date precedes the start date, or when an end date is
+     * provided without a start date (e.g. the start date was null, while the end date was not).
+     */
+    fun setSelection(
+        @Suppress("AutoBoxing") startDateMillis: Long?,
+        @Suppress("AutoBoxing") endDateMillis: Long?
+    ) {
+        stateData.setSelection(startDateMillis = startDateMillis, endDateMillis = endDateMillis)
     }
 
     /**
