@@ -356,6 +356,7 @@ internal fun CoreTextField(
                 }
             }
             .then(selectionModifier)
+            .pointerHoverIcon(textPointerIcon)
     } else {
         Modifier
             .mouseDragGestureDetector(
