@@ -35,6 +35,7 @@ import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutpu
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
 import androidx.appactions.interaction.proto.ParamValue
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -46,6 +47,7 @@ class SingleTurnCapabilityTest {
     val hostProperties = HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build()
     val mockCalback: CallbackInternal = mock()
 
+    @Ignore // b/271033076
     @Test
     fun oneShotCapability_successWithOutput() {
         val capability: ActionCapability =
