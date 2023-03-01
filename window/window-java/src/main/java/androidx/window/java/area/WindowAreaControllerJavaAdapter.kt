@@ -34,6 +34,9 @@ import kotlin.concurrent.withLock
 /**
  * An adapted interface for [WindowAreaController] that provides the information and
  * functionality around RearDisplay Mode via a callback shaped API.
+ *
+ * @hide
+ *
  */
 @ExperimentalWindowApi
 class WindowAreaControllerJavaAdapter(

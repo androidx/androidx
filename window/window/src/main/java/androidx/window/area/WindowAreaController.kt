@@ -31,6 +31,9 @@ import kotlinx.coroutines.flow.Flow
 /**
  * An interface to provide the information and behavior around moving windows between
  * displays or display areas on a device.
+ *
+ * @hide
+ *
  */
 @ExperimentalWindowApi
 interface WindowAreaController {
