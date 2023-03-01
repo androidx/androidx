@@ -93,6 +93,8 @@ Namespace 'androidx\..*' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, 
 A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :viewpager2:viewpager2:compileDebugAndroidTestKotlin
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/HostFragmentBackStackTest\.kt\: \([0-9]+\, [0-9]+\)\: \'enableDebugLogging\(Boolean\)\: Unit\' is deprecated\. Deprecated in Java
+#> Task :docs-public:unzipJvmSources
+Encountered duplicate path "androidx/test/espresso/remote/.*.java" during copy operation configured with DuplicatesStrategy.WARN
 # > Task :docs-public:dackkaDocs
 ERROR: An attempt to write .*
 WARN: Missing @param tag for parameter `activity` of function androidx\.appcompat\.app/AppCompatDelegate/create/\#android\.app\.Activity\#androidx\.appcompat\.app\.AppCompatCallback/PointingToDeclaration/
@@ -773,8 +775,6 @@ Writing .* to \$OUT_DIR/.*/build/generated/source/wire
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
 \$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see IssueRegistry#vendor
-# > Task :compose:foundation:foundation:androidReleaseSourcesJar
-Encountered duplicate path "android[a-zA-Z]*/.+" during copy operation configured with DuplicatesStrategy\.WARN
 # > Task :jvmSourcesJar
 Encountered duplicate path \"jvmMain(\/([a-zA-Z]+))+(\.jvm)?\.kt\" during copy operation configured with DuplicatesStrategy.WARN
 # ./gradlew tasks warns as we have warnings present
