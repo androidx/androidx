@@ -47,7 +47,7 @@ private val ACTION_SPEC =
         .setOutput(StopEmergencySharing.Output::class.java)
         .bindOptionalOutput(
             "executionStatus",
-            StopEmergencySharing.Output::executionStatus.getter,
+            { output -> Optional.ofNullable(output.executionStatus) },
             StopEmergencySharing.ExecutionStatus::toParamValue,
         )
         .build()
@@ -74,8 +74,7 @@ class StopEmergencySharing private constructor() {
         }
     }
 
-    // TODO(b/267533126): Remove the use of optional once ActionSpecBuilder supports nullability.
-    class Output internal constructor(val executionStatus: Optional<ExecutionStatus>) {
+    class Output internal constructor(val executionStatus: ExecutionStatus?) {
         override fun toString(): String {
             return "Output(executionStatus=$executionStatus)"
         }
@@ -101,7 +100,7 @@ class StopEmergencySharing private constructor() {
             fun setExecutionStatus(executionStatus: ExecutionStatus): Builder =
                 apply { this.executionStatus = executionStatus }
 
-            fun build(): Output = Output(Optional.ofNullable(executionStatus))
+            fun build(): Output = Output(executionStatus)
         }
     }
 
