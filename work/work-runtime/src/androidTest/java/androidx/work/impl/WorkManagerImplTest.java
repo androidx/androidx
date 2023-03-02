@@ -167,14 +167,17 @@ public class WorkManagerImplTest {
                 .setExecutor(Executors.newSingleThreadExecutor())
                 .setMinimumLoggingLevel(Log.DEBUG)
                 .build();
+        InstantWorkTaskExecutor workTaskExecutor = new InstantWorkTaskExecutor();
         mWorkManagerImpl =
-                spy(new WorkManagerImpl(mContext, mConfiguration, new InstantWorkTaskExecutor()));
+                spy(new WorkManagerImpl(mContext, mConfiguration, workTaskExecutor));
+        WorkLauncher workLauncher = new WorkLauncherImpl(mWorkManagerImpl.getProcessor(),
+                workTaskExecutor);
         mScheduler =
                 spy(new GreedyScheduler(
                         mContext,
                         mWorkManagerImpl.getConfiguration(),
                         mWorkManagerImpl.getTrackers(),
-                        mWorkManagerImpl));
+                        mWorkManagerImpl.getProcessor(), workLauncher));
         // Don't return any scheduler. We don't need to actually execute work for most of our tests.
         when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.<Scheduler>emptyList());
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
@@ -1795,16 +1798,19 @@ public class WorkManagerImplTest {
                 return packageManager;
             }
         };
-        mWorkManagerImpl =
-                spy(new WorkManagerImpl(mContext, mConfiguration, new InstantWorkTaskExecutor()));
+        InstantWorkTaskExecutor workTaskExecutor = new InstantWorkTaskExecutor();
+        Processor processor = new Processor(mContext,  mConfiguration, workTaskExecutor, mDatabase);
+        WorkLauncherImpl launcher = new WorkLauncherImpl(processor, workTaskExecutor);
+
         Scheduler scheduler =
                 new GreedyScheduler(
                         mContext,
                         mWorkManagerImpl.getConfiguration(),
                         mWorkManagerImpl.getTrackers(),
-                        mWorkManagerImpl);
-        // Return GreedyScheduler alone, because real jobs gets scheduled which slow down tests.
-        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(scheduler));
+                        processor, launcher);
+        mWorkManagerImpl = new WorkManagerImpl(mContext, mConfiguration, workTaskExecutor,
+                mDatabase, Collections.singletonList(scheduler), processor);
+
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
         // Initialization of WM enables SystemJobService which needs to be discounted.

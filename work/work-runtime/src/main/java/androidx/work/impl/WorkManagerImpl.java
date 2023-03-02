@@ -49,7 +49,6 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
-import androidx.work.WorkerParameters;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
@@ -64,7 +63,6 @@ import androidx.work.impl.utils.LiveDataUtils;
 import androidx.work.impl.utils.PreferenceUtils;
 import androidx.work.impl.utils.PruneWorkRunnable;
 import androidx.work.impl.utils.RawQueries;
-import androidx.work.impl.utils.StartWorkRunnable;
 import androidx.work.impl.utils.StatusRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
 import androidx.work.impl.utils.futures.SettableFuture;
@@ -105,6 +103,7 @@ public class WorkManagerImpl extends WorkManager {
     private BroadcastReceiver.PendingResult mRescheduleReceiverResult;
     private volatile RemoteWorkManager mRemoteWorkManager;
     private final Trackers mTrackers;
+    private final WorkLauncher mWorkLauncher;
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
     private static final Object sLock = new Object();
@@ -283,14 +282,17 @@ public class WorkManagerImpl extends WorkManager {
         Context applicationContext = context.getApplicationContext();
         Logger.setLogger(new Logger.LogcatLogger(configuration.getMinimumLoggingLevel()));
         mTrackers = new Trackers(applicationContext, workTaskExecutor);
-        List<Scheduler> schedulers =
-                createSchedulers(applicationContext, configuration, mTrackers);
-        Processor processor = new Processor(
+        mProcessor = new Processor(
                 context,
                 configuration,
                 workTaskExecutor,
                 database);
-        internalInit(context, configuration, workTaskExecutor, database, schedulers, processor);
+        mWorkLauncher = new WorkLauncherImpl(mProcessor, workTaskExecutor);
+        mWorkTaskExecutor = workTaskExecutor;
+        mWorkDatabase = database;
+        List<Scheduler> schedulers =
+                createSchedulers(applicationContext, configuration, mTrackers);
+        internalInit(context, configuration, workTaskExecutor, schedulers);
     }
 
     /**
@@ -338,7 +340,11 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull Processor processor,
             @NonNull Trackers trackers) {
         mTrackers = trackers;
-        internalInit(context, configuration, workTaskExecutor, workDatabase, schedulers, processor);
+        mWorkLauncher = new WorkLauncherImpl(processor, workTaskExecutor);
+        mProcessor = processor;
+        mWorkTaskExecutor = workTaskExecutor;
+        mWorkDatabase = workDatabase;
+        internalInit(context, configuration, workTaskExecutor, schedulers);
     }
 
     /**
@@ -698,38 +704,6 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
-     * @param workSpecId The {@link WorkSpec} id to start
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void startWork(@NonNull StartStopToken workSpecId) {
-        startWork(workSpecId, null);
-    }
-
-    /**
-     * @param workSpecId The {@link WorkSpec} id to start
-     * @param runtimeExtras The {@link WorkerParameters.RuntimeExtras} associated with this work
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void startWork(
-            @NonNull StartStopToken workSpecId,
-            @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
-        mWorkTaskExecutor
-                .executeOnTaskThread(
-                        new StartWorkRunnable(mProcessor, workSpecId, runtimeExtras));
-    }
-
-    /**
-     * @param workSpecId The {@link WorkSpec} id to stop
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void stopWork(@NonNull StartStopToken workSpecId) {
-        mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(mProcessor, workSpecId, false));
-    }
-
-    /**
      * @param id The {@link WorkSpec} id to stop when running in the context of a
      *                   foreground service.
      * @hide
@@ -802,28 +776,21 @@ public class WorkManagerImpl extends WorkManager {
      *
      * @param context The application {@link Context}
      * @param configuration The {@link Configuration} configuration
-     * @param workDatabase The {@link WorkDatabase} instance
      * @param schedulers The {@link List} of {@link Scheduler}s to use
-     * @param processor The {@link Processor} instance
      */
     private void internalInit(@NonNull Context context,
             @NonNull Configuration configuration,
             @NonNull TaskExecutor workTaskExecutor,
-            @NonNull WorkDatabase workDatabase,
-            @NonNull List<Scheduler> schedulers,
-            @NonNull Processor processor) {
+            @NonNull List<Scheduler> schedulers) {
 
         context = context.getApplicationContext();
         mContext = context;
         mConfiguration = configuration;
-        mWorkTaskExecutor = workTaskExecutor;
-        mWorkDatabase = workDatabase;
         mSchedulers = schedulers;
-        mProcessor = processor;
-        mPreferenceUtils = new PreferenceUtils(workDatabase);
+        mPreferenceUtils = new PreferenceUtils(mWorkDatabase);
         mForceStopRunnableCompleted = false;
-        Schedulers.registerRescheduling(schedulers, processor,
-                workTaskExecutor.getSerialTaskExecutor(), workDatabase, configuration);
+        Schedulers.registerRescheduling(schedulers, mProcessor,
+                workTaskExecutor.getSerialTaskExecutor(), mWorkDatabase, configuration);
         // Check for direct boot mode
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Api24Impl.isDeviceProtectedStorage(
                 context)) {
@@ -849,7 +816,7 @@ public class WorkManagerImpl extends WorkManager {
                 Schedulers.createBestAvailableBackgroundScheduler(context, this),
                 // Specify the task executor directly here as this happens before internalInit.
                 // GreedyScheduler creates ConstraintTrackers and controllers eagerly.
-                new GreedyScheduler(context, configuration, trackers, this));
+                new GreedyScheduler(context, configuration, trackers, mProcessor, mWorkLauncher));
     }
 
     /**

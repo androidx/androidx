@@ -190,7 +190,10 @@ public class WorkManagerImplLargeExecutorTest {
                 Context context,
                 Configuration configuration,
                 WorkManagerImpl workManagerImpl) {
-            super(context, configuration, workManagerImpl.getTrackers(), workManagerImpl);
+            super(context, configuration, workManagerImpl.getTrackers(),
+                    workManagerImpl.getProcessor(),
+                    new WorkLauncherImpl(workManagerImpl.getProcessor(),
+                            workManagerImpl.getWorkTaskExecutor()));
             mScheduledWorkSpecIds = new HashSet<>();
         }
 

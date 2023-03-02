@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import androidx.work.impl.Scheduler;
+import androidx.work.impl.WorkLauncherImpl;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.utils.taskexecutor.SerialExecutor;
@@ -94,7 +95,8 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
     @NonNull
     public List<Scheduler> createSchedulers(@NonNull Context context,
             @NonNull Configuration configuration, @NonNull Trackers trackers) {
-        mScheduler = new TestScheduler(this);
+        WorkLauncherImpl launcher = new WorkLauncherImpl(getProcessor(), getWorkTaskExecutor());
+        mScheduler = new TestScheduler(getWorkDatabase(), launcher);
         return Collections.singletonList((Scheduler) mScheduler);
     }
 
