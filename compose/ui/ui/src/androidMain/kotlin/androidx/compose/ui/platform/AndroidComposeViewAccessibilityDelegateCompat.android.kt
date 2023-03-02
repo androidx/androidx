@@ -96,15 +96,15 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.lifecycle.Lifecycle
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
-import kotlin.math.roundToInt
-import kotlin.math.sign
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
+import kotlin.math.sign
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 
 // TODO(mnuzen): This code is copy-pasted from experimental API in the Kotlin 1.7 standard library: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.ranges/range-until.html.
 // Delete it when this API graduates to stable in Kotlin (when the docs page linked no longer has @ExperimentalStdlibApi annotation).
@@ -943,6 +943,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 )
             }
 
+            semanticsNode.unmergedConfig.getOrNull(SemanticsActions.PerformImeAction)?.let {
+                info.addAction(
+                    AccessibilityActionCompat(
+                        android.R.id.accessibilityActionImeEnter,
+                        it.label
+                    )
+                )
+            }
+
             // The config will contain this action only if there is a text selection at the moment.
             semanticsNode.unmergedConfig.getOrNull(SemanticsActions.CutText)?.let {
                 info.addAction(
@@ -1670,6 +1679,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 )
                 return node.unmergedConfig.getOrNull(SemanticsActions.SetText)
                     ?.action?.invoke(AnnotatedString(text ?: "")) ?: false
+            }
+
+            android.R.id.accessibilityActionImeEnter -> {
+                return node.unmergedConfig.getOrNull(SemanticsActions.PerformImeAction)
+                    ?.action?.invoke() ?: false
             }
 
             AccessibilityNodeInfoCompat.ACTION_PASTE -> {

@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.performImeAction
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
@@ -125,7 +126,7 @@ class PlatformTextInputEditTextIntegrationTest {
     }
 
     @Test
-    fun textSubmit() {
+    fun textPerformImeAction() {
         var recordedActionCode: Int = -1
         var recordedKeyEvent: KeyEvent? = null
         setContentAndFocusField()
@@ -178,6 +179,10 @@ class PlatformTextInputEditTextIntegrationTest {
                     }
                     return@setSelection false
                 }
+                performImeAction {
+                    editText.onEditorAction(ExpectedActionCode)
+                    true
+                }
             },
             factory = { context ->
                 EditTextWrapper(context, adapter)
@@ -211,10 +216,6 @@ class PlatformTextInputEditTextIntegrationTest {
 
         override fun inputTextForTest(text: String) {
             this.text.append(text)
-        }
-
-        override fun submitTextForTest() {
-            onEditorAction(ExpectedActionCode)
         }
     }
 

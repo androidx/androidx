@@ -25,6 +25,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.performImeAction
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.util.BoundaryNode
 import androidx.compose.ui.test.util.expectErrorMessageStartsWith
@@ -159,7 +162,7 @@ class TextActionsTest {
     }
 
     @Test
-    fun sendImeAction_search() {
+    fun performImeAction_search() {
         var actionPerformed = false
         rule.setContent {
             TextFieldUi(
@@ -178,7 +181,7 @@ class TextActionsTest {
     }
 
     @Test
-    fun sendImeAction_actionNotDefined_shouldFail() {
+    fun performImeAction_actionNotDefined_shouldFail() {
         var actionPerformed = false
         rule.setContent {
             TextFieldUi(
@@ -189,8 +192,8 @@ class TextActionsTest {
         assertThat(actionPerformed).isFalse()
 
         expectErrorMessageStartsWith(
-            "" +
-                "Failed to perform IME action as current node does not specify any.\n" +
+            "Failed to perform IME action.\n" +
+                "Failed to assert the following: (NOT (ImeAction = 'Default'))\n" +
                 "Semantics of the node:"
         ) {
             rule.onNodeWithTag(fieldTag)
@@ -199,15 +202,32 @@ class TextActionsTest {
     }
 
     @Test
-    fun sendImeAction_inputNotSupported_shouldFail() {
+    fun performImeAction_actionReturnsFalse_shouldFail() {
+        rule.setContent {
+            BoundaryNode(testTag = "node", Modifier.semantics {
+                setText { true }
+                performImeAction { false }
+            })
+        }
+
+        expectErrorMessageStartsWith(
+            "Failed to perform IME action, handler returned false.\n" +
+                "Semantics of the node:"
+        ) {
+            rule.onNodeWithTag("node")
+                .performImeAction()
+        }
+    }
+
+    @Test
+    fun performImeAction_inputNotSupported_shouldFail() {
         rule.setContent {
             BoundaryNode(testTag = "node")
         }
 
         expectErrorMessageStartsWith(
-            "" +
-                "Failed to perform IME action.\n" +
-                "Failed to assert the following: (SetText is defined)\n" +
+            "Failed to perform IME action.\n" +
+                "Failed to assert the following: (PerformImeAction is defined)\n" +
                 "Semantics of the node:"
         ) {
             rule.onNodeWithTag("node")
