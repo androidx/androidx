@@ -667,4 +667,107 @@ Fix for src/java/androidx/ImplicitCastOfMethodCallResultJava.java line 11: Extra
 
         check(*input).expectClean()
     }
+
+    @Test
+    fun `Unsafe implicit cast to varargs method`() {
+        val input = arrayOf(
+            java("""
+                package java.androidx;
+
+                import android.icu.number.FormattedNumber;
+                import android.widget.BaseAdapter;
+                import androidx.annotation.DoNotInline;
+                import androidx.annotation.RequiresApi;
+
+                public class UnsafeCastToVarargs() {
+                    @RequiresApi(30)
+                    public void callVarArgsMethod(BaseAdapter adapter, FormattedNumber vararg1, FormattedNumber vararg2, FormattedNumber vararg3) {
+                        Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
+                    }
+
+                    @RequiresApi(27)
+                    static class Api27Impl {
+                        private Api27Impl() {}
+                        @DoNotInline
+                        static void setAutofillOptions(BaseAdapter baseAdapter, CharSequence... options) {
+                            baseAdapter.setAutofillOptions(baseAdapter, options);
+                        }
+                    }
+                }
+            """.trimIndent())
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/java/androidx/UnsafeCastToVarargs.java:11: Error: This expression has type android.icu.number.FormattedNumber (introduced in API level 30) but it used as type java.lang.CharSequence (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
+        Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
+                                              ~~~~~~~
+src/java/androidx/UnsafeCastToVarargs.java:11: Error: This expression has type android.icu.number.FormattedNumber (introduced in API level 30) but it used as type java.lang.CharSequence (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
+        Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
+                                                       ~~~~~~~
+src/java/androidx/UnsafeCastToVarargs.java:11: Error: This expression has type android.icu.number.FormattedNumber (introduced in API level 30) but it used as type java.lang.CharSequence (introduced in API level 1). Run-time class verification will not be able to validate this implicit cast on devices between these API levels. [ImplicitCastClassVerificationFailure]
+        Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
+                                                                ~~~~~~~
+3 errors, 0 warnings
+        """
+        val expectedFixDiffs = """
+Fix for src/java/androidx/UnsafeCastToVarargs.java line 11: Extract to static inner class:
+@@ -11 +11
+-         Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
++         Api27Impl.setAutofillOptions(adapter, Api30Impl.castToCharSequence(vararg1), vararg2, vararg3);
+@@ -22 +22
++ @RequiresApi(30)
++ static class Api30Impl {
++     private Api30Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static java.lang.CharSequence castToCharSequence(FormattedNumber formattedNumber) {
++         return formattedNumber;
++     }
++
+@@ -23 +34
++ }
+Fix for src/java/androidx/UnsafeCastToVarargs.java line 11: Extract to static inner class:
+@@ -11 +11
+-         Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
++         Api27Impl.setAutofillOptions(adapter, vararg1, Api30Impl.castToCharSequence(vararg2), vararg3);
+@@ -22 +22
++ @RequiresApi(30)
++ static class Api30Impl {
++     private Api30Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static java.lang.CharSequence castToCharSequence(FormattedNumber formattedNumber) {
++         return formattedNumber;
++     }
++
+@@ -23 +34
++ }
+Fix for src/java/androidx/UnsafeCastToVarargs.java line 11: Extract to static inner class:
+@@ -11 +11
+-         Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, vararg3);
++         Api27Impl.setAutofillOptions(adapter, vararg1, vararg2, Api30Impl.castToCharSequence(vararg3));
+@@ -22 +22
++ @RequiresApi(30)
++ static class Api30Impl {
++     private Api30Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static java.lang.CharSequence castToCharSequence(FormattedNumber formattedNumber) {
++         return formattedNumber;
++     }
++
+@@ -23 +34
++ }
+        """
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
+    }
 }
