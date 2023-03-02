@@ -30,6 +30,7 @@ import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.EncoderProfilesProxy
@@ -76,6 +77,8 @@ class SupportedSurfaceCombination(
     private val displayManager: DisplayManager =
         (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
     private val streamConfigurationMapCompat = getStreamConfigurationMapCompat()
+    private val extraSupportedSurfaceCombinationsContainer =
+        ExtraSupportedSurfaceCombinationsContainer()
 
     init {
         checkCapabilities()
@@ -124,8 +127,10 @@ class SupportedSurfaceCombination(
     ): SurfaceConfig {
         val maxOutputSizeForConcurrentMode = if (isConcurrentCameraModeOn)
             getMaxOutputSizeByFormat(imageFormat) else null
-        return SurfaceConfig.transformSurfaceConfig(isConcurrentCameraModeOn,
-            imageFormat, size, surfaceSizeDefinition, maxOutputSizeForConcurrentMode)
+        return SurfaceConfig.transformSurfaceConfig(
+            isConcurrentCameraModeOn,
+            imageFormat, size, surfaceSizeDefinition, maxOutputSizeForConcurrentMode
+        )
     }
 
     /**
@@ -223,9 +228,11 @@ class SupportedSurfaceCombination(
                 for (useCaseConfig in newUseCaseConfigs) {
                     suggestedStreamSpecMap.put(
                         useCaseConfig,
-                        StreamSpec.builder(possibleSizeList[useCasesPriorityOrder.indexOf(
-                            newUseCaseConfigs.indexOf(useCaseConfig)
-                        )]).build()
+                        StreamSpec.builder(
+                            possibleSizeList[useCasesPriorityOrder.indexOf(
+                                newUseCaseConfigs.indexOf(useCaseConfig)
+                            )]
+                        ).build()
                     )
                 }
                 break
@@ -284,13 +291,15 @@ class SupportedSurfaceCombination(
                 isRawSupported, isBurstCaptureSupported
             )
         )
-        // TODO(b/246609101): ExtraSupportedSurfaceCombinationsQuirk is supposed to be here to add additional
-        //  surface combinations to the list
+        surfaceCombinations.addAll(
+            extraSupportedSurfaceCombinationsContainer[cameraId, hardwareLevel]
+        )
     }
 
     private fun generateConcurrentSupportedCombinationList() {
         concurrentSurfaceCombinations.addAll(
-            GuaranteedConfigurationsUtil.generateConcurrentSupportedCombinationList())
+            GuaranteedConfigurationsUtil.generateConcurrentSupportedCombinationList()
+        )
     }
 
     /**
@@ -306,8 +315,10 @@ class SupportedSurfaceCombination(
         val s1440pSize = Size(1920, 1440)
         val previewSize: Size = calculatePreviewSize()
         val recordSize: Size = getRecordSize()
-        surfaceSizeDefinition = SurfaceSizeDefinition.create(vgaSize, s720pSize, previewSize,
-            s1440pSize, recordSize)
+        surfaceSizeDefinition = SurfaceSizeDefinition.create(
+            vgaSize, s720pSize, previewSize,
+            s1440pSize, recordSize
+        )
     }
 
     /**

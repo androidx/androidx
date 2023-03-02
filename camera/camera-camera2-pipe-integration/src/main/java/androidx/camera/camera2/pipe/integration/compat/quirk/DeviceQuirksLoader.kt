@@ -58,6 +58,9 @@ object DeviceQuirksLoader {
         if (ExtraSupportedOutputSizeQuirk.load()) {
             quirks.add(ExtraSupportedOutputSizeQuirk())
         }
+        if (ExtraSupportedSurfaceCombinationsQuirk.load()) {
+            quirks.add(ExtraSupportedSurfaceCombinationsQuirk())
+        }
         if (Nexus4AndroidLTargetAspectRatioQuirk.load()) {
             quirks.add(Nexus4AndroidLTargetAspectRatioQuirk())
         }
