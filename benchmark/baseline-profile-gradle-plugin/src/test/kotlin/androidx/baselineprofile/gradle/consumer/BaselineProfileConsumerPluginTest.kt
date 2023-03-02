@@ -529,17 +529,17 @@ class BaselineProfileConsumerPluginTest {
     ) {
         producerProjectSetup.writeDefaultBuildGradle(
             prefix = MockProducerBuildGrade()
-                .withConfiguration(flavor = "free", buildType = "release")
-                .withConfiguration(flavor = "paid", buildType = "release")
                 .withProducedBaselineProfile(
                     lines = freeReleaseProfileLines,
-                    flavor = "free",
-                    buildType = "release"
+                    flavorName = "free",
+                    buildType = "release",
+                    productFlavors = mapOf("version" to "free")
                 )
                 .withProducedBaselineProfile(
                     lines = paidReleaseProfileLines,
-                    flavor = "paid",
-                    buildType = "release"
+                    flavorName = "paid",
+                    buildType = "release",
+                    productFlavors = mapOf("version" to "paid")
                 )
                 .build(),
             suffix = ""
@@ -556,17 +556,18 @@ class BaselineProfileConsumerPluginTest {
         vararg additionalReleaseProfiles: List<String>
     ) {
         val mock = MockProducerBuildGrade()
-            .withConfiguration(flavor = "", buildType = "release")
             .withProducedBaselineProfile(
                 lines = releaseProfile,
-                flavor = "",
-                buildType = "release"
+                flavorName = "",
+                buildType = "release",
+                productFlavors = mapOf()
             )
         for (profile in additionalReleaseProfiles) {
             mock.withProducedBaselineProfile(
                 lines = profile,
-                flavor = "",
-                buildType = "release"
+                flavorName = "",
+                buildType = "release",
+                productFlavors = mapOf()
             )
         }
         producerProjectSetup.writeDefaultBuildGradle(
@@ -583,6 +584,11 @@ private class MockProducerBuildGrade {
         plugins { id("com.android.library") }
         android { namespace 'com.example.namespace' }
 
+        import com.android.build.api.attributes.BuildTypeAttr
+        import com.android.build.api.attributes.ProductFlavorAttr
+        import com.android.build.gradle.internal.attributes.VariantAttr
+        import androidx.baselineprofile.gradle.attributes.BaselineProfilePluginVersionAttr
+
         // This task produces a file with a fixed output
         abstract class TestProfileTask extends DefaultTask {
             @Input abstract Property<String> getFileContent()
@@ -592,31 +598,43 @@ private class MockProducerBuildGrade {
 
     """.trimIndent()
 
-    fun withConfiguration(flavor: String, buildType: String): MockProducerBuildGrade {
+    fun withProducedBaselineProfile(
+        lines: List<String>,
+        productFlavors: Map<String, String>,
+        flavorName: String = "",
+        buildType: String
+    ): MockProducerBuildGrade {
+        val productFlavorAttributes = productFlavors.map { (name, value) ->
+            """
+            attribute(ProductFlavorAttr.of("$name"), objects.named(ProductFlavorAttr, "$value"))
+
+            """.trimIndent()
+        }.joinToString("\n")
 
         content += """
 
         configurations {
-            ${configurationName(flavor, buildType)} {
+            ${configurationName(flavorName, buildType)} {
                 canBeConsumed = true
                 canBeResolved = false
                 attributes {
-                    attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, "baselineProfile"))
-                    attribute(Attribute.of("androidx.baselineprofile.gradle.attributes.BuildType", String), "$buildType")
-                    attribute(Attribute.of("androidx.baselineprofile.gradle.attributes.Flavor", String), "$flavor")
+                    attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, "baselineProfile"))
+                    attribute(BuildTypeAttr.ATTRIBUTE, objects.named(BuildTypeAttr, "$buildType"))
+                    attribute(
+                        TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                        objects.named(TargetJvmEnvironment, "android")
+                    )
+                    attribute(
+                        BaselineProfilePluginVersionAttr.ATTRIBUTE,
+                        objects.named(BaselineProfilePluginVersionAttr, "alpha1")
+                    )
+
+                    $productFlavorAttributes
                 }
             }
         }
 
         """.trimIndent()
-        return this
-    }
-
-    fun withProducedBaselineProfile(
-        lines: List<String>,
-        flavor: String = "",
-        buildType: String
-    ): MockProducerBuildGrade {
         profileIndex++
         content += """
 
@@ -626,7 +644,12 @@ private class MockProducerBuildGrade {
             it.fileContent.set(${"\"\"\"${lines.joinToString("\n")}\"\"\""})
         }
         artifacts {
-            add("${configurationName(flavor, buildType)}", task$profileIndex.map { it.outputFile })
+            add("${
+            configurationName(
+                flavorName,
+                buildType
+            )
+        }", task$profileIndex.map { it.outputFile })
         }
 
         """.trimIndent()
