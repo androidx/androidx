@@ -202,13 +202,21 @@ class AndroidViewTest {
             }
         }
 
+        // Assert view initially attached
         rule.runOnUiThread {
             assertThat(frameLayout.parent).isNotNull()
             emit = false
         }
 
+        // Assert view detached when removed from composition hierarchy
         rule.runOnIdle {
             assertThat(frameLayout.parent).isNull()
+            emit = true
+        }
+
+        // Assert view reattached when added back to the composition hierarchy
+        rule.runOnIdle {
+            assertThat(frameLayout.parent).isNotNull()
         }
     }
 

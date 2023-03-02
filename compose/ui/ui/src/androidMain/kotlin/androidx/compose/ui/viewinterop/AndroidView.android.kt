@@ -300,7 +300,7 @@ internal class ViewFactoryHolder<T : View> private constructor(
     val dispatcher: NestedScrollDispatcher,
     private val saveStateRegistry: SaveableStateRegistry?,
     private val saveStateKey: String
-) : AndroidViewHolder(context, parentContext, dispatcher), ViewRootForInspector {
+) : AndroidViewHolder(context, parentContext, dispatcher, typedView), ViewRootForInspector {
 
     constructor(
         context: Context,
@@ -329,7 +329,6 @@ internal class ViewFactoryHolder<T : View> private constructor(
     init {
         clipChildren = false
 
-        view = typedView
         @Suppress("UNCHECKED_CAST")
         val savedState = saveStateRegistry
             ?.consumeRestored(saveStateKey) as? SparseArray<Parcelable>
