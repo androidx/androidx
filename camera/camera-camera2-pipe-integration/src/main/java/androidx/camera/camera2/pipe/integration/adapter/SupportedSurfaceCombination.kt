@@ -337,7 +337,7 @@ class SupportedSurfaceCombination(
     private fun getStreamConfigurationMapCompat(): StreamConfigurationMapCompat {
         val map = cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
             ?: throw IllegalArgumentException("Cannot retrieve SCALER_STREAM_CONFIGURATION_MAP")
-        return StreamConfigurationMapCompat(map, OutputSizesCorrector(cameraMetadata))
+        return StreamConfigurationMapCompat(map, OutputSizesCorrector(cameraMetadata, map))
     }
 
     /**
@@ -347,7 +347,9 @@ class SupportedSurfaceCombination(
      * @return Maximum supported video size.
      */
     private fun getRecordSizeFromStreamConfigurationMapCompat(): Size {
-        val videoSizeArr = streamConfigurationMapCompat.getOutputSizes(
+        val map: StreamConfigurationMap =
+            streamConfigurationMapCompat.toStreamConfigurationMap()
+        val videoSizeArr = map.getOutputSizes(
             MediaRecorder::class.java
         ) ?: return RESOLUTION_480P
         Arrays.sort(videoSizeArr, CompareSizesByArea(true))
