@@ -21,6 +21,8 @@ import androidx.health.connect.client.aggregate.AggregateMetric.Companion.double
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
+import androidx.health.connect.client.units.calories
+import androidx.health.connect.client.units.grams
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -128,6 +130,49 @@ public class NutritionRecord(
 
     init {
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+
+        biotin?.requireInRange(MIN_MASS, MAX_MASS_100, "biotin")
+        caffeine?.requireInRange(MIN_MASS, MAX_MASS_100, "caffeine")
+        calcium?.requireInRange(MIN_MASS, MAX_MASS_100, "calcium")
+        energy?.requireInRange(MIN_ENERGY, MAX_ENERGY, "energy")
+        energyFromFat?.requireInRange(MIN_ENERGY, MAX_ENERGY, "energyFromFat")
+        chloride?.requireInRange(MIN_MASS, MAX_MASS_100, "chloride")
+        cholesterol?.requireInRange(MIN_MASS, MAX_MASS_100, "cholesterol")
+        chromium?.requireInRange(MIN_MASS, MAX_MASS_100, "chromium")
+        copper?.requireInRange(MIN_MASS, MAX_MASS_100, "copper")
+        dietaryFiber?.requireInRange(MIN_MASS, MAX_MASS_100K, "dietaryFiber")
+        folate?.requireInRange(MIN_MASS, MAX_MASS_100, "chloride")
+        folicAcid?.requireInRange(MIN_MASS, MAX_MASS_100, "folicAcid")
+        iodine?.requireInRange(MIN_MASS, MAX_MASS_100, "iodine")
+        iron?.requireInRange(MIN_MASS, MAX_MASS_100, "iron")
+        magnesium?.requireInRange(MIN_MASS, MAX_MASS_100, "magnesium")
+        manganese?.requireInRange(MIN_MASS, MAX_MASS_100, "manganese")
+        molybdenum?.requireInRange(MIN_MASS, MAX_MASS_100, "molybdenum")
+        monounsaturatedFat?.requireInRange(MIN_MASS, MAX_MASS_100K, "monounsaturatedFat")
+        niacin?.requireInRange(MIN_MASS, MAX_MASS_100, "niacin")
+        pantothenicAcid?.requireInRange(MIN_MASS, MAX_MASS_100, "pantothenicAcid")
+        phosphorus?.requireInRange(MIN_MASS, MAX_MASS_100, "phosphorus")
+        polyunsaturatedFat?.requireInRange(MIN_MASS, MAX_MASS_100K, "polyunsaturatedFat")
+        potassium?.requireInRange(MIN_MASS, MAX_MASS_100, "potassium")
+        protein?.requireInRange(MIN_MASS, MAX_MASS_100K, "protein")
+        riboflavin?.requireInRange(MIN_MASS, MAX_MASS_100, "riboflavin")
+        saturatedFat?.requireInRange(MIN_MASS, MAX_MASS_100K, "saturatedFat")
+        selenium?.requireInRange(MIN_MASS, MAX_MASS_100, "selenium")
+        sodium?.requireInRange(MIN_MASS, MAX_MASS_100, "sodium")
+        sugar?.requireInRange(MIN_MASS, MAX_MASS_100K, "sugar")
+        thiamin?.requireInRange(MIN_MASS, MAX_MASS_100, "thiamin")
+        totalCarbohydrate?.requireInRange(MIN_MASS, MAX_MASS_100K, "totalCarbohydrate")
+        totalFat?.requireInRange(MIN_MASS, MAX_MASS_100K, "totalFat")
+        transFat?.requireInRange(MIN_MASS, MAX_MASS_100K, "transFat")
+        unsaturatedFat?.requireInRange(MIN_MASS, MAX_MASS_100K, "unsaturatedFat")
+        vitaminA?.requireInRange(MIN_MASS, MAX_MASS_100, "vitaminA")
+        vitaminB12?.requireInRange(MIN_MASS, MAX_MASS_100, "vitaminB12")
+        vitaminB6?.requireInRange(MIN_MASS, MAX_MASS_100, "vitaminB6")
+        vitaminC?.requireInRange(MIN_MASS, MAX_MASS_100, "vitaminC")
+        vitaminD?.requireInRange(MIN_MASS, MAX_MASS_100, "vitaminD")
+        vitaminE?.requireInRange(MIN_MASS, MAX_MASS_100, "vitaminE")
+        vitaminK?.requireInRange(MIN_MASS, MAX_MASS_100, "vitaminK")
+        zinc?.requireInRange(MIN_MASS, MAX_MASS_100, "zinc")
     }
 
     /*
@@ -248,6 +293,13 @@ public class NutritionRecord(
 
     companion object {
         private const val TYPE_NAME = "Nutrition"
+
+        private val MIN_MASS = 0.grams
+        private val MAX_MASS_100 = 100.grams
+        private val MAX_MASS_100K = 100_000.grams
+
+        private val MIN_ENERGY = 0.calories
+        private val MAX_ENERGY = 100_000_000.calories
 
         /**
          * Metric identifier to retrieve the total biotin from
