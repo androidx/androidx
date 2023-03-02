@@ -67,6 +67,16 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
          */
         OPEN(/*holdsCameraSlot=*/true),
         /**
+         * Camera is open and capture session is configured. This state is only used for concurrent
+         * camera.
+         *
+         * <p>In concurrent mode, CONFIGURED refers to camera is opened and capture session is
+         * configured, to differentiate from OPEN, which refers to camera device is opened but
+         * capture session is not configured yet. External users will only see OPEN state, no
+         * matter the internal state is CONFIGURED or OPEN.
+         */
+        CONFIGURED(/*holdsCameraSlot=*/true),
+        /**
          * Camera is in the process of closing.
          *
          * <p>This is a transient state.

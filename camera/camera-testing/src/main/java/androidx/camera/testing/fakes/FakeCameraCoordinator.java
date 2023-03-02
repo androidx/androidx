@@ -107,7 +107,9 @@ public class FakeCameraCoordinator implements CameraCoordinator {
     public void setCameraOperatingMode(@CameraOperatingMode int cameraOperatingMode) {
         if (cameraOperatingMode != mCameraOperatingMode) {
             for (ConcurrentCameraModeListener listener : mConcurrentCameraModeListeners) {
-                listener.notifyConcurrentCameraModeUpdated(cameraOperatingMode);
+                listener.onCameraOperatingModeUpdated(
+                        mCameraOperatingMode,
+                        cameraOperatingMode);
             }
         }
 

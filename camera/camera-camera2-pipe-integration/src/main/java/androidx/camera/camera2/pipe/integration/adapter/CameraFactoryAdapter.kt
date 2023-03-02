@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.integration.internal.CameraCompatibilityFilt
 import androidx.camera.camera2.pipe.integration.internal.CameraSelectionOptimizer
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.concurrent.CameraCoordinator
+import androidx.camera.core.concurrent.CameraCoordinator.ConcurrentCameraModeListener
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
@@ -116,10 +117,10 @@ class CameraFactoryAdapter(
             override fun setCameraOperatingMode(cameraOperatingMode: Int) {
             }
 
-            override fun addListener(listener: CameraCoordinator.ConcurrentCameraModeListener) {
+            override fun addListener(listener: ConcurrentCameraModeListener) {
             }
 
-            override fun removeListener(listener: CameraCoordinator.ConcurrentCameraModeListener) {
+            override fun removeListener(listener: ConcurrentCameraModeListener) {
             }
         }
     }
