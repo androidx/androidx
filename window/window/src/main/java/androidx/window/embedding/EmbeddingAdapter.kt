@@ -102,7 +102,7 @@ internal class EmbeddingAdapter(
                 when (val splitType = splitAttributes.splitType) {
                     is OEMSplitType.HingeSplitType -> SPLIT_TYPE_HINGE
                     is OEMSplitType.ExpandContainersSplitType -> SPLIT_TYPE_EXPAND
-                    is OEMSplitType.RatioSplitType -> ratio(splitType.ratio)
+                    is RatioSplitType -> ratio(splitType.ratio)
                     else -> throw IllegalArgumentException("Unknown split type: $splitType")
                 }
             ).setLayoutDirection(
@@ -116,9 +116,6 @@ internal class EmbeddingAdapter(
                         "Unknown layout direction: $layoutDirection"
                     )
                 }
-            )
-            .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.buildFromValue(
-                splitAttributes.animationBackgroundColor)
             )
             .build()
 
@@ -214,7 +211,6 @@ internal class EmbeddingAdapter(
                     )
                 }
             )
-            .setAnimationBackgroundColor(splitAttributes.animationBackgroundColor.value)
             .build()
     }
 
