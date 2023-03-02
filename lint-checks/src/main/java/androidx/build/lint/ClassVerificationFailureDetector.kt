@@ -78,7 +78,6 @@ import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.UastBinaryOperator
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
-import org.jetbrains.uast.isNullLiteral
 import org.jetbrains.uast.getParentOfType
 import org.jetbrains.uast.kotlin.KotlinUImplicitReturnExpression
 import org.jetbrains.uast.toUElement
@@ -165,7 +164,6 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
          * This can be fixed by adding an explicit cast to the expected type.
          */
         override fun visitExpression(node: UExpression) {
-            val apiDatabase = apiDatabase ?: return
             val psi = node.sourcePsi
             // Some PsiElements are multiple UElements. Only inspect one to prevent duplicate issues
             if (psi != null && psi.toUElement() != node) return
@@ -173,26 +171,18 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             // Get the expression type and expected type based on the expression's usage
             val actualType = node.getExpressionType() ?: return
             val actualTypeStr = actualType.canonicalText
-            if (!apiDatabase.containsClass(actualTypeStr)) return
-            val actualTypeApi = apiDatabase.getClassVersions(actualTypeStr).min()
+            val actualTypeApi = getMinApiOfClass(actualTypeStr) ?: return
 
             // Not an issue if this is contained within a class annotated with @RequiresApi
             if (node.containedInRequiresApiClass(actualTypeApi)) return
 
             val expectedType = getExpectedTypeByParent(node) ?: return
             val expectedTypeStr = expectedType.canonicalText
+            val expectedTypeApi = getMinApiOfClass(expectedTypeStr) ?: return
 
-            // Casting to object is always safe
-            if (expectedTypeStr == "java.lang.Object") return
-
-            // If the types aren't equal, we are casting from actualType to expectedType implicitly
-            if (actualTypeStr == expectedTypeStr) return
-
-            if (!apiDatabase.containsClass(expectedTypeStr)) return
-            val expectedTypeApi = apiDatabase.getClassVersions(expectedTypeStr).min()
-
-            // Only an issue if there's an API where expectedType exists but actualType doesn't
-            if (actualTypeApi <= expectedTypeApi) return
+            if (!isInvalidCast(actualTypeStr, expectedTypeStr, actualTypeApi, expectedTypeApi)) {
+                return
+            }
 
             // This can currently only do an autofix for Java source, not Kotlin.
             val fix = if (isKotlin(node.lang)) {
@@ -595,7 +585,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 generateWrapperMethod(
                     method,
                     // Find what type the result of this call is used as
-                    getExpectedTypeByParent(call)
+                    getExpectedTypeByParent(call),
+                    call.valueArguments.map { it.getExpressionType() }
                 ) ?: return null
 
             val (wrapperClassName, insertionPoint, insertionSource) = generateInsertionSource(
@@ -611,8 +602,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 call.receiver,
                 call.valueArguments,
                 wrapperClassName,
-                wrapperMethodName,
-                wrapperMethodParams
+                wrapperMethodName
             )
 
             return createCompositeFix(call, replacementCall, insertionPoint, insertionSource)
@@ -707,7 +697,14 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     val paramIndex = parent.expressions.indexOf(childOfParent)
                     if (paramIndex < 0) return null
                     val method = grandparent.resolveMethod() ?: return null
-                    return method.parameterList.getParameter(paramIndex)?.type
+                    val finalParamIndex = method.parameters.size - 1
+                    // Special case the last arguments to a varargs method
+                    return if (method.isVarArgs && paramIndex >= finalParamIndex) {
+                        (method.parameterList.getParameter(finalParamIndex)?.type
+                            as? PsiEllipsisType)?.componentType
+                    } else {
+                        method.parameterList.getParameter(paramIndex)?.type
+                    }
                 }
             } else if (parent is KtValueArgument) {
                 // Handles the case when the element is an argument in a Kotlin method call.
@@ -841,7 +838,6 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
          * @param callValueArguments Arguments of the call to the platform method
          * @param wrapperClassName Name of the generated wrapper class
          * @param wrapperMethodName Name of the generated wrapper method
-         * @param wrapperMethodParams Param types of the wrapper method
          * @return Source code for a call to the static wrapper method
          */
         private fun generateWrapperCall(
@@ -849,8 +845,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             callReceiver: UExpression?,
             callValueArguments: List<UExpression>,
             wrapperClassName: String,
-            wrapperMethodName: String,
-            wrapperMethodParams: List<PsiType>
+            wrapperMethodName: String
         ): String {
             val callReceiverStr = when {
                 // Static method
@@ -863,34 +858,15 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 // it must be a call to an instance method using `this` implicitly.
                 callReceiver == null ->
                     "this"
-                // Use the original call receiver string (removing extra parens), casting if needed
+                // Otherwise, use the original call receiver string (removing extra parens)
                 else ->
-                    createArgumentString(unwrapExpression(callReceiver), wrapperMethodParams[0])
+                    unwrapExpression(callReceiver).asSourceString()
             }
 
             val callValues = if (callValueArguments.isNotEmpty()) {
-                // The first element in the wrapperMethodParams is the receiver, so drop that.
-                // Also drop the last parameter, because it is special-cased later.
-                val paramTypesWithoutReceiverAndFinal = wrapperMethodParams.drop(1).dropLast(1)
-                // For varargs methods, what we care about for the last type is the type of each
-                // vararg, not the containing type.
-                val finalParamType = if (method.isVarArgs) {
-                    (wrapperMethodParams.last() as PsiEllipsisType).componentType
-                } else {
-                    wrapperMethodParams.last()
+                callValueArguments.joinToString(separator = ", ") { argument ->
+                    argument.asSourceString()
                 }
-
-                callValueArguments.mapIndexed { argIndex, arg ->
-                    // The number of args might be greater than the number of param types due to
-                    // varargs, repeat the final param type for all args after exhausting the
-                    // paramTypesWithoutReceiverAndFinal list.
-                    val expectedType = if (argIndex < paramTypesWithoutReceiverAndFinal.size) {
-                        paramTypesWithoutReceiverAndFinal[argIndex]
-                    } else {
-                        finalParamType
-                    }
-                    createArgumentString(arg, expectedType)
-                }.joinToString(separator = ", ")
             } else {
                 null
             }
@@ -898,24 +874,6 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             val replacementArgs = listOfNotNull(callReceiverStr, callValues).joinToString(", ")
 
             return "$wrapperClassName.$wrapperMethodName($replacementArgs)"
-        }
-
-        /**
-         * Creates the string representation of an argument in the wrapper call. If the type of the
-         * arg is not identical to the parameter type of the wrapper method, casts to that type.
-         */
-        private fun createArgumentString(arg: UExpression, expectedType: PsiType): String {
-            val argType = arg.getExpressionType()
-            val expectedTypeText = expectedType.canonicalText
-            // If the arg is the expected type, use as normal, otherwise, cast to expected type.
-            // Uses text-base equality instead of directly comparing types because certain types
-            // (eq. java.lang.Class<T>) are not necessarily equal to instances of the same type.
-            // There isn't really a point in casting if the arg is null.
-            return if (argType?.equalsToText(expectedTypeText) == true || arg.isNullLiteral()) {
-                arg.asSourceString()
-            } else {
-                "($expectedTypeText) ${arg.asSourceString()}"
-            }
         }
 
         /**
@@ -950,7 +908,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
          */
         private fun generateWrapperMethod(
             method: PsiMethod,
-            expectedReturnType: PsiType?
+            expectedReturnType: PsiType?,
+            expectedParamTypes: List<PsiType?>
         ): Triple<String, List<PsiType>, String>? {
             val evaluator = context.evaluator
             val isStatic = evaluator.isStatic(method)
@@ -972,13 +931,26 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 ""
             }
 
-            val typedParams = method.parameters.map { param ->
-                "${(param.type as? PsiType)?.canonicalText} ${param.name}"
+            val paramsWithTypes = method.parameters.mapIndexed { i, param ->
+                // It's possible for i to be out of bounds due to varargs
+                val expectedType = expectedParamTypes.getOrNull(i)
+                val actualType = (param.type as? PsiType) ?: return null
+                // If the actual type isn't a PsiEllipsisType (the method is varargs) and casting
+                // from the expected to the actual type would be an invalid implicit cast, use
+                // the expected type. Otherwise, use the actual type.
+                val typeToUse = if (expectedType != null && actualType !is PsiEllipsisType &&
+                        isInvalidCast(expectedType.canonicalText, actualType.canonicalText)) {
+                    expectedType
+                } else {
+                    actualType
+                }
+                Pair(typeToUse, param.name)
             }
-            val typedParamsStr = (listOfNotNull(hostParam) + typedParams).joinToString(", ")
+            val paramStrings = paramsWithTypes.map { (type, name) -> "${type.canonicalText} $name" }
+            val typedParamsStr = (listOfNotNull(hostParam) + paramStrings).joinToString(", ")
 
             val paramTypes = listOf(PsiTypesUtil.getClassType(containingClass)) +
-                getParameterTypes(method)
+                paramsWithTypes.map { (type, _) -> type }
 
             val namedParamsStr = method.parameters.joinToString(separator = ", ") { param ->
                 "${param.name}"
@@ -1059,6 +1031,33 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         }
 
         /**
+         * Checks if a cast from [fromType] to [toType] would be invalid, which is true when there
+         * is an API level where [toType] exists but [fromType] does now.
+         *
+         * Allows optionally passing in [knownFromTypeApi] and [knownToTypeApi], the API levels
+         * when [fromType] and [toType] were introduced, respectively, if that has already been
+         * computed. The values will be looked up if not passed in.
+         */
+        private fun isInvalidCast(
+            fromType: String,
+            toType: String,
+            knownFromTypeApi: Int? = null,
+            knownToTypeApi: Int? = null
+        ): Boolean {
+            // Casting to object is always safe
+            if (toType == "java.lang.Object") return false
+
+            // If the types aren't equal, we are casting from actualType to expectedType implicitly
+            if (fromType == toType) return false
+
+            val fromTypeApi = knownFromTypeApi ?: getMinApiOfClass(fromType) ?: return false
+            val toTypeApi = knownToTypeApi ?: getMinApiOfClass(toType) ?: return false
+
+            // Only an issue if there's an API where expectedType exists but actualType doesn't
+            return fromTypeApi > toTypeApi
+        }
+
+        /**
          * Returns a list of the method's parameter types.
          */
         private fun getParameterTypes(method: PsiMethod): List<PsiType> =
@@ -1073,6 +1072,15 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             @Suppress("DEPRECATION") // b/262915628
             val version = apiDatabase.getClassVersion(className)
             return version <= minSdk
+        }
+
+        /**
+         * Returns the API level this class was introduced at, or null if unknown.
+         */
+        private fun getMinApiOfClass(className: String): Int? {
+            val apiDatabase = apiDatabase ?: return null
+            if (!apiDatabase.containsClass(className)) return null
+            return apiDatabase.getClassVersions(className).min()
         }
 
         private fun getInheritanceChain(
