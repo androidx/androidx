@@ -55,6 +55,7 @@ import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspType
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -168,6 +169,9 @@ object XConverters {
 
     @JvmStatic
     fun XTypeElement.toKS(): KSClassDeclaration = (this as KspTypeElement).declaration
+
+    @JvmStatic
+    fun XElement.toKS(): KSAnnotated = (this as KspElement).declaration
 
     @JvmStatic
     fun XExecutableElement.toKS(): KSFunctionDeclaration =
