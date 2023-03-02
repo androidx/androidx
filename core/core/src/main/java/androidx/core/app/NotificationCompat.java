@@ -1034,7 +1034,7 @@ public class NotificationCompat {
         PendingIntent mContentIntent;
         PendingIntent mFullScreenIntent;
         RemoteViews mTickerView;
-        Bitmap mLargeIcon;
+        IconCompat mLargeIcon;
         CharSequence mContentInfo;
         int mNumber;
         int mPriority;
@@ -1589,39 +1589,25 @@ public class NotificationCompat {
         }
 
         /**
-         * Set the large icon that is shown in the notification.
+         * Sets the large icon that is shown in the notification. Icons will be scaled on versions
+         * before API 27. Starting in API 27, the framework does this automatically.
          */
         public @NonNull Builder setLargeIcon(@Nullable Bitmap icon) {
-            mLargeIcon = reduceLargeIconSize(icon);
+            mLargeIcon = icon == null ? null : IconCompat.createWithBitmap(
+             reduceLargeIconSize(mContext, icon));
             return this;
         }
 
         /**
-         * Reduce the size of a notification icon if it's overly large. The framework does
-         * this automatically starting from API 27.
+         * Sets the large icon that is shown in the notification. Starting in API 27, the framework
+         * scales icons automatically. Before API 27, for safety, {@code #reduceLargeIconSize}
+         * should be called on bitmaps before putting them in an {@code Icon} and passing them
+         * into this function.
          */
-        private @Nullable Bitmap reduceLargeIconSize(@Nullable Bitmap icon) {
-            if (icon == null || Build.VERSION.SDK_INT >= 27) {
-                return icon;
-            }
-
-            Resources res = mContext.getResources();
-            int maxWidth =
-                    res.getDimensionPixelSize(R.dimen.compat_notification_large_icon_max_width);
-            int maxHeight =
-                    res.getDimensionPixelSize(R.dimen.compat_notification_large_icon_max_height);
-            if (icon.getWidth() <= maxWidth && icon.getHeight() <= maxHeight) {
-                return icon;
-            }
-
-            double scale = Math.min(
-                    maxWidth / (double) Math.max(1, icon.getWidth()),
-                    maxHeight / (double) Math.max(1, icon.getHeight()));
-            return Bitmap.createScaledBitmap(
-                    icon,
-                    (int) Math.ceil(icon.getWidth() * scale),
-                    (int) Math.ceil(icon.getHeight() * scale),
-                    true /* filtered */);
+        @RequiresApi(23)
+        public @NonNull Builder setLargeIcon(@Nullable Icon icon) {
+            mLargeIcon = icon == null ? null : IconCompat.createFromIcon(icon);
+            return this;
         }
 
         /**
@@ -2995,7 +2981,8 @@ public class NotificationCompat {
                 // to hide it here.
                 if (Build.VERSION.SDK_INT >= 16) {
                     contentView.setViewVisibility(R.id.icon, View.VISIBLE);
-                    contentView.setImageViewBitmap(R.id.icon, mBuilder.mLargeIcon);
+                    contentView.setImageViewBitmap(R.id.icon,
+                            createColoredBitmap(mBuilder.mLargeIcon, Color.TRANSPARENT));
                 } else {
                     contentView.setViewVisibility(R.id.icon, View.GONE);
                 }
@@ -3044,7 +3031,8 @@ public class NotificationCompat {
                 showLine3 = true;
             }
             // If there is a large icon we have a right side
-            boolean hasRightSide = !(Build.VERSION.SDK_INT >= 21) && mBuilder.mLargeIcon != null;
+            boolean hasRightSide =
+                    !(Build.VERSION.SDK_INT >= 21) && mBuilder.mLargeIcon != null;
             if (mBuilder.mContentInfo != null) {
                 contentView.setTextViewText(R.id.info, mBuilder.mContentInfo);
                 contentView.setViewVisibility(R.id.info, View.VISIBLE);
@@ -9600,6 +9588,36 @@ public class NotificationCompat {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Reduces the size of a provided {@code icon} if it's larger than the maximum allowed
+     * for a notification large icon; returns the resized icon. Note that the framework does this
+     * scaling automatically starting from API 27.
+     */
+    public static @Nullable Bitmap reduceLargeIconSize(@NonNull Context context,
+            @Nullable Bitmap icon) {
+        if (icon == null || Build.VERSION.SDK_INT >= 27) {
+            return icon;
+        }
+
+        Resources res = context.getResources();
+        int maxWidth =
+                res.getDimensionPixelSize(R.dimen.compat_notification_large_icon_max_width);
+        int maxHeight =
+                res.getDimensionPixelSize(R.dimen.compat_notification_large_icon_max_height);
+        if (icon.getWidth() <= maxWidth && icon.getHeight() <= maxHeight) {
+            return icon;
+        }
+
+        double scale = Math.min(
+                maxWidth / (double) Math.max(1, icon.getWidth()),
+                maxHeight / (double) Math.max(1, icon.getHeight()));
+        return Bitmap.createScaledBitmap(
+                icon,
+                (int) Math.ceil(icon.getWidth() * scale),
+                (int) Math.ceil(icon.getHeight() * scale),
+                true /* filtered */);
     }
 
     /** @deprecated This type should not be instantiated as it contains only static methods. */
