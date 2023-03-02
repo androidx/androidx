@@ -90,7 +90,9 @@ class CameraUseCaseAdapterTest {
     private lateinit var useCaseConfigFactory: UseCaseConfigFactory
     private lateinit var previewEffect: FakeSurfaceEffect
     private lateinit var videoEffect: FakeSurfaceEffect
+    private lateinit var sharedEffect: FakeSurfaceEffect
     private lateinit var cameraCoordinator: CameraCoordinator
+    private lateinit var surfaceProcessorInternal: FakeSurfaceProcessorInternal
     private val fakeCameraSet = LinkedHashSet<CameraInternal>()
     private val imageEffect = GrayscaleImageEffect()
     private val preview = Preview.Builder().build()
@@ -109,13 +111,18 @@ class CameraUseCaseAdapterTest {
         useCaseConfigFactory = FakeUseCaseConfigFactory()
         fakeCameraSet.add(fakeCamera)
         executor = Executors.newSingleThreadExecutor()
+        surfaceProcessorInternal = FakeSurfaceProcessorInternal(mainThreadExecutor())
         previewEffect = FakeSurfaceEffect(
             PREVIEW,
-            FakeSurfaceProcessorInternal(mainThreadExecutor())
+            surfaceProcessorInternal
         )
         videoEffect = FakeSurfaceEffect(
             VIDEO_CAPTURE,
-            FakeSurfaceProcessorInternal(mainThreadExecutor())
+            surfaceProcessorInternal
+        )
+        sharedEffect = FakeSurfaceEffect(
+            PREVIEW or VIDEO_CAPTURE,
+            surfaceProcessorInternal
         )
         effects = listOf(previewEffect, imageEffect, videoEffect)
         adapter = CameraUseCaseAdapter(
@@ -124,11 +131,12 @@ class CameraUseCaseAdapterTest {
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
-        DefaultSurfaceProcessor.Factory.setSupplier { FakeSurfaceProcessorInternal(executor) }
+        DefaultSurfaceProcessor.Factory.setSupplier { surfaceProcessorInternal }
     }
 
     @After
     fun tearDown() {
+        surfaceProcessorInternal.cleanUp()
         executor.shutdown()
     }
 
@@ -136,8 +144,7 @@ class CameraUseCaseAdapterTest {
     fun attachAndDetachUseCases_cameraUseCasesAttachedAndDetached() {
         // Arrange: bind UseCases that requires sharing.
         adapter.addUseCases(setOf(preview, video, image))
-        val streamSharing =
-            adapter.cameraUseCases.filterIsInstance(StreamSharing::class.java).single()
+        val streamSharing = adapter.getStreamSharing()
         // Act: attach use cases.
         adapter.attachUseCases()
         // Assert: StreamSharing and image are attached.
@@ -219,8 +226,7 @@ class CameraUseCaseAdapterTest {
             StreamSharing::class.java,
             ImageCapture::class.java
         )
-        val streamSharing =
-            adapter.cameraUseCases.filterIsInstance(StreamSharing::class.java).single()
+        val streamSharing = adapter.getStreamSharing()
         assertThat(streamSharing.camera).isNotNull()
         // Act: remove UseCase so that StreamSharing is no longer needed
         adapter.removeUseCases(setOf(video))
@@ -827,7 +833,42 @@ class CameraUseCaseAdapterTest {
 
     @Test(expected = IllegalStateException::class)
     fun updateEffectsWithDuplicateTargets_throwsException() {
-        CameraUseCaseAdapter.updateEffects(listOf(previewEffect, previewEffect), listOf(preview))
+        CameraUseCaseAdapter.updateEffects(
+            listOf(previewEffect, previewEffect),
+            listOf(preview),
+            emptyList()
+        )
+    }
+
+    @Test
+    fun hasSharedEffect_enableStreamSharing() {
+        // Arrange: add a shared effect and an image effect
+        adapter.setEffects(listOf(sharedEffect, imageEffect))
+
+        // Act: update use cases.
+        adapter.updateUseCases(listOf(preview, video, image, analysis))
+
+        // Assert: StreamSharing wraps preview and video with the shared effect.
+        val streamSharing = adapter.getStreamSharing()
+        assertThat(streamSharing.children).containsExactly(preview, video)
+        assertThat(streamSharing.effect).isEqualTo(sharedEffect)
+        assertThat(preview.effect).isNull()
+        assertThat(video.effect).isNull()
+        assertThat(analysis.effect).isNull()
+        assertThat(image.effect).isEqualTo(imageEffect)
+    }
+
+    @Test
+    fun hasSharedEffectButOnlyOneChild_theEffectIsEnabledOnTheChild() {
+        // Arrange: add a shared effect.
+        adapter.setEffects(listOf(sharedEffect))
+
+        // Act: update use cases.
+        adapter.updateUseCases(listOf(preview))
+
+        // Assert: no StreamSharing and preview gets the shared effect.
+        assertThat(adapter.cameraUseCases.filterIsInstance(StreamSharing::class.java)).isEmpty()
+        assertThat(preview.effect).isEqualTo(sharedEffect)
     }
 
     @Test
@@ -836,14 +877,14 @@ class CameraUseCaseAdapterTest {
         val useCases = listOf(preview, video, image)
 
         // Act: update use cases with effects.
-        CameraUseCaseAdapter.updateEffects(effects, useCases)
+        CameraUseCaseAdapter.updateEffects(effects, useCases, emptyList())
         // Assert: UseCase have effects
         assertThat(preview.effect).isEqualTo(previewEffect)
         assertThat(image.effect).isEqualTo(imageEffect)
         assertThat(video.effect).isEqualTo(videoEffect)
 
         // Act: update again with no effects.
-        CameraUseCaseAdapter.updateEffects(listOf(), useCases)
+        CameraUseCaseAdapter.updateEffects(listOf(), useCases, emptyList())
         // Assert: use cases no longer has effects.
         assertThat(preview.effect).isNull()
         assertThat(image.effect).isNull()

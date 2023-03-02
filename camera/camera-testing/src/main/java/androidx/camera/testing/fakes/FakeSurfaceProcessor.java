@@ -134,5 +134,7 @@ public class FakeSurfaceProcessor implements SurfaceProcessor {
         for (SurfaceOutput surfaceOutput : mSurfaceOutputs.values()) {
             surfaceOutput.close();
         }
+        mSurfaceTexture.release();
+        mInputSurface.release();
     }
 }
