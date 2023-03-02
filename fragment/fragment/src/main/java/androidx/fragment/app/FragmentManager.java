@@ -3007,7 +3007,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
             onPictureInPictureModeChangedProvider.removeOnPictureInPictureModeChangedListener(
                     mOnPictureInPictureModeChangedListener);
         }
-        if (mHost instanceof MenuHost) {
+        if (mHost instanceof MenuHost && mParent == null) {
             ((MenuHost) mHost).removeMenuProvider(mMenuProvider);
         }
         mHost = null;
