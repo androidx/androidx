@@ -89,13 +89,14 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
                 SurfaceConfig.ConfigSize.PREVIEW);
     }
 
-    @Override
     @NonNull
+    @Override
     public Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
-            boolean isConcurrentCameraModeOn,
-            @NonNull String cameraId,
+            boolean isConcurrentCameraModeOn, @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
-            @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
+            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
+        List<UseCaseConfig<?>> newUseCaseConfigs =
+                new ArrayList<>(newUseCaseConfigsSupportedSizeMap.keySet());
         checkSurfaceCombo(existingSurfaces, newUseCaseConfigs);
         Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecs = new HashMap<>();
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
