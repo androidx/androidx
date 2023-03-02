@@ -71,7 +71,11 @@ import kotlinx.coroutines.launch
 internal open class AndroidViewHolder(
     context: Context,
     parentContext: CompositionContext?,
-    private val dispatcher: NestedScrollDispatcher
+    private val dispatcher: NestedScrollDispatcher,
+    /**
+     * The view hosted by this holder.
+     */
+    val view: View
 ) : ViewGroup(context), NestedScrollingParent3, ComposeNodeLifecycleCallback {
 
     init {
@@ -83,23 +87,13 @@ internal open class AndroidViewHolder(
         }
         // We save state ourselves, depending on composition.
         isSaveFromParentEnabled = false
+
+        @Suppress("LeakingThis")
+        addView(view)
     }
 
-    /**
-     * The view hosted by this holder.
-     */
-    var view: View? = null
-        internal set(value) {
-            if (value !== field) {
-                field = value
-                removeAllViewsInLayout()
-                if (value != null) {
-                    addView(value)
-                    runUpdate()
-                }
-            }
-        }
-
+    // Keep nullable to match the `expect` declaration of InteropViewFactoryHolder
+    @Suppress("RedundantNullableReturnType")
     fun getInteropView(): InteropView? = view
 
     /**
@@ -195,7 +189,7 @@ internal open class AndroidViewHolder(
         // We reset at the same time we remove the view. So if the view was removed, we can just
         // re-add it and it's ready to go. If it's already attached, we didn't reset it and need
         // to do so for it to be reused correctly.
-        if (view!!.parent !== this) {
+        if (view.parent !== this) {
             addView(view)
         } else {
             reset()
@@ -212,8 +206,8 @@ internal open class AndroidViewHolder(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        view?.measure(widthMeasureSpec, heightMeasureSpec)
-        setMeasuredDimension(view?.measuredWidth ?: 0, view?.measuredHeight ?: 0)
+        view.measure(widthMeasureSpec, heightMeasureSpec)
+        setMeasuredDimension(view.measuredWidth, view.measuredHeight)
         lastWidthMeasureSpec = widthMeasureSpec
         lastHeightMeasureSpec = heightMeasureSpec
     }
@@ -228,11 +222,11 @@ internal open class AndroidViewHolder(
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        view?.layout(0, 0, r - l, b - t)
+        view.layout(0, 0, r - l, b - t)
     }
 
     override fun getLayoutParams(): LayoutParams? {
-        return view?.layoutParams
+        return view.layoutParams
             ?: LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     }
 
@@ -323,15 +317,13 @@ internal open class AndroidViewHolder(
         layoutNode.density = density
         onDensityChanged = { layoutNode.density = it }
 
-        var viewRemovedOnDetach: View? = null
         layoutNode.onAttach = { owner ->
             (owner as? AndroidComposeView)?.addAndroidView(this, layoutNode)
-            if (viewRemovedOnDetach != null) view = viewRemovedOnDetach
+            if (view.parent !== this) addView(view)
         }
         layoutNode.onDetach = { owner ->
             (owner as? AndroidComposeView)?.removeAndroidView(this)
-            viewRemovedOnDetach = view
-            view = null
+            removeAllViewsInLayout()
         }
 
         layoutNode.measurePolicy = object : MeasurePolicy {
@@ -533,7 +525,7 @@ internal open class AndroidViewHolder(
     }
 
     override fun isNestedScrollingEnabled(): Boolean {
-        return view?.isNestedScrollingEnabled ?: super.isNestedScrollingEnabled()
+        return view.isNestedScrollingEnabled
     }
 }
 
