@@ -20,10 +20,14 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("com.google.devtools.ksp")
 }
 
 android {
     namespace "androidx.room.testing"
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+    }
 }
 
 dependencies {
@@ -32,8 +36,21 @@ dependencies {
     api(project(":sqlite:sqlite"))
     api(project(":sqlite:sqlite-framework"))
     api(project(":room:room-migration"))
-    implementation("androidx.arch.core:core-runtime:2.0.1")
     api(libs.junit)
+    implementation("androidx.arch.core:core-runtime:2.0.1")
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore)
+    kspAndroidTest(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas".toString())
 }
 
 androidx {
