@@ -144,6 +144,6 @@ public class LegacyPagingSource<Key : Any, Value : Any>(
         get() = dataSource.type == POSITIONAL
 
     private companion object {
-        private const val PAGE_SIZE_NOT_SET = Integer.MIN_VALUE
+        private const val PAGE_SIZE_NOT_SET = Int.MIN_VALUE
     }
 }
