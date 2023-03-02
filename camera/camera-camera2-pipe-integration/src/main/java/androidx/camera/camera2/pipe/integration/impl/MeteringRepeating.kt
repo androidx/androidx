@@ -166,7 +166,7 @@ class MeteringRepeating(
 
         // Find maximum supported resolution that is <= min(VGA, display resolution)
         // Using minimum supported size could cause some issue on certain devices.
-        val previewSize = displayInfoManager.previewSize
+        val previewSize = displayInfoManager.getPreviewSize()
         val maxSizeProduct =
             min(640L * 480L, previewSize.width.toLong() * previewSize.height.toLong())
 

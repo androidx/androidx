@@ -32,6 +32,8 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
+import androidx.camera.camera2.pipe.integration.compat.workaround.ResolutionCorrector
+import androidx.camera.camera2.pipe.integration.impl.DisplayInfoManager
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.ImageFormatConstants
@@ -79,6 +81,8 @@ class SupportedSurfaceCombination(
     private val streamConfigurationMapCompat = getStreamConfigurationMapCompat()
     private val extraSupportedSurfaceCombinationsContainer =
         ExtraSupportedSurfaceCombinationsContainer()
+    private val displayInfoManager = DisplayInfoManager(context)
+    private val resolutionCorrector = ResolutionCorrector()
 
     init {
         checkCapabilities()
@@ -187,8 +191,12 @@ class SupportedSurfaceCombination(
 
         // Collect supported output sizes for all use cases
         for (index in useCasesPriorityOrder) {
-            val supportedOutputSizes: List<Size> =
+            var supportedOutputSizes: List<Size> =
                 newUseCaseConfigsSupportedSizeMap[newUseCaseConfigs[index]]!!
+            supportedOutputSizes = resolutionCorrector.insertOrPrioritize(
+                SurfaceConfig.getConfigType(newUseCaseConfigs[index].inputFormat),
+                supportedOutputSizes
+            )
             supportedOutputSizesList.add(supportedOutputSizes)
         }
         // Get all possible size arrangements
@@ -257,14 +265,19 @@ class SupportedSurfaceCombination(
      * Refresh Preview Size based on current display configurations.
      */
     private fun refreshPreviewSize() {
-        val previewSize: Size = calculatePreviewSize()
-        surfaceSizeDefinition = SurfaceSizeDefinition.create(
-            surfaceSizeDefinition.analysisSize,
-            surfaceSizeDefinition.s720pSize,
-            previewSize,
-            surfaceSizeDefinition.s1440pSize,
-            surfaceSizeDefinition.recordSize
-        )
+        displayInfoManager.refresh()
+        if (!::surfaceSizeDefinition.isInitialized) {
+            generateSurfaceSizeDefinition()
+        } else {
+            val previewSize: Size = displayInfoManager.getPreviewSize()
+            surfaceSizeDefinition = SurfaceSizeDefinition.create(
+                surfaceSizeDefinition.analysisSize,
+                surfaceSizeDefinition.s720pSize,
+                previewSize,
+                surfaceSizeDefinition.s1440pSize,
+                surfaceSizeDefinition.recordSize
+            )
+        }
     }
 
     /**
@@ -313,7 +326,7 @@ class SupportedSurfaceCombination(
         // Same for s1440p.
         val s720pSize = Size(1280, 720)
         val s1440pSize = Size(1920, 1440)
-        val previewSize: Size = calculatePreviewSize()
+        val previewSize: Size = displayInfoManager.getPreviewSize()
         val recordSize: Size = getRecordSize()
         surfaceSizeDefinition = SurfaceSizeDefinition.create(
             vgaSize, s720pSize, previewSize,
@@ -404,31 +417,6 @@ class SupportedSurfaceCombination(
             recordSize = Size(profiles.videoProfiles[0].width, profiles.videoProfiles[0].height)
         }
         return recordSize
-    }
-
-    /**
-     * Calculates the size for preview. If the max size is larger than 1080p, use 1080p.
-     */
-    @SuppressWarnings("deprecation")
-    /* getRealSize */
-    private fun calculatePreviewSize(): Size {
-        val displaySize = Point()
-        val display: Display = getMaxSizeDisplay()
-        display.getRealSize(displaySize)
-        var displayViewSize: Size
-        displayViewSize = if (displaySize.x > displaySize.y) {
-            Size(displaySize.x, displaySize.y)
-        } else {
-            Size(displaySize.y, displaySize.x)
-        }
-        if (displayViewSize.width * displayViewSize.height
-            > RESOLUTION_1080P.width * RESOLUTION_1080P.height
-        ) {
-            displayViewSize = RESOLUTION_1080P
-        }
-        // TODO(b/245619094): Use ExtraCroppingQuirk to potentially override this with select
-        //  resolution
-        return displayViewSize
     }
 
     /**

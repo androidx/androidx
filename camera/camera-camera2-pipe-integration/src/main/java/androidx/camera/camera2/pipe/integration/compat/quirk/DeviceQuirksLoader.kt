@@ -55,6 +55,9 @@ object DeviceQuirksLoader {
         if (ExcludedSupportedSizesQuirk.load()) {
             quirks.add(ExcludedSupportedSizesQuirk())
         }
+        if (ExtraCroppingQuirk.load()) {
+            quirks.add(ExtraCroppingQuirk())
+        }
         if (ExtraSupportedOutputSizeQuirk.load()) {
             quirks.add(ExtraSupportedOutputSizeQuirk())
         }
