@@ -48,7 +48,6 @@ import androidx.window.layout.WindowMetrics
  */
 @OptIn(ExperimentalWindowApi::class)
 class ExampleWindowInitializer : Initializer<RuleController> {
-    private val mDemoActivityEmbeddingController = DemoActivityEmbeddingController.getInstance()
 
     override fun create(context: Context): RuleController {
         SplitController.getInstance(context).apply {
@@ -84,11 +83,9 @@ class ExampleWindowInitializer : Initializer<RuleController> {
         val shouldReversed = tag?.contains(SUFFIX_REVERSED) ?: false
         // Make a copy of the default splitAttributes, but replace the animation background
         // color to what is configured in the Demo app.
-        val backgroundColor = mDemoActivityEmbeddingController.animationBackgroundColor
         val defaultSplitAttributes = SplitAttributes.Builder()
             .setLayoutDirection(params.defaultSplitAttributes.layoutDirection)
             .setSplitType(params.defaultSplitAttributes.splitType)
-            .setAnimationBackgroundColor(backgroundColor)
             .build()
         when (tag?.substringBefore(SUFFIX_REVERSED)) {
             TAG_USE_DEFAULT_SPLIT_ATTRIBUTES, null -> {
@@ -114,7 +111,6 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
-                        .setAnimationBackgroundColor(backgroundColor)
                         .build()
                 } else if (isPortrait) {
                     return expandContainersAttrs
@@ -131,7 +127,6 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
-                        .setAnimationBackgroundColor(backgroundColor)
                         .build()
                 }
             }
@@ -159,7 +154,6 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
-                        .setAnimationBackgroundColor(backgroundColor)
                         .build()
                 } else {
                     SplitAttributes.Builder()
@@ -171,7 +165,6 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 LEFT_TO_RIGHT
                             }
                         )
-                        .setAnimationBackgroundColor(backgroundColor)
                         .build()
                 }
             }
@@ -195,7 +188,6 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 if (shouldReversed) RIGHT_TO_LEFT else LEFT_TO_RIGHT
                             }
                         )
-                        .setAnimationBackgroundColor(backgroundColor)
                         .build()
                 }
             }
