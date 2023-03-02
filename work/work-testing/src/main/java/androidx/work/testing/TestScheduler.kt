@@ -18,6 +18,7 @@ package androidx.work.testing
 
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
+import androidx.work.Clock
 import androidx.work.Worker
 import androidx.work.impl.Scheduler
 import androidx.work.impl.StartStopTokens
@@ -37,7 +38,8 @@ import java.util.UUID
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TestScheduler(
     private val workDatabase: WorkDatabase,
-    private val launcher: WorkLauncher
+    private val launcher: WorkLauncher,
+    private val clock: Clock
 ) : Scheduler, TestDriver {
     @GuardedBy("lock")
     private val pendingWorkStates = mutableMapOf<String, InternalWorkState>()
@@ -62,7 +64,7 @@ class TestScheduler(
         toSchedule.forEach { (spec, state) ->
             // don't even try to run a worker that WorkerWrapper won't execute anyway.
             // similar to logic in WorkerWrapper
-            if (spec.isBackedOff && spec.calculateNextRunTime() > System.currentTimeMillis()) {
+            if (spec.isBackedOff && spec.calculateNextRunTime() > clock.currentTimeMillis()) {
                 return@forEach
             }
             scheduleInternal(spec, state)
@@ -144,7 +146,7 @@ class TestScheduler(
                 pendingWorkStates.remove(generationalId.workSpecId)
                 startStopTokens.tokenFor(generationalId)
             }
-            workDatabase.rewindLastEnqueueTime(spec.id)
+            workDatabase.rewindLastEnqueueTime(spec.id, clock)
             launcher.startWork(token)
         }
     }
@@ -173,17 +175,15 @@ internal fun isRunnable(spec: WorkSpec, state: InternalWorkState): Boolean {
 
 private val WorkSpec.isFirstPeriodicRun get() = periodCount == 0 && runAttemptCount == 0
 
-private fun WorkDatabase.rewindLastEnqueueTime(id: String): WorkSpec {
+private fun WorkDatabase.rewindLastEnqueueTime(id: String, clock: Clock): WorkSpec {
     // We need to pass check that mWorkSpec.calculateNextRunTime() < now
     // so we reset "rewind" enqueue time to pass the check
     // we don't reuse available internalWorkState.mWorkSpec, because it
     // is not update with period_count and last_enqueue_time
-    // More proper solution would be to abstract away time instead of just using
-    // System.currentTimeMillis() in WM
     val dao: WorkSpecDao = workSpecDao()
     val workSpec: WorkSpec = dao.getWorkSpec(id)
         ?: throw IllegalStateException("WorkSpec is already deleted from WM's db")
-    val now = System.currentTimeMillis()
+    val now = clock.currentTimeMillis()
     val timeOffset = workSpec.calculateNextRunTime() - now
     if (timeOffset > 0) {
         dao.setLastEnqueueTime(id, workSpec.lastEnqueueTime - timeOffset)

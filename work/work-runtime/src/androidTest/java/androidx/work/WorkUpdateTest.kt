@@ -65,7 +65,7 @@ class WorkUpdateTest {
         taskExecutor = taskExecutor,
         batteryChargingTracker = fakeChargingTracker
     )
-    val db = WorkDatabase.create(context, executor, true)
+    val db = WorkDatabase.create(context, executor, configuration.clock, true)
 
     val processor = Processor(context, configuration, taskExecutor, db)
     val launcher = WorkLauncherImpl(processor, taskExecutor)
