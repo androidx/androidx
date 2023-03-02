@@ -18,13 +18,11 @@ package androidx.appactions.interaction.capabilities.core.testing;
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.ActionExecutor;
-import androidx.appactions.interaction.capabilities.core.ConfirmationOutput;
 import androidx.appactions.interaction.capabilities.core.ExecutionResult;
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
 import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback;
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures;
-import androidx.appactions.interaction.capabilities.core.task.OnReadyToConfirmListener;
 import androidx.appactions.interaction.capabilities.core.testing.spec.SettableFutureWrapper;
 import androidx.appactions.interaction.proto.FulfillmentResponse;
 import androidx.appactions.interaction.proto.TouchEventMetadata;
@@ -33,7 +31,6 @@ import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class TestingUtils {
@@ -91,16 +88,6 @@ public final class TestingUtils {
                 future.set(error);
             }
         };
-    }
-
-    public static <ArgumentT, ConfirmationT>
-            Optional<OnReadyToConfirmListener<ArgumentT, ConfirmationT>>
-                    buildOnReadyToConfirmListener(SettableFutureWrapper<ArgumentT> future) {
-        return Optional.of(
-                (finalArgs) -> {
-                    future.set(finalArgs);
-                    return Futures.immediateFuture(ConfirmationOutput.getDefaultInstance());
-                });
     }
 
     public static TouchEventCallback buildTouchEventCallback(
