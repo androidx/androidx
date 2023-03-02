@@ -65,7 +65,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -1209,6 +1208,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                 new HashMap<Integer, String>() {{
                     put(0, "Item (4)");
                     put(1, "Item (5)");
+                    put(3, "Item (2)");
+                    put(4, "Item (3)");
                 }});
     }
 
@@ -1227,7 +1228,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         3
         */
         runScrollInDirectionOnMultipleItemsAndFail(uiAutomation, View.FOCUS_RIGHT,
-                Arrays.asList(2, 3, 4));
+                Collections.singletonList(2));
     }
 
     @Test
@@ -1285,6 +1286,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         */
         runScrollInDirectionOnMultipleItemsAndSucceed(uiAutomation, View.FOCUS_LEFT,
                 new HashMap<Integer, String>() {{
+                    put(1, "Item (4)");
+                    put(2, "Item (2)");
                     put(3, "Item (1)");
                 }});
     }
@@ -1304,7 +1307,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         3
         */
         runScrollInDirectionOnMultipleItemsAndFail(uiAutomation, View.FOCUS_LEFT,
-                Arrays.asList(0, 1, 2));
+                Collections.singletonList(0));
     }
 
     /**

@@ -36,7 +36,10 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  * A {@link RecyclerView.LayoutManager} implementations that lays out items in a grid.
@@ -254,6 +257,16 @@ public class GridLayoutManager extends LinearLayoutManager {
                     return false;
             }
 
+            if (scrollTargetPosition == INVALID_POSITION
+                    && mOrientation == RecyclerView.HORIZONTAL) {
+                // TODO (b/268487724): handle RTL.
+                // Handle case in grids with horizontal orientation where the scroll target is on
+                // a different row.
+                scrollTargetPosition =
+                        (direction == View.FOCUS_LEFT) ? findPositionOfLastItemOnARowAbove(
+                                startingRow) : findPositionOfFirstItemOnARowBelow(startingRow);
+            }
+
             if (scrollTargetPosition != INVALID_POSITION) {
                 scrollToPosition(scrollTargetPosition);
                 mPositionTargetedByScrollInDirection = scrollTargetPosition;
@@ -343,7 +356,6 @@ public class GridLayoutManager extends LinearLayoutManager {
                         break;
                     }
                 } else { // HORIZONTAL
-                    // TODO (b/268487724): look for scroll target on a following row.
                     // TODO (b/268487724): handle case where the scroll target spans multiple
                     //  rows/columns.
                 }
@@ -385,13 +397,96 @@ public class GridLayoutManager extends LinearLayoutManager {
                         break;
                     }
                 } else { // HORIZONTAL
-                    // TODO (b/268487724): look for scroll target on a preceding row.
                     // TODO (b/268487724): handle case where the scroll target spans multiple
                     //  rows/columns.
                 }
             }
         }
         return scrollTargetPosition;
+    }
+
+    @SuppressWarnings("ConstantConditions") // For the spurious NPE warning related to getting a
+        // value from a map using one of the map keys.
+    int findPositionOfLastItemOnARowAbove(int startingRow) {
+        if (startingRow < 0) {
+            if (DEBUG) {
+                throw new RuntimeException(
+                        "startingRow equals " + startingRow + ". It cannot be less than zero");
+            }
+            return INVALID_POSITION;
+        }
+
+        // Map where the keys are row numbers and values are the adapter positions of the last
+        // item in each row. This map is used to locate a scroll target on a previous row in grids
+        // with horizontal orientation. In this example...
+        // 1   4   7
+        // 2   5   8
+        // 3   6
+        // ... the generated map - {2 -> 5, 1 -> 7, 0 -> 6} - can be used to scroll from,
+        // say, "2" (adapter position 1) in the second row to "7" (adapter position 6) in the
+        // preceding row.
+        Map<Integer, Integer> rowToLastItemPositionMap = new TreeMap<>(Collections.reverseOrder());
+        for (int position = 0; position < getItemCount(); position++) {
+            int row = getRowIndex(position);
+            if (row < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException(
+                            "row equals " + row + ". It cannot be less than zero");
+                }
+                return INVALID_POSITION;
+            }
+            rowToLastItemPositionMap.put(row, position);
+        }
+
+        for (int row : rowToLastItemPositionMap.keySet()) {
+            if (row < startingRow) {
+                return rowToLastItemPositionMap.get(row);
+            }
+        }
+        return INVALID_POSITION;
+    }
+
+    @SuppressWarnings("ConstantConditions") // For the spurious NPE warning related to getting a
+        // value from a map using one of the map keys.
+    int findPositionOfFirstItemOnARowBelow(int startingRow) {
+        if (startingRow < 0) {
+            if (DEBUG) {
+                throw new RuntimeException(
+                        "startingRow equals " + startingRow + ". It cannot be less than zero");
+            }
+            return INVALID_POSITION;
+        }
+
+        // Map where the keys are row numbers and values are the adapter positions of the first
+        // item in each row. This map is used to locate a scroll target on a following row in grids
+        // with horizontal orientation. In this example:
+        // 1   4   7
+        // 2   5   8
+        // 3   6
+        // ... the generated map - {0 -> 0, 1 -> 1, 2 -> 2} - can be used to scroll from, say,
+        // "7" (adapter position 6) in the first row to "2" (adapter position 1) in the next row.
+        Map<Integer, Integer> rowToFirstItemPositionMap = new TreeMap<>();
+        for (int position = 0; position < getItemCount(); position++) {
+            int row = getRowIndex(position);
+            if (row < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException(
+                            "row equals " + row + ". It cannot be less than zero");
+                }
+                return INVALID_POSITION;
+            }
+
+            if (!rowToFirstItemPositionMap.containsKey(row)) {
+                rowToFirstItemPositionMap.put(row, position);
+            }
+        }
+
+        for (int row : rowToFirstItemPositionMap.keySet()) {
+            if (row > startingRow) {
+                return rowToFirstItemPositionMap.get(row);
+            }
+        }
+        return INVALID_POSITION;
     }
 
     private int getRowIndex(int position) {
