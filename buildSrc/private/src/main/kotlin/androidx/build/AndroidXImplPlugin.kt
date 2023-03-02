@@ -905,6 +905,11 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             val constraints = project.dependencies.constraints
             val allProjectsExist = buildContainsAllStandardProjects()
             for (otherProject in otherProjectsInSameGroup) {
+	        val otherGradlePath = otherProject.gradlePath
+                if (otherGradlePath == ":compose:ui:ui-android-stubs") {
+                    // exemption for library that doesn't truly get published: b/168127161
+                    continue
+                }
                 // We only enable constraints for builds that we intend to be able to publish from.
                 //   If a project isn't included in a build we intend to be able to publish from,
                 //   the project isn't going to be published.
@@ -912,7 +917,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 //   The KMP project subset enabled by androidx_multiplatform_mac.sh contains
                 //   :benchmark:benchmark-common but not :benchmark:benchmark-benchmark
                 //   This is ok because we don't intend to publish that artifact from that build
-                val otherGradlePath = otherProject.gradlePath
                 val otherProjectShouldExist =
                     allProjectsExist || findProject(otherGradlePath) != null
                 if (!otherProjectShouldExist) {
