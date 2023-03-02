@@ -34,7 +34,6 @@ import androidx.compose.ui.text.ExperimentalTextApi
 // be given default implementations that throw UnsupportedOperationExceptions. This is not a concern
 // for backwards compatibility because it simply means that tests may not use new perform* methods
 // on older implementations that haven't linked against the newer version of Compose.
-@ExperimentalTextApi
 interface TextInputForTests {
 
     /**
