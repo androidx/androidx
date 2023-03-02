@@ -20,7 +20,6 @@ import android.view.KeyEvent
 import android.view.KeyEvent.META_ALT_ON
 import android.view.KeyEvent.META_CTRL_ON
 import android.view.KeyEvent.META_SHIFT_ON
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.text.BasicTextField
@@ -57,7 +56,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 class HardwareKeyboardTest {
     @get:Rule
     val rule = createComposeRule()
@@ -409,6 +408,61 @@ class HardwareKeyboardTest {
         keysSequenceTest(initText = "text") {
             Key.Enter.downAndUp()
             expectedText("\ntext")
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_tabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Tab.downAndUp()
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_tabMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Tab.downAndUp()
+            expectedText("t\tt")
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_shiftTabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Tab.downAndUp(metaState = META_SHIFT_ON)
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_enterSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Enter.downAndUp()
+            expectedText("text") // no change, should do ime action instead
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_enterMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Enter.downAndUp()
+            expectedText("t\nt")
         }
     }
 
