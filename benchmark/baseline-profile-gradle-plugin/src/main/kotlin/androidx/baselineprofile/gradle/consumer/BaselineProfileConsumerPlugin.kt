@@ -23,6 +23,7 @@ import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
 import androidx.baselineprofile.gradle.utils.INTERMEDIATES_BASE_FOLDER
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
+import androidx.baselineprofile.gradle.utils.afterVariants
 import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.checkAgpVersion
 import androidx.baselineprofile.gradle.utils.isAgpVersionAtLeast
@@ -34,20 +35,23 @@ import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.Variant
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Category
-import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.work.DisableCachingByDefault
+
+private const val GENERATE_TASK_NAME = "generate"
+private const val MERGE_TASK_NAME = "merge"
+private const val COPY_TASK_NAME = "copy"
 
 /**
  * This is the consumer plugin for baseline profile generation. In order to generate baseline
@@ -59,7 +63,6 @@ import org.gradle.api.tasks.TaskProvider
 class BaselineProfileConsumerPlugin : Plugin<Project> {
 
     companion object {
-        private const val GENERATE_TASK_NAME = "generate"
         private const val RELEASE = "release"
         private const val PROPERTY_R8_REWRITE_BASELINE_PROFILE_RULES =
             "android.experimental.art-profile-r8-rewriting"
@@ -158,6 +161,9 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                     .map { it.name })
             }
 
+        // A list of blocks to execute after agp tasks have been created
+        val afterVariantBlocks = mutableListOf<() -> (Unit)>()
+
         // Iterate baseline profile variants to create per-variant tasks and configurations
         project
             .extensions
@@ -209,20 +215,23 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                     //  is true, calling a generation task for a specific build type will merge
                     //  profiles for all the variants of that build type and output it in the `main`
                     //  folder.
-                    val (taskName, outputVariantFolder) = if (mergeIntoMain) {
+                    val (mergeAwareVariantName, mergeAwareVariantOutput) = if (mergeIntoMain) {
                         listOf(variant.buildType ?: "", "main")
                     } else {
                         listOf(variant.name, variant.name)
                     }
 
-                    // Creates the task to merge the baseline profile artifacts coming from different
-                    // configurations. Note that this is the last task of the chain that triggers the
-                    // whole generation, hence it's called `generate`. The name is generated according
-                    // to the value of the `merge`.
-                    val genBaselineProfileTaskProvider = project
+                    // Creates the task to merge the baseline profile artifacts coming from
+                    // different configurations.
+                    val mergedTaskOutputDir = project
+                        .layout
+                        .buildDirectory
+                        .dir("$INTERMEDIATES_BASE_FOLDER/$mergeAwareVariantOutput/merged")
+
+                    val mergeTaskProvider = project
                         .tasks
-                        .maybeRegister<GenerateBaselineProfileTask>(
-                            GENERATE_TASK_NAME, taskName, TASK_NAME_SUFFIX,
+                        .maybeRegister<MergeBaselineProfileTask>(
+                            MERGE_TASK_NAME, mergeAwareVariantName, TASK_NAME_SUFFIX,
                         ) { task ->
 
                             // These are all the configurations this task depends on,
@@ -233,14 +242,9 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                                 .from
                                 .add(baselineProfileConfiguration)
 
-                            // This is the task output for the generated baseline profile
-                            task.baselineProfileDir.set(
-                                baselineProfileExtension.baselineProfileOutputDir(
-                                    project = project,
-                                    variantName = outputVariantFolder,
-                                    outputDir = baselineProfileExtension.baselineProfileOutputDir
-                                )
-                            )
+                            // This is the task output for the generated baseline profile. Output
+                            // is always stored in the intermediates
+                            task.baselineProfileDir.set(mergedTaskOutputDir)
 
                             // Sets the package filter rules. If this is the first task
                             task.filterRules.addAll(
@@ -257,46 +261,126 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                             )
                         }
 
-                    // The output folders for variant and main profiles are added as source dirs using
-                    // source sets api. This cannot be done in the `configure` block of the generation
-                    // task. The `onDemand` flag is checked here and the src set folder is chosen
-                    // accordingly: if `true`, baseline profiles are saved in the src folder so they
-                    // can be committed with srcs, if `false` they're stored in the generated build
-                    // files.
-                    if (baselineProfileExtension.onDemandGeneration) {
-                        variant.sources.baselineProfiles?.apply {
-                            addGeneratedSourceDirectory(
-                                genBaselineProfileTaskProvider,
-                                GenerateBaselineProfileTask::baselineProfileDir
-                            )
-                        }
-                    } else {
-                        val baselineProfileSourcesFile = baselineProfileExtension
-                            .baselineProfileOutputDir(
-                                project = project,
-                                variantName = outputVariantFolder,
-                                outputDir = baselineProfileExtension.baselineProfileOutputDir
-                            )
-                            .get()
-                            .asFile
+                    // If `saveInSrc` is true, we create an additional task to copy the output
+                    // of the merge task in the src folder.
+                    val lastTaskProvider = if (baselineProfileExtension.saveInSrc) {
 
-                        // If the folder does not exist it means that the profile has not been
-                        // generated so we don't need to add to sources.
-                        if (baselineProfileSourcesFile.exists()) {
-                            variant.sources.baselineProfiles?.addStaticSourceDirectory(
-                                baselineProfileSourcesFile.absolutePath
-                            )
+                        val baselineProfileOutputDir =
+                            baselineProfileExtension.baselineProfileOutputDir
+                        val srcOutputDir = project
+                            .layout
+                            .projectDirectory
+                            .dir("src/$mergeAwareVariantOutput/$baselineProfileOutputDir/")
+
+                        // This task copies the baseline profile generated from the merge task.
+                        // Note that we're reutilizing the [MergeBaselineProfileTask] because
+                        // if the flag `mergeIntoMain` is true tasks will have the same name
+                        // and we just want to add more file to copy to the same output. This is
+                        // already handled in the MergeBaselineProfileTask.
+                        val copyTaskProvider = project
+                            .tasks
+                            .maybeRegister<MergeBaselineProfileTask>(
+                                COPY_TASK_NAME, mergeAwareVariantName, "baselineProfileIntoSrc",
+                            ) { task ->
+                                task.baselineProfileFileCollection
+                                    .from
+                                    .add(mergeTaskProvider.flatMap { it.baselineProfileDir })
+                                task.baselineProfileDir.set(srcOutputDir)
+                            }
+
+                        // Applies the source path for this variant
+                        srcOutputDir.asFile.apply {
+                            mkdirs()
+                            variant
+                                .sources
+                                .baselineProfiles?.addStaticSourceDirectory(absolutePath)
                         }
+
+                        // Depending on whether the flag `automaticGenerationDuringBuild` is enabled
+                        // we can set either a dependsOn or a mustRunAfter dependency between the
+                        // task that packages the profile and the copy. Note that we cannot use
+                        // the variant src set api `addGeneratedSourceDirectory` since that
+                        // overwrites the outputDir, that would be re-set in the build dir.
+                        afterVariantBlocks.add {
+
+                            // Determines which AGP task to depend on based on whether this is an
+                            // app or a library.
+                            if (isApplication) {
+                                project.tasks.named(
+                                    camelCase("merge", variant.name, "artProfile")
+                                )
+                            } else {
+                                project.tasks.named(
+                                    camelCase("prepare", variant.name, "artProfile")
+                                )
+                            }.configure {
+
+                                // Sets the task dependency according to the configuration flag.
+                                if (baselineProfileExtension.automaticGenerationDuringBuild) {
+                                    it.dependsOn(copyTaskProvider)
+                                } else {
+                                    it.mustRunAfter(copyTaskProvider)
+                                }
+                            }
+                        }
+
+                        // In this case the last task is the copy task.
+                        copyTaskProvider
+                    } else {
+
+                        if (baselineProfileExtension.automaticGenerationDuringBuild) {
+
+                            // If the flag `automaticGenerationDuringBuild` is true, we can set the
+                            // merge task to provide generated sources for the variant, using the
+                            // src set variant api. This means that we don't need to manually depend
+                            // on the merge or prepare art profile task.
+                            variant
+                                .sources
+                                .baselineProfiles?.addGeneratedSourceDirectory(
+                                    taskProvider = mergeTaskProvider,
+                                    wiredWith = MergeBaselineProfileTask::baselineProfileDir
+                                )
+                        } else {
+
+                            // This is the case of `saveInSrc` and `automaticGenerationDuringBuild`
+                            // both false, that is unsupported. In this case we simply throw an
+                            // error.
+                            if (!project.isGradleSyncRunning()) {
+                                throw GradleException(
+                                    """
+                                    The current configuration of flags `saveInSrc` and
+                                    `automaticGenerationDuringBuild` is not supported. At least
+                                    one of these should be set to `true`. Please review your
+                                    baseline profile plugin configuration in your build.gradle.
+                                """.trimIndent()
+                                )
+                            }
+                        }
+
+                        // In this case the last task is the merge task.
+                        mergeTaskProvider
                     }
 
-                    // Here we create a task hierarchy to trigger generations for all the variants
-                    // of a specific build type, flavor or all of them. If `mergeIntoMain` is true,
-                    // only one generation task exists so there is no need to create parent tasks.
-                    if (!mergeIntoMain && variant.name != variant.buildType) {
-                        maybeCreateParentGenTask<Task>(
-                            project,
-                            variant.buildType,
-                            genBaselineProfileTaskProvider
+                    // Here we create the final generate task that triggers the whole generation
+                    // for this variant and all the parent tasks. For this one the child task
+                    // is either copy or merge, depending on the configuration.
+                    val variantGenerateTask = maybeCreateGenerateTask<Task>(
+                        project = project,
+                        variantName = mergeAwareVariantName,
+                        childGenerationTaskProvider = lastTaskProvider
+                    )
+
+                    // Create the build type task. For example `generateReleaseBaselineProfile`
+                    // The variant name is equal to the build type name if there are no flavors.
+                    // Note that if `mergeIntoMain` is `true` the build type task already exists.
+                    if (!mergeIntoMain &&
+                        !variant.buildType.isNullOrBlank() &&
+                        variant.name != variant.buildType
+                    ) {
+                        maybeCreateGenerateTask<Task>(
+                            project = project,
+                            variantName = variant.buildType!!,
+                            childGenerationTaskProvider = variantGenerateTask
                         )
                     }
 
@@ -307,29 +391,30 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                     //  build type until that bug is fixed, when running the global task
                     //  `generateBaselineProfile`. This can be removed after fix.
                     if (variant.buildType == RELEASE) {
-                        maybeCreateParentGenTask<MainGenerateBaselineProfileTask>(
+                        maybeCreateGenerateTask<MainGenerateBaselineProfileTask>(
                             project,
                             "",
-                            genBaselineProfileTaskProvider
+                            variantGenerateTask
                         )
                     }
                 }
             }
+
+        // After variants have been resolved the AGP tasks have been created, so we can set our
+        // task dependency if any.
+        project.afterVariants {
+            afterVariantBlocks.forEach { it() }
+        }
     }
 
-    private inline fun <reified T : Task> maybeCreateParentGenTask(
+    private inline fun <reified T : Task> maybeCreateGenerateTask(
         project: Project,
-        parentName: String?,
-        childGenerationTaskProvider: TaskProvider<GenerateBaselineProfileTask>
-    ) {
-        if (parentName == null) return
-        project.tasks.maybeRegister<T>(GENERATE_TASK_NAME, parentName, TASK_NAME_SUFFIX) {
-            it.group =
-                "Baseline Profile"
-            it.description =
-                "Generates a baseline profile for the specified variants or dimensions."
-            it.dependsOn(childGenerationTaskProvider)
-        }
+        variantName: String,
+        childGenerationTaskProvider: TaskProvider<*>? = null
+    ) = project.tasks.maybeRegister<T>(GENERATE_TASK_NAME, variantName, TASK_NAME_SUFFIX) {
+        it.group = "Baseline Profile"
+        it.description = "Generates a baseline profile for the specified variants or dimensions."
+        if (childGenerationTaskProvider != null) it.dependsOn(childGenerationTaskProvider)
     }
 
     private fun createBaselineProfileConfigurationForVariant(
@@ -409,38 +494,15 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                 }
             }
     }
-
-    private fun BaselineProfileConsumerExtension.baselineProfileOutputDir(
-        project: Project,
-        outputDir: String,
-        variantName: String
-    ): Provider<Directory> =
-        if (onDemandGeneration) {
-
-            // In on demand mode, the baseline profile is regenerated when building
-            // release and it's not saved in the module sources. To achieve this
-            // we can create an intermediate folder for the profile and add the
-            // generation task to src sets.
-            project
-                .layout
-                .buildDirectory
-                .dir("$INTERMEDIATES_BASE_FOLDER/$variantName/$outputDir")
-        } else {
-
-            // In periodic mode the baseline profile generation is manually triggered.
-            // The baseline profile is stored in the baseline profile sources for
-            // the variant.
-            project.providers.provider {
-                project
-                    .layout
-                    .projectDirectory
-                    .dir("src/$variantName/$outputDir/")
-            }
-        }
 }
 
-@CacheableTask
+@DisableCachingByDefault(because = "Not worth caching.")
 abstract class MainGenerateBaselineProfileTask : DefaultTask() {
+
+    init {
+        group = "Baseline Profile"
+        description = "Generates a baseline profile"
+    }
 
     @TaskAction
     fun exec() {
@@ -464,7 +526,7 @@ abstract class MainGenerateBaselineProfileTask : DefaultTask() {
     }
 }
 
-@CacheableTask
+@DisableCachingByDefault(because = "Not worth caching.")
 abstract class GenerateDummyBaselineProfileTask : DefaultTask() {
 
     companion object {
@@ -485,6 +547,7 @@ abstract class GenerateDummyBaselineProfileTask : DefaultTask() {
                     )
                     it.variantName.set(variant.name)
                 }
+            @Suppress("UnstableApiUsage")
             variant.sources.baselineProfiles?.addGeneratedSourceDirectory(
                 taskProvider, GenerateDummyBaselineProfileTask::outputDir
             )

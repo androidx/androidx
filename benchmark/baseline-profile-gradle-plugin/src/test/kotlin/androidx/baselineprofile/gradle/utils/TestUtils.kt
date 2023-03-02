@@ -28,17 +28,17 @@ internal const val GRADLE_CODE_PRINT_TASK = """
 
 """
 
-internal fun GradleRunner.build(taskName: String, block: (String) -> (Unit)) {
+internal fun GradleRunner.build(vararg arguments: String, block: (String) -> (Unit)) {
     this
-        .withArguments(taskName, "--stacktrace")
+        .withArguments(*arguments, "--stacktrace")
         .build()
         .output
         .let(block)
 }
 
 internal fun GradleRunner.buildAndAssertThatOutput(
-    taskName: String,
+    vararg arguments: String,
     assertBlock: StringSubject.() -> (Unit)
 ) {
-    this.build(taskName) { assertBlock(assertThat(it)) }
+    this.build(*arguments) { assertBlock(assertThat(it)) }
 }

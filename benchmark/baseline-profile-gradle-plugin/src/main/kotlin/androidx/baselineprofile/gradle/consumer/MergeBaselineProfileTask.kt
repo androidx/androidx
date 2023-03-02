@@ -40,7 +40,7 @@ import org.gradle.api.tasks.TaskAction
  * duplication but mostly the profile file will be unnecessarily larger.
  */
 @CacheableTask
-abstract class GenerateBaselineProfileTask : DefaultTask() {
+abstract class MergeBaselineProfileTask : DefaultTask() {
 
     companion object {
 
@@ -57,11 +57,6 @@ abstract class GenerateBaselineProfileTask : DefaultTask() {
 
     @get:OutputDirectory
     abstract val baselineProfileDir: DirectoryProperty
-
-    init {
-        group = "Baseline Profile"
-        description = "Generates a baseline profile."
-    }
 
     @TaskAction
     fun exec() {
@@ -98,7 +93,22 @@ abstract class GenerateBaselineProfileTask : DefaultTask() {
         // - apply the filters
         // - sort with comparator
         val profileRules = baselineProfileFileCollection.files
-            .flatMap { it.readLines() }
+            .flatMap {
+                if (!it.exists()) {
+                    // Note this can happen only if this task is misconfigured because of a bug and
+                    // not because of any user configuration.
+                    throw GradleException(
+                        """
+                        The specified merge task input `${it.absolutePath}` does not exist.
+                    """.trimIndent()
+                    )
+                }
+                if (it.isFile) {
+                    it.readLines()
+                } else {
+                    it.listFiles()!!.flatMap { f -> f.readLines() }
+                }
+            }
             .sorted()
             .asSequence()
             .mapNotNull { ProfileRule.parse(it) }

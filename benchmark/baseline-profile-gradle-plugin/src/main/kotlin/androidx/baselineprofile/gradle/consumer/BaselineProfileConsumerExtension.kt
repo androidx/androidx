@@ -26,7 +26,6 @@ import org.gradle.api.Project
 open class BaselineProfileConsumerExtension {
 
     companion object {
-
         private const val EXTENSION_NAME = "baselineProfile"
 
         internal fun registerExtension(project: Project): BaselineProfileConsumerExtension {
@@ -40,18 +39,23 @@ open class BaselineProfileConsumerExtension {
     }
 
     /**
-     * Enables on-demand baseline profile generation. Baseline profiles can be generated
-     * periodically or on-demand. Setting this flag to true will enable on-demand generation.
-     * When on-demand generation is enabled the baseline profile is regenerated before building the
-     * release build type. Note that in on-demand mode the baseline profile file is NOT saved in
-     * `src/<variant>/generated/baselineProfiles` folder, as opposite to the periodic generation
-     * where the latest baseline profile is always stored in the sources.
+     * Specifies whether generated baseline profiles should be stored in the src folder.
+     * When this flag is set to true, the generated baseline profiles are stored in
+     * `src/<variant>/generated/baselineProfiles`.
      */
-    var onDemandGeneration = false
+    var saveInSrc = true
 
     /**
-     * Specifies the output directory for generated baseline profile when [onDemandGeneration] is
-     * off. Note that the dir specified here is created in the `src/<variant>/` folder.
+     * Specifies whether baseline profiles should be regenerated when building, for example, during
+     * a full release build for distribution. When set to true a new profile is generated as part
+     * of building the release build. This including rebuilding the non minified release, running
+     * the baseline profile tests and ultimately building the release build.
+     */
+    var automaticGenerationDuringBuild = false
+
+    /**
+     * Specifies the output directory for generated baseline profiles when [saveInSrc] is
+     * `true`. Note that the dir specified here is created in the `src/<variant>/` folder.
      */
     var baselineProfileOutputDir = "generated/baselineProfiles"
 
@@ -64,9 +68,9 @@ open class BaselineProfileConsumerExtension {
      *      `src/<variant>/generated/baselineProfiles`'.
      *  If this is not specified, by default it will be true for library modules and false for
      *  application modules.
-     *  Note that when generation is onDemand the output folder is always in the build output
-     *  folder but this setting still determines whether the profile included in the built apk or
-     *  aar is merged into a single one.
+     *  Note that when `saveInSrc` is false the output folder is in the build output folder but
+     *  this setting still determines whether the profile included in the built apk or
+     *  aar includes all the variant profiles.
      */
     var mergeIntoMain: Boolean? = null
 
