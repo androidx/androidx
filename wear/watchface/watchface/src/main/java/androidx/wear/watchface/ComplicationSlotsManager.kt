@@ -367,6 +367,12 @@ public class ComplicationSlotsManager(
                 forceUpdate = false
             )
         }
+
+        // selectComplicationDataForInstant may have changed the complication, if so we need to
+        // update the content description labels.
+        if (complicationSlots.isNotEmpty()) {
+            onComplicationsUpdated()
+        }
     }
 
     /**
