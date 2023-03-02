@@ -157,17 +157,14 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
             }
             mIsIdle = false;
             ListenableFuture<Void> requestProcessingFuture;
-            switch (updateRequest.getKind()) {
-                case ASSISTANT:
-                    requestProcessingFuture =
-                            processAssistantUpdateRequest(updateRequest.assistant());
-                    break;
-                case TOUCH_EVENT:
-                    requestProcessingFuture =
-                            processTouchEventUpdateRequest(updateRequest.touchEvent());
-                    break;
-                default:
-                    throw new IllegalArgumentException("unknown UpdateRequest type");
+            if (updateRequest.getAssistantRequest() != null) {
+                requestProcessingFuture =
+                        processAssistantUpdateRequest(updateRequest.getAssistantRequest());
+            } else if (updateRequest.getTouchEventRequest() != null) {
+                requestProcessingFuture =
+                        processTouchEventUpdateRequest(updateRequest.getTouchEventRequest());
+            }  else {
+                throw new IllegalArgumentException("unknown UpdateRequest type");
             }
             return Futures.transform(
                     requestProcessingFuture,
@@ -185,8 +182,8 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
     /** Processes an assistant update request. */
     private ListenableFuture<Void> processAssistantUpdateRequest(
             AssistantUpdateRequest assistantUpdateRequest) {
-        ArgumentsWrapper argumentsWrapper = assistantUpdateRequest.argumentsWrapper();
-        CallbackInternal callback = assistantUpdateRequest.callbackInternal();
+        ArgumentsWrapper argumentsWrapper = assistantUpdateRequest.getArgumentsWrapper();
+        CallbackInternal callback = assistantUpdateRequest.getCallbackInternal();
 
         if (argumentsWrapper.getRequestMetadata() == null) {
             callback.onError(ErrorStatusInternal.INVALID_REQUEST_TYPE);
@@ -443,7 +440,7 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
     private ListenableFuture<Void> processFulfillmentValues(
             Map<String, List<FulfillmentValue>> fulfillmentValuesMap) {
         ListenableFuture<SlotProcessingResult> currentFuture =
-                Futures.immediateFuture(SlotProcessingResult.create(true, Collections.emptyList()));
+                Futures.immediateFuture(new SlotProcessingResult(true, Collections.emptyList()));
         for (Map.Entry<String, List<FulfillmentValue>> entry : fulfillmentValuesMap.entrySet()) {
             String name = entry.getKey();
             List<FulfillmentValue> fulfillmentValues = entry.getValue();
@@ -477,7 +474,7 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
         return Futures.transform(
                 processSlot(slotKey, previousResult, pendingArgs),
                 currentResult -> {
-                    mCurrentValuesMap.put(slotKey, currentResult.processedValues());
+                    mCurrentValuesMap.put(slotKey, currentResult.getProcessedValues());
                     return currentResult;
                 },
                 mExecutor,
@@ -493,7 +490,7 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
     private ListenableFuture<SlotProcessingResult> processSlot(
             String name, SlotProcessingResult previousResult, List<CurrentValue> pendingArgs) {
         if (!previousResult.isSuccessful()) {
-            return Futures.immediateFuture(SlotProcessingResult.create(false, pendingArgs));
+            return Futures.immediateFuture(new SlotProcessingResult(false, pendingArgs));
         }
         return TaskSlotProcessor.processSlot(
                 name, pendingArgs, mTaskHandler.getTaskParamMap(), mExecutor);

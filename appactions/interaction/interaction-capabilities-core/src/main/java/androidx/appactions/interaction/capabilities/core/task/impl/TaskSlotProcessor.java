@@ -119,7 +119,7 @@ final class TaskSlotProcessor {
             // TODO(b/234655571) use slot metadata to ensure that we never auto accept values for
             // reference slots.
             return Futures.immediateFuture(
-                    SlotProcessingResult.create(
+                    new SlotProcessingResult(
                             Boolean.TRUE,
                             pendingArgs.stream()
                                     .map(
@@ -163,8 +163,8 @@ final class TaskSlotProcessor {
                 (unused) -> {
                     if (groundedValues.isEmpty()) {
                         return Futures.immediateFuture(
-                                SlotProcessingResult.create(
-                                        /** isSuccessful= */
+                                new SlotProcessingResult(
+                                        /* isSuccessful= */
                                         false, Collections.unmodifiableList(ungroundedValues)));
                     }
                     return Futures.transform(
@@ -328,7 +328,7 @@ final class TaskSlotProcessor {
                 break;
         }
         combinedValues.addAll(ungroundedValues);
-        return SlotProcessingResult.create(
+        return new SlotProcessingResult(
                 /* isSuccessful= */ ungroundedValues.isEmpty()
                         && (validationResult.getKind() == ValidationResult.Kind.ACCEPTED),
                 Collections.unmodifiableList(combinedValues));
