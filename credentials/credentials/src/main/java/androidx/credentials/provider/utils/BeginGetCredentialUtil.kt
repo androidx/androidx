@@ -20,13 +20,10 @@ import android.os.Bundle
 import android.service.credentials.BeginGetCredentialOption
 import android.service.credentials.BeginGetCredentialRequest
 import androidx.annotation.RequiresApi
-import androidx.credentials.GetPublicKeyCredentialOption
-import androidx.credentials.GetPublicKeyCredentialOptionPrivileged
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.provider.BeginGetPasswordOption
 import androidx.credentials.provider.BeginGetPublicKeyCredentialOption
-import androidx.credentials.provider.BeginGetPublicKeyCredentialOptionPrivileged
 
 /**
  * @hide
@@ -62,23 +59,7 @@ class BeginGetCredentialUtil {
                     BeginGetPasswordOption(candidateQueryData, id)
                 }
                 PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {
-                    when (candidateQueryData.getString(
-                        PublicKeyCredential.BUNDLE_KEY_SUBTYPE
-                    )) {
-                        GetPublicKeyCredentialOption
-                            .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION -> {
-                            BeginGetPublicKeyCredentialOption.createFrom(candidateQueryData, id)
-                        }
-                        GetPublicKeyCredentialOptionPrivileged
-                            .BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION_PRIVILEGED
-                        -> {
-                            BeginGetPublicKeyCredentialOptionPrivileged
-                                .createFrom(candidateQueryData, id)
-                        }
-                        else -> {
-                            BeginGetCredentialOption(id, type, candidateQueryData)
-                        }
-                    }
+                    BeginGetPublicKeyCredentialOption.createFrom(candidateQueryData, id)
                 }
                 else -> {
                     BeginGetCredentialOption(id, type, candidateQueryData)

@@ -18,14 +18,11 @@ package androidx.credentials.provider.utils
 
 import android.service.credentials.BeginCreateCredentialRequest
 import androidx.annotation.RequiresApi
-import androidx.credentials.CreatePublicKeyCredentialRequest
-import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
 import androidx.credentials.provider.BeginCreatePasswordCredentialRequest
 import androidx.credentials.provider.BeginCreatePublicKeyCredentialRequest
-import androidx.credentials.provider.BeginCreatePublicKeyCredentialRequestPrivileged
 
 /**
  * @hide
@@ -43,17 +40,8 @@ class BeginCreateCredentialUtil {
                             request.data, request.callingAppInfo)
                     }
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {
-                        when (request.data.getString(PublicKeyCredential.BUNDLE_KEY_SUBTYPE)) {
-                            CreatePublicKeyCredentialRequest
-                                .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST ->
-                                BeginCreatePublicKeyCredentialRequest.createFrom(
-                                    request.data, request.callingAppInfo)
-                            CreatePublicKeyCredentialRequestPrivileged
-                                .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV ->
-                                BeginCreatePublicKeyCredentialRequestPrivileged.createFrom(
-                                    request.data, request.callingAppInfo)
-                            else -> throw FrameworkClassParsingException()
-                        }
+                        BeginCreatePublicKeyCredentialRequest.createFrom(
+                            request.data, request.callingAppInfo)
                     }
                     else -> {
                         BeginCreateCredentialRequest(request.type, request.data,
