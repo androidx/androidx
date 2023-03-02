@@ -33,7 +33,7 @@ import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 interface ActionCapability {
 
     /** Returns the unique Id of this capability declaration. */
-    val id: String?
+    val id: String
 
     /**
      * Returns whether or not this capability supports multi-turn task.

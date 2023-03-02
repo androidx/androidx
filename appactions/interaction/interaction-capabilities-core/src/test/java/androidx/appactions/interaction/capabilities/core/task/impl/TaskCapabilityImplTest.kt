@@ -811,6 +811,7 @@ class TaskCapabilityImplTest {
             }
         }
         val capability = CapabilityBuilder()
+            .setId("fakeId")
             .setSessionFactory(sessionFactory)
             .build()
         val session = capability.createSession(hostProperties)
