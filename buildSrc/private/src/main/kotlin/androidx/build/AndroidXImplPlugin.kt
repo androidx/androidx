@@ -155,6 +155,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             it.configureWithAndroidXExtension(extension)
         }
         project.configureConstraintsWithinGroup(extension)
+        project.validateProjectParser(extension)
     }
 
     private fun Project.registerProjectOrArtifact() {
@@ -900,13 +901,10 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                     configuration.extendsFrom(constraintConfiguration)
             }
 
-            val otherProjectPathsInSameGroup = extension.getAllProjectPathsInSameGroup()
+            val otherProjectsInSameGroup = extension.getOtherProjectsInSameGroup()
             val constraints = project.dependencies.constraints
             val allProjectsExist = buildContainsAllStandardProjects()
-            for (otherPath in otherProjectPathsInSameGroup) {
-                // don't need a constraint pointing at self
-                if (otherPath == project.path)
-                    continue
+            for (otherProject in otherProjectsInSameGroup) {
                 // We only enable constraints for builds that we intend to be able to publish from.
                 //   If a project isn't included in a build we intend to be able to publish from,
                 //   the project isn't going to be published.
@@ -914,14 +912,35 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 //   The KMP project subset enabled by androidx_multiplatform_mac.sh contains
                 //   :benchmark:benchmark-common but not :benchmark:benchmark-benchmark
                 //   This is ok because we don't intend to publish that artifact from that build
-                val otherProjectShouldExist = allProjectsExist || findProject(otherPath) != null
-                if (otherProjectShouldExist) {
-                    val dependencyConstraint = project(otherPath)
-                    constraints.add(
-                        constraintConfiguration.name,
-                        dependencyConstraint
-                    )
+                val otherGradlePath = otherProject.gradlePath
+                val otherProjectShouldExist =
+                    allProjectsExist || findProject(otherGradlePath) != null
+                if (!otherProjectShouldExist) {
+                    continue
                 }
+                // We only emit constraints referring to projects that will release
+                val otherFilepath = File(otherProject.filePath, "build.gradle")
+                val parsed = parseBuildFile(otherFilepath)
+                if (!parsed.shouldRelease()) {
+                    continue
+                }
+                if (parsed.libraryType == LibraryType.SAMPLES) {
+                    // a SAMPLES project knows how to publish, but we don't intend to actually
+                    // publish it
+                    continue
+                }
+                // Under certain circumstances, a project is allowed to override its
+                // version see ( isGroupVersionOverrideAllowed ), in which case it's
+                // not participating in the versioning policy yet and we don't emit
+                // version constraints referencing it
+                if (parsed.specifiesVersion) {
+                    continue
+                }
+                val dependencyConstraint = project(otherGradlePath)
+                constraints.add(
+                    constraintConfiguration.name,
+                    dependencyConstraint
+                )
             }
         }
     }
@@ -1153,6 +1172,35 @@ fun Project.validateMultiplatformPluginHasNotBeenApplied() {
         throw GradleException(
             "The Kotlin multiplatform plugin should only be applied by the AndroidX plugin."
         )
+    }
+}
+
+/**
+ * Verifies that ProjectParser computes the correct values for this project
+ */
+fun Project.validateProjectParser(extension: AndroidXExtension) {
+    project.afterEvaluate {
+        val parsed = project.parse()
+        check(extension.type == parsed.libraryType) {
+            "ProjectParser incorrectly computed libraryType = ${parsed.libraryType} " +
+                "instead of ${extension.type}"
+        }
+        check(extension.publish == parsed.publish) {
+            "ProjectParser incorrectly computed publish = ${parsed.publish} " +
+                "instead of ${extension.publish}"
+        }
+        check(extension.shouldPublish() == parsed.shouldPublish()) {
+            "ProjectParser incorrectly computed shouldPublish() = ${parsed.shouldPublish()} " +
+                "instead of ${extension.shouldPublish()}"
+        }
+        check(extension.shouldRelease() == parsed.shouldRelease()) {
+            "ProjectParser incorrectly computed shouldRelease() = ${parsed.shouldRelease()} " +
+                "instead of ${extension.shouldRelease()}"
+        }
+        check(extension.projectDirectlySpecifiesMavenVersion == parsed.specifiesVersion) {
+            "ProjectParser incorrectly computed specifiesVersion = ${parsed.specifiesVersion}" +
+                "instead of ${extension.projectDirectlySpecifiesMavenVersion}"
+        }
     }
 }
 
