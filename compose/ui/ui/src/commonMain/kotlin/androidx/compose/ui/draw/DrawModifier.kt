@@ -141,7 +141,6 @@ fun Modifier.drawWithCache(
     onBuildDrawCache: CacheDrawScope.() -> DrawResult
 ) = this then DrawWithCacheElement(onBuildDrawCache)
 
-@ExperimentalComposeUiApi
 private data class DrawWithCacheElement(
     val onBuildDrawCache: CacheDrawScope.() -> DrawResult
 ) : ModifierNodeElement<CacheDrawNode>() {
@@ -159,7 +158,6 @@ private data class DrawWithCacheElement(
     }
 }
 
-@ExperimentalComposeUiApi
 private class CacheDrawNode(
     private val cacheDrawScope: CacheDrawScope,
     block: CacheDrawScope.() -> DrawResult

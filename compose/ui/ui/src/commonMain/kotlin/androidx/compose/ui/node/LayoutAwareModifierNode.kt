@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.IntSize
  * @sample androidx.compose.ui.samples.OnPlaced
  * @sample androidx.compose.ui.samples.LayoutAwareModifierNodeSample
  */
-@ExperimentalComposeUiApi
 interface LayoutAwareModifierNode : DelegatableNode {
     /**
      * [onPlaced] is called after the parent [LayoutModifier] and parent layout has
@@ -55,6 +54,7 @@ interface LayoutAwareModifierNode : DelegatableNode {
      * [LookaheadLayoutCoordinates.localLookaheadPositionOf] and
      * [LookaheadLayoutCoordinates.localPositionOf], respectively.
      */
+    @ExperimentalComposeUiApi
     fun onLookaheadPlaced(coordinates: LookaheadLayoutCoordinates) {}
 
     /**

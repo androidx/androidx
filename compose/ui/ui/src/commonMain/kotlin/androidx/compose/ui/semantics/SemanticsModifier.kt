@@ -47,7 +47,6 @@ interface SemanticsModifier : Modifier.Element {
     val semanticsConfiguration: SemanticsConfiguration
 }
 
-@ExperimentalComposeUiApi
 internal object EmptySemanticsModifierNodeElement :
     ModifierNodeElement<CoreSemanticsModifierNode>() {
 
@@ -113,7 +112,6 @@ fun Modifier.semantics(
 )
 
 // Implement SemanticsModifier to allow tooling to inspect the semantics configuration
-@ExperimentalComposeUiApi
 internal data class AppendedSemanticsModifierNodeElement(
     override val semanticsConfiguration: SemanticsConfiguration
 ) : ModifierNodeElement<CoreSemanticsModifierNode>(), SemanticsModifier {
@@ -164,7 +162,6 @@ fun Modifier.clearAndSetSemantics(
 ): Modifier = this then ClearAndSetSemanticsModifierNodeElement(properties)
 
 // Implement SemanticsModifier to allow tooling to inspect the semantics configuration
-@ExperimentalComposeUiApi
 internal data class ClearAndSetSemanticsModifierNodeElement(
     override val semanticsConfiguration: SemanticsConfiguration
 ) : ModifierNodeElement<CoreSemanticsModifierNode>(), SemanticsModifier {

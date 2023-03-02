@@ -122,7 +122,6 @@ internal fun FocusTargetModifierNode.focusSearch(
  * Returns the bounding box of the focus layout area in the root or [Rect.Zero] if the
  * FocusModifier has not had a layout.
  */
-@ExperimentalComposeUiApi
 internal fun FocusTargetModifierNode.focusRect(): Rect = coordinator?.let {
     it.findRootCoordinates().localBoundingBoxOf(it, clipBounds = false)
 } ?: Rect.Zero
@@ -130,12 +129,10 @@ internal fun FocusTargetModifierNode.focusRect(): Rect = coordinator?.let {
 /**
  * Whether this node should be considered when searching for the next item during a traversal.
  */
-@ExperimentalComposeUiApi
 internal val FocusTargetModifierNode.isEligibleForFocusSearch: Boolean
     get() = coordinator?.layoutNode?.isPlaced == true &&
         coordinator?.layoutNode?.isAttached == true
 
-@ExperimentalComposeUiApi
 internal val FocusTargetModifierNode.activeChild: FocusTargetModifierNode?
     get() {
         if (!node.isAttached) return null
