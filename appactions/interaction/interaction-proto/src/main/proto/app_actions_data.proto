@@ -31,8 +31,9 @@ message ParamValue {
     string string_value = 2;
     bool bool_value = 3;
     double number_value = 4;
-    google.protobuf.Struct struct_value = 5;
+    google.protobuf.Struct struct_value = 6;
   }
+  reserved 5;  // Deleted DateTime type.
 }
 
 message Entity {
@@ -182,8 +183,7 @@ message AppActionsContext {
     bool is_focused = 3;
   }
 
-  // Current version of the protocol. Populated with values from the artifact version of the
-  // interaction-proto Jetpack library.
+  // Current version of the protocol. Populated with from the interaction-capabiliites-core library.
   optional Version version = 4;
 
   // Represents the dynamic capabilities declared by an App. Capabilities
@@ -372,7 +372,7 @@ message Version {
   // The patch version.
   optional uint64 patch = 3;
 
-  // The prerelease version: a series of dot-separated identifiers.
+  // The prerelease version suffix.
   optional string prerelease_id = 4;
 }
 

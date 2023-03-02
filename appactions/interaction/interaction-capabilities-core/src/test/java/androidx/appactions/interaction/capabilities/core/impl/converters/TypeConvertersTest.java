@@ -40,10 +40,9 @@ import androidx.appactions.interaction.capabilities.core.values.properties.Parti
 import androidx.appactions.interaction.capabilities.core.values.properties.Recipient;
 import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.ParamValue;
-
-import com.google.protobuf.ListValue;
-import com.google.protobuf.Struct;
-import com.google.protobuf.Value;
+import androidx.appactions.interaction.protobuf.ListValue;
+import androidx.appactions.interaction.protobuf.Struct;
+import androidx.appactions.interaction.protobuf.Value;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
