@@ -5190,27 +5190,57 @@ public class WatchFaceServiceTest {
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1]
+                .text
+                .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+        )
+            .isEqualTo("A")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1]
+                .text
+                .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+        )
+            .isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(2000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("C")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1]
+                .text
+                .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+        )
+            .isEqualTo("C")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(2999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("C")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(3000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1]
+                .text
+                .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+        )
+            .isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(3999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(4000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1]
+                .text
+                .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+        )
+            .isEqualTo("A")
     }
 
     @Test
