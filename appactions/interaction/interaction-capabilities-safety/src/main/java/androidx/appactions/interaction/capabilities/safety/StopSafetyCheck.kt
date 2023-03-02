@@ -51,7 +51,7 @@ private val ACTION_SPEC =
 
 // TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
 class StopSafetyCheck private constructor() {
-    // TODO(b/267805819): Update to include the SessionBuilder once Session API is ready.
+    // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         CapabilityBuilderBase<
             CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session

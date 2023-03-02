@@ -19,9 +19,9 @@ package androidx.appactions.interaction.capabilities.core
 /**
  * Interface to be implemented for creating SessionT instances.
  */
-fun interface SessionBuilder<SessionT> {
+fun interface SessionFactory<SessionT> {
     /**
-     * Implement this method to create session for handling assistant requests.\
+     * Implement this method to create session for handling assistant requests.
      *
      * @param hostProperties only applicable while used with AppInteractionService. Contains the
      *   dimensions of the UI area. Null when used without AppInteractionService.
