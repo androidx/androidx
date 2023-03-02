@@ -62,6 +62,12 @@ baselineProfile {
     filter("paid") {
         include "androidx.benchmark.integration.baselineprofile.flavors.consumer.paid.*"
     }
+
+    // Note that these are the default settings, just reported here to make it explicit.
+    // `automaticGenerationDuringBuild` has to be off otherwise assembling release on CI would
+    // trigger baseline profile generation and integration tests on device.
+    saveInSrc = true
+    automaticGenerationDuringBuild = false
 }
 
 apply(from: "../baselineprofile-test-utils/utils.gradle")
