@@ -6909,9 +6909,11 @@ public class ExifInterface {
                 }
 
                 // Check if the next IFD offset
-                // 1. Is a non-negative value, and
+                // 1. Is a non-negative value (within the length of the input, if known), and
                 // 2. Does not point to a previously read IFD.
-                if (offset > 0L) {
+                if (offset > 0L
+                        && (dataInputStream.length() == ByteOrderedDataInputStream.LENGTH_UNSET
+                                || offset < dataInputStream.length())) {
                     if (!mAttributesOffsets.contains((int) offset)) {
                         dataInputStream.seek(offset);
                         readImageFileDirectory(dataInputStream, nextIfdType);
@@ -6923,7 +6925,12 @@ public class ExifInterface {
                     }
                 } else {
                     if (DEBUG) {
-                        Log.d(TAG, "Skip jump into the IFD since its offset is invalid: " + offset);
+                        String message =
+                                "Skip jump into the IFD since its offset is invalid: " + offset;
+                        if (dataInputStream.length() != ByteOrderedDataInputStream.LENGTH_UNSET) {
+                            message += " (total length: " + dataInputStream.length() + ")";
+                        }
+                        Log.d(TAG, message);
                     }
                 }
 
@@ -7700,14 +7707,18 @@ public class ExifInterface {
 
     // An input stream class that can parse both little and big endian order data.
     private static class ByteOrderedDataInputStream extends InputStream implements DataInput {
+
+        public static final int LENGTH_UNSET = -1;
         protected final DataInputStream mDataInputStream;
         protected int mPosition;
 
         private ByteOrder mByteOrder;
         private byte[] mSkipBuffer;
+        private int mLength;
 
         ByteOrderedDataInputStream(byte[] bytes) throws IOException {
             this(new ByteArrayInputStream(bytes), BIG_ENDIAN);
+            this.mLength = bytes.length;
         }
 
         ByteOrderedDataInputStream(InputStream in) throws IOException {
@@ -7719,6 +7730,9 @@ public class ExifInterface {
             mDataInputStream.mark(0);
             mPosition = 0;
             mByteOrder = byteOrder;
+            this.mLength = in instanceof ByteOrderedDataInputStream
+                    ? ((ByteOrderedDataInputStream) in).length()
+                    : LENGTH_UNSET;
         }
 
         public void setByteOrder(ByteOrder byteOrder) {
@@ -7944,6 +7958,12 @@ public class ExifInterface {
         @Override
         public void reset() {
             throw new UnsupportedOperationException("Reset is currently unsupported");
+        }
+
+        /** Return the total length (in bytes) of the underlying stream if known, otherwise
+         *  {@link #LENGTH_UNSET}. */
+        public int length() {
+            return mLength;
         }
     }
 
