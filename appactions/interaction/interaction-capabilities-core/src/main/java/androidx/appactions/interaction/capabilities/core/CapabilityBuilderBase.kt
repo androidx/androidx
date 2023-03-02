@@ -49,7 +49,7 @@ abstract class CapabilityBuilderBase<
     private var id: String? = null
     private var property: PropertyT? = null
     private var actionExecutor: ActionExecutor<ArgumentT, OutputT>? = null
-    private var sessionBuilder: SessionBuilder<SessionT>? = null
+    private var sessionFactory: SessionFactory<SessionT>? = null
     /**
      * The SessionBridge object, which is used to normalize Session instances to TaskHandler.
      * see SessionBridge documentation for more information.
@@ -85,22 +85,22 @@ abstract class CapabilityBuilderBase<
     /**
      * Sets the ActionExecutor for this capability.
      *
-     * setSessionBuilder and setActionExecutor are mutually exclusive, so calling one will nullify the other.
+     * setSessionFactory and setActionExecutor are mutually exclusive, so calling one will nullify the other.
      */
     fun setActionExecutor(actionExecutor: ActionExecutor<ArgumentT, OutputT>) = asBuilder().apply {
         this.actionExecutor = actionExecutor
     }
 
     /**
-     * Sets the SessionBuilder instance which is used to create Session instaces for this
+     * Sets the SessionFactory instance which is used to create Session instaces for this
      * capability.
      *
-     * setSessionBuilder and setActionExecutor are mutually exclusive, so calling one will nullify the other.
+     * setSessionFactory and setActionExecutor are mutually exclusive, so calling one will nullify the other.
      */
-    protected open fun setSessionBuilder(
-        sessionBuilder: SessionBuilder<SessionT>,
+    protected open fun setSessionFactory(
+        sessionFactory: SessionFactory<SessionT>,
     ): BuilderT = asBuilder().apply {
-        this.sessionBuilder = sessionBuilder
+        this.sessionFactory = sessionFactory
     }
 
     /** Builds and returns this ActionCapability. */
@@ -119,8 +119,8 @@ abstract class CapabilityBuilderBase<
                 actionSpec,
                 checkedProperty,
                 requireNotNull(
-                    sessionBuilder,
-                    { "either setActionExecutor or setSessionBuilder must be called before build" },
+                    sessionFactory,
+                    { "either setActionExecutor or setSessionFactory must be called before build" },
                 ),
                 sessionBridge!!,
                 sessionUpdaterSupplier!!,

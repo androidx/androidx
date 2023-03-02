@@ -18,7 +18,7 @@ package androidx.appactions.interaction.capabilities.core.task.impl
 import androidx.appactions.interaction.capabilities.core.ActionCapability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.SessionBuilder
+import androidx.appactions.interaction.capabilities.core.SessionFactory
 import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
@@ -29,7 +29,7 @@ import java.util.function.Supplier
  * @param id a unique id for this capability, can be null
  * @param supportsMultiTurnTask whether this is a single-turn capability or a multi-turn capability
  * @param actionSpec the ActionSpec for this capability
- * @param sessionBuilder the SessionBuilder provided by the library user
+ * @param sessionFactory the SessionFactory provided by the library user
  * @param sessionBridge a SessionBridge object that converts SessionT into TaskHandler instance
  * @param sessionUpdaterSupplier a Supplier of SessionUpdaterT instances
  */
@@ -44,7 +44,7 @@ internal class TaskCapabilityImpl<
     override val id: String?,
     val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
     val property: PropertyT,
-    val sessionBuilder: SessionBuilder<SessionT>,
+    val sessionFactory: SessionFactory<SessionT>,
     val sessionBridge: SessionBridge<SessionT, ConfirmationT>,
     val sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
 ) : ActionCapability {
@@ -59,7 +59,7 @@ internal class TaskCapabilityImpl<
     }
 
     override fun createSession(hostProperties: HostProperties): ActionCapabilitySession {
-        val externalSession = sessionBuilder.createSession(
+        val externalSession = sessionFactory.createSession(
             hostProperties,
         )
         return TaskCapabilitySession(
