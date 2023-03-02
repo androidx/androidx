@@ -3134,6 +3134,14 @@ package androidx.compose.ui.state {
 
 }
 
+package androidx.compose.ui.text {
+
+  public final class TextMeasurerHelperKt {
+    method @androidx.compose.runtime.Composable public static androidx.compose.ui.text.TextMeasurer rememberTextMeasurer(optional int cacheSize);
+  }
+
+}
+
 package androidx.compose.ui.viewinterop {
 
   public final class AndroidView_androidKt {
