@@ -215,13 +215,16 @@ class PasswordCredentialEntry internal constructor(
                     icon, /*subType=*/null,
                     listOf(SLICE_HINT_ICON)
                 )
-            if (icon.resId == R.drawable.ic_password) {
-                sliceBuilder.addInt(
-                    /*true=*/1,
-                    /*subType=*/null,
-                    listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
-                )
-            }
+            try {
+                if (icon.resId == R.drawable.ic_password) {
+                    sliceBuilder.addInt(
+                        /*true=*/1,
+                        /*subType=*/null,
+                        listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
+                    )
+                }
+            } catch (_: IllegalStateException) {}
+
             if (CredentialOption.extractAutoSelectValue(
                     beginGetPasswordCredentialOption.candidateQueryData)) {
                 sliceBuilder.addInt(
