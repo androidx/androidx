@@ -1025,6 +1025,11 @@ internal constructor(
         if (!forceUpdate && complicationData.value == best) return
         renderer.loadData(best, loadDrawablesAsynchronous)
         (complicationData as MutableStateFlow).value = best
+
+        // forceUpdate is used for screenshots, don't set the dirty flag for those.
+        if (!forceUpdate) {
+            dataDirty = true
+        }
     }
 
     /**
