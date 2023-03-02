@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2023 The Android Open Source Project
  *
@@ -38,7 +37,7 @@ import androidx.appactions.interaction.proto.ParamValue
 internal class SingleTurnCapabilitySession<
     ArgumentT,
     OutputT,
-    >(
+>(
     val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
     val actionExecutor: ActionExecutor<ArgumentT, OutputT>,
 ) : ActionCapabilitySession {
@@ -64,13 +63,12 @@ internal class SingleTurnCapabilitySession<
         @NonNull argumentsWrapper: ArgumentsWrapper,
         @NonNull callback: CallbackInternal,
     ) {
-        val paramValuesMap: Map<String, List<ParamValue>> = argumentsWrapper.paramValues().entries
-            .associate {
-                    entry: Map.Entry<String, List<FulfillmentValue>> ->
+        val paramValuesMap: Map<String, List<ParamValue>> =
+            argumentsWrapper.paramValues.entries.associate {
+                entry: Map.Entry<String, List<FulfillmentValue>> ->
                 Pair(
                     entry.key,
-                    entry.value.mapNotNull {
-                            fulfillmentValue: FulfillmentValue ->
+                    entry.value.mapNotNull { fulfillmentValue: FulfillmentValue ->
                         fulfillmentValue.getValue()
                     },
                 )
@@ -96,8 +94,7 @@ internal class SingleTurnCapabilitySession<
         executionResult: ExecutionResult<OutputT>,
     ): FulfillmentResponse {
         val fulfillmentResponseBuilder =
-            FulfillmentResponse.newBuilder()
-                .setStartDictation(executionResult.startDictation)
+            FulfillmentResponse.newBuilder().setStartDictation(executionResult.startDictation)
         executionResult.output?.let { it ->
             fulfillmentResponseBuilder.setExecutionOutput(
                 actionSpec.convertOutputToProto(it),

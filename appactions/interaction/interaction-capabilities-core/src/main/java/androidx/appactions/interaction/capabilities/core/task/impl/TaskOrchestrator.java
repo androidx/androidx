@@ -188,11 +188,11 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
         ArgumentsWrapper argumentsWrapper = assistantUpdateRequest.argumentsWrapper();
         CallbackInternal callback = assistantUpdateRequest.callbackInternal();
 
-        if (!argumentsWrapper.requestMetadata().isPresent()) {
+        if (argumentsWrapper.getRequestMetadata() == null) {
             callback.onError(ErrorStatusInternal.INVALID_REQUEST_TYPE);
             return Futures.immediateVoidFuture();
         }
-        Fulfillment.Type requestType = argumentsWrapper.requestMetadata().get().requestType();
+        Fulfillment.Type requestType = argumentsWrapper.getRequestMetadata().requestType();
         switch (requestType) {
             case UNRECOGNIZED:
             case UNKNOWN_TYPE:
@@ -345,7 +345,7 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
         ListenableFuture<Void> argResolutionFuture =
                 Futures.transformAsync(
                         onInitFuture,
-                        unused -> processFulfillmentValues(argumentsWrapper.paramValues()),
+                        unused -> processFulfillmentValues(argumentsWrapper.getParamValues()),
                         mExecutor,
                         "processFulfillmentValues");
 
@@ -426,7 +426,7 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
     private void clearMissingArgs(ArgumentsWrapper assistantArgs) {
         Set<String> argsCleared =
                 mCurrentValuesMap.keySet().stream()
-                        .filter(argName -> !assistantArgs.paramValues().containsKey(argName))
+                        .filter(argName -> !assistantArgs.getParamValues().containsKey(argName))
                         .collect(toImmutableSet());
         for (String arg : argsCleared) {
             mCurrentValuesMap.remove(arg);
