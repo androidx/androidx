@@ -578,22 +578,6 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void Scaffold(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> topBar, optional kotlin.jvm.functions.Function0<kotlin.Unit> bottomBar, optional kotlin.jvm.functions.Function0<kotlin.Unit> snackbarHost, optional kotlin.jvm.functions.Function0<kotlin.Unit> floatingActionButton, optional int floatingActionButtonPosition, optional long containerColor, optional long contentColor, optional androidx.compose.foundation.layout.WindowInsets contentWindowInsets, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.PaddingValues,kotlin.Unit> content);
   }
 
-  public final class SearchBarDefaults {
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getDockedShape();
-    method public float getElevation();
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getFullScreenShape();
-    method public float getInputFieldHeight();
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getInputFieldShape();
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets();
-    property public final float Elevation;
-    property public final float InputFieldHeight;
-    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape dockedShape;
-    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape fullScreenShape;
-    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape inputFieldShape;
-    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.WindowInsets windowInsets;
-    field public static final androidx.compose.material3.SearchBarDefaults INSTANCE;
-  }
-
   public final class ShapeDefaults {
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraSmall();
