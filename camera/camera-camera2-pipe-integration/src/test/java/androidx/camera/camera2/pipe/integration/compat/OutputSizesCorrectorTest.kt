@@ -24,6 +24,7 @@ import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.core.impl.ImageFormatConstants
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,6 +36,8 @@ import org.robolectric.util.ReflectionHelpers
 
 private const val CAMERA_ID_0 = "0"
 
+private const val MOTOROLA_BRAND_NAME = "motorola"
+private const val MOTOROLA_E5_PLAY_MODEL_NAME = "moto e5 play"
 private const val SAMSUNG_BRAND_NAME = "SAMSUNG"
 private const val SAMSUNG_J7_DEVICE_NAME = "J7XELTE"
 
@@ -60,6 +63,80 @@ private val outputSizes = arrayOf(
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class OutputSizesCorrectorTest {
+    @Test
+    fun canAddExtraSupportedSizesForMotoE5PlayByFormat() {
+        val outputSizesCorrector = createOutputSizesCorrector(
+            MOTOROLA_BRAND_NAME,
+            null,
+            MOTOROLA_E5_PLAY_MODEL_NAME,
+            CAMERA_ID_0,
+            CameraCharacteristics.LENS_FACING_BACK,
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+
+        val resultList = outputSizesCorrector.applyQuirks(
+            arrayOf(
+                Size(4128, 3096),
+                Size(4128, 2322),
+                Size(3088, 3088),
+            ),
+            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+        )!!.toList()
+
+        Truth.assertThat(resultList).containsExactlyElementsIn(
+            listOf(
+                Size(4128, 3096),
+                Size(4128, 2322),
+                Size(3088, 3088),
+
+                // Added extra supported sizes for Motorola E5 Play device
+                Size(1920, 1080),
+                Size(1440, 1080),
+                Size(1280, 720),
+                Size(960, 720),
+                Size(864, 480),
+                Size(720, 480),
+            )
+        ).inOrder()
+    }
+
+    @Test
+    fun canAddExtraSupportedSizesForMotoE5PlayByClass() {
+        val outputSizesCorrector = createOutputSizesCorrector(
+            MOTOROLA_BRAND_NAME,
+            null,
+            MOTOROLA_E5_PLAY_MODEL_NAME,
+            CAMERA_ID_0,
+            CameraCharacteristics.LENS_FACING_BACK,
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+
+        val resultList = outputSizesCorrector.applyQuirks(
+            arrayOf(
+                Size(4128, 3096),
+                Size(4128, 2322),
+                Size(3088, 3088),
+            ),
+            SurfaceTexture::class.java
+        )!!.toList()
+
+        Truth.assertThat(resultList).containsExactlyElementsIn(
+            listOf(
+                Size(4128, 3096),
+                Size(4128, 2322),
+                Size(3088, 3088),
+
+                // Added extra supported sizes for Motorola E5 Play device
+                Size(1920, 1080),
+                Size(1440, 1080),
+                Size(1280, 720),
+                Size(960, 720),
+                Size(864, 480),
+                Size(720, 480),
+            )
+        ).inOrder()
+    }
+
     @Test
     @Config(minSdk = 27)
     fun canExcludeSamsungJ7Api27AboveProblematicSizesByFormat() {
