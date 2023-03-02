@@ -16,11 +16,10 @@
 
 package androidx.tv.foundation
 
-import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.compose.animation.core.AnimationConstants.UnspecifiedTime
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.withFrameNanos
@@ -166,15 +165,13 @@ internal class UpdatableAnimationState {
         val ZeroVector = AnimationVector1D(0f)
 
         /**
-         * Spring does not work well with PivotOffset version of this class. Using
-         * [AccelerateDecelerateInterpolator] that is used by RecyclerView by default
+         * Spring does not work well with PivotOffset version of this class
          */
-        val AccelerateDecelerateInterpolatorEasing = Easing {
-            AccelerateDecelerateInterpolator().getInterpolation(it)
-        }
-        val RebasableAnimationSpec =
-            tween<Float>(durationMillis = 30, easing = AccelerateDecelerateInterpolatorEasing)
-                .vectorize(Float.VectorConverter)
+        val RebasableAnimationSpec = tween<Float>(
+            durationMillis = 125,
+            easing = CubicBezierEasing(0.25f, 0.1f, .25f, 1f)
+        )
+            .vectorize(Float.VectorConverter)
 
         fun Float.isZeroish() = absoluteValue < VisibilityThreshold
     }
