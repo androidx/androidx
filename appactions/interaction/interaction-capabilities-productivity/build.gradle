@@ -24,11 +24,19 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    implementation(libs.protobufLite)
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")
     implementation("androidx.annotation:annotation:1.1.0")
+    implementation(project(":appactions:interaction:interaction-capabilities-core"))
+    implementation(project(":appactions:interaction:interaction-proto"))
 }
 
 android {
     namespace "androidx.appactions.interaction.capabilities.productivity"
+    defaultConfig {
+        // TODO(b/266649259): lower minSdk version once Optional is removed.
+        minSdkVersion 33
+    }
 }
 
 androidx {
