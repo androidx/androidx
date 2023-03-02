@@ -127,6 +127,7 @@ package androidx.compose.runtime {
     method @org.jetbrains.annotations.TestOnly public androidx.compose.runtime.ControlledComposition getComposition();
     method public androidx.compose.runtime.tooling.CompositionData getCompositionData();
     method public int getCompoundKeyHash();
+    method public androidx.compose.runtime.CompositionLocalMap getCurrentCompositionLocalMap();
     method public int getCurrentMarker();
     method public boolean getDefaultsInvalid();
     method public boolean getInserting();
@@ -153,6 +154,7 @@ package androidx.compose.runtime {
     property @org.jetbrains.annotations.TestOnly public abstract androidx.compose.runtime.ControlledComposition composition;
     property public abstract androidx.compose.runtime.tooling.CompositionData compositionData;
     property public abstract int compoundKeyHash;
+    property public abstract androidx.compose.runtime.CompositionLocalMap currentCompositionLocalMap;
     property public abstract int currentMarker;
     property public abstract boolean defaultsInvalid;
     property public abstract boolean inserting;
@@ -208,6 +210,16 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.Composable public static void CompositionLocalProvider(androidx.compose.runtime.CompositionLocalContext context, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> compositionLocalOf(optional androidx.compose.runtime.SnapshotMutationPolicy<T> policy, kotlin.jvm.functions.Function0<? extends T> defaultFactory);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> staticCompositionLocalOf(kotlin.jvm.functions.Function0<? extends T> defaultFactory);
+  }
+
+  public sealed interface CompositionLocalMap {
+    method public operator <T> T! get(androidx.compose.runtime.CompositionLocal<T> key);
+    field public static final androidx.compose.runtime.CompositionLocalMap.Companion Companion;
+  }
+
+  public static final class CompositionLocalMap.Companion {
+    method public androidx.compose.runtime.CompositionLocalMap getEmpty();
+    property public final androidx.compose.runtime.CompositionLocalMap Empty;
   }
 
   public sealed interface ControlledComposition extends androidx.compose.runtime.Composition {

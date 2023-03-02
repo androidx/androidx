@@ -38,6 +38,7 @@ class UiIssueRegistry : IssueRegistry() {
         ModifierNodeInspectablePropertiesDetector.ModifierNodeInspectableProperties,
         ModifierParameterDetector.ModifierParameter,
         ReturnFromAwaitPointerEventScopeDetector.ExitAwaitPointerEventScope,
+        SuspiciousCompositionLocalModifierReadDetector.SuspiciousCompositionLocalModifierRead,
         MultipleAwaitPointerEventScopesDetector.MultipleAwaitPointerEventScopes
     )
     override val vendor = Vendor(

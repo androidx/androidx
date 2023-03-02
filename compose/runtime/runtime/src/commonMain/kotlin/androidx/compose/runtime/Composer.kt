@@ -23,8 +23,7 @@ import androidx.compose.runtime.Composer.Companion.equals
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.IntMap
-import androidx.compose.runtime.external.kotlinx.collections.immutable.PersistentMap
-import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentHashMapOf
+import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
 import androidx.compose.runtime.snapshots.currentSnapshot
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastForEachIndexed
@@ -298,42 +297,6 @@ class ProvidedValue<T> internal constructor(
 )
 
 /**
- * A [CompositionLocal] map is is an immutable map that maps [CompositionLocal] keys to a provider
- * of their current value. It is used to represent the combined scope of all provided
- * [CompositionLocal]s.
- */
-internal typealias CompositionLocalMap = PersistentMap<CompositionLocal<Any?>, State<Any?>>
-
-internal inline fun CompositionLocalMap.mutate(
-    mutator: (MutableMap<CompositionLocal<Any?>, State<Any?>>) -> Unit
-): CompositionLocalMap = builder().apply(mutator).build()
-
-@Suppress("UNCHECKED_CAST")
-internal fun <T> CompositionLocalMap.contains(key: CompositionLocal<T>) =
-    this.containsKey(key as CompositionLocal<Any?>)
-
-@Suppress("UNCHECKED_CAST")
-internal fun <T> CompositionLocalMap.getValueOf(key: CompositionLocal<T>) =
-    this[key as CompositionLocal<Any?>]?.value as T
-
-@Composable
-private fun compositionLocalMapOf(
-    values: Array<out ProvidedValue<*>>,
-    parentScope: CompositionLocalMap
-): CompositionLocalMap {
-    val result: CompositionLocalMap = persistentHashMapOf()
-    return result.mutate {
-        for (provided in values) {
-            if (provided.canOverride || !parentScope.contains(provided.compositionLocal)) {
-                @Suppress("UNCHECKED_CAST")
-                it[provided.compositionLocal as CompositionLocal<Any?>] =
-                    provided.compositionLocal.provided(provided.value)
-            }
-        }
-    }
-}
-
-/**
  * A Compose compiler plugin API. DO NOT call directly.
  *
  * An instance used to track the identity of the movable content. Using a holder object allows
@@ -358,7 +321,7 @@ class MovableContentStateReference internal constructor(
     internal val slotTable: SlotTable,
     internal val anchor: Anchor,
     internal val invalidations: List<Pair<RecomposeScopeImpl, IdentityArraySet<Any>?>>,
-    internal val locals: CompositionLocalMap
+    internal val locals: PersistentCompositionLocalMap
 )
 
 /**
@@ -990,6 +953,26 @@ sealed interface Composer {
     fun recordSideEffect(effect: () -> Unit)
 
     /**
+     * Returns the active set of CompositionLocals at the current position in the composition
+     * hierarchy. This is a lower level API that can be used to export and access CompositionLocal
+     * values outside of Composition.
+     *
+     * This API does not track reads of CompositionLocals and does not automatically dispatch new
+     * values to previous readers when the value of a CompositionLocal changes. To use this API as
+     * intended, you must set up observation manually. This means:
+     *  - For [non-static CompositionLocals][compositionLocalOf], composables reading this map need
+     *  to observe the snapshot state for CompositionLocals being read to be notified when their
+     *  values in this map change.
+     *  - For [static CompositionLocals][staticCompositionLocalOf], all composables including the
+     *  composable reading this map will be recomposed and you will need to re-obtain this map to
+     *  get the latest values.
+     *
+     * Most applications shouldn't use this API directly, and should instead use
+     * [CompositionLocal.current].
+     */
+    val currentCompositionLocalMap: CompositionLocalMap
+
+    /**
      * A Compose internal function. DO NOT call directly.
      *
      * Return the [CompositionLocal] value associated with [key]. This is the primitive function
@@ -1267,8 +1250,9 @@ internal class ComposerImpl(
     private var nodeExpected = false
     private val invalidations: MutableList<Invalidation> = mutableListOf()
     private val entersStack = IntStack()
-    private var parentProvider: CompositionLocalMap = persistentHashMapOf()
-    private val providerUpdates = IntMap<CompositionLocalMap>()
+    private var parentProvider: PersistentCompositionLocalMap =
+        persistentCompositionLocalHashMapOf()
+    private val providerUpdates = IntMap<PersistentCompositionLocalMap>()
     private var providersInvalid = false
     private val providersInvalidStack = IntStack()
     private var reusing = false
@@ -1294,7 +1278,7 @@ internal class ComposerImpl(
 
     private var writer: SlotWriter = insertTable.openWriter().also { it.close() }
     private var writerHasAProvider = false
-    private var providerCache: CompositionLocalMap? = null
+    private var providerCache: PersistentCompositionLocalMap? = null
     internal var deferredChanges: MutableList<Change>? = null
 
     private var insertAnchor: Anchor = insertTable.read { it.anchor(0) }
@@ -1444,7 +1428,7 @@ internal class ComposerImpl(
         if (!forceRecomposeScopes) {
             forceRecomposeScopes = parentContext.collectingParameterInformation
         }
-        resolveCompositionLocal(LocalInspectionTables, parentProvider)?.let {
+        parentProvider.read(LocalInspectionTables)?.let {
             it.add(slotTable)
             parentContext.recordInspectionTable(it)
         }
@@ -1912,15 +1896,18 @@ internal class ComposerImpl(
         record { _, _, rememberManager -> rememberManager.sideEffect(effect) }
     }
 
-    private fun currentCompositionLocalScope(): CompositionLocalMap {
+    private fun currentCompositionLocalScope(): PersistentCompositionLocalMap {
         providerCache?.let { return it }
         return currentCompositionLocalScope(reader.parent)
     }
 
+    override val currentCompositionLocalMap: CompositionLocalMap
+        get() = currentCompositionLocalScope()
+
     /**
      * Return the current [CompositionLocal] scope which was provided by a parent group.
      */
-    private fun currentCompositionLocalScope(group: Int): CompositionLocalMap {
+    private fun currentCompositionLocalScope(group: Int): PersistentCompositionLocalMap {
         if (inserting && writerHasAProvider) {
             var current = writer.parent
             while (current > 0) {
@@ -1928,7 +1915,7 @@ internal class ComposerImpl(
                     writer.groupObjectKey(current) == compositionLocalMap
                 ) {
                     @Suppress("UNCHECKED_CAST")
-                    val providers = writer.groupAux(current) as CompositionLocalMap
+                    val providers = writer.groupAux(current) as PersistentCompositionLocalMap
                     providerCache = providers
                     return providers
                 }
@@ -1943,7 +1930,7 @@ internal class ComposerImpl(
                 ) {
                     @Suppress("UNCHECKED_CAST")
                     val providers = providerUpdates[current]
-                        ?: reader.groupAux(current) as CompositionLocalMap
+                        ?: reader.groupAux(current) as PersistentCompositionLocalMap
                     providerCache = providers
                     return providers
                 }
@@ -1960,9 +1947,9 @@ internal class ComposerImpl(
      * inserts, updates and deletes to the providers.
      */
     private fun updateProviderMapGroup(
-        parentScope: CompositionLocalMap,
-        currentProviders: CompositionLocalMap
-    ): CompositionLocalMap {
+        parentScope: PersistentCompositionLocalMap,
+        currentProviders: PersistentCompositionLocalMap
+    ): PersistentCompositionLocalMap {
         val providerScope = parentScope.mutate { it.putAll(currentProviders) }
         startGroup(providerMapsKey, providerMaps)
         changed(providerScope)
@@ -1983,7 +1970,7 @@ internal class ComposerImpl(
             compositionLocalMapOf(values, parentScope)
         }
         endGroup()
-        val providers: CompositionLocalMap
+        val providers: PersistentCompositionLocalMap
         val invalid: Boolean
         if (inserting) {
             providers = updateProviderMapGroup(parentScope, currentProviders)
@@ -1991,10 +1978,10 @@ internal class ComposerImpl(
             writerHasAProvider = true
         } else {
             @Suppress("UNCHECKED_CAST")
-            val oldScope = reader.groupGet(0) as CompositionLocalMap
+            val oldScope = reader.groupGet(0) as PersistentCompositionLocalMap
 
             @Suppress("UNCHECKED_CAST")
-            val oldValues = reader.groupGet(1) as CompositionLocalMap
+            val oldValues = reader.groupGet(1) as PersistentCompositionLocalMap
 
             // skipping is true iff parentScope has not changed.
             if (!skipping || oldValues != currentProviders) {
@@ -2033,8 +2020,7 @@ internal class ComposerImpl(
     }
 
     @InternalComposeApi
-    override fun <T> consume(key: CompositionLocal<T>): T =
-        resolveCompositionLocal(key, currentCompositionLocalScope())
+    override fun <T> consume(key: CompositionLocal<T>): T = currentCompositionLocalScope().read(key)
 
     /**
      * Create or use a memoized [CompositionContext] instance at this position in the slot table.
@@ -2058,15 +2044,6 @@ internal class ComposerImpl(
         endGroup()
 
         return holder.ref
-    }
-
-    private fun <T> resolveCompositionLocal(
-        key: CompositionLocal<T>,
-        scope: CompositionLocalMap
-    ): T = if (scope.contains(key)) {
-        scope.getValueOf(key)
-    } else {
-        key.defaultValueHolder.value
     }
 
     /**
@@ -2898,7 +2875,7 @@ internal class ComposerImpl(
 
     private fun invokeMovableContentLambda(
         content: MovableContent<Any?>,
-        locals: CompositionLocalMap,
+        locals: PersistentCompositionLocalMap,
         parameter: Any?,
         force: Boolean
     ) {
@@ -3974,13 +3951,14 @@ internal class ComposerImpl(
         // we need changes made to it in composition to be visible for the rest of the current
         // composition and not become visible outside of the composition process until composition
         // succeeds.
-        private var compositionLocalScope by mutableStateOf<CompositionLocalMap>(
-            persistentHashMapOf()
+        private var compositionLocalScope by mutableStateOf<PersistentCompositionLocalMap>(
+            persistentCompositionLocalHashMapOf()
         )
 
-        override fun getCompositionLocalScope(): CompositionLocalMap = compositionLocalScope
+        override fun getCompositionLocalScope(): PersistentCompositionLocalMap =
+            compositionLocalScope
 
-        fun updateCompositionLocalScope(scope: CompositionLocalMap) {
+        fun updateCompositionLocalScope(scope: PersistentCompositionLocalMap) {
             compositionLocalScope = scope
         }
 
