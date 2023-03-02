@@ -152,8 +152,8 @@ abstract class CredentialProviderService : CredentialProviderService() {
         cancellationSignal: CancellationSignal,
         callback: OutcomeReceiver<Void, ClearCredentialStateException>
     ) {
-        val outcome = object : OutcomeReceiver<Void, ClearCredentialException> {
-            override fun onResult(response: Void) {
+        val outcome = object : OutcomeReceiver<Void?, ClearCredentialException> {
+            override fun onResult(response: Void?) {
                 Log.i(
                     TAG, "onClearCredentialState result returned from provider to jetpack ")
                 callback.onResult(response)
@@ -193,7 +193,7 @@ abstract class CredentialProviderService : CredentialProviderService() {
     abstract fun onClearCredentialStateRequest(
         request: ClearCredentialStateRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<Void,
+        callback: OutcomeReceiver<Void?,
             ClearCredentialException>
     )
 
