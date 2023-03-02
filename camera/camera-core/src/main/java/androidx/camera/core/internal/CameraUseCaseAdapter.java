@@ -17,6 +17,7 @@
 package androidx.camera.core.internal;
 
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
@@ -525,9 +526,14 @@ public final class CameraUseCaseAdapter implements Camera {
             suggestedStreamSpecs.put(useCase, useCase.getAttachedStreamSpec());
         }
 
+        Rect sensorRect = ((CameraControlInternal) getCameraControl()).getSensorRect();
+        SupportedOutputSizesSorter supportedOutputSizesSorter = new SupportedOutputSizesSorter(
+                (CameraInfoInternal) getCameraInfo(), rectToSize(sensorRect));
+
         // Calculate resolution for new use cases.
         if (!newUseCases.isEmpty()) {
             Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
+            Map<UseCaseConfig<?>, List<Size>> configToSupportedSizesMap = new HashMap<>();
             for (UseCase useCase : newUseCases) {
                 ConfigPair configPair = configPairMap.get(useCase);
                 // Combine with default configuration.
@@ -535,6 +541,9 @@ public final class CameraUseCaseAdapter implements Camera {
                         useCase.mergeConfigs(cameraInfoInternal, configPair.mExtendedConfig,
                                 configPair.mCameraConfig);
                 configToUseCaseMap.put(combinedUseCaseConfig, useCase);
+                configToSupportedSizesMap.put(combinedUseCaseConfig,
+                        supportedOutputSizesSorter.getSortedSupportedOutputSizes(
+                                combinedUseCaseConfig));
             }
 
             // Get suggested stream specifications and update the use case session configuration
@@ -542,7 +551,7 @@ public final class CameraUseCaseAdapter implements Camera {
                     mCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
                             isConcurrentCameraModeOn,
                             cameraId, existingSurfaces,
-                            new ArrayList<>(configToUseCaseMap.keySet()));
+                            configToSupportedSizesMap);
 
             for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
                 suggestedStreamSpecs.put(entry.getValue(),

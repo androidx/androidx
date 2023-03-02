@@ -18,38 +18,19 @@ package androidx.camera.camera2.internal;
 
 import static android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT;
 
-import static androidx.camera.camera2.internal.SupportedOutputSizesCollector.flipSizeByRotation;
-import static androidx.camera.camera2.internal.SupportedOutputSizesCollector.getResolutionListGroupingAspectRatioKeys;
-import static androidx.camera.camera2.internal.SupportedOutputSizesCollector.getTargetSizeByResolutionSelector;
-import static androidx.camera.camera2.internal.SupportedOutputSizesCollector.groupSizesByAspectRatio;
-import static androidx.camera.camera2.internal.SupportedOutputSizesCollector.isSensorLandscapeResolution;
-import static androidx.camera.camera2.internal.SupportedOutputSizesCollector.removeSupportedSizesByMiniBoundingSize;
-import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_16_9;
-import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_3_4;
-import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3;
-import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_9_16;
-import static androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_480P;
-import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
-import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_ZERO;
-import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.util.Pair;
 import android.util.Range;
-import android.util.Rational;
 import android.util.Size;
-import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
@@ -57,20 +38,14 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
-import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
-import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
-import androidx.camera.core.Logger;
-import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.ImageFormatConstants;
-import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceSizeDefinition;
 import androidx.camera.core.impl.UseCaseConfig;
-import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.core.util.Preconditions;
 
@@ -101,19 +76,12 @@ final class SupportedSurfaceCombination {
     private final ExtraSupportedSurfaceCombinationsContainer
             mExtraSupportedSurfaceCombinationsContainer;
     private final int mHardwareLevel;
-    private final boolean mIsSensorLandscapeResolution;
     private boolean mIsRawSupported = false;
     private boolean mIsBurstCaptureSupported = false;
     @VisibleForTesting
     SurfaceSizeDefinition mSurfaceSizeDefinition;
-    private final Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
     @NonNull
     private final DisplayInfoManager mDisplayInfoManager;
-    private final ResolutionCorrector mResolutionCorrector = new ResolutionCorrector();
-    private final Size mActiveArraySize;
-    private final int mSensorOrientation;
-    private final int mLensFacing;
-    private final SupportedOutputSizesCollector mSupportedOutputSizesCollector;
 
     SupportedSurfaceCombination(@NonNull Context context, @NonNull String cameraId,
             @NonNull CameraManagerCompat cameraManagerCompat,
@@ -131,7 +99,6 @@ final class SupportedSurfaceCombination {
                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
             mHardwareLevel = keyValue != null ? keyValue
                     : CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
-            mIsSensorLandscapeResolution = isSensorLandscapeResolution(mCharacteristics);
         } catch (CameraAccessExceptionCompat e) {
             throw CameraUnavailableExceptionHelper.createFrom(e);
         }
@@ -150,21 +117,12 @@ final class SupportedSurfaceCombination {
             }
         }
 
-        Rect rect = mCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
-        mActiveArraySize = rect != null ? new Size(rect.width(), rect.height()) : null;
-
-        mSensorOrientation = mCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-        mLensFacing = mCharacteristics.get(CameraCharacteristics.LENS_FACING);
-
         generateSupportedCombinationList();
         if (context.getPackageManager().hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
             generateConcurrentSupportedCombinationList();
         }
         generateSurfaceSizeDefinition();
         checkCustomization();
-
-        mSupportedOutputSizesCollector = new SupportedOutputSizesCollector(mCameraId,
-                mCharacteristics, mDisplayInfoManager);
     }
 
     String getCameraId() {
@@ -284,9 +242,11 @@ final class SupportedSurfaceCombination {
     /**
      * Finds the suggested stream specifications of the newly added UseCaseConfig.
      *
-     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
-     * @param attachedSurfaces  the existing surfaces.
-     * @param newUseCaseConfigs newly added UseCaseConfig.
+     * @param isConcurrentCameraModeOn          true if concurrent camera mode is on, otherwise
+     *                                          false.
+     * @param attachedSurfaces                  the existing surfaces.
+     * @param newUseCaseConfigsSupportedSizeMap newly added UseCaseConfig to supported output
+     *                                          sizes map.
      * @return the suggested stream specifications, which is a mapping from UseCaseConfig to the
      * suggested stream specification.
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
@@ -297,7 +257,7 @@ final class SupportedSurfaceCombination {
     Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecifications(
             boolean isConcurrentCameraModeOn,
             @NonNull List<AttachedSurfaceInfo> attachedSurfaces,
-            @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
+            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
         // Refresh Preview Size based on current display configurations.
         refreshPreviewSize();
         List<SurfaceConfig> surfaceConfigs = new ArrayList<>();
@@ -305,6 +265,8 @@ final class SupportedSurfaceCombination {
             surfaceConfigs.add(attachedSurface.getSurfaceConfig());
         }
 
+        List<UseCaseConfig<?>> newUseCaseConfigs = new ArrayList<>(
+                newUseCaseConfigsSupportedSizeMap.keySet());
         // Use the small size (640x480) for new use cases to check whether there is any possible
         // supported combination first
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
@@ -347,7 +309,8 @@ final class SupportedSurfaceCombination {
 
         // Collect supported output sizes for all use cases
         for (Integer index : useCasesPriorityOrder) {
-            List<Size> supportedOutputSizes = getSupportedOutputSizes(newUseCaseConfigs.get(index));
+            List<Size> supportedOutputSizes = newUseCaseConfigsSupportedSizeMap.get(
+                    newUseCaseConfigs.get(index));
             supportedOutputSizesList.add(supportedOutputSizes);
         }
 
@@ -455,48 +418,6 @@ final class SupportedSurfaceCombination {
         return suggestedStreamSpecMap;
     }
 
-    /**
-     * Returns the target aspect ratio rational value.
-     *
-     * @param imageOutputConfig       the image output config of the use case.
-     * @param resolutionCandidateList the resolution candidate list which will be used to
-     *                                determine the aspect ratio by target size when target
-     *                                aspect ratio setting is not set.
-     */
-    private Rational getTargetAspectRatio(@NonNull ImageOutputConfig imageOutputConfig,
-            @NonNull List<Size> resolutionCandidateList) {
-        Rational outputRatio = null;
-
-        if (imageOutputConfig.hasTargetAspectRatio()) {
-            @AspectRatio.Ratio int aspectRatio = imageOutputConfig.getTargetAspectRatio();
-            switch (aspectRatio) {
-                case AspectRatio.RATIO_4_3:
-                    outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3
-                            : ASPECT_RATIO_3_4;
-                    break;
-                case AspectRatio.RATIO_16_9:
-                    outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9
-                            : ASPECT_RATIO_9_16;
-                    break;
-                case AspectRatio.RATIO_DEFAULT:
-                    break;
-                default:
-                    Logger.e(TAG, "Undefined target aspect ratio: " + aspectRatio);
-            }
-        } else {
-            // The legacy resolution API will use the aspect ratio of the target size to
-            // be the fallback target aspect ratio value when the use case has no target
-            // aspect ratio setting.
-            Size targetSize = getTargetSize(imageOutputConfig);
-            if (targetSize != null) {
-                outputRatio = getAspectRatioGroupKeyOfTargetSize(targetSize,
-                        resolutionCandidateList);
-            }
-        }
-
-        return outputRatio;
-    }
-
     private List<Integer> getUseCasesPriorityOrder(List<UseCaseConfig<?>> newUseCaseConfigs) {
         List<Integer> priorityOrder = new ArrayList<>();
 
@@ -529,180 +450,6 @@ final class SupportedSurfaceCombination {
         }
 
         return priorityOrder;
-    }
-
-    @NonNull
-    @VisibleForTesting
-    List<Size> getSupportedOutputSizes(@NonNull UseCaseConfig<?> config) {
-        int imageFormat = config.getInputFormat();
-        ImageOutputConfig imageOutputConfig = (ImageOutputConfig) config;
-
-        List<Size> customOrderedResolutions = imageOutputConfig.getCustomOrderedResolutions(null);
-        if (customOrderedResolutions != null) {
-            return customOrderedResolutions;
-        }
-        ResolutionSelector resolutionSelector = imageOutputConfig.getResolutionSelector(null);
-        if (resolutionSelector != null) {
-            Size miniBoundingSize = imageOutputConfig.getDefaultResolution(null);
-
-            if (resolutionSelector.getPreferredResolution() != null) {
-                miniBoundingSize = getTargetSizeByResolutionSelector(resolutionSelector,
-                        mDisplayInfoManager.getMaxSizeDisplay().getRotation(), mSensorOrientation,
-                        mLensFacing);
-            }
-
-            return mSupportedOutputSizesCollector.getSupportedOutputSizes(resolutionSelector,
-                    imageFormat, miniBoundingSize, config.isHigResolutionDisabled(false),
-                    getCustomizedSupportSizesFromConfig(imageFormat, imageOutputConfig));
-        }
-
-        Size[] outputSizes = getCustomizedSupportSizesFromConfig(imageFormat, imageOutputConfig);
-        if (outputSizes == null) {
-            outputSizes = getAllOutputSizesByFormat(imageFormat);
-        }
-
-        // Sort the result sizes. The Comparator result must be reversed to have a descending
-        // order result.
-        Arrays.sort(outputSizes, new CompareSizesByArea(true));
-
-        List<Size> outputSizeCandidates = new ArrayList<>();
-        Size maxSize = imageOutputConfig.getMaxResolution(null);
-        Size maxOutputSizeByFormat = getMaxOutputSizeByFormat(imageFormat);
-
-        // Set maxSize as the max resolution setting or the max supported output size for the
-        // image format, whichever is smaller.
-        if (maxSize == null || getArea(maxOutputSizeByFormat) < getArea(maxSize)) {
-            maxSize = maxOutputSizeByFormat;
-        }
-
-        // Sort the output sizes. The Comparator result must be reversed to have a descending order
-        // result.
-        Arrays.sort(outputSizes, new CompareSizesByArea(true));
-
-        Size targetSize = getTargetSize(imageOutputConfig);
-        Size minSize = RESOLUTION_VGA;
-        int defaultSizeArea = getArea(RESOLUTION_VGA);
-        int maxSizeArea = getArea(maxSize);
-        // When maxSize is smaller than 640x480, set minSize as 0x0. It means the min size bound
-        // will be ignored. Otherwise, set the minimal size according to min(DEFAULT_SIZE,
-        // TARGET_RESOLUTION).
-        if (maxSizeArea < defaultSizeArea) {
-            minSize = RESOLUTION_ZERO;
-        } else if (targetSize != null && getArea(targetSize) < defaultSizeArea) {
-            minSize = targetSize;
-        }
-
-        // Filter out the ones that exceed the maximum size and the minimum size. The output
-        // sizes candidates list won't have duplicated items.
-        for (Size outputSize : outputSizes) {
-            if (getArea(outputSize) <= getArea(maxSize) && getArea(outputSize) >= getArea(minSize)
-                    && !outputSizeCandidates.contains(outputSize)) {
-                outputSizeCandidates.add(outputSize);
-            }
-        }
-
-        if (outputSizeCandidates.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Can not get supported output size under supported maximum for the format: "
-                            + imageFormat);
-        }
-
-        Rational aspectRatio = getTargetAspectRatio(imageOutputConfig, outputSizeCandidates);
-
-        // Check the default resolution if the target resolution is not set
-        targetSize = targetSize == null ? imageOutputConfig.getDefaultResolution(null) : targetSize;
-
-        List<Size> supportedResolutions = new ArrayList<>();
-        Map<Rational, List<Size>> aspectRatioSizeListMap = new HashMap<>();
-
-        if (aspectRatio == null) {
-            // If no target aspect ratio is set, all sizes can be added to the result list
-            // directly. No need to sort again since the source list has been sorted previously.
-            supportedResolutions.addAll(outputSizeCandidates);
-
-            // If the target resolution is set, use it to remove unnecessary larger sizes.
-            if (targetSize != null) {
-                removeSupportedSizesByMiniBoundingSize(supportedResolutions, targetSize);
-            }
-        } else {
-            // Rearrange the supported size to put the ones with the same aspect ratio in the front
-            // of the list and put others in the end from large to small. Some low end devices may
-            // not able to get an supported resolution that match the preferred aspect ratio.
-
-            // Group output sizes by aspect ratio.
-            aspectRatioSizeListMap = groupSizesByAspectRatio(outputSizeCandidates);
-
-            // If the target resolution is set, use it to remove unnecessary larger sizes.
-            if (targetSize != null) {
-                // Remove unnecessary larger sizes from each aspect ratio size list
-                for (Rational key : aspectRatioSizeListMap.keySet()) {
-                    removeSupportedSizesByMiniBoundingSize(aspectRatioSizeListMap.get(key),
-                            targetSize);
-                }
-            }
-
-            // Sort the aspect ratio key set by the target aspect ratio.
-            List<Rational> aspectRatios = new ArrayList<>(aspectRatioSizeListMap.keySet());
-            Rational fullFovRatio = mActiveArraySize != null ? new Rational(
-                    mActiveArraySize.getWidth(), mActiveArraySize.getHeight()) : null;
-            Collections.sort(aspectRatios,
-                    new AspectRatioUtil.CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
-                            aspectRatio, fullFovRatio));
-
-            // Put available sizes into final result list by aspect ratio distance to target ratio.
-            for (Rational rational : aspectRatios) {
-                for (Size size : aspectRatioSizeListMap.get(rational)) {
-                    // A size may exist in multiple groups in mod16 condition. Keep only one in
-                    // the final list.
-                    if (!supportedResolutions.contains(size)) {
-                        supportedResolutions.add(size);
-                    }
-                }
-            }
-        }
-
-        supportedResolutions = mResolutionCorrector.insertOrPrioritize(
-                SurfaceConfig.getConfigType(config.getInputFormat()),
-                supportedResolutions);
-
-        return supportedResolutions;
-    }
-
-    @Nullable
-    private Size getTargetSize(@NonNull ImageOutputConfig imageOutputConfig) {
-        int targetRotation = imageOutputConfig.getTargetRotation(Surface.ROTATION_0);
-        // Calibrate targetSize by the target rotation value.
-        Size targetSize = imageOutputConfig.getTargetResolution(null);
-        targetSize = flipSizeByRotation(targetSize, targetRotation, mLensFacing,
-                mSensorOrientation);
-        return targetSize;
-    }
-
-    /**
-     * Returns the aspect ratio group key of the target size when grouping the input resolution
-     * candidate list.
-     *
-     * The resolution candidate list will be grouped with mod 16 consideration. Therefore, we
-     * also need to consider the mod 16 factor to find which aspect ratio of group the target size
-     * might be put in. So that sizes of the group will be selected to use in the highest priority.
-     */
-    @Nullable
-    private Rational getAspectRatioGroupKeyOfTargetSize(@Nullable Size targetSize,
-            @NonNull List<Size> resolutionCandidateList) {
-        if (targetSize == null) {
-            return null;
-        }
-
-        List<Rational> aspectRatios = getResolutionListGroupingAspectRatioKeys(
-                resolutionCandidateList);
-
-        for (Rational aspectRatio: aspectRatios) {
-            if (hasMatchingAspectRatio(targetSize, aspectRatio)) {
-                return aspectRatio;
-            }
-        }
-
-        return new Rational(targetSize.getWidth(), targetSize.getHeight());
     }
 
     private List<List<Size>> getAllPossibleSizeArrangements(
@@ -756,50 +503,6 @@ final class SupportedSurfaceCombination {
         }
 
         return allPossibleSizeArrangements;
-    }
-
-    @Nullable
-    private Size[] getCustomizedSupportSizesFromConfig(int imageFormat,
-            @NonNull ImageOutputConfig config) {
-        Size[] outputSizes = null;
-
-        // Try to retrieve customized supported resolutions from config.
-        List<Pair<Integer, Size[]>> formatResolutionsPairList =
-                config.getSupportedResolutions(null);
-
-        if (formatResolutionsPairList != null) {
-            for (Pair<Integer, Size[]> formatResolutionPair : formatResolutionsPairList) {
-                if (formatResolutionPair.first == imageFormat) {
-                    outputSizes = formatResolutionPair.second;
-                    break;
-                }
-            }
-        }
-
-        return outputSizes;
-    }
-
-    @NonNull
-    private Size[] getAllOutputSizesByFormat(int imageFormat) {
-        Size[] outputs = mOutputSizesCache.get(imageFormat);
-        if (outputs == null) {
-            outputs = doGetAllOutputSizesByFormat(imageFormat);
-            mOutputSizesCache.put(imageFormat, outputs);
-        }
-
-        return outputs;
-    }
-
-    @NonNull
-    private Size[] doGetAllOutputSizesByFormat(int imageFormat) {
-        StreamConfigurationMapCompat mapCompat = mCharacteristics.getStreamConfigurationMapCompat();
-        Size[] outputSizes = mapCompat.getOutputSizes(imageFormat);
-        if (outputSizes == null) {
-            throw new IllegalArgumentException(
-                    "Can not get supported output size for the format: " + imageFormat);
-        }
-
-        return outputSizes;
     }
 
     /**

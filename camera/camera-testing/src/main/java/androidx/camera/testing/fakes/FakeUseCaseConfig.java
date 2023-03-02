@@ -16,6 +16,8 @@
 
 package androidx.camera.testing.fakes;
 
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+
 import android.util.Pair;
 import android.util.Size;
 
@@ -26,7 +28,6 @@ import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
-import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -57,7 +58,7 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
     @Override
     public int getInputFormat() {
         return retrieveOption(OPTION_INPUT_FORMAT,
-                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+                INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
     }
 
     /** Builder for an empty Config */
@@ -79,6 +80,11 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
 
         public Builder(@NonNull CaptureType captureType) {
             this(MutableOptionsBundle.create(), captureType);
+        }
+
+        public Builder(@NonNull CaptureType captureType, int inputFormat) {
+            this(MutableOptionsBundle.create(), captureType);
+            mOptionsBundle.insertOption(OPTION_INPUT_FORMAT, inputFormat);
         }
 
         public Builder(@NonNull Config config, @NonNull CaptureType captureType) {
