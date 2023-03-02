@@ -807,7 +807,8 @@ public open class NavController(
         navigatorState.values.forEach { state ->
             state.isNavigating = true
         }
-        val restored = restoreStateInternal(destinationId, null, null, null)
+        val restored = restoreStateInternal(destinationId, null,
+            navOptions { restoreState = true }, null)
         navigatorState.values.forEach { state ->
             state.isNavigating = false
         }
