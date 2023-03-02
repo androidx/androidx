@@ -197,13 +197,16 @@ class CustomCredentialEntry internal constructor(
                 .addIcon(icon, /*subType=*/null,
                     listOf(SLICE_HINT_ICON))
 
-            if (icon.resId == R.drawable.ic_other_sign_in) {
-                sliceBuilder.addInt(
-                    /*true=*/1,
-                    /*subType=*/null,
-                    listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
-                )
-            }
+            try {
+                if (icon.resId == R.drawable.ic_other_sign_in) {
+                    sliceBuilder.addInt(
+                        /*true=*/1,
+                        /*subType=*/null,
+                        listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
+                    )
+                }
+            } catch (_: IllegalStateException) {}
+
             if (CredentialOption.extractAutoSelectValue(
                     beginGetCredentialOption.candidateQueryData)) {
                 sliceBuilder.addInt(

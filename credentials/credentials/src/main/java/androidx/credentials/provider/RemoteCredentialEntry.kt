@@ -112,7 +112,7 @@ class RemoteCredentialEntry constructor(
             }
             return try {
                 RemoteCredentialEntry(pendingIntent!!,
-                    BeginGetPublicKeyCredentialOption.createFrom(
+                    BeginGetPublicKeyCredentialOption.createFromEntrySlice(
                         Bundle(),
                         beginGetPublicKeyCredentialOptionId!!.toString()
                     )

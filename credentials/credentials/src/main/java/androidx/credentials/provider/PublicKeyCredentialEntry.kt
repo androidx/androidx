@@ -201,13 +201,16 @@ class PublicKeyCredentialEntry internal constructor(
                 )
                 .addIcon(icon, /*subType=*/null,
                     listOf(SLICE_HINT_ICON))
-            if (icon.resId == R.drawable.ic_passkey) {
-                sliceBuilder.addInt(
-                    /*true=*/1,
-                    /*subType=*/null,
-                    listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
-                )
-            }
+            try {
+                if (icon.resId == R.drawable.ic_passkey) {
+                    sliceBuilder.addInt(
+                        /*true=*/1,
+                        /*subType=*/null,
+                        listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
+                    )
+                }
+            } catch (_: IllegalStateException) {}
+
             if (CredentialOption.extractAutoSelectValue(
                     beginGetPublicKeyCredentialOption.candidateQueryData)) {
                 sliceBuilder.addInt(

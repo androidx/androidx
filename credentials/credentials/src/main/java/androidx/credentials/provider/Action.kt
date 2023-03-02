@@ -31,18 +31,31 @@ import java.util.Collections
 /**
  * An actionable entry that is returned as part of the
  * [android.service.credentials.BeginGetCredentialResponse], and then shown on the user selector.
- * When selected, the associated [PendingIntent] is invoked to launch a provider controlled
- * activity.
+ * An action entry is expected to navigate the user to the credential provider's activity, and
+ * ultimately result in a [androidx.credentials.GetCredentialResponse] through that activity.
  *
- * Examples of [Action] entries include and entry that it titled 'Open App', and navigates
- * to the home page of the credential provider app, or an entry that is titled 'Manage Credentials'
- * and navigates to a particular page that lists all credentials.
+ * When selected, the associated [PendingIntent] is invoked to launch a provider controlled
+ * activity. The activity invoked due to this pending intent will contain the
+ * [android.service.credentials.BeginGetCredentialRequest] as part of the intent extras. Providers
+ * must use [PendingIntentHandler.retrieveBeginGetCredentialRequest] to get the request.
+ *
+ * When the user is done interacting with the activity and the provider has a credential to return,
+ * provider must call [android.app.Activity.setResult] with the result code as
+ * [android.app.Activity.RESULT_OK], and the [android.content.Intent] data that has been prepared
+ * by using [PendingIntentHandler.setGetCredentialResponse], before ending the activity.
+ * If the provider does not have a credential to return, provider must call
+ * [android.app.Activity.setResult] with the result code as [android.app.Activity.RESULT_CANCELED].
+ *
+ * Examples of [Action] entries include an entry that is titled 'Add a new Password', and navigates
+ * to the 'add password' page of the credential provider app, or an entry that is titled
+ * 'Manage Credentials' and navigates to a particular page that lists all credentials, where the
+ * user may end up selecting a credential that the provider can then return.
  *
  * @property title the title of the entry
  * @property pendingIntent the [PendingIntent] that will be invoked when the user selects this entry
  * @property subtitle the optional subtitle that is displayed on the entry
  *
- * @see android.service.credentials.CredentialsResponseContent for usage.
+ * @see android.service.credentials.BeginGetCredentialResponse for usage.
  *
  * @throws IllegalArgumentException If [title] is empty
  * @throws NullPointerException If [title] or [pendingIntent] is null
