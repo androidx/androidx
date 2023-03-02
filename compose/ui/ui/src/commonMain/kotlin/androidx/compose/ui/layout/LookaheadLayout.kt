@@ -29,9 +29,6 @@ import androidx.compose.ui.materialize
 import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.NodeCoordinator
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
@@ -70,23 +67,18 @@ fun LookaheadLayout(
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy
 ) {
+    val localMap = currentComposer.currentCompositionLocalMap
     val materialized = currentComposer.materialize(modifier)
-    val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    val viewConfiguration = LocalViewConfiguration.current
-
     val scope = remember { LookaheadLayoutScopeImpl() }
     ReusableComposeNode<LayoutNode, Applier<Any>>(
         factory = LayoutNode.Constructor,
         update = {
-            set(materialized, ComposeUiNode.SetModifier)
             set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
-            set(density, ComposeUiNode.SetDensity)
-            set(layoutDirection, ComposeUiNode.SetLayoutDirection)
-            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
+            set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
             set(scope) { scope ->
                 scope.root = innerCoordinator
             }
+            set(materialized, ComposeUiNode.SetModifier)
             init {
                 isLookaheadRoot = true
             }

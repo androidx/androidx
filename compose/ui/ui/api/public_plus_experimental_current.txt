@@ -2421,6 +2421,13 @@ package androidx.compose.ui.modifier {
 
 package androidx.compose.ui.node {
 
+  @androidx.compose.ui.ExperimentalComposeUiApi public interface CompositionLocalConsumerModifierNode extends androidx.compose.ui.node.DelegatableNode {
+  }
+
+  public final class CompositionLocalConsumerModifierNodeKt {
+    method @androidx.compose.ui.ExperimentalComposeUiApi public static <T> T! currentValueOf(androidx.compose.ui.node.CompositionLocalConsumerModifierNode, androidx.compose.runtime.CompositionLocal<T> local);
+  }
+
   @androidx.compose.ui.ExperimentalComposeUiApi public interface DelegatableNode {
     method public androidx.compose.ui.Modifier.Node getNode();
     property public abstract androidx.compose.ui.Modifier.Node node;

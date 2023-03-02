@@ -2177,16 +2177,19 @@ package androidx.compose.ui.modifier {
 package androidx.compose.ui.node {
 
   @kotlin.PublishedApi internal interface ComposeUiNode {
+    method public androidx.compose.runtime.CompositionLocalMap getCompositionLocalMap();
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public androidx.compose.ui.layout.MeasurePolicy getMeasurePolicy();
     method public androidx.compose.ui.Modifier getModifier();
     method public androidx.compose.ui.platform.ViewConfiguration getViewConfiguration();
+    method public void setCompositionLocalMap(androidx.compose.runtime.CompositionLocalMap);
     method public void setDensity(androidx.compose.ui.unit.Density);
     method public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
     method public void setMeasurePolicy(androidx.compose.ui.layout.MeasurePolicy);
     method public void setModifier(androidx.compose.ui.Modifier);
     method public void setViewConfiguration(androidx.compose.ui.platform.ViewConfiguration);
+    property public abstract androidx.compose.runtime.CompositionLocalMap compositionLocalMap;
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public abstract androidx.compose.ui.layout.MeasurePolicy measurePolicy;
@@ -2201,6 +2204,7 @@ package androidx.compose.ui.node {
     method public kotlin.jvm.functions.Function2<androidx.compose.ui.node.ComposeUiNode,androidx.compose.ui.unit.LayoutDirection,kotlin.Unit> getSetLayoutDirection();
     method public kotlin.jvm.functions.Function2<androidx.compose.ui.node.ComposeUiNode,androidx.compose.ui.layout.MeasurePolicy,kotlin.Unit> getSetMeasurePolicy();
     method public kotlin.jvm.functions.Function2<androidx.compose.ui.node.ComposeUiNode,androidx.compose.ui.Modifier,kotlin.Unit> getSetModifier();
+    method public kotlin.jvm.functions.Function2<androidx.compose.ui.node.ComposeUiNode,androidx.compose.runtime.CompositionLocalMap,kotlin.Unit> getSetResolvedCompositionLocals();
     method public kotlin.jvm.functions.Function2<androidx.compose.ui.node.ComposeUiNode,androidx.compose.ui.platform.ViewConfiguration,kotlin.Unit> getSetViewConfiguration();
     method public kotlin.jvm.functions.Function0<androidx.compose.ui.node.ComposeUiNode> getVirtualConstructor();
     property public final kotlin.jvm.functions.Function0<androidx.compose.ui.node.ComposeUiNode> Constructor;
@@ -2208,6 +2212,7 @@ package androidx.compose.ui.node {
     property public final kotlin.jvm.functions.Function2<androidx.compose.ui.node.ComposeUiNode,androidx.compose.ui.unit.LayoutDirection,kotlin.Unit> SetLayoutDirection;
     property public final kotlin.jvm.functions.Function2<androidx.compose.ui.node.ComposeUiNode,androidx.compose.ui.layout.MeasurePolicy,kotlin.Unit> SetMeasurePolicy;
     property public final kotlin.jvm.functions.Function2<androidx.compose.ui.node.ComposeUiNode,androidx.compose.ui.Modifier,kotlin.Unit> SetModifier;
+    property public final kotlin.jvm.functions.Function2<androidx.compose.ui.node.ComposeUiNode,androidx.compose.runtime.CompositionLocalMap,kotlin.Unit> SetResolvedCompositionLocals;
     property public final kotlin.jvm.functions.Function2<androidx.compose.ui.node.ComposeUiNode,androidx.compose.ui.platform.ViewConfiguration,kotlin.Unit> SetViewConfiguration;
     property public final kotlin.jvm.functions.Function0<androidx.compose.ui.node.ComposeUiNode> VirtualConstructor;
   }

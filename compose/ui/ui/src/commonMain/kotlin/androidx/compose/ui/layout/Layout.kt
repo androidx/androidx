@@ -30,9 +30,6 @@ import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.materialize
 import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -71,16 +68,12 @@ import androidx.compose.ui.util.fastForEach
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy
 ) {
-    val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    val viewConfiguration = LocalViewConfiguration.current
+    val localMap = currentComposer.currentCompositionLocalMap
     ReusableComposeNode<ComposeUiNode, Applier<Any>>(
         factory = ComposeUiNode.Constructor,
         update = {
             set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
-            set(density, ComposeUiNode.SetDensity)
-            set(layoutDirection, ComposeUiNode.SetLayoutDirection)
-            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
+            set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
         },
         skippableUpdate = materializerOf(modifier),
         content = content
@@ -117,17 +110,13 @@ inline fun Layout(
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy
 ) {
-    val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    val viewConfiguration = LocalViewConfiguration.current
     val materialized = currentComposer.materialize(modifier)
+    val localMap = currentComposer.currentCompositionLocalMap
     ReusableComposeNode<ComposeUiNode, Applier<Any>>(
         factory = ComposeUiNode.Constructor,
         update = {
             set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
-            set(density, ComposeUiNode.SetDensity)
-            set(layoutDirection, ComposeUiNode.SetLayoutDirection)
-            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
+            set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
             set(materialized, ComposeUiNode.SetModifier)
         },
     )
@@ -207,20 +196,16 @@ fun MultiMeasureLayout(
     measurePolicy: MeasurePolicy
 ) {
     val materialized = currentComposer.materialize(modifier)
-    val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    val viewConfiguration = LocalViewConfiguration.current
+    val localMap = currentComposer.currentCompositionLocalMap
 
     ReusableComposeNode<LayoutNode, Applier<Any>>(
         factory = LayoutNode.Constructor,
         update = {
-            set(materialized, ComposeUiNode.SetModifier)
             set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
-            set(density, ComposeUiNode.SetDensity)
-            set(layoutDirection, ComposeUiNode.SetLayoutDirection)
-            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
+            set(localMap, ComposeUiNode.SetResolvedCompositionLocals)
             @Suppress("DEPRECATION")
             init { this.canMultiMeasure = true }
+            set(materialized, ComposeUiNode.SetModifier)
         },
         content = content
     )

@@ -16,6 +16,7 @@
 package androidx.compose.ui.node
 
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
+import androidx.compose.runtime.CompositionLocalMap
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -47,6 +48,9 @@ import androidx.compose.ui.node.LayoutNode.LayoutState.Measuring
 import androidx.compose.ui.node.Nodes.FocusEvent
 import androidx.compose.ui.node.Nodes.FocusProperties
 import androidx.compose.ui.node.Nodes.FocusTarget
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.simpleIdentityToString
 import androidx.compose.ui.semantics.generateSemanticsId
@@ -603,6 +607,17 @@ internal class LayoutNode(
         }
 
     override var viewConfiguration: ViewConfiguration = DummyViewConfiguration
+    override var compositionLocalMap = CompositionLocalMap.Empty
+        set(value) {
+            field = value
+            density = value[LocalDensity]
+            layoutDirection = value[LocalLayoutDirection]
+            viewConfiguration = value[LocalViewConfiguration]
+            @OptIn(ExperimentalComposeUiApi::class)
+            nodes.headToTail(Nodes.CompositionLocalConsumer) { modifierNode ->
+                autoInvalidateUpdatedNode(modifierNode as Modifier.Node)
+            }
+        }
 
     private fun onDensityOrLayoutDirectionChanged() {
         // TODO(b/242120396): it seems like we need to update some densities in the node coordinators here

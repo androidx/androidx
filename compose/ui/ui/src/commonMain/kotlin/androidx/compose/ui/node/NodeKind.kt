@@ -93,6 +93,9 @@ internal object Nodes {
     inline val KeyInput get() = NodeKind<KeyInputModifierNode>(0b1 shl 13)
     @JvmStatic
     inline val RotaryInput get() = NodeKind<RotaryInputModifierNode>(0b1 shl 14)
+    @JvmStatic
+    inline val CompositionLocalConsumer
+        get() = NodeKind<CompositionLocalConsumerModifierNode>(0b1 shl 15)
     // ...
 }
 
@@ -186,6 +189,9 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     }
     if (node is RotaryInputModifierNode) {
         mask = mask or Nodes.RotaryInput
+    }
+    if (node is CompositionLocalConsumerModifierNode) {
+        mask = mask or Nodes.CompositionLocalConsumer
     }
     return mask
 }

@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.runtime.Composer#getCurrentCompositionLocalMap():
+    Added method androidx.compose.runtime.Composer.getCurrentCompositionLocalMap()
