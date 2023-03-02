@@ -241,13 +241,17 @@ public class GridLayoutManager extends LinearLayoutManager {
 
             int scrollTargetPosition;
 
-            if (direction == View.FOCUS_RIGHT) {
-                scrollTargetPosition = findScrollTargetPositionOnTheRight(startingRow,
-                        startingColumn, startingAdapterPosition);
-            } else {
-                // TODO: add actual implement for View.FOCUS_LEFT, View.FOCUS_DOWN, and
-                //  View.FOCUS_UP
-                return false;
+            switch (direction) {
+                case View.FOCUS_LEFT:
+                    scrollTargetPosition = findScrollTargetPositionOnTheLeft(startingRow,
+                            startingColumn, startingAdapterPosition);
+                    break;
+                case View.FOCUS_RIGHT:
+                    scrollTargetPosition = findScrollTargetPositionOnTheRight(startingRow,
+                            startingColumn, startingAdapterPosition);
+                    break;
+                default:
+                    return false;
             }
 
             if (scrollTargetPosition != INVALID_POSITION) {
@@ -340,6 +344,48 @@ public class GridLayoutManager extends LinearLayoutManager {
                     }
                 } else { // HORIZONTAL
                     // TODO (b/268487724): look for scroll target on a following row.
+                    // TODO (b/268487724): handle case where the scroll target spans multiple
+                    //  rows/columns.
+                }
+            }
+        }
+        return scrollTargetPosition;
+    }
+
+    private int findScrollTargetPositionOnTheLeft(int startingRow, int startingColumn,
+            int startingAdapterPosition) {
+        int scrollTargetPosition = INVALID_POSITION;
+        for (int i = startingAdapterPosition - 1; i >= 0; i--) {
+            int currentRow = getRowIndex(i);
+            int currentColumn = getColumnIndex(i);
+
+            if (currentRow < 0 || currentColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("currentRow equals " + currentRow + ", and "
+                            + "currentColumn equals " + currentColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return INVALID_POSITION;
+            }
+
+            // Canonical case: target is on the same row. TODO (b/268487724): handle RTL.
+            if (currentRow == startingRow && currentColumn < startingColumn) {
+                return i;
+            } else {
+                if (mOrientation == VERTICAL) {
+                    /*
+                     * Grids with vertical layouts are laid out row by row...
+                     * 1   2   3
+                     * 4   5   6
+                     * 7   8
+                     * ... and the scroll target may lie on a preceding row.
+                     */
+                    if (currentRow < startingRow) {
+                        scrollTargetPosition = i;
+                        break;
+                    }
+                } else { // HORIZONTAL
+                    // TODO (b/268487724): look for scroll target on a preceding row.
                     // TODO (b/268487724): handle case where the scroll target spans multiple
                     //  rows/columns.
                 }
