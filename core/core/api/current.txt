@@ -2177,23 +2177,23 @@ package androidx.core.text.util {
     method public static boolean addLinks(android.text.Spannable, java.util.regex.Pattern, String?, String![]?, android.text.util.Linkify.MatchFilter?, android.text.util.Linkify.TransformFilter?);
   }
 
-  public final class LocalePreferences {
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getCalendarType();
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getCalendarType(java.util.Locale);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getCalendarType(boolean);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getCalendarType(java.util.Locale, boolean);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getFirstDayOfWeek();
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getFirstDayOfWeek(java.util.Locale);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getFirstDayOfWeek(boolean);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getFirstDayOfWeek(java.util.Locale, boolean);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getHourCycle();
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getHourCycle(java.util.Locale);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getHourCycle(boolean);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getHourCycle(java.util.Locale, boolean);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getTemperatureUnit();
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getTemperatureUnit(java.util.Locale);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getTemperatureUnit(boolean);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static String getTemperatureUnit(java.util.Locale, boolean);
+  @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public final class LocalePreferences {
+    method public static String getCalendarType();
+    method public static String getCalendarType(java.util.Locale);
+    method public static String getCalendarType(boolean);
+    method public static String getCalendarType(java.util.Locale, boolean);
+    method public static String getFirstDayOfWeek();
+    method public static String getFirstDayOfWeek(java.util.Locale);
+    method public static String getFirstDayOfWeek(boolean);
+    method public static String getFirstDayOfWeek(java.util.Locale, boolean);
+    method public static String getHourCycle();
+    method public static String getHourCycle(java.util.Locale);
+    method public static String getHourCycle(boolean);
+    method public static String getHourCycle(java.util.Locale, boolean);
+    method public static String getTemperatureUnit();
+    method public static String getTemperatureUnit(java.util.Locale);
+    method public static String getTemperatureUnit(boolean);
+    method public static String getTemperatureUnit(java.util.Locale, boolean);
   }
 
   public static class LocalePreferences.CalendarType {
@@ -2233,7 +2233,7 @@ package androidx.core.text.util {
   public static class LocalePreferences.TemperatureUnit {
     field public static final String CELSIUS = "celsius";
     field public static final String DEFAULT = "";
-    field public static final String FAHRENHEIT = "fahrenheit";
+    field public static final String FAHRENHEIT = "fahrenhe";
     field public static final String KELVIN = "kelvin";
   }
 
