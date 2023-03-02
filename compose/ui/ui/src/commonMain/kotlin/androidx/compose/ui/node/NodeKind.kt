@@ -254,7 +254,6 @@ private fun autoInvalidateNode(node: Modifier.Node, phase: Int) {
     }
 }
 
-@ExperimentalComposeUiApi
 private fun FocusPropertiesModifierNode.scheduleInvalidationOfAssociatedFocusTargets() {
     visitChildren(Nodes.FocusTarget) {
         // Schedule invalidation for the focus target,
@@ -272,7 +271,6 @@ private fun FocusPropertiesModifierNode.scheduleInvalidationOfAssociatedFocusTar
  * called from the main thread, but if this changes in the future, replace the
  * [CanFocusChecker.reset] call with a new [FocusProperties] object for every invocation.
  */
-@ExperimentalComposeUiApi
 private fun FocusPropertiesModifierNode.specifiesCanFocusProperty(): Boolean {
     CanFocusChecker.reset()
     modifyFocusProperties(CanFocusChecker)

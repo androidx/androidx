@@ -38,7 +38,7 @@ import androidx.compose.ui.node.observeReads
  * children. Calling this function will send a focus request to this
  * [FocusNode][FocusTargetModifierNode]'s parent [FocusNode][FocusTargetModifierNode].
  */
-@ExperimentalComposeUiApi
+@OptIn(ExperimentalComposeUiApi::class)
 internal fun FocusTargetModifierNode.requestFocus(): Boolean {
     return when (performCustomRequestFocus(Enter)) {
         None -> performRequestFocus()
@@ -54,7 +54,6 @@ internal fun FocusTargetModifierNode.requestFocus(): Boolean {
  * custom focus [enter][FocusProperties.enter] and [exit][FocusProperties.exit]
  * [properties][FocusProperties] have been specified.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun FocusTargetModifierNode.performRequestFocus(): Boolean {
     when (focusStateImpl) {
         Active, Captured -> {
@@ -82,7 +81,6 @@ internal fun FocusTargetModifierNode.performRequestFocus(): Boolean {
  *
  * @return true if the focus was successfully captured. False otherwise.
  */
-@ExperimentalComposeUiApi
 internal fun FocusTargetModifierNode.captureFocus() = when (focusStateImpl) {
     Active -> {
         focusStateImpl = Captured
@@ -100,7 +98,6 @@ internal fun FocusTargetModifierNode.captureFocus() = when (focusStateImpl) {
  *
  * @return true if the captured focus was released. False Otherwise.
  */
-@ExperimentalComposeUiApi
 internal fun FocusTargetModifierNode.freeFocus() = when (focusStateImpl) {
     Captured -> {
         focusStateImpl = Active
@@ -118,7 +115,6 @@ internal fun FocusTargetModifierNode.freeFocus() = when (focusStateImpl) {
  * clear focus from one of its child [focus node][FocusTargetModifierNode]s. It does not change the
  * state of the parent.
  */
-@ExperimentalComposeUiApi
 internal fun FocusTargetModifierNode.clearFocus(
     forced: Boolean = false,
     refreshFocusEvents: Boolean
@@ -161,7 +157,6 @@ internal fun FocusTargetModifierNode.clearFocus(
  * Note: This is a private function that just changes the state of this node and does not affect any
  * other nodes in the hierarchy.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetModifierNode.grantFocus(): Boolean {
     // When we grant focus to this node, we need to observe changes to the canFocus property.
     // If canFocus is set to false, we need to clear focus.
@@ -175,7 +170,6 @@ private fun FocusTargetModifierNode.grantFocus(): Boolean {
 }
 
 /** This function clears any focus from the focused child. */
-@ExperimentalComposeUiApi
 private fun FocusTargetModifierNode.clearChildFocus(
     forced: Boolean = false,
     refreshFocusEvents: Boolean = true
@@ -188,7 +182,6 @@ private fun FocusTargetModifierNode.clearChildFocus(
  * @param childNode: The node that is requesting focus.
  * @return true if focus was granted, false otherwise.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetModifierNode.requestFocusForChild(
     childNode: FocusTargetModifierNode
 ): Boolean {
@@ -247,14 +240,12 @@ private fun FocusTargetModifierNode.requestFocusForChild(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetModifierNode.requestFocusForOwner(): Boolean {
     return coordinator?.layoutNode?.owner?.requestFocus() ?: error("Owner not initialized.")
 }
 
 internal enum class CustomDestinationResult { None, Cancelled, Redirected, RedirectCancelled }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun FocusTargetModifierNode.performCustomRequestFocus(
     focusDirection: FocusDirection
 ): CustomDestinationResult {
@@ -276,7 +267,6 @@ internal fun FocusTargetModifierNode.performCustomRequestFocus(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun FocusTargetModifierNode.performCustomClearFocus(
     focusDirection: FocusDirection
 ): CustomDestinationResult = when (focusStateImpl) {

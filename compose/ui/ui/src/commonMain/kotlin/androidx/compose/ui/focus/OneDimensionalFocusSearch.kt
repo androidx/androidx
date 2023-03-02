@@ -35,7 +35,6 @@ import kotlin.contracts.contract
 private const val InvalidFocusDirection = "This function should only be used for 1-D focus search"
 private const val NoActiveChild = "ActiveParent must have a focusedChild"
 
-@ExperimentalComposeUiApi
 internal fun FocusTargetModifierNode.oneDimensionalFocusSearch(
     direction: FocusDirection,
     onFound: (FocusTargetModifierNode) -> Boolean
@@ -45,7 +44,6 @@ internal fun FocusTargetModifierNode.oneDimensionalFocusSearch(
     else -> error(InvalidFocusDirection)
 }
 
-@ExperimentalComposeUiApi
 private fun FocusTargetModifierNode.forwardFocusSearch(
     onFound: (FocusTargetModifierNode) -> Boolean
 ): Boolean = when (focusStateImpl) {
@@ -62,7 +60,6 @@ private fun FocusTargetModifierNode.forwardFocusSearch(
     }
 }
 
-@ExperimentalComposeUiApi
 private fun FocusTargetModifierNode.backwardFocusSearch(
     onFound: (FocusTargetModifierNode) -> Boolean
 ): Boolean = when (focusStateImpl) {
@@ -98,7 +95,6 @@ private fun FocusTargetModifierNode.backwardFocusSearch(
 
 // Search among your children for the next child.
 // If the next child is not found, generate more children by requesting a beyondBoundsLayout.
-@ExperimentalComposeUiApi
 private fun FocusTargetModifierNode.generateAndSearchChildren(
     focusedItem: FocusTargetModifierNode,
     direction: FocusDirection,
@@ -120,7 +116,6 @@ private fun FocusTargetModifierNode.generateAndSearchChildren(
 }
 
 // Search for the next sibling that should be granted focus.
-@ExperimentalComposeUiApi
 private fun FocusTargetModifierNode.searchChildren(
     focusedItem: FocusTargetModifierNode,
     direction: FocusDirection,
@@ -152,7 +147,6 @@ private fun FocusTargetModifierNode.searchChildren(
     return onFound.invoke(this)
 }
 
-@ExperimentalComposeUiApi
 private fun FocusTargetModifierNode.pickChildForForwardSearch(
     onFound: (FocusTargetModifierNode) -> Boolean
 ): Boolean {
@@ -163,7 +157,6 @@ private fun FocusTargetModifierNode.pickChildForForwardSearch(
     return children.any { it.isEligibleForFocusSearch && it.forwardFocusSearch(onFound) }
 }
 
-@ExperimentalComposeUiApi
 private fun FocusTargetModifierNode.pickChildForBackwardSearch(
     onFound: (FocusTargetModifierNode) -> Boolean
 ): Boolean {

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -33,7 +32,6 @@ import androidx.compose.ui.unit.IntSize
  *
  * @sample androidx.compose.ui.samples.PointerInputModifierNodeSample
  */
-@ExperimentalComposeUiApi
 interface PointerInputModifierNode : DelegatableNode {
     /**
      * Invoked when pointers that previously hit this [PointerInputModifierNode] have changed. It is
@@ -84,10 +82,8 @@ interface PointerInputModifierNode : DelegatableNode {
     fun sharePointerInputWithSiblings(): Boolean = false
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal val PointerInputModifierNode.isAttached: Boolean
     get() = node.isAttached
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal val PointerInputModifierNode.layoutCoordinates: LayoutCoordinates
     get() = requireCoordinator(Nodes.PointerInput)

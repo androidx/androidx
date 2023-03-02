@@ -48,7 +48,6 @@ private const val NoActiveChild = "ActiveParent must have a focusedChild"
  *  found, and null if focus search was cancelled using [FocusRequester.Cancel] or if a custom
  *  focus search destination didn't point to any [focusTarget].
  */
-@ExperimentalComposeUiApi
 internal fun FocusTargetModifierNode.twoDimensionalFocusSearch(
     direction: FocusDirection,
     onFound: (FocusTargetModifierNode) -> Boolean
@@ -95,7 +94,6 @@ internal fun FocusTargetModifierNode.twoDimensionalFocusSearch(
  * @param onFound the callback that is run when the child is found.
  * @return true if we find a suitable child, false otherwise.
  */
-@ExperimentalComposeUiApi
 internal fun FocusTargetModifierNode.findChildCorrespondingToFocusEnter(
     direction: FocusDirection,
     onFound: (FocusTargetModifierNode) -> Boolean
@@ -132,7 +130,6 @@ internal fun FocusTargetModifierNode.findChildCorrespondingToFocusEnter(
 
 // Search among your children for the next child.
 // If the next child is not found, generate more children by requesting a beyondBoundsLayout.
-@ExperimentalComposeUiApi
 private fun FocusTargetModifierNode.generateAndSearchChildren(
     focusedItem: FocusTargetModifierNode,
     direction: FocusDirection,
@@ -153,7 +150,6 @@ private fun FocusTargetModifierNode.generateAndSearchChildren(
     } ?: false
 }
 
-@ExperimentalComposeUiApi
 private fun FocusTargetModifierNode.searchChildren(
     focusedItem: FocusTargetModifierNode,
     direction: FocusDirection,
@@ -186,7 +182,6 @@ private fun FocusTargetModifierNode.searchChildren(
  * child that is deactivated will add activated children instead, unless the deactivated
  * node has a custom Enter specified.
  */
-@ExperimentalComposeUiApi
 private fun DelegatableNode.collectAccessibleChildren(
     accessibleChildren: MutableVector<FocusTargetModifierNode>
 ) {
@@ -203,7 +198,6 @@ private fun DelegatableNode.collectAccessibleChildren(
 // TODO(b/182319711): For Left/Right focus moves, Consider finding the first candidate in the beam
 //  and then only comparing candidates in the beam. If nothing is in the beam, then consider all
 //  valid candidates.
-@ExperimentalComposeUiApi
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
 private fun MutableVector<FocusTargetModifierNode>.findBestCandidate(
     focusRect: Rect,
@@ -379,7 +373,6 @@ private fun Rect.topLeft() = Rect(left, top, left, top)
 private fun Rect.bottomRight() = Rect(right, bottom, right, bottom)
 
 // Find the active descendant.
-@ExperimentalComposeUiApi
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
 private fun FocusTargetModifierNode.activeNode(): FocusTargetModifierNode {
     check(focusState == ActiveParent)

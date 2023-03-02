@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.LayoutDirection
  * @see DelegatingNode.delegated
  */
 // TODO(lmr): this interface needs a better name
-@ExperimentalComposeUiApi
 interface DelegatableNode {
     /**
      * A reference of the [Modifier.Node] that holds this node's position in the node hierarchy. If
@@ -46,7 +45,6 @@ interface DelegatableNode {
 // Some internal modifiers, such as Focus, PointerInput, etc. will all need to utilize this
 // a bit, but I think we want to avoid giving this power to public API just yet. We can
 // introduce this as valid cases arise
-@ExperimentalComposeUiApi
 internal fun DelegatableNode.localChild(mask: Int): Modifier.Node? {
     val child = node.child ?: return null
     if (child.aggregateChildKindSet and mask == 0) return null
@@ -60,7 +58,6 @@ internal fun DelegatableNode.localChild(mask: Int): Modifier.Node? {
     return null
 }
 
-@ExperimentalComposeUiApi
 internal fun DelegatableNode.localParent(mask: Int): Modifier.Node? {
     var next = node.parent
     while (next != null) {
@@ -72,7 +69,6 @@ internal fun DelegatableNode.localParent(mask: Int): Modifier.Node? {
     return null
 }
 
-@ExperimentalComposeUiApi
 internal inline fun DelegatableNode.visitAncestors(mask: Int, block: (Modifier.Node) -> Unit) {
     // TODO(lmr): we might want to add some safety wheels to prevent this from being called
     //  while one of the chains is being diffed / updated. Although that might only be
@@ -95,7 +91,6 @@ internal inline fun DelegatableNode.visitAncestors(mask: Int, block: (Modifier.N
     }
 }
 
-@ExperimentalComposeUiApi
 internal fun DelegatableNode.ancestors(mask: Int): List<Modifier.Node>? {
     check(node.isAttached)
     var ancestors: MutableList<Modifier.Node>? = null
@@ -118,7 +113,6 @@ internal fun DelegatableNode.ancestors(mask: Int): List<Modifier.Node>? {
     return ancestors
 }
 
-@ExperimentalComposeUiApi
 internal fun DelegatableNode.nearestAncestor(mask: Int): Modifier.Node? {
     check(node.isAttached)
     var node: Modifier.Node? = node.parent
@@ -139,7 +133,6 @@ internal fun DelegatableNode.nearestAncestor(mask: Int): Modifier.Node? {
     return null
 }
 
-@ExperimentalComposeUiApi
 internal fun DelegatableNode.firstChild(mask: Int): Modifier.Node? {
     check(node.isAttached)
     val branches = mutableVectorOf<Modifier.Node>()
@@ -166,7 +159,6 @@ internal fun DelegatableNode.firstChild(mask: Int): Modifier.Node? {
     return null
 }
 
-@ExperimentalComposeUiApi
 internal inline fun DelegatableNode.visitSubtree(mask: Int, block: (Modifier.Node) -> Unit) {
     // TODO(lmr): we might want to add some safety wheels to prevent this from being called
     //  while one of the chains is being diffed / updated.
@@ -203,7 +195,6 @@ private fun MutableVector<Modifier.Node>.addLayoutNodeChildren(node: Modifier.No
     }
 }
 
-@ExperimentalComposeUiApi
 internal inline fun DelegatableNode.visitChildren(mask: Int, block: (Modifier.Node) -> Unit) {
     check(node.isAttached)
     val branches = mutableVectorOf<Modifier.Node>()
@@ -234,7 +225,6 @@ internal inline fun DelegatableNode.visitChildren(mask: Int, block: (Modifier.No
  * visit the shallow tree of children of a given mask, but if block returns true, we will continue
  * traversing below it
  */
-@ExperimentalComposeUiApi
 internal inline fun DelegatableNode.visitSubtreeIf(mask: Int, block: (Modifier.Node) -> Boolean) {
     check(node.isAttached)
     val branches = mutableVectorOf<Modifier.Node>()
@@ -259,7 +249,6 @@ internal inline fun DelegatableNode.visitSubtreeIf(mask: Int, block: (Modifier.N
     }
 }
 
-@ExperimentalComposeUiApi
 internal inline fun DelegatableNode.visitLocalChildren(mask: Int, block: (Modifier.Node) -> Unit) {
     check(node.isAttached)
     val self = node
@@ -273,7 +262,6 @@ internal inline fun DelegatableNode.visitLocalChildren(mask: Int, block: (Modifi
     }
 }
 
-@ExperimentalComposeUiApi
 internal inline fun DelegatableNode.visitLocalParents(mask: Int, block: (Modifier.Node) -> Unit) {
     check(node.isAttached)
     var next = node.parent
@@ -285,7 +273,6 @@ internal inline fun DelegatableNode.visitLocalParents(mask: Int, block: (Modifie
     }
 }
 
-@ExperimentalComposeUiApi
 internal inline fun <reified T> DelegatableNode.visitLocalChildren(
     type: NodeKind<T>,
     block: (T) -> Unit
@@ -293,7 +280,6 @@ internal inline fun <reified T> DelegatableNode.visitLocalChildren(
     if (it is T) block(it)
 }
 
-@ExperimentalComposeUiApi
 internal inline fun <reified T> DelegatableNode.visitLocalParents(
     type: NodeKind<T>,
     block: (T) -> Unit
@@ -301,57 +287,46 @@ internal inline fun <reified T> DelegatableNode.visitLocalParents(
     if (it is T) block(it)
 }
 
-@ExperimentalComposeUiApi
 internal inline fun <reified T> DelegatableNode.localParent(type: NodeKind<T>): T? =
     localParent(type.mask) as? T
 
-@ExperimentalComposeUiApi
 internal inline fun <reified T> DelegatableNode.localChild(type: NodeKind<T>): T? =
     localChild(type.mask) as? T
 
-@ExperimentalComposeUiApi
 internal inline fun <reified T> DelegatableNode.visitAncestors(
     type: NodeKind<T>,
     block: (T) -> Unit
 ) = visitAncestors(type.mask) { if (it is T) block(it) }
 
 @Suppress("UNCHECKED_CAST") // Type info lost due to erasure.
-@ExperimentalComposeUiApi
 internal inline fun <reified T> DelegatableNode.ancestors(
     type: NodeKind<T>
 ): List<T>? = ancestors(type.mask) as? List<T>
 
-@ExperimentalComposeUiApi
 internal inline fun <reified T : Any> DelegatableNode.nearestAncestor(type: NodeKind<T>): T? =
     nearestAncestor(type.mask) as? T
 
-@ExperimentalComposeUiApi
 internal inline fun <reified T : Any> DelegatableNode.firstChild(type: NodeKind<T>): T? =
     firstChild(type.mask) as? T
 
-@ExperimentalComposeUiApi
 internal inline fun <reified T> DelegatableNode.visitSubtree(
     type: NodeKind<T>,
     block: (T) -> Unit
 ) = visitSubtree(type.mask) { if (it is T) block(it) }
 
-@ExperimentalComposeUiApi
 internal inline fun <reified T> DelegatableNode.visitChildren(
     type: NodeKind<T>,
     block: (T) -> Unit
 ) = visitChildren(type.mask) { if (it is T) block(it) }
 
-@ExperimentalComposeUiApi
 internal inline fun <reified T> DelegatableNode.visitSubtreeIf(
     type: NodeKind<T>,
     block: (T) -> Boolean
 ) = visitSubtreeIf(type.mask) { if (it is T) block(it) else true }
 
-@ExperimentalComposeUiApi
 internal fun DelegatableNode.has(type: NodeKind<*>): Boolean =
     node.aggregateChildKindSet and type.mask != 0
 
-@ExperimentalComposeUiApi
 internal fun DelegatableNode.requireCoordinator(kind: NodeKind<*>): NodeCoordinator {
     val coordinator = node.coordinator!!
     return if (coordinator.tail !== this)
@@ -362,27 +337,23 @@ internal fun DelegatableNode.requireCoordinator(kind: NodeKind<*>): NodeCoordina
         coordinator
 }
 
-@ExperimentalComposeUiApi
 internal fun DelegatableNode.requireLayoutNode(): LayoutNode =
     checkNotNull(node.coordinator) {
         "Cannot obtain node coordinator. Is the Modifier.Node attached?"
     }.layoutNode
 
-@ExperimentalComposeUiApi
 internal fun DelegatableNode.requireOwner(): Owner = checkNotNull(requireLayoutNode().owner)
 
 /**
  * Returns the current [Density] of the LayoutNode that this [DelegatableNode] is attached to.
  * If the node is not attached, this function will throw an [IllegalStateException].
  */
-@ExperimentalComposeUiApi
 fun DelegatableNode.requireDensity(): Density = requireLayoutNode().density
 
 /**
  * Returns the current [LayoutDirection] of the LayoutNode that this [DelegatableNode] is attached
  * to. If the node is not attached, this function will throw an [IllegalStateException].
  */
-@ExperimentalComposeUiApi
 fun DelegatableNode.requireLayoutDirection(): LayoutDirection = requireLayoutNode().layoutDirection
 
 /**
@@ -392,7 +363,6 @@ fun DelegatableNode.requireLayoutDirection(): LayoutDirection = requireLayoutNod
  * entire subtree to relayout and redraw instead of just parts that
  * are otherwise invalidated. Its use should be limited to structural changes.
  */
-@ExperimentalComposeUiApi
 fun DelegatableNode.invalidateSubtree() {
     if (node.isAttached) {
         requireLayoutNode().invalidateSubtree()
