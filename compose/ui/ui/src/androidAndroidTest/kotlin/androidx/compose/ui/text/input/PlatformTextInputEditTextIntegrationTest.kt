@@ -44,6 +44,7 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -108,6 +109,7 @@ class PlatformTextInputEditTextIntegrationTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/270233240
     @Test
     fun textSelection() {
         setContentAndFocusField()
