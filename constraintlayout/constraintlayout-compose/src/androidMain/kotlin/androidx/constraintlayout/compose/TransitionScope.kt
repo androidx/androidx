@@ -18,6 +18,8 @@ package androidx.constraintlayout.compose
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.core.parser.CLArray
 import androidx.constraintlayout.core.parser.CLContainer
 import androidx.constraintlayout.core.parser.CLNumber
@@ -241,9 +243,10 @@ abstract class BaseKeyFrameScope internal constructor() {
     protected fun <T> addOnPropertyChange(initialValue: T, nameOverride: String? = null) =
         object : ObservableProperty<T>(initialValue) {
             override fun afterChange(property: KProperty<*>, oldValue: T, newValue: T) {
-                val name = nameOverride ?: property.name
                 if (newValue != null) {
-                    keyFramePropertiesValue[name] = newValue
+                    keyFramePropertiesValue[nameOverride ?: property.name] = newValue
+                } else {
+                    keyFramePropertiesValue.remove(nameOverride ?: property.name)
                 }
             }
         }
@@ -306,6 +309,9 @@ abstract class BaseKeyFrameScope internal constructor() {
                         end = stringChars.size.toLong() - 1
                     })
                 }
+                is Dp -> {
+                    array.add(CLNumber(value.value))
+                }
                 is Number -> {
                     array.add(CLNumber(value.toFloat()))
                 }
@@ -322,9 +328,9 @@ class KeyAttributeScope internal constructor() : BaseKeyFrameScope() {
     var rotationX by addOnPropertyChange(0f, "rotationX")
     var rotationY by addOnPropertyChange(0f, "rotationY")
     var rotationZ by addOnPropertyChange(0f, "rotationZ")
-    var translationX by addOnPropertyChange(0f, "translationX")
-    var translationY by addOnPropertyChange(0f, "translationY")
-    var translationZ by addOnPropertyChange(0f, "translationZ")
+    var translationX: Dp by addOnPropertyChange(0.dp, "translationX")
+    var translationY: Dp by addOnPropertyChange(0.dp, "translationY")
+    var translationZ: Dp by addOnPropertyChange(0.dp, "translationZ")
 }
 
 @ExperimentalMotionApi
@@ -344,9 +350,9 @@ class KeyCycleScope internal constructor() : BaseKeyFrameScope() {
     var rotationX by addOnPropertyChange(0f)
     var rotationY by addOnPropertyChange(0f)
     var rotationZ by addOnPropertyChange(0f)
-    var translationX by addOnPropertyChange(0f)
-    var translationY by addOnPropertyChange(0f)
-    var translationZ by addOnPropertyChange(0f)
+    var translationX: Dp by addOnPropertyChange(0.dp)
+    var translationY: Dp by addOnPropertyChange(0.dp)
+    var translationZ: Dp by addOnPropertyChange(0.dp)
     var period by addOnPropertyChange(0f)
     var offset by addOnPropertyChange(0f)
     var phase by addOnPropertyChange(0f)
