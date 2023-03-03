@@ -40,7 +40,7 @@ class BaselineProfileConsumerPluginTest {
     // is generated ad hoc in the tests that require it in order to supply mock profiles.
 
     companion object {
-        private const val expectedBaselineProfileOutputFolder = "generated/baselineProfiles"
+        private const val EXPECTED_PROFILE_FOLDER = "generated/baselineProfiles"
         private const val ANDROID_APPLICATION_PLUGIN = "com.android.application"
         private const val ANDROID_LIBRARY_PLUGIN = "com.android.library"
         private const val ANDROID_TEST_PLUGIN = "com.android.test"
@@ -76,7 +76,7 @@ class BaselineProfileConsumerPluginTest {
 
     private fun baselineProfileFile(variantName: String) = File(
         consumerProjectSetup.rootDir,
-        "src/$variantName/$expectedBaselineProfileOutputFolder/baseline-prof.txt"
+        "src/$variantName/$EXPECTED_PROFILE_FOLDER/baseline-prof.txt"
     )
 
     private fun readBaselineProfileFileContent(variantName: String): List<String> =
@@ -223,10 +223,14 @@ class BaselineProfileConsumerPluginTest {
 
     @Test
     fun testSrcSetAreAddedToVariants() {
+        setupProducerProjectWithFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2)
+        )
         setupConsumerProject(
             androidPlugin = "com.android.application",
             flavors = true,
-            dependencyOnProducerProject = false,
+            dependencyOnProducerProject = true,
             baselineProfileBlock = """
                 enableR8BaselineProfileRewrite = false
             """.trimIndent(),
@@ -251,7 +255,7 @@ class BaselineProfileConsumerPluginTest {
                 val expected =
                     File(
                         consumerProjectSetup.rootDir,
-                        "src/$it/$expectedBaselineProfileOutputFolder"
+                        "src/$it/$EXPECTED_PROFILE_FOLDER"
                     )
                         .apply {
                             mkdirs()
@@ -265,10 +269,35 @@ class BaselineProfileConsumerPluginTest {
     }
 
     @Test
+    fun testWhenPluginIsAppliedAndNoDependencyIsSetShouldFailWithErrorMsg() {
+        setupConsumerProject(
+            androidPlugin = "com.android.application",
+            flavors = false,
+            dependencyOnProducerProject = false
+        )
+
+        gradleRunner
+            .withArguments("generateReleaseBaselineProfile", "--stacktrace")
+            .buildAndFail()
+            .output
+            .replace("\n", " ")
+            .also {
+                assertThat(it).contains(
+                    "The baseline profile consumer plugin is applied to " +
+                        "this module but no dependency has been set"
+                )
+            }
+    }
+
+    @Test
     fun testR8RewriteBaselineProfilePropertySet() {
+        setupProducerProjectWithFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2)
+        )
         setupConsumerProject(
             androidPlugin = "com.android.library",
-            dependencyOnProducerProject = false,
+            dependencyOnProducerProject = true,
             flavors = true,
             buildTypeAnotherRelease = true,
             additionalGradleCodeBlock = """
@@ -463,6 +492,43 @@ class BaselineProfileConsumerPluginTest {
                             "`automaticGenerationDuringBuild` is not supported"
                     )
             }
+    }
+
+    @Test
+    fun testWhenFiltersFilterOutAllTheProfileRules() {
+        setupConsumerProject(
+            androidPlugin = "com.android.library",
+            baselineProfileBlock = """
+                filter { include("nothing.**") }
+            """.trimIndent()
+        )
+        setupProducerProject(
+            releaseProfile = listOf(
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1,
+            )
+        )
+        gradleRunner
+            .withArguments("generateReleaseBaselineProfile", "--stacktrace")
+            .buildAndFail()
+            .output
+            .replace(System.lineSeparator(), " ")
+            .also {
+                assertThat(it)
+                    .contains(
+                        "The baseline profile consumer plugin is configured with filters that " +
+                            "exclude all the profile rules"
+                    )
+            }
+    }
+
+    @Test
+    fun testWhenProfileProducerProducesEmptyArtifact() {
+        setupConsumerProject(androidPlugin = "com.android.library")
+        setupProducerProject(releaseProfile = listOf())
+        gradleRunner.buildAndAssertThatOutput("generateReleaseBaselineProfile") {
+            contains("No baseline profile rules were generated for the variant `release`")
+        }
     }
 
     private fun setupConsumerProject(
