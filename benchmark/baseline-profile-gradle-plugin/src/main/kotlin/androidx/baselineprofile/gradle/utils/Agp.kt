@@ -35,28 +35,36 @@ private val gradleSyncProps by lazy {
 internal fun Project.isGradleSyncRunning() =
     gradleSyncProps.any { it in properties && properties[it].toString().toBoolean() }
 
-private fun Project.agpVersion(): AndroidPluginVersion? {
-    val version = project
+internal fun Project.agpVersion(): AndroidPluginVersion {
+    return project
         .extensions
         .findByType(AndroidComponentsExtension::class.java)
         ?.pluginVersion
-    if (version == null && !isGradleSyncRunning()) {
-        throw GradleException(
+        ?: throw GradleException(
+            // This can happen only if the plugin is not applied to an android module.
             """
                 The module $name does not have a registered `AndroidComponentsExtension`. This can
                 only happen if this is not an Android module. Please review your build.gradle to
                 ensure this plugin is applied to the correct module.
                 """.trimIndent()
         )
+}
+
+internal fun Project.agpVersionString(): String {
+    val agpVersion = agpVersion()
+    val preview = if (!agpVersion.previewType.isNullOrBlank()) {
+        "-${agpVersion.previewType}${agpVersion.preview}"
+    } else {
+        ""
     }
-    return version
+    return "${agpVersion.major}.${agpVersion.minor}.${agpVersion.micro}$preview"
 }
 
 internal fun Project.checkAgpVersion(
     min: AndroidPluginVersion = MIN_AGP_VERSION_REQUIRED,
     max: AndroidPluginVersion = MAX_AGP_VERSION_REQUIRED,
 ) {
-    val agpVersion = agpVersion() ?: return
+    val agpVersion = agpVersion()
     if (agpVersion < min || agpVersion > max) {
         throw GradleException(
             """
@@ -66,11 +74,6 @@ internal fun Project.checkAgpVersion(
             """.trimIndent()
         )
     }
-}
-
-internal fun Project.isAgpVersionAtLeast(minVersion: AndroidPluginVersion): Boolean {
-    val agpVersion = agpVersion() ?: return false
-    return agpVersion >= minVersion
 }
 
 internal fun Project.afterVariants(block: () -> (Unit)) {

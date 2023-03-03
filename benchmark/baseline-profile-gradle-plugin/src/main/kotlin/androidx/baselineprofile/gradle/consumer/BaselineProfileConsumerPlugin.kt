@@ -16,20 +16,25 @@
 
 package androidx.baselineprofile.gradle.consumer
 
-import androidx.baselineprofile.gradle.utils.ATTRIBUTE_BUILD_TYPE
-import androidx.baselineprofile.gradle.utils.ATTRIBUTE_CATEGORY_BASELINE_PROFILE
-import androidx.baselineprofile.gradle.utils.ATTRIBUTE_FLAVOR
+import androidx.baselineprofile.gradle.utils.ATTRIBUTE_BASELINE_PROFILE_PLUGIN_VERSION
+import androidx.baselineprofile.gradle.utils.ATTRIBUTE_TARGET_JVM_ENVIRONMENT
+import androidx.baselineprofile.gradle.utils.ATTRIBUTE_USAGE_BASELINE_PROFILE
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
+import androidx.baselineprofile.gradle.attributes.BaselineProfilePluginVersionAttr
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
 import androidx.baselineprofile.gradle.utils.INTERMEDIATES_BASE_FOLDER
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
 import androidx.baselineprofile.gradle.utils.afterVariants
+import androidx.baselineprofile.gradle.utils.agpVersion
+import androidx.baselineprofile.gradle.utils.agpVersionString
 import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.checkAgpVersion
-import androidx.baselineprofile.gradle.utils.isAgpVersionAtLeast
 import androidx.baselineprofile.gradle.utils.isGradleSyncRunning
 import androidx.baselineprofile.gradle.utils.maybeRegister
 import com.android.build.api.AndroidPluginVersion
+import com.android.build.api.attributes.AgpVersionAttr
+import com.android.build.api.attributes.BuildTypeAttr
+import com.android.build.api.attributes.ProductFlavorAttr
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
@@ -40,7 +45,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.Category
+import org.gradle.api.attributes.Usage
+import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -114,6 +120,7 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
         // Creates the main baseline profile configuration
         val mainBaselineProfileConfiguration = createBaselineProfileConfigurationForVariant(
             project,
+            productFlavors = listOf(),
             variantName = "",
             flavorName = "",
             buildTypeName = "",
@@ -175,7 +182,7 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
 
                     // Sets the r8 rewrite baseline profile for the non debuggable variant.
                     if (baselineProfileExtension.enableR8BaselineProfileRewrite &&
-                        project.isAgpVersionAtLeast(AndroidPluginVersion(8, 0, 0).beta(2))
+                        project.agpVersion() >= AndroidPluginVersion(8, 0, 0).beta(2)
                     ) {
                         // TODO: Note that currently there needs to be at least a baseline profile,
                         //  even if empty. For this reason we always add a src set that points to
@@ -193,6 +200,7 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                         createBaselineProfileConfigurationForVariant(
                             project,
                             variantName = variant.name,
+                            productFlavors = variant.productFlavors,
                             flavorName = variant.flavorName ?: "",
                             buildTypeName = variant.buildType ?: "",
                             mainConfiguration = mainBaselineProfileConfiguration
@@ -420,6 +428,7 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
     private fun createBaselineProfileConfigurationForVariant(
         project: Project,
         variantName: String,
+        productFlavors: List<Pair<String, String>>,
         flavorName: String,
         buildTypeName: String,
         mainConfiguration: Configuration?
@@ -429,12 +438,7 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
             if (buildTypeName.isNotBlank() && buildTypeName != variantName) {
                 project
                     .configurations
-                    .maybeCreate(
-                        camelCase(
-                            buildTypeName,
-                            CONFIGURATION_NAME_BASELINE_PROFILES
-                        )
-                    )
+                    .maybeCreate(camelCase(buildTypeName, CONFIGURATION_NAME_BASELINE_PROFILES))
                     .apply {
                         if (mainConfiguration != null) extendsFrom(mainConfiguration)
                         isCanBeResolved = true
@@ -460,37 +464,70 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
 
                 // The variant specific configuration always extends from build type and flavor
                 // configurations, when existing.
-                val extendFrom = mutableListOf<Configuration>()
-                if (mainConfiguration != null) {
-                    extendFrom.add(mainConfiguration)
-                }
-                if (flavorConfiguration != null) {
-                    extendFrom.add(flavorConfiguration)
-                }
-                if (buildTypeConfiguration != null) {
-                    extendFrom.add(buildTypeConfiguration)
-                }
-                setExtendsFrom(extendFrom)
+                setExtendsFrom(
+                    listOfNotNull(
+                        mainConfiguration,
+                        flavorConfiguration,
+                        buildTypeConfiguration
+                    )
+                )
 
                 isCanBeResolved = true
                 isCanBeConsumed = false
 
                 attributes {
+
+                    // Main specialized attribute
                     it.attribute(
-                        Category.CATEGORY_ATTRIBUTE,
+                        Usage.USAGE_ATTRIBUTE,
                         project.objects.named(
-                            Category::class.java,
-                            ATTRIBUTE_CATEGORY_BASELINE_PROFILE
+                            Usage::class.java, ATTRIBUTE_USAGE_BASELINE_PROFILE
                         )
                     )
+
+                    // Build type
                     it.attribute(
-                        ATTRIBUTE_BUILD_TYPE,
-                        buildTypeName
+                        BuildTypeAttr.ATTRIBUTE,
+                        project.objects.named(
+                            BuildTypeAttr::class.java, buildTypeName
+                        )
                     )
+
+                    // Jvm Environment
                     it.attribute(
-                        ATTRIBUTE_FLAVOR,
-                        flavorName
+                        TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                        project.objects.named(
+                            TargetJvmEnvironment::class.java, ATTRIBUTE_TARGET_JVM_ENVIRONMENT
+                        )
                     )
+
+                    // Agp version
+                    it.attribute(
+                        AgpVersionAttr.ATTRIBUTE,
+                        project.objects.named(
+                            AgpVersionAttr::class.java, project.agpVersionString()
+                        )
+                    )
+
+                    // Baseline Profile Plugin Version
+                    it.attribute(
+                        BaselineProfilePluginVersionAttr.ATTRIBUTE,
+                        project.objects.named(
+                            BaselineProfilePluginVersionAttr::class.java,
+                            ATTRIBUTE_BASELINE_PROFILE_PLUGIN_VERSION
+                        )
+                    )
+
+                    // Product flavors
+                    productFlavors.forEach { (flavorName, flavorValue) ->
+                        it.attribute(
+                            @Suppress("UnstableApiUsage")
+                            ProductFlavorAttr.of(flavorName),
+                            project.objects.named(
+                                ProductFlavorAttr::class.java, flavorValue
+                            )
+                        )
+                    }
                 }
             }
     }
