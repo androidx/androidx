@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.util.Size
 import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.SessionConfig
@@ -31,8 +32,10 @@ import androidx.camera.core.processing.SurfaceEdge
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeDeferrableSurface
 import androidx.camera.testing.fakes.FakeUseCase
+import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,9 +61,12 @@ class VirtualCameraTest {
             .addSurface(FakeDeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE)).build()
     }
 
+    private val surfaceEdgesToClose = mutableListOf<SurfaceEdge>()
     private val parentCamera = FakeCamera()
     private val child1 = FakeUseCase()
-    private val child2 = FakeUseCase()
+    private val child2 = FakeUseCaseConfig.Builder()
+        .setMirrorMode(MIRROR_MODE_ON)
+        .build()
     private val childrenEdges = mapOf(
         Pair(child1 as UseCase, createSurfaceEdge()),
         Pair(child2 as UseCase, createSurfaceEdge())
@@ -71,6 +77,13 @@ class VirtualCameraTest {
     @Before
     fun setUp() {
         virtualCamera = VirtualCamera(parentCamera, setOf(child1, child2), useCaseConfigFactory)
+    }
+
+    @After
+    fun tearDown() {
+        for (surfaceEdge in surfaceEdgesToClose) {
+            surfaceEdge.close()
+        }
     }
 
     @Test
@@ -142,6 +155,28 @@ class VirtualCameraTest {
     }
 
     @Test
+    fun getChildrenOutConfigs() {
+        // Arrange.
+        val cropRect = Rect(10, 10, 410, 310)
+
+        // Act.
+        val outConfigs = virtualCamera.getChildrenOutConfigs(
+            createSurfaceEdge(cropRect = cropRect)
+        )
+
+        // Assert: child1
+        val outConfig1 = outConfigs[child1]!!
+        assertThat(outConfig1.cropRect).isEqualTo(cropRect)
+        assertThat(outConfig1.size).isEqualTo(Size(400, 300))
+        assertThat(outConfig1.mirroring).isFalse()
+        // Assert: child2
+        val outConfig2 = outConfigs[child2]!!
+        assertThat(outConfig2.cropRect).isEqualTo(cropRect)
+        assertThat(outConfig2.size).isEqualTo(Size(400, 300))
+        assertThat(outConfig2.mirroring).isTrue()
+    }
+
+    @Test
     fun updateChildrenSpec_updateAndNotifyChildren() {
         // Act: update children with the map.
         virtualCamera.setChildrenEdges(childrenEdges)
@@ -150,17 +185,26 @@ class VirtualCameraTest {
         assertThat(child2.attachedStreamSpec!!.resolution).isEqualTo(INPUT_SIZE)
     }
 
-    private fun createSurfaceEdge(): SurfaceEdge {
+    private fun createSurfaceEdge(
+        target: Int = PREVIEW,
+        format: Int = INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+        streamSpec: StreamSpec = StreamSpec.builder(INPUT_SIZE).build(),
+        matrix: Matrix = Matrix(),
+        hasCameraTransform: Boolean = true,
+        cropRect: Rect = Rect(),
+        rotationDegrees: Int = 0,
+        mirroring: Boolean = false
+    ): SurfaceEdge {
         return SurfaceEdge(
-            PREVIEW,
-            INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-            StreamSpec.builder(INPUT_SIZE).build(),
-            Matrix(),
-            true,
-            Rect(),
-            0,
-            false
-        )
+            target,
+            format,
+            streamSpec,
+            matrix,
+            hasCameraTransform,
+            cropRect,
+            rotationDegrees,
+            mirroring
+        ).also { surfaceEdgesToClose.add(it) }
     }
 
     private fun verifyEdge(child: UseCase, isClosed: Boolean, hasProvider: Boolean) {

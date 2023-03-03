@@ -32,6 +32,8 @@ import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.ImageCapture.ImageCaptureRequest
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor.ImageCaptor
+import androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON
+import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CaptureConfig
@@ -159,6 +161,17 @@ class ImageCaptureTest {
         assertThat(imageCapture.isEffectTargetsSupported(PREVIEW)).isFalse()
         assertThat(imageCapture.isEffectTargetsSupported(VIDEO_CAPTURE)).isFalse()
         assertThat(imageCapture.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE)).isFalse()
+    }
+
+    @Test
+    fun defaultMirrorModeIsOff() {
+        val imageCapture = ImageCapture.Builder().build()
+        assertThat(imageCapture.mirrorModeInternal).isEqualTo(MIRROR_MODE_OFF)
+    }
+
+    @Test(expected = UnsupportedOperationException::class)
+    fun setMirrorMode_throwException() {
+        ImageCapture.Builder().setMirrorMode(MIRROR_MODE_FRONT_ON)
     }
 
     @Test

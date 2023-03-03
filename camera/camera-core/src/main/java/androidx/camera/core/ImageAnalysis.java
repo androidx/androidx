@@ -1258,6 +1258,18 @@ public final class ImageAnalysis extends UseCase {
         }
 
         /**
+         * setMirrorMode is not supported on ImageAnalysis.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+            throw new UnsupportedOperationException("setMirrorMode is not supported.");
+        }
+
+        /**
          * Sets the resolution of the intended target from this configuration.
          *
          * <p>The target resolution attempts to establish a minimum bound for the image resolution.
