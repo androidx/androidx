@@ -21,9 +21,11 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -48,6 +50,14 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         private const val BASELINE_PROFILE_FILENAME = "baseline-prof.txt"
     }
 
+    @get: Input
+    @get: Optional
+    abstract val variantName: Property<String>
+
+    @get: Input
+    @get: Optional
+    abstract val hasDependencies: Property<Boolean>
+
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val baselineProfileFileCollection: ConfigurableFileCollection
@@ -61,16 +71,15 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
     @TaskAction
     fun exec() {
 
-        // Check if there are no dependencies.
-        if (baselineProfileFileCollection.files.isEmpty()) {
+        if (hasDependencies.isPresent && !hasDependencies.get()) {
             throw GradleException(
                 """
                 The baseline profile consumer plugin is applied to this module but no dependency
-                has been set or the added dependencies are not generating any artifact. Please
-                review your build.gradle configuration making sure that a `baselineprofile`
-                dependency exists and points to a valid `com.android.test` module that has the
-                `androidx.baselineprofile` or `androidx.baselineprofile.producer` plugin applied.
-            """.trimIndent()
+                has been set. Please review the configuration of build.gradle for the module
+                `${project.path}` making sure that a `baselineProfile` dependency exists and
+                points to a valid `com.android.test` module that has the `androidx.baselineprofile`
+                or `androidx.baselineprofile.producer` plugin applied.
+                """.trimIndent()
             )
         }
 
@@ -85,18 +94,13 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 }.reversed()
             )
 
-        // The profile rules here are:
-        // - read from the configuration artifacts and merged in a single list
-        // - the list is sorted (since we group by class later, we want the input to the group by
-        //      operation not to be influenced by reading order)
-        // - group by class and method (ignoring flag) and for each group keep only the first value
-        // - apply the filters
-        // - sort with comparator
+        // Read the profile rules from the file collection that contains the profile artifacts from
+        // all the configurations for this variant and merge them in a single list.
         val profileRules = baselineProfileFileCollection.files
             .flatMap {
                 if (!it.exists()) {
-                    // Note this can happen only if this task is misconfigured because of a bug and
-                    // not because of any user configuration.
+                    // Note that this can happen only if this task is misconfigured because of a
+                    // bug and not because of any user configuration.
                     throw GradleException(
                         """
                         The specified merge task input `${it.absolutePath}` does not exist.
@@ -109,6 +113,25 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                     it.listFiles()!!.flatMap { f -> f.readLines() }
                 }
             }
+
+        if (variantName.isPresent && profileRules.isEmpty()) {
+            logger.warn(
+                """
+                No baseline profile rules were generated for the variant `${variantName.get()}`.
+                This is most likely because there are no instrumentation test for it. If this
+                is not intentional check that tests for this variant exist in the `baselineProfile`
+                dependency module.
+            """.trimIndent()
+            )
+        }
+
+        // The profile rules here are:
+        // - sorted (since we group by class later, we want the input to the group by operation not
+        //      to be influenced by reading order)
+        // - group by class and method (ignoring flag) and for each group keep only the first value
+        // - apply the filters
+        // - sort with comparator
+        val filteredProfileRules = profileRules
             .sorted()
             .asSequence()
             .mapNotNull { ProfileRule.parse(it) }
@@ -133,7 +156,8 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             .sortedWith(ProfileRule.comparator)
             .map { it.underlying }
 
-        if (profileRules.isEmpty()) {
+        // Check if the filters filtered out all the rules.
+        if (profileRules.isNotEmpty() && filteredProfileRules.isEmpty() && rules.isNotEmpty()) {
             throw GradleException(
                 """
                 The baseline profile consumer plugin is configured with filters that exclude all
@@ -147,7 +171,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             .file(BASELINE_PROFILE_FILENAME)
             .get()
             .asFile
-            .writeText(profileRules.joinToString(System.lineSeparator()))
+            .writeText(filteredProfileRules.joinToString(System.lineSeparator()))
     }
 
     private fun Pair<RuleType, String>.isInclude(): Boolean = first == RuleType.INCLUDE
