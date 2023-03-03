@@ -92,8 +92,8 @@ internal class EmojiView @JvmOverloads constructor(
     var emoji: CharSequence? = null
         set(value) {
             field = value
-            if (value != null) {
-                post {
+            post {
+                if (value != null) {
                     if (value == this.emoji) {
                         drawEmoji(
                             if (EmojiPickerView.emojiCompatLoaded)
@@ -104,9 +104,9 @@ internal class EmojiView @JvmOverloads constructor(
                         contentDescription = value
                     }
                     invalidate()
+                } else {
+                    offscreenCanvasBitmap.eraseColor(Color.TRANSPARENT)
                 }
-            } else {
-                offscreenCanvasBitmap.eraseColor(Color.TRANSPARENT)
             }
         }
 
