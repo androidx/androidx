@@ -17,7 +17,6 @@
 package androidx.tv.foundation.lazy.list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
@@ -25,13 +24,17 @@ import androidx.tv.foundation.ExperimentalTvFoundationApi
 
 @Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @OptIn(ExperimentalFoundationApi::class)
-internal class TvLazyListScopeImpl : TvLazyListScope {
-
-    private val _intervals = MutableIntervalList<LazyListIntervalContent>()
-    val intervals: IntervalList<LazyListIntervalContent> = _intervals
+internal class TvLazyListIntervalContent(
+    content: TvLazyListScope.() -> Unit,
+) : LazyLayoutIntervalContent<TvLazyListInterval>(), TvLazyListScope {
+    override val intervals: MutableIntervalList<TvLazyListInterval> = MutableIntervalList()
 
     private var _headerIndexes: MutableList<Int>? = null
     val headerIndexes: List<Int> get() = _headerIndexes ?: emptyList()
+
+    init {
+        apply(content)
+    }
 
     override fun items(
         count: Int,
@@ -39,9 +42,9 @@ internal class TvLazyListScopeImpl : TvLazyListScope {
         contentType: (index: Int) -> Any?,
         itemContent: @Composable TvLazyListItemScope.(index: Int) -> Unit
     ) {
-        _intervals.addInterval(
+        intervals.addInterval(
             count,
-            LazyListIntervalContent(
+            TvLazyListInterval(
                 key = key,
                 type = contentType,
                 item = itemContent
@@ -54,9 +57,9 @@ internal class TvLazyListScopeImpl : TvLazyListScope {
         contentType: Any?,
         content: @Composable TvLazyListItemScope.() -> Unit
     ) {
-        _intervals.addInterval(
+        intervals.addInterval(
             1,
-            LazyListIntervalContent(
+            TvLazyListInterval(
                 key = if (key != null) { _: Int -> key } else null,
                 type = { contentType },
                 item = { content() }
@@ -73,15 +76,15 @@ internal class TvLazyListScopeImpl : TvLazyListScope {
         val headersIndexes = _headerIndexes ?: mutableListOf<Int>().also {
             _headerIndexes = it
         }
-        headersIndexes.add(_intervals.size)
+        headersIndexes.add(intervals.size)
 
         item(key, contentType, content)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyListIntervalContent(
+internal class TvLazyListInterval(
     override val key: ((index: Int) -> Any)?,
     override val type: ((index: Int) -> Any?),
     val item: @Composable TvLazyListItemScope.(index: Int) -> Unit
-) : LazyLayoutIntervalContent
+) : LazyLayoutIntervalContent.Interval

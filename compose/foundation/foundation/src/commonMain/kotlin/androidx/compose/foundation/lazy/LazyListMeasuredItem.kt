@@ -28,7 +28,7 @@ import androidx.compose.ui.util.fastForEach
  * Represents one measured item of the lazy list. It can in fact consist of multiple placeables
  * if the user emit multiple layout nodes in the item callback.
  */
-internal class LazyMeasuredItem @ExperimentalFoundationApi constructor(
+internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
     val index: Int,
     private val placeables: List<Placeable>,
     private val isVertical: Boolean,

@@ -43,7 +43,7 @@ import kotlin.math.sign
 internal fun measureLazyList(
     itemsCount: Int,
     itemProvider: LazyListItemProvider,
-    measuredItemProvider: LazyMeasuredItemProvider,
+    measuredItemProvider: LazyListMeasuredItemProvider,
     mainAxisAvailableSize: Int,
     beforeContentPadding: Int,
     afterContentPadding: Int,
@@ -107,7 +107,7 @@ internal fun measureLazyList(
         }
 
         // this will contain all the MeasuredItems representing the visible items
-        val visibleItems = mutableListOf<LazyMeasuredItem>()
+        val visibleItems = mutableListOf<LazyListMeasuredItem>()
 
         // define min and max offsets
         val minOffset = -beforeContentPadding + if (spaceBetweenItems < 0) spaceBetweenItems else 0
@@ -343,16 +343,16 @@ internal fun measureLazyList(
 @OptIn(ExperimentalFoundationApi::class)
 private fun createItemsAfterList(
     beyondBoundsInfo: LazyListBeyondBoundsInfo,
-    visibleItems: MutableList<LazyMeasuredItem>,
-    measuredItemProvider: LazyMeasuredItemProvider,
+    visibleItems: MutableList<LazyListMeasuredItem>,
+    measuredItemProvider: LazyListMeasuredItemProvider,
     itemProvider: LazyListItemProvider,
     itemsCount: Int,
     beyondBoundsItemCount: Int,
     pinnedItems: LazyLayoutPinnedItemList
-): List<LazyMeasuredItem> {
+): List<LazyListMeasuredItem> {
     fun LazyListBeyondBoundsInfo.endIndex() = min(end, itemsCount - 1)
 
-    var list: MutableList<LazyMeasuredItem>? = null
+    var list: MutableList<LazyListMeasuredItem>? = null
 
     var end = visibleItems.last().index
 
@@ -387,15 +387,15 @@ private fun createItemsAfterList(
 private fun createItemsBeforeList(
     beyondBoundsInfo: LazyListBeyondBoundsInfo,
     currentFirstItemIndex: DataIndex,
-    measuredItemProvider: LazyMeasuredItemProvider,
+    measuredItemProvider: LazyListMeasuredItemProvider,
     itemProvider: LazyListItemProvider,
     itemsCount: Int,
     beyondBoundsItemCount: Int,
     pinnedItems: LazyLayoutPinnedItemList
-): List<LazyMeasuredItem> {
+): List<LazyListMeasuredItem> {
     fun LazyListBeyondBoundsInfo.startIndex() = min(start, itemsCount - 1)
 
-    var list: MutableList<LazyMeasuredItem>? = null
+    var list: MutableList<LazyListMeasuredItem>? = null
 
     var start = currentFirstItemIndex.value
 
@@ -427,12 +427,12 @@ private fun createItemsBeforeList(
 }
 
 /**
- * Calculates [LazyMeasuredItem]s offsets.
+ * Calculates [LazyListMeasuredItem]s offsets.
  */
 private fun calculateItemsOffsets(
-    items: List<LazyMeasuredItem>,
-    extraItemsBefore: List<LazyMeasuredItem>,
-    extraItemsAfter: List<LazyMeasuredItem>,
+    items: List<LazyListMeasuredItem>,
+    extraItemsBefore: List<LazyListMeasuredItem>,
+    extraItemsAfter: List<LazyListMeasuredItem>,
     layoutWidth: Int,
     layoutHeight: Int,
     finalMainAxisOffset: Int,
