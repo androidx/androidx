@@ -28,6 +28,7 @@ import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.ICustomTabsService;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -163,6 +164,8 @@ public abstract class CustomTabsService extends Service {
      */
     public static final int FILE_PURPOSE_TRUSTED_WEB_ACTIVITY_SPLASH_IMAGE = 1;
 
+    private static final String TAG = "CustomTabsService";
+
     final SimpleArrayMap<IBinder, DeathRecipient> mDeathRecipientMap = new SimpleArrayMap<>();
 
     private ICustomTabsService.Stub mBinder = new ICustomTabsService.Stub() {
@@ -258,6 +261,32 @@ public abstract class CustomTabsService extends Service {
             return CustomTabsService.this.receiveFile(
                     new CustomTabsSessionToken(callback, getSessionIdFromBundle(extras)),
                     uri, purpose, extras);
+        }
+
+        @Override
+        public boolean isEngagementSignalsApiAvailable(ICustomTabsCallback customTabsCallback,
+                @NonNull Bundle extras) {
+            return CustomTabsService.this.isEngagementSignalsApiAvailable(
+                    new CustomTabsSessionToken(customTabsCallback, getSessionIdFromBundle(extras)),
+                    extras);
+        }
+
+        @Override
+        public boolean setEngagementSignalsCallback(
+                @NonNull ICustomTabsCallback customTabsCallback, @NonNull IBinder callback,
+                @NonNull Bundle extras) {
+            EngagementSignalsCallbackRemote remote = EngagementSignalsCallbackRemote.fromBinder(
+                    callback);
+            return CustomTabsService.this.setEngagementSignalsCallback(
+                    new CustomTabsSessionToken(customTabsCallback, getSessionIdFromBundle(extras)),
+                    remote, extras);
+        }
+
+        @Override
+        public int getGreatestScrollPercentage(@NonNull ICustomTabsCallback callback,
+                @NonNull Bundle extras) throws RemoteException {
+            return CustomTabsService.this.getGreatestScrollPercentage(
+                    new CustomTabsSessionToken(callback, getSessionIdFromBundle(extras)), extras);
         }
 
         @SuppressWarnings("deprecation")
@@ -458,4 +487,65 @@ public abstract class CustomTabsService extends Service {
      */
     protected abstract boolean receiveFile(@NonNull CustomTabsSessionToken sessionToken,
             @NonNull Uri uri, @FilePurpose int purpose, @Nullable Bundle extras);
+
+    /**
+     * Returns whether the Engagement Signals API is available. The availability of the Engagement
+     * Signals API may change at runtime. If an {@link EngagementSignalsCallback} has been set, an
+     * {@link EngagementSignalsCallback#onSessionEnded} signal will be sent if the API becomes
+     * unavailable later.
+     *
+     * @param sessionToken The unique identifier for the session.
+     * @param extras Reserved for future use.
+     * @return Whether the Engagement Signals API is available. A false value means
+     *         {@link #getGreatestScrollPercentage} will throw an
+     *         {@link UnsupportedOperationException} if called, and
+     *         {@link #setEngagementSignalsCallback} will return false and not set the callback.
+     */
+    protected boolean isEngagementSignalsApiAvailable(@NonNull CustomTabsSessionToken sessionToken,
+            @NonNull Bundle extras) {
+        return false;
+    }
+
+    /**
+     * Sets an {@link EngagementSignalsCallbackRemote} to execute callbacks for events related to
+     * the user's engagement with the webpage within the tab.
+     *
+     * @param sessionToken The unique identifier for the session.
+     * @param callback The {@link EngagementSignalsCallbackRemote} to execute the callbacks.
+     * @param extras Reserved for future use.
+     * @return Whether the callback connection is allowed. If false, no callbacks will be called for
+     *         this session.
+     */
+    // This is called by the implementation which already has the ability to decide on which
+    // thread to run the callbacks.
+    @SuppressWarnings("ExecutorRegistration")
+    protected boolean setEngagementSignalsCallback(
+            @NonNull CustomTabsSessionToken sessionToken,
+            @NonNull EngagementSignalsCallbackRemote callback, @NonNull Bundle extras) {
+        return false;
+    }
+
+    /**
+     * Returns the greatest scroll percentage the user has reached on the page based on the page
+     * height at the moment the percentage was reached. This method only returns values that have
+     * been or would have been reported by
+     * {@link EngagementSignalsCallback#onGreatestScrollPercentageIncreased}, and the percentage
+     * is not updated if the page height changes after the last scroll event that caused the
+     * greatest scroll percentage to change. The greatest scroll percentage is reset when the user
+     * navigates to a different page. Note that an {@link EngagementSignalsCallback} does not need
+     * to be registered before calling this method.
+     *
+     * @param sessionToken The unique identifier for the session.
+     * @param extras Reserved for future use.
+     * @return An integer in the range of [0, 100] indicating the amount that the user has
+     *         scrolled the page with 0 indicating the user has never scrolled the page and 100
+     *         indicating they have scrolled to the very bottom.
+     * @throws UnsupportedOperationException If this method isn't supported, i.e.
+     *         {@link #isEngagementSignalsApiAvailable} returns false.
+     */
+    @IntRange(from = 0, to = 100)
+    protected int getGreatestScrollPercentage(
+            @NonNull CustomTabsSessionToken sessionToken, @NonNull Bundle extras) {
+        throw new UnsupportedOperationException("Engagement Signals API is not available.");
+    }
 }

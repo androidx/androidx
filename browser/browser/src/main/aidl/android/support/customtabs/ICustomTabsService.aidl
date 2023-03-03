@@ -20,6 +20,7 @@ import android.content.ComponentName;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.ICustomTabsCallback;
+import android.support.customtabs.IEngagementSignalsCallback;
 
 import java.util.List;
 
@@ -40,4 +41,7 @@ interface ICustomTabsService {
     int postMessage(in ICustomTabsCallback callback, String message, in Bundle extras) = 7;
     boolean validateRelationship(in ICustomTabsCallback callback, int relation, in Uri origin, in Bundle extras) = 8;
     boolean receiveFile(in ICustomTabsCallback callback, in Uri uri, int purpose, in Bundle extras) = 11;
+    boolean isEngagementSignalsApiAvailable(in ICustomTabsCallback customTabsCallback, in Bundle extras) = 12;
+    boolean setEngagementSignalsCallback(in ICustomTabsCallback customTabsCallback, in IBinder callback, in Bundle extras) = 13;
+    int getGreatestScrollPercentage(in ICustomTabsCallback customTabsCallback, in Bundle extras) = 14;
 }

@@ -20,22 +20,29 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.ICustomTabsService;
+import android.support.customtabs.IEngagementSignalsCallback;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.browser.customtabs.CustomTabsService.Relation;
 import androidx.browser.customtabs.CustomTabsService.Result;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * A class to be used for Custom Tabs related communication. Clients that want to launch Custom Tabs
@@ -296,6 +303,179 @@ public final class CustomTabsSession {
         }
     }
 
+    /**
+     * Returns whether the Engagement Signals API is available. The availability of the Engagement
+     * Signals API may change at runtime. If an {@link EngagementSignalsCallback} has been set, an
+     * {@link EngagementSignalsCallback#onSessionEnded} signal will be sent if the API becomes
+     * unavailable later.
+     *
+     * @param extras Reserved for future use.
+     * @return Whether the Engagement Signals API is available. A false value means
+     *         {@link #getGreatestScrollPercentage} will throw an
+     *         {@link UnsupportedOperationException} if called, and
+     *         {@link #setEngagementSignalsCallback} will return false and not set the callback.
+     * @throws RemoteException If the Service dies while responding to the request.
+     * @throws UnsupportedOperationException If this method isn't supported by the Custom Tabs
+     *         implementation.
+     */
+    public boolean isEngagementSignalsApiAvailable(@NonNull Bundle extras) throws RemoteException {
+        try {
+            return mService.isEngagementSignalsApiAvailable(mCallback, extras);
+        } catch (SecurityException e) {
+            throw new UnsupportedOperationException("This method isn't supported by the "
+                    + "Custom Tabs implementation.", e);
+        }
+    }
+
+    /**
+     * Sets an {@link EngagementSignalsCallback} to receive callbacks for events related to the
+     * user's engagement with webpage within the tab.
+     *
+     * Note that the callback will be executed on the main thread using
+     * {@link Looper#getMainLooper()}. To specify the execution thread, use
+     * {@link #setEngagementSignalsCallback(Executor, EngagementSignalsCallback, Bundle)}.
+     *
+     * @param callback The {@link EngagementSignalsCallback} to receive the user engagement signals.
+     * @param extras Reserved for future use.
+     * @return Whether the callback connection is allowed. If false, no callbacks will be called for
+     *         this session.
+     * @throws RemoteException If the Service dies while responding to the request.
+     * @throws UnsupportedOperationException If this method isn't supported by the Custom Tabs
+     *         implementation.
+     */
+    @RequiresFeature(name = CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement =
+            "androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable")
+    public boolean setEngagementSignalsCallback(@NonNull EngagementSignalsCallback callback,
+            @NonNull Bundle extras) throws RemoteException {
+        IEngagementSignalsCallback wrapper = createEngagementSignalsCallbackWrapper(callback);
+        try {
+            return mService.setEngagementSignalsCallback(mCallback, wrapper.asBinder(), extras);
+        } catch (SecurityException e) {
+            throw new UnsupportedOperationException("This method isn't supported by the "
+                    + "Custom Tabs implementation.", e);
+        }
+    }
+
+    private IEngagementSignalsCallback.Stub createEngagementSignalsCallbackWrapper(
+            @NonNull final EngagementSignalsCallback callback) {
+        return new IEngagementSignalsCallback.Stub() {
+            private final Handler mHandler = new Handler(Looper.getMainLooper());
+
+            @Override
+            public void onVerticalScrollEvent(boolean isDirectionUp, Bundle extras) {
+                mHandler.post(() -> callback.onVerticalScrollEvent(isDirectionUp, extras));
+            }
+
+            @Override
+            public void onGreatestScrollPercentageIncreased(int scrollPercentage, Bundle extras) {
+                mHandler.post(() -> callback.onGreatestScrollPercentageIncreased(
+                        scrollPercentage, extras));
+            }
+
+            @Override
+            public void onSessionEnded(boolean didUserInteract, Bundle extras) {
+                mHandler.post(() -> callback.onSessionEnded(didUserInteract, extras));
+            }
+        };
+    }
+
+    /**
+     * Sets an {@link EngagementSignalsCallback} to receive callbacks for events related to the
+     * user's engagement with webpage within the tab.
+     *
+     * @param executor The {@link Executor} to be used to execute the callbacks.
+     * @param callback The {@link EngagementSignalsCallback} to receive the user engagement signals.
+     * @param extras Reserved for future use.
+     * @return Whether the callback connection is allowed. If false, no callbacks will be called for
+     *         this session.
+     * @throws RemoteException If the Service dies while responding to the request.
+     * @throws UnsupportedOperationException If this method isn't supported by the Custom Tabs
+     *         implementation.
+     */
+    @RequiresFeature(name = CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement =
+            "androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable")
+    public boolean setEngagementSignalsCallback(@NonNull Executor executor,
+            @NonNull EngagementSignalsCallback callback,
+            @NonNull Bundle extras) throws RemoteException {
+        IEngagementSignalsCallback wrapper =
+                createEngagementSignalsCallbackWrapper(callback, executor);
+        try {
+            return mService.setEngagementSignalsCallback(mCallback, wrapper.asBinder(), extras);
+        } catch (SecurityException e) {
+            throw new UnsupportedOperationException("This method isn't supported by the "
+                        + "Custom Tabs implementation.", e);
+        }
+    }
+
+    private IEngagementSignalsCallback.Stub createEngagementSignalsCallbackWrapper(
+            @NonNull final EngagementSignalsCallback callback, @NonNull Executor executor) {
+        return new IEngagementSignalsCallback.Stub() {
+            private final Executor mExecutor = executor;
+
+            @Override
+            public void onVerticalScrollEvent(boolean isDirectionUp, Bundle extras) {
+                long identity = Binder.clearCallingIdentity();
+                try {
+                    mExecutor.execute(() -> callback.onVerticalScrollEvent(isDirectionUp, extras));
+                } finally {
+                    Binder.restoreCallingIdentity(identity);
+                }
+            }
+
+            @Override
+            public void onGreatestScrollPercentageIncreased(int scrollPercentage, Bundle extras) {
+                long identity = Binder.clearCallingIdentity();
+                try {
+                    mExecutor.execute(() -> callback.onGreatestScrollPercentageIncreased(
+                            scrollPercentage, extras));
+                } finally {
+                    Binder.restoreCallingIdentity(identity);
+                }
+            }
+
+            @Override
+            public void onSessionEnded(boolean didUserInteract, Bundle extras) {
+                long identity = Binder.clearCallingIdentity();
+                try {
+                    mExecutor.execute(() -> callback.onSessionEnded(didUserInteract, extras));
+                } finally {
+                    Binder.restoreCallingIdentity(identity);
+                }
+            }
+        };
+    }
+
+    /**
+     * Returns the greatest scroll percentage the user has reached on the page based on the page
+     * height at the moment the percentage was reached. This method only returns values that have
+     * been or would have been reported by
+     * {@link EngagementSignalsCallback#onGreatestScrollPercentageIncreased}, and the percentage
+     * is not updated if the page height changes after the last scroll event that caused the
+     * greatest scroll percentage to change. The greatest scroll percentage is reset when the user
+     * navigates to a different page. Note that an {@link EngagementSignalsCallback} does not need
+     * to be registered before calling this method.
+     *
+     * @param extras Reserved for future use.
+     * @return An integer in the range of [0, 100] indicating the amount that the user has
+     *         scrolled the page with 0 indicating the user has never scrolled the page and 100
+     *         indicating they have scrolled to the very bottom.
+     * @throws RemoteException If the Service dies while responding to the request.
+     * @throws UnsupportedOperationException If the Engagement Signals API isn't available, i.e.
+     *         {@link #isEngagementSignalsApiAvailable} returns false, or the method isn't supported
+     *         by the Custom Tabs implementation.
+     */
+    @RequiresFeature(name = CustomTabsFeatures.ENGAGEMENT_SIGNALS, enforcement =
+            "androidx.browser.customtabs.CustomTabsSession#isEngagementSignalsApiAvailable")
+    public @IntRange(from = 0, to = 100) int getGreatestScrollPercentage(@NonNull Bundle extras)
+            throws RemoteException {
+        try {
+            return mService.getGreatestScrollPercentage(mCallback, extras);
+        } catch (SecurityException e) {
+            throw new UnsupportedOperationException("This method isn't supported by the "
+                    + "Custom Tabs implementation.", e);
+        }
+    }
+
     private Bundle createBundleWithId(@Nullable Bundle bundle) {
         Bundle bundleWithId = new Bundle();
         if (bundle != null) bundleWithId.putAll(bundle);
@@ -414,6 +594,24 @@ public final class CustomTabsSession {
         public boolean receiveFile(ICustomTabsCallback callback, Uri uri, int purpose,
                 Bundle extras) throws RemoteException {
             return false;
+        }
+
+        @Override
+        public boolean isEngagementSignalsApiAvailable(ICustomTabsCallback customTabsCallback,
+                Bundle extras) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public boolean setEngagementSignalsCallback(ICustomTabsCallback customTabsCallback,
+                IBinder callback, Bundle extras) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public int getGreatestScrollPercentage(ICustomTabsCallback callback, Bundle extras)
+                throws RemoteException {
+            return 0;
         }
     }
 }
