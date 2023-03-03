@@ -25,7 +25,6 @@ import androidx.health.services.client.proto.ResponsesProto
 /**
  * Response containing [ExerciseUpdate] when it's updated.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseUpdateResponse(public val exerciseUpdate: ExerciseUpdate) :

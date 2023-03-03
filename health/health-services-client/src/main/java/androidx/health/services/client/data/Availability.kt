@@ -26,7 +26,6 @@ import androidx.health.services.client.proto.DataProto.Availability.DataTypeAvai
 public interface Availability {
     public val id: Int
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public fun toProto(): DataProto.Availability =
         DataProto.Availability.newBuilder()
@@ -34,7 +33,6 @@ public interface Availability {
             .build()
 
     public companion object {
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         public fun fromProto(proto: DataProto.Availability): Availability =

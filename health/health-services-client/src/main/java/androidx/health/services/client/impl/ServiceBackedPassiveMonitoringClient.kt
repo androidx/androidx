@@ -47,7 +47,6 @@ import java.util.concurrent.Executor
 /**
  * [PassiveMonitoringClient] implementation that is backed by Health Services.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
