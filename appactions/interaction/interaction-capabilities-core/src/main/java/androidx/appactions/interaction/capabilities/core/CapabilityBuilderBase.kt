@@ -105,17 +105,18 @@ abstract class CapabilityBuilderBase<
 
     /** Builds and returns this ActionCapability. */
     open fun build(): ActionCapability {
+        val checkedId = requireNotNull(id, { "setId must be called before build" })
         val checkedProperty = requireNotNull(property, { "property must not be null." })
         if (actionExecutor != null) {
             return SingleTurnCapabilityImpl(
-                id,
+                checkedId,
                 actionSpec,
                 checkedProperty,
                 actionExecutor!!,
             )
         } else {
             return TaskCapabilityImpl(
-                id,
+                checkedId,
                 actionSpec,
                 checkedProperty,
                 requireNotNull(

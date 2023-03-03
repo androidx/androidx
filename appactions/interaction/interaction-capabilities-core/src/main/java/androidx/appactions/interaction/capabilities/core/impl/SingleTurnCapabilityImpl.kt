@@ -32,7 +32,7 @@ internal class SingleTurnCapabilityImpl<
     ArgumentT,
     OutputT,
     > constructor(
-    override val id: String?,
+    override val id: String,
     val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
     val property: PropertyT,
     val actionExecutor: ActionExecutor<ArgumentT, OutputT>,
@@ -40,10 +40,10 @@ internal class SingleTurnCapabilityImpl<
     override val supportsMultiTurnTask = false
 
     override fun getAppAction(): AppAction {
-        val appActionBuilder = actionSpec.convertPropertyToProto(property).toBuilder()
+        return actionSpec.convertPropertyToProto(property).toBuilder()
             .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
-        id?.let(appActionBuilder::setIdentifier)
-        return appActionBuilder.build()
+            .setIdentifier(id)
+            .build()
     }
 
     override fun createSession(hostProperties: HostProperties): ActionCapabilitySession {
