@@ -38,6 +38,7 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
+import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.ImageFormatConstants;
@@ -82,6 +83,7 @@ final class SupportedSurfaceCombination {
     SurfaceSizeDefinition mSurfaceSizeDefinition;
     @NonNull
     private final DisplayInfoManager mDisplayInfoManager;
+    private final ResolutionCorrector mResolutionCorrector = new ResolutionCorrector();
 
     SupportedSurfaceCombination(@NonNull Context context, @NonNull String cameraId,
             @NonNull CameraManagerCompat cameraManagerCompat,
@@ -309,8 +311,11 @@ final class SupportedSurfaceCombination {
 
         // Collect supported output sizes for all use cases
         for (Integer index : useCasesPriorityOrder) {
-            List<Size> supportedOutputSizes = newUseCaseConfigsSupportedSizeMap.get(
-                    newUseCaseConfigs.get(index));
+            UseCaseConfig<?> useCaseConfig = newUseCaseConfigs.get(index);
+            List<Size> supportedOutputSizes = newUseCaseConfigsSupportedSizeMap.get(useCaseConfig);
+            supportedOutputSizes = mResolutionCorrector.insertOrPrioritize(
+                    SurfaceConfig.getConfigType(useCaseConfig.getInputFormat()),
+                    supportedOutputSizes);
             supportedOutputSizesList.add(supportedOutputSizes);
         }
 
