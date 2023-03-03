@@ -16,9 +16,9 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
@@ -389,7 +389,7 @@ public abstract class UseCase {
                 return false;
             case MIRROR_MODE_ON:
                 return true;
-            case MIRROR_MODE_FRONT_ON:
+            case MIRROR_MODE_ON_FRONT_ONLY:
                 return camera.isFrontFacing();
             default:
                 throw new AssertionError("Unknown mirrorMode: " + mirrorMode);

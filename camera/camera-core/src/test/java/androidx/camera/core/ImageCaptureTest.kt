@@ -33,7 +33,7 @@ import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.ImageCapture.ImageCaptureRequest
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor.ImageCaptor
-import androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON
+import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraFactory
@@ -193,7 +193,7 @@ class ImageCaptureTest {
 
     @Test(expected = UnsupportedOperationException::class)
     fun setMirrorMode_throwException() {
-        ImageCapture.Builder().setMirrorMode(MIRROR_MODE_FRONT_ON)
+        ImageCapture.Builder().setMirrorMode(MIRROR_MODE_ON_FRONT_ONLY)
     }
 
     @Test

@@ -73,6 +73,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MirrorMode;
+import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
@@ -382,18 +383,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         setTargetRotation(orientationDegreesToSurfaceRotation(degrees));
     }
 
-    // TODO: to public API
-
     /**
      * Returns the mirror mode.
      *
      * <p>The mirror mode is set by {@link VideoCapture.Builder#setMirrorMode(int)}. If not set,
-     * it is defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
+     * it defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
      *
      * @return The mirror mode of the intended target.
-     *
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @MirrorMode.Mirror
     public int getMirrorMode() {
         return getMirrorModeInternal();
@@ -1460,20 +1457,21 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        // TODO: to public API
-
         /**
          * Sets the mirror mode.
          *
          * <p>Valid values include: {@link MirrorMode#MIRROR_MODE_OFF},
-         * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_FRONT_ON}.
-         * If not set, it is defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
+         * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY}.
+         * If not set, it defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
+         *
+         * <p>This API only changes the mirroring behavior on VideoCapture, but does not affect
+         * other UseCases. If the application wants to be consistent with the default
+         * {@link Preview} behavior where the rear camera is not mirrored but the front camera is
+         * mirrored, then {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY} is recommended.
          *
          * @param mirrorMode The mirror mode of the intended target.
          * @return The current Builder.
-         *
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
         public Builder<T> setMirrorMode(@MirrorMode.Mirror int mirrorMode) {

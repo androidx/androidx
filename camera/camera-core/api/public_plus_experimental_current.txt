@@ -376,6 +376,12 @@ package androidx.camera.core {
     method public static float getDefaultPointSize();
   }
 
+  @RequiresApi(21) public class MirrorMode {
+    field public static final int MIRROR_MODE_OFF = 0; // 0x0
+    field public static final int MIRROR_MODE_ON = 1; // 0x1
+    field public static final int MIRROR_MODE_ON_FRONT_ONLY = 2; // 0x2
+  }
+
   @RequiresApi(21) public final class Preview extends androidx.camera.core.UseCase {
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public int getTargetRotation();
