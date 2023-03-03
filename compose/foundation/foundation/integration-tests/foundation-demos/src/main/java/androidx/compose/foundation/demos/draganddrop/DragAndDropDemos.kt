@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.draganddrop
+package androidx.compose.foundation.demos.draganddrop
 
-import androidx.collection.ArraySet
-import androidx.compose.ui.geometry.Offset
-import java.awt.dnd.DropTargetEvent as AwtDropTargetEvent
+import androidx.compose.foundation.samples.DragAndDropMultiAppSample
+import androidx.compose.foundation.samples.DragAndDropNestedSample
+import androidx.compose.runtime.Composable
 
-actual class DragAndDropTransfer
+@Composable
+fun DragAndDropMultiAppDemo() {
+    DragAndDropMultiAppSample()
+}
 
-/**
- * AWT [DragAndDropEvent] which delegates to a [AwtDropTargetEvent]
- */
-actual class DragAndDropEvent(
-    internal val dropTargetEvent: AwtDropTargetEvent,
-    internal actual val interestedNodes: ArraySet<DragAndDropModifierNode> = ArraySet()
-)
-
-internal actual val DragAndDropEvent.positionInRoot: Offset
-    get() = TODO()
+@Composable
+fun DragAndDropNestedDemo() {
+    DragAndDropNestedSample()
+}

@@ -26,6 +26,7 @@ import android.os.SystemClock
 import android.util.Log
 import android.util.LongSparseArray
 import android.util.SparseArray
+import android.view.DragEvent
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
@@ -54,6 +55,7 @@ import android.view.translation.ViewTranslationResponse
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.collection.ArraySet
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -71,7 +73,11 @@ import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.autofill.performAutofill
 import androidx.compose.ui.autofill.populateViewStructure
 import androidx.compose.ui.draganddrop.ComposeDragShadowBuilder
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropEventType
 import androidx.compose.ui.draganddrop.DragAndDropInfo
+import androidx.compose.ui.draganddrop.DragAndDropModifierNode
+import androidx.compose.ui.draganddrop.DragAndDropNode
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Exit
@@ -129,6 +135,7 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.UsageByParent
 import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.MeasureAndLayoutDelegate
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
@@ -230,6 +237,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         false
     }
 
+    private val dragAndDropModifierOnDragListener = DragAndDropModifierOnDragListener()
+
     private val canvasHolder = CanvasHolder()
 
     override val root = LayoutNode().also {
@@ -241,6 +250,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             .then(rotaryInputModifier)
             .then(focusOwner.modifier)
             .then(keyInputModifier)
+            .then(dragAndDropModifierOnDragListener.modifier)
     }
 
     override val rootForTest: RootForTest = this
@@ -601,6 +611,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         clipChildren = false
         ViewCompat.setAccessibilityDelegate(this, accessibilityDelegate)
         ViewRootForTest.onViewCreatedCallback?.invoke(this)
+        setOnDragListener(dragAndDropModifierOnDragListener)
         root.attach(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // Support for this feature in Compose is tracked here: b/207654434
@@ -2209,5 +2220,56 @@ private object AndroidComposeViewStartDragAndDropN {
         dragShadowBuilder,
         dragAndDropInfo.transfer.localState,
         dragAndDropInfo.transfer.flags,
+    )
+}
+
+/**
+ * A Class that provides access [View.OnDragListener] APIs for a [DragAndDropNode].
+ */
+private class DragAndDropModifierOnDragListener : View.OnDragListener {
+
+    private val rootDragAndDropNode = DragAndDropNode { null }
+    // TODO (TJ): Move this into the Owner
+    private val interestedNodes = ArraySet<DragAndDropModifierNode>()
+
+    val modifier: Modifier = object : ModifierNodeElement<DragAndDropNode>() {
+        override fun create() = rootDragAndDropNode
+
+        override fun update(node: DragAndDropNode) = Unit
+
+        override fun InspectorInfo.inspectableProperties() {
+            name = "RootDragAndDropNode"
+        }
+
+        override fun hashCode(): Int = rootDragAndDropNode.hashCode()
+
+        override fun equals(other: Any?) = other === this
+    }
+
+    override fun onDrag(
+        view: View,
+        event: DragEvent
+    ): Boolean = rootDragAndDropNode.onDragAndDropEvent(
+        event = DragAndDropEvent(
+            dragEvent = event,
+            interestedNodes = interestedNodes
+        ),
+        type = when (event.action) {
+            DragEvent.ACTION_DRAG_STARTED -> DragAndDropEventType.Started
+
+            DragEvent.ACTION_DRAG_ENTERED -> DragAndDropEventType.Entered
+
+            DragEvent.ACTION_DRAG_LOCATION -> DragAndDropEventType.Moved
+
+            DragEvent.ACTION_DRAG_EXITED -> DragAndDropEventType.Exited
+
+            DragEvent.ACTION_DROP -> DragAndDropEventType.Dropped
+
+            DragEvent.ACTION_DRAG_ENDED -> DragAndDropEventType.Ended.also {
+                interestedNodes.clear()
+            }
+
+            else -> DragAndDropEventType.Unknown
+        }
     )
 }
