@@ -117,7 +117,7 @@ android {
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
     sourceSets.androidTest.assets.srcDirs +=
-            project.rootDir.absolutePath + "/../../golden/wear/compose/material"
+            project.rootDir.absolutePath + "/golden/wear/compose/material"
     namespace "androidx.wear.compose.material"
     lint {
         baseline = file("lint-baseline.xml")

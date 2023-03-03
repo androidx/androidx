@@ -48,7 +48,7 @@ android {
 
     sourceSets {
         main.res.srcDirs += "src/main/res-public"
-        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear"
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/golden/wear/wear"
     }
 
     buildTypes.all {

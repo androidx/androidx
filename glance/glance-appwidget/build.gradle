@@ -94,7 +94,7 @@ android {
     resourcePrefix "glance_"
 
     sourceSets {
-        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/glance/glance-appwidget"
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/golden/glance/glance-appwidget"
     }
 
     buildTypes {

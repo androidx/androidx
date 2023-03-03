@@ -80,7 +80,7 @@ android {
     testOptions.unitTests.includeAndroidResources = true
 
     sourceSets {
-        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-tiles-renderer"
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/golden/wear/wear-tiles-renderer"
     }
     namespace "androidx.wear.tiles.renderer"
 }

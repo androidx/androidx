@@ -57,7 +57,7 @@ android {
         minSdkVersion 26
     }
     sourceSets.androidTest.assets.srcDirs +=
-            project.rootDir.absolutePath + "/../../golden/wear/wear-watchface-client"
+            project.rootDir.absolutePath + "/golden/wear/wear-watchface-client"
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true

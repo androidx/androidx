@@ -59,7 +59,7 @@ android {
     }
 
     sourceSets {
-        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-tiles-material"
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/golden/wear/wear-tiles-material"
     }
 
     defaultConfig {
