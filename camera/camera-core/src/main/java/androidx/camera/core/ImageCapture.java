@@ -2761,6 +2761,18 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
+         * setMirrorMode is not supported on ImageCapture.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+            throw new UnsupportedOperationException("setMirrorMode is not supported.");
+        }
+
+        /**
          * Sets the intended output target resolution.
          *
          * <p>The target resolution attempts to establish a minimum bound for the image resolution.

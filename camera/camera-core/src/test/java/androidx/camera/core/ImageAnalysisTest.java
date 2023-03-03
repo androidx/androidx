@@ -16,6 +16,9 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -154,6 +157,17 @@ public class ImageAnalysisTest {
     public void canSetQueueDepth() {
         assertThat(getMergedImageAnalysisConfig(null, null, QUEUE_DEPTH,
                 false).getImageQueueDepth()).isEqualTo(QUEUE_DEPTH);
+    }
+
+    @Test
+    public void defaultMirrorModeIsOff() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        assertThat(imageAnalysis.getMirrorModeInternal()).isEqualTo(MIRROR_MODE_OFF);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void setMirrorMode_throwException() {
+        new ImageAnalysis.Builder().setMirrorMode(MIRROR_MODE_FRONT_ON);
     }
 
     @Test

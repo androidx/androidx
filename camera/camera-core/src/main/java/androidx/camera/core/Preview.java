@@ -17,10 +17,12 @@
 package androidx.camera.core;
 
 import static androidx.camera.core.CameraEffect.PREVIEW;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MIRROR_MODE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
@@ -265,7 +267,7 @@ public final class Preview extends UseCase {
                 new Matrix(),
                 camera.getHasTransform(),
                 requireNonNull(getCropRect(streamSpec.getResolution())),
-                getRelativeRotation(camera, camera.isFrontFacing()),
+                getRelativeRotation(camera, isMirroringRequired(camera)),
                 shouldMirror(camera));
         mCameraEdge.addOnInvalidatedListener(this::notifyReset);
         SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(mCameraEdge);
@@ -303,7 +305,7 @@ public final class Preview extends UseCase {
         // Since PreviewView cannot mirror, we will always mirror preview stream during buffer
         // copy. If there has been a buffer copy, it means it's already mirrored. Otherwise,
         // mirror it for the front camera.
-        return camera.getHasTransform() && camera.isFrontFacing();
+        return camera.getHasTransform() && isMirroringRequired(camera);
     }
 
     /**
@@ -398,12 +400,12 @@ public final class Preview extends UseCase {
             if (mNode == null) {
                 surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(
                         cropRect,
-                        getRelativeRotation(cameraInternal, cameraInternal.isFrontFacing()),
+                        getRelativeRotation(cameraInternal, isMirroringRequired(cameraInternal)),
                         getAppTargetRotation(),
                         cameraInternal.getHasTransform()));
             } else {
                 mCameraEdge.setRotationDegrees(
-                        getRelativeRotation(cameraInternal, cameraInternal.isFrontFacing()));
+                        getRelativeRotation(cameraInternal, isMirroringRequired(cameraInternal)));
             }
         }
     }
@@ -742,6 +744,7 @@ public final class Preview extends UseCase {
     public static final class Defaults implements ConfigProvider<PreviewConfig> {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 2;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
+        private static final int DEFAULT_MIRROR_MODE = MIRROR_MODE_FRONT_ON;
 
         private static final PreviewConfig DEFAULT_CONFIG;
 
@@ -786,6 +789,7 @@ public final class Preview extends UseCase {
             }
 
             setTargetClass(Preview.class);
+            mutableConfig.insertOption(OPTION_MIRROR_MODE, Defaults.DEFAULT_MIRROR_MODE);
         }
 
         /**
@@ -964,6 +968,18 @@ public final class Preview extends UseCase {
             // SurfaceProvider) to transform the preview accordingly.
             getMutableConfig().insertOption(OPTION_APP_TARGET_ROTATION, rotation);
             return this;
+        }
+
+        /**
+         * setMirrorMode is not supported on Preview.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+            throw new UnsupportedOperationException("setMirrorMode is not supported.");
         }
 
         /**

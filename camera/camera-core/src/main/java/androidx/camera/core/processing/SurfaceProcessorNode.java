@@ -345,19 +345,19 @@ public class SurfaceProcessorNode implements
          * The target {@link UseCase} of the output stream.
          */
         @CameraEffect.Targets
-        abstract int getTargets();
+        public abstract int getTargets();
 
         /**
          * The format of the output stream.
          */
         @CameraEffect.Formats
-        abstract int getFormat();
+        public abstract int getFormat();
 
         /**
          * How the input should be cropped.
          */
         @NonNull
-        abstract Rect getCropRect();
+        public abstract Rect getCropRect();
 
         /**
          * The stream should scale to this size after cropping and rotating.
@@ -365,12 +365,12 @@ public class SurfaceProcessorNode implements
          * <p>The input stream should be scaled to match this size after cropping and rotating
          */
         @NonNull
-        abstract Size getSize();
+        public abstract Size getSize();
 
         /**
          * The whether the stream should be mirrored.
          */
-        abstract boolean getMirroring();
+        public abstract boolean getMirroring();
 
         /**
          * Creates an {@link OutConfig} instance from the input edge.

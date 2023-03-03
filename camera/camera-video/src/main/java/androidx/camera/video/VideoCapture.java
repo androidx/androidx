@@ -21,6 +21,7 @@ import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IM
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MIRROR_MODE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
@@ -70,6 +71,7 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
@@ -269,6 +271,23 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
     }
 
+    // TODO: to public API
+    /**
+     * Returns the mirror mode.
+     *
+     * <p>The mirror mode is set by {@link VideoCapture.Builder#setMirrorMode(int)}. If not set,
+     * it is defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
+     *
+     * @return The mirror mode of the intended target.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @MirrorMode.Mirror
+    public int getMirrorMode() {
+        return getMirrorModeInternal();
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -391,7 +410,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         SurfaceRequest surfaceRequest = mSurfaceRequest;
         Rect cropRect = mCropRect;
         if (cameraInternal != null && surfaceRequest != null && cropRect != null) {
-            int relativeRotation = getRelativeRotation(cameraInternal);
+            int relativeRotation = getRelativeRotation(cameraInternal,
+                    isMirroringRequired(cameraInternal));
             int targetRotation = getAppTargetRotation();
             if (mCameraEdge != null) {
                 mCameraEdge.setRotationDegrees(relativeRotation);
@@ -456,7 +476,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         VideoEncoderInfo videoEncoderInfo = getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
                 videoCapabilities, mediaSpec, resolution, targetFpsRange);
         mCropRect = calculateCropRect(resolution, videoEncoderInfo);
-        mNode = createNodeIfNeeded(isCropNeeded(mCropRect, resolution));
+        boolean shouldMirror = camera.getHasTransform() && isMirroringRequired(camera);
+        mNode = createNodeIfNeeded(isCropNeeded(mCropRect, resolution), shouldMirror);
         // Choose Timebase based on the whether the buffer is copied.
         Timebase timebase;
         if (mNode != null || !camera.getHasTransform()) {
@@ -479,8 +500,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     getSensorToBufferTransformMatrix(),
                     camera.getHasTransform(),
                     mCropRect,
-                    getRelativeRotation(camera),
-                    /*mirroring=*/false);
+                    getRelativeRotation(camera, isMirroringRequired(camera)),
+                    shouldMirror);
             cameraEdge.addOnInvalidatedListener(onSurfaceInvalidated);
             mCameraEdge = cameraEdge;
             SurfaceProcessorNode.OutConfig outConfig =
@@ -712,8 +733,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     @Nullable
-    private SurfaceProcessorNode createNodeIfNeeded(boolean isCropNeeded) {
-        if (getEffect() != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK || isCropNeeded) {
+    private SurfaceProcessorNode createNodeIfNeeded(boolean isCropNeeded, boolean mirroring) {
+        if (getEffect() != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK || isCropNeeded
+                || mirroring) {
             Logger.d(TAG, "Surface processing is enabled.");
             return new SurfaceProcessorNode(requireNonNull(getCamera()),
                     getEffect() != null ? getEffect().createSurfaceProcessorInternal() :
@@ -1308,6 +1330,27 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @Override
         public Builder<T> setTargetRotation(@RotationValue int rotation) {
             getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
+            return this;
+        }
+
+        // TODO: to public API
+        /**
+         * Sets the mirror mode.
+         *
+         * <p>Valid values include: {@link MirrorMode#MIRROR_MODE_OFF},
+         * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_FRONT_ON}.
+         * If not set, it is defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
+         *
+         * @param mirrorMode The mirror mode of the intended target.
+         * @return The current Builder.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder<T> setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+            getMutableConfig().insertOption(OPTION_MIRROR_MODE, mirrorMode);
             return this;
         }
 
