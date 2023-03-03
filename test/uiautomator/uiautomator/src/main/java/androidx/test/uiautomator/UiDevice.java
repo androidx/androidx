@@ -790,6 +790,9 @@ public class UiDevice implements Searchable {
     /**
      * Orients the device to the left and freezes rotation. Use {@link #unfreezeRotation()} to
      * un-freeze the rotation.
+     * <p>Note: This rotation is relative to the natural orientation which depends on the device
+     * type (e.g. phone vs. tablet). Consider using {@link #setOrientationPortrait()} and
+     * {@link #setOrientationLandscape()}.
      * @throws RemoteException never
      */
     public void setOrientationLeft() throws RemoteException {
@@ -800,6 +803,9 @@ public class UiDevice implements Searchable {
     /**
      * Orients the device to the right and freezes rotation. Use {@link #unfreezeRotation()} to
      * un-freeze the rotation.
+     * <p>Note: This rotation is relative to the natural orientation which depends on the device
+     * type (e.g. phone vs. tablet). Consider using {@link #setOrientationPortrait()} and
+     * {@link #setOrientationLandscape()}.
      * @throws RemoteException never
      */
     public void setOrientationRight() throws RemoteException {
@@ -810,11 +816,45 @@ public class UiDevice implements Searchable {
     /**
      * Orients the device to its natural orientation (0 or 180 degrees) and freezes rotation. Use
      * {@link #unfreezeRotation()} to un-freeze the rotation.
+     * <p>Note: The natural orientation depends on the device type (e.g. phone vs. tablet).
+     * Consider using {@link #setOrientationPortrait()} and {@link #setOrientationLandscape()}.
      * @throws RemoteException never
      */
     public void setOrientationNatural() throws RemoteException {
         Log.d(TAG, "Setting orientation to natural.");
         rotate(UiAutomation.ROTATION_FREEZE_0);
+    }
+
+    /**
+     * Orients the device to its portrait orientation (height > width) and freezes rotation. Use
+     * {@link #unfreezeRotation()} to un-freeze the rotation.
+     * @throws RemoteException never
+     */
+    public void setOrientationPortrait() throws RemoteException {
+        Log.d(TAG, "Setting orientation to portrait.");
+        if (getDisplayHeight() > getDisplayWidth()) {
+            freezeRotation(); // Already in portrait orientation.
+        } else if (isNaturalOrientation()) {
+            rotate(UiAutomation.ROTATION_FREEZE_90);
+        } else {
+            rotate(UiAutomation.ROTATION_FREEZE_0);
+        }
+    }
+
+    /**
+     * Orients the device to its landscape orientation (width > height) and freezes rotation. Use
+     * {@link #unfreezeRotation()} to un-freeze the rotation.
+     * @throws RemoteException never
+     */
+    public void setOrientationLandscape() throws RemoteException {
+        Log.d(TAG, "Setting orientation to landscape.");
+        if (getDisplayWidth() > getDisplayHeight()) {
+            freezeRotation(); // Already in landscape orientation.
+        } else if (isNaturalOrientation()) {
+            rotate(UiAutomation.ROTATION_FREEZE_90);
+        } else {
+            rotate(UiAutomation.ROTATION_FREEZE_0);
+        }
     }
 
     // Rotates the device and waits for the rotation to be detected.
