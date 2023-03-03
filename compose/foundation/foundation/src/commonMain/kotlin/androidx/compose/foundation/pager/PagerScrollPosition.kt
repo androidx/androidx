@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.pager.lazy
+package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.DataIndex
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,8 +31,8 @@ internal class PagerScrollPosition(
     initialPage: Int = 0,
     initialScrollOffset: Int = 0
 ) {
-    var firstVisiblePage by mutableStateOf(DataIndex(initialPage))
-    var currentPage by mutableStateOf(DataIndex(initialPage))
+    var firstVisiblePage by mutableStateOf(initialPage)
+    var currentPage by mutableStateOf(initialPage)
 
     var scrollOffset by mutableStateOf(initialScrollOffset)
         private set
@@ -58,13 +57,12 @@ internal class PagerScrollPosition(
 
             Snapshot.withoutReadObservation {
                 update(
-                    DataIndex(measureResult.firstVisiblePage?.index ?: 0),
+                    measureResult.firstVisiblePage?.index ?: 0,
                     scrollOffset
                 )
                 measureResult.closestPageToSnapPosition?.index?.let {
-                    val currentPage = DataIndex(it)
-                    if (currentPage != this.currentPage) {
-                        this.currentPage = currentPage
+                    if (it != this.currentPage) {
+                        this.currentPage = it
                     }
                 }
             }
@@ -82,15 +80,15 @@ internal class PagerScrollPosition(
      * c) there will be not enough pages to fill the viewport after the requested index, so we
      * would have to compose few elements before the asked index, changing the first visible page.
      */
-    fun requestPosition(index: DataIndex, scrollOffset: Int) {
+    fun requestPosition(index: Int, scrollOffset: Int) {
         update(index, scrollOffset)
         // clear the stored key as we have a direct request to scroll to [index] position and the
         // next [checkIfFirstVisibleItemWasMoved] shouldn't override this.
         lastKnownFirstPageKey = null
     }
 
-    private fun update(index: DataIndex, scrollOffset: Int) {
-        require(index.value >= 0f) { "Index should be non-negative (${index.value})" }
+    private fun update(index: Int, scrollOffset: Int) {
+        require(index >= 0f) { "Index should be non-negative ($index)" }
         if (index != this.firstVisiblePage) {
             this.firstVisiblePage = index
         }

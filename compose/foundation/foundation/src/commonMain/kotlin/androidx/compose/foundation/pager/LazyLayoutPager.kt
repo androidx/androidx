@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.pager.lazy
+package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clipScrollableContainer
@@ -37,10 +37,9 @@ import androidx.compose.foundation.lazy.layout.PinnableItem
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -48,8 +47,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filter
 
 @ExperimentalFoundationApi
 @Composable
@@ -94,16 +91,12 @@ internal fun Pager(
 
     val overscrollEffect = ScrollableDefaults.overscrollEffect()
 
-    // TODO(levima) Add test for pageContent change
-    val pagerItemProvider = remember(state, pageCount, key, pageContent as Any?) {
-        val intervalList = MutableIntervalList<PagerIntervalContent>().apply {
-            addInterval(pageCount, PagerIntervalContent(key = key, item = pageContent))
-        }
-        PagerLazyLayoutItemProvider(
-            state = state,
-            intervals = intervalList
-        )
-    }
+    val pagerItemProvider = rememberPagerItemProvider(
+        state = state,
+        pageContent = pageContent,
+        key = key,
+        pageCount = pageCount
+    )
 
     val beyondBoundsInfo = remember { LazyListBeyondBoundsInfo() }
 
@@ -124,14 +117,6 @@ internal fun Pager(
 
     val pagerFlingBehavior = remember(flingBehavior, state) {
         PagerWrapperFlingBehavior(flingBehavior, state)
-    }
-
-    // TODO(levima) Move this logic to measure pass
-    LaunchedEffect(state) {
-        snapshotFlow { state.isScrollInProgress }
-            .filter { !it }
-            .drop(1) // Initial scroll is false
-            .collect { state.updateOnScrollStopped() }
     }
 
     val pagerSemantics = if (userScrollEnabled) {
@@ -184,10 +169,13 @@ internal fun Pager(
 
 @ExperimentalFoundationApi
 internal class PagerLazyLayoutItemProvider(
-    intervals: IntervalList<PagerIntervalContent>,
-    val state: PagerState
+    val state: PagerState,
+    latestContent: () -> (@Composable (page: Int) -> Unit),
+    key: ((index: Int) -> Any)?,
+    pageCount: Int
 ) : LazyLayoutItemProvider {
-    private val pagerContent = PagerLayoutIntervalContent(intervals)
+    private val pagerContent =
+        PagerLayoutIntervalContent(latestContent(), key = key, pageCount = pageCount)
     private val keyToIndexMap: LazyLayoutKeyIndexMap by NearestRangeKeyIndexMapState(
         firstVisibleItemIndex = { state.firstVisiblePage },
         slidingWindowSize = { NearestItemsSlidingWindowSize },
@@ -211,11 +199,37 @@ internal class PagerLazyLayoutItemProvider(
 
 @OptIn(ExperimentalFoundationApi::class)
 private class PagerLayoutIntervalContent(
+    val pageContent: @Composable (page: Int) -> Unit,
+    val key: ((index: Int) -> Any)?,
+    val pageCount: Int
+) : LazyLayoutIntervalContent<PagerIntervalContent>() {
     override val intervals: IntervalList<PagerIntervalContent>
-) : LazyLayoutIntervalContent<PagerIntervalContent>()
+        get() = MutableIntervalList<PagerIntervalContent>().apply {
+            addInterval(pageCount, PagerIntervalContent(key = key, item = pageContent))
+        }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class PagerIntervalContent(
     override val key: ((page: Int) -> Any)?,
     val item: @Composable (page: Int) -> Unit
 ) : LazyLayoutIntervalContent.Interval
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun rememberPagerItemProvider(
+    state: PagerState,
+    pageContent: @Composable (page: Int) -> Unit,
+    key: ((index: Int) -> Any)?,
+    pageCount: Int
+): PagerLazyLayoutItemProvider {
+    val latestContent = rememberUpdatedState(pageContent)
+    return remember(state, latestContent, key, pageCount) {
+        PagerLazyLayoutItemProvider(
+            state = state,
+            latestContent = { latestContent.value },
+            key = key,
+            pageCount = pageCount
+        )
+    }
+}

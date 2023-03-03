@@ -31,7 +31,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PagerSwipeEdgeTest(
+class PagerSwipeEdgeTest(
     val config: ParamConfig
 ) : BasePagerTest(config) {
 

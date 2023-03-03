@@ -38,7 +38,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = config) {
+class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = config) {
 
     private val accessibilityNodeProvider: AccessibilityNodeProvider
         get() = checkNotNull(composeView) {
@@ -71,7 +71,7 @@ internal class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(confi
 
         rule.runOnIdle { assertThat(state.currentPage).isEqualTo(5) }
 
-        val actionBackward = if (isVertical) {
+        val actionBackward = if (vertical) {
             android.R.id.accessibilityActionPageUp
         } else {
             android.R.id.accessibilityActionPageLeft
@@ -89,7 +89,7 @@ internal class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(confi
         rule.runOnIdle { assertThat(state.currentPage).isEqualTo(4) }
         rule.runOnIdle { assertThat(state.currentPageOffsetFraction).isEqualTo(0.0f) }
 
-        val actionForward = if (isVertical) {
+        val actionForward = if (vertical) {
             android.R.id.accessibilityActionPageDown
         } else {
             android.R.id.accessibilityActionPageRight
@@ -155,10 +155,6 @@ internal class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(confi
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<ParamConfig>().apply {
-            for (orientation in TestOrientation) {
-                add(ParamConfig(orientation = orientation))
-            }
-        }
+        fun params() = AllOrientationsParams
     }
 }
