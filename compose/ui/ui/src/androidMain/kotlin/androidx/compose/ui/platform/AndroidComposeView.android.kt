@@ -52,6 +52,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
@@ -337,12 +338,16 @@ internal class AndroidComposeView(context: Context) :
     // so that we don't have to continue using try/catch after fails once.
     private var isRenderNodeCompatible = true
 
+    private var _viewTreeOwners: ViewTreeOwners? by mutableStateOf(null)
+
+    // Having an extra derived state here (instead of directly using _viewTreeOwners) is a
+    // workaround for b/271579465 to avoid unnecessary extra recompositions when this is mutated
+    // before setContent is called.
     /**
      * Current [ViewTreeOwners]. Use [setOnViewTreeOwnersAvailable] if you want to
      * execute your code when the object will be created.
      */
-    var viewTreeOwners: ViewTreeOwners? by mutableStateOf(null)
-        private set
+    val viewTreeOwners: ViewTreeOwners? by derivedStateOf { _viewTreeOwners }
 
     private var onViewTreeOwnersAvailable: ((ViewTreeOwners) -> Unit)? = null
 
@@ -1162,7 +1167,7 @@ internal class AndroidComposeView(context: Context) :
                 lifecycleOwner = lifecycleOwner,
                 savedStateRegistryOwner = savedStateRegistryOwner
             )
-            this.viewTreeOwners = viewTreeOwners
+            _viewTreeOwners = viewTreeOwners
             onViewTreeOwnersAvailable?.invoke(viewTreeOwners)
             onViewTreeOwnersAvailable = null
         }
