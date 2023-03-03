@@ -41,7 +41,7 @@ internal class TaskCapabilityImpl<
     ConfirmationT,
     SessionUpdaterT,
     > constructor(
-    override val id: String?,
+    override val id: String,
     val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
     val property: PropertyT,
     val sessionFactory: SessionFactory<SessionT>,
@@ -52,10 +52,10 @@ internal class TaskCapabilityImpl<
     override val supportsMultiTurnTask = true
 
     override fun getAppAction(): AppAction {
-        val appActionBuilder = actionSpec.convertPropertyToProto(property).toBuilder()
+        return actionSpec.convertPropertyToProto(property).toBuilder()
             .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(true))
-        id?.let(appActionBuilder::setIdentifier)
-        return appActionBuilder.build()
+            .setIdentifier(id)
+            .build()
     }
 
     override fun createSession(hostProperties: HostProperties): ActionCapabilitySession {
