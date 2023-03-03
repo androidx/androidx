@@ -91,15 +91,16 @@ constructor(
     @ForCameraGraph private val graphListeners: List<@JvmSuppressWildcards Request.Listener>
 ) : GraphProcessor, GraphListener {
     private val lock = Any()
+    private val tryStartRepeatingExecutionLock = Any()
 
     @GuardedBy("lock")
     private val submitQueue: MutableList<List<Request>> = ArrayList()
 
     @GuardedBy("lock")
-    private var currentRepeatingRequest: Request? = null
+    private val repeatingQueue: MutableList<Request> = ArrayList()
 
     @GuardedBy("lock")
-    private var nextRepeatingRequest: Request? = null
+    private var currentRepeatingRequest: Request? = null
 
     @GuardedBy("lock")
     private var _requestProcessor: GraphRequestProcessor? = null
@@ -202,11 +203,11 @@ constructor(
     override fun startRepeating(request: Request) {
         synchronized(lock) {
             if (closed) return
-            nextRepeatingRequest = request
+            repeatingQueue.add(request)
             debug { "startRepeating with ${request.formatForLogs()}" }
         }
 
-        graphScope.launch { tryStartRepeating() }
+        graphScope.launch(threads.lightweightDispatcher) { tryStartRepeating() }
     }
 
     override fun stopRepeating() {
@@ -214,11 +215,11 @@ constructor(
 
         synchronized(lock) {
             processor = _requestProcessor
-            nextRepeatingRequest = null
+            repeatingQueue.clear()
             currentRepeatingRequest = null
         }
 
-        graphScope.launch {
+        graphScope.launch(threads.lightweightDispatcher) {
             Debug.traceStart { "$this#stopRepeating" }
             // Start with requests that have already been submitted
             if (processor != null) {
@@ -290,7 +291,7 @@ constructor(
             submitQueue.clear()
         }
 
-        graphScope.launch {
+        graphScope.launch(threads.lightweightDispatcher) {
             Debug.traceStart { "$this#abort" }
             // Start with requests that have already been submitted
             if (processor != null) {
@@ -343,38 +344,33 @@ constructor(
         }
     }
 
-    private fun tryStartRepeating() {
-        val processor: GraphRequestProcessor?
-        val request: Request?
+    private fun tryStartRepeating() = synchronized(tryStartRepeatingExecutionLock) {
+        val processor: GraphRequestProcessor
+        val requests = mutableListOf<Request>()
+        var shouldRetryRequests = false
 
         synchronized(lock) {
-            if (closed) return
+            if (closed || _requestProcessor == null) return
 
-            processor = _requestProcessor
-            request = nextRepeatingRequest ?: currentRepeatingRequest
+            processor = _requestProcessor!!
 
-            // TODO: It might be a good idea to turn the "nextRepeatingRequest" into a queue to
-            //  help with cases where we want to start the camera early. Example: If we have a
-            //  stream configuration where the viewfinder is deferred, but we have an ImageReader
-            //  that is _not_ deferred, it may be possible to submit the repeating request.
-            //  However, a request with *both* streams would be rejected because not all streams
-            //  are ready.
-            //  Example:
-            //   - Request(listOf(viewfinderStream, otherStream)) // Fails (no viewfinder surface)
-            //   - Request(listOf(otherStream)) // works
-            //  If (as an app developer) we wanted to make sure the camera starts before the
-            //  viewfinder is ready, we would likely want to do something like:
-            //   - startRepeating(listOf(otherStream))
-            //   - startRepeating(listOf(viewfinderStream, otherStream))
-            //  The way this is implemented at the moment, the "nextRepeatingRequest" would be set
-            //  to the second call to startRepeating, which would not work. Since the first call got
-            //  discarded, we would be unable to start the camera before the viewfinder was
-            //  available.
+            if (repeatingQueue.isNotEmpty()) {
+                requests.addAll(repeatingQueue)
+                repeatingQueue.clear()
+                shouldRetryRequests = true
+            } else {
+                currentRepeatingRequest?.let { requests.add(it) }
+            }
         }
+        if (requests.isEmpty()) return
 
-        if (processor != null && request != null) {
-            Debug.traceStart { "$this#startRepeating" }
-            synchronized(processor) {
+        Debug.traceStart { "$this#startRepeating" }
+        var succeededIndex = -1
+        synchronized(processor) {
+            // Here an important optimization is applied. Newer repeating requests should always
+            // supersede older ones. Instead of going from oldest request to newest, we can start
+            // from the newest request and immediately break when a request submission succeeds.
+            for ((index, request) in requests.reversed().withIndex()) {
                 val requiredParameters = mutableMapOf<Any, Any?>()
                 graphState3A.writeTo(requiredParameters)
                 requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
@@ -391,20 +387,25 @@ constructor(
                     synchronized(lock) {
                         if (processor === _requestProcessor) {
                             currentRepeatingRequest = request
-
-                            // There is a race condition where the nextRepeating request might be
-                            // changed
-                            // while trying to update the current repeating request. If this
-                            // happens, do no
-                            // overwrite the pending request.
-                            if (nextRepeatingRequest == request) {
-                                nextRepeatingRequest = null
-                            }
                         }
                     }
+                    succeededIndex = index
+                    break
                 }
             }
-            Debug.traceStop()
+        }
+        Debug.traceStop()
+
+        if (shouldRetryRequests) {
+            synchronized(lock) {
+                // We should only retry the requests newer than the succeeded request, since the
+                // succeeded request would prevail over the preceding requests that failed.
+                val requestsToRetry = requests.slice(succeededIndex + 1 until requests.size)
+
+                // We might have new repeating requests at this point, and these requests to retry
+                // should be placed in the front in order to preserve FIFO order.
+                repeatingQueue.addAll(0, requestsToRetry)
+            }
         }
     }
 
