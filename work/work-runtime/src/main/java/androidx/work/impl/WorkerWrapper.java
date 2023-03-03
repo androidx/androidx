@@ -533,7 +533,7 @@ public class WorkerWrapper implements Runnable {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
-            mWorkSpecDao.setLastEnqueuedTime(mWorkSpecId, System.currentTimeMillis());
+            mWorkSpecDao.setLastEnqueueTime(mWorkSpecId, System.currentTimeMillis());
             mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
             mWorkDatabase.setTransactionSuccessful();
         } finally {
@@ -545,11 +545,11 @@ public class WorkerWrapper implements Runnable {
     private void resetPeriodicAndResolve() {
         mWorkDatabase.beginTransaction();
         try {
-            // The system clock may have been changed such that the periodStartTime was in the past.
+            // The system clock may have been changed such that the lastEnqueueTime was in the past.
             // Therefore we always use the current time to determine the next run time of a Worker.
             // This way, the Schedulers will correctly schedule the next instance of the
             // PeriodicWork in the future. This happens in calculateNextRunTime() in WorkSpec.
-            mWorkSpecDao.setLastEnqueuedTime(mWorkSpecId, System.currentTimeMillis());
+            mWorkSpecDao.setLastEnqueueTime(mWorkSpecId, System.currentTimeMillis());
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
             mWorkSpecDao.resetWorkSpecRunAttemptCount(mWorkSpecId);
             mWorkSpecDao.incrementPeriodCount(mWorkSpecId);
@@ -579,7 +579,7 @@ public class WorkerWrapper implements Runnable {
                     Logger.get().info(TAG,
                             "Setting status to enqueued for " + dependentWorkId);
                     mWorkSpecDao.setState(ENQUEUED, dependentWorkId);
-                    mWorkSpecDao.setLastEnqueuedTime(dependentWorkId, currentTimeMillis);
+                    mWorkSpecDao.setLastEnqueueTime(dependentWorkId, currentTimeMillis);
                 }
             }
 

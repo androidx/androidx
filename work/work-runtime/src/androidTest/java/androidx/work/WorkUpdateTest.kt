@@ -438,7 +438,7 @@ class WorkUpdateTest {
         val spec = workManager.workDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         val delta = spec.calculateNextRunTime() - System.currentTimeMillis()
         assertThat(delta).isGreaterThan(0)
-        workManager.workDatabase.workSpecDao().setLastEnqueuedTime(
+        workManager.workDatabase.workSpecDao().setLastEnqueueTime(
             request.stringId,
             spec.lastEnqueueTime - delta
         )
@@ -458,7 +458,7 @@ class WorkUpdateTest {
             .setInitialDelay(10, TimeUnit.MINUTES).build()
         val enqueueTime = System.currentTimeMillis()
         workManager.enqueue(request).result.get()
-        workManager.workDatabase.workSpecDao().setLastEnqueuedTime(
+        workManager.workDatabase.workSpecDao().setLastEnqueueTime(
             request.stringId,
             enqueueTime - TimeUnit.MINUTES.toMillis(5)
         )

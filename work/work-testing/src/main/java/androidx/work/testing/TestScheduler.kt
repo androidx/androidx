@@ -186,7 +186,7 @@ private fun WorkDatabase.rewindLastEnqueueTime(id: String): WorkSpec {
     val now = System.currentTimeMillis()
     val timeOffset = workSpec.calculateNextRunTime() - now
     if (timeOffset > 0) {
-        dao.setLastEnqueuedTime(id, workSpec.lastEnqueueTime - timeOffset)
+        dao.setLastEnqueueTime(id, workSpec.lastEnqueueTime - timeOffset)
     }
     return dao.getWorkSpec(id)
         ?: throw IllegalStateException("WorkSpec is already deleted from WM's db")
