@@ -1314,7 +1314,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @SdkSuppress(minSdkVersion = 23) // b/271602453
     @Test
     public void onInitializeAccessibilityNodeInfo_addActionScrollToPosition_addedWithNonEmptyList()
             throws Throwable {
