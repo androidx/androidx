@@ -21,6 +21,7 @@ import android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.work.Configuration.Companion.MIN_SCHEDULER_LIMIT
 import androidx.work.Constraints.ContentUriTrigger
 import androidx.work.impl.Processor
@@ -36,6 +37,7 @@ import java.util.concurrent.Executors
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@SdkSuppress(minSdkVersion = 24)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ContentUriTriggerWorkersTest {
