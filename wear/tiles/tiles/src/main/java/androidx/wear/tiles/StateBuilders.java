@@ -46,7 +46,6 @@ public final class StateBuilders {
         /**
          * Get the fingerprint for this object, or null if unknown.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -54,14 +53,12 @@ public final class StateBuilders {
             return mFingerprint;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static State fromProto(@NonNull StateProto.State proto) {
             return new State(proto, null);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public StateProto.State toProto() {

@@ -51,7 +51,6 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>Use {@link #setPager(ViewPager)} to connect this view to a pager instance.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class PageIndicatorView extends View implements OnPageChangeListener {

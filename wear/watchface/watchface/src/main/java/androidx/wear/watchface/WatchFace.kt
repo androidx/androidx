@@ -84,8 +84,8 @@ private const val SYSTEM_DECIDES_FRAME_RATE = 0f
  * The type of watch face, whether it's digital or analog. This influences the time displayed for
  * remote previews.
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @IntDef(value = [WatchFaceType.DIGITAL, WatchFaceType.ANALOG])
 public annotation class WatchFaceType {
     public companion object {
@@ -123,7 +123,6 @@ public class WatchFace(
         private var pendingComponentName: ComponentName? = null
         private var pendingEditorDelegateCB: CompletableDeferred<EditorDelegate>? = null
 
-        /** @hide */
         @JvmStatic
         @UiThread
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -150,7 +149,6 @@ public class WatchFace(
             componentNameToEditorDelegate.remove(componentName)
         }
 
-        /** @hide */
         @JvmStatic
         @UiThread
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -162,7 +160,6 @@ public class WatchFace(
         /**
          * For use by on watch face editors.
          *
-         * @hide
          */
         @JvmStatic
         @UiThread
@@ -184,7 +181,6 @@ public class WatchFace(
         /**
          * For use by on watch face editors.
          *
-         * @hide
          */
         @SuppressLint("NewApi")
         @JvmStatic
@@ -219,7 +215,6 @@ public class WatchFace(
     /**
      * Delegate used by on watch face editors.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface EditorDelegate {
@@ -268,7 +263,6 @@ public class WatchFace(
     /**
      * Used to inform EditorSession about changes to [ComplicationSlot.configExtras].
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface ComplicationSlotConfigExtrasChangeCallback {
@@ -508,7 +502,6 @@ internal class MockTime(var speed: Double, var minTime: Long, var maxTime: Long)
     }
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("SyntheticAccessor")
 public class WatchFaceImpl
@@ -919,7 +912,6 @@ constructor(
     internal fun getNow(): Instant =
         Instant.ofEpochMilli(mockTime.applyMockTime(systemTimeProvider.getSystemTimeMillis()))
 
-    /** @hide */
     @UiThread
     internal fun maybeUpdateDrawMode() {
         var newDrawMode =
@@ -979,7 +971,6 @@ constructor(
      * @param startTimeMillis The SystemTime in milliseconds at which we started rendering
      * @param currentTimeMillis The current SystemTime in milliseconds
      * @param nowInstant The current [Instant].
-     * @hide
      */
     @UiThread
     internal fun computeDelayTillNextFrame(

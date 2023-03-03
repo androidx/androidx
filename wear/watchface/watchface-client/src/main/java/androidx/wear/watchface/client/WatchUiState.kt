@@ -18,12 +18,13 @@ package androidx.wear.watchface.client
 
 import android.app.NotificationManager
 import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 
 /**
  * The InterruptionFilter.
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @IntDef(
     value =
         [

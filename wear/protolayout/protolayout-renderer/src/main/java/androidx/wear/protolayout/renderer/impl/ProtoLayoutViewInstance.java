@@ -65,7 +65,6 @@ import java.util.concurrent.ExecutionException;
  * inflation as possible will be done in the background, with only the final attachment of the
  * generated layout to a parent container done on the UI thread.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 public class ProtoLayoutViewInstance implements AutoCloseable {
@@ -132,7 +131,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
      * This is used to provide a {@link ResourceResolvers} object to the {@link
      * ProtoLayoutViewInstance} allowing it to query {@link ResourceProto.Resources} when needed.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public interface ResourceResolversProvider {
@@ -335,7 +333,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /**
          * Returns the Android Resources object for the renderer package.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         @NonNull
@@ -346,7 +343,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /**
          * Returns provider for resource resolver.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         @NonNull
@@ -375,7 +371,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /**
          * Returns listener for load actions.
          *
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY)
@@ -404,7 +399,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /**
          * Returns whether animations are enabled.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         public boolean getAnimationEnabled() {
@@ -414,7 +408,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /**
          * Returns how many animations can be concurrently run.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         public int getRunningAnimationsLimit() {
@@ -424,7 +417,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /**
          * Returns whether updates are enabled.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         public boolean getUpdatesEnabled() {
@@ -434,7 +426,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /**
          * Returns whether adaptive updates are enabled.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         public boolean getAdaptiveUpdateRatesEnabled() {
@@ -444,7 +435,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /**
          * Returns whether view is fully visible.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         public boolean getIsViewFullyVisible() {
@@ -454,8 +444,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         /**
          * Builder for {@link Config}.
          *
-         * @hide
          */
+        @RestrictTo(Scope.LIBRARY)
         public static final class Builder {
             @NonNull private final Context mUiContext;
             @Nullable private Resources mRendererResources;
@@ -496,7 +486,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             /**
              * Sets provider for resolving resources.
              *
-             * @hide
              */
             @NonNull
             @RestrictTo(Scope.LIBRARY)
@@ -512,7 +501,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
              * android.content.pm.PackageManager#getResourcesForApplication(String)}. If not
              * specified, this is retrieved from the Ui Context.
              *
-             * @hide
              */
             @NonNull
             @RestrictTo(Scope.LIBRARY)
@@ -543,7 +531,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
              * Sets the listener for clicks that will cause contents to be reloaded. Defaults to
              * no-op.
              *
-             * @hide
              */
             @NonNull
             @RestrictTo(Scope.LIBRARY)
@@ -556,7 +543,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
              * Sets whether animation are enabled. If disabled, none of the animation will be
              * played.
              *
-             * @hide
              */
             @RestrictTo(Scope.LIBRARY)
             @NonNull
@@ -568,7 +554,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             /**
              * Sets the limit to how much concurrently running animations are allowed.
              *
-             * @hide
              */
             @RestrictTo(Scope.LIBRARY)
             @NonNull
@@ -580,7 +565,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             /**
              * Sets whether sending updates is enabled.
              *
-             * @hide
              */
             @RestrictTo(Scope.LIBRARY)
             @NonNull
@@ -592,7 +576,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             /**
              * Sets whether adaptive updates rates is enabled.
              *
-             * @hide
              */
             @RestrictTo(Scope.LIBRARY)
             @NonNull
@@ -604,7 +587,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             /**
              * Sets whether the view is fully visible.
              *
-             * @hide
              */
             @RestrictTo(Scope.LIBRARY)
             @NonNull
@@ -981,7 +963,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
      * Sets whether updates are enabled for this layout. When disabled, updates through the data
      * pipeline (e.g. health updates) will be suppressed.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @UiThread
@@ -994,7 +975,6 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
     /** Sets the visibility state for this layout.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @UiThread

@@ -60,14 +60,12 @@ public final class TimelineBuilders {
             return mImpl.getEndMillis();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TimeInterval fromProto(@NonNull TimelineProto.TimeInterval proto) {
             return new TimeInterval(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TimelineProto.TimeInterval toProto() {
@@ -131,7 +129,6 @@ public final class TimelineBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TimelineEntry fromProto(@NonNull TimelineProto.TimelineEntry proto) {
@@ -145,7 +142,6 @@ public final class TimelineBuilders {
             return new Builder().setLayout(Layout.fromLayoutElement(layoutElement)).build();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TimelineProto.TimelineEntry toProto() {
@@ -212,7 +208,6 @@ public final class TimelineBuilders {
             return Collections.unmodifiableList(list);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Timeline fromProto(@NonNull TimelineProto.Timeline proto) {
@@ -228,7 +223,6 @@ public final class TimelineBuilders {
                     .build();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public TimelineProto.Timeline toProto() {

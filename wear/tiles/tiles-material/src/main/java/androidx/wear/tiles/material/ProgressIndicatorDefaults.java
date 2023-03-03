@@ -33,7 +33,6 @@ public class ProgressIndicatorDefaults {
     /**
      * The default padding for {@link CircularProgressIndicator}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

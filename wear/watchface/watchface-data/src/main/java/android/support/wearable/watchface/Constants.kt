@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo
 /**
  * Shared constants between client and implementation.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Constants {

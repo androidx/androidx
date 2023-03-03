@@ -23,7 +23,6 @@ import androidx.annotation.VisibleForTesting;
 /**
  * Quota manager with fixed quota cap. This class is not thread safe.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public class FixedQuotaManagerImpl implements QuotaManager {
@@ -66,7 +65,6 @@ public class FixedQuotaManagerImpl implements QuotaManager {
     /**
      * Returns true if all quota has been released.
      *
-     * @hide
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @RestrictTo(Scope.TESTS)

@@ -35,7 +35,6 @@ public class DeviceConfig(
     public val analogPreviewReferenceTimeMillis: Long,
     public val digitalPreviewReferenceTimeMillis: Long
 ) {
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun asWireDeviceConfig(): WireDeviceConfig =
         WireDeviceConfig(
@@ -82,7 +81,6 @@ public class DeviceConfig(
     }
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun WireDeviceConfig.asApiDeviceConfig(): DeviceConfig =
     DeviceConfig(

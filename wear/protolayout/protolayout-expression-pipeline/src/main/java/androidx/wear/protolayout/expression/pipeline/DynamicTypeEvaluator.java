@@ -261,7 +261,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
      * @param locale The locale used for the given String source.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -307,7 +306,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param int32Source The given integer dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -334,7 +332,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      *     UI thread.
      * @param animationFallbackValue The value used if the given {@link DynamicInt32} is animatable
      *     and animations are disabled.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -382,7 +379,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      *     UI thread.
      * @param animationFallbackValue The value used if the given {@link DynamicFloat} is animatable
      *     and animation are disabled.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -404,7 +400,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param floatSource The given float dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -448,7 +443,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param colorSource The given color dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -471,7 +465,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      *     UI thread.
      * @param animationFallbackValue The value used if the given {@link DynamicFloat} is animatable
      *     and animation are disabled.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -517,7 +510,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param durationSource The given durations dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -562,7 +554,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param instantSource The given instant dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -605,7 +596,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param boolSource The given boolean dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1267,7 +1257,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     /**
      * Closes existing time gateway.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override

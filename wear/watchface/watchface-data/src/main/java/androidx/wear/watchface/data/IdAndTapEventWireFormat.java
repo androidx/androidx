@@ -31,7 +31,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Pair of a ComplicationSlotID and a TapEvent, the wire format of Map<Int, TapEvent>
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)

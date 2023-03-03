@@ -286,7 +286,6 @@ public class ConfirmationOverlay {
      * Starts a fadeout animation and removes the view once finished. This is invoked by {@link
      * #mHideRunnable} after {@link #mDurationMillis} milliseconds.
      *
-     * @hide
      */
     @MainThread
     @VisibleForTesting

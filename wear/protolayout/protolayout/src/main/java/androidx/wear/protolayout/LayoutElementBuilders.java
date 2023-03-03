@@ -64,7 +64,6 @@ public final class LayoutElementBuilders {
   /**
    * The weight to be applied to the font.
    *
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({FONT_WEIGHT_UNDEFINED, FONT_WEIGHT_NORMAL, FONT_WEIGHT_MEDIUM, FONT_WEIGHT_BOLD})
@@ -87,7 +86,6 @@ public final class LayoutElementBuilders {
    * The variant of a font. Some renderers may use different fonts for title and body text, which
    * can be selected using this field.
    *
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({FONT_VARIANT_UNDEFINED, FONT_VARIANT_TITLE, FONT_VARIANT_BODY})
@@ -107,7 +105,6 @@ public final class LayoutElementBuilders {
    * The alignment of a {@link SpanImage} within the line height of the surrounding {@link
    * Spannable}.
    *
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({
@@ -138,7 +135,6 @@ public final class LayoutElementBuilders {
   /**
    * How text that will not fit inside the bounds of a {@link Text} element will be handled.
    *
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({TEXT_OVERFLOW_UNDEFINED, TEXT_OVERFLOW_TRUNCATE, TEXT_OVERFLOW_ELLIPSIZE_END})
@@ -164,7 +160,6 @@ public final class LayoutElementBuilders {
    * How content which does not match the dimensions of its bounds (e.g. an image resource being
    * drawn inside an {@link Image}) will be resized to fit its bounds.
    *
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({
@@ -221,7 +216,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -284,7 +278,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -346,7 +339,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -496,7 +488,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -512,7 +503,6 @@ public final class LayoutElementBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -682,7 +672,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -830,7 +819,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -848,7 +836,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1023,7 +1010,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1095,7 +1081,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1240,7 +1225,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1258,7 +1242,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1417,7 +1400,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1435,7 +1417,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1581,7 +1562,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1599,7 +1579,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1765,7 +1744,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1783,7 +1761,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1920,7 +1897,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1938,7 +1914,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2048,7 +2023,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2057,7 +2031,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2185,7 +2158,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2203,7 +2175,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2425,7 +2396,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2443,7 +2413,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2621,7 +2590,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2639,7 +2607,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2813,7 +2780,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2831,7 +2797,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2988,7 +2953,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3006,7 +2970,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3129,7 +3092,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3147,7 +3109,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3263,7 +3224,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3281,7 +3241,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3373,7 +3332,6 @@ public final class LayoutElementBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3391,7 +3349,6 @@ public final class LayoutElementBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3462,7 +3419,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3471,7 +3427,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3524,7 +3479,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3533,7 +3487,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3618,7 +3571,6 @@ public final class LayoutElementBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3674,7 +3626,6 @@ public final class LayoutElementBuilders {
   /**
    * The horizontal alignment of an element within its container.
    *
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({
@@ -3709,7 +3660,6 @@ public final class LayoutElementBuilders {
   /**
    * The vertical alignment of an element within its container.
    *
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({
@@ -3736,7 +3686,6 @@ public final class LayoutElementBuilders {
   /**
    * Alignment of a text element.
    *
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({TEXT_ALIGN_UNDEFINED, TEXT_ALIGN_START, TEXT_ALIGN_CENTER, TEXT_ALIGN_END})
@@ -3787,7 +3736,6 @@ public final class LayoutElementBuilders {
    *
    * }</pre>
    *
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({ARC_ANCHOR_UNDEFINED, ARC_ANCHOR_START, ARC_ANCHOR_CENTER, ARC_ANCHOR_END})
@@ -3835,7 +3783,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3898,7 +3845,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3960,7 +3906,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -4022,7 +3967,6 @@ public final class LayoutElementBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable

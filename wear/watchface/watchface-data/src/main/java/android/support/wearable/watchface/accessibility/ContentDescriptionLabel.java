@@ -37,7 +37,6 @@ import java.util.Objects;
 /**
  * Holds labels for screen regions which should respond to accessibility events.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings("BanParcelableUsage")

@@ -166,12 +166,12 @@ public object TargetWatchFaceSafety {
     public const val UNSAFE: Int = 2
 }
 
-/** @hide */
 @IntDef(
     flag = true, // This is a flag to allow for future expansion.
     value =
         [TargetWatchFaceSafety.UNKNOWN, TargetWatchFaceSafety.SAFE, TargetWatchFaceSafety.UNSAFE]
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class IsForSafeWatchFace
 
 /**
@@ -291,7 +291,6 @@ public abstract class ComplicationDataSourceService : Service() {
      */
     @VisibleForTesting internal open val wearPlatformVersion = Build.VERSION.SDK_INT
 
-    /* @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open fun createMainThreadHandler() = Handler(Looper.getMainLooper())
 

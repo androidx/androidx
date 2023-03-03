@@ -217,7 +217,6 @@ public class CompactChip implements LayoutElement {
         return new CompactChip(boxElement);
     }
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override

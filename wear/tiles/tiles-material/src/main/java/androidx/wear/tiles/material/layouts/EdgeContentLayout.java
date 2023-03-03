@@ -122,7 +122,6 @@ public class EdgeContentLayout implements LayoutElement {
      */
     static final int CONTENT_PRESENT = 0x8;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(
@@ -365,7 +364,6 @@ public class EdgeContentLayout implements LayoutElement {
         return new EdgeContentLayout(boxElement);
     }
 
-    /** @hide */
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
