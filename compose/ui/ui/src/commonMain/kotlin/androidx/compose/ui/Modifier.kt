@@ -23,6 +23,9 @@ import androidx.compose.ui.node.ModifierNodeOwnerScope
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.NodeKind
 import androidx.compose.ui.node.requireOwner
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 
 /**
  * An ordered, immutable collection of [modifier elements][Modifier.Element] that decorate or add
@@ -164,6 +167,17 @@ interface Modifier {
         @Suppress("LeakingThis")
         final override var node: Node = this
             private set
+
+        private var scope: CoroutineScope? = null
+        // CoroutineScope(baseContext + Job(parent = baseContext[Job]))
+        val coroutineScope: CoroutineScope
+            get() = scope ?: CoroutineScope(
+                requireOwner().coroutineContext +
+                    Job(parent = requireOwner().coroutineContext[Job])
+            ).also {
+                scope = it
+            }
+
         internal var kindSet: Int = 0
         // NOTE: We use an aggregate mask that or's all of the type masks of the children of the
         // chain so that we can quickly prune a subtree. This INCLUDES the kindSet of this node
@@ -208,7 +222,12 @@ interface Modifier {
             check(coordinator != null)
             onDetach()
             isAttached = false
-//            coordinator = null
+
+            scope?.let {
+                it.cancel("Modifier.Node was detached")
+                scope = null
+            }
+            // coordinator = null
             // TODO(lmr): cancel jobs / side effects?
         }
 

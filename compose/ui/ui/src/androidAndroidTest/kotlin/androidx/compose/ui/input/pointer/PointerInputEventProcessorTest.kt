@@ -64,6 +64,9 @@ import androidx.compose.ui.util.fastMaxBy
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -3407,6 +3410,9 @@ private class TestOwner : Owner {
         get() = TODO("Not yet implemented")
     override val snapshotObserver = OwnerSnapshotObserver { it.invoke() }
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
+
+    override val coroutineContext: CoroutineContext =
+        Executors.newFixedThreadPool(3).asCoroutineDispatcher()
     override fun registerOnEndApplyChangesListener(listener: () -> Unit) {
         onEndListeners += listener
     }

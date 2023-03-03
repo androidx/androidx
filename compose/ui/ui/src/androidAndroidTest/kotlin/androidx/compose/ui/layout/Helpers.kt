@@ -58,8 +58,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.asCoroutineDispatcher
 
 internal fun createDelegate(
     root: LayoutNode,
@@ -80,7 +83,9 @@ internal fun createDelegate(
 @OptIn(ExperimentalComposeUiApi::class)
 private class FakeOwner(
     val delegate: MeasureAndLayoutDelegate,
-    val createLayer: () -> OwnedLayer
+    val createLayer: () -> OwnedLayer,
+    override val coroutineContext: CoroutineContext =
+        Executors.newFixedThreadPool(3).asCoroutineDispatcher()
 ) : Owner {
     override val measureIteration: Long
         get() = delegate.measureIteration
