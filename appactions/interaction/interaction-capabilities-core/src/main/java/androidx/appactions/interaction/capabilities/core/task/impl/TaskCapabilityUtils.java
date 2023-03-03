@@ -29,8 +29,7 @@ import androidx.appactions.interaction.proto.DisambiguationData;
 import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.FulfillmentValue;
 import androidx.appactions.interaction.proto.ParamValue;
-
-import com.google.protobuf.Struct;
+import androidx.appactions.interaction.protobuf.Struct;
 
 import java.util.Arrays;
 import java.util.Collections;
