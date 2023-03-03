@@ -28,11 +28,11 @@ import androidx.annotation.NonNull;
 import androidx.credentials.exceptions.ClearCredentialException;
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException;
 import androidx.credentials.exceptions.CreateCredentialException;
+import androidx.credentials.exceptions.CreateCredentialNoCreateOptionException;
 import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException;
-import androidx.credentials.exceptions.CreateCredentialUnknownException;
 import androidx.credentials.exceptions.GetCredentialException;
 import androidx.credentials.exceptions.GetCredentialProviderConfigurationException;
-import androidx.credentials.exceptions.GetCredentialUnknownException;
+import androidx.credentials.exceptions.NoCredentialException;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -93,7 +93,7 @@ public class CredentialManagerJavaTest {
                     CreateCredentialProviderConfigurationException.class);
         } else {
             assertThat(loadedResult.get().getClass()).isEqualTo(
-                    CreateCredentialUnknownException.class);
+                    CreateCredentialNoCreateOptionException.class);
         }
         // TODO("Add manifest tests and possibly further separate these tests by API Level
         //  - maybe a rule perhaps?")
@@ -133,7 +133,7 @@ public class CredentialManagerJavaTest {
                     GetCredentialProviderConfigurationException.class);
         } else {
             assertThat(loadedResult.get().getClass()).isEqualTo(
-                    GetCredentialUnknownException.class);
+                    NoCredentialException.class);
         }
         // TODO("Add manifest tests and possibly further separate these tests - maybe a rule
         //  perhaps?")

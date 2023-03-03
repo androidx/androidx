@@ -67,14 +67,16 @@ class CreateEntry internal constructor(
      *
      * @param accountName the name of the account where the credential will be saved
      * @param pendingIntent the [PendingIntent] that will get invoked when user selects this entry
-     * @param description the description shown on UI about where the credential is stored
+     * @param description the localized description shown on UI about where the credential is stored
      * @param icon the icon to be displayed with this entry on the UI
      * @param lastUsedTime the last time the account underlying this entry was used by the user
      * @param passwordCredentialCount the no. of password credentials saved by the provider
      * @param publicKeyCredentialCount the no. of public key credentials saved by the provider
      * @param totalCredentialCount the total no. of credentials saved by the provider
      *
-     * @throws IllegalArgumentException If [accountName] is empty
+     * @throws IllegalArgumentException If [accountName] is empty, or if [description] is longer
+     * than 300 characters (important: make sure your descriptions across all locales are within
+     * this limit)
      * @throws NullPointerException If [accountName] or [pendingIntent] is null
      */
     constructor(
@@ -104,6 +106,11 @@ class CreateEntry internal constructor(
 
     init {
         require(accountName.isNotEmpty()) { "accountName must not be empty" }
+        if (description != null) {
+            require(description.length <= DESCRIPTION_MAX_CHAR_LIMIT) {
+                "Description must follow a limit of 300 characters."
+            }
+        }
     }
 
     /** Returns the no. of password type credentials that the provider with this entry has. */
@@ -204,17 +211,19 @@ class CreateEntry internal constructor(
         }
 
         /**
-         * Sets a description to be displayed on the UI at the time of credential creation.
+         * Sets a localized description to be displayed on the UI at the time of credential
+         * creation.
          *
          * Typically this description should contain information informing the user of the
          * credential being created, and where it is being stored. Providers are free
          * to phrase this however they see fit.
          *
-         * @throws IllegalArgumentException if [description] is longer than 150 characters.
+         * @throws IllegalArgumentException if [description] is longer than 300 characters (
+         * important: make sure your descriptions across all locales are within this limit).
          */
         fun setDescription(description: CharSequence?): Builder {
             if (description?.length != null && description.length > DESCRIPTION_MAX_CHAR_LIMIT) {
-                throw IllegalArgumentException("Description must follow a limit of 150 characters.")
+                throw IllegalArgumentException("Description must follow a limit of 300 characters.")
             }
             this.description = description
             return this
@@ -242,7 +251,7 @@ class CreateEntry internal constructor(
     @Suppress("AcronymName")
     companion object {
         private const val TAG = "CreateEntry"
-        private const val DESCRIPTION_MAX_CHAR_LIMIT = 150
+        private const val DESCRIPTION_MAX_CHAR_LIMIT = 300
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val TYPE_TOTAL_CREDENTIAL = "TOTAL_CREDENTIAL_COUNT_TYPE"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
