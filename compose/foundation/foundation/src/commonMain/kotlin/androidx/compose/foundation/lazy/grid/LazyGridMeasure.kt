@@ -44,8 +44,8 @@ import kotlin.math.sign
 internal fun measureLazyGrid(
     itemsCount: Int,
     itemProvider: LazyGridItemProvider,
-    measuredLineProvider: LazyMeasuredLineProvider,
-    measuredItemProvider: LazyMeasuredItemProvider,
+    measuredLineProvider: LazyGridMeasuredLineProvider,
+    measuredItemProvider: LazyGridMeasuredItemProvider,
     mainAxisAvailableSize: Int,
     beforeContentPadding: Int,
     afterContentPadding: Int,
@@ -307,7 +307,7 @@ internal fun measureLazyGrid(
 @ExperimentalFoundationApi
 private inline fun calculateExtraItems(
     pinnedItems: LazyLayoutPinnedItemList,
-    measuredItemProvider: LazyMeasuredItemProvider,
+    measuredItemProvider: LazyGridMeasuredItemProvider,
     itemProvider: LazyGridItemProvider,
     itemConstraints: (ItemIndex) -> Constraints,
     filter: (Int) -> Boolean
