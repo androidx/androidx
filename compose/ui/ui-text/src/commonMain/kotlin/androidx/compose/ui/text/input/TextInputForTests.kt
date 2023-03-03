@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.text.input
 
+import androidx.compose.ui.text.ExperimentalTextApi
+
 /**
  * Defines additional operations that can be performed on text editors by UI tests that aren't
  * available as semantics actions. Tests call these methods indirectly, by the various `perform*`
