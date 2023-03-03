@@ -1045,8 +1045,8 @@ public class ProtoLayoutDynamicDataPipeline {
     @UiThread
     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void stopAvdAnimations() {
-        mPositionIdTree.forEach(NodeInfo::stopAvdAnimations);
+    public void stopAvdAnimations(@NonNull Trigger.InnerCase triggerCase) {
+        mPositionIdTree.forEach(info -> info.stopAvdAnimations(triggerCase));
     }
 
     /** Cancel any already running content transition animations. */
@@ -1072,13 +1072,21 @@ public class ProtoLayoutDynamicDataPipeline {
         }
 
         this.mFullyVisible = fullyVisible;
+        // Set visibility to already started INFINITE AVD will pause the animation when the drawable
+        // is invisible and resume the animation when becomes visible again.
         setAnimationVisibility(fullyVisible);
         if (fullyVisible) {
             playAvdAnimations(Trigger.InnerCase.ON_VISIBLE_TRIGGER);
             playAvdAnimations(Trigger.InnerCase.ON_VISIBLE_ONCE_TRIGGER);
         } else {
             cancelContentTransitionAnimations();
-            stopAvdAnimations();
+            // Stop the AVD animation with ON_VISIBLE_TRIGGER, but not stop AVD animations with
+            // ON_VISIBLE_ONCE_TRIGGER and ON_LOAD_TRIGGER. AVD does not provide API to check
+            // whether it is infinite, thus it is hard to stop finite animations only. For the AVDs
+            // that would not get restarted, animations are not stopped when the layout becomes
+            // invisible. Finite animations continue until they reach the end, while infinite
+            // animations are paused by setting their visibility to false.
+            stopAvdAnimations(Trigger.InnerCase.ON_VISIBLE_TRIGGER);
             resetAvdAnimations(Trigger.InnerCase.ON_VISIBLE_TRIGGER);
         }
     }

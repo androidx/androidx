@@ -66,9 +66,9 @@ public class AnimationsHelper {
                 : DEFAULT_ANIM_DURATION;
     }
 
-    /** Returns the delay from the given {@link AnimationSpec} or default value if not set. */
+    /** Returns the start delay from the given {@link AnimationSpec} or default value if not set. */
     @NonNull
-    public static Duration getDelayOrDefault(@NonNull AnimationSpec spec) {
+    public static Duration getStartDelayOrDefault(@NonNull AnimationSpec spec) {
         return spec.getStartDelayMillis() > 0
                 ? Duration.ofMillis(spec.getStartDelayMillis())
                 : DEFAULT_ANIM_DELAY;
@@ -143,7 +143,7 @@ public class AnimationsHelper {
     public static void applyAnimationSpecToAnimator(
             @NonNull ValueAnimator animator, @NonNull AnimationSpec spec) {
         animator.setDuration(getDurationOrDefault(spec).toMillis());
-        animator.setStartDelay(getDelayOrDefault(spec).toMillis());
+        animator.setStartDelay(getStartDelayOrDefault(spec).toMillis());
         animator.setInterpolator(getInterpolatorOrDefault(spec));
         animator.setRepeatCount(getRepeatCountOrDefault(spec));
         animator.setRepeatMode(getRepeatModeOrDefault(spec));
@@ -157,7 +157,7 @@ public class AnimationsHelper {
     public static void applyAnimationSpecToAnimation(
             @NonNull Animation animation, @NonNull AnimationSpec spec) {
         animation.setDuration(getDurationOrDefault(spec).toMillis());
-        animation.setStartOffset(getDelayOrDefault(spec).toMillis());
+        animation.setStartOffset(getStartDelayOrDefault(spec).toMillis());
         animation.setInterpolator(getInterpolatorOrDefault(spec));
         animation.setRepeatCount(getRepeatCountOrDefault(spec));
         animation.setRepeatMode(getRepeatModeOrDefault(spec));
