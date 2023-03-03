@@ -86,6 +86,7 @@ class AudioStreamImplTest {
         }
     }
 
+    @RequiresDevice // b/264902324
     @Test
     fun readBeforeStart_throwException() {
         assertThrows(IllegalStateException::class.java) {
@@ -93,6 +94,7 @@ class AudioStreamImplTest {
         }
     }
 
+    @RequiresDevice // b/264902324
     @Test
     fun readAfterStop_throwException() {
         audioStream.start()
@@ -102,6 +104,7 @@ class AudioStreamImplTest {
         }
     }
 
+    @RequiresDevice // b/264902324
     @Test
     fun startAfterReleased_throwException() {
         audioStream.release()
@@ -110,6 +113,7 @@ class AudioStreamImplTest {
         }
     }
 
+    @RequiresDevice // b/264902324
     @Test
     fun setCallbackAfterStarted_throwException() {
         audioStream.start()
@@ -118,6 +122,7 @@ class AudioStreamImplTest {
         }
     }
 
+    @RequiresDevice // b/264902324
     @Test
     fun setCallbackAfterReleased_throwException() {
         audioStream.release()
