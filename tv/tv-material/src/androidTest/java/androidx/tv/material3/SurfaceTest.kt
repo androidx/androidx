@@ -18,6 +18,7 @@ package androidx.tv.material3
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.interaction.FocusInteraction
@@ -460,5 +461,35 @@ class SurfaceTest {
         rule.onNodeWithTag("surface").performSemanticsAction(SemanticsActions.RequestFocus)
 
         rule.onRoot().captureToImage().assertDoesNotContainColor(Color.Blue)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun clickableSurface_onFocus_showsBorder() {
+        rule.setContent {
+            Surface(
+                onClick = { /* Do something */ },
+                modifier = Modifier
+                    .size(100.toDp())
+                    .testTag("surface"),
+                border = ClickableSurfaceDefaults.border(
+                    focusedBorder = Border(
+                        border = BorderStroke(width = 5.toDp(), color = Color.Magenta)
+                    )
+                ),
+                color = ClickableSurfaceDefaults.color(
+                    color = Color.Transparent,
+                    focusedColor = Color.Transparent
+                )
+            ) {}
+        }
+
+        val surface = rule.onNodeWithTag("surface")
+
+        surface.captureToImage().assertDoesNotContainColor(Color.Magenta)
+
+        surface.performSemanticsAction(SemanticsActions.RequestFocus)
+
+        surface.captureToImage().assertContainsColor(Color.Magenta)
     }
 }
