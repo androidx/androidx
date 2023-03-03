@@ -73,6 +73,7 @@ import kotlinx.coroutines.launch
  * @param color Color to be used on background of the Surface
  * @param contentColor The preferred content color provided by this Surface to its children.
  * @param scale Defines size of the Surface relative to its original size.
+ * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface.
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this Surface. You can create and pass in your own remembered [MutableInteractionSource] if
@@ -92,6 +93,7 @@ fun Surface(
     color: ClickableSurfaceColor = ClickableSurfaceDefaults.color(),
     contentColor: ClickableSurfaceColor = ClickableSurfaceDefaults.contentColor(),
     scale: ClickableSurfaceScale = ClickableSurfaceDefaults.scale(),
+    border: ClickableSurfaceBorder = ClickableSurfaceDefaults.border(),
     glow: ClickableSurfaceGlow = ClickableSurfaceDefaults.glow(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable (BoxScope.() -> Unit)
@@ -133,6 +135,12 @@ fun Surface(
             pressed = pressed,
             scale = scale
         ),
+        border = ClickableSurfaceDefaults.border(
+            enabled = enabled,
+            focused = focused,
+            pressed = pressed,
+            border = border
+        ),
         glow = ClickableSurfaceDefaults.glow(
             enabled = enabled,
             focused = focused,
@@ -154,6 +162,7 @@ private fun SurfaceImpl(
     color: Color,
     contentColor: Color,
     scale: Float,
+    border: Border,
     glow: Glow,
     tonalElevation: Dp,
     interactionSource: MutableInteractionSource,
@@ -210,6 +219,14 @@ private fun SurfaceImpl(
                         placeable.place(0, 0, zIndex = zIndex)
                     }
                 }
+                .then(
+                    if (border != Border.None) {
+                        Modifier.indication(
+                            interactionSource = interactionSource,
+                            indication = remember { BorderIndication(border = border) }
+                        )
+                    } else Modifier
+                )
                 .drawWithCache {
                     onDrawBehind {
                         drawOutline(
