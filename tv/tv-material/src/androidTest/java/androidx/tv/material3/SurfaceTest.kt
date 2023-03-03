@@ -17,7 +17,6 @@
 package androidx.tv.material3
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -400,7 +399,7 @@ class SurfaceTest {
     }
 
     @FlakyTest(bugId = 269229262)
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun clickableSurface_onFocus_changesGlowColor() {
         rule.setContent {
@@ -437,7 +436,7 @@ class SurfaceTest {
             .assertContainsColor(Color.Green)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun clickableSurface_onFocus_changesScaleFactor() {
         rule.setContent {
@@ -463,7 +462,7 @@ class SurfaceTest {
         rule.onRoot().captureToImage().assertDoesNotContainColor(Color.Blue)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun clickableSurface_onFocus_showsBorder() {
         rule.setContent {
