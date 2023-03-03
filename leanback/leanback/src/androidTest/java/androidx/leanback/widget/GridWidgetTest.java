@@ -5175,6 +5175,7 @@ public class GridWidgetTest {
         assertTrue(selectedPosition2 < selectedPosition1);
     }
 
+    @SdkSuppress(minSdkVersion = 23) // b/271599830
     @Test
     public void testAccessibilityFocusOutFrontEnd_actionsAvailable() throws Throwable {
         Intent intent = new Intent();
