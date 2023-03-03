@@ -19,6 +19,8 @@ import android.app.PendingIntent
 import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
 import androidx.credentials.CredentialOption
+import java.util.stream.Collectors
+import kotlin.streams.toList
 
 /**
  * Request received by the provider after the query phase of the get flow is complete i.e. the user
@@ -30,7 +32,19 @@ import androidx.credentials.CredentialOption
  * must be extracted using the [PendingIntentHandler.retrieveProviderGetCredentialRequest] helper
  * API.
  *
- * @property credentialOption the credential retrieval parameters
+ * @property credentialOptions the list of credential retrieval options containing the
+ * required parameters.
+ * This list is expected to contain a single [CredentialOption] when this
+ * request is retrieved from the [android.app.Activity] invoked by the [android.app.PendingIntent]
+ * set on a [PasswordCredentialEntry] or a [PublicKeyCredentialEntry]. This is because these
+ * entries are created for a given [BeginGetPasswordOption] or a [BeginGetPublicKeyCredentialOption]
+ * respectively, which corresponds to a single [CredentialOption].
+ *
+ * This list is expected to contain multiple [CredentialOption] when this request is retrieved
+ * from the [android.app.Activity] invoked by the [android.app.PendingIntent]
+ * set on a [RemoteEntry]. This is because when a remote entry is selected. the entire
+ * request, containing multiple options, is sent to a remote device.
+ *
  * @property callingAppInfo information pertaining to the calling application
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
@@ -38,7 +52,7 @@ import androidx.credentials.CredentialOption
  */
 @RequiresApi(34)
 class ProviderGetCredentialRequest constructor(
-    val credentialOption: CredentialOption,
+    val credentialOptions: List<CredentialOption>,
     val callingAppInfo: CallingAppInfo
     ) {
 
@@ -46,14 +60,15 @@ class ProviderGetCredentialRequest constructor(
     companion object {
         internal fun createFrom(request: android.service.credentials.GetCredentialRequest):
         ProviderGetCredentialRequest {
-            val option = CredentialOption.createFrom(
-                request.credentialOption.type,
-                request.credentialOption.candidateQueryData,
-                request.credentialOption.credentialRetrievalData,
-                request.credentialOption.isSystemProviderRequired
-            )
             return ProviderGetCredentialRequest(
-                option,
+                request.credentialOptions.stream()
+                    .map { option -> CredentialOption.createFrom(
+                            option.type,
+                            option.credentialRetrievalData,
+                            option.candidateQueryData,
+                            option.isSystemProviderRequired
+                        ) }
+                    .collect(Collectors.toList()),
                 request.callingAppInfo)
         }
     }

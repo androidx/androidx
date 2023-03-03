@@ -149,9 +149,9 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
     ): android.credentials.CreateCredentialRequest {
         val createCredentialRequestBuilder: android.credentials.CreateCredentialRequest.Builder =
             android.credentials.CreateCredentialRequest
-                .Builder(FrameworkImplHelper.getFinalCreateCredentialData(request, activity),
+                .Builder(request.type,
+                    FrameworkImplHelper.getFinalCreateCredentialData(request, activity),
                     request.candidateQueryData)
-                .setType(request.type)
                 .setIsSystemProviderRequired(request.isSystemProviderRequired)
                 // TODO("change to taking value from the request when ready")
                 .setAlwaysSendAppInfoToProvider(true)
