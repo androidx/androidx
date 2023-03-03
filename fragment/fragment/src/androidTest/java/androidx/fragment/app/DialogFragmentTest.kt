@@ -39,6 +39,8 @@ import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import leakcanary.DetectLeaksAfterTestSuccess
+import leakcanary.SkipLeakDetection
+import leakcanary.TestDescriptionHolder
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -56,6 +58,9 @@ class DialogFragmentTest {
     @get:Rule
     val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
         .around(activityTestRule)
+
+    @get:Rule
+    val testDescriptionHolderRule = TestDescriptionHolder
 
     @Test
     fun testDialogFragmentShows() {
@@ -95,6 +100,8 @@ class DialogFragmentTest {
             .isTrue()
     }
 
+    // TODO(b/270722758): remove annotation once issue addressed by LeakCanary/platform
+    @SkipLeakDetection("Skip leak detection until platform ViewRootImpl leak addressed")
     @Test
     fun testDialogFragmentDismiss() {
         val fragment = TestDialogFragment()
