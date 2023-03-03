@@ -64,7 +64,6 @@ public class BrowserActionItem {
      * generated from {@link BrowserServiceFileProvider.generateUri(Context, Bitmap, String,
      * int, List<ResolveInfo>)}.
      */
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public BrowserActionItem(
             @NonNull String title, @NonNull PendingIntent action, @NonNull Uri iconUri) {
@@ -126,7 +125,6 @@ public class BrowserActionItem {
 
     /**
      * @return The uri used to get the icon of a custom item.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -137,7 +135,6 @@ public class BrowserActionItem {
     /**
      * @return The {@link Runnable} action of a predefined fallback menu item.
      */
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
     Runnable getRunnableAction() {

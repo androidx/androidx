@@ -45,7 +45,6 @@ public interface CameraInfo {
      * An unknown intrinsic zoom ratio. Usually to indicate the camera is unable to provide
      * necessary information to resolve its intrinsic zoom ratio.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     float INTRINSIC_ZOOM_RATIO_UNKNOWN = 1.0F;
@@ -53,7 +52,6 @@ public interface CameraInfo {
     /**
      * An unknown camera implementation type.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -68,7 +66,6 @@ public interface CameraInfo {
      * {@link android.hardware.camera2.CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
      * EXTRERNAL}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -78,7 +75,6 @@ public interface CameraInfo {
      * A Camera2 API implementation type where the camera support level is
      * {@link android.hardware.camera2.CameraMetadata#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY LEGACY}.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -87,7 +83,6 @@ public interface CameraInfo {
     /**
      * A fake camera implementation type.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -180,7 +175,6 @@ public interface CameraInfo {
      * @return the implementation type of the camera, which can be one of the following:
      * {@link #IMPLEMENTATION_TYPE_UNKNOWN}, {@link #IMPLEMENTATION_TYPE_CAMERA2_LEGACY},
      * {@link #IMPLEMENTATION_TYPE_CAMERA2}, {@link #IMPLEMENTATION_TYPE_FAKE}.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -279,14 +273,12 @@ public interface CameraInfo {
      * @return true if supported, otherwise false.
      * @see android.hardware.camera2.CameraMetadata
      * #REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     default boolean isPrivateReprocessingSupported() {
         return false;
     }
 
-    /** @hide */
     @StringDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN,
             IMPLEMENTATION_TYPE_CAMERA2_LEGACY, IMPLEMENTATION_TYPE_CAMERA2,
             IMPLEMENTATION_TYPE_FAKE})

@@ -38,7 +38,6 @@ import java.util.ArrayList;
 /**
  * MenuPresenter for list-style menus.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ListMenuPresenter implements MenuPresenter, AdapterView.OnItemClickListener {

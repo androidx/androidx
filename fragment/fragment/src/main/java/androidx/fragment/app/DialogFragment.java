@@ -307,7 +307,6 @@ import java.lang.annotation.RetentionPolicy;
 public class DialogFragment extends Fragment
         implements DialogInterface.OnCancelListener, DialogInterface.OnDismissListener {
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({STYLE_NORMAL, STYLE_NO_TITLE, STYLE_NO_FRAME, STYLE_NO_INPUT})
     @Retention(RetentionPolicy.SOURCE)
@@ -834,7 +833,6 @@ public class DialogFragment extends Fragment
         return layoutInflater;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setupDialog(@NonNull Dialog dialog, int style) {
         switch (style) {

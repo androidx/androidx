@@ -45,7 +45,6 @@ public class CaptureRequestOptions implements ReadableConfig {
      * given config.
      *
      * @param config The config that potentially contains Camera2 capture request options.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public CaptureRequestOptions(@NonNull Config config) {
@@ -77,7 +76,6 @@ public class CaptureRequestOptions implements ReadableConfig {
      * @param <ValueT>       The type of the value.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @Nullable
@@ -93,7 +91,6 @@ public class CaptureRequestOptions implements ReadableConfig {
     /**
      * Returns the {@link Config} object associated with this {@link CaptureRequestOptions}.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
@@ -115,7 +112,6 @@ public class CaptureRequestOptions implements ReadableConfig {
          *
          * @param config An immutable configuration to pre-populate this builder.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         @NonNull
@@ -140,7 +136,6 @@ public class CaptureRequestOptions implements ReadableConfig {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY)
         @Override

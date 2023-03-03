@@ -65,7 +65,6 @@ public abstract class EmojiSpan extends ReplacementSpan {
      *
      * @param metadata information about the emoji, cannot be {@code null}
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     EmojiSpan(@NonNull final EmojiMetadata metadata) {
@@ -94,7 +93,6 @@ public abstract class EmojiSpan extends ReplacementSpan {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     final EmojiMetadata getMetadata() {
@@ -104,7 +102,6 @@ public abstract class EmojiSpan extends ReplacementSpan {
     /**
      * @return width of the span
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     final int getWidth() {
@@ -114,7 +111,6 @@ public abstract class EmojiSpan extends ReplacementSpan {
     /**
      * @return height of the span
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     final int getHeight() {
@@ -122,7 +118,6 @@ public abstract class EmojiSpan extends ReplacementSpan {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     final float getRatio() {
@@ -132,7 +127,6 @@ public abstract class EmojiSpan extends ReplacementSpan {
     /**
      * @return unique id for the emoji that this EmojiSpan is used for
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting

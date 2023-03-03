@@ -43,7 +43,6 @@ import java.util.UUID;
  * Transitions a {@link androidx.work.ListenableWorker} to run in the context of a foreground
  * {@link android.app.Service}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkForegroundUpdater implements ForegroundUpdater {

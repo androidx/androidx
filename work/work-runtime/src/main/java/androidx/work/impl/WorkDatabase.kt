@@ -55,7 +55,6 @@ import java.util.concurrent.TimeUnit
 /**
  * A Room database for keeping track of work states.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Database(

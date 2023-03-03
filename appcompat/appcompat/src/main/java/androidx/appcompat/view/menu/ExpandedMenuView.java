@@ -33,7 +33,6 @@ import androidx.appcompat.widget.TintTypedArray;
  * The expanded menu view is a list-like menu with all of the available menu items.  It is opened
  * by the user clicking no the 'More' button on the icon menu view.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class ExpandedMenuView extends ListView

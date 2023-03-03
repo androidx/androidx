@@ -100,7 +100,6 @@ public final class OperationMonitor {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @MainThread
     void reset() {
@@ -114,7 +113,6 @@ public final class OperationMonitor {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     boolean isResetRequired() {
         synchronized (mLock) {
@@ -166,7 +164,6 @@ public final class OperationMonitor {
 
     /**
      * Work around b/139109223.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull Resettable asResettable() {

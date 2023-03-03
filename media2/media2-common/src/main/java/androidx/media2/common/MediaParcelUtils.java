@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public class MediaParcelUtils {

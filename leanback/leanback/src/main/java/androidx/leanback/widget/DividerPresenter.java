@@ -36,7 +36,6 @@ public class DividerPresenter extends Presenter {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public DividerPresenter(int layoutResourceId) {

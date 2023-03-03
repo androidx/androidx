@@ -56,7 +56,6 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * Gets the media route selector for filtering the routes that the user can select.
      *
      * @return The selector, never null.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -96,7 +95,6 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * This method must be called before the fragment is added.
      *
      * @param selector The selector to set.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void setRouteSelector(@NonNull MediaRouteSelector selector) {
@@ -125,7 +123,6 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
 
     /**
      * Called when the cast dialog is being created.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull

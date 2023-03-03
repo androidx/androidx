@@ -611,7 +611,6 @@ public class CameraControllerFragment extends Fragment {
     // -----------------
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     LifecycleCameraController getCameraController() {
@@ -619,7 +618,6 @@ public class CameraControllerFragment extends Fragment {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     void setWrappedAnalyzer(@Nullable ImageAnalysis.Analyzer analyzer) {
@@ -627,7 +625,6 @@ public class CameraControllerFragment extends Fragment {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     PreviewView getPreviewView() {
@@ -635,7 +632,6 @@ public class CameraControllerFragment extends Fragment {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     int getSensorRotation() {

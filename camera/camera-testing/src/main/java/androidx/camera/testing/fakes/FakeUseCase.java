@@ -75,7 +75,6 @@ public class FakeUseCase extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -89,7 +88,6 @@ public class FakeUseCase extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

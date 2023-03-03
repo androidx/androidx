@@ -30,7 +30,6 @@ import com.google.gson.annotations.SerializedName
  * @property entities List of entities
  * @property views List of views
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class DatabaseBundle(

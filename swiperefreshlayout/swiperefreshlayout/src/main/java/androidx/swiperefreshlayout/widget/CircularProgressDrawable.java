@@ -67,7 +67,6 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
     private static final Interpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
     private static final Interpolator MATERIAL_INTERPOLATOR = new FastOutSlowInInterpolator();
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({LARGE, DEFAULT})

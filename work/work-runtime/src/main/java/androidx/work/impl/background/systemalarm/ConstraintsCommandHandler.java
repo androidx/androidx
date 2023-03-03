@@ -36,7 +36,6 @@ import java.util.List;
  * This is a command handler which handles the constraints changed event.
  * Typically this happens for WorkSpec's for which we have pending alarms.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ConstraintsCommandHandler {

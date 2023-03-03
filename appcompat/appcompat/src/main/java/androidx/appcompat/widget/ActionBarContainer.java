@@ -37,7 +37,6 @@ import androidx.core.view.ViewCompat;
 /**
  * This class acts as a container for the action bar view and action mode context views.
  * It applies special styles as needed to help handle animated transitions between them.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ActionBarContainer extends FrameLayout {

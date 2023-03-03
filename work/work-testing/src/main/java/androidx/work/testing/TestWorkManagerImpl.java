@@ -39,7 +39,6 @@ import java.util.concurrent.Executor;
  * A concrete implementation of {@link WorkManager} which can be used for testing. This
  * implementation makes it easy to swap Schedulers.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {

@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Simple interface for predicting motion points.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public interface KalmanPredictor {

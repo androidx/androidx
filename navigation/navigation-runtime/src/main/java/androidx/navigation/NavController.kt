@@ -113,7 +113,6 @@ public open class NavController(
      * Retrieve the current back stack.
      *
      * @return The current back stack.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -240,7 +239,6 @@ public open class NavController(
     public open var navigatorProvider: NavigatorProvider
         get() = _navigatorProvider
         /**
-         * @hide
          */
         set(navigatorProvider) {
             check(backQueue.isEmpty()) { "NavigatorProvider must be set before setGraph call" }

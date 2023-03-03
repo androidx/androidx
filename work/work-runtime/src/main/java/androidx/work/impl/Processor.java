@@ -49,7 +49,6 @@ import java.util.concurrent.ExecutionException;
 /**
  * A Processor can intelligently schedule and execute work on demand.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Processor implements ExecutionListener, ForegroundProcessor {

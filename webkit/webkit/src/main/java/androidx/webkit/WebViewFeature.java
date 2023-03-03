@@ -49,7 +49,6 @@ public class WebViewFeature {
     private WebViewFeature() {}
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value = {
@@ -109,7 +108,6 @@ public class WebViewFeature {
     public @interface WebViewSupportFeature {}
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value = {
@@ -353,7 +351,6 @@ public class WebViewFeature {
      * This feature covers
      * {@link WebMessagePortCompat#postMessage(WebMessageCompat)} with ArrayBuffer type, and
      * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)} with ArrayBuffer type.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String WEB_MESSAGE_GET_MESSAGE_PAYLOAD = "WEB_MESSAGE_GET_MESSAGE_PAYLOAD";
@@ -440,7 +437,6 @@ public class WebViewFeature {
      * {@link WebSettingsCompat#setWillSuppressErrorPage(WebSettings, boolean)}.
      *
      * TODO(cricke): unhide
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String SUPPRESS_ERROR_PAGE = "SUPPRESS_ERROR_PAGE";
@@ -489,7 +485,6 @@ public class WebViewFeature {
      * String, Set)}.
      *
      * TODO(swestphal): unhide when ready.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String DOCUMENT_START_SCRIPT = "DOCUMENT_START_SCRIPT";
@@ -547,7 +542,6 @@ public class WebViewFeature {
      * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderAllowList(WebSettings, Set)},
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getRequestedWithHeaderAllowList(WebSettings)}, and
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setRequestedWithHeaderAllowList(WebSettings, Set)}.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String REQUESTED_WITH_HEADER_ALLOW_LIST =

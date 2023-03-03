@@ -80,7 +80,6 @@ public class CameraUnavailableException extends Exception {
      */
     public static final int CAMERA_UNAVAILABLE_DO_NOT_DISTURB = 6;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {

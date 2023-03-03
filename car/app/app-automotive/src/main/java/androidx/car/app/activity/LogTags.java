@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Declares the log tags to use in the library.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class LogTags {

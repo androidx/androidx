@@ -59,7 +59,6 @@ import java.util.Set;
 /**
  * Manages the enqueuing of a {@link WorkContinuationImpl}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EnqueueRunnable implements Runnable {

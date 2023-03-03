@@ -49,8 +49,6 @@ internal fun generateInspectionCompanion(
 
         addOriginatingElement(view.type)
 
-        addJavadoc("Inspection companion for {@link \$T}.\n\n@hide", view.className)
-
         addField(
             FieldSpec.builder(TypeName.BOOLEAN, "mPropertiesMapped", Modifier.PRIVATE).run {
                 initializer("false")

@@ -195,7 +195,6 @@ public class TestCarContext extends CarContext {
      *
      * @throws NullPointerException if either {@code serviceClass} or {@code service} are {@code
      *                              null}
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void overrideCarService(@NonNull Class<? extends Manager> serviceClass,
@@ -210,7 +209,6 @@ public class TestCarContext extends CarContext {
     /**
      * Returns the {@link TestLifecycleOwner} that is used for this CarContext.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @NonNull
@@ -221,7 +219,6 @@ public class TestCarContext extends CarContext {
     /**
      * Returns the {@link IStartCarApp} instance that is being used by this CarContext.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @NonNull

@@ -68,7 +68,6 @@ public class TargetAspectRatio {
     }
 
     /**
-     * @hide
      */
     @IntDef({RATIO_4_3, RATIO_16_9, RATIO_MAX_JPEG, RATIO_ORIGINAL})
     @Retention(RetentionPolicy.SOURCE)

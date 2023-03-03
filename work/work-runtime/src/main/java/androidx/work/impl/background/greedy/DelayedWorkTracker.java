@@ -30,7 +30,6 @@ import java.util.Map;
  * Keeps track of {@link androidx.work.WorkRequest}s that have a timing component in a
  * {@link GreedyScheduler}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DelayedWorkTracker {

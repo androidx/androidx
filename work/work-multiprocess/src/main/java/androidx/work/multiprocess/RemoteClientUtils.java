@@ -29,7 +29,6 @@ import java.util.concurrent.Executor;
  * A collection of utilities which make using
  * {@link com.google.common.util.concurrent.ListenableFuture} easier.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class RemoteClientUtils {

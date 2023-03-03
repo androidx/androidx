@@ -53,7 +53,6 @@ public class TransitionParser {
      *
      * @param json       Transition Object to parse.
      * @param transition Transition Object to write transition to
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void parse(@NonNull CLObject json, @NonNull Transition transition)

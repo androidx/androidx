@@ -43,7 +43,6 @@ import java.util.List;
 /**
  * Testing utilities for Advertising ID.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MockPackageManagerHelper {

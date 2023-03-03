@@ -153,7 +153,6 @@ public final class LifecycleCameraController extends CameraController {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(TESTS)
     @SuppressWarnings("FutureReturnValueIgnored")

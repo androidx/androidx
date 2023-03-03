@@ -455,7 +455,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
             android.media.MediaMetadata.METADATA_KEY_MEDIA_URI;
 
     /**
-     * @hide
      * The metadata key for a {@link Float} typed value to retrieve the information about the
      * radio frequency if this metadata represents radio content.
      *
@@ -467,7 +466,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
             "androidx.media2.metadata.RADIO_FREQUENCY";
 
     /**
-     * @hide
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
      * information about the radio program name if this metadata represents radio content.
      *
@@ -634,7 +632,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     public static final String METADATA_KEY_EXTRAS = "androidx.media2.metadata.EXTRAS";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_TITLE, METADATA_KEY_ARTIST, METADATA_KEY_ALBUM, METADATA_KEY_AUTHOR,
@@ -647,7 +644,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     public @interface TextKey {}
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_DURATION, METADATA_KEY_YEAR, METADATA_KEY_TRACK_NUMBER,
@@ -657,7 +653,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     public @interface LongKey {}
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_ART, METADATA_KEY_ALBUM_ART, METADATA_KEY_DISPLAY_ICON})
@@ -665,7 +660,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     public @interface BitmapKey {}
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_USER_RATING, METADATA_KEY_RATING})
@@ -673,7 +667,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     public @interface RatingKey {}
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_RADIO_FREQUENCY})
@@ -681,7 +674,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     public @interface FloatKey {}
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @StringDef({METADATA_KEY_EXTRAS})
@@ -937,7 +929,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * Gets the object which matches the given key in the backing bundle.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @SuppressWarnings("deprecation")
@@ -949,7 +940,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(LIBRARY)
@@ -976,7 +966,6 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(LIBRARY)

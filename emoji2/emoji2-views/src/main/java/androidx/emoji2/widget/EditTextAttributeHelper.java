@@ -31,7 +31,6 @@ import androidx.emoji2.text.EmojiDefaults;
 /**
  * Helper class to parse EmojiCompat EditText attributes.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class EditTextAttributeHelper {

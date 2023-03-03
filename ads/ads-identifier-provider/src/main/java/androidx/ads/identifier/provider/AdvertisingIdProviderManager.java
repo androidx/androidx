@@ -86,7 +86,6 @@ public class AdvertisingIdProviderManager {
     /**
      * Gets the {@link Callable} to create the Advertising ID Provider.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
@@ -94,7 +93,6 @@ public class AdvertisingIdProviderManager {
         return sProviderCallable;
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
     public static void clearProviderCallable() {

@@ -46,7 +46,6 @@ import androidx.core.view.ViewCompat;
  *         priority for extra space</li>
  * </ul>
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class AlertDialogLayout extends LinearLayoutCompat {

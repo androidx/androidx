@@ -33,7 +33,6 @@ import androidx.car.app.hardware.info.ProjectedCarSensors;
  * {@link CarHardwareManager} which access projected vehicle specific properties, sensors, and
  * actions via a host interface.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class ProjectedCarHardwareManager implements CarHardwareManager {

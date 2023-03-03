@@ -199,7 +199,6 @@ public abstract class AppCompatDelegate {
     private static final Object sActivityDelegatesLock = new Object();
     private static final Object sAppLocalesStorageSyncLock = new Object();
 
-    /** @hide */
     @SuppressWarnings("deprecation")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO_TIME, MODE_NIGHT_FOLLOW_SYSTEM,

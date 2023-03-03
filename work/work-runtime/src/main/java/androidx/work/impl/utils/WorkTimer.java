@@ -32,7 +32,6 @@ import java.util.Map;
  * Notifies a {@link TimeLimitExceededListener} when the time limit
  * is exceeded.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkTimer {
@@ -111,7 +110,6 @@ public class WorkTimer {
     /**
      * The actual runnable scheduled on the scheduled executor.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class WorkTimerRunnable implements Runnable {
@@ -145,7 +143,6 @@ public class WorkTimer {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface TimeLimitExceededListener {

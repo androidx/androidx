@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo;
 /**
  * The Runtime Exception thrown by the android.startup library.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("WeakerAccess")

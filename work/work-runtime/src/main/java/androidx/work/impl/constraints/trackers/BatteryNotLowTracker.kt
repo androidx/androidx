@@ -25,7 +25,6 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /**
  * Tracks whether or not the device's battery level is low.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class BatteryNotLowTracker(context: Context, taskExecutor: TaskExecutor) :

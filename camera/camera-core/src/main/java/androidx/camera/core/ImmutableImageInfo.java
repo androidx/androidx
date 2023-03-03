@@ -27,7 +27,6 @@ import androidx.camera.core.impl.utils.ExifData;
 import com.google.auto.value.AutoValue;
 
 /**
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue

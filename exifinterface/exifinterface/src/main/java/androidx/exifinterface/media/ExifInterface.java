@@ -2147,7 +2147,6 @@ public class ExifInterface {
     // TODO: Unhide this when it can be public.
     /**
      * @see #TAG_ORIENTATION
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TAG_THUMBNAIL_ORIENTATION = "ThumbnailOrientation";
@@ -2953,7 +2952,6 @@ public class ExifInterface {
      */
     public static final int STREAM_TYPE_EXIF_DATA_ONLY = 1;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({STREAM_TYPE_FULL_IMAGE_DATA, STREAM_TYPE_EXIF_DATA_ONLY})
@@ -3752,7 +3750,6 @@ public class ExifInterface {
     // The following values are used for indicating pointers to the other Image File Directories.
 
     // Indices of Exif Ifd tag groups
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({IFD_TYPE_PRIMARY, IFD_TYPE_EXIF, IFD_TYPE_GPS, IFD_TYPE_INTEROPERABILITY,
@@ -5114,7 +5111,6 @@ public class ExifInterface {
      * Set the date time value.
      *
      * @param timeStamp number of milliseconds since Jan. 1, 1970, midnight local time.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setDateTime(@NonNull Long timeStamp) {
@@ -5144,7 +5140,6 @@ public class ExifInterface {
      *
      * @return null if date time information is unavailable or invalid.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
@@ -5163,7 +5158,6 @@ public class ExifInterface {
      *
      * @return null if digitized date time information is unavailable or invalid.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
@@ -5182,7 +5176,6 @@ public class ExifInterface {
      *
      * @return null if original date time information is unavailable or invalid.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
