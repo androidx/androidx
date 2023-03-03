@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
+import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.list.setContentWithTestViewConfiguration
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -1847,5 +1849,43 @@ class LazyStaggeredGridTest(
             .assertAxisBounds(
                 DpOffset(0.dp, itemSizeDp * 2), DpSize(itemSizeDp, itemSizeDp)
             )
+    }
+
+    @Test
+    fun changeItemsAndScrollImmediately() {
+        val keys = mutableStateListOf<Int>().also { list ->
+            repeat(10) {
+                list.add(it)
+            }
+        }
+        rule.setContent {
+            state = rememberLazyStaggeredGridState()
+            LazyStaggeredGrid(
+                lanes = 2,
+                Modifier.mainAxisSize(itemSizeDp),
+                state
+            ) {
+                items(keys, key = { it }) {
+                    Box(Modifier.size(itemSizeDp * 2))
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        state.scrollTo(8)
+
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(8)
+
+            keys.add(0, -1)
+            keys.add(0, -2)
+
+            runBlocking(AutoTestFrameClock()) {
+                state.scrollBy(10f)
+                state.scrollBy(-10f)
+            }
+
+            assertThat(state.firstVisibleItemIndex).isEqualTo(10)
+        }
     }
 }
