@@ -16,7 +16,6 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-
 import static java.lang.Math.abs;
 
 import android.util.Log;
@@ -210,7 +209,6 @@ class Int32Nodes {
 
     /** Dynamic integer node that gets duration part from a duration. */
     static class GetDurationPartOpNode extends DynamicDataTransformNode<Duration, Integer> {
-
         private static final String TAG = "GetDurationPartOpNode";
 
         GetDurationPartOpNode(
