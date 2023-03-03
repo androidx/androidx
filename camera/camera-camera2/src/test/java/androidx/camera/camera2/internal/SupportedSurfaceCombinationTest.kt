@@ -50,6 +50,7 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigType
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
+import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1440P
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_720P
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA
@@ -80,6 +81,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
+import org.robolectric.util.ReflectionHelpers
 
 private const val DEFAULT_CAMERA_ID = "0"
 private const val EXTERNAL_CAMERA_ID = "0-external"
@@ -1610,6 +1612,30 @@ class SupportedSurfaceCombinationTest {
             supportedSurfaceCombination.mSurfaceSizeDefinition.recordSize
         ).isEqualTo(
             LEGACY_VIDEO_MAXIMUM_SIZE
+        )
+    }
+
+    @Test
+    @Config(minSdk = 21, maxSdk = 26)
+    fun canCorrectResolution_forSamsungJ710mnDevice() {
+        val j710mnBrandName = "SAMSUNG"
+        val j710mnModelName = "SM-J710MN"
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", j710mnBrandName)
+        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", j710mnModelName)
+        val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE) // JPEG
+        val privUseCase = createUseCase(CaptureType.PREVIEW) // YUV
+        val yuvUseCase = createUseCase(CaptureType.IMAGE_ANALYSIS) // YUV
+        val expectedJpegSize = Size(3264, 1836)
+        val expectedPrivSize = RESOLUTION_1080P
+        val expectedYuvSize = RESOLUTION_720P
+        val useCaseExpectedResultMap = mutableMapOf<UseCase, Size>().apply {
+            put(jpegUseCase, expectedJpegSize)
+            put(privUseCase, expectedPrivSize)
+            put(yuvUseCase, expectedYuvSize)
+        }
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
         )
     }
 
