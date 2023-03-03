@@ -45,6 +45,7 @@ import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyInte
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent
 import androidx.work.impl.model.WorkGenerationalId
+import androidx.work.impl.schedulers
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
@@ -95,12 +96,12 @@ class SystemForegroundDispatcherTest {
         processor = spy(Processor(context, config, taskExecutor, workDatabase))
         workManager = spy(
             WorkManagerImpl(
-                context,
-                config,
-                taskExecutor,
-                workDatabase,
-                listOf(scheduler),
-                processor
+                context = context,
+                configuration = config,
+                workTaskExecutor = taskExecutor,
+                workDatabase = workDatabase,
+                processor = processor,
+                schedulersCreator = schedulers(scheduler),
             )
         )
         workDatabase = workManager.workDatabase
