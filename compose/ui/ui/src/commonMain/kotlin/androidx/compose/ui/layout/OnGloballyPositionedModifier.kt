@@ -18,10 +18,10 @@ package androidx.compose.ui.layout
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.node.GlobalPositionAwareModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 
 /**
  * Invoke [onGloballyPositioned] with the [LayoutCoordinates] of the element when the
@@ -41,33 +41,42 @@ import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 @Stable
 fun Modifier.onGloballyPositioned(
     onGloballyPositioned: (LayoutCoordinates) -> Unit
-) = this.then(
-    OnGloballyPositionedModifierImpl(
-        callback = onGloballyPositioned,
-        inspectorInfo = debugInspectorInfo {
-            name = "onGloballyPositioned"
-            properties["onGloballyPositioned"] = onGloballyPositioned
-        }
-    )
-)
+) = this then OnGloballyPositionedModifierElement(onGloballyPositioned)
 
-private class OnGloballyPositionedModifierImpl(
-    val callback: (LayoutCoordinates) -> Unit,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : OnGloballyPositionedModifier, InspectorValueInfo(inspectorInfo) {
-    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        callback(coordinates)
+private class OnGloballyPositionedModifierElement(
+    val onGloballyPositioned: (LayoutCoordinates) -> Unit
+) :
+    ModifierNodeElement<OnGloballyPositionedModifierImpl>() {
+    override fun create(): OnGloballyPositionedModifierImpl {
+        return OnGloballyPositionedModifierImpl(onGloballyPositioned)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is OnGloballyPositionedModifierImpl) return false
-
-        return callback == other.callback
+        if (other !is OnGloballyPositionedModifierElement) return false
+        return onGloballyPositioned == other.onGloballyPositioned
     }
 
     override fun hashCode(): Int {
-        return callback.hashCode()
+        return onGloballyPositioned.hashCode()
+    }
+
+    override fun update(node: OnGloballyPositionedModifierImpl): OnGloballyPositionedModifierImpl =
+        node.also {
+            it.callback = onGloballyPositioned
+        }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "onGloballyPositioned"
+        properties["onGloballyPositioned"] = onGloballyPositioned
+    }
+}
+
+private class OnGloballyPositionedModifierImpl(
+    var callback: (LayoutCoordinates) -> Unit
+) : Modifier.Node(), GlobalPositionAwareModifierNode {
+    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        callback(coordinates)
     }
 }
 
