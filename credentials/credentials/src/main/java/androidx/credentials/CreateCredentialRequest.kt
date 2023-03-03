@@ -22,7 +22,6 @@ import android.text.TextUtils
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.credentials.CreatePublicKeyCredentialRequestPrivileged.Companion.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV
 import androidx.credentials.PublicKeyCredential.Companion.BUNDLE_KEY_SUBTYPE
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -51,6 +50,7 @@ abstract class CreateCredentialRequest internal constructor(
     open val isAutoSelectAllowed: Boolean,
     /** @hide */
     val displayInfo: DisplayInfo,
+    val origin: String?,
 ) {
 
     init {
@@ -165,7 +165,7 @@ abstract class CreateCredentialRequest internal constructor(
 
         /**
          * Attempts to parse the raw data into one of [CreatePasswordRequest],
-         * [CreatePublicKeyCredentialRequest], [CreatePublicKeyCredentialRequestPrivileged], and
+         * [CreatePublicKeyCredentialRequest], and
          * [CreateCustomCredentialRequest]. Otherwise returns null.
          *
          * @hide
@@ -176,22 +176,19 @@ abstract class CreateCredentialRequest internal constructor(
             type: String,
             credentialData: Bundle,
             candidateQueryData: Bundle,
-            requireSystemProvider: Boolean
+            requireSystemProvider: Boolean,
+            origin: String? = null,
         ): CreateCredentialRequest? {
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
-                        CreatePasswordRequest.createFrom(credentialData)
+                        CreatePasswordRequest.createFrom(credentialData, origin)
 
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         when (credentialData.getString(BUNDLE_KEY_SUBTYPE)) {
                             CreatePublicKeyCredentialRequest
                                 .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST ->
-                                CreatePublicKeyCredentialRequest.createFrom(credentialData)
-
-                            BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST_PRIV ->
-                                CreatePublicKeyCredentialRequestPrivileged
-                                    .createFrom(credentialData)
+                                CreatePublicKeyCredentialRequest.createFrom(credentialData, origin)
 
                             else -> throw FrameworkClassParsingException()
                         }

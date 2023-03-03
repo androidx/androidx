@@ -25,10 +25,15 @@ package androidx.credentials
  *
  * @property credentialOptions the list of [CredentialOption] from which the user can choose
  * one to authenticate to the app
+ * @property origin the origin of a different application if the request is being made on behalf of
+ * that application. For API level >=34, setting a non-null value for this parameter, will throw
+ * a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present.
  * @throws IllegalArgumentException If [credentialOptions] is empty
  */
-class GetCredentialRequest constructor(
+class GetCredentialRequest
+@JvmOverloads constructor(
     val credentialOptions: List<CredentialOption>,
+    val origin: String? = null,
 ) {
 
     init {
@@ -38,6 +43,7 @@ class GetCredentialRequest constructor(
     /** A builder for [GetCredentialRequest]. */
     class Builder {
         private var credentialOptions: MutableList<CredentialOption> = mutableListOf()
+        private var origin: String? = null
 
         /** Adds a specific type of [CredentialOption]. */
         fun addCredentialOption(credentialOption: CredentialOption): Builder {
@@ -51,13 +57,22 @@ class GetCredentialRequest constructor(
             return this
         }
 
+        /** Sets the [origin] of a different application if the request is being made on behalf of
+         * that application. For API level >=34, setting a non-null value for this parameter, will
+         * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not
+         * present. */
+        fun setOrigin(origin: String): Builder {
+            this.origin = origin
+            return this
+        }
+
         /**
          * Builds a [GetCredentialRequest].
          *
          * @throws IllegalArgumentException If [credentialOptions] is empty
          */
         fun build(): GetCredentialRequest {
-            return GetCredentialRequest(credentialOptions.toList())
+            return GetCredentialRequest(credentialOptions.toList(), origin)
         }
     }
 }

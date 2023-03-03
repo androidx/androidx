@@ -103,12 +103,14 @@ class CreatePasswordRequestTest {
     fun frameworkConversion_success() {
         val idExpected = "id"
         val request = CreatePasswordRequest(idExpected, "password")
+        val origin = "origin"
 
         val convertedRequest = createFrom(
             request.type, getFinalCreateCredentialData(
                 request, mContext
             ),
-            request.candidateQueryData, request.isSystemProviderRequired
+            request.candidateQueryData, request.isSystemProviderRequired,
+            origin
         )
 
         assertThat(convertedRequest).isInstanceOf(
@@ -121,5 +123,6 @@ class CreatePasswordRequestTest {
         assertThat(convertedCreatePasswordRequest.displayInfo.userId).isEqualTo(idExpected)
         assertThat(convertedCreatePasswordRequest.displayInfo.credentialTypeIcon?.resId)
             .isEqualTo(R.drawable.ic_password)
+        assertThat(convertedCreatePasswordRequest.origin).isEqualTo(origin)
     }
 }
