@@ -67,6 +67,7 @@ package androidx.lifecycle {
 
   public final class LifecycleKt {
     method public static androidx.lifecycle.LifecycleCoroutineScope getCoroutineScope(androidx.lifecycle.Lifecycle);
+    method public static kotlinx.coroutines.flow.Flow<androidx.lifecycle.Lifecycle.Event> getEventFlow(androidx.lifecycle.Lifecycle);
   }
 
   public interface LifecycleObserver {
