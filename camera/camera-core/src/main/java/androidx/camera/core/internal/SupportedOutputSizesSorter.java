@@ -98,14 +98,24 @@ class SupportedOutputSizesSorter {
     @NonNull
     private List<Size> getResolutionCandidateList(@NonNull UseCaseConfig<?> useCaseConfig) {
         int imageFormat = useCaseConfig.getInputFormat();
+        ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCaseConfig;
         // Tries to get the custom supported resolutions list if it is set
         List<Size> resolutionCandidateList = getCustomizedSupportedResolutionsFromConfig(
-                imageFormat, (ImageOutputConfig) useCaseConfig);
+                imageFormat, imageOutputConfig);
 
         // Tries to get the supported output sizes from the CameraInfoInternal if both custom
         // ordered and supported resolutions lists are not set.
         if (resolutionCandidateList == null) {
             resolutionCandidateList = mCameraInfoInternal.getSupportedResolutions(imageFormat);
+        }
+
+        // Appends high resolution output sizes if high resolution is enabled by ResolutionSelector
+        if (imageOutputConfig.getResolutionSelector(null) != null
+                && imageOutputConfig.getResolutionSelector().isHighResolutionEnabled()) {
+            List<Size> allSizesList = new ArrayList<>();
+            allSizesList.addAll(resolutionCandidateList);
+            allSizesList.addAll(mCameraInfoInternal.getSupportedHighResolutions(imageFormat));
+            return allSizesList;
         }
 
         return resolutionCandidateList;

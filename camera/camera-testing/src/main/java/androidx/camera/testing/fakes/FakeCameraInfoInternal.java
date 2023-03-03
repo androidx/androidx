@@ -71,6 +71,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
     private final MutableLiveData<ZoomState> mZoomLiveData;
     private final Map<Integer, List<Size>> mSupportedResolutionMap = new HashMap<>();
+    private final Map<Integer, List<Size>> mSupportedHighResolutionMap = new HashMap<>();
     private MutableLiveData<CameraState> mCameraStateLiveData;
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
 
@@ -198,6 +199,13 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return resolutions != null ? resolutions : Collections.emptyList();
     }
 
+    @NonNull
+    @Override
+    public List<Size> getSupportedHighResolutions(int format) {
+        List<Size> resolutions = mSupportedHighResolutionMap.get(format);
+        return resolutions != null ? resolutions : Collections.emptyList();
+    }
+
     @Override
     public void addSessionCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback callback) {
@@ -269,6 +277,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     /** Set the supported resolutions for testing */
     public void setSupportedResolutions(int format, @NonNull List<Size> resolutions) {
         mSupportedResolutionMap.put(format, resolutions);
+    }
+
+    /** Set the supported high resolutions for testing */
+    public void setSupportedHighResolutions(int format, @NonNull List<Size> resolutions) {
+        mSupportedHighResolutionMap.put(format, resolutions);
     }
 
     /** Set the isPrivateReprocessingSupported flag for testing */

@@ -95,6 +95,20 @@ public class StreamConfigurationMapCompat {
     }
 
     /**
+     * Get a list of high resolution sizes compatible with the requested image {@code format}.
+     *
+     * @param format an image format from {@link ImageFormat} or {@link PixelFormat}
+     * @return an array of supported sizes, or {@code null} if the {@code format} is not a
+     * supported output
+     * @see ImageFormat
+     * @see PixelFormat
+     */
+    @Nullable
+    public Size[] getHighResolutionOutputSizes(int format) {
+        return mImpl.getHighResolutionOutputSizes(format);
+    }
+
+    /**
      * Returns the {@link StreamConfigurationMap} represented by this object.
      */
     @NonNull
@@ -109,6 +123,9 @@ public class StreamConfigurationMapCompat {
 
         @Nullable
         <T> Size[] getOutputSizes(@NonNull Class<T> klass);
+
+        @Nullable
+        Size[] getHighResolutionOutputSizes(int format);
 
         /**
          * Returns the underlying {@link StreamConfigurationMap} instance.
