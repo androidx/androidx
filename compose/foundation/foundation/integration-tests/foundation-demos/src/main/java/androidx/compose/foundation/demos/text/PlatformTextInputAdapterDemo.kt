@@ -347,10 +347,6 @@ private class WackyTextInputService(
             endBatchEdit()
         }
 
-        override fun submitTextForTest() {
-            throw UnsupportedOperationException("just a test")
-        }
-
         // endregion
     }
 }

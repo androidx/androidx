@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.computeSizeForDefaultText
 import androidx.compose.runtime.Composable
@@ -84,6 +85,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
@@ -96,6 +98,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextClearance
@@ -156,6 +159,7 @@ import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Ignore
@@ -605,6 +609,63 @@ class TextFieldTest {
             .performSemanticsAction(SemanticsActions.OnClick)
         rule.onNodeWithTag(Tag)
             .assert(isFocused())
+    }
+
+    @Test
+    fun semantics_imeEnterAction() {
+        var done = false
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { done = true })
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertIsFocused()
+
+        rule.runOnIdle {
+            assertThat(done).isFalse()
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performImeAction()
+
+        rule.runOnIdle {
+            assertThat(done).isTrue()
+        }
+    }
+
+    @Test
+    fun semantics_defaultImeEnterAction() {
+        rule.setContent {
+            var value by remember { mutableStateOf("") }
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = value,
+                onValueChange = { value = it },
+                keyboardActions = KeyboardActions()
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .assertIsFocused()
+
+        val error = assertFailsWith<AssertionError> {
+            rule.onNodeWithTag(Tag)
+                .performImeAction()
+        }
+        assertThat(error).hasMessageThat().startsWith(
+            "Failed to perform IME action.\n" +
+                "Failed to assert the following: (NOT (ImeAction = 'Default'))\n" +
+                "Semantics of the node:"
+        )
     }
 
     @Test

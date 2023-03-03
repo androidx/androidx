@@ -151,6 +151,5 @@ class PlatformTextInputViewIntegrationTest {
 
     private object NoopInputForTests : TextInputForTests {
         override fun inputTextForTest(text: String) = TODO("Not implemented for test")
-        override fun submitTextForTest() = TODO("Not implemented for test")
     }
 }
