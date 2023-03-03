@@ -97,6 +97,8 @@ import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import java.util.concurrent.Executors
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -123,7 +125,10 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         // Use uiAutomation to enable accessibility manager.
         InstrumentationRegistry.getInstrumentation().uiAutomation
         rule.activityRule.scenario.onActivity {
-            androidComposeView = AndroidComposeView(it)
+            androidComposeView = AndroidComposeView(
+                it,
+                Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+            )
             container = spy(FrameLayout(it)) {
                 on {
                     onRequestSendAccessibilityEvent(

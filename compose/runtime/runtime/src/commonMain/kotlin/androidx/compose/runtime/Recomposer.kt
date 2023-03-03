@@ -267,7 +267,7 @@ class Recomposer(
     /**
      * The [effectCoroutineContext] is derived from the parameter of the same name.
      */
-    internal override val effectCoroutineContext: CoroutineContext =
+    override val effectCoroutineContext: CoroutineContext =
         effectCoroutineContext + broadcastFrameClock + effectJob
 
     internal override val recomposeCoroutineContext: CoroutineContext

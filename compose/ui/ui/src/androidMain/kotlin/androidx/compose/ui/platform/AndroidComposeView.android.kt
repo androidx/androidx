@@ -159,11 +159,12 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor", "VisibleForTests")
 @OptIn(ExperimentalComposeUiApi::class, InternalTextApi::class, ExperimentalTextApi::class)
-internal class AndroidComposeView(context: Context) :
+internal class AndroidComposeView(context: Context, coroutineContext: CoroutineContext) :
     ViewGroup(context), Owner, ViewRootForTest, PositionCalculator, DefaultLifecycleObserver {
 
     /**
@@ -451,6 +452,8 @@ internal class AndroidComposeView(context: Context) :
      * floating toolbar(post-M) and primary toolbar(pre-M).
      */
     override val textToolbar: TextToolbar = AndroidTextToolbar(this)
+
+    override val coroutineContext: CoroutineContext = coroutineContext
 
     /**
      * When the first event for a mouse is ACTION_DOWN, an ACTION_HOVER_ENTER is never sent.

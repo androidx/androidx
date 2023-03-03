@@ -50,6 +50,9 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -295,6 +298,8 @@ class ModifierLocalConsumerEntityTest {
         override val snapshotObserver: OwnerSnapshotObserver = OwnerSnapshotObserver { it.invoke() }
 
         override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
+        override val coroutineContext: CoroutineContext =
+            Executors.newFixedThreadPool(3).asCoroutineDispatcher()
 
         override fun registerOnEndApplyChangesListener(listener: () -> Unit) {
             listeners += listener
