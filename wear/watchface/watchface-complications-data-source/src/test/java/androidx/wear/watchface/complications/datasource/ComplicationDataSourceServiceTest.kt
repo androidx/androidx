@@ -204,6 +204,28 @@ class ComplicationDataSourceServiceTest {
     }
 
     @Test
+    fun testOnComplicationRequest_isForSafeWatchFace_malformedBundle() {
+        mService.responseData = LongTextComplicationData.Builder(
+            PlainComplicationText.Builder("hello").build(),
+            ComplicationText.EMPTY
+        ).build()
+        val id = 123
+
+        @Suppress("NewApi") // onUpdate2
+        mProvider.onUpdate2(
+            id,
+            ComplicationType.LONG_TEXT.toWireComplicationType(),
+            mLocalManager,
+            Bundle()
+        )
+
+        runUiThreadTasksWhileAwaitingDataLatch(1000)
+        @Suppress("NewApi") // isForSafeWatchFace
+        assertThat(mService.lastRequest!!.isForSafeWatchFace)
+            .isEqualTo(TargetWatchFaceSafety.UNKNOWN)
+    }
+
+    @Test
     fun testOnComplicationRequestWithExpression_doesNotEvaluateExpression() {
         // TODO(b/257422920): Set this to the exact platform version.
         mService.wearPlatformVersion = Build.VERSION_CODES.TIRAMISU + 1
@@ -530,6 +552,46 @@ class ComplicationDataSourceServiceTest {
             @Suppress("NewApi") // isForSafeWatchFace
             assertThat(mService.lastRequest!!.isForSafeWatchFace)
                 .isEqualTo(TargetWatchFaceSafety.SAFE)
+        } finally {
+            thread.quitSafely()
+        }
+    }
+
+    @Test
+    @Suppress("NewApi") // onSynchronousComplicationRequest2
+    fun testImmediateRequest_isForSafeWatchFace_malformedBundle() {
+        val id = 123
+        mService.responseData = LongTextComplicationData.Builder(
+            PlainComplicationText.Builder("hello").build(),
+            ComplicationText.EMPTY
+        ).build()
+        val thread = HandlerThread("testThread")
+        try {
+            thread.start()
+            val threadHandler = Handler(thread.looper)
+            val response =
+                AtomicReference<android.support.wearable.complications.ComplicationData>()
+            val doneLatch = CountDownLatch(1)
+            threadHandler.post {
+                try {
+                    @Suppress("NewApi") // onSynchronousComplicationRequest2
+                    response.set(
+                        mProvider.onSynchronousComplicationRequest2(
+                            id,
+                            ComplicationType.LONG_TEXT.toWireComplicationType(),
+                            Bundle()
+                        )
+                    )
+                    doneLatch.countDown()
+                } catch (e: RemoteException) {
+                    // Should not happen
+                }
+            }
+
+            assertThat(doneLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            @Suppress("NewApi") // isForSafeWatchFace
+            assertThat(mService.lastRequest!!.isForSafeWatchFace)
+                .isEqualTo(TargetWatchFaceSafety.UNKNOWN)
         } finally {
             thread.quitSafely()
         }

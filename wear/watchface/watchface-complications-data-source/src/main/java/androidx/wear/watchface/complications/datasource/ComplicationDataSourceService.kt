@@ -458,7 +458,8 @@ public abstract class ComplicationDataSourceService : Service() {
             bundle: Bundle?
         ) {
             val isForSafeWatchFace = bundle?.getInt(
-                IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE
+                IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
+                TargetWatchFaceSafety.UNKNOWN
             ) ?: TargetWatchFaceSafety.UNKNOWN
             val expectedDataType = fromWireType(type)
             val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
@@ -676,7 +677,8 @@ public abstract class ComplicationDataSourceService : Service() {
             bundle: Bundle?
         ): android.support.wearable.complications.ComplicationData? {
             val isForSafeWatchFace = bundle?.getInt(
-                IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE
+                IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
+                TargetWatchFaceSafety.UNKNOWN
             ) ?: TargetWatchFaceSafety.UNKNOWN
             val expectedDataType = fromWireType(type)
             val complicationType = fromWireType(type)
