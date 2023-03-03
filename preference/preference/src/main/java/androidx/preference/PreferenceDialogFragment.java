@@ -220,7 +220,6 @@ public abstract class PreferenceDialogFragment extends android.app.DialogFragmen
      * focus (ideally in {@link #onBindDialogView(View)}) for the input field in order to
      * correctly attach the input method to the field.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     protected boolean needInputMethod() {
