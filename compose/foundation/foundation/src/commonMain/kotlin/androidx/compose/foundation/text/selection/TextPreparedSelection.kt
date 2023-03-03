@@ -202,11 +202,19 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
     }
 
     fun moveCursorPrevByParagraph() = apply {
-        setCursor(getParagraphStart())
+        var paragraphStart = text.findParagraphStart(selection.min)
+        if (paragraphStart == selection.min && paragraphStart != 0) {
+            paragraphStart = text.findParagraphStart(paragraphStart - 1)
+        }
+        setCursor(paragraphStart)
     }
 
     fun moveCursorNextByParagraph() = apply {
-        setCursor(getParagraphEnd())
+        var paragraphEnd = text.findParagraphEnd(selection.max)
+        if (paragraphEnd == selection.max && paragraphEnd != text.length) {
+            paragraphEnd = text.findParagraphEnd(paragraphEnd + 1)
+        }
+        setCursor(paragraphEnd)
     }
 
     fun moveCursorUpByLine() = apply(false) {
@@ -344,10 +352,6 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
 
     private fun charOffset(offset: Int) =
         offset.coerceAtMost(text.length - 1)
-
-    private fun getParagraphStart() = text.findParagraphStart(selection.min)
-
-    private fun getParagraphEnd() = text.findParagraphEnd(selection.max)
 
     companion object {
         /**
