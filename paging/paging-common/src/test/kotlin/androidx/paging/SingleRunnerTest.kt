@@ -37,10 +37,10 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.Collections
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
@@ -179,7 +179,7 @@ class SingleRunnerTest {
             }
         }
         runBlocking {
-            withTimeout(TimeUnit.SECONDS.toMillis(10)) {
+            withTimeout(10.seconds) {
                 job2.join()
             }
         }
