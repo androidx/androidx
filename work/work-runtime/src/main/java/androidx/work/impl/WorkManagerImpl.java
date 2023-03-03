@@ -20,6 +20,7 @@ import static android.app.PendingIntent.FLAG_MUTABLE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.text.TextUtils.isEmpty;
 
+import static androidx.work.impl.Schedulers.createBestAvailableBackgroundScheduler;
 import static androidx.work.impl.WorkerUpdater.enqueueUniquelyNamedPeriodic;
 import static androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent;
 
@@ -813,7 +814,7 @@ public class WorkManagerImpl extends WorkManager {
     ) {
 
         return Arrays.asList(
-                Schedulers.createBestAvailableBackgroundScheduler(context, this),
+                createBestAvailableBackgroundScheduler(context, mWorkDatabase, configuration),
                 // Specify the task executor directly here as this happens before internalInit.
                 // GreedyScheduler creates ConstraintTrackers and controllers eagerly.
                 new GreedyScheduler(context, configuration, trackers, mProcessor, mWorkLauncher));
