@@ -36,14 +36,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -124,9 +122,12 @@ fun TextFieldFocusDemo() {
                 false // don't consume the event, we just want to observe it
             },
     ) {
-        val multiLine = rememberSaveable { mutableStateOf(false) }
+        val (multiLine, setMultiLine) = rememberSaveable { mutableStateOf(false) }
         Text(demoInstructionText)
-        SingleLineToggle(multiLine)
+        SingleLineToggle(
+            checked = multiLine,
+            onCheckedChange = setMultiLine
+        )
         val hideSoftKeyboardProvide = LocalTextInputService provides null
         CompositionLocalProvider(hideSoftKeyboardProvide) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -145,13 +146,10 @@ fun TextFieldFocusDemo() {
 }
 
 @Composable
-private fun SingleLineToggle(multiLineState: MutableState<Boolean>) {
+private fun SingleLineToggle(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text("Single-line")
-        Switch(
-            checked = multiLineState.value,
-            onCheckedChange = { multiLineState.value = it }
-        )
+        Switch(checked, onCheckedChange)
         Text("Multi-line")
     }
 }
@@ -159,7 +157,7 @@ private fun SingleLineToggle(multiLineState: MutableState<Boolean>) {
 @Composable
 private fun DemoTextField(
     initText: String,
-    multiLineState: MutableState<Boolean>,
+    multiLine: Boolean,
     startWithFocus: Boolean = false
 ) {
     var modifier = Modifier
@@ -168,16 +166,16 @@ private fun DemoTextField(
         .padding(6.dp)
 
     if (startWithFocus) {
-        val focusRequester = rememberSaveable { FocusRequester() }
+        val focusRequester = remember { FocusRequester() }
         modifier = modifier.focusRequester(focusRequester)
         LaunchedEffect(focusRequester) {
             focusRequester.requestFocus()
         }
     }
 
-    var text by remember(multiLineState.value) {
+    var text by remember(multiLine) {
         mutableStateOf(
-            if (multiLineState.value) "$initText line 1\n$initText line 2" else initText
+            if (multiLine) "$initText line 1\n$initText line 2" else initText
         )
     }
 
@@ -185,7 +183,7 @@ private fun DemoTextField(
         value = text,
         onValueChange = { text = it },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-        singleLine = !multiLineState.value,
+        singleLine = !multiLine,
         modifier = modifier,
     )
 }
@@ -197,7 +195,7 @@ private data class KeyState(
 )
 
 @Composable
-private fun KeyPressList(keys: SnapshotStateList<KeyState>) {
+private fun KeyPressList(keys: List<KeyState>) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
