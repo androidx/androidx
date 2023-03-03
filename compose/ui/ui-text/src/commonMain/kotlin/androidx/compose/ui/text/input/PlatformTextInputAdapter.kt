@@ -35,18 +35,21 @@ import kotlinx.coroutines.launch
 private const val DEBUG = false
 
 /** See kdoc on actual interfaces. */
-@ExperimentalTextApi
+// Experimental in desktop.
+@OptIn(ExperimentalTextApi::class)
 @Immutable
 expect interface PlatformTextInputPlugin<T : PlatformTextInputAdapter>
 
 /** See kdoc on actual interfaces. */
-@ExperimentalTextApi
+// Experimental in desktop.
+@OptIn(ExperimentalTextApi::class)
 expect interface PlatformTextInputAdapter
 
 /**
  * Calls the [PlatformTextInputAdapter]'s onDisposed method. This is done through a proxy method
  * because expect interfaces aren't allowed to have default implementations.
  */
+// Experimental in desktop.
 @OptIn(ExperimentalTextApi::class)
 internal expect fun PlatformTextInputAdapter.dispose()
 
@@ -55,7 +58,6 @@ internal expect fun PlatformTextInputAdapter.dispose()
  * methods that allow adapters to interact with it. Instances are passed to
  * [PlatformTextInputPlugin.createAdapter].
  */
-@ExperimentalTextApi
 sealed interface PlatformTextInput {
     /**
      * Requests that the platform input be connected to this receiver until either:
@@ -88,7 +90,6 @@ sealed interface PlatformTextInput {
  */
 // Implementation note: this is separated as a sealed interface + impl pair to avoid exposing
 // @InternalTextApi members to code reading LocalPlatformTextInputAdapterProvider.
-@ExperimentalTextApi
 @Stable
 sealed interface PlatformTextInputPluginRegistry {
     /**
@@ -103,6 +104,8 @@ sealed interface PlatformTextInputPluginRegistry {
      * @param T The type of [PlatformTextInputAdapter] that [plugin] creates.
      * @param plugin The factory for adapters and the key into the cache of those adapters.
      */
+    // Experimental in desktop.
+    @OptIn(ExperimentalTextApi::class)
     @Composable
     fun <T : PlatformTextInputAdapter> rememberAdapter(plugin: PlatformTextInputPlugin<T>): T
 }
@@ -116,6 +119,7 @@ sealed interface PlatformTextInputPluginRegistry {
  */
 // This doesn't violate the EndsWithImpl rule because it's not public API.
 @Suppress("EndsWithImpl")
+// Experimental in desktop.
 @OptIn(ExperimentalTextApi::class)
 @InternalTextApi
 class PlatformTextInputPluginRegistryImpl(
