@@ -51,7 +51,6 @@ import java.util.Map;
 
 /**
  * Utility methods for TypefaceCompat.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class TypefaceCompatUtil {
@@ -208,7 +207,6 @@ public class TypefaceCompatUtil {
      *                {@link FontsContractCompat.FontInfo}.
      * @param fonts An array of {@link FontsContractCompat.FontInfo}.
      * @return A map from {@link Uri} to {@link ByteBuffer}.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull

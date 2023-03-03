@@ -268,7 +268,6 @@ public class PrecomputedTextCompat implements Spannable {
 
         /**
          * Similar to equals but don't compare text direction
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public boolean equalsWithoutTextDirection(@NonNull Params other) {
@@ -504,7 +503,6 @@ public class PrecomputedTextCompat implements Spannable {
 
     /**
      * Returns the underlying original text if the text is PrecomputedText.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @RequiresApi(28)

@@ -2013,7 +2013,6 @@ public class WindowInsetsCompat {
 
         /**
          * @return All inset types combined.
-         * @hide
          */
         @InsetsType
         @RestrictTo(LIBRARY_GROUP)
@@ -2048,7 +2047,6 @@ public class WindowInsetsCompat {
             }
         }
 
-        /** @hide */
         @RestrictTo(LIBRARY_GROUP)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef(flag = true, value = {STATUS_BARS, NAVIGATION_BARS, CAPTION_BAR, IME, WINDOW_DECOR,

@@ -719,12 +719,10 @@ public class NotificationCompat {
     /**
      * Maximum number of (generic) action buttons in a notification (contextual action buttons are
      * handled separately).
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int MAX_ACTION_BUTTONS = 3;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({AudioManager.STREAM_VOICE_CALL, AudioManager.STREAM_SYSTEM, AudioManager.STREAM_RING,
             AudioManager.STREAM_MUSIC, AudioManager.STREAM_ALARM, AudioManager.STREAM_NOTIFICATION,
@@ -732,7 +730,6 @@ public class NotificationCompat {
     @Retention(RetentionPolicy.SOURCE)
     public @interface StreamType {}
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(SOURCE)
     @IntDef({VISIBILITY_PUBLIC, VISIBILITY_PRIVATE, VISIBILITY_SECRET})
@@ -862,7 +859,6 @@ public class NotificationCompat {
      */
     public static final String CATEGORY_MISSED_CALL = "missed_call";
 
-    /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({BADGE_ICON_NONE, BADGE_ICON_SMALL, BADGE_ICON_LARGE})
@@ -884,7 +880,6 @@ public class NotificationCompat {
      */
     public static final int BADGE_ICON_LARGE = Notification.BADGE_ICON_LARGE;
 
-    /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({GROUP_ALERT_ALL, GROUP_ALERT_SUMMARY, GROUP_ALERT_CHILDREN})
@@ -929,7 +924,6 @@ public class NotificationCompat {
      */
     public static final String GROUP_KEY_SILENT = "silent";
 
-    /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({FOREGROUND_SERVICE_DEFAULT,
@@ -1011,15 +1005,12 @@ public class NotificationCompat {
         // All these variables are declared public/hidden so they can be accessed by a builder
         // extender.
 
-        /** @hide */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Context mContext;
 
-        /** @hide */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public ArrayList<Action> mActions = new ArrayList<>();
 
-        /** @hide */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @NonNull
         public ArrayList<Person> mPersonList = new ArrayList<>();
@@ -2545,7 +2536,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public RemoteViews getContentView() {
@@ -2553,7 +2543,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public RemoteViews getBigContentView() {
@@ -2561,7 +2550,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public RemoteViews getHeadsUpContentView() {
@@ -2571,7 +2559,6 @@ public class NotificationCompat {
         /**
          * return when if it is showing or 0 otherwise
          *
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public long getWhenIfShowing() {
@@ -2581,7 +2568,6 @@ public class NotificationCompat {
         /**
          * @return the priority set on the notification
          *
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public int getPriority() {
@@ -2591,7 +2577,6 @@ public class NotificationCompat {
         /**
          * @return the foreground service behavior defined for the notification
          *
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public int getForegroundServiceBehavior() {
@@ -2601,7 +2586,6 @@ public class NotificationCompat {
         /**
          * @return the color of the notification
          *
-         * @hide
          */
         @ColorInt
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -2612,7 +2596,6 @@ public class NotificationCompat {
         /**
          * @return the {@link BubbleMetadata} of the notification
          *
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public @Nullable BubbleMetadata getBubbleMetadata() {
@@ -2711,7 +2694,6 @@ public class NotificationCompat {
      */
     public static abstract class Style {
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         protected Builder mBuilder;
@@ -2744,7 +2726,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @Nullable
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -2757,14 +2738,12 @@ public class NotificationCompat {
          * Applies the compat style data to the framework {@link Notification} in a backwards
          * compatible way. All other data should be stored within the Notification's extras.
          *
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
         }
 
         /**
-         * @hide
          * @return Whether custom content views are displayed inline in the style
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -2773,7 +2752,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {
@@ -2781,7 +2759,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {
@@ -2789,7 +2766,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {
@@ -2805,7 +2781,6 @@ public class NotificationCompat {
          * Moreover, recovering builders and styles is only supported at API 19 and above, no
          * implementation is required for current BigTextStyle, BigPictureStyle, or InboxStyle.
          *
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void addCompatExtras(@NonNull Bundle extras) {
@@ -2822,7 +2797,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         protected void restoreFromCompatExtras(@NonNull Bundle extras) {
@@ -2834,7 +2808,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         protected void clearCompatExtraKeys(@NonNull Bundle extras) {
@@ -2844,7 +2817,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Nullable
@@ -2949,7 +2921,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @NonNull
@@ -3107,7 +3078,6 @@ public class NotificationCompat {
          * Create a bitmap using the given icon together with a color filter created from the given
          * color.
          *
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Bitmap createColoredBitmap(int iconId, int color) {
@@ -3157,7 +3127,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void buildIntoRemoteViews(RemoteViews outerView,
@@ -3355,7 +3324,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -3365,7 +3333,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -3419,7 +3386,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -3436,7 +3402,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Nullable
@@ -3469,7 +3434,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @Override
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -3646,7 +3610,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -3656,7 +3619,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -3673,7 +3635,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -3684,7 +3645,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -3700,7 +3660,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @Override
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -4032,7 +3991,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -4042,7 +4000,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -4214,7 +4171,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -4251,7 +4207,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @Override
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -4506,7 +4461,6 @@ public class NotificationCompat {
             /**
              * Converts this compat {@link Message} to the base Android framework
              * {@link Notification.MessagingStyle.Message}.
-             * @hide
              */
             @RestrictTo(LIBRARY_GROUP_PREFIX)
             @NonNull
@@ -4706,7 +4660,6 @@ public class NotificationCompat {
                 "androidx.core.app.NotificationCompat$CallStyle";
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Retention(RetentionPolicy.SOURCE)
@@ -4927,7 +4880,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -4939,7 +4891,6 @@ public class NotificationCompat {
 
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -4975,7 +4926,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -5016,7 +4966,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -5026,7 +4975,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -5219,7 +5167,6 @@ public class NotificationCompat {
          * the correct place.  This returns the correct result even if the system actions have
          * already been added, and even if more actions were added since then.
          *
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @NonNull
@@ -5602,7 +5549,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -5612,7 +5558,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -5630,7 +5575,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -5644,7 +5588,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @Override
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -5726,7 +5669,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -5736,7 +5678,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -5745,7 +5686,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -5758,7 +5698,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -5775,7 +5714,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -5796,7 +5734,6 @@ public class NotificationCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
@@ -6222,7 +6159,6 @@ public class NotificationCompat {
             /**
              * Creates a {@link Builder} from an {@link android.app.Notification.Action}.
              *
-             * @hide
              */
             @RestrictTo(LIBRARY_GROUP_PREFIX)
             @RequiresApi(19)
@@ -7980,13 +7916,11 @@ public class NotificationCompat {
      * to access values.
      */
     public static final class CarExtender implements Extender {
-        /** @hide **/
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         static final String EXTRA_CAR_EXTENDER = "android.car.EXTENSIONS";
         private static final String EXTRA_LARGE_ICON = "large_icon";
         private static final String EXTRA_CONVERSATION = "car_conversation";
         private static final String EXTRA_COLOR = "app_color";
-        /** @hide **/
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         static final String EXTRA_INVISIBLE_ACTIONS = "invisible_actions";
 
@@ -8639,7 +8573,6 @@ public class NotificationCompat {
             return (mFlags & FLAG_SUPPRESS_NOTIFICATION) != 0;
         }
 
-        /** @hide */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void setFlags(int flags) {
             mFlags = flags;
@@ -9437,7 +9370,6 @@ public class NotificationCompat {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     static boolean getHighPriority(@NonNull Notification notification) {
         return (notification.flags & Notification.FLAG_HIGH_PRIORITY) != 0;

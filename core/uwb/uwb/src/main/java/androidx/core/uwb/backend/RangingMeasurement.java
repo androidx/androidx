@@ -21,11 +21,12 @@ import android.annotation.SuppressLint;
 import android.os.Parcel;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /** Gms Reference: com.google.android.gms.nearby.uwb.RangingMeasurement
  *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint({"ParcelNotFinal", "BanParcelableUsage"})
 public class RangingMeasurement implements android.os.Parcelable
 {
