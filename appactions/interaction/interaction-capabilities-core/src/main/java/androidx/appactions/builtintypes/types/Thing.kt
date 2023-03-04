@@ -26,7 +26,7 @@ interface Thing {
 
     companion object {
         @JvmStatic
-        fun builder(): Builder<*> = ThingBuilderImpl()
+        fun Builder(): Builder<*> = ThingBuilderImpl()
     }
 
     @Suppress("StaticFinalBuilder")
