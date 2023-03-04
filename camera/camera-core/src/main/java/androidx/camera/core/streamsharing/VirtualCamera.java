@@ -357,8 +357,9 @@ class VirtualCamera implements CameraInternal {
             @NonNull CameraCaptureResult cameraCaptureResult,
             @NonNull SessionConfig sessionConfig) {
         for (CameraCaptureCallback callback : sessionConfig.getRepeatingCameraCaptureCallbacks()) {
-            callback.onCaptureCompleted(new VirtualCameraCaptureResult(cameraCaptureResult,
-                    sessionConfig.getRepeatingCaptureConfig().getTagBundle()));
+            callback.onCaptureCompleted(new VirtualCameraCaptureResult(
+                    sessionConfig.getRepeatingCaptureConfig().getTagBundle(),
+                    cameraCaptureResult));
         }
     }
 
