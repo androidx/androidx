@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Log
@@ -35,7 +34,7 @@ import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
-import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.coroutines.resume
@@ -151,6 +150,7 @@ internal class CameraStateOpener
 constructor(
     private val cameraOpener: CameraOpener,
     private val camera2MetadataProvider: Camera2MetadataProvider,
+    private val cameraErrorListener: CameraErrorListener,
     private val timeSource: TimeSource,
     private val cameraInteropConfig: CameraPipe.CameraInteropConfig?
 ) {
@@ -167,6 +167,7 @@ constructor(
                 attempts,
                 requestTimestamp,
                 timeSource,
+                cameraErrorListener,
                 cameraInteropConfig?.cameraDeviceStateCallback,
                 cameraInteropConfig?.cameraSessionStateCallback
             )
@@ -206,13 +207,13 @@ internal class RetryingCameraStateOpener
 @Inject
 constructor(
     private val cameraStateOpener: CameraStateOpener,
+    private val cameraErrorListener: CameraErrorListener,
     private val cameraAvailabilityMonitor: CameraAvailabilityMonitor,
     private val timeSource: TimeSource,
     private val devicePolicyManager: DevicePolicyManagerWrapper
 ) {
     internal suspend fun openCameraWithRetry(
         cameraId: CameraId,
-        graphListener: GraphListener
     ): OpenCameraResult {
         val requestTimestamp = Timestamps.now(timeSource)
         var attempts = 0
@@ -220,7 +221,12 @@ constructor(
         while (true) {
             attempts++
 
-            val result = cameraStateOpener.tryOpenCamera(cameraId, attempts, requestTimestamp)
+            val result =
+                cameraStateOpener.tryOpenCamera(
+                    cameraId,
+                    attempts,
+                    requestTimestamp,
+                )
             with(result) {
                 if (cameraState != null) {
                     return result
@@ -250,7 +256,7 @@ constructor(
                 // 1 open call to happen silently without generating an error, and notify about each
                 // error after that point.
                 if (!willRetry || attempts > 1) {
-                    graphListener.onGraphError(GraphStateError(errorCode, willRetry))
+                    cameraErrorListener.onCameraError(cameraId, errorCode, willRetry)
                 }
                 if (!willRetry) {
                     Log.error {
