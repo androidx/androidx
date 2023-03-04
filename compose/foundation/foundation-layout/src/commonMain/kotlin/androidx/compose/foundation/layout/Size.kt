@@ -18,15 +18,15 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.LayoutModifier
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -54,7 +54,7 @@ import kotlin.math.roundToInt
  */
 @Stable
 fun Modifier.width(width: Dp) = this.then(
-    SizeModifier(
+    SizeElement(
         minWidth = width,
         maxWidth = width,
         enforceIncoming = true,
@@ -78,7 +78,7 @@ fun Modifier.width(width: Dp) = this.then(
  */
 @Stable
 fun Modifier.height(height: Dp) = this.then(
-    SizeModifier(
+    SizeElement(
         minHeight = height,
         maxHeight = height,
         enforceIncoming = true,
@@ -102,7 +102,7 @@ fun Modifier.height(height: Dp) = this.then(
  */
 @Stable
 fun Modifier.size(size: Dp) = this.then(
-    SizeModifier(
+    SizeElement(
         minWidth = size,
         maxWidth = size,
         minHeight = size,
@@ -129,7 +129,7 @@ fun Modifier.size(size: Dp) = this.then(
  */
 @Stable
 fun Modifier.size(width: Dp, height: Dp) = this.then(
-    SizeModifier(
+    SizeElement(
         minWidth = width,
         maxWidth = width,
         minHeight = height,
@@ -169,7 +169,7 @@ fun Modifier.widthIn(
     min: Dp = Dp.Unspecified,
     max: Dp = Dp.Unspecified
 ) = this.then(
-    SizeModifier(
+    SizeElement(
         minWidth = min,
         maxWidth = max,
         enforceIncoming = true,
@@ -192,7 +192,7 @@ fun Modifier.heightIn(
     min: Dp = Dp.Unspecified,
     max: Dp = Dp.Unspecified
 ) = this.then(
-    SizeModifier(
+    SizeElement(
         minHeight = min,
         maxHeight = max,
         enforceIncoming = true,
@@ -217,7 +217,7 @@ fun Modifier.sizeIn(
     maxWidth: Dp = Dp.Unspecified,
     maxHeight: Dp = Dp.Unspecified
 ) = this.then(
-    SizeModifier(
+    SizeElement(
         minWidth = minWidth,
         minHeight = minHeight,
         maxWidth = maxWidth,
@@ -250,7 +250,7 @@ fun Modifier.sizeIn(
  */
 @Stable
 fun Modifier.requiredWidth(width: Dp) = this.then(
-    SizeModifier(
+    SizeElement(
         minWidth = width,
         maxWidth = width,
         enforceIncoming = false,
@@ -278,7 +278,7 @@ fun Modifier.requiredWidth(width: Dp) = this.then(
  */
 @Stable
 fun Modifier.requiredHeight(height: Dp) = this.then(
-    SizeModifier(
+    SizeElement(
         minHeight = height,
         maxHeight = height,
         enforceIncoming = false,
@@ -306,7 +306,7 @@ fun Modifier.requiredHeight(height: Dp) = this.then(
  */
 @Stable
 fun Modifier.requiredSize(size: Dp) = this.then(
-    SizeModifier(
+    SizeElement(
         minWidth = size,
         maxWidth = size,
         minHeight = size,
@@ -333,7 +333,7 @@ fun Modifier.requiredSize(size: Dp) = this.then(
  */
 @Stable
 fun Modifier.requiredSize(width: Dp, height: Dp) = this.then(
-    SizeModifier(
+    SizeElement(
         minWidth = width,
         maxWidth = width,
         minHeight = height,
@@ -374,7 +374,7 @@ fun Modifier.requiredWidthIn(
     min: Dp = Dp.Unspecified,
     max: Dp = Dp.Unspecified
 ) = this.then(
-    SizeModifier(
+    SizeElement(
         minWidth = min,
         maxWidth = max,
         enforceIncoming = false,
@@ -398,7 +398,7 @@ fun Modifier.requiredHeightIn(
     min: Dp = Dp.Unspecified,
     max: Dp = Dp.Unspecified
 ) = this.then(
-    SizeModifier(
+    SizeElement(
         minHeight = min,
         maxHeight = max,
         enforceIncoming = false,
@@ -425,7 +425,7 @@ fun Modifier.requiredSizeIn(
     maxWidth: Dp = Dp.Unspecified,
     maxHeight: Dp = Dp.Unspecified
 ) = this.then(
-    SizeModifier(
+    SizeElement(
         minWidth = minWidth,
         minHeight = minHeight,
         maxWidth = maxWidth,
@@ -458,9 +458,9 @@ fun Modifier.requiredSizeIn(
 @Stable
 @Suppress("ModifierInspectorInfo")
 fun Modifier.fillMaxWidth(/*@FloatRange(from = 0.0, to = 1.0)*/ fraction: Float = 1f) =
-    this.then(if (fraction == 1f) FillWholeMaxWidth else createFillWidthModifier(fraction))
+    this.then(if (fraction == 1f) FillWholeMaxWidth else FillElement.width(fraction))
 
-private val FillWholeMaxWidth = createFillWidthModifier(1f)
+private val FillWholeMaxWidth = FillElement.width(1f)
 
 /**
  * Have the content fill (possibly only partially) the [Constraints.maxHeight] of the incoming
@@ -479,9 +479,9 @@ private val FillWholeMaxWidth = createFillWidthModifier(1f)
 @Stable
 @Suppress("ModifierInspectorInfo")
 fun Modifier.fillMaxHeight(/*@FloatRange(from = 0.0, to = 1.0)*/ fraction: Float = 1f) =
-    this.then(if (fraction == 1f) FillWholeMaxHeight else createFillHeightModifier(fraction))
+    this.then(if (fraction == 1f) FillWholeMaxHeight else FillElement.height(fraction))
 
-private val FillWholeMaxHeight = createFillHeightModifier(1f)
+private val FillWholeMaxHeight = FillElement.height(1f)
 
 /**
  * Have the content fill (possibly only partially) the [Constraints.maxWidth] and
@@ -504,9 +504,9 @@ private val FillWholeMaxHeight = createFillHeightModifier(1f)
 @Stable
 @Suppress("ModifierInspectorInfo")
 fun Modifier.fillMaxSize(/*@FloatRange(from = 0.0, to = 1.0)*/ fraction: Float = 1f) =
-    this.then(if (fraction == 1f) FillWholeMaxSize else createFillSizeModifier(fraction))
+    this.then(if (fraction == 1f) FillWholeMaxSize else FillElement.size(fraction))
 
-private val FillWholeMaxSize = createFillSizeModifier(1f)
+private val FillWholeMaxSize = FillElement.size(1f)
 
 /**
  * Allow the content to measure at its desired width without regard for the incoming measurement
@@ -531,13 +531,13 @@ fun Modifier.wrapContentWidth(
     } else if (align == Alignment.Start && !unbounded) {
         WrapContentWidthStart
     } else {
-        createWrapContentWidthModifier(align, unbounded)
+        WrapContentElement.width(align, unbounded)
     }
 )
 
 private val WrapContentWidthCenter =
-    createWrapContentWidthModifier(Alignment.CenterHorizontally, false)
-private val WrapContentWidthStart = createWrapContentWidthModifier(Alignment.Start, false)
+    WrapContentElement.width(Alignment.CenterHorizontally, false)
+private val WrapContentWidthStart = WrapContentElement.width(Alignment.Start, false)
 
 /**
  * Allow the content to measure at its desired height without regard for the incoming measurement
@@ -561,13 +561,13 @@ fun Modifier.wrapContentHeight(
     } else if (align == Alignment.Top && !unbounded) {
         WrapContentHeightTop
     } else {
-        createWrapContentHeightModifier(align, unbounded)
+        WrapContentElement.height(align, unbounded)
     }
 )
 
 private val WrapContentHeightCenter =
-    createWrapContentHeightModifier(Alignment.CenterVertically, false)
-private val WrapContentHeightTop = createWrapContentHeightModifier(Alignment.Top, false)
+    WrapContentElement.height(Alignment.CenterVertically, false)
+private val WrapContentHeightTop = WrapContentElement.height(Alignment.Top, false)
 
 /**
  * Allow the content to measure at its desired size without regard for the incoming measurement
@@ -591,12 +591,12 @@ fun Modifier.wrapContentSize(
     } else if (align == Alignment.TopStart && !unbounded) {
         WrapContentSizeTopStart
     } else {
-        createWrapContentSizeModifier(align, unbounded)
+        WrapContentElement.size(align, unbounded)
     }
 )
 
-private val WrapContentSizeCenter = createWrapContentSizeModifier(Alignment.Center, false)
-private val WrapContentSizeTopStart = createWrapContentSizeModifier(Alignment.TopStart, false)
+private val WrapContentSizeCenter = WrapContentElement.size(Alignment.Center, false)
+private val WrapContentSizeTopStart = WrapContentElement.size(Alignment.TopStart, false)
 
 /**
  * Constrain the size of the wrapped layout only when it would be otherwise unconstrained:
@@ -608,27 +608,75 @@ private val WrapContentSizeTopStart = createWrapContentSizeModifier(Alignment.To
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.DefaultMinSizeSample
  */
+@Suppress("ModifierInspectorInfo")
 @Stable
 fun Modifier.defaultMinSize(
     minWidth: Dp = Dp.Unspecified,
     minHeight: Dp = Dp.Unspecified
-) = this.then(
-    UnspecifiedConstraintsModifier(
-        minWidth = minWidth,
-        minHeight = minHeight,
-        inspectorInfo = debugInspectorInfo {
-            name = "defaultMinSize"
-            properties["minWidth"] = minWidth
-            properties["minHeight"] = minHeight
-        }
-    )
-)
+) = this.then(UnspecifiedConstraintsElement(minWidth = minWidth, minHeight = minHeight))
 
-private class FillModifier(
+private class FillElement(
     private val direction: Direction,
     private val fraction: Float,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+    private val inspectorName: String
+) : ModifierNodeElement<FillNode>() {
+    override fun create(): FillNode = FillNode(direction = direction, fraction = fraction)
+
+    override fun update(node: FillNode): FillNode = node.also {
+        it.direction = direction
+        it.fraction = fraction
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = inspectorName
+        properties["fraction"] = fraction
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FillElement) return false
+
+        if (direction != other.direction) return false
+        if (fraction != other.fraction) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = direction.hashCode()
+        result = 31 * result + fraction.hashCode()
+        return result
+    }
+
+    @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
+    companion object {
+        @Stable
+        fun width(fraction: Float) = FillElement(
+            direction = Direction.Horizontal,
+            fraction = fraction,
+            inspectorName = "fillMaxWidth"
+        )
+
+        @Stable
+        fun height(fraction: Float) = FillElement(
+            direction = Direction.Vertical,
+            fraction = fraction,
+            inspectorName = "fillMaxHeight"
+        )
+
+        @Stable
+        fun size(fraction: Float) = FillElement(
+            direction = Direction.Both,
+            fraction = fraction,
+            inspectorName = "fillMaxSize"
+        )
+    }
+}
+
+private class FillNode(
+    var direction: Direction,
+    var fraction: Float
+) : LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -663,51 +711,67 @@ private class FillModifier(
             placeable.placeRelative(0, 0)
         }
     }
-
-    override fun equals(other: Any?) =
-        other is FillModifier && direction == other.direction && fraction == other.fraction
-
-    override fun hashCode() = direction.hashCode() * 31 + fraction.hashCode()
 }
 
-@Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-private fun createFillWidthModifier(fraction: Float) = FillModifier(
-    direction = Direction.Horizontal,
-    fraction = fraction,
-    inspectorInfo = {
-        name = "fillMaxWidth"
-        properties["fraction"] = fraction
-    }
-)
-
-@Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-private fun createFillHeightModifier(fraction: Float) = FillModifier(
-    direction = Direction.Vertical,
-    fraction = fraction,
-    inspectorInfo = {
-        name = "fillMaxHeight"
-        properties["fraction"] = fraction
-    }
-)
-
-@Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-private fun createFillSizeModifier(fraction: Float) = FillModifier(
-    direction = Direction.Both,
-    fraction = fraction,
-    inspectorInfo = {
-        name = "fillMaxSize"
-        properties["fraction"] = fraction
-    }
-)
-
-private class SizeModifier(
+private class SizeElement(
     private val minWidth: Dp = Dp.Unspecified,
     private val minHeight: Dp = Dp.Unspecified,
     private val maxWidth: Dp = Dp.Unspecified,
     private val maxHeight: Dp = Dp.Unspecified,
     private val enforceIncoming: Boolean,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+    private val inspectorInfo: InspectorInfo.() -> Unit
+) : ModifierNodeElement<SizeNode>() {
+    override fun create(): SizeNode =
+        SizeNode(
+            minWidth = minWidth,
+            minHeight = minHeight,
+            maxWidth = maxWidth,
+            maxHeight = maxHeight,
+            enforceIncoming = enforceIncoming
+        )
+
+    override fun update(node: SizeNode): SizeNode = node.also {
+        it.minWidth = minWidth
+        it.minHeight = minHeight
+        it.maxWidth = maxWidth
+        it.maxHeight = maxHeight
+        it.enforceIncoming = enforceIncoming
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SizeElement) return false
+
+        if (minWidth != other.minWidth) return false
+        if (minHeight != other.minHeight) return false
+        if (maxWidth != other.maxWidth) return false
+        if (maxHeight != other.maxHeight) return false
+        if (enforceIncoming != other.enforceIncoming) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = minWidth.hashCode()
+        result = 31 * result + minHeight.hashCode()
+        result = 31 * result + maxWidth.hashCode()
+        result = 31 * result + maxHeight.hashCode()
+        result = 31 * result + enforceIncoming.hashCode()
+        return result
+    }
+}
+
+private class SizeNode(
+    var minWidth: Dp = Dp.Unspecified,
+    var minHeight: Dp = Dp.Unspecified,
+    var maxWidth: Dp = Dp.Unspecified,
+    var maxHeight: Dp = Dp.Unspecified,
+    var enforceIncoming: Boolean
+) : LayoutModifierNode, Modifier.Node() {
     private val Density.targetConstraints: Constraints
         get() {
             val maxWidth = if (maxWidth != Dp.Unspecified) {
@@ -831,32 +895,104 @@ private class SizeModifier(
             constraints.constrainHeight(measurable.maxIntrinsicHeight(width))
         }
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is SizeModifier) return false
-        return minWidth == other.minWidth &&
-            minHeight == other.minHeight &&
-            maxWidth == other.maxWidth &&
-            maxHeight == other.maxHeight &&
-            enforceIncoming == other.enforceIncoming
-    }
-
-    override fun hashCode() =
-        (
-            (
-                (((minWidth.hashCode() * 31 + minHeight.hashCode()) * 31) + maxWidth.hashCode()) *
-                    31
-                ) + maxHeight.hashCode()
-            ) * 31
 }
 
-private class WrapContentModifier(
+private class WrapContentElement(
     private val direction: Direction,
     private val unbounded: Boolean,
     private val alignmentCallback: (IntSize, LayoutDirection) -> IntOffset,
     private val align: Any, // only used for equals and hashcode
-    inspectorInfo: InspectorInfo.() -> Unit
-) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+    private val inspectorName: String
+) : ModifierNodeElement<WrapContentNode>() {
+    override fun create(): WrapContentNode = WrapContentNode(
+        direction,
+        unbounded,
+        alignmentCallback
+    )
+
+    override fun update(node: WrapContentNode): WrapContentNode = node.also {
+        it.direction = direction
+        it.unbounded = unbounded
+        it.alignmentCallback = alignmentCallback
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = inspectorName
+        properties["align"] = align
+        properties["unbounded"] = unbounded
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as WrapContentElement
+
+        if (direction != other.direction) return false
+        if (unbounded != other.unbounded) return false
+        if (align != other.align) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = direction.hashCode()
+        result = 31 * result + unbounded.hashCode()
+        result = 31 * result + align.hashCode()
+        return result
+    }
+
+    @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
+    companion object {
+        @Stable
+        fun width(
+            align: Alignment.Horizontal,
+            unbounded: Boolean
+        ) = WrapContentElement(
+            direction = Direction.Horizontal,
+            unbounded = unbounded,
+            alignmentCallback = { size, layoutDirection ->
+                IntOffset(align.align(0, size.width, layoutDirection), 0)
+            },
+            align,
+            inspectorName = "wrapContentWidth"
+        )
+
+        @Stable
+        fun height(
+            align: Alignment.Vertical,
+            unbounded: Boolean
+        ) = WrapContentElement(
+            direction = Direction.Vertical,
+            unbounded = unbounded,
+            alignmentCallback = { size, _ ->
+                IntOffset(0, align.align(0, size.height))
+            },
+            align,
+            inspectorName = "wrapContentHeight"
+        )
+
+        @Stable
+        fun size(
+            align: Alignment,
+            unbounded: Boolean
+        ) = WrapContentElement(
+            direction = Direction.Both,
+            unbounded = unbounded,
+            alignmentCallback = { size, layoutDirection ->
+                align.align(IntSize.Zero, size, layoutDirection)
+            },
+            align,
+            inspectorName = "wrapContentSize"
+        )
+    }
+}
+
+private class WrapContentNode(
+    var direction: Direction,
+    var unbounded: Boolean,
+    var alignmentCallback: (IntSize, LayoutDirection) -> IntOffset,
+) : LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -889,75 +1025,40 @@ private class WrapContentModifier(
             placeable.place(position)
         }
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is WrapContentModifier) return false
-        return direction == other.direction && unbounded == other.unbounded && align == other.align
-    }
-
-    override fun hashCode() =
-        (direction.hashCode() * 31 + unbounded.hashCode()) * 31 + align.hashCode()
 }
 
-@Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-private fun createWrapContentWidthModifier(
-    align: Alignment.Horizontal,
-    unbounded: Boolean
-) = WrapContentModifier(
-    direction = Direction.Horizontal,
-    unbounded = unbounded,
-    alignmentCallback = { size, layoutDirection ->
-        IntOffset(align.align(0, size.width, layoutDirection), 0)
-    },
-    align,
-    inspectorInfo = {
-        name = "wrapContentWidth"
-        properties["align"] = align
-        properties["unbounded"] = unbounded
-    }
-)
-
-@Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-private fun createWrapContentHeightModifier(
-    align: Alignment.Vertical,
-    unbounded: Boolean
-) = WrapContentModifier(
-    direction = Direction.Vertical,
-    unbounded = unbounded,
-    alignmentCallback = { size, _ ->
-        IntOffset(0, align.align(0, size.height))
-    },
-    align,
-    inspectorInfo = {
-        name = "wrapContentHeight"
-        properties["align"] = align
-        properties["unbounded"] = unbounded
-    }
-)
-
-@Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-private fun createWrapContentSizeModifier(
-    align: Alignment,
-    unbounded: Boolean
-) = WrapContentModifier(
-    direction = Direction.Both,
-    unbounded = unbounded,
-    alignmentCallback = { size, layoutDirection ->
-        align.align(IntSize.Zero, size, layoutDirection)
-    },
-    align,
-    inspectorInfo = {
-        name = "wrapContentSize"
-        properties["align"] = align
-        properties["unbounded"] = unbounded
-    }
-)
-
-private class UnspecifiedConstraintsModifier(
+private class UnspecifiedConstraintsElement(
     val minWidth: Dp = Dp.Unspecified,
     val minHeight: Dp = Dp.Unspecified,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+) : ModifierNodeElement<UnspecifiedConstraintsNode>() {
+    override fun create(): UnspecifiedConstraintsNode = UnspecifiedConstraintsNode(
+        minWidth = minWidth,
+        minHeight = minHeight
+    )
+
+    override fun update(node: UnspecifiedConstraintsNode) = node.also {
+        it.minWidth = minWidth
+        it.minHeight = minHeight
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "defaultMinSize"
+        properties["minWidth"] = minWidth
+        properties["minHeight"] = minHeight
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is UnspecifiedConstraintsElement) return false
+        return minWidth == other.minWidth && minHeight == other.minHeight
+    }
+
+    override fun hashCode() = minWidth.hashCode() * 31 + minHeight.hashCode()
+}
+
+private class UnspecifiedConstraintsNode(
+    var minWidth: Dp = Dp.Unspecified,
+    var minHeight: Dp = Dp.Unspecified
+) : LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -1009,13 +1110,6 @@ private class UnspecifiedConstraintsModifier(
     ) = measurable.maxIntrinsicHeight(width).coerceAtLeast(
         if (minHeight != Dp.Unspecified) minHeight.roundToPx() else 0
     )
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is UnspecifiedConstraintsModifier) return false
-        return minWidth == other.minWidth && minHeight == other.minHeight
-    }
-
-    override fun hashCode() = minWidth.hashCode() * 31 + minHeight.hashCode()
 }
 
 internal enum class Direction {
