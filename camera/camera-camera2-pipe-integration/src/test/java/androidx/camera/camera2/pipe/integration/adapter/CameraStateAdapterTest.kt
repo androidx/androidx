@@ -25,6 +25,9 @@ import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.core.CameraState
+import androidx.camera.core.CameraState.ERROR_CAMERA_DISABLED
+import androidx.camera.core.CameraState.ERROR_MAX_CAMERAS_IN_USE
+import androidx.camera.core.CameraState.ERROR_OTHER_RECOVERABLE_ERROR
 import androidx.camera.core.impl.CameraInternal
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -78,11 +81,15 @@ internal class CameraStateAdapterTest {
                 CameraInternal.State.OPENING,
                 GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, willAttemptRetry = true)
             )
-        // TODO(b/263201241): Add tests for PENDING_OPEN transitions.
-        val nextStateWhenGraphStateErrorWillNotRetry =
+        val nextStateWhenGraphStateErrorRecoverableWillNotRetry =
             cameraStateAdapter.calculateNextState(
                 CameraInternal.State.OPENING,
                 GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, willAttemptRetry = false)
+            )
+        val nextStateWhenGraphStateErrorUnrecoverableWillNotRetry =
+            cameraStateAdapter.calculateNextState(
+                CameraInternal.State.OPENING,
+                GraphStateError(CameraError.ERROR_CAMERA_DISABLED, willAttemptRetry = false)
             )
 
         assertThat(nextStateWhenGraphStateStarting).isEqualTo(null)
@@ -92,14 +99,11 @@ internal class CameraStateAdapterTest {
         assertThat(nextStateWhenGraphStateErrorWillRetry!!.state).isEqualTo(
             CameraInternal.State.OPENING
         )
-        assertThat(nextStateWhenGraphStateErrorWillRetry.error!!.code).isEqualTo(
-            CameraState.ERROR_MAX_CAMERAS_IN_USE
+        assertThat(nextStateWhenGraphStateErrorRecoverableWillNotRetry!!.state).isEqualTo(
+            CameraInternal.State.PENDING_OPEN
         )
-        assertThat(nextStateWhenGraphStateErrorWillNotRetry!!.state).isEqualTo(
+        assertThat(nextStateWhenGraphStateErrorUnrecoverableWillNotRetry!!.state).isEqualTo(
             CameraInternal.State.CLOSING
-        )
-        assertThat(nextStateWhenGraphStateErrorWillNotRetry.error!!.code).isEqualTo(
-            CameraState.ERROR_MAX_CAMERAS_IN_USE
         )
     }
 
@@ -113,18 +117,27 @@ internal class CameraStateAdapterTest {
             cameraStateAdapter.calculateNextState(CameraInternal.State.OPEN, GraphStateStopping)
         val nextStateWhenGraphStateStopped =
             cameraStateAdapter.calculateNextState(CameraInternal.State.OPEN, GraphStateStopped)
-        // TODO(b/263201241): Add tests when we handle errors while camera is already opened.
-        val nextStateWhenGraphStateError =
+        val nextStateWhenGraphStateErrorRecoverable =
             cameraStateAdapter.calculateNextState(
                 CameraInternal.State.OPEN,
                 GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, true)
+            )
+        val nextStateWhenGraphStateErrorUnrecoverable =
+            cameraStateAdapter.calculateNextState(
+                CameraInternal.State.OPEN,
+                GraphStateError(CameraError.ERROR_CAMERA_DISABLED, true)
             )
 
         assertThat(nextStateWhenGraphStateStarting).isEqualTo(null)
         assertThat(nextStateWhenGraphStateStarted).isEqualTo(null)
         assertThat(nextStateWhenGraphStateStopping!!.state).isEqualTo(CameraInternal.State.CLOSING)
         assertThat(nextStateWhenGraphStateStopped!!.state).isEqualTo(CameraInternal.State.CLOSED)
-        assertThat(nextStateWhenGraphStateError).isEqualTo(null)
+        assertThat(nextStateWhenGraphStateErrorRecoverable!!.state).isEqualTo(
+            CameraInternal.State.PENDING_OPEN
+        )
+        assertThat(nextStateWhenGraphStateErrorUnrecoverable!!.state).isEqualTo(
+            CameraInternal.State.CLOSED
+        )
     }
 
     @Test
@@ -147,7 +160,8 @@ internal class CameraStateAdapterTest {
         assertThat(nextStateWhenGraphStateStarted).isEqualTo(null)
         assertThat(nextStateWhenGraphStateStopping).isEqualTo(null)
         assertThat(nextStateWhenGraphStateStopped!!.state).isEqualTo(CameraInternal.State.CLOSED)
-        assertThat(nextStateWhenGraphStateError).isEqualTo(null)
+        assertThat(nextStateWhenGraphStateError!!.state).isEqualTo(CameraInternal.State.CLOSING)
+        assertThat(nextStateWhenGraphStateError.error?.code).isEqualTo(ERROR_MAX_CAMERAS_IN_USE)
     }
 
     @Test
@@ -204,5 +218,116 @@ internal class CameraStateAdapterTest {
         // Impermissible state transition from GraphStateStarted to GraphStateStarting
         cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarting)
         assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.OPEN)
+    }
+
+    @Test
+    fun testStateTransitionsOnRecoverableErrorsWhenOpening() {
+        cameraStateAdapter.onGraphUpdated(cameraGraph1)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.CLOSED)
+
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarting)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.OPENING)
+
+        // We should transition to OPENING with an error code if we encounter errors during opening.
+        cameraStateAdapter.onGraphStateUpdated(
+            cameraGraph1,
+            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = true)
+        )
+        val cameraStateWillRetry = cameraStateAdapter.cameraState.value!!
+        assertThat(cameraStateWillRetry.type).isEqualTo(CameraState.Type.OPENING)
+        assertThat(cameraStateWillRetry.error?.code).isEqualTo(ERROR_OTHER_RECOVERABLE_ERROR)
+
+        // Now assume we've exceeded retries and will no longer retry.
+        cameraStateAdapter.onGraphStateUpdated(
+            cameraGraph1,
+            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = false)
+        )
+        val cameraStateNotRetry = cameraStateAdapter.cameraState.value!!
+        assertThat(cameraStateNotRetry.type).isEqualTo(CameraState.Type.PENDING_OPEN)
+        assertThat(cameraStateNotRetry.error?.code).isEqualTo(ERROR_OTHER_RECOVERABLE_ERROR)
+
+        // Now we make sure we transition to OPENING and OPEN when the camera does eventually open
+        // when it becomes available.
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarting)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.OPENING)
+
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarted)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.OPEN)
+    }
+
+    @Test
+    fun testStateTransitionsOnUnrecoverableErrorsWhenOpening() {
+        cameraStateAdapter.onGraphUpdated(cameraGraph1)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.CLOSED)
+
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarting)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.OPENING)
+
+        cameraStateAdapter.onGraphStateUpdated(
+            cameraGraph1,
+            GraphStateError(CameraError.ERROR_CAMERA_DISABLED, willAttemptRetry = false)
+        )
+        val cameraState = cameraStateAdapter.cameraState.value!!
+        assertThat(cameraState.type).isEqualTo(CameraState.Type.CLOSING)
+        assertThat(cameraState.error?.code).isEqualTo(ERROR_CAMERA_DISABLED)
+    }
+
+    @Test
+    fun testStateTransitionsOnRecoverableErrorsWhenOpen() {
+        cameraStateAdapter.onGraphUpdated(cameraGraph1)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.CLOSED)
+
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarting)
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarted)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.OPEN)
+
+        // We should transition to OPENING with an error code if we encounter errors during opening.
+        cameraStateAdapter.onGraphStateUpdated(
+            cameraGraph1,
+            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = false)
+        )
+        val cameraState = cameraStateAdapter.cameraState.value!!
+        assertThat(cameraState.type).isEqualTo(CameraState.Type.PENDING_OPEN)
+        assertThat(cameraState.error?.code).isEqualTo(ERROR_OTHER_RECOVERABLE_ERROR)
+    }
+
+    @Test
+    fun testStateTransitionsOnUnrecoverableErrorsWhenOpen() {
+        cameraStateAdapter.onGraphUpdated(cameraGraph1)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.CLOSED)
+
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarting)
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarted)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.OPEN)
+
+        cameraStateAdapter.onGraphStateUpdated(
+            cameraGraph1,
+            GraphStateError(CameraError.ERROR_CAMERA_DISABLED, willAttemptRetry = false)
+        )
+        val cameraState = cameraStateAdapter.cameraState.value!!
+        assertThat(cameraState.type).isEqualTo(CameraState.Type.CLOSED)
+        assertThat(cameraState.error?.code).isEqualTo(ERROR_CAMERA_DISABLED)
+    }
+
+    @Test
+    fun testStateTransitionsOnErrorsWhenClosing() {
+        cameraStateAdapter.onGraphUpdated(cameraGraph1)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.CLOSED)
+
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarting)
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStarted)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.OPEN)
+
+        cameraStateAdapter.onGraphStateUpdated(cameraGraph1, GraphStateStopping)
+        assertThat(cameraStateAdapter.cameraState.value?.type).isEqualTo(CameraState.Type.CLOSING)
+
+        // We should update the CLOSING state to include an error code.
+        cameraStateAdapter.onGraphStateUpdated(
+            cameraGraph1,
+            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = false)
+        )
+        val cameraState = cameraStateAdapter.cameraState.value!!
+        assertThat(cameraState.type).isEqualTo(CameraState.Type.CLOSING)
+        assertThat(cameraState.error?.code).isEqualTo(ERROR_OTHER_RECOVERABLE_ERROR)
     }
 }
