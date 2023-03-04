@@ -852,6 +852,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(newConfig.targetResolution).isEqualTo(expectedTargetResolution)
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/269523377
     @Test
     fun capturedImageHasCorrectCroppingSizeWithoutSettingRotation() {
         val useCase = ImageCapture.Builder()
@@ -885,6 +886,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/269523377
     @Test
     fun capturedImageHasCorrectCroppingSize_setUseCaseRotation90FromRotationInBuilder() {
         // Checks camera device sensor degrees to set correct target rotation value to make sure
@@ -942,6 +944,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/269523377
     @Test
     fun capturedImageHasCorrectCroppingSize_setCropAspectRatioAfterBindToLifecycle() = runBlocking {
         val useCase = ImageCapture.Builder().build()
