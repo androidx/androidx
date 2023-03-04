@@ -123,7 +123,7 @@ class PasswordCredentialEntry internal constructor(
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR {
+    companion object {
         private const val TAG = "PasswordCredentialEntry"
 
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
