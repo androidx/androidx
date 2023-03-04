@@ -18,8 +18,10 @@ package androidx.camera.camera2.internal.compat;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.os.Build;
 import android.util.Size;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -58,9 +60,31 @@ class StreamConfigurationMapCompatBaseImpl
         return mStreamConfigurationMap.getOutputSizes(klass);
     }
 
+    @Nullable
+    @Override
+    public Size[] getHighResolutionOutputSizes(int format) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return Api23Impl.getHighResolutionOutputSizes(mStreamConfigurationMap, format);
+        }
+        return null;
+    }
+
     @NonNull
     @Override
     public StreamConfigurationMap unwrap() {
         return mStreamConfigurationMap;
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Size[] getHighResolutionOutputSizes(StreamConfigurationMap streamConfigurationMap,
+                int format) {
+            return streamConfigurationMap.getHighResolutionOutputSizes(format);
+        }
     }
 }
