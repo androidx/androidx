@@ -32,7 +32,6 @@ import java.util.UUID;
 /**
  * A {@link ProgressUpdater} which does nothing. Useful in the context of testing.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TestProgressUpdater implements ProgressUpdater {

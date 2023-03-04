@@ -148,7 +148,6 @@ public abstract class CustomTabsService extends Service {
     /**
      * Enumerates the possible purposes of files received in {@link #receiveFile}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)

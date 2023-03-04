@@ -47,7 +47,6 @@ import java.util.List;
  * The dispatcher used by the background processor which is based on
  * {@link android.app.AlarmManager}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemAlarmDispatcher implements ExecutionListener {

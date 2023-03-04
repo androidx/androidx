@@ -51,7 +51,6 @@ import java.io.IOException;
 
 /**
  * Defines common utilities for working with animations.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class AnimationUtilsCompat {

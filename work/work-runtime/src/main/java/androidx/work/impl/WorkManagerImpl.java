@@ -81,7 +81,6 @@ import java.util.UUID;
 /**
  * A concrete implementation of {@link WorkManager}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerImpl extends WorkManager {
@@ -113,7 +112,6 @@ public class WorkManagerImpl extends WorkManager {
     /**
      * @param delegate The delegate for {@link WorkManagerImpl} for testing; {@code null} to use the
      *                 default instance
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void setDelegate(@Nullable WorkManagerImpl delegate) {
@@ -126,7 +124,6 @@ public class WorkManagerImpl extends WorkManager {
      * Retrieves the singleton instance of {@link WorkManagerImpl}.
      *
      * @return The singleton instance of {@link WorkManagerImpl}
-     * @hide
      * @deprecated Call {@link WorkManagerImpl#getInstance(Context)} instead.
      */
     @Deprecated
@@ -143,7 +140,6 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
-     * @hide
      */
     @SuppressWarnings("deprecation")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -157,7 +153,6 @@ public class WorkManagerImpl extends WorkManager {
      *
      * @param context A context for on-demand initialization.
      * @return The singleton instance of {@link WorkManagerImpl}
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static @NonNull WorkManagerImpl getInstance(@NonNull Context context) {
@@ -192,7 +187,6 @@ public class WorkManagerImpl extends WorkManager {
      *                any Context without risking a memory leak.
      * @param configuration The {@link Configuration} for used to set up WorkManager.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void initialize(@NonNull Context context, @NonNull Configuration configuration) {
@@ -225,7 +219,6 @@ public class WorkManagerImpl extends WorkManager {
      * @param configuration The {@link Configuration} configuration
      * @param workTaskExecutor The {@link TaskExecutor} for running "processing" jobs, such as
      *                         enqueueing, scheduling, cancellation, etc.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkManagerImpl(
@@ -246,7 +239,6 @@ public class WorkManagerImpl extends WorkManager {
      * @param workTaskExecutor The {@link TaskExecutor} for running "processing" jobs, such as
      *                         enqueueing, scheduling, cancellation, etc.
      * @param useTestDatabase {@code true} If using an in-memory test database
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkManagerImpl(
@@ -272,7 +264,6 @@ public class WorkManagerImpl extends WorkManager {
      * @param workTaskExecutor The {@link TaskExecutor} for running "processing" jobs, such as
      *                         enqueueing, scheduling, cancellation, etc.
      * @param database         The {@link WorkDatabase}
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkManagerImpl(
@@ -305,7 +296,6 @@ public class WorkManagerImpl extends WorkManager {
      *                         enqueueing, scheduling, cancellation, etc.
      * @param workDatabase The {@link WorkDatabase} instance
      * @param processor The {@link Processor} instance
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkManagerImpl(
@@ -329,7 +319,6 @@ public class WorkManagerImpl extends WorkManager {
      * @param workDatabase     The {@link WorkDatabase} instance
      * @param processor        The {@link Processor} instance
      * @param trackers         Trackers
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public WorkManagerImpl(
@@ -350,7 +339,6 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @return The application {@link Context} associated with this WorkManager.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -360,7 +348,6 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @return The {@link WorkDatabase} instance associated with this WorkManager.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -380,7 +367,6 @@ public class WorkManagerImpl extends WorkManager {
     /**
      * @return The {@link Scheduler}s associated with this WorkManager based on the device's
      * capabilities, SDK version, etc.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull List<Scheduler> getSchedulers() {
@@ -389,7 +375,6 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @return The {@link Processor} used to process background work.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull Processor getProcessor() {
@@ -398,7 +383,6 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @return the {@link TaskExecutor} used by the instance of {@link WorkManager}.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull TaskExecutor getWorkTaskExecutor() {
@@ -407,7 +391,6 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @return the {@link PreferenceUtils} used by the instance of {@link WorkManager}.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull PreferenceUtils getPreferenceUtils() {
@@ -416,7 +399,6 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @return the {@link Trackers} used by {@link WorkManager}
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -682,7 +664,6 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -707,7 +688,6 @@ public class WorkManagerImpl extends WorkManager {
     /**
      * @param id The {@link WorkSpec} id to stop when running in the context of a
      *                   foreground service.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopForegroundWork(@NonNull WorkGenerationalId id) {
@@ -719,7 +699,6 @@ public class WorkManagerImpl extends WorkManager {
      * Reschedules all the eligible work. Useful for cases like, app was force stopped or
      * BOOT_COMPLETED, TIMEZONE_CHANGED and TIME_SET for AlarmManager.
      *
-     * @hide
      */
     public void rescheduleEligibleWork() {
         // TODO (rahulrav@) Make every scheduler do its own cancelAll().
@@ -739,7 +718,6 @@ public class WorkManagerImpl extends WorkManager {
     /**
      * A way for {@link ForceStopRunnable} to tell {@link WorkManagerImpl} that it has completed.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void onForceStopRunnableCompleted() {
@@ -758,7 +736,6 @@ public class WorkManagerImpl extends WorkManager {
      * after a call to {@link BroadcastReceiver#goAsync()}. Once {@link ForceStopRunnable} is done,
      * we can safely call {@link BroadcastReceiver.PendingResult#finish()}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setReschedulePendingResult(
@@ -803,7 +780,6 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

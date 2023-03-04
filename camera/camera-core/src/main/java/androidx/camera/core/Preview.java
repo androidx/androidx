@@ -152,7 +152,6 @@ public final class Preview extends UseCase {
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
@@ -542,7 +541,6 @@ public final class Preview extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -564,7 +562,6 @@ public final class Preview extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -594,7 +591,6 @@ public final class Preview extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -606,7 +602,6 @@ public final class Preview extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -617,7 +612,6 @@ public final class Preview extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -632,7 +626,6 @@ public final class Preview extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY)
@@ -642,7 +635,6 @@ public final class Preview extends UseCase {
     }
 
     /**
-     * @hide
      */
     @VisibleForTesting
     @NonNull
@@ -738,7 +730,6 @@ public final class Preview extends UseCase {
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<PreviewConfig> {
@@ -795,7 +786,6 @@ public final class Preview extends UseCase {
         /**
          * Generates a Builder from another Config object
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -808,7 +798,6 @@ public final class Preview extends UseCase {
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -819,7 +808,6 @@ public final class Preview extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -828,7 +816,6 @@ public final class Preview extends UseCase {
             return mMutableConfig;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -853,7 +840,6 @@ public final class Preview extends UseCase {
 
         // Implementations of TargetConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1034,7 +1020,6 @@ public final class Preview extends UseCase {
          *
          * @param resolution The default resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1044,7 +1029,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1053,7 +1037,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1062,7 +1045,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1093,7 +1075,6 @@ public final class Preview extends UseCase {
          * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
          * {@link #build()} is called to create the {@link Preview} instance.
          *
-         * @hide
          **/
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1113,7 +1094,6 @@ public final class Preview extends UseCase {
          *
          * @param executor The executor which will be used for background tasks.
          * @return the current Builder.
-         * @hide Background executor not used in {@link Preview}.
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1125,7 +1105,6 @@ public final class Preview extends UseCase {
 
         // Implementations of UseCaseConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1134,7 +1113,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1143,7 +1121,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1153,7 +1130,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1163,7 +1139,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1172,7 +1147,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1181,7 +1155,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1191,7 +1164,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1200,7 +1172,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override

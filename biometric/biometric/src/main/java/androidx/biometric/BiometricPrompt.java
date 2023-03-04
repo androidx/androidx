@@ -161,7 +161,6 @@ public class BiometricPrompt {
 
     /**
      * An error code that may be returned during authentication.
-     * @hide
      */
     @IntDef({
         ERROR_HW_UNAVAILABLE,

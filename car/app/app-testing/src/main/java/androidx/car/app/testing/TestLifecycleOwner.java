@@ -26,7 +26,6 @@ import androidx.lifecycle.LifecycleRegistry;
 /**
  * A {@link LifecycleOwner} that is used to represent the lifecycle of the car app for testing.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class TestLifecycleOwner implements LifecycleOwner {

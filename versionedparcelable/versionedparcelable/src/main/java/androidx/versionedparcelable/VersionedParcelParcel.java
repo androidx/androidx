@@ -33,7 +33,6 @@ import androidx.collection.SimpleArrayMap;
 import java.lang.reflect.Method;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class VersionedParcelParcel extends VersionedParcel {

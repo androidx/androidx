@@ -32,14 +32,12 @@ import java.io.File
 /**
  * Helper for accessing features in [SupportSQLiteOpenHelper].
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class SupportSQLiteCompat private constructor() {
     /**
      * Class for accessing functions that require SDK version 16 and higher.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(16)
@@ -48,7 +46,6 @@ class SupportSQLiteCompat private constructor() {
          * Cancels the operation and signals the cancellation listener. If the operation has not yet
          * started, then it will be canceled as soon as it does.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -61,7 +58,6 @@ class SupportSQLiteCompat private constructor() {
          *
          * @return a new cancellation signal
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -76,7 +72,6 @@ class SupportSQLiteCompat private constructor() {
          * @param file The database file path.
          * @return True if the database was successfully deleted.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -99,7 +94,6 @@ class SupportSQLiteCompat private constructor() {
          * @return A [Cursor] object, which is positioned before the first entry. Note that
          * [Cursor]s are not synchronized, see the documentation for more details.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -125,7 +119,6 @@ class SupportSQLiteCompat private constructor() {
          * @throws [IllegalStateException] if the are transactions is in progress
          * when this method is called.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -144,7 +137,6 @@ class SupportSQLiteCompat private constructor() {
          * time this method is called.  WAL mode can only be changed when there are no
          * transactions in progress.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -160,7 +152,6 @@ class SupportSQLiteCompat private constructor() {
          *
          * @return True if write-ahead logging has been enabled for this database.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -172,7 +163,6 @@ class SupportSQLiteCompat private constructor() {
          * Sets [SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING] flag if `enabled` is `true`, unsets
          * otherwise.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -187,7 +177,6 @@ class SupportSQLiteCompat private constructor() {
     /**
      * Helper for accessing functions that require SDK version 19 and higher.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(19)
@@ -200,7 +189,6 @@ class SupportSQLiteCompat private constructor() {
          * find out about changes to this Cursor's data. May be null if no notification URI has been
          * set.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -214,7 +202,6 @@ class SupportSQLiteCompat private constructor() {
          * something with 1GB or less of RAM.  This is mostly intended to be used by apps
          * to determine whether they should turn off certain features that require more RAM.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -226,7 +213,6 @@ class SupportSQLiteCompat private constructor() {
     /**
      * Helper for accessing functions that require SDK version 21 and higher.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(21)
@@ -237,7 +223,6 @@ class SupportSQLiteCompat private constructor() {
          * @return The path of the directory holding application files that will not be
          * automatically backed up to remote storage.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -249,7 +234,6 @@ class SupportSQLiteCompat private constructor() {
     /**
      * Helper for accessing functions that require SDK version 23 and higher.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(23)
@@ -259,7 +243,6 @@ class SupportSQLiteCompat private constructor() {
          *
          * @param extras [Bundle] to set, or null to set an empty bundle.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -271,7 +254,6 @@ class SupportSQLiteCompat private constructor() {
     /**
      * Helper for accessing functions that require SDK version 29 and higher.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(29)
@@ -284,7 +266,6 @@ class SupportSQLiteCompat private constructor() {
          * this resolver will be notified.
          * @param uris The content URIs to watch.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -304,7 +285,6 @@ class SupportSQLiteCompat private constructor() {
          * to find out about changes to this Cursor's data. May be null if no notification URI has
          * been set.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic

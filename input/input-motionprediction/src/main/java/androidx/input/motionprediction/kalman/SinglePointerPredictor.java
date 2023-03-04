@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class SinglePointerPredictor implements KalmanPredictor {

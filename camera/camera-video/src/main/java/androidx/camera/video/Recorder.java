@@ -457,7 +457,6 @@ public final class Recorder implements VideoOutput {
         onSurfaceRequested(request, Timebase.UPTIME);
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void onSurfaceRequested(@NonNull SurfaceRequest request, @NonNull Timebase timebase) {
@@ -471,7 +470,6 @@ public final class Recorder implements VideoOutput {
         mSequentialExecutor.execute(() -> onSurfaceRequestedInternal(request, timebase));
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     @NonNull
@@ -479,7 +477,6 @@ public final class Recorder implements VideoOutput {
         return mMediaSpec;
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     @NonNull
@@ -487,7 +484,6 @@ public final class Recorder implements VideoOutput {
         return mStreamInfo;
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
     public void onSourceStateChanged(@NonNull SourceState newState) {
@@ -3134,7 +3130,6 @@ public final class Recorder implements VideoOutput {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         Builder setVideoEncoderFactory(@NonNull EncoderFactory videoEncoderFactory) {
@@ -3142,7 +3137,6 @@ public final class Recorder implements VideoOutput {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         Builder setAudioEncoderFactory(@NonNull EncoderFactory audioEncoderFactory) {

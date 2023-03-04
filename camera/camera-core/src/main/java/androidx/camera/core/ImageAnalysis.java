@@ -178,7 +178,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
@@ -241,7 +240,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -522,7 +520,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -534,7 +531,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -628,7 +624,6 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -668,7 +663,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -680,7 +674,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -702,7 +695,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -713,7 +705,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -725,7 +716,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -761,7 +751,6 @@ public final class ImageAnalysis extends UseCase {
      * by calling {@link ImageProxy#close()}. However, the image will only be valid when the
      * ImageAnalysis instance is bound to a camera.
      *
-     * @hide
      * @see Builder#setBackpressureStrategy(int)
      */
     @IntDef({STRATEGY_KEEP_ONLY_LATEST, STRATEGY_BLOCK_PRODUCER})
@@ -779,7 +768,6 @@ public final class ImageAnalysis extends UseCase {
      *
      * <p>By default, {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_YUV_420_888} will be used.
      *
-     * @hide
      * @see Builder#setOutputImageFormat(int)
      */
     @IntDef({OUTPUT_IMAGE_FORMAT_YUV_420_888, OUTPUT_IMAGE_FORMAT_RGBA_8888})
@@ -923,7 +911,6 @@ public final class ImageAnalysis extends UseCase {
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
@@ -984,7 +971,6 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -997,7 +983,6 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1109,7 +1094,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setOnePixelShiftEnabled(boolean onePixelShiftEnabled) {
@@ -1121,7 +1105,6 @@ public final class ImageAnalysis extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1133,7 +1116,6 @@ public final class ImageAnalysis extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1159,7 +1141,6 @@ public final class ImageAnalysis extends UseCase {
 
         // Implementations of TargetConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1330,7 +1311,6 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param resolution The default resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1341,7 +1321,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1350,7 +1329,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1359,7 +1337,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1407,7 +1384,6 @@ public final class ImageAnalysis extends UseCase {
          * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
          * {@link #build()} is called to create the {@link ImageAnalysis} instance.
          *
-         * @hide
          **/
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1437,7 +1413,6 @@ public final class ImageAnalysis extends UseCase {
 
         // Implementations of UseCaseConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1446,7 +1421,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1455,7 +1429,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1465,7 +1438,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1475,7 +1447,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1484,7 +1455,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY)
         @Override
         @NonNull
@@ -1493,7 +1463,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1503,7 +1472,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setImageReaderProxyProvider(
@@ -1513,7 +1481,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1522,7 +1489,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override

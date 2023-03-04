@@ -30,7 +30,6 @@ import java.util.NoSuchElementException;
 /**
  * Manages callbacks from {@link IWorkManagerImpl}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteCallback extends IWorkManagerImplCallback.Stub {

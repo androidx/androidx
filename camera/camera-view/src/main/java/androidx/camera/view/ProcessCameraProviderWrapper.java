@@ -66,7 +66,6 @@ interface ProcessCameraProviderWrapper {
     /**
      * Wrapper method for {@link ProcessCameraProvider#shutdown()}.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.TESTS)

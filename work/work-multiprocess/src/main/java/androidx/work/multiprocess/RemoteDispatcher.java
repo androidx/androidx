@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
 
 /**
  * @param <T> The remote interface subtype that usually implements {@link android.os.IBinder}.
- * @hide
  */
 @SuppressLint("LambdaLast")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

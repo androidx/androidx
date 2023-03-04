@@ -303,7 +303,6 @@ public abstract class TrustedWebActivityService extends Service {
      * pre-Android M.
      * @return An array of StatusBarNotifications as Parcelables.
      *
-     * @hide
      */
     @NonNull
     @BinderThread

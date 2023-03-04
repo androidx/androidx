@@ -81,7 +81,6 @@ public final class FakeAppConfig {
         return appConfigBuilder.build();
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final class DefaultProvider implements CameraXConfig.Provider {
 

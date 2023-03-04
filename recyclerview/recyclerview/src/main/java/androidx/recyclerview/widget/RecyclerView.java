@@ -285,7 +285,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     static final boolean DISPATCH_TEMP_DETACH = false;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({HORIZONTAL, VERTICAL})
     @Retention(RetentionPolicy.SOURCE)
@@ -13268,7 +13267,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     /**
      * This is public so that the CREATOR can be accessed on cold launch.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static class SavedState extends AbsSavedState {

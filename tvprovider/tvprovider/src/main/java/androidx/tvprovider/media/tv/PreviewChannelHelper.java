@@ -267,7 +267,6 @@ public class PreviewChannelHelper {
      * Inner methods that does the actual work of updating a Preview Channel. The method is
      * extracted to make {@link #updatePreviewChannel(long, PreviewChannel)} testable.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void updatePreviewChannelInternal(long channelId, @NonNull PreviewChannel upgrade) {
@@ -440,7 +439,6 @@ public class PreviewChannelHelper {
      * Inner methods that does the actual work of updating a Preview Program. The method is
      * extracted to make {@link #updatePreviewProgram(long, PreviewProgram)} testable.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void updatePreviewProgramInternal(long programId, @NonNull PreviewProgram upgrade) {
@@ -517,7 +515,6 @@ public class PreviewChannelHelper {
      * Inner methods that does the actual work of updating a Watch Next Program. The method is
      * extracted to make {@link #updateWatchNextProgram(WatchNextProgram, long)} testable.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void updateWatchNextProgram(long programId, @NonNull WatchNextProgram upgrade) {

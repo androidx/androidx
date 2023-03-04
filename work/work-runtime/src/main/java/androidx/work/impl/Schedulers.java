@@ -44,7 +44,6 @@ import java.util.concurrent.Executor;
  * Helps schedule {@link androidx.work.impl.model.WorkSpec}s while enforcing
  * {@link Scheduler#MAX_SCHEDULER_LIMIT}s.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Schedulers {

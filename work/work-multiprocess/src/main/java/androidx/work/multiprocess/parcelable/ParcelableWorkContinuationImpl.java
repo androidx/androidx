@@ -39,7 +39,6 @@ import java.util.List;
 /**
  * {@link androidx.work.impl.WorkContinuationImpl}, but parcelable.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

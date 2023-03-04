@@ -230,7 +230,6 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     /**
      * Returns the close state.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     public boolean isClosed() {

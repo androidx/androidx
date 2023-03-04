@@ -87,7 +87,6 @@ public abstract class CameraEffect {
     /**
      * Bitmask options for the effect targets.
      *
-     * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -114,7 +113,6 @@ public abstract class CameraEffect {
     /**
      * Bitmask option to indicate that CameraX should apply this effect to {@code VideoCapture}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int VIDEO_CAPTURE = 1 << 1;
@@ -214,7 +212,6 @@ public abstract class CameraEffect {
     /**
      * Gets the {@link ImageProcessor} associated with this effect.
      *
-     * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

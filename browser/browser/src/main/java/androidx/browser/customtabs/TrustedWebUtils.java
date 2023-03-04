@@ -67,7 +67,6 @@ public class TrustedWebUtils {
     /**
      * @see #launchBrowserSiteSettings
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String ACTION_MANAGE_TRUSTED_WEB_ACTIVITY_DATA =
@@ -88,7 +87,6 @@ public class TrustedWebUtils {
      * @param session The {@link CustomTabsSession} used to verify the origin.
      * @param uri The {@link Uri} for which site-settings are to be shown.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void launchBrowserSiteSettings(@NonNull Context context,

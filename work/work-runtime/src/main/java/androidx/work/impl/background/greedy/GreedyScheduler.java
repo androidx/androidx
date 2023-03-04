@@ -52,7 +52,6 @@ import java.util.Set;
  * not acquire any WakeLocks, instead trying to brute-force them as time allows before the process
  * gets killed.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, ExecutionListener {

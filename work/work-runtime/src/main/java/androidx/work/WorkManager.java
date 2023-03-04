@@ -659,7 +659,6 @@ public abstract class WorkManager {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected WorkManager() {

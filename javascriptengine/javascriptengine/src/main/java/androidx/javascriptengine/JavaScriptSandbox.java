@@ -94,7 +94,6 @@ public final class JavaScriptSandbox implements AutoCloseable {
     private HashSet<JavaScriptIsolate> mActiveIsolateSet = new HashSet<JavaScriptIsolate>();
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value =
@@ -284,7 +283,6 @@ public final class JavaScriptSandbox implements AutoCloseable {
      *                context if the connection is expected to outlive a single activity/service.
      * @return Future that evaluates to a connected {@link JavaScriptSandbox} instance or an
      * exception if binding to service fails.
-     * @hide
      */
     @NonNull
     @VisibleForTesting

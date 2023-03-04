@@ -193,13 +193,11 @@ public interface CameraControl {
      * something wrong inside CameraControl and it has to cancel the operation.
      */
     final class OperationCanceledException extends Exception {
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public OperationCanceledException(@NonNull String message) {
             super(message);
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public OperationCanceledException(@NonNull String message, @NonNull Throwable cause) {
             super(message, cause);

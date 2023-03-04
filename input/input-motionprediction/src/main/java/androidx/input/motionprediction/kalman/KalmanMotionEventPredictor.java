@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo;
 import androidx.input.motionprediction.MotionEventPredictor;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class KalmanMotionEventPredictor implements MotionEventPredictor {

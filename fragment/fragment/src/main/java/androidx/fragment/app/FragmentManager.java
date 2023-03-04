@@ -111,7 +111,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     private static boolean DEBUG = false;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TAG = "FragmentManager";
 
@@ -128,7 +127,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
         FragmentManager.DEBUG = enabled;
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static boolean isLoggingEnabled(int level) {
         return DEBUG || Log.isLoggable(TAG, level);
@@ -589,7 +587,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     /**
-     * @hide -- remove once prebuilts are in.
      * @deprecated Use {@link #beginTransaction()}.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -2634,7 +2631,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mLaunchedFragments = new ArrayDeque<>(fms.mLaunchedFragments);
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public FragmentHostCallback<?> getHost() {

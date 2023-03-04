@@ -58,7 +58,6 @@ import java.util.Set;
 /**
  * A class that schedules work using {@link android.app.job.JobScheduler}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)

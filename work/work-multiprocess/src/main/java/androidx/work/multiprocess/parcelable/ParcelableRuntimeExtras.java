@@ -38,7 +38,6 @@ import java.util.List;
 /**
  * {@link WorkerParameters.RuntimeExtras}, but parcelable.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

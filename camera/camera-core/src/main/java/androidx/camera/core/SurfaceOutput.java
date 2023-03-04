@@ -93,7 +93,6 @@ public interface SurfaceOutput {
     /**
      * Asks the {@link SurfaceProcessor} implementation to stopping writing to the {@link Surface}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     void requestClose();
@@ -163,7 +162,6 @@ public interface SurfaceOutput {
         /**
          * Possible event codes.
          *
-         * @hide
          */
         @IntDef({EVENT_REQUEST_CLOSE})
         @Retention(RetentionPolicy.SOURCE)
@@ -199,7 +197,6 @@ public interface SurfaceOutput {
         /**
          * Creates a {@link Event} for sending to the implementation.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull

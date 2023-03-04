@@ -128,14 +128,12 @@ public final class MediaSessionManager {
 
         /**
          * Represents an unknown pid of an application.
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public static final int UNKNOWN_PID = -1;
 
         /**
          * Represents an unknown uid of an application.
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public static final int UNKNOWN_UID = -1;
@@ -176,7 +174,6 @@ public final class MediaSessionManager {
          *
          * @param remoteUserInfo Framework RemoteUserInfo
          * @throws IllegalArgumentException if package name is empty
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @RequiresApi(28)

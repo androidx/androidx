@@ -39,7 +39,6 @@ import androidx.emoji2.viewsintegration.EmojiEditTextHelper;
  * When used on devices running API 18 or below, this widget acts as a {@link ExtractEditText} and
  * does not provide any emoji compatibility feature.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EmojiExtractEditText extends ExtractEditText {

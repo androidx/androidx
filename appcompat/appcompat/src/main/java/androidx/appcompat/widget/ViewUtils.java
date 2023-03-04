@@ -32,7 +32,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ViewUtils {
@@ -41,7 +40,6 @@ public class ViewUtils {
     private static Method sComputeFitSystemWindowsMethod;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @ChecksSdkIntAtLeast(api = 27)

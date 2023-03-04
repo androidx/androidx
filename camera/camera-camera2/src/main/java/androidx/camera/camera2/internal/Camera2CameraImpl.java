@@ -669,7 +669,6 @@ final class Camera2CameraImpl implements CameraInternal {
      * <p>This method should only be used by tests. This will post to the Camera's thread and
      * block until completion.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     boolean isUseCaseAttached(@NonNull UseCase useCase) {
@@ -996,7 +995,6 @@ final class Camera2CameraImpl implements CameraInternal {
         return mCameraInfoInternal;
     }
 
-    /** @hide */
     @NonNull
     @RestrictTo(RestrictTo.Scope.TESTS)
     public CameraAvailability getCameraAvailability() {

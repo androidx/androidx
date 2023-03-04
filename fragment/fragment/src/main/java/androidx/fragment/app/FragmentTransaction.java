@@ -547,7 +547,6 @@ public abstract class FragmentTransaction {
      */
     public static final int TRANSIT_EXIT_MASK = 0x2000;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE, TRANSIT_FRAGMENT_FADE,
             TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN, TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE})

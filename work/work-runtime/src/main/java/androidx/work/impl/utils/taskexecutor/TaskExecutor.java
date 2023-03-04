@@ -25,7 +25,6 @@ import java.util.concurrent.Executor;
 /**
  * Interface for executing common tasks in WorkManager.
  *
- * @hide
  */
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
