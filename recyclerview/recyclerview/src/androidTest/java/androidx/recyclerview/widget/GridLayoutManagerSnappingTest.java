@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -97,6 +98,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         assertCenterAligned(viewAfterFling);
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/271599012
     @Test
     public void snapOnScrollNextItem() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -123,6 +125,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         assertCenterAligned(viewAfterScroll);
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/271599012
     @Test
     public void snapOnFlingSameView() throws Throwable {
         final Config config = (Config) mConfig.clone();
@@ -149,6 +152,7 @@ public class GridLayoutManagerSnappingTest extends BaseGridLayoutManagerTest {
         assertCenterAligned(viewAfterFling);
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/271599012
     @Test
     public void snapOnFlingNextView() throws Throwable {
         final Config config = (Config) mConfig.clone();
