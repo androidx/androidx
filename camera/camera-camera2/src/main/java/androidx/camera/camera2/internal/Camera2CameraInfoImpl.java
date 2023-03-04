@@ -426,6 +426,15 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         return size != null ? Arrays.asList(size) : Collections.emptyList();
     }
 
+    @NonNull
+    @Override
+    public List<Size> getSupportedHighResolutions(int format) {
+        StreamConfigurationMapCompat mapCompat =
+                mCameraCharacteristicsCompat.getStreamConfigurationMapCompat();
+        Size[] size = mapCompat.getHighResolutionOutputSizes(format);
+        return size != null ? Arrays.asList(size) : Collections.emptyList();
+    }
+
     @Override
     public void addSessionCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback callback) {

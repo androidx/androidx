@@ -94,6 +94,15 @@ public interface CameraInfoInternal extends CameraInfo {
     @NonNull
     List<Size> getSupportedResolutions(int format);
 
+    /**
+     * Returns the supported high resolutions of this camera based on the input image format.
+     *
+     * @param format an image format from {@link ImageFormat} or {@link PixelFormat}.
+     * @return a list of supported resolutions, or an empty list if the format is not supported.
+     */
+    @NonNull
+    List<Size> getSupportedHighResolutions(int format);
+
     /** {@inheritDoc} */
     @NonNull
     @Override

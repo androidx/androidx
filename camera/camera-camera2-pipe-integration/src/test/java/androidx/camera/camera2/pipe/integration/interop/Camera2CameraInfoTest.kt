@@ -169,6 +169,10 @@ class Camera2CameraInfoTest {
             override fun getSupportedResolutions(format: Int): MutableList<Size> {
                 throw NotImplementedError("Not used in testing")
             }
+
+            override fun getSupportedHighResolutions(format: Int): MutableList<Size> {
+                throw NotImplementedError("Not used in testing")
+            }
         }
         Camera2CameraInfo.from(wrongCameraInfo)
     }

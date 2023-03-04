@@ -159,6 +159,18 @@ class CameraInfoAdapter @Inject constructor(
         }?.toList() ?: emptyList()
     }
 
+    @SuppressLint("ClassVerificationFailure")
+    override fun getSupportedHighResolutions(format: Int): List<Size> {
+        val streamConfigurationMap =
+            cameraProperties.metadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
+        if (Build.VERSION.SDK_INT >= 23) {
+            streamConfigurationMap.getHighResolutionOutputSizes(format)?.let {
+                return it.toList()
+            }
+        }
+        return emptyList()
+    }
+
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
 
     override fun getCameraQuirks(): Quirks {
