@@ -16,11 +16,11 @@
 
 package androidx.baselineprofile.gradle.consumer
 
+import androidx.baselineprofile.gradle.attributes.BaselineProfilePluginVersionAttr
 import androidx.baselineprofile.gradle.utils.ATTRIBUTE_BASELINE_PROFILE_PLUGIN_VERSION
 import androidx.baselineprofile.gradle.utils.ATTRIBUTE_TARGET_JVM_ENVIRONMENT
 import androidx.baselineprofile.gradle.utils.ATTRIBUTE_USAGE_BASELINE_PROFILE
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
-import androidx.baselineprofile.gradle.attributes.BaselineProfilePluginVersionAttr
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
 import androidx.baselineprofile.gradle.utils.INTERMEDIATES_BASE_FOLDER
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
@@ -241,6 +241,15 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                         .maybeRegister<MergeBaselineProfileTask>(
                             MERGE_TASK_NAME, mergeAwareVariantName, TASK_NAME_SUFFIX,
                         ) { task ->
+
+                            // Sets whether or not baseline profile dependencies have been set.
+                            // If they haven't, the task will fail at execution time.
+                            task.hasDependencies.set(
+                                baselineProfileConfiguration.allDependencies.isNotEmpty()
+                            )
+
+                            // Sets the name of this variant to print it in error messages.
+                            task.variantName.set(mergeAwareVariantName)
 
                             // These are all the configurations this task depends on,
                             // in order to consume their artifacts. Note that if this task already
