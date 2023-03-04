@@ -393,6 +393,28 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
+    public void testSetOrientationPortrait() throws Exception {
+        launchTestActivity(KeycodeTestActivity.class);
+        try {
+            mDevice.setOrientationPortrait();
+            assertTrue(mDevice.getDisplayHeight() > mDevice.getDisplayWidth());
+        } finally {
+            mDevice.unfreezeRotation();
+        }
+    }
+
+    @Test
+    public void testSetOrientationLandscape() throws Exception {
+        launchTestActivity(KeycodeTestActivity.class);
+        try {
+            mDevice.setOrientationLandscape();
+            assertTrue(mDevice.getDisplayWidth() > mDevice.getDisplayHeight());
+        } finally {
+            mDevice.unfreezeRotation();
+        }
+    }
+
+    @Test
     public void testIsScreenOn() throws Exception {
         launchTestActivity(MainActivity.class);
 
