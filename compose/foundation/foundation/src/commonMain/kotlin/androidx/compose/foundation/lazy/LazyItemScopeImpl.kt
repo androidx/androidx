@@ -47,7 +47,7 @@ internal class LazyItemScopeImpl : LazyItemScope {
     }
 
     override fun Modifier.fillParentMaxSize(fraction: Float) = then(
-        ParentSizeModifierElement(
+        ParentSizeElement(
             widthState = maxWidthState,
             heightState = maxHeightState,
             fraction = fraction,
@@ -56,7 +56,7 @@ internal class LazyItemScopeImpl : LazyItemScope {
     )
 
     override fun Modifier.fillParentMaxWidth(fraction: Float) = then(
-        ParentSizeModifierElement(
+        ParentSizeElement(
             widthState = maxWidthState,
             fraction = fraction,
             inspectorName = "fillParentMaxWidth"
@@ -64,7 +64,7 @@ internal class LazyItemScopeImpl : LazyItemScope {
     )
 
     override fun Modifier.fillParentMaxHeight(fraction: Float) = then(
-        ParentSizeModifierElement(
+        ParentSizeElement(
             heightState = maxHeightState,
             fraction = fraction,
             inspectorName = "fillParentMaxHeight"
@@ -79,21 +79,21 @@ internal class LazyItemScopeImpl : LazyItemScope {
         }))
 }
 
-private class ParentSizeModifierElement(
+private class ParentSizeElement(
     val fraction: Float,
     val widthState: State<Int>? = null,
     val heightState: State<Int>? = null,
     val inspectorName: String
-) : ModifierNodeElement<ParentSizeModifier>() {
-    override fun create(): ParentSizeModifier {
-        return ParentSizeModifier(
+) : ModifierNodeElement<ParentSizeNode>() {
+    override fun create(): ParentSizeNode {
+        return ParentSizeNode(
             fraction = fraction,
             widthState = widthState,
             heightState = heightState
         )
     }
 
-    override fun update(node: ParentSizeModifier): ParentSizeModifier = node.also {
+    override fun update(node: ParentSizeNode): ParentSizeNode = node.also {
         it.fraction = fraction
         it.widthState = widthState
         it.heightState = heightState
@@ -101,7 +101,7 @@ private class ParentSizeModifierElement(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ParentSizeModifier) return false
+        if (other !is ParentSizeNode) return false
         return fraction == other.fraction &&
             widthState == other.widthState &&
             heightState == other.heightState
@@ -120,7 +120,7 @@ private class ParentSizeModifierElement(
     }
 }
 
-private class ParentSizeModifier(
+private class ParentSizeNode(
     var fraction: Float,
     var widthState: State<Int>? = null,
     var heightState: State<Int>? = null,
