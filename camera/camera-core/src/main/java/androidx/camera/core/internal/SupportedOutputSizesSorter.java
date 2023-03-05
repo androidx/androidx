@@ -52,14 +52,14 @@ import java.util.Map;
  * A class used to sort the supported output sizes according to the use case configs
  */
 @RequiresApi(21)
-class SupportedOutputSizesSorter {
+public class SupportedOutputSizesSorter {
     private static final String TAG = "SupportedOutputSizesCollector";
     private final CameraInfoInternal mCameraInfoInternal;
     private final Rational mFullFovRatio;
     private final boolean mIsSensorLandscapeResolution;
     private final SupportedOutputSizesSorterLegacy mSupportedOutputSizesSorterLegacy;
 
-    SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal) {
+    public SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal) {
         mCameraInfoInternal = cameraInfoInternal;
         mFullFovRatio = calculateFullFovRatio(mCameraInfoInternal);
         // Determines the sensor resolution orientation info by the full FOV ratio.
@@ -87,7 +87,7 @@ class SupportedOutputSizesSorter {
     }
 
     @NonNull
-    List<Size> getSortedSupportedOutputSizes(@NonNull UseCaseConfig<?> useCaseConfig) {
+    public List<Size> getSortedSupportedOutputSizes(@NonNull UseCaseConfig<?> useCaseConfig) {
         ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCaseConfig;
         List<Size> customOrderedResolutions = imageOutputConfig.getCustomOrderedResolutions(null);
 
