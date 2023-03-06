@@ -416,14 +416,14 @@ package androidx.compose.ui.focus {
     method @Deprecated public void setRight(androidx.compose.ui.focus.FocusRequester);
     method @Deprecated public void setStart(androidx.compose.ui.focus.FocusRequester);
     method @Deprecated public void setUp(androidx.compose.ui.focus.FocusRequester);
-    property public final androidx.compose.ui.focus.FocusRequester down;
-    property public final androidx.compose.ui.focus.FocusRequester end;
-    property public final androidx.compose.ui.focus.FocusRequester left;
-    property public final androidx.compose.ui.focus.FocusRequester next;
-    property public final androidx.compose.ui.focus.FocusRequester previous;
-    property public final androidx.compose.ui.focus.FocusRequester right;
-    property public final androidx.compose.ui.focus.FocusRequester start;
-    property public final androidx.compose.ui.focus.FocusRequester up;
+    property @Deprecated public final androidx.compose.ui.focus.FocusRequester down;
+    property @Deprecated public final androidx.compose.ui.focus.FocusRequester end;
+    property @Deprecated public final androidx.compose.ui.focus.FocusRequester left;
+    property @Deprecated public final androidx.compose.ui.focus.FocusRequester next;
+    property @Deprecated public final androidx.compose.ui.focus.FocusRequester previous;
+    property @Deprecated public final androidx.compose.ui.focus.FocusRequester right;
+    property @Deprecated public final androidx.compose.ui.focus.FocusRequester start;
+    property @Deprecated public final androidx.compose.ui.focus.FocusRequester up;
   }
 
   @Deprecated @kotlin.jvm.JvmDefaultWithCompatibility public interface FocusOrderModifier extends androidx.compose.ui.Modifier.Element {
@@ -518,7 +518,7 @@ package androidx.compose.ui.focus {
 
   @Deprecated @kotlin.jvm.JvmDefaultWithCompatibility public interface FocusRequesterModifier extends androidx.compose.ui.Modifier.Element {
     method @Deprecated public androidx.compose.ui.focus.FocusRequester getFocusRequester();
-    property public abstract androidx.compose.ui.focus.FocusRequester focusRequester;
+    property @Deprecated public abstract androidx.compose.ui.focus.FocusRequester focusRequester;
   }
 
   public final class FocusRequesterModifierKt {

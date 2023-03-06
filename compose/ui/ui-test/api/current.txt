@@ -121,7 +121,7 @@ package androidx.compose.ui.test {
   @Deprecated public final class GestureScope {
     ctor @Deprecated public GestureScope(androidx.compose.ui.semantics.SemanticsNode node, androidx.compose.ui.test.TestContext testContext);
     method @Deprecated public long getVisibleSize();
-    property public final long visibleSize;
+    property @Deprecated public final long visibleSize;
   }
 
   public final class GestureScopeKt {
