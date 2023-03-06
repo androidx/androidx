@@ -125,7 +125,7 @@ class PublicKeyCredentialEntry internal constructor(
     }
 
     @Suppress("AcronymName")
-    companion object CREATOR {
+    companion object {
 
         private const val TAG = "PublicKeyCredEntry"
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
