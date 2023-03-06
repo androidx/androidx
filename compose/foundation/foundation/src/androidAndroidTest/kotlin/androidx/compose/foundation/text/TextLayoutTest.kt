@@ -108,6 +108,9 @@ class TextLayoutTest {
                         measurables: List<Measurable>,
                         constraints: Constraints
                     ): MeasureResult {
+                        measurables.forEach {
+                            it.measure(constraints)
+                        }
                         textMeasurable = measurables.first()
                         return layout(0, 0) {}
                     }

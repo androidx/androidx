@@ -17,12 +17,12 @@
 package androidx.compose.foundation.benchmark.text.empirical
 
 import androidx.compose.foundation.benchmark.text.DoFullBenchmark
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.test.filters.LargeTest
 import org.junit.Assume.assumeTrue
@@ -49,9 +49,11 @@ class SetTextWithSpans(
 ) : LayeredComposeTestCase(), ToggleableTestCase {
     private var toggleText = mutableStateOf(AnnotatedString(""))
 
+    private val style = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
+
     @Composable
     override fun MeasuredContent() {
-        Text(toggleText.value, fontFamily = FontFamily.Monospace)
+        Subject(toggleText.value, style = style)
     }
 
     override fun toggleState() {
