@@ -19,7 +19,6 @@ import java.util.MissingResourceException;
 
 /**
  * Provides access to ICU data files as InputStreams.  Implements security checking.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class ICUData {

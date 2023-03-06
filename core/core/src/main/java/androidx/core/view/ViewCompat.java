@@ -107,20 +107,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ViewCompat {
     private static final String TAG = "ViewCompat";
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({View.FOCUS_LEFT, View.FOCUS_UP, View.FOCUS_RIGHT, View.FOCUS_DOWN,
             View.FOCUS_FORWARD, View.FOCUS_BACKWARD})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FocusDirection {}
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({View.FOCUS_LEFT, View.FOCUS_UP, View.FOCUS_RIGHT, View.FOCUS_DOWN})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FocusRealDirection {}
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({View.FOCUS_FORWARD, View.FOCUS_BACKWARD})
     @Retention(RetentionPolicy.SOURCE)
@@ -405,7 +402,6 @@ public class ViewCompat {
     public static final int MEASURED_STATE_TOO_SMALL = 0x01000000;
 
     /**
-     * @hide
      */
     @IntDef(value = {SCROLL_AXIS_NONE, SCROLL_AXIS_HORIZONTAL, SCROLL_AXIS_VERTICAL}, flag = true)
     @Retention(RetentionPolicy.SOURCE)
@@ -428,7 +424,6 @@ public class ViewCompat {
     public static final int SCROLL_AXIS_VERTICAL = 1 << 1;
 
     /**
-     * @hide
      */
     @IntDef({TYPE_TOUCH, TYPE_NON_TOUCH})
     @Retention(RetentionPolicy.SOURCE)
@@ -446,7 +441,6 @@ public class ViewCompat {
      */
     public static final int TYPE_NON_TOUCH = 1;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true,

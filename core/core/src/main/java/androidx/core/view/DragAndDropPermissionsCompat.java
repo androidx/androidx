@@ -46,7 +46,6 @@ public final class DragAndDropPermissionsCompat {
         mDragAndDropPermissions = dragAndDropPermissions;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
     public static DragAndDropPermissionsCompat request(@NonNull Activity activity,

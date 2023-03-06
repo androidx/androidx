@@ -693,7 +693,6 @@ public class AccessibilityNodeInfoCompat {
         private final Class<? extends CommandArguments> mViewCommandArgumentClass;
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         protected final AccessibilityViewCommand mCommand;
@@ -714,7 +713,6 @@ public class AccessibilityNodeInfoCompat {
          * @param actionId The action id.
          * @param label The action label.
          * @param command The command performed when the service requests the action
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public AccessibilityActionCompat(int actionId, CharSequence label,
@@ -776,7 +774,6 @@ public class AccessibilityNodeInfoCompat {
          * @return If the action was handled.
          * @param view View to act upon.
          * @param arguments Optional action arguments.
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public boolean perform(View view, Bundle arguments) {
@@ -800,7 +797,6 @@ public class AccessibilityNodeInfoCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public AccessibilityActionCompat createReplacementAction(CharSequence label,
@@ -1364,8 +1360,6 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      *  androidx.customview.widget.ExploreByTouchHelper.HOST_ID = -1;
-     *
-     *  @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int mParentVirtualDescendantId = NO_ID;
@@ -2944,7 +2938,6 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void addSpansToExtras(CharSequence text, View view) {
@@ -2981,7 +2974,6 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static ClickableSpan[] getClickableSpans(CharSequence text) {

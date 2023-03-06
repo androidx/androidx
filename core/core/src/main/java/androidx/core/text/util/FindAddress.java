@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
  * Support copy of https://cs.chromium.org/chromium/src/android_webview/java/src/org/chromium
  * /android_webview/FindAddress.java
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 class FindAddress {

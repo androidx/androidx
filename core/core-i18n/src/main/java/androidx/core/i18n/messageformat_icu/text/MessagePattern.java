@@ -77,7 +77,6 @@ import androidx.core.i18n.messageformat_icu.impl.ICUConfig;
  *
  * icu_annot::stable ICU 4.8
  * @author Markus Scherer
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class MessagePattern implements Cloneable, Freezable<MessagePattern> {

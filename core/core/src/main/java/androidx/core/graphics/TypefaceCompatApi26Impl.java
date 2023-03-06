@@ -47,7 +47,6 @@ import java.util.Map;
 
 /**
  * Implementation of the Typeface compat methods for API 26 and above.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(26)

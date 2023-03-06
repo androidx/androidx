@@ -363,7 +363,6 @@ import java.util.Set;
  * @author       Mark Davis
  * @author       Markus Scherer
  * icu_annot::stable ICU 3.0
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MessageFormat extends Format {

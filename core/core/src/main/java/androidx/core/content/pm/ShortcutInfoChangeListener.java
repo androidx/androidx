@@ -28,7 +28,6 @@ import java.util.List;
  * Defines a listener for {@link ShortcutInfoCompat} changes in {@link ShortcutManagerCompat}. This
  * class is no-op as is and may be overridden to provide the required functionality.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public abstract class ShortcutInfoChangeListener {
