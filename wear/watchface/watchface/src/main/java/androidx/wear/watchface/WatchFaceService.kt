@@ -340,7 +340,6 @@ public abstract class WatchFaceService : WallpaperService() {
 
         @Px internal const val MAX_REASONABLE_SCHEMA_ICON_HEIGHT = 400
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmField
         public val XML_WATCH_FACE_METADATA =
@@ -430,7 +429,6 @@ public abstract class WatchFaceService : WallpaperService() {
     /**
      * The context used to resolve resources. Unlocks future work.
      *
-     * @hide
      */
     protected open val resourcesContext: Context
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get() = this
@@ -439,7 +437,6 @@ public abstract class WatchFaceService : WallpaperService() {
      * Returns the id of the XmlSchemaAndComplicationSlotsDefinition XML resource or 0 if it can't
      * be found.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Suppress("DEPRECATION")
@@ -619,7 +616,6 @@ public abstract class WatchFaceService : WallpaperService() {
      * Override to force the watchface to be regarded as being visible. This must not be used in
      * production code or significant battery life regressions may occur.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open fun forceIsVisibleForTesting() = false
 
@@ -657,7 +653,6 @@ public abstract class WatchFaceService : WallpaperService() {
     /**
      * Interface for getting the current system time.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface SystemTimeProvider {
@@ -668,7 +663,6 @@ public abstract class WatchFaceService : WallpaperService() {
         public fun getSystemTimeZoneId(): ZoneId
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun getSystemTimeProvider(): SystemTimeProvider =
         object : SystemTimeProvider {
@@ -750,7 +744,6 @@ public abstract class WatchFaceService : WallpaperService() {
     /**
      * This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun getWallpaperSurfaceHolderOverride(): SurfaceHolder? = null
@@ -1160,7 +1153,6 @@ public abstract class WatchFaceService : WallpaperService() {
         val userStyleFlavors: UserStyleFlavors
     )
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @OptIn(WatchFaceExperimental::class)
     public inner class EngineWrapper(
@@ -2839,7 +2831,6 @@ internal fun <R> CoroutineScope.runBlockingWithTracing(
  * If the instance ID for [MutableWatchState.watchFaceInstanceId] begin with this prefix, then the
  * system sends consistent IDs for interactive, headless and editor sessions.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 const val SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX = "wfId-"
@@ -2848,7 +2839,6 @@ const val SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX = "wfId-"
  * Instance ID to use when either there's no system id or it doesn't start with
  * [SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX].
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const val DEFAULT_INSTANCE_ID = "defaultInstance"
 
@@ -2856,7 +2846,6 @@ const val SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX = "wfId-"
  * This is needed to make the instance id consistent between Interactive, Headless and EditorSession
  * for old versions of the system.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun sanitizeWatchFaceId(instanceId: String?) =

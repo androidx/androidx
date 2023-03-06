@@ -40,7 +40,6 @@ public final class EventBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -51,7 +50,6 @@ public final class EventBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -95,7 +93,6 @@ public final class EventBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -106,7 +103,6 @@ public final class EventBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -150,7 +146,6 @@ public final class EventBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -161,7 +156,6 @@ public final class EventBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -206,7 +200,6 @@ public final class EventBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -217,7 +210,6 @@ public final class EventBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

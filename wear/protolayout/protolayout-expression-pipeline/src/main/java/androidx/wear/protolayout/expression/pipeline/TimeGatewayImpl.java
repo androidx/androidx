@@ -31,7 +31,6 @@ import java.util.concurrent.Executor;
 /**
  * Default implementation of {@link TimeGateway} using Android's clock.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class TimeGatewayImpl implements TimeGateway, AutoCloseable {

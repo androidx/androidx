@@ -49,7 +49,6 @@ import kotlinx.coroutines.flow.update
  *
  * Due to [WireComplicationData]'s shallow copy strategy the input is modified in-place.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationDataExpressionEvaluator(

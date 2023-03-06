@@ -36,7 +36,6 @@ import java.util.List;
 /**
  * Data sent over AIDL for {@link IEditorListener#onEditorStateChange}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)

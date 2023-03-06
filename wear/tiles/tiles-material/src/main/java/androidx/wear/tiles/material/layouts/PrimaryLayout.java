@@ -141,7 +141,6 @@ public class PrimaryLayout implements LayoutElement {
     /** Position of the primary chip in main layout column. */
     static final int PRIMARY_CHIP_POSITION = 1;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(
@@ -524,7 +523,6 @@ public class PrimaryLayout implements LayoutElement {
         return new PrimaryLayout(boxElement);
     }
 
-    /** @hide */
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)

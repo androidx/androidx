@@ -109,7 +109,6 @@ public final class RequestBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -120,7 +119,6 @@ public final class RequestBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -269,7 +267,6 @@ public final class RequestBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -280,7 +277,6 @@ public final class RequestBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

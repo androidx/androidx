@@ -128,7 +128,6 @@ public class Chip implements LayoutElement {
         private static final int ICON = 2;
         private static final int CUSTOM_CONTENT = 3;
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef({NOT_SET, TEXT, ICON, CUSTOM_CONTENT})
@@ -666,7 +665,6 @@ public class Chip implements LayoutElement {
         return new Chip(boxElement);
     }
 
-    /** @hide */
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)

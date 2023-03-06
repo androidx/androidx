@@ -39,6 +39,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.Px
+import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.WorkerThread
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -59,6 +60,7 @@ import kotlinx.coroutines.sync.withLock
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @IntDef(value = [CanvasType.SOFTWARE, CanvasType.HARDWARE])
 public annotation class CanvasType {
     public companion object {
@@ -302,7 +304,6 @@ constructor(
 
     /** The current [RenderParameters]. Updated before every onDraw call. */
     public var renderParameters: RenderParameters = RenderParameters.DEFAULT_INTERACTIVE
-        /** @hide */
         internal set(value) {
             if (value != field) {
                 field = value
@@ -989,7 +990,6 @@ constructor(
             watchState,
             interactiveDrawModeUpdateDelayMillis
         ) {
-        /** @hide */
         internal companion object {
             internal const val TAG = "Gles2WatchFace"
 

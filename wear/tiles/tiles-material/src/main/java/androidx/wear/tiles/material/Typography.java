@@ -83,7 +83,6 @@ public class Typography {
     /** Typography for small caption text. */
     public static final int TYPOGRAPHY_CAPTION3 = 12;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({

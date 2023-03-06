@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-/** @hide */
 @RestrictTo(LIBRARY_GROUP)
 package android.support.wearable.complications;
 

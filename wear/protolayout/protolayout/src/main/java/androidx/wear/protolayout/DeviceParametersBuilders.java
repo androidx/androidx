@@ -39,7 +39,6 @@ public final class DeviceParametersBuilders {
    * The platform of the device requesting a layout.
    *
    * @since 1.0
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({DEVICE_PLATFORM_UNDEFINED, DEVICE_PLATFORM_WEAR_OS})
@@ -64,7 +63,6 @@ public final class DeviceParametersBuilders {
    * The shape of a screen.
    *
    * @since 1.0
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({SCREEN_SHAPE_UNDEFINED, SCREEN_SHAPE_ROUND, SCREEN_SHAPE_RECT})
@@ -202,7 +200,6 @@ public final class DeviceParametersBuilders {
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -214,7 +211,6 @@ public final class DeviceParametersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

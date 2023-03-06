@@ -30,7 +30,6 @@ public class ComplicationStyle {
     /**
      * Constants used to define border styles for complicationSlots.
      *
-     * @hide
      */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(BORDER_STYLE_NONE, BORDER_STYLE_SOLID, BORDER_STYLE_DASHED)
@@ -286,7 +285,6 @@ public class ComplicationStyle {
     /**
      * Returns a copy of the ComplicationStyle [tint]ed by [tintColor].
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun asTinted(tintColor: Int): ComplicationStyle =

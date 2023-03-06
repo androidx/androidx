@@ -49,7 +49,6 @@ public enum class ComplicationType(private val wireType: Int) {
      *
      * This is only needed internally to convert to the underlying communication protocol.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY) public fun toWireComplicationType(): Int = wireType
 
@@ -61,7 +60,6 @@ public enum class ComplicationType(private val wireType: Int) {
          *
          * This is only needed internally to convert to the underlying communication protocol.
          *
-         * @hide
          */
         @OptIn(ComplicationExperimental::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -92,7 +90,6 @@ public enum class ComplicationType(private val wireType: Int) {
          *
          * Needed to access this conveniently in Java.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -106,7 +103,6 @@ public enum class ComplicationType(private val wireType: Int) {
          *
          * Needed to access this conveniently in Java.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -117,7 +113,6 @@ public enum class ComplicationType(private val wireType: Int) {
          * Converts an array of integer values used for serialization into the corresponding list of
          * [ComplicationType].
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -132,7 +127,6 @@ public enum class ComplicationType(private val wireType: Int) {
  *
  * This is only needed internally to convert to the underlying communication protocol.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Collection<ComplicationType>.toWireTypes(): IntArray =
@@ -144,7 +138,6 @@ public fun Collection<ComplicationType>.toWireTypes(): IntArray =
  *
  * This is only needed internally to convert to the underlying communication protocol.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun IntArray.toApiComplicationTypes(): Array<ComplicationType> =

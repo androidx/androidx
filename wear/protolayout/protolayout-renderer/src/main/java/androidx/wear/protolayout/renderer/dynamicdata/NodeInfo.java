@@ -126,7 +126,6 @@ class NodeInfo implements TreeNode {
     /**
      * Returns the number of active bound dynamic types.
      *
-     * @hide
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @SuppressWarnings("RestrictTo")
@@ -208,7 +207,6 @@ class NodeInfo implements TreeNode {
     /**
      * Returns how many animations are running.
      *
-     * @hide
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @SuppressWarnings("RestrictTo")

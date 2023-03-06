@@ -29,7 +29,6 @@ import androidx.wear.watchface.BroadcastsReceiver.BroadcastEventObserver
  * This class decouples [BroadcastEventObserver]s from the actual broadcast event receivers to make
  * testing easier.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BroadcastsReceiver

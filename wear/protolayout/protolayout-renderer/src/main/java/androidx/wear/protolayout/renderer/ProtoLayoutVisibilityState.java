@@ -26,7 +26,6 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * The visibility state of the layout.
  *
- * @hide
  */
 @IntDef({
     ProtoLayoutVisibilityState.VISIBILITY_STATE_FULLY_VISIBLE,

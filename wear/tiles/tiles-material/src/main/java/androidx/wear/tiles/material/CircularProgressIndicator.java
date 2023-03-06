@@ -337,7 +337,6 @@ public class CircularProgressIndicator implements LayoutElement {
         return new CircularProgressIndicator(arcElement);
     }
 
-    /** @hide */
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)

@@ -176,7 +176,6 @@ public final class ModifiersBuilders {
    * The snap options to use when sliding using parent boundaries.
    *
    * @since 1.2
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({SLIDE_PARENT_SNAP_UNDEFINED, SLIDE_PARENT_SNAP_TO_INSIDE, SLIDE_PARENT_SNAP_TO_OUTSIDE})
@@ -210,7 +209,6 @@ public final class ModifiersBuilders {
    * destination in the layout for in animation or reverse for out animation.
    *
    * @since 1.2
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({
@@ -294,7 +292,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -310,7 +307,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -379,7 +375,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -499,7 +494,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -648,7 +642,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -726,7 +719,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -810,7 +802,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -893,7 +884,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -909,7 +899,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1050,7 +1039,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1062,7 +1050,6 @@ public final class ModifiersBuilders {
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1073,7 +1060,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1222,7 +1208,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1232,7 +1217,6 @@ public final class ModifiersBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1249,7 +1233,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1359,7 +1342,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1369,7 +1351,6 @@ public final class ModifiersBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1386,7 +1367,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1488,7 +1468,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1498,7 +1477,6 @@ public final class ModifiersBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1515,7 +1493,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1636,7 +1613,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1646,7 +1622,6 @@ public final class ModifiersBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1663,7 +1638,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1791,7 +1765,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1801,7 +1774,6 @@ public final class ModifiersBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1818,7 +1790,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1920,7 +1891,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1930,7 +1900,6 @@ public final class ModifiersBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1947,7 +1916,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2068,7 +2036,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2078,7 +2045,6 @@ public final class ModifiersBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2095,7 +2061,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2185,7 +2150,6 @@ public final class ModifiersBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2194,7 +2158,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2203,7 +2166,6 @@ public final class ModifiersBuilders {
     /**
      * Builder to create {@link SlideBound} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
@@ -2217,7 +2179,6 @@ public final class ModifiersBuilders {
   /**
    * Creates a new wrapper instance from the proto.
    *
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
@@ -2262,7 +2223,6 @@ public final class ModifiersBuilders {
       return mImpl.getSnapTo().getNumber();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2272,7 +2232,6 @@ public final class ModifiersBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2289,7 +2248,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2297,7 +2255,6 @@ public final class ModifiersBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2383,7 +2340,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2399,7 +2355,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2476,7 +2431,6 @@ public final class ModifiersBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2492,7 +2446,6 @@ public final class ModifiersBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

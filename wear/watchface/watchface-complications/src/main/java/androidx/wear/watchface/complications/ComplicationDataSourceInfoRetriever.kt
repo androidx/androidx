@@ -125,7 +125,6 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     /** Exception thrown if the service disconnects. */
     public class ServiceDisconnectedException : Exception()
 
-    /** @hide */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public constructor(service: IProviderInfoService) {
@@ -399,7 +398,6 @@ public class ComplicationDataSourceInfo(
     /**
      * Converts this value to [WireComplicationProviderInfo] object used for serialization.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireComplicationProviderInfo(): WireComplicationProviderInfo =
@@ -412,7 +410,6 @@ public class ComplicationDataSourceInfo(
         )
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun WireComplicationProviderInfo.toApiComplicationDataSourceInfo() =
     ComplicationDataSourceInfo(

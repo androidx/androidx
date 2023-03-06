@@ -133,7 +133,6 @@ public class ComplicationSlotsManager(
     public var configExtrasChangeCallback: WatchFace.ComplicationSlotConfigExtrasChangeCallback? =
         null
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
     public constructor(
@@ -162,7 +161,6 @@ public class ComplicationSlotsManager(
         onComplicationsUpdated()
     }
 
-    /** @hide */
     @WorkerThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun listenForStyleChanges(coroutineScope: CoroutineScope) {

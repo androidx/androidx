@@ -37,7 +37,6 @@ import java.util.Map;
  * Helper class for Animations in ProtoLayout. It contains helper methods used in rendered and
  * constants for default values.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimationsHelper {

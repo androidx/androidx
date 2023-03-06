@@ -52,7 +52,6 @@ public interface SensorGateway extends Closeable {
     /**
      * Sensor data types that can be subscribed to from {@link SensorGateway}.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
@@ -148,7 +147,6 @@ public interface SensorGateway extends Closeable {
      * Enables/unpauses sending updates to the consumers. All cached updates (while updates were
      * paused) for data types will be delivered by sending the latest data.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     void enableUpdates();
@@ -157,7 +155,6 @@ public interface SensorGateway extends Closeable {
      * Disables/pauses sending updates to the consumers. While paused, updates will be cached to be
      * delivered after unpausing.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     void disableUpdates();
