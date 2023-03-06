@@ -2489,8 +2489,8 @@ package androidx.compose.ui.node {
 
   public final class LayoutModifierNodeKt {
     method public static void invalidateLayer(androidx.compose.ui.node.LayoutModifierNode);
-    method public static void invalidateLayout(androidx.compose.ui.node.LayoutModifierNode);
     method public static void invalidateMeasurements(androidx.compose.ui.node.LayoutModifierNode);
+    method public static void invalidatePlacement(androidx.compose.ui.node.LayoutModifierNode);
   }
 
   public abstract class ModifierNodeElement<N extends androidx.compose.ui.Modifier.Node> implements androidx.compose.ui.platform.InspectableValue androidx.compose.ui.Modifier.Element {
