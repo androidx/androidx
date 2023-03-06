@@ -572,10 +572,19 @@ class Paparazzi @JvmOverloads constructor(
       val snapshotInvalidations = recomposer.javaClass
         .getDeclaredField("snapshotInvalidations")
         .apply { isAccessible = true }
-        .get(recomposer) as MutableCollection<*>
+        .get(recomposer)
       compositionInvalidations.clear()
-      snapshotInvalidations.clear()
       applyObservers.clear()
+
+      if (snapshotInvalidations is MutableCollection<*>) {
+        snapshotInvalidations.clear()
+      } else {
+        // backed by IdentityArraySet
+        snapshotInvalidations.javaClass
+          .getDeclaredMethod("clear")
+          .apply { isAccessible = true }
+          .invoke(snapshotInvalidations)
+      }
     }
 
     val dispatcher =
