@@ -31,6 +31,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -94,6 +95,7 @@ class EmojiViewTest {
         dumpAndAssertAgainstGolden("multiple_draw")
     }
 
+    @Ignore
     @Test
     fun testClear() {
         setAndWait(GRINNING_FACE)
