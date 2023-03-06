@@ -17,7 +17,6 @@
 package androidx.compose.ui.node
 
 import androidx.compose.runtime.CompositionLocal
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 
 /**
@@ -32,7 +31,6 @@ import androidx.compose.ui.Modifier
  * @see Modifier.Node
  * @see CompositionLocal
  */
-@ExperimentalComposeUiApi
 interface CompositionLocalConsumerModifierNode : DelegatableNode
 
 /**
@@ -62,7 +60,6 @@ interface CompositionLocalConsumerModifierNode : DelegatableNode
  * before the node is [attached][Modifier.Node.onAttach] or after the node is
  * [detached][Modifier.Node.onDetach].
  */
-@ExperimentalComposeUiApi
 fun <T> CompositionLocalConsumerModifierNode.currentValueOf(local: CompositionLocal<T>): T {
     check(node.isAttached) {
         "Cannot read CompositionLocal because the Modifier node is not currently attached. Make " +
