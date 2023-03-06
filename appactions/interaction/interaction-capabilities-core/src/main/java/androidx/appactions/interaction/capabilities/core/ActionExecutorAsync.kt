@@ -16,18 +16,17 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import com.google.common.util.concurrent.ListenableFuture
+
 /**
- * An interface of executing the action.
- *
- * Actions are executed asynchronously using Kotlin coroutines.
- * For a Future-based solution, see ActionExecutorAsync.
+ * An ListenableFuture-based interface of executing an action.
  */
-fun interface ActionExecutor<ArgumentT, OutputT> {
+fun interface ActionExecutorAsync<ArgumentT, OutputT> {
     /**
      * Calls to execute the action.
      *
      * @param argument the argument for this action.
-     * @return the ExecutionResult
+     * @return A ListenableFuture containing the ExecutionResult
      */
-    suspend fun execute(argument: ArgumentT): ExecutionResult<OutputT>
+    fun execute(argument: ArgumentT): ListenableFuture<ExecutionResult<OutputT>>
 }

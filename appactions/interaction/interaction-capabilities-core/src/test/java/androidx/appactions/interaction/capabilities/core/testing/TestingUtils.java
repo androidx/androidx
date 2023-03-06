@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.testing;
 
 import androidx.annotation.NonNull;
-import androidx.appactions.interaction.capabilities.core.ActionExecutor;
+import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync;
 import androidx.appactions.interaction.capabilities.core.ExecutionResult;
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal;
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal;
@@ -29,7 +29,6 @@ import androidx.appactions.interaction.proto.TouchEventMetadata;
 
 import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -165,12 +164,7 @@ public final class TestingUtils {
     }
 
     public static <ArgumentT, OutputT>
-            ActionExecutor<ArgumentT, OutputT> createFakeActionExecutor() {
-        return new ActionExecutor<ArgumentT, OutputT>() {
-            @Override
-            public ListenableFuture<ExecutionResult<OutputT>> executeAsync(ArgumentT args) {
-                return Futures.immediateFuture(ExecutionResult.<OutputT>getDefaultInstance());
-            }
-        };
+            ActionExecutorAsync<ArgumentT, OutputT> createFakeActionExecutor() {
+        return args -> Futures.immediateFuture(ExecutionResult.<OutputT>getDefaultInstance());
     }
 }
