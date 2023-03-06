@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
  * @sample androidx.compose.foundation.layout.samples.OffsetModifier
  */
 @Stable
-fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this then OffsetModifierElement(
+fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this then OffsetElement(
     x = x,
     y = y,
     rtlAware = true,
@@ -72,7 +72,7 @@ fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this then OffsetModifierElemen
  * @sample androidx.compose.foundation.layout.samples.AbsoluteOffsetModifier
  */
 @Stable
-fun Modifier.absoluteOffset(x: Dp = 0.dp, y: Dp = 0.dp) = this then OffsetModifierElement(
+fun Modifier.absoluteOffset(x: Dp = 0.dp, y: Dp = 0.dp) = this then OffsetElement(
     x = x,
     y = y,
     rtlAware = false,
@@ -103,7 +103,7 @@ fun Modifier.absoluteOffset(x: Dp = 0.dp, y: Dp = 0.dp) = this then OffsetModifi
  * @sample androidx.compose.foundation.layout.samples.OffsetPxModifier
  */
 fun Modifier.offset(offset: Density.() -> IntOffset) = this then
-    OffsetPxModifierElement(
+    OffsetPxElement(
         offset = offset,
         rtlAware = true,
         inspectorInfo = {
@@ -132,7 +132,7 @@ fun Modifier.offset(offset: Density.() -> IntOffset) = this then
  */
 fun Modifier.absoluteOffset(
     offset: Density.() -> IntOffset
-) = this then OffsetPxModifierElement(
+) = this then OffsetPxElement(
     offset = offset,
     rtlAware = false,
     inspectorInfo = {
@@ -141,17 +141,17 @@ fun Modifier.absoluteOffset(
     }
 )
 
-private class OffsetModifierElement(
+private class OffsetElement(
     val x: Dp,
     val y: Dp,
     val rtlAware: Boolean,
     val inspectorInfo: InspectorInfo.() -> Unit
-) : ModifierNodeElement<OffsetModifier>() {
-    override fun create(): OffsetModifier {
-        return OffsetModifier(x, y, rtlAware)
+) : ModifierNodeElement<OffsetNode>() {
+    override fun create(): OffsetNode {
+        return OffsetNode(x, y, rtlAware)
     }
 
-    override fun update(node: OffsetModifier): OffsetModifier = node.also {
+    override fun update(node: OffsetNode): OffsetNode = node.also {
         it.x = x
         it.y = y
         it.rtlAware = rtlAware
@@ -159,7 +159,7 @@ private class OffsetModifierElement(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        val otherModifierElement = other as? OffsetModifierElement ?: return false
+        val otherModifierElement = other as? OffsetElement ?: return false
 
         return x == otherModifierElement.x &&
             y == otherModifierElement.y &&
@@ -178,7 +178,7 @@ private class OffsetModifierElement(
     override fun InspectorInfo.inspectableProperties() { inspectorInfo() }
 }
 
-private class OffsetModifier(
+private class OffsetNode(
     var x: Dp,
     var y: Dp,
     var rtlAware: Boolean
@@ -199,23 +199,23 @@ private class OffsetModifier(
     }
 }
 
-private class OffsetPxModifierElement(
+private class OffsetPxElement(
     val offset: Density.() -> IntOffset,
     val rtlAware: Boolean,
     val inspectorInfo: InspectorInfo.() -> Unit
-) : ModifierNodeElement<OffsetPxModifier>() {
-    override fun create(): OffsetPxModifier {
-        return OffsetPxModifier(offset, rtlAware)
+) : ModifierNodeElement<OffsetPxNode>() {
+    override fun create(): OffsetPxNode {
+        return OffsetPxNode(offset, rtlAware)
     }
 
-    override fun update(node: OffsetPxModifier): OffsetPxModifier = node.also {
+    override fun update(node: OffsetPxNode): OffsetPxNode = node.also {
         it.offset = offset
         it.rtlAware = rtlAware
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        val otherModifier = other as? OffsetPxModifierElement ?: return false
+        val otherModifier = other as? OffsetPxElement ?: return false
 
         return offset == otherModifier.offset &&
             rtlAware == otherModifier.rtlAware
@@ -234,7 +234,7 @@ private class OffsetPxModifierElement(
     }
 }
 
-private class OffsetPxModifier(
+private class OffsetPxNode(
     var offset: Density.() -> IntOffset,
     var rtlAware: Boolean
 ) : LayoutModifierNode, Modifier.Node() {

@@ -51,7 +51,7 @@ fun Modifier.padding(
     top: Dp = 0.dp,
     end: Dp = 0.dp,
     bottom: Dp = 0.dp
-) = this then PaddingModifierElement(
+) = this then PaddingElement(
     start = start,
     top = top,
     end = end,
@@ -82,7 +82,7 @@ fun Modifier.padding(
 fun Modifier.padding(
     horizontal: Dp = 0.dp,
     vertical: Dp = 0.dp
-) = this then PaddingModifierElement(
+) = this then PaddingElement(
     start = horizontal,
     top = vertical,
     end = horizontal,
@@ -107,7 +107,7 @@ fun Modifier.padding(
  * @sample androidx.compose.foundation.layout.samples.PaddingAllModifier
  */
 @Stable
-fun Modifier.padding(all: Dp) = this then PaddingModifierElement(
+fun Modifier.padding(all: Dp) = this then PaddingElement(
     start = all,
     top = all,
     end = all,
@@ -158,7 +158,7 @@ fun Modifier.absolutePadding(
     right: Dp = 0.dp,
     bottom: Dp = 0.dp
 ) = this then(
-    PaddingModifierElement(
+    PaddingElement(
         start = left,
         top = top,
         end = right,
@@ -323,14 +323,14 @@ internal class PaddingValuesImpl(
     override fun toString() = "PaddingValues(start=$start, top=$top, end=$end, bottom=$bottom)"
 }
 
-private class PaddingModifierElement(
+private class PaddingElement(
     var start: Dp = 0.dp,
     var top: Dp = 0.dp,
     var end: Dp = 0.dp,
     var bottom: Dp = 0.dp,
     var rtlAware: Boolean,
     val inspectorInfo: InspectorInfo.() -> Unit
-) : ModifierNodeElement<PaddingModifier>() {
+) : ModifierNodeElement<PaddingNode>() {
 
     init {
         require(
@@ -343,11 +343,11 @@ private class PaddingModifierElement(
         }
     }
 
-    override fun create(): PaddingModifier {
-        return PaddingModifier(start, top, end, bottom, rtlAware)
+    override fun create(): PaddingNode {
+        return PaddingNode(start, top, end, bottom, rtlAware)
     }
 
-    override fun update(node: PaddingModifier): PaddingModifier = node.also {
+    override fun update(node: PaddingNode): PaddingNode = node.also {
         it.start = start
         it.top = top
         it.end = end
@@ -365,7 +365,7 @@ private class PaddingModifierElement(
     }
 
     override fun equals(other: Any?): Boolean {
-        val otherModifierElement = other as? PaddingModifierElement ?: return false
+        val otherModifierElement = other as? PaddingElement ?: return false
         return start == otherModifierElement.start &&
             top == otherModifierElement.top &&
             end == otherModifierElement.end &&
@@ -378,7 +378,7 @@ private class PaddingModifierElement(
     }
 }
 
-private class PaddingModifier(
+private class PaddingNode(
     var start: Dp = 0.dp,
     var top: Dp = 0.dp,
     var end: Dp = 0.dp,
