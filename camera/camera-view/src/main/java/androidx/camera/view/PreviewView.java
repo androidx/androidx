@@ -232,7 +232,6 @@ public final class PreviewView extends FrameLayout {
                         } else {
                             mUseDisplayRotation = false;
                         }
-                        updateDisplayRotationIfNeeded();
                         redrawPreview();
                     });
 
@@ -320,7 +319,6 @@ public final class PreviewView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        updateDisplayRotationIfNeeded();
         startListeningToDisplayChange();
         addOnLayoutChangeListener(mOnLayoutChangeListener);
         if (mImplementation != null) {
@@ -655,6 +653,7 @@ public final class PreviewView extends FrameLayout {
     void redrawPreview() {
         checkMainThread();
         if (mImplementation != null) {
+            updateDisplayRotationIfNeeded();
             mImplementation.redrawPreview();
         }
         mPreviewViewMeteringPointFactory.recalculate(new Size(getWidth(), getHeight()),
@@ -680,7 +679,7 @@ public final class PreviewView extends FrameLayout {
         boolean isLegacyDevice = surfaceRequest.getCamera().getCameraInfoInternal()
                 .getImplementationType().equals(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
         boolean hasSurfaceViewQuirk = DeviceQuirks.get(SurfaceViewStretchedQuirk.class) != null
-                ||  DeviceQuirks.get(SurfaceViewNotCroppedByParentQuirk.class) != null;
+                || DeviceQuirks.get(SurfaceViewNotCroppedByParentQuirk.class) != null;
         if (Build.VERSION.SDK_INT <= 24 || isLegacyDevice || hasSurfaceViewQuirk) {
             // Force to use TextureView when the device is running android 7.0 and below, legacy
             // level or SurfaceView has quirks.
@@ -738,6 +737,7 @@ public final class PreviewView extends FrameLayout {
     public interface OnFrameUpdateListener {
         /**
          * Invoked when frame updates.
+         *
          * @param timestamp sensor timestamp of this frame.
          */
         void onFrameUpdate(long timestamp);
@@ -1058,6 +1058,7 @@ public final class PreviewView extends FrameLayout {
         return (DisplayManager) context.getApplicationContext()
                 .getSystemService(Context.DISPLAY_SERVICE);
     }
+
     /**
      * Listener for display rotation changes.
      *
@@ -1081,7 +1082,6 @@ public final class PreviewView extends FrameLayout {
         public void onDisplayChanged(int displayId) {
             Display display = getDisplay();
             if (display != null && display.getDisplayId() == displayId) {
-                updateDisplayRotationIfNeeded();
                 redrawPreview();
             }
         }
