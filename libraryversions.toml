@@ -63,7 +63,8 @@ FRAGMENT = "1.6.0-alpha07"
 FUTURES = "1.2.0-alpha01"
 GLANCE = "1.0.0-alpha06"
 GLANCE_TEMPLATE = "1.0.0-alpha01"
-GRAPHICS = "1.0.0-alpha03"
+GRAPHICS_CORE = "1.0.0-alpha03"
+GRAPHICS_SHAPES = "1.0.0-alpha01"
 GRAPHICS_FILTERS = "1.0.0-alpha01"
 GRIDLAYOUT = "1.1.0-alpha01"
 HEALTH_CONNECT = "1.0.0-alpha11"
@@ -207,7 +208,7 @@ EXIFINTERFACE = { group = "androidx.exifinterface", atomicGroupVersion = "versio
 FRAGMENT = { group = "androidx.fragment", atomicGroupVersion = "versions.FRAGMENT" }
 GLANCE = { group = "androidx.glance", atomicGroupVersion = "versions.GLANCE" }
 GLANCE_TEMPLATE = { group = "androidx.template", atomicGroupVersion = "versions.GLANCE_TEMPLATE" }
-GRAPHICS = { group = "androidx.graphics", atomicGroupVersion = "versions.GRAPHICS" }
+GRAPHICS = { group = "androidx.graphics"}
 GRAPHICS_FILTERS = { group = "androidx.graphics.filters", atomicGroupVersion = "versions.GRAPHICS_FILTERS" }
 GRIDLAYOUT = { group = "androidx.gridlayout", atomicGroupVersion = "versions.GRIDLAYOUT" }
 HEALTH = { group = "androidx.health" }
@@ -248,7 +249,6 @@ RESOURCEINSPECTION = { group = "androidx.resourceinspection", atomicGroupVersion
 ROOM = { group = "androidx.room", atomicGroupVersion = "versions.ROOM" }
 SAVEDSTATE = { group = "androidx.savedstate", atomicGroupVersion = "versions.SAVEDSTATE" }
 SECURITY = { group = "androidx.security" }
-SHAPES = { group = "androidx.graphics.shapes", atomicGroupVersion = "versions.GRAPHICS" }
 SHARETARGET = { group = "androidx.sharetarget", atomicGroupVersion = "versions.SHARETARGET" }
 SLICE = { group = "androidx.slice" }
 SLIDINGPANELAYOUT = { group = "androidx.slidingpanelayout", atomicGroupVersion = "versions.SLIDINGPANELAYOUT" }
