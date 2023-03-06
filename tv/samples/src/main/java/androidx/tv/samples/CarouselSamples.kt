@@ -61,7 +61,7 @@ fun SimpleCarousel() {
             .height(300.dp)
             .fillMaxWidth(),
     ) { itemIndex ->
-        CarouselItem(
+        CarouselSlide(
             background = {
                 Box(
                     modifier = Modifier
@@ -130,7 +130,7 @@ fun CarouselIndicatorWithRectangleShape() {
             )
         }
     ) { itemIndex ->
-        CarouselItem(
+        CarouselSlide(
             background = {
                 Box(
                     modifier = Modifier

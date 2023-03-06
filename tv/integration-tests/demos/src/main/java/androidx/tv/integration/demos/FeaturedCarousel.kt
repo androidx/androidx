@@ -126,7 +126,7 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
             )
         }
     ) { itemIndex ->
-        CarouselItem(
+        CarouselSlide(
             background = {
                 Box(
                     modifier = Modifier
