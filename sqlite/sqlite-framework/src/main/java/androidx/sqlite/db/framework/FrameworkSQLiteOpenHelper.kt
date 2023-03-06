@@ -257,6 +257,13 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
         }
 
         override fun onConfigure(db: SQLiteDatabase) {
+            if (!migrated && callback.version != db.version) {
+                // Reduce the prepared statement cache to the minimum allowed (1) to avoid
+                // issues with queries executed during migrations. Note that when a migration is
+                // done the connection is closed and re-opened to avoid stale connections, which
+                // in turns resets the cache max size. See b/271083856
+                db.setMaxSqlCacheSize(1)
+            }
             try {
                 callback.onConfigure(getWrappedDb(db))
             } catch (t: Throwable) {
