@@ -367,7 +367,7 @@ class CarouselTest {
 
     @OptIn(ExperimentalAnimationApi::class)
     @Test
-    fun carousel_withCarouselItem_parentContainerGainsFocus_onBackPress() {
+    fun carousel_withCarouselSlide_parentContainerGainsFocus_onBackPress() {
         rule.setContent {
             Box(modifier = Modifier
                 .testTag("box-container")
@@ -835,10 +835,10 @@ private fun CarouselScope.SampleCarouselSlide(
     index: Int,
     modifier: Modifier = Modifier,
     contentTransformForward: ContentTransform =
-        CarouselItemDefaults.contentTransformForward,
+        CarouselSlideDefaults.contentTransformForward,
     content: (@Composable () -> Unit) = { SampleButton("Play $index") },
 ) {
-    CarouselItem(
+    CarouselSlide(
         modifier = modifier,
         contentTransformForward = contentTransformForward,
         background = {
