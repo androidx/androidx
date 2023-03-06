@@ -57,6 +57,7 @@ import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.MutableStateObservable;
@@ -2612,6 +2613,15 @@ public final class Recorder implements VideoOutput {
             }
         }
         return defaultMuxerFormat;
+    }
+
+    /**
+     * Gets the {@link VideoCapabilities} of Recorder.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    public static VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo) {
+        return RecorderVideoCapabilities.from(cameraInfo);
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

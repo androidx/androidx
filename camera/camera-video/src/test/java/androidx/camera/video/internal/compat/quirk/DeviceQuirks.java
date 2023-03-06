@@ -19,6 +19,7 @@ package androidx.camera.video.internal.compat.quirk;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.Quirks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,12 @@ import java.util.List;
 public class DeviceQuirks {
 
     private DeviceQuirks() {
+    }
+
+    /** Returns all video specific quirks loaded on the current device. */
+    @NonNull
+    public static Quirks getAll() {
+        return new Quirks(DeviceQuirksLoader.loadQuirks());
     }
 
     /**
