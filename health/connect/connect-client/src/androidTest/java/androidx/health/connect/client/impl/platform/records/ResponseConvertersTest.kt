@@ -62,7 +62,9 @@ class ResponseConvertersTest {
             getLongMetricValues(
                 mapOf(
                     NutritionRecord.ENERGY_TOTAL as AggregateMetric<Any> to
-                        PlatformEnergy.fromJoules(418_400.0)))
+                        PlatformEnergy.fromJoules(418_400.0)
+                )
+            )
         assertThat(metricValues).isEmpty()
     }
 
@@ -72,7 +74,9 @@ class ResponseConvertersTest {
             getDoubleMetricValues(
                 mapOf(
                     NutritionRecord.ENERGY_TOTAL as AggregateMetric<Any> to
-                        PlatformEnergy.fromJoules(418_400.0)))
+                        PlatformEnergy.fromJoules(418_400.0)
+                )
+            )
         assertThat(metricValues)
             .comparingValuesUsing(tolerance)
             .containsExactly(NutritionRecord.ENERGY_TOTAL.metricKey, 100.0)
@@ -84,7 +88,9 @@ class ResponseConvertersTest {
             getDoubleMetricValues(
                 mapOf(
                     DistanceRecord.DISTANCE_TOTAL as AggregateMetric<Any> to
-                        PlatformLength.fromMeters(50.0)))
+                        PlatformLength.fromMeters(50.0)
+                )
+            )
         assertThat(metricValues).containsExactly(DistanceRecord.DISTANCE_TOTAL.metricKey, 50.0)
     }
 
@@ -94,7 +100,9 @@ class ResponseConvertersTest {
             getDoubleMetricValues(
                 mapOf(
                     NutritionRecord.BIOTIN_TOTAL as AggregateMetric<Any> to
-                        PlatformMass.fromKilograms(88.0)))
+                        PlatformMass.fromKilograms(88.0)
+                )
+            )
         assertThat(metricValues).containsExactly(NutritionRecord.BIOTIN_TOTAL.metricKey, 88_000.0)
     }
 
@@ -103,8 +111,9 @@ class ResponseConvertersTest {
         val metricValues =
             getDoubleMetricValues(
                 mapOf(
-                    PowerRecord.POWER_AVG as AggregateMetric<Any> to
-                        PlatformPower.fromWatts(366.0)))
+                    PowerRecord.POWER_AVG as AggregateMetric<Any> to PlatformPower.fromWatts(366.0)
+                )
+            )
         assertThat(metricValues).containsExactly(PowerRecord.POWER_AVG.metricKey, 366.0)
     }
 
@@ -114,7 +123,9 @@ class ResponseConvertersTest {
             getDoubleMetricValues(
                 mapOf(
                     HydrationRecord.VOLUME_TOTAL as AggregateMetric<Any> to
-                        PlatformVolume.fromMilliliters(1500.0)))
+                        PlatformVolume.fromMilliliters(1500.0)
+                )
+            )
         assertThat(metricValues).containsExactly(HydrationRecord.VOLUME_TOTAL.metricKey, 1.5)
     }
 
@@ -143,7 +154,8 @@ class ResponseConvertersTest {
                     FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10L,
                     BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL as AggregateMetric<Any> to
                         PlatformPower.fromWatts(500.0),
-                ))
+                )
+            )
         assertThat(metricValues).containsExactly(HeartRateRecord.BPM_MIN.metricKey, 53L)
     }
 
@@ -164,8 +176,9 @@ class ResponseConvertersTest {
                         PlatformVolume.fromMilliliters(1500.0),
                     FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10L,
                     BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL as AggregateMetric<Any> to
-                        PlatformPower.fromWatts(500.0),
-                ))
+                        PlatformEnergy.fromJoules(836_800.0),
+                )
+            )
         assertThat(metricValues)
             .comparingValuesUsing(tolerance)
             .containsExactly(
@@ -180,14 +193,18 @@ class ResponseConvertersTest {
                 HydrationRecord.VOLUME_TOTAL.metricKey,
                 1.5,
                 FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL.metricKey,
-                10.0)
+                10.0,
+                BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL.metricKey,
+                200.0
+            )
     }
 
     @Test
     fun getDoubleMetricValues_convertsFloorsClimbedTotalAccurately() {
         val metricValues =
             getDoubleMetricValues(
-                mapOf(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10L))
+                mapOf(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10L)
+            )
         assertThat(metricValues)
             .containsExactly(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL.metricKey, 10.0)
     }
@@ -196,29 +213,8 @@ class ResponseConvertersTest {
     fun getLongMetricValues_ignoresFloorsClimbedTotal() {
         val metricValues =
             getLongMetricValues(
-                mapOf(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10L))
-        assertThat(metricValues).isEmpty()
-    }
-
-    // TODO(b/262370147): remove this test
-    @Test
-    fun getDoubleMetricValues_ignoresBMRBasalCaloriesTotal() {
-        val metricValues =
-            getDoubleMetricValues(
-                mapOf(
-                    BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL as AggregateMetric<Any> to
-                        PlatformPower.fromWatts(500.0)))
-        assertThat(metricValues).isEmpty()
-    }
-
-    // TODO(b/262370147): remove this test
-    @Test
-    fun getLongMetricValues_ignoresBMRBasalCaloriesTotal() {
-        val metricValues =
-            getLongMetricValues(
-                mapOf(
-                    BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL as AggregateMetric<Any> to
-                        PlatformPower.fromWatts(500.0)))
+                mapOf(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10L)
+            )
         assertThat(metricValues).isEmpty()
     }
 }

@@ -30,7 +30,6 @@ import android.health.connect.datatypes.HeightRecord as PlatformHeightRecord
 import android.health.connect.datatypes.HydrationRecord as PlatformHydrationRecord
 import android.health.connect.datatypes.NutritionRecord as PlatformNutritionRecord
 import android.health.connect.datatypes.PowerRecord as PlatformPowerRecord
-import android.health.connect.datatypes.RestingHeartRateRecord as PlatformRestingHeartRateRecord
 import android.health.connect.datatypes.StepsRecord as PlatformStepsRecord
 import android.health.connect.datatypes.TotalCaloriesBurnedRecord as PlatformTotalCaloriesBurnedRecord
 import android.health.connect.datatypes.WeightRecord as PlatformWeightRecord
@@ -64,12 +63,20 @@ import androidx.health.connect.client.units.Mass
 import androidx.health.connect.client.units.Power
 import androidx.health.connect.client.units.Volume
 
-// Type mappings
+internal val DOUBLE_AGGREGATION_METRIC_TYPE_MAP:
+    Map<AggregateMetric<Double>, PlatformAggregateMetric<Double>> =
+    mapOf(
+        FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL to
+            PlatformFloorsClimbedRecord.FLOORS_CLIMBED_TOTAL,
+    )
+
 internal val ENERGY_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Energy>, PlatformAggregateMetric<PlatformEnergy>> =
     mapOf(
         ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL to
             PlatformActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL,
+        BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL to
+            PlatformBasalMetabolicRateRecord.BASAL_CALORIES_TOTAL,
         NutritionRecord.ENERGY_TOTAL to PlatformNutritionRecord.ENERGY_TOTAL,
         NutritionRecord.ENERGY_FROM_FAT_TOTAL to PlatformNutritionRecord.ENERGY_FROM_FAT_TOTAL,
         TotalCaloriesBurnedRecord.ENERGY_TOTAL to PlatformTotalCaloriesBurnedRecord.ENERGY_TOTAL,
@@ -86,14 +93,14 @@ internal val LENGTH_AGGREGATION_METRIC_TYPE_MAP:
         HeightRecord.HEIGHT_MAX to PlatformHeightRecord.HEIGHT_MAX,
     )
 
-// TODO(b/268326895): Add PlatformRestingHeartRateCord.BPM_AVG
 internal val LONG_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Long>, PlatformAggregateMetric<Long>> =
     mapOf(
+        HeartRateRecord.BPM_AVG to PlatformHeartRateRecord.BPM_AVG,
         HeartRateRecord.BPM_MIN to PlatformHeartRateRecord.BPM_MIN,
         HeartRateRecord.BPM_MAX to PlatformHeartRateRecord.BPM_MAX,
-        HeartRateRecord.BPM_AVG to PlatformHeartRateRecord.BPM_AVG,
         HeartRateRecord.MEASUREMENTS_COUNT to PlatformHeartRateRecord.HEART_MEASUREMENTS_COUNT,
+        RestingHeartRateRecord.BPM_AVG to PlatformRestingHeartRateRecord.BPM_AVG,
         RestingHeartRateRecord.BPM_MIN to PlatformRestingHeartRateRecord.BPM_MIN,
         RestingHeartRateRecord.BPM_MAX to PlatformRestingHeartRateRecord.BPM_MAX,
         StepsRecord.COUNT_TOTAL to PlatformStepsRecord.STEPS_COUNT_TOTAL,
@@ -163,15 +170,4 @@ internal val VOLUME_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Volume>, PlatformAggregateMetric<PlatformVolume>> =
     mapOf(
         HydrationRecord.VOLUME_TOTAL to PlatformHydrationRecord.VOLUME_TOTAL,
-    )
-
-@Suppress("UNCHECKED_CAST")
-// TODO(b/262370147): Put BMP in Energy unit map
-internal val MISMATCHING_UNITS_AGGREGATION_METRIC_TYPE_MAP:
-    Map<AggregateMetric<Any>, PlatformAggregateMetric<Any>> =
-    mapOf(
-        BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL to
-            PlatformBasalMetabolicRateRecord.BASAL_CALORIES_TOTAL as PlatformAggregateMetric<Any>,
-        FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL to
-            PlatformFloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as PlatformAggregateMetric<Any>,
     )
