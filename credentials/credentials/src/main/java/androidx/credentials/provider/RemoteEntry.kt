@@ -26,29 +26,31 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import androidx.credentials.CredentialManager
 import java.util.Collections
 
 /**
- * An entry to be shown on the selector during a create flow initiated when an app calls
- * [CredentialManager.createCredential].
+ * An entry on the selector, denoting that the credential request will be completed on a remote
+ * device.
  *
- * A [RemoteCreateEntry] implies that the credential will be created on
- * a different device.
- * When the user selects this entry, the corresponding [PendingIntent] is fired,
- * and the credential creation can be completed.
+ * Once this entry is selected, the corresponding [pendingIntent] will be invoked. The provider
+ * can then show any activity they wish to. Before finishing the activity, provider must
+ * set the final [androidx.credentials.GetCredentialResponse] through the
+ * [PendingIntentHandler.setGetCredentialResponse] helper API, or a
+ * [androidx.credentials.CreateCredentialResponse] through the
+ * [PendingIntentHandler.setCreateCredentialResponse] helper API depending on whether it is a get
+ * or create flow.
  *
- * @property pendingIntent the [PendingIntent] to be fired when this
- * [RemoteCreateEntry] is selected
+ * @property pendingIntent the [PendingIntent] to be invoked when the user selects
+ * this entry
  *
- * @throws NullPointerException If [pendingIntent] is empty
+ * See [android.service.credentials.BeginGetCredentialResponse] for usage details.
  */
 @RequiresApi(34)
-class RemoteCreateEntry constructor(
-    val pendingIntent: PendingIntent,
-    ) : android.service.credentials.CreateEntry(
+class RemoteEntry constructor(
+    val pendingIntent: PendingIntent
+    ) : android.service.credentials.RemoteEntry(
     toSlice(pendingIntent)
-) {
+    ) {
 
     override fun describeContents(): Int {
         return 0
@@ -57,33 +59,30 @@ class RemoteCreateEntry constructor(
     override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
     }
-
     @Suppress("AcronymName")
     companion object {
-        private const val TAG = "RemoteCreateEntry"
+        private const val TAG = "RemoteEntry"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
-            "androidx.credentials.provider.createEntry.SLICE_HINT_PENDING_INTENT"
+            "androidx.credentials.provider.remoteEntry.SLICE_HINT_PENDING_INTENT"
 
-        /** @hide **/
+        /** @hide */
         @JvmStatic
-        fun toSlice(
+        internal fun toSlice(
             pendingIntent: PendingIntent
         ): Slice {
-            // TODO("Use the right type and revision")
+            // TODO("Put the right spec and version value")
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
-            sliceBuilder.addAction(
-                pendingIntent,
+            sliceBuilder.addAction(pendingIntent,
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
-                    .build(),
-                /*subType=*/null
-            )
+                    .build(), /*subType=*/null)
             return sliceBuilder.build()
         }
 
         /**
-         * Returns an instance of [RemoteCreateEntry] derived from a [Slice] object.
+         * Returns an instance of [RemoteEntry] derived from a [Slice] object.
          *
          * @param slice the [Slice] object constructed through [toSlice]
          *
@@ -91,8 +90,7 @@ class RemoteCreateEntry constructor(
          */
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
-        fun fromSlice(slice: Slice): RemoteCreateEntry? {
-            // TODO("Put the right spec and version value")
+        fun fromSlice(slice: Slice): RemoteEntry? {
             var pendingIntent: PendingIntent? = null
             slice.items.forEach {
                 if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
@@ -100,25 +98,25 @@ class RemoteCreateEntry constructor(
                 }
             }
             return try {
-                RemoteCreateEntry(pendingIntent!!)
+                RemoteEntry(pendingIntent!!)
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
             }
         }
 
-        @JvmField val CREATOR: Parcelable.Creator<RemoteCreateEntry> =
-            object : Parcelable.Creator<RemoteCreateEntry> {
-                override fun createFromParcel(p0: Parcel?): RemoteCreateEntry? {
-                    val createEntry = android.service.credentials.CreateEntry
-                        .CREATOR.createFromParcel(p0)
-                    return fromSlice(createEntry.slice)
-                }
-
-                @Suppress("ArrayReturn")
-                override fun newArray(size: Int): Array<RemoteCreateEntry?> {
-                    return arrayOfNulls(size)
-                }
+        @JvmField val CREATOR: Parcelable.Creator<RemoteEntry> = object :
+            Parcelable.Creator<RemoteEntry> {
+            override fun createFromParcel(p0: Parcel?): RemoteEntry? {
+                val baseEntry =
+                    android.service.credentials.CredentialEntry.CREATOR.createFromParcel(p0)
+                return fromSlice(baseEntry.slice)
             }
+
+            @Suppress("ArrayReturn")
+            override fun newArray(size: Int): Array<RemoteEntry?> {
+                return arrayOfNulls(size)
+            }
+        }
     }
-    }
+}
