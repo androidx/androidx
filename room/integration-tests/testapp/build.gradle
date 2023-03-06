@@ -113,6 +113,9 @@ dependencies {
     androidTestAnnotationProcessor project(path: ":room:room-compiler",
             configuration: "shadowAndImplementation")
 
+    androidTestImplementation(project(":annotation:annotation-experimental"))
+    androidTestImplementation(project(":arch:core:core-runtime"))
+    androidTestImplementation(project(":arch:core:core-common"))
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":room:room-rxjava3"))
