@@ -1610,7 +1610,8 @@ internal class AndroidComposeView(context: Context) :
             return true
         }
         val lastEvent = previousMotionEvent
-        return lastEvent == null || event.rawX != lastEvent.rawX || event.rawY != lastEvent.rawY
+        return lastEvent == null || lastEvent.pointerCount != event.pointerCount ||
+            event.rawX != lastEvent.rawX || event.rawY != lastEvent.rawY
     }
 
     private fun findViewByAccessibilityIdRootedAtCurrentView(
