@@ -76,7 +76,7 @@ class PasswordCredentialEntry internal constructor(
     /** @hide */
     val autoSelectAllowedFromOption: Boolean = false,
     /** @hide */
-    val isDefaultIcon: Boolean? = null
+    val isDefaultIcon: Boolean = false
     ) : CredentialEntry(
     beginGetPasswordOption,
     toSlice(
