@@ -19,7 +19,7 @@ package androidx.camera.core.internal;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio;
 import static androidx.camera.core.internal.SupportedOutputSizesSorter.getResolutionListGroupingAspectRatioKeys;
 import static androidx.camera.core.internal.SupportedOutputSizesSorter.groupSizesByAspectRatio;
-import static androidx.camera.core.internal.SupportedOutputSizesSorter.sortSupportedSizesByMiniBoundingSize;
+import static androidx.camera.core.internal.SupportedOutputSizesSorter.sortSupportedSizesByFallbackRuleClosestHigherThenLower;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_ZERO;
 import static androidx.camera.core.internal.utils.SizeUtil.getArea;
@@ -141,7 +141,8 @@ class SupportedOutputSizesSorterLegacy {
 
             // If the target resolution is set, use it to sort the sizes list.
             if (targetSize != null) {
-                resultSizeList = sortSupportedSizesByMiniBoundingSize(resultSizeList, targetSize);
+                sortSupportedSizesByFallbackRuleClosestHigherThenLower(resultSizeList, targetSize,
+                        true);
             }
         } else {
             // Rearrange the supported size to put the ones with the same aspect ratio in the front
@@ -151,13 +152,11 @@ class SupportedOutputSizesSorterLegacy {
             // Group output sizes by aspect ratio.
             aspectRatioSizeListMap = groupSizesByAspectRatio(filteredSizeList);
 
-            // If the target resolution is set, use it to remove unnecessary larger sizes.
+            // If the target resolution is set, sort the sizes against it.
             if (targetSize != null) {
-                // Remove unnecessary larger sizes from each aspect ratio size list
                 for (Rational key : aspectRatioSizeListMap.keySet()) {
-                    List<Size> sortedResult = sortSupportedSizesByMiniBoundingSize(
-                            aspectRatioSizeListMap.get(key), targetSize);
-                    aspectRatioSizeListMap.put(key, sortedResult);
+                    sortSupportedSizesByFallbackRuleClosestHigherThenLower(
+                            aspectRatioSizeListMap.get(key), targetSize, true);
                 }
             }
 
