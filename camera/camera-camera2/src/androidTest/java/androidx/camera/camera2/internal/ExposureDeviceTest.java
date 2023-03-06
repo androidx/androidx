@@ -152,6 +152,7 @@ public class ExposureDeviceTest {
         mSessionStateCallback = new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
         mCameraId = CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING);
         mSemaphore = new Semaphore(0);
+        mCameraCoordinator = new FakeCameraCoordinator();
         mCameraStateRegistry = new CameraStateRegistry(mCameraCoordinator,
                 DEFAULT_AVAILABLE_CAMERA_COUNT);
         CameraManagerCompat cameraManagerCompat =
