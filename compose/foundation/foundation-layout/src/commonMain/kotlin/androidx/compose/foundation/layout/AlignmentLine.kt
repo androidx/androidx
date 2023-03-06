@@ -144,7 +144,6 @@ fun Modifier.paddingFrom(
  * @sample androidx.compose.foundation.layout.samples.PaddingFromBaselineSampleDp
  */
 @Stable
-@Suppress("ModifierInspectorInfo")
 fun Modifier.paddingFromBaseline(top: Dp = Dp.Unspecified, bottom: Dp = Dp.Unspecified) = this
     .then(
         if (top != Dp.Unspecified) {
@@ -178,7 +177,6 @@ fun Modifier.paddingFromBaseline(top: Dp = Dp.Unspecified, bottom: Dp = Dp.Unspe
  * @sample androidx.compose.foundation.layout.samples.PaddingFromBaselineSampleTextUnit
  */
 @Stable
-@Suppress("ModifierInspectorInfo")
 fun Modifier.paddingFromBaseline(
     top: TextUnit = TextUnit.Unspecified,
     bottom: TextUnit = TextUnit.Unspecified

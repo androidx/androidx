@@ -456,7 +456,6 @@ fun Modifier.requiredSizeIn(
  * @sample androidx.compose.foundation.layout.samples.FillHalfWidthModifier
  */
 @Stable
-@Suppress("ModifierInspectorInfo")
 fun Modifier.fillMaxWidth(/*@FloatRange(from = 0.0, to = 1.0)*/ fraction: Float = 1f) =
     this.then(if (fraction == 1f) FillWholeMaxWidth else FillElement.width(fraction))
 
@@ -477,7 +476,6 @@ private val FillWholeMaxWidth = FillElement.width(1f)
  * @sample androidx.compose.foundation.layout.samples.FillHalfHeightModifier
  */
 @Stable
-@Suppress("ModifierInspectorInfo")
 fun Modifier.fillMaxHeight(/*@FloatRange(from = 0.0, to = 1.0)*/ fraction: Float = 1f) =
     this.then(if (fraction == 1f) FillWholeMaxHeight else FillElement.height(fraction))
 
@@ -502,7 +500,6 @@ private val FillWholeMaxHeight = FillElement.height(1f)
  * @sample androidx.compose.foundation.layout.samples.FillHalfSizeModifier
  */
 @Stable
-@Suppress("ModifierInspectorInfo")
 fun Modifier.fillMaxSize(/*@FloatRange(from = 0.0, to = 1.0)*/ fraction: Float = 1f) =
     this.then(if (fraction == 1f) FillWholeMaxSize else FillElement.size(fraction))
 
@@ -521,7 +518,6 @@ private val FillWholeMaxSize = FillElement.size(1f)
  * @sample androidx.compose.foundation.layout.samples.SimpleWrapContentHorizontallyAlignedModifier
  */
 @Stable
-@Suppress("ModifierInspectorInfo")
 fun Modifier.wrapContentWidth(
     align: Alignment.Horizontal = Alignment.CenterHorizontally,
     unbounded: Boolean = false
@@ -551,7 +547,6 @@ private val WrapContentWidthStart = WrapContentElement.width(Alignment.Start, fa
  * @sample androidx.compose.foundation.layout.samples.SimpleWrapContentVerticallyAlignedModifier
  */
 @Stable
-@Suppress("ModifierInspectorInfo")
 fun Modifier.wrapContentHeight(
     align: Alignment.Vertical = Alignment.CenterVertically,
     unbounded: Boolean = false
@@ -581,7 +576,6 @@ private val WrapContentHeightTop = WrapContentElement.height(Alignment.Top, fals
  * @sample androidx.compose.foundation.layout.samples.SimpleWrapContentAlignedModifier
  */
 @Stable
-@Suppress("ModifierInspectorInfo")
 fun Modifier.wrapContentSize(
     align: Alignment = Alignment.Center,
     unbounded: Boolean = false
@@ -608,7 +602,6 @@ private val WrapContentSizeTopStart = WrapContentElement.size(Alignment.TopStart
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.DefaultMinSizeSample
  */
-@Suppress("ModifierInspectorInfo")
 @Stable
 fun Modifier.defaultMinSize(
     minWidth: Dp = Dp.Unspecified,

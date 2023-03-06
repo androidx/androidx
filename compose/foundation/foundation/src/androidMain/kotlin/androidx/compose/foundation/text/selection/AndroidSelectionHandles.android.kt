@@ -105,7 +105,6 @@ internal fun DefaultSelectionHandle(
     )
 }
 
-@Suppress("ModifierInspectorInfo")
 internal fun Modifier.drawSelectionHandle(
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
