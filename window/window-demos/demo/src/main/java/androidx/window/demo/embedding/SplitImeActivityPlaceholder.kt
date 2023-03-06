@@ -21,6 +21,7 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
 import android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
@@ -44,7 +45,7 @@ class SplitImeActivityPlaceholder : SplitImeActivityBase() {
             // Make it transparent and not touchable to not affect the views below.
             attrs.format = PixelFormat.TRANSPARENT
             attrs.flags = FLAG_NOT_FOCUSABLE or FLAG_ALT_FOCUSABLE_IM or FLAG_NOT_TOUCHABLE
-            attrs.fitInsetsTypes = 0
+            attrs.fitInsetsTypes = WindowInsets.Type.statusBars()
             imeLayeringTargetPlaceholder = View(this)
             windowManager.addView(imeLayeringTargetPlaceholder, attrs)
         }
