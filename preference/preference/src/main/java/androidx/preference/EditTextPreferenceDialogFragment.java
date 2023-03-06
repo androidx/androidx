@@ -96,7 +96,6 @@ public class EditTextPreferenceDialogFragment extends PreferenceDialogFragment {
         return (EditTextPreference) getPreference();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @Override
     protected boolean needInputMethod() {

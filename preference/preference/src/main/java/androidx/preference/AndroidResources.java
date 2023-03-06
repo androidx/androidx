@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Utility class for attributes unavailable on older APIs
- * @hide
  */
 @RestrictTo(LIBRARY)
 @SuppressLint("InlinedApi")
