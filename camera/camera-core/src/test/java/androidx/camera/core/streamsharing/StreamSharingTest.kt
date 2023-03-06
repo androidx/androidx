@@ -38,6 +38,7 @@ import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
+import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
@@ -60,8 +61,12 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class StreamSharingTest {
 
-    private val child1 = FakeUseCase()
-    private val child2 = FakeUseCase()
+    private val child1 = FakeUseCase(
+        FakeUseCaseConfig.Builder().setSurfaceOccupancyPriority(1).useCaseConfig
+    )
+    private val child2 = FakeUseCase(
+        FakeUseCaseConfig.Builder().setSurfaceOccupancyPriority(2).useCaseConfig
+    )
     private val useCaseConfigFactory = FakeUseCaseConfigFactory()
     private val camera = FakeCamera()
     private lateinit var streamSharing: StreamSharing
@@ -88,6 +93,15 @@ class StreamSharingTest {
         }
         effectProcessor.release()
         shadowOf(getMainLooper()).idle()
+    }
+
+    @Test
+    fun getParentSurfacePriority_isHighestChildrenPriority() {
+        assertThat(
+            streamSharing.mergeConfigs(
+                camera.cameraInfoInternal, /*extendedConfig*/null, /*cameraDefaultConfig*/null
+            ).surfaceOccupancyPriority
+        ).isEqualTo(2)
     }
 
     @Test
