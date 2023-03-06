@@ -147,7 +147,6 @@ public class ActivityCompat extends ContextCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public interface RequestPermissionsRequestCodeValidator {
@@ -176,7 +175,6 @@ public class ActivityCompat extends ContextCompat {
     }
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

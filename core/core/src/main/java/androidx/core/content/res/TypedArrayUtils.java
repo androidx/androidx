@@ -43,7 +43,6 @@ import org.xmlpull.v1.XmlPullParser;
  * For example, if an private attribute named "abcdefg" in Kitkat has the
  * same id value as "android:pathData" in Lollipop, we need to match the attribute's namefirst.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class TypedArrayUtils {

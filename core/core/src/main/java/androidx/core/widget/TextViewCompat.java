@@ -92,7 +92,6 @@ public final class TextViewCompat {
      */
     public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({AUTO_SIZE_TEXT_TYPE_NONE, AUTO_SIZE_TEXT_TYPE_UNIFORM})
     @Retention(RetentionPolicy.SOURCE)
@@ -514,7 +513,6 @@ public final class TextViewCompat {
 
     /**
      * @see #setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
@@ -537,7 +535,6 @@ public final class TextViewCompat {
 
     /**
      * @see #setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable

@@ -16,7 +16,6 @@ import java.util.ListResourceBundle;
  *
  * WARNING: don't edit directly.
  * It is generated with {@code genrb} after building icu4c.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class LocaleElements_plurals extends ListResourceBundle {

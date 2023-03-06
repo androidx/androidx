@@ -44,7 +44,6 @@ import java.util.List;
 
 /**
  * Implementation of the Typeface compat methods for API 24 and above.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(24)

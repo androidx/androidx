@@ -69,7 +69,6 @@ public final class LinkifyCompat {
         return Integer.compare(b.end, a.end);
     };
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef(flag = true, value = { Linkify.WEB_URLS, Linkify.EMAIL_ADDRESSES, Linkify.PHONE_NUMBERS,
             Linkify.MAP_ADDRESSES, Linkify.ALL })

@@ -147,7 +147,6 @@ public class FontsContractCompat {
      * @return the resulting Typeface if the requested font is in the cache or the request is a
      * sync request.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -278,7 +277,6 @@ public class FontsContractCompat {
          * @deprecated Not being used by any cross library, and should not be used, internal
          * implementation detail.
          *
-         * @hide
          */
         // TODO after removing from public API make package private.
         @Deprecated
@@ -370,7 +368,6 @@ public class FontsContractCompat {
          */
         public static final int STATUS_UNEXPECTED_DATA_PROVIDED = 2;
 
-        /** @hide */
         @RestrictTo(LIBRARY)
         @IntDef({STATUS_OK, STATUS_WRONG_CERTIFICATES, STATUS_UNEXPECTED_DATA_PROVIDED})
         @Retention(RetentionPolicy.SOURCE)
@@ -382,7 +379,6 @@ public class FontsContractCompat {
         /**
          * @deprecated Not being used by any cross library, and should not be used, internal
          * implementation detail.
-         * @hide
          **/
         // TODO after removing from public API make package private.
         @Deprecated
@@ -415,7 +411,6 @@ public class FontsContractCompat {
         /**
          * @deprecated Not being used by any cross library, and should not be used, internal
          * implementation detail.
-         * @hide
          */
         @Deprecated
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -465,7 +460,6 @@ public class FontsContractCompat {
          */
         public static final int FAIL_REASON_MALFORMED_QUERY = Columns.RESULT_CODE_MALFORMED_QUERY;
 
-        /** @hide */
         @SuppressWarnings("deprecation")
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @IntDef({ FAIL_REASON_PROVIDER_NOT_FOUND, FAIL_REASON_FONT_LOAD_ERROR,
@@ -506,7 +500,6 @@ public class FontsContractCompat {
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
      *
-     * @hide
      */
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -517,7 +510,6 @@ public class FontsContractCompat {
     /**
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
-     * @hide
      **/
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -526,7 +518,6 @@ public class FontsContractCompat {
     /**
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
-     * @hide
      **/
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -536,7 +527,6 @@ public class FontsContractCompat {
     /**
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
-     * @hide
      **/
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -559,7 +549,6 @@ public class FontsContractCompat {
     /**
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
-     * @hide
      **/
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -580,7 +569,6 @@ public class FontsContractCompat {
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
      *
-     * @hide
      */
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -596,7 +584,6 @@ public class FontsContractCompat {
     /**
      * @deprecated Not being used by any cross library, and should not be used, internal
      * implementation detail.
-     * @hide
      **/
     @Deprecated // unused
     @VisibleForTesting

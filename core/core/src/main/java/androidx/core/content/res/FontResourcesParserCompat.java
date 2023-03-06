@@ -49,7 +49,6 @@ import java.util.List;
 
 /**
  * Parser for xml type font resources.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class FontResourcesParserCompat {
@@ -82,7 +81,6 @@ public class FontResourcesParserCompat {
         private final @FetchStrategy int mStrategy;
         private final @Nullable String mSystemFontFamilyName;
 
-        /** @hide */
         @RestrictTo(LIBRARY)
         public ProviderResourceEntry(@NonNull FontRequest request, @FetchStrategy int strategy,
                 int timeoutMs, @Nullable String systemFontFamilyName) {
@@ -109,7 +107,6 @@ public class FontResourcesParserCompat {
             return mTimeoutMs;
         }
 
-        /** @hide */
         @RestrictTo(LIBRARY)
         public @Nullable String getSystemFontFamilyName() {
             return mSystemFontFamilyName;

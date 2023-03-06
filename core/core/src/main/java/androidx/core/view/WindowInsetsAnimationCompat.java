@@ -351,7 +351,6 @@ public final class WindowInsetsAnimationCompat {
         public static final int DISPATCH_MODE_CONTINUE_ON_SUBTREE = 1;
         WindowInsets mDispachedInsets;
 
-        /** @hide */
         @IntDef(value = {
                 DISPATCH_MODE_STOP,
                 DISPATCH_MODE_CONTINUE_ON_SUBTREE

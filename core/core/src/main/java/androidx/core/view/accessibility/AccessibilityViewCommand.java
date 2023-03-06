@@ -47,7 +47,6 @@ public interface AccessibilityViewCommand {
         Bundle mBundle;
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void setBundle(@Nullable Bundle bundle) {

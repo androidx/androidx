@@ -37,7 +37,6 @@ import androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems
 /**
  * [RemoteViewsService] to provide [RemoteViews] set using [RemoteViewsCompat.setRemoteAdapter].
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteViewsCompatService : RemoteViewsService() {

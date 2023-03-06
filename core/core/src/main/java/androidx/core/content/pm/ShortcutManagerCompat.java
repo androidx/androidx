@@ -91,7 +91,6 @@ public class ShortcutManagerCompat {
      */
     public static final int FLAG_MATCH_CACHED = 1 << 3;
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     @IntDef(flag = true, value = {
             FLAG_MATCH_MANIFEST,

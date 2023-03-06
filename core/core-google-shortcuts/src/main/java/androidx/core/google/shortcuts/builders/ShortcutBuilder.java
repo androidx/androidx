@@ -32,7 +32,6 @@ import com.google.android.gms.appindex.builders.IndexableBuilder;
 /**
  * Builder for the Shortcut Corpus.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class ShortcutBuilder extends IndexableBuilder<ShortcutBuilder> {
