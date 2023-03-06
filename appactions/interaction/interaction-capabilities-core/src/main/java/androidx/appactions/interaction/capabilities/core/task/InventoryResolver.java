@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.task;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -26,7 +27,9 @@ import java.util.List;
  * Similar to ValueListener, but also need to handle entity rendering.
  *
  * @param <T>
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface InventoryResolver<T> extends ValueListener<T> {
     /**
      * Renders the provided entities in the app UI for dismabiguation.
