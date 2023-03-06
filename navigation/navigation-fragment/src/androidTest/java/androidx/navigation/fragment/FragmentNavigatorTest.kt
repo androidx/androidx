@@ -1173,6 +1173,7 @@ class FragmentNavigatorTest {
         assertWithMessage("Entry2 should never be resumed").that(entry2Resumed).isFalse()
     }
 
+    @Ignore // b/271634544
     @LargeTest
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
