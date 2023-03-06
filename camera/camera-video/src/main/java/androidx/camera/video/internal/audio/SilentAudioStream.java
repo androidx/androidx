@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal;
+package androidx.camera.video.internal.audio;
 
 import static androidx.camera.video.internal.audio.AudioUtils.frameCountToDurationNs;
 import static androidx.camera.video.internal.audio.AudioUtils.frameCountToSize;
@@ -26,8 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
-import androidx.camera.video.internal.audio.AudioSettings;
-import androidx.camera.video.internal.audio.AudioStream;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
