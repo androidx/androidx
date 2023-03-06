@@ -17,14 +17,12 @@
 package androidx.compose.foundation.relocation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.modifier.ModifierLocalProvider
-import androidx.compose.ui.modifier.ProvidableModifierLocal
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.modifier.modifierLocalMapOf
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -96,40 +94,48 @@ interface BringIntoViewResponder {
  *
  * @see BringIntoViewRequester
  */
+@Suppress("ModifierInspectorInfo")
 @ExperimentalFoundationApi
 fun Modifier.bringIntoViewResponder(
     responder: BringIntoViewResponder
-): Modifier = composed(debugInspectorInfo {
-    name = "bringIntoViewResponder"
-    properties["responder"] = responder
-}) {
-    val defaultParent = rememberDefaultBringIntoViewParent()
-    val modifier = remember(defaultParent) {
-        BringIntoViewResponderModifier(defaultParent)
+): Modifier = this.then(BringIntoViewResponderElement(responder))
+
+@ExperimentalFoundationApi
+private class BringIntoViewResponderElement(
+    private val responder: BringIntoViewResponder
+) : ModifierNodeElement<BringIntoViewResponderNode>() {
+    override fun create(): BringIntoViewResponderNode = BringIntoViewResponderNode(responder)
+
+    override fun update(node: BringIntoViewResponderNode) = node.also {
+        it.responder = responder
     }
-    modifier.responder = responder
-    return@composed modifier
+    override fun equals(other: Any?): Boolean {
+        return (this === other) ||
+            (other is BringIntoViewResponderElement) && (responder == other.responder)
+    }
+
+    override fun hashCode(): Int {
+        return responder.hashCode()
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "bringIntoViewResponder"
+        properties["responder"] = responder
+    }
 }
 
 /**
  * A modifier that holds state and modifier implementations for [bringIntoViewResponder]. It has
- * access to the next [BringIntoViewParent] via [BringIntoViewChildModifier] and additionally
+ * access to the next [BringIntoViewParent] via [BringIntoViewChildNode] and additionally
  * provides itself as the [BringIntoViewParent] for subsequent modifiers. This class is responsible
  * for recursively propagating requests up the responder chain.
  */
 @OptIn(ExperimentalFoundationApi::class)
-private class BringIntoViewResponderModifier(
-    defaultParent: BringIntoViewParent
-) : BringIntoViewChildModifier(defaultParent),
-    ModifierLocalProvider<BringIntoViewParent?>,
-    BringIntoViewParent {
+private class BringIntoViewResponderNode(
+    var responder: BringIntoViewResponder
+) : BringIntoViewChildNode(), BringIntoViewParent {
 
-    lateinit var responder: BringIntoViewResponder
-
-    override val key: ProvidableModifierLocal<BringIntoViewParent?>
-        get() = ModifierLocalBringIntoViewParent
-    override val value: BringIntoViewParent
-        get() = this
+    override val providedValues = modifierLocalMapOf(ModifierLocalBringIntoViewParent to this)
 
     /**
      * Responds to a child's request by first converting [boundsProvider] into this node's [LayoutCoordinates]
