@@ -19,6 +19,7 @@ import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.camera.core.streamsharing.ResolutionUtils.getMergedResolutions;
@@ -113,6 +114,7 @@ class VirtualCamera implements CameraInternal {
                     null,
                     useCase.getDefaultConfig(true, mUseCaseConfigFactory)));
         }
+
         // Merge resolution configs.
         List<Size> supportedResolutions =
                 new ArrayList<>(mParentCamera.getCameraInfoInternal().getSupportedResolutions(
@@ -121,6 +123,10 @@ class VirtualCamera implements CameraInternal {
         mutableConfig.insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS,
                 getMergedResolutions(supportedResolutions, sensorSize,
                         childrenConfigs));
+
+        // Merge Surface occupancy priority.
+        mutableConfig.insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY,
+                getHighestSurfacePriority(childrenConfigs));
     }
 
     void bindChildren() {
@@ -289,6 +295,15 @@ class VirtualCamera implements CameraInternal {
     }
 
     // --- private methods ---
+
+    private static int getHighestSurfacePriority(Set<UseCaseConfig<?>> childrenConfigs) {
+        int highestPriority = 0;
+        for (UseCaseConfig<?> childConfig : childrenConfigs) {
+            highestPriority = Math.max(highestPriority, childConfig.getSurfaceOccupancyPriority());
+        }
+        return highestPriority;
+    }
+
     @NonNull
     private SurfaceEdge getUseCaseEdge(@NonNull UseCase useCase) {
         return requireNonNull(mChildrenEdges.get(useCase));
