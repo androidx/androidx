@@ -79,4 +79,9 @@ public final class FakeCameraInfoTest {
         assertThat(mFakeCameraInfo.getSupportedFpsRanges()).isNotEmpty();
 
     }
+
+    @Test
+    public void canRetrieveSupportedDynamicRanges() {
+        assertThat(mFakeCameraInfo.getSupportedDynamicRanges()).isNotEmpty();
+    }
 }

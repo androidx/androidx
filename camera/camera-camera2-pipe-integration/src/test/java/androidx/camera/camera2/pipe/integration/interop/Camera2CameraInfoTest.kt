@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCre
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.CameraState
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.ExposureState
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
@@ -171,6 +172,10 @@ class Camera2CameraInfoTest {
             }
 
             override fun getSupportedHighResolutions(format: Int): MutableList<Size> {
+                throw NotImplementedError("Not used in testing")
+            }
+
+            override fun getSupportedDynamicRanges(): MutableSet<DynamicRange> {
                 throw NotImplementedError("Not used in testing")
             }
         }
