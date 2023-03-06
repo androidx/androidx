@@ -22,18 +22,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /**
- * CarouselScope provides a [CarouselScope.CarouselItem] function which you can use to
+ * CarouselScope provides a [CarouselScope.CarouselSlide] function which you can use to
  * provide the slide's animation, background and the inner content.
  */
 @ExperimentalTvMaterial3Api
 class CarouselScope @OptIn(ExperimentalTvMaterial3Api::class)
 internal constructor(private val carouselState: CarouselState) {
     /**
-     * [CarouselScope.CarouselItem] can be used to define a slide's animation, background, and
-     * content. Using this is optional and you can choose to define your own CarouselItem from
+     * [CarouselScope.CarouselSlide] can be used to define a slide's animation, background, and
+     * content. Using this is optional and you can choose to define your own CarouselSlide from
      * scratch
      *
-     * @param modifier modifier applied to the CarouselItem
+     * @param modifier modifier applied to the CarouselSlide
      * @param background composable defining the background of the slide
      * @param contentTransformForward content transform to be applied to the content of the slide
      * when scrolling forward in the carousel
@@ -45,16 +45,16 @@ internal constructor(private val carouselState: CarouselState) {
     @Suppress("IllegalExperimentalApiUsage")
     @OptIn(ExperimentalAnimationApi::class)
     @ExperimentalTvMaterial3Api
-    fun CarouselItem(
+    fun CarouselSlide(
         modifier: Modifier = Modifier,
         background: @Composable () -> Unit = {},
         contentTransformForward: ContentTransform =
-            CarouselItemDefaults.contentTransformForward,
+            CarouselSlideDefaults.contentTransformForward,
         contentTransformBackward: ContentTransform =
-            CarouselItemDefaults.contentTransformBackward,
+            CarouselSlideDefaults.contentTransformBackward,
         content: @Composable () -> Unit
     ) {
-        CarouselItem(
+        CarouselSlide(
             background = background,
             slideIndex = carouselState.activeSlideIndex,
             contentTransform =

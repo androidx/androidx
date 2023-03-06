@@ -50,7 +50,7 @@ import androidx.tv.material3.KeyEventPropagation.ContinuePropagation
  *
  * @param background composable defining the background of the slide
  * @param slideIndex current active slide index of the carousel
- * @param modifier modifier applied to the CarouselItem
+ * @param modifier modifier applied to the CarouselSlide
  * @param contentTransform content transform to be applied to the content of the slide when
  * scrolling
  * @param content composable defining the content displayed on top of the background
@@ -59,12 +59,12 @@ import androidx.tv.material3.KeyEventPropagation.ContinuePropagation
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterial3Api
 @Composable
-internal fun CarouselItem(
+internal fun CarouselSlide(
     slideIndex: Int,
     modifier: Modifier = Modifier,
     background: @Composable () -> Unit = {},
     contentTransform: ContentTransform =
-        CarouselItemDefaults.contentTransformForward,
+        CarouselSlideDefaults.contentTransformForward,
     content: @Composable () -> Unit,
 ) {
     var containerBoxFocusState: FocusState? by remember { mutableStateOf(null) }
@@ -112,7 +112,7 @@ internal fun CarouselItem(
 }
 
 @ExperimentalTvMaterial3Api
-object CarouselItemDefaults {
+object CarouselSlideDefaults {
     /**
      * Transform the content from right to left
      */
