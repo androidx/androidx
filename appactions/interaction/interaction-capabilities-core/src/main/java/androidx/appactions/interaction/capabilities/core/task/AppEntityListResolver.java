@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @param <T>
  */
-public interface AppEntityListResolver<T> extends ValueListenerAsync<List<T>> {
+public interface AppEntityListResolver<T> extends ValueListener<List<T>> {
     /**
      * Given a search criteria, looks up the inventory during runtime, renders the search result
      * within the app's own UI and then returns it to the Assistant so that the task can be kept in
