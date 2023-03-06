@@ -285,6 +285,33 @@ public final class ActionSpecTest {
                 .containsExactlyElementsIn(expectedExecutionOutput.getOutputValuesList());
     }
 
+    @Test
+    @SuppressWarnings("JdkImmutableCollections")
+    public void convertOutputToProto_emptyOutput() {
+        Output output = Output.builder().setRepeatedStringField(List.of("test3", "test4")).build();
+        // No optionalStringOutput since it is not in the output above.
+        StructuredOutput expectedExecutionOutput =
+                StructuredOutput.newBuilder()
+                        .addOutputValues(
+                                OutputValue.newBuilder()
+                                        .setName("repeatedStringOutput")
+                                        .addValues(
+                                                ParamValue.newBuilder()
+                                                        .setStringValue("test3")
+                                                        .build())
+                                        .addValues(
+                                                ParamValue.newBuilder()
+                                                        .setStringValue("test4")
+                                                        .build())
+                                        .build())
+                        .build();
+
+        StructuredOutput executionOutput = ACTION_SPEC.convertOutputToProto(output);
+
+        assertThat(executionOutput.getOutputValuesList())
+                .containsExactlyElementsIn(expectedExecutionOutput.getOutputValuesList());
+    }
+
     enum TestEnum {
         VALUE_1,
         VALUE_2,
