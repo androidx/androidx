@@ -17,7 +17,6 @@ package androidx.glance.appwidget
 
 import android.util.Log
 import androidx.compose.ui.unit.dp
-import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BackgroundModifier
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
@@ -33,7 +32,6 @@ import androidx.glance.background
 import androidx.glance.extractModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
-import androidx.glance.layout.ContentScale
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.WidthModifier
@@ -189,36 +187,63 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
     if (this is EmittableLazyListItem || this is EmittableSizeBox) return this
 
     var target = this
-
-    // We only need to add a background image view if the background is a Bitmap, or a
-    // drawable resource with non-default content scale. Otherwise, we can set the background
-    // directly on the target element in ApplyModifiers.kt.
-    val (bgModifier, notBgModifier) = target.modifier.extractModifier<BackgroundModifier>()
-    val addBackground = bgModifier?.imageProvider != null &&
-        (bgModifier.imageProvider !is AndroidResourceImageProvider ||
-            bgModifier.contentScale != ContentScale.FillBounds)
-
-    // Add a ripple for every element with an action that does not have already have a built in
-    // ripple.
-    notBgModifier.warnIfMultipleClickableActions()
-    val (actionModifier, notBgOrActionModifier) = notBgModifier.extractModifier<ActionModifier>()
-    val addRipple = actionModifier != null && !hasBuiltinRipple()
     val isButton = target is EmittableButton
-    if (!addBackground && !addRipple && !isButton) return target
 
-    // Hoist the size and action modifiers to the wrapping Box, then set the target element to fill
-    // the given space. doNotUnsetAction() prevents the views within the Box from being made
-    // clickable.
-    val (sizeModifiers, nonSizeModifiers) = notBgOrActionModifier.extractSizeModifiers()
-    val boxModifiers = mutableListOf<GlanceModifier?>(sizeModifiers, actionModifier)
-    val targetModifiers = mutableListOf<GlanceModifier?>(
-        nonSizeModifiers.fillMaxSize()
-    )
-
-    // If we don't need to emulate the background, add the background modifier back to the target.
-    if (!addBackground) {
-        targetModifiers += bgModifier
+    val shouldWrapTargetInABox = target.modifier.any {
+        // Background images (i.e. BitMap or drawable resources) are emulated by placing the image
+        // before the target in the wrapper box. This allows us to support content scale as well as
+        // additional image features (e.g. color filters) on background images.
+        (it is BackgroundModifier && it.imageProvider != null) ||
+            // Ripples are implemented by placing a drawable after the target in the wrapper box.
+            (it is ActionModifier && !hasBuiltinRipple()) ||
+            // Buttons are implemented using a background drawable with rounded corners and an
+            // EmittableText.
+            isButton
     }
+    if (!shouldWrapTargetInABox) return target
+
+    // Hoisted modifiers are subtracted from the target one by one and added to the box and the
+    // remaining modifiers are applied to the target.
+    val boxModifiers = mutableListOf<GlanceModifier?>()
+    val targetModifiers = mutableListOf<GlanceModifier?>()
+    var backgroundImage: EmittableImage? = null
+    var rippleImage: EmittableImage? = null
+
+    // bgModifier.imageProvider is converted to an actual image but bgModifier.colorProvider is
+    // applied back to the target. Note: We could have hoisted the bg color to box instead of
+    // adding it back to the target, but for buttons, we also add an outline background to the box.
+    val (bgModifier, targetModifiersMinusBg) = target.modifier.extractModifier<BackgroundModifier>()
+    if (bgModifier != null) {
+        if (bgModifier.imageProvider != null) {
+            backgroundImage = EmittableImage().apply {
+                modifier = GlanceModifier.fillMaxSize()
+                provider = bgModifier.imageProvider
+                contentScale = bgModifier.contentScale
+            }
+        } else { // is a background color modifier
+            targetModifiers += bgModifier
+        }
+    }
+
+    // Action modifiers are hoisted on the wrapping box and a ripple image is added to the
+    // foreground if the target doesn't have it built-in.
+    targetModifiersMinusBg.warnIfMultipleClickableActions()
+    val (actionModifier, targetModifiersMinusAction) =
+        targetModifiersMinusBg.extractModifier<ActionModifier>()
+    boxModifiers += actionModifier
+    if (actionModifier != null && !hasBuiltinRipple()) {
+        rippleImage = EmittableImage().apply {
+            modifier = GlanceModifier.fillMaxSize()
+            provider = ImageProvider(R.drawable.glance_ripple)
+        }
+    }
+
+    // Hoist the size and corner radius modifiers to the wrapping Box, then set the target element
+    // to fill the given space.
+    val (sizeAndCornerModifiers, targetModifiersMinusSizeAndCornerRadius) =
+        targetModifiersMinusAction.extractSizeAndCornerRadiusModifiers()
+    boxModifiers += sizeAndCornerModifiers
+    targetModifiers += targetModifiersMinusSizeAndCornerRadius.fillMaxSize()
 
     // If this is a button, set the necessary modifiers on the wrapping Box.
     if (target is EmittableButton) {
@@ -234,20 +259,9 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
         modifier = boxModifiers.collect()
         if (isButton) contentAlignment = Alignment.Center
 
-        if (addBackground && bgModifier != null) {
-            children += EmittableImage().apply {
-                modifier = GlanceModifier.fillMaxSize()
-                provider = bgModifier.imageProvider
-                contentScale = bgModifier.contentScale
-            }
-        }
+        backgroundImage?.let { children += it }
         children += target.apply { modifier = targetModifiers.collect() }
-        if (addRipple) {
-            children += EmittableImage().apply {
-                modifier = GlanceModifier.fillMaxSize()
-                provider = ImageProvider(R.drawable.glance_ripple)
-            }
-        }
+        rippleImage?.let { children += it }
     }
 }
 
@@ -262,13 +276,15 @@ private data class ExtractedSizeModifiers(
 )
 
 /**
- * Split the [GlanceModifier] into one that contains the [WidthModifier]s and [HeightModifier]s and
- * one that contains the rest.
+ * Split the [GlanceModifier] into one that contains the [WidthModifier]s, [HeightModifier]s and
+ * and [CornerRadiusModifier]s and one that contains the rest.
  */
-private fun GlanceModifier.extractSizeModifiers() =
-    if (any { it is WidthModifier || it is HeightModifier }) {
+private fun GlanceModifier.extractSizeAndCornerRadiusModifiers() =
+    if (any { it is WidthModifier || it is HeightModifier || it is CornerRadiusModifier }) {
         foldIn(ExtractedSizeModifiers()) { acc, modifier ->
-            if (modifier is WidthModifier || modifier is HeightModifier) {
+            if (modifier is WidthModifier ||
+                modifier is HeightModifier ||
+                modifier is CornerRadiusModifier) {
                 acc.copy(sizeModifiers = acc.sizeModifiers.then(modifier))
             } else {
                 acc.copy(nonSizeModifiers = acc.nonSizeModifiers.then(modifier))
