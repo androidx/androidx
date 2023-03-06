@@ -10,12 +10,12 @@ import android.support.wearable.complications.ComplicationData;
 interface IComplicationProvider {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 8
+    // Next Id: 10
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 3;
+    const int API_VERSION = 4;
 
     /** See {@link TargetWatchFaceSafety}. This field has an integer value. */
     const String BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE = "IsSafeForWatchFace";
@@ -146,7 +146,7 @@ interface IComplicationProvider {
      * @param manager The binder for IComplicationManager
      * @param bundle A {@link Bundle} containing {@link #BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE}.
      *
-     * @since API version 3.
+     * @since API version 4.
      */
     void onUpdate2(int complicationInstanceId, int type, IBinder manager, in Bundle bundle) = 8;
 
@@ -159,7 +159,7 @@ interface IComplicationProvider {
      * @param type The type of complication requested
      * @param bundle A {@link Bundle} containing {@link #BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE}.
      *
-     * @since API version 3.
+     * @since API version 4.
      */
     ComplicationData onSynchronousComplicationRequest2(
         int complicationInstanceId, int type, in Bundle bundle) = 9;
