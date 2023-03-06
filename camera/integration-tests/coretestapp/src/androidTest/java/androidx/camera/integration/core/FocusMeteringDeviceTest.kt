@@ -52,7 +52,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.not
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
@@ -257,11 +256,6 @@ class FocusMeteringDeviceTest(
     @Test
     fun futureCompletes_whenFocusMeteringWithAe() {
         assumeThat(
-            "b/270520932: IllegalArgumentException from Camera2 in CameraPipe",
-            implName, not(CameraPipeConfig::class.simpleName),
-        )
-
-        assumeThat(
             "No AE region available on this device!",
             hasMeteringRegion(cameraSelector, FLAG_AE), equalTo(true)
         )
@@ -275,11 +269,6 @@ class FocusMeteringDeviceTest(
     @Test
     fun futureCompletes_whenFocusMeteringWithAwb() {
         assumeThat(
-            "b/270520932: IllegalArgumentException from Camera2 in CameraPipe",
-            implName, not(CameraPipeConfig::class.simpleName),
-        )
-
-        assumeThat(
             "No AWB region available on this device!",
             hasMeteringRegion(cameraSelector, FLAG_AWB), equalTo(true)
         )
@@ -292,11 +281,6 @@ class FocusMeteringDeviceTest(
 
     @Test
     fun futureCompletes_whenFocusMeteringWithAeAwb() {
-        assumeThat(
-            "b/270520932: IllegalArgumentException from Camera2 in CameraPipe",
-            implName, not(CameraPipeConfig::class.simpleName),
-        )
-
         assumeThat(
             "No AE/AWB region available on this device!",
             hasMeteringRegion(cameraSelector, FLAG_AE or FLAG_AWB), equalTo(true)

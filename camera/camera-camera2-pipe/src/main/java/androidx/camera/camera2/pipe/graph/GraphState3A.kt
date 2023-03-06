@@ -85,9 +85,9 @@ internal class GraphState3A @Inject constructor() {
             afMode?.let { this.afMode = it }
             awbMode?.let { this.awbMode = it }
             flashMode?.let { this.flashMode = it }
-            aeRegions?.let { this.aeRegions = it }
-            afRegions?.let { this.afRegions = it }
-            awbRegions?.let { this.awbRegions = it }
+            aeRegions?.let { this.aeRegions = it.ifEmpty { null } }
+            afRegions?.let { this.afRegions = it.ifEmpty { null } }
+            awbRegions?.let { this.awbRegions = it.ifEmpty { null } }
             aeLock?.let { this.aeLock = it }
             awbLock?.let { this.awbLock = it }
         }
