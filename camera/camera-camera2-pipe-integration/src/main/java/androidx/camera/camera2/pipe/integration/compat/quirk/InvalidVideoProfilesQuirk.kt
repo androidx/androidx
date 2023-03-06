@@ -54,7 +54,7 @@ class InvalidVideoProfilesQuirk : Quirk {
             "pixel 7 pro"
         )
 
-        fun load(): Boolean {
+        fun isEnabled(): Boolean {
             return isAffectedModel() && isAffectedBuild()
         }
 
