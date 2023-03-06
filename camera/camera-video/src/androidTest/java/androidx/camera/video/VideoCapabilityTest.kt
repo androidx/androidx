@@ -54,7 +54,7 @@ class VideoCapabilityTest(
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
-    private lateinit var videoCapabilities: VideoCapabilities
+    private lateinit var videoCapabilities: LegacyVideoCapabilities
 
     @get:Rule
     val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
@@ -73,7 +73,7 @@ class VideoCapabilityTest(
         CameraXUtil.initialize(context, cameraConfig).get()
 
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
-        videoCapabilities = VideoCapabilities.from(cameraInfo)
+        videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
     }
 
     @After

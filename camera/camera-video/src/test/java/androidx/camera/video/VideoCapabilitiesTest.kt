@@ -55,7 +55,7 @@ class VideoCapabilitiesTest {
 
     @Test
     fun isQualitySupported() {
-        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         assertThat(videoCapabilities.isQualitySupported(Quality.HIGHEST)).isTrue()
         assertThat(videoCapabilities.isQualitySupported(Quality.LOWEST)).isTrue()
         assertThat(videoCapabilities.isQualitySupported(Quality.UHD)).isTrue()
@@ -66,7 +66,7 @@ class VideoCapabilitiesTest {
 
     @Test
     fun getProfile() {
-        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         assertThat(videoCapabilities.getProfiles(Quality.HIGHEST)).isEqualTo(validatedProfiles2160p)
         assertThat(videoCapabilities.getProfiles(Quality.LOWEST)).isEqualTo(validatedProfiles720p)
         assertThat(videoCapabilities.getProfiles(Quality.UHD)).isEqualTo(validatedProfiles2160p)
@@ -77,7 +77,7 @@ class VideoCapabilitiesTest {
 
     @Test
     fun findHighestSupportedQuality_returnsHigherQuality() {
-        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         // Create a size between 720p and 2160p
         val (width720p, height720p) = EncoderProfilesUtil.RESOLUTION_720P
         val inBetweenSize = Size(width720p + 10, height720p)
@@ -88,7 +88,7 @@ class VideoCapabilitiesTest {
 
     @Test
     fun findHighestSupportedQuality_returnsHighestQuality_whenAboveHighest() {
-        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         // Create a size between greater than the max quality (UHD)
         val (width2160p, height2160p) = EncoderProfilesUtil.RESOLUTION_2160P
         val aboveHighestSize = Size(width2160p + 10, height2160p)
@@ -99,7 +99,7 @@ class VideoCapabilitiesTest {
 
     @Test
     fun findHighestSupportedQuality_returnsLowestQuality_whenBelowLowest() {
-        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         // Create a size below the lowest quality (HD)
         val (width720p, height720p) = EncoderProfilesUtil.RESOLUTION_720P
         val belowLowestSize = Size(width720p - 10, height720p)
@@ -110,7 +110,7 @@ class VideoCapabilitiesTest {
 
     @Test
     fun findHighestSupportedQuality_returnsExactQuality_whenExactSizeGiven() {
-        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         val exactSize720p = EncoderProfilesUtil.RESOLUTION_720P
 
         assertThat(videoCapabilities.findHighestSupportedQualityFor(exactSize720p))
@@ -119,7 +119,7 @@ class VideoCapabilitiesTest {
 
     @Test
     fun findHighestSupportedEncoderProfilesFor_returnsHigherProfile() {
-        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         // Create a size between 720p and 2160p
         val (width720p, height720p) = EncoderProfilesUtil.RESOLUTION_720P
         val inBetweenSize = Size(width720p + 10, height720p)
@@ -130,7 +130,7 @@ class VideoCapabilitiesTest {
 
     @Test
     fun findHighestSupportedEncoderProfilesFor_returnsHighestProfile_whenAboveHighest() {
-        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         // Create a size between greater than the max quality (UHD)
         val (width2160p, height2160p) = EncoderProfilesUtil.RESOLUTION_2160P
         val aboveHighestSize = Size(width2160p + 10, height2160p)
@@ -141,7 +141,7 @@ class VideoCapabilitiesTest {
 
     @Test
     fun findHighestSupportedEncoderProfilesFor_returnsLowestProfile_whenBelowLowest() {
-        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         // Create a size below the lowest quality (HD)
         val (width720p, height720p) = EncoderProfilesUtil.RESOLUTION_720P
         val belowLowestSize = Size(width720p - 10, height720p)
@@ -152,7 +152,7 @@ class VideoCapabilitiesTest {
 
     @Test
     fun findHighestSupportedEncoderProfilesFor_returnsExactProfile_whenExactSizeGiven() {
-        val videoCapabilities = VideoCapabilities.from(cameraInfo)
+        val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
         val exactSize720p = EncoderProfilesUtil.RESOLUTION_720P
 
         assertThat(videoCapabilities.findHighestSupportedEncoderProfilesFor(exactSize720p))

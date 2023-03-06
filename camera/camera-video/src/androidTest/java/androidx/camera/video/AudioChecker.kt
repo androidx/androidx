@@ -54,7 +54,7 @@ class AudioChecker {
             // Get audio source settings from EncoderProfiles
             val cameraInfo =
                 CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
-            val videoCapabilities = VideoCapabilities.from(cameraInfo)
+            val videoCapabilities = LegacyVideoCapabilities.from(cameraInfo)
             val quality = qualitySelector.getPrioritizedQualities(cameraInfo).first()
             // Get a config using the default audio spec.
             val audioSettings =
