@@ -41,19 +41,19 @@ import androidx.compose.ui.platform.InspectorInfo
 @Stable
 fun Modifier.onGloballyPositioned(
     onGloballyPositioned: (LayoutCoordinates) -> Unit
-) = this then OnGloballyPositionedModifierElement(onGloballyPositioned)
+) = this then OnGloballyPositionedElement(onGloballyPositioned)
 
-private class OnGloballyPositionedModifierElement(
+private class OnGloballyPositionedElement(
     val onGloballyPositioned: (LayoutCoordinates) -> Unit
 ) :
-    ModifierNodeElement<OnGloballyPositionedModifierImpl>() {
-    override fun create(): OnGloballyPositionedModifierImpl {
-        return OnGloballyPositionedModifierImpl(onGloballyPositioned)
+    ModifierNodeElement<OnGloballyPositionedNode>() {
+    override fun create(): OnGloballyPositionedNode {
+        return OnGloballyPositionedNode(onGloballyPositioned)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is OnGloballyPositionedModifierElement) return false
+        if (other !is OnGloballyPositionedElement) return false
         return onGloballyPositioned == other.onGloballyPositioned
     }
 
@@ -61,7 +61,7 @@ private class OnGloballyPositionedModifierElement(
         return onGloballyPositioned.hashCode()
     }
 
-    override fun update(node: OnGloballyPositionedModifierImpl): OnGloballyPositionedModifierImpl =
+    override fun update(node: OnGloballyPositionedNode): OnGloballyPositionedNode =
         node.also {
             it.callback = onGloballyPositioned
         }
@@ -72,7 +72,7 @@ private class OnGloballyPositionedModifierElement(
     }
 }
 
-private class OnGloballyPositionedModifierImpl(
+private class OnGloballyPositionedNode(
     var callback: (LayoutCoordinates) -> Unit
 ) : Modifier.Node(), GlobalPositionAwareModifierNode {
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {

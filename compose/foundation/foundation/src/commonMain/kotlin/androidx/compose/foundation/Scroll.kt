@@ -308,7 +308,8 @@ private fun Modifier.scroll(
             state = state,
             overscrollEffect = overscrollEffect
         )
-        val layout = ScrollingLayoutElement(state, reverseScrolling, isVertical)
+        val layout =
+            ScrollingLayoutElement(state, reverseScrolling, isVertical)
         semantics
             .clipScrollableContainer(orientation)
             .overscroll(overscrollEffect)
@@ -329,16 +330,16 @@ private class ScrollingLayoutElement(
     val scrollState: ScrollState,
     val isReversed: Boolean,
     val isVertical: Boolean
-) : ModifierNodeElement<ScrollingLayoutModifier>() {
-    override fun create(): ScrollingLayoutModifier {
-        return ScrollingLayoutModifier(
+) : ModifierNodeElement<ScrollingLayoutNode>() {
+    override fun create(): ScrollingLayoutNode {
+        return ScrollingLayoutNode(
             scrollerState = scrollState,
             isReversed = isReversed,
             isVertical = isVertical
         )
     }
 
-    override fun update(node: ScrollingLayoutModifier): ScrollingLayoutModifier = node.also {
+    override fun update(node: ScrollingLayoutNode): ScrollingLayoutNode = node.also {
         it.scrollerState = scrollState
         it.isReversed = isReversed
         it.isVertical = isVertical
@@ -366,7 +367,7 @@ private class ScrollingLayoutElement(
     }
 }
 
-private class ScrollingLayoutModifier(
+private class ScrollingLayoutNode(
     var scrollerState: ScrollState,
     var isReversed: Boolean,
     var isVertical: Boolean
