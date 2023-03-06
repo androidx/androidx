@@ -82,6 +82,7 @@ android {
 androidx {
     name = "Android Graphics Path"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GRAPHICS_PATH
     inceptionYear = "2022"
     description = "Query segment data for android.graphics.Path objects"
 }
