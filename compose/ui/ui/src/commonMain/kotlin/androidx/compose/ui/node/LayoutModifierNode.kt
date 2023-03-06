@@ -134,14 +134,14 @@ fun LayoutModifierNode.invalidateLayer() =
     requireCoordinator(Nodes.Layout).invalidateLayer()
 
 /**
- * This will invalidate the current node's layout pass, and ensure that relayout of this node will
- * happen for the next frame.
+ * This will invalidate the current node's placement result, and ensure that relayout
+ * (the placement block rerun) of this node will happen for the next frame .
  */
-fun LayoutModifierNode.invalidateLayout() = requireLayoutNode().requestRelayout()
+fun LayoutModifierNode.invalidatePlacement() = requireLayoutNode().requestRelayout()
 
 /**
- * This invalidates the current node's measure result, and ensures that a remeasurement of this node
- * will happen for the next frame.
+ * This invalidates the current node's measure result, and ensures that a remeasurement
+ * (the measurement block rerun) of this node will happen for the next frame.
  */
 fun LayoutModifierNode.invalidateMeasurements() = requireLayoutNode().invalidateMeasurements()
 
