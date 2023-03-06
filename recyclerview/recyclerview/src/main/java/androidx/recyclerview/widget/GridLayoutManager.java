@@ -253,6 +253,10 @@ public class GridLayoutManager extends LinearLayoutManager {
                     scrollTargetPosition = findScrollTargetPositionOnTheRight(startingRow,
                             startingColumn, startingAdapterPosition);
                     break;
+                case View.FOCUS_UP:
+                    scrollTargetPosition = findScrollTargetPositionAbove(startingRow,
+                            startingColumn, startingAdapterPosition);
+                    break;
                 default:
                     return false;
             }
@@ -262,9 +266,11 @@ public class GridLayoutManager extends LinearLayoutManager {
                 // TODO (b/268487724): handle RTL.
                 // Handle case in grids with horizontal orientation where the scroll target is on
                 // a different row.
-                scrollTargetPosition =
-                        (direction == View.FOCUS_LEFT) ? findPositionOfLastItemOnARowAbove(
-                                startingRow) : findPositionOfFirstItemOnARowBelow(startingRow);
+                if (direction == View.FOCUS_LEFT) {
+                    scrollTargetPosition = findPositionOfLastItemOnARowAbove(startingRow);
+                } else if (direction == View.FOCUS_RIGHT) {
+                    scrollTargetPosition = findPositionOfFirstItemOnARowBelow(startingRow);
+                }
             }
 
             if (scrollTargetPosition != INVALID_POSITION) {
@@ -400,6 +406,30 @@ public class GridLayoutManager extends LinearLayoutManager {
                     // TODO (b/268487724): handle case where the scroll target spans multiple
                     //  rows/columns.
                 }
+            }
+        }
+        return scrollTargetPosition;
+    }
+
+    private int findScrollTargetPositionAbove(int startingRow, int startingColumn,
+            int startingAdapterPosition) {
+        int scrollTargetPosition = INVALID_POSITION;
+        for (int i = startingAdapterPosition - 1; i >= 0; i--) {
+            int currentRow = getRowIndex(i);
+            int currentColumn = getColumnIndex(i);
+
+            if (currentRow < 0 || currentColumn < 0) {
+                if (DEBUG) {
+                    throw new RuntimeException("currentRow equals " + currentRow + ", and "
+                            + "currentColumn equals " + currentColumn + ", and neither can be "
+                            + "less than 0.");
+                }
+                return INVALID_POSITION;
+            }
+
+            if (currentRow < startingRow && currentColumn == startingColumn) {
+                scrollTargetPosition = i;
+                break;
             }
         }
         return scrollTargetPosition;

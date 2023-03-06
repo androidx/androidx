@@ -65,6 +65,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -1154,7 +1155,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void performActionScrollInDirection_focusRight_vertical_withScroll() throws Throwable {
+    public void performActionScrollInDirection_focusRight_vertical_withAvailableTarget()
+            throws Throwable {
 
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
         //  earlier android version.
@@ -1175,7 +1177,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void performActionScrollInDirection_focusRight_vertical_noScroll()
+    public void performActionScrollInDirection_focusRight_vertical_withoutAvailableTarget()
             throws Throwable {
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
         //  earlier android version.
@@ -1192,7 +1194,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void performActionScrollInDirection_focusRight_horizontal_withScroll()
+    public void performActionScrollInDirection_focusRight_horizontal_withAvailableTarget()
             throws Throwable {
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
         //  earlier android versions.
@@ -1215,7 +1217,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void performActionScrollInDirection_focusRight_horizontal_noScroll()
+    public void performActionScrollInDirection_focusRight_horizontal_withoutAvailableTarget()
             throws Throwable {
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
         //  earlier android versions.
@@ -1233,7 +1235,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void performActionScrollInDirection_focusLeft_vertical_withScroll()
+    public void performActionScrollInDirection_focusLeft_vertical_withAvailableTarget()
             throws Throwable {
 
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
@@ -1255,7 +1257,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void performActionScrollInDirection_focusLeft_vertical_noScroll()
+    public void performActionScrollInDirection_focusLeft_vertical_withoutAvailableTarget()
             throws Throwable {
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
         //  earlier android version.
@@ -1272,7 +1274,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void performActionScrollInDirection_focusLeft_horizontal_withScroll()
+    public void performActionScrollInDirection_focusLeft_horizontal_withAvailableTarget()
             throws Throwable {
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
         //  earlier android versions.
@@ -1294,7 +1296,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public void performActionScrollInDirection_focusLeft_horizontal_noScroll()
+    public void performActionScrollInDirection_focusLeft_horizontal_withoutAvailableTarget()
             throws Throwable {
         // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
         //  earlier android versions.
@@ -1308,6 +1310,83 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         */
         runScrollInDirectionOnMultipleItemsAndFail(uiAutomation, View.FOCUS_LEFT,
                 Collections.singletonList(0));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_focusUp_vertical_withAvailableTarget()
+            throws Throwable {
+
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android version.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(5, VERTICAL);
+       /*
+        This generates the following grid:
+        1   2   3
+        4   5
+        */
+        runScrollInDirectionOnMultipleItemsAndSucceed(uiAutomation, View.FOCUS_UP,
+                new HashMap<Integer, String>() {{
+                    put(3, "Item (1)");
+                    put(4, "Item (2)");
+                }});
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_focusUp_vertical_withoutAvailableTarget()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android version.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(5, VERTICAL);
+        /*
+        This generates the following grid:
+        1   2   3
+        4   5
+        */
+        runScrollInDirectionOnMultipleItemsAndFail(uiAutomation, View.FOCUS_UP,
+                Arrays.asList(0, 1, 2));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_focusUp_horizontal_withAvailableTarget()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android versions.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(4, HORIZONTAL);
+        /*
+        This generates the following grid:
+        1   4
+        2
+        3
+        */
+        runScrollInDirectionOnMultipleItemsAndSucceed(uiAutomation, View.FOCUS_UP,
+                new HashMap<Integer, String>() {{
+                    put(1, "Item (1)");
+                    put(2, "Item (2)");
+                }});
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_focusUp_horizontal_withoutAvailableTarget()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android versions.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(4, HORIZONTAL);
+        /*
+        This generates the following grid:
+        1   4
+        2
+        3
+        */
+        runScrollInDirectionOnMultipleItemsAndFail(uiAutomation, View.FOCUS_UP,
+                Arrays.asList(0, 3));
     }
 
     /**
