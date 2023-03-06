@@ -42,6 +42,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeUseCase extends UseCase {
 
+    private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 0;
+
     private volatile boolean mIsDetached = false;
     private final AtomicInteger mStateAttachedCount = new AtomicInteger(0);
     private final CaptureType mCaptureType;
@@ -69,7 +71,9 @@ public class FakeUseCase extends UseCase {
      * Creates a new instance of a {@link FakeUseCase} with a default configuration.
      */
     public FakeUseCase() {
-        this(new FakeUseCaseConfig.Builder().getUseCaseConfig());
+        this(new FakeUseCaseConfig.Builder()
+                .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
+                .getUseCaseConfig());
     }
 
     /**
