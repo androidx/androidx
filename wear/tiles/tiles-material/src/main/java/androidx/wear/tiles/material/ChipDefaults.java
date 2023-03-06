@@ -30,7 +30,6 @@ public class ChipDefaults {
     /**
      * The default height for standard {@link Chip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -39,7 +38,6 @@ public class ChipDefaults {
     /**
      * The default height for standard {@link CompactChip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -48,7 +46,6 @@ public class ChipDefaults {
     /**
      * The default height of tappable area for standard {@link CompactChip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -57,7 +54,6 @@ public class ChipDefaults {
     /**
      * The default height for standard {@link TitleChip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -66,7 +62,6 @@ public class ChipDefaults {
     /**
      * The recommended horizontal margin used for width for standard {@link Chip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final float DEFAULT_MARGIN_PERCENT = 5.2f;
@@ -74,7 +69,6 @@ public class ChipDefaults {
     /**
      * The recommended horizontal padding for standard {@link Chip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -83,7 +77,6 @@ public class ChipDefaults {
     /**
      * The recommended horizontal padding for standard {@link CompactChip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -92,7 +85,6 @@ public class ChipDefaults {
     /**
      * The recommended horizontal padding for standard {@link TitleChip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -101,7 +93,6 @@ public class ChipDefaults {
     /**
      * The recommended vertical space between icon and text in standard {@link Chip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -110,7 +101,6 @@ public class ChipDefaults {
     /**
      * The icon size used in standard {@link Chip}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

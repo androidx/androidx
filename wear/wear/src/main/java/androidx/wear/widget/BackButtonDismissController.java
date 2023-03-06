@@ -29,7 +29,6 @@ import androidx.wear.utils.ActivityAnimationUtil;
 /**
  * Controller that handles the back button click for dismiss the frame layout
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 @UiThread

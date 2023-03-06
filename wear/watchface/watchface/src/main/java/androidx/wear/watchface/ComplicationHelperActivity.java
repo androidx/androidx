@@ -56,7 +56,6 @@ import java.util.Objects;
  * ComplicationData#TYPE_NO_PERMISSION TYPE_NO_PERMISSION} has been received and tapped on, use
  * {@link #createPermissionRequestHelperIntent}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ComplicationHelperActivity extends FragmentActivity
@@ -78,22 +77,18 @@ public final class ComplicationHelperActivity extends FragmentActivity
      */
     public static boolean skipPermissionCheck = false;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String ACTION_REQUEST_UPDATE_ALL_ACTIVE =
             "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL_ACTIVE";
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String EXTRA_WATCH_FACE_COMPONENT =
             "android.support.wearable.complications.EXTRA_WATCH_FACE_COMPONENT";
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String ACTION_START_PROVIDER_CHOOSER =
             "android.support.wearable.complications.ACTION_START_PROVIDER_CHOOSER";
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String ACTION_PERMISSION_REQUEST_ONLY =
             "android.support.wearable.complications.ACTION_PERMISSION_REQUEST_ONLY";

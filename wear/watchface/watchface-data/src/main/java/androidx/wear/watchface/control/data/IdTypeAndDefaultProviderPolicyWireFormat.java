@@ -35,7 +35,6 @@ import java.util.List;
 /**
  * Wire format to encode a pair of id and DefaultProviderPolicy.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

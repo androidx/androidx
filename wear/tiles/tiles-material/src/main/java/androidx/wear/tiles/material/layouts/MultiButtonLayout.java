@@ -87,7 +87,6 @@ public class MultiButtonLayout implements LayoutElement {
     /** Button distribution where the last row has more buttons than other rows. */
     public static final int FIVE_BUTTON_DISTRIBUTION_BOTTOM_HEAVY = 2;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({FIVE_BUTTON_DISTRIBUTION_TOP_HEAVY, FIVE_BUTTON_DISTRIBUTION_BOTTOM_HEAVY})
@@ -383,7 +382,6 @@ public class MultiButtonLayout implements LayoutElement {
         return new MultiButtonLayout(boxElement);
     }
 
-    /** @hide */
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)

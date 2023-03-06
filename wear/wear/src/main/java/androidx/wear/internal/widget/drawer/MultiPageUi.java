@@ -37,7 +37,6 @@ import androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigati
 /**
  * Handles view logic for the multi page style {@link WearableNavigationDrawerView}.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class MultiPageUi implements MultiPagePresenter.Ui {

@@ -237,7 +237,6 @@ public class TitleChip implements LayoutElement {
         return new TitleChip(new Chip(boxElement));
     }
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override

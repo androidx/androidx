@@ -75,7 +75,6 @@ import java.util.function.Predicate;
  * <p>Given a dynamic ProtoLayout data source, this builds up a {@link BoundDynamicType}, which can
  * source the required data, and transform it into its final form.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public class ProtoLayoutDynamicDataPipeline {
@@ -96,7 +95,6 @@ public class ProtoLayoutDynamicDataPipeline {
     /**
      * Creates a {@link ProtoLayoutDynamicDataPipeline} without animation support.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public ProtoLayoutDynamicDataPipeline(
@@ -116,7 +114,6 @@ public class ProtoLayoutDynamicDataPipeline {
      * Creates a {@link ProtoLayoutDynamicDataPipeline} with animation support. Maximum number of
      * concurrently running animations is defined in the given {@link QuotaManager}.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public ProtoLayoutDynamicDataPipeline(
@@ -154,7 +151,6 @@ public class ProtoLayoutDynamicDataPipeline {
     /**
      * Returns the number of active dynamic types in this pipeline.
      *
-     * @hide
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @RestrictTo(Scope.TESTS)
@@ -176,7 +172,6 @@ public class ProtoLayoutDynamicDataPipeline {
     /**
      * Build {@link PipelineMaker}.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -190,7 +185,6 @@ public class ProtoLayoutDynamicDataPipeline {
      * Test version of the {@link #newPipelineMaker(BiFunction, BiFunction)} without animation
      * inflators.
      *
-     * @hide
      */
     @VisibleForTesting
     @NonNull
@@ -205,7 +199,6 @@ public class ProtoLayoutDynamicDataPipeline {
      * Sets whether this proto layout can perform updates. If the proto layout cannot update, then
      * updates through the data pipeline (e.g. health updates) will be suppressed.
      *
-     * @hide
      */
     @UiThread
     @SuppressWarnings("RestrictTo")
@@ -221,7 +214,6 @@ public class ProtoLayoutDynamicDataPipeline {
     /**
      * Closes existing gateways.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @SuppressWarnings("RestrictTo")
@@ -240,7 +232,6 @@ public class ProtoLayoutDynamicDataPipeline {
      *
      * <p>Note that this class is not thread-safe.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class PipelineMaker {
@@ -279,7 +270,6 @@ public class ProtoLayoutDynamicDataPipeline {
          *     for content transition animations.
          * @param isReattaching if True, this layout is being reattached and will skip content
          *     transition animations.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @UiThread
@@ -299,7 +289,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * @param isReattaching if True, this layout is being reattached and will skip content
          *     transition animations.
          * @param onEnd the callback to execute after all Exit animations have finished.
-         * @hide
          */
         @UiThread
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -387,7 +376,6 @@ public class ProtoLayoutDynamicDataPipeline {
          *     window later
          * @param isReattaching if True, this layout is being reattached and will skip content
          *     transition animations.
-         * @hide
          */
         @UiThread
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -474,7 +462,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictTo")
@@ -494,7 +481,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -511,7 +497,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictTo")
@@ -529,7 +514,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -547,7 +531,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictTo")
@@ -565,7 +548,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -582,7 +564,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictTo")
@@ -600,7 +581,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -617,7 +597,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -635,7 +614,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictTo")
@@ -653,7 +631,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -670,7 +647,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @SuppressWarnings("RestrictTo")
         @NonNull
@@ -693,7 +669,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictTo")
@@ -718,7 +693,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictTo")
@@ -741,7 +715,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictTo")
@@ -758,7 +731,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictTo")
@@ -776,7 +748,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictTo")
@@ -793,7 +764,6 @@ public class ProtoLayoutDynamicDataPipeline {
         /**
          * This store method shall be called during the layout inflation in a background thread.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressLint("CheckReturnValue") // (b/247804720)
@@ -815,7 +785,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * This store method shall be called during the layout inflation in a background thread. It
          * adds given {@link DynamicBool} to the pipeline too.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -842,7 +811,6 @@ public class ProtoLayoutDynamicDataPipeline {
         /**
          * This store method shall be called during the layout inflation in a background thread.
          *
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -874,7 +842,6 @@ public class ProtoLayoutDynamicDataPipeline {
         /**
          * Stores the {@link AnimatedVisibility} associated with the {@code posId}.
          *
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -895,7 +862,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * @param posId positionId of the node
          * @param includePreviousChildren if True, the previous children of this node will be marked
          *     as changed too. This is used for triggering Exit animations.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -956,7 +922,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          *
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -968,7 +933,6 @@ public class ProtoLayoutDynamicDataPipeline {
         /**
          * Stores a node if doesn't exist. Otherwise does nothing.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -987,7 +951,6 @@ public class ProtoLayoutDynamicDataPipeline {
      * <p>This method can be called directly in screenshot tests and when the renderer output is
      * never supposed to be attached to a window.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @UiThread
@@ -1011,7 +974,6 @@ public class ProtoLayoutDynamicDataPipeline {
     /**
      * Play the animation with the given trigger type.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
@@ -1028,7 +990,6 @@ public class ProtoLayoutDynamicDataPipeline {
     /**
      * Reset the avd animations with the given trigger type.
      *
-     * @hide
      */
     @UiThread
     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
@@ -1040,7 +1001,6 @@ public class ProtoLayoutDynamicDataPipeline {
     /**
      * Stops running avd animations and releases their quota.
      *
-     * @hide
      */
     @UiThread
     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
@@ -1062,7 +1022,6 @@ public class ProtoLayoutDynamicDataPipeline {
      * Sets visibility for resources tracked by the pipeline and plays / stops any affected
      * animations.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @UiThread
@@ -1095,7 +1054,6 @@ public class ProtoLayoutDynamicDataPipeline {
      * Returns the total duration in milliseconds of the animated drawable associated with a
      * StateSource with the given key name; or null if no such SourceKey exists.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1131,7 +1089,6 @@ public class ProtoLayoutDynamicDataPipeline {
     /**
      * Returns how many animations are running.
      *
-     * @hide
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @RestrictTo(Scope.TESTS)
@@ -1150,7 +1107,6 @@ public class ProtoLayoutDynamicDataPipeline {
     /**
      * Returns whether all quota has been released.
      *
-     * @hide
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @RestrictTo(Scope.TESTS)

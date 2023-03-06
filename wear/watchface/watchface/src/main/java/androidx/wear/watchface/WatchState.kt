@@ -155,7 +155,6 @@ public class WatchState(
     }
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableWatchState() {
     public val interruptionFilter: MutableStateFlow<Int> =

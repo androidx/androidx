@@ -61,7 +61,6 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>Note this class is not thread safe.
  *
- * @hide
  */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -129,7 +128,6 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
                 + "}";
     }
 
-    /** @hide */
     @IntDef({
         DIFFERENCE_STYLE_STOPWATCH,
         DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
@@ -234,7 +232,6 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
      */
     public static final int DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT = 5;
 
-    /** @hide */
     @IntDef({FORMAT_STYLE_DEFAULT, FORMAT_STYLE_UPPER_CASE, FORMAT_STYLE_LOWER_CASE})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
@@ -489,7 +486,6 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
     /**
      * Returns the time-dependent part of the complication text.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)

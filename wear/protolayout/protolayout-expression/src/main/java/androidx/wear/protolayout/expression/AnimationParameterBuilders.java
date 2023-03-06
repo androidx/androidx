@@ -82,7 +82,6 @@ public final class AnimationParameterBuilders {
    * The repeat mode to specify how animation will behave when repeated.
    *
    * @since 1.2
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({REPEAT_MODE_UNKNOWN, REPEAT_MODE_RESTART, REPEAT_MODE_REVERSE})
@@ -173,7 +172,6 @@ public final class AnimationParameterBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -184,7 +182,6 @@ public final class AnimationParameterBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -197,7 +194,6 @@ public final class AnimationParameterBuilders {
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -208,7 +204,6 @@ public final class AnimationParameterBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -319,7 +314,6 @@ public final class AnimationParameterBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -346,7 +340,6 @@ public final class AnimationParameterBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -355,7 +348,6 @@ public final class AnimationParameterBuilders {
     /**
      * Builder to create {@link Easing} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
@@ -369,7 +361,6 @@ public final class AnimationParameterBuilders {
   /**
    * Creates a new wrapper instance from the proto.
    *
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
@@ -442,7 +433,6 @@ public final class AnimationParameterBuilders {
       return mImpl.getY2();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -453,7 +443,6 @@ public final class AnimationParameterBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -471,7 +460,6 @@ public final class AnimationParameterBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -479,7 +467,6 @@ public final class AnimationParameterBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -632,7 +619,6 @@ public final class AnimationParameterBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -643,7 +629,6 @@ public final class AnimationParameterBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -660,7 +645,6 @@ public final class AnimationParameterBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

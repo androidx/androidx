@@ -220,7 +220,6 @@ public class MultiSlotLayout implements LayoutElement {
         return new MultiSlotLayout(rowElement);
     }
 
-    /** @hide */
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)

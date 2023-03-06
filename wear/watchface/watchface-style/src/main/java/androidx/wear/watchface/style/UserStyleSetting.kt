@@ -243,7 +243,6 @@ private constructor(
      *
      * Note this method can be slow.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun estimateWireSizeInBytesAndValidateIconDimensions(
@@ -499,11 +498,9 @@ private constructor(
         wireFormat.mAffectsLayers.map { WatchFaceLayer.values()[it] }
     )
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract fun toWireFormat(): UserStyleSettingWireFormat
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getWireFormatOptionsList(): List<OptionWireFormat> =
         options.map { it.toWireFormat() }
@@ -651,7 +648,6 @@ private constructor(
         }
 
         public companion object {
-            /** @hide */
             @Suppress("NewApi")
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public fun createFromWireFormat(wireFormat: OptionWireFormat): Option =
@@ -677,7 +673,6 @@ private constructor(
                 }
         }
 
-        /** @hide */
         @Suppress("HiddenAbstractMethod")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public abstract fun toWireFormat(): OptionWireFormat
@@ -738,7 +733,6 @@ private constructor(
          * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmOverloads
@@ -832,7 +826,6 @@ private constructor(
 
         internal constructor(wireFormat: BooleanUserStyleSettingWireFormat) : super(wireFormat)
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): BooleanUserStyleSettingWireFormat =
             BooleanUserStyleSettingWireFormat(
@@ -883,7 +876,6 @@ private constructor(
          */
         public class BooleanOption private constructor(public val value: Boolean) :
             Option(Id(ByteArray(1).apply { this[0] = if (value) 1 else 0 }), emptyList()) {
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): BooleanOptionWireFormat = BooleanOptionWireFormat(id.value)
 
@@ -1265,7 +1257,6 @@ private constructor(
          * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
-         * @hide
          */
         @JvmOverloads
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1376,7 +1367,6 @@ private constructor(
             }
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): ComplicationsUserStyleSettingWireFormat =
             ComplicationsUserStyleSettingWireFormat(
@@ -1512,7 +1502,6 @@ private constructor(
              * @param watchFaceEditorData Optional data for an on watch face editor, this will not
              *   be sent to the companion and its contents may be used in preference to other fields
              *   by an on watch face editor.
-             * @hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @JvmOverloads
@@ -1678,7 +1667,6 @@ private constructor(
                 return sizeEstimate
             }
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): ComplicationsOptionWireFormat =
                 ComplicationsOptionWireFormat(
@@ -1864,7 +1852,6 @@ private constructor(
          * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmOverloads
@@ -1969,7 +1956,6 @@ private constructor(
 
         internal constructor(wireFormat: DoubleRangeUserStyleSettingWireFormat) : super(wireFormat)
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): DoubleRangeUserStyleSettingWireFormat =
             DoubleRangeUserStyleSettingWireFormat(
@@ -2012,7 +1998,6 @@ private constructor(
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 DoubleRangeUserStyleSetting::class.java
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): DoubleRangeOptionWireFormat =
                 DoubleRangeOptionWireFormat(id.value)
@@ -2075,7 +2060,6 @@ private constructor(
          * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
-         * @hide
          */
         @JvmOverloads
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -2182,7 +2166,6 @@ private constructor(
             }
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): ListUserStyleSettingWireFormat =
             ListUserStyleSettingWireFormat(
@@ -2304,7 +2287,6 @@ private constructor(
              * @param watchFaceEditorData Optional data for an on watch face editor, this will not
              *   be sent to the companion and its contents may be used in preference to other fields
              *   by an on watch face editor.
-             * @hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             constructor(
@@ -2476,7 +2458,6 @@ private constructor(
                 return sizeEstimate
             }
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): ListOptionWireFormat =
                 ListOptionWireFormat(id.value, displayName, icon)
@@ -2644,7 +2625,6 @@ private constructor(
          * @param watchFaceEditorData Optional data for an on watch face editor, this will not be
          *   sent to the companion and its contents may be used in preference to other fields by an
          *   on watch face editor.
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmOverloads
@@ -2749,7 +2729,6 @@ private constructor(
 
         internal constructor(wireFormat: LongRangeUserStyleSettingWireFormat) : super(wireFormat)
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): LongRangeUserStyleSettingWireFormat =
             LongRangeUserStyleSettingWireFormat(
@@ -2792,7 +2771,6 @@ private constructor(
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 LongRangeUserStyleSetting::class.java
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): LongRangeOptionWireFormat =
                 LongRangeOptionWireFormat(id.value)
@@ -2873,7 +2851,6 @@ private constructor(
 
         internal constructor(wireFormat: CustomValueUserStyleSettingWireFormat) : super(wireFormat)
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): CustomValueUserStyleSettingWireFormat =
             CustomValueUserStyleSettingWireFormat(
@@ -2914,7 +2891,6 @@ private constructor(
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 CustomValueUserStyleSetting::class.java
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): CustomValueOptionWireFormat =
                 CustomValueOptionWireFormat(id.value)
@@ -2967,7 +2943,6 @@ private constructor(
 
         internal constructor(wireFormat: CustomValueUserStyleSetting2WireFormat) : super(wireFormat)
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toWireFormat(): CustomValueUserStyleSetting2WireFormat =
             CustomValueUserStyleSetting2WireFormat(
@@ -3008,7 +2983,6 @@ private constructor(
             internal override fun getUserStyleSettingClass(): Class<out UserStyleSetting> =
                 CustomValueUserStyleSetting2::class.java
 
-            /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             override fun toWireFormat(): CustomValueOption2WireFormat =
                 CustomValueOption2WireFormat(id.value)
@@ -3148,7 +3122,6 @@ private fun <T> getAttributeChecked(
     }
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun getStringRefAttribute(resources: Resources, parser: XmlResourceParser, name: String): String? {
     return if (parser.hasValue(name)) {
@@ -3161,7 +3134,6 @@ fun getStringRefAttribute(resources: Resources, parser: XmlResourceParser, name:
     } else null
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun getIntRefAttribute(resources: Resources, parser: XmlResourceParser, name: String): Int? {
     return if (parser.hasValue(name)) {
@@ -3174,7 +3146,6 @@ fun getIntRefAttribute(resources: Resources, parser: XmlResourceParser, name: St
     } else null
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun XmlPullParser.moveToStart(expectedNode: String) {
     var type: Int

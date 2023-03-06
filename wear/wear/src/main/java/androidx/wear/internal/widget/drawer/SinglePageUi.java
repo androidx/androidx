@@ -37,7 +37,6 @@ import androidx.wear.widget.drawer.WearableNavigationDrawerView;
 /**
  * Handles view logic for the single page style {@link WearableNavigationDrawerView}.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class SinglePageUi implements SinglePagePresenter.Ui {

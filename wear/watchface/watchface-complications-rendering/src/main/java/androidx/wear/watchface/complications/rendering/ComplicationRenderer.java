@@ -69,7 +69,6 @@ import java.util.Objects;
 /**
  * Renders complication data on a canvas.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class ComplicationRenderer {

@@ -182,7 +182,6 @@ public class SystemDataSources private constructor() {
     /**
      * System complication data source id as defined in [SystemDataSources].
      *
-     * @hide
      */
     @IntDef(
         NO_DATA_SOURCE,

@@ -87,7 +87,6 @@ public final class DimensionBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -105,7 +104,6 @@ public final class DimensionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -113,7 +111,6 @@ public final class DimensionBuilders {
       return DimensionProto.ContainerDimension.newBuilder().setLinearDimension(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -121,7 +118,6 @@ public final class DimensionBuilders {
       return DimensionProto.ImageDimension.newBuilder().setLinearDimension(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -184,7 +180,6 @@ public final class DimensionBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -255,7 +250,6 @@ public final class DimensionBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -326,7 +320,6 @@ public final class DimensionBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -376,7 +369,6 @@ public final class DimensionBuilders {
    * A type for a dimension that fills all the space it can (i.e. MATCH_PARENT in Android parlance).
    *
    * @since 1.0
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   public static final class ExpandedDimensionProp implements ContainerDimension, ImageDimension {
@@ -402,7 +394,6 @@ public final class DimensionBuilders {
       return mImpl.getLayoutWeight().getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -420,7 +411,6 @@ public final class DimensionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -428,7 +418,6 @@ public final class DimensionBuilders {
       return DimensionProto.ContainerDimension.newBuilder().setExpandedDimension(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -475,7 +464,6 @@ public final class DimensionBuilders {
    * Android parlance).
    *
    * @since 1.0
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   public static final class WrappedDimensionProp implements ContainerDimension {
@@ -498,7 +486,6 @@ public final class DimensionBuilders {
       return mImpl.getMinimumSize().getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -516,7 +503,6 @@ public final class DimensionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -593,7 +579,6 @@ public final class DimensionBuilders {
       return mImpl.getAspectRatioHeight();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -612,7 +597,6 @@ public final class DimensionBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -669,7 +653,6 @@ public final class DimensionBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -678,7 +661,6 @@ public final class DimensionBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -718,7 +700,6 @@ public final class DimensionBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -727,7 +708,6 @@ public final class DimensionBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -766,7 +746,6 @@ public final class DimensionBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -775,7 +754,6 @@ public final class DimensionBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable

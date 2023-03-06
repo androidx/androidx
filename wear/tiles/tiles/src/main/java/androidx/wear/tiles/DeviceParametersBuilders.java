@@ -36,7 +36,6 @@ public final class DeviceParametersBuilders {
     /**
      * The platform of the device requesting a tile.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({DEVICE_PLATFORM_UNDEFINED, DEVICE_PLATFORM_WEAR_OS})
@@ -52,7 +51,6 @@ public final class DeviceParametersBuilders {
     /**
      * The shape of a screen.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({SCREEN_SHAPE_UNDEFINED, SCREEN_SHAPE_ROUND, SCREEN_SHAPE_RECT})
@@ -112,7 +110,6 @@ public final class DeviceParametersBuilders {
             return mImpl.getScreenShape().getNumber();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static DeviceParameters fromProto(
@@ -120,7 +117,6 @@ public final class DeviceParametersBuilders {
             return new DeviceParameters(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DeviceParametersProto.DeviceParameters toProto() {

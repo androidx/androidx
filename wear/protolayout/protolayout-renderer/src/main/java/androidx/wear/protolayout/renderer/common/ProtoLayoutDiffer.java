@@ -38,7 +38,6 @@ import java.util.List;
 /**
  * Utility to diff 2 proto layouts in order to be able to partially update the display.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public class ProtoLayoutDiffer {
@@ -57,7 +56,6 @@ public class ProtoLayoutDiffer {
      * If true, an element addition or removal forces its parent (and siblings of the changed node)
      * to reinflate.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final boolean UPDATE_ALL_CHILDREN_AFTER_ADD_REMOVE = true;
@@ -66,7 +64,6 @@ public class ProtoLayoutDiffer {
      * Index of the first child node under a parent. {@link #createNodePosId} should be called
      * starting from this value and incremented by one for each child node.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int FIRST_CHILD_INDEX = 0;
@@ -124,7 +121,6 @@ public class ProtoLayoutDiffer {
     /**
      * A node in a layout tree, that has a change compared to a previous version.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class TreeNodeWithChange {
@@ -140,7 +136,6 @@ public class ProtoLayoutDiffer {
          * Returns the linear {@link LayoutElement} that this node represents, or null if the node
          * isn't for a {@link LayoutElement}.
          *
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -152,7 +147,6 @@ public class ProtoLayoutDiffer {
          * Returns the radial {@link ArcLayoutElement} that this node represents, or null if the
          * node isn't for a {@link ArcLayoutElement}.
          *
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -171,7 +165,6 @@ public class ProtoLayoutDiffer {
          * Returns an ID for this node based on its position in the tree. Only comparable against
          * other position IDs that are generated with {@link #createNodePosId}.
          *
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -183,7 +176,6 @@ public class ProtoLayoutDiffer {
          * Returns true if the change in this node affects the node itself only. Otherwise the
          * change affects both the node and its children.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public boolean isSelfOnlyChange() {
@@ -204,7 +196,6 @@ public class ProtoLayoutDiffer {
          * An ordered list of nodes that have changed. A changed node always comes before its
          * changed descendants in this list.
          *
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -222,7 +213,6 @@ public class ProtoLayoutDiffer {
      * @param parentPosId Position-based ID of the parent node.
      * @param childIndex Index of this child node. For the first child, use {@link
      *     #FIRST_CHILD_INDEX}, and increment by one for each.
-     * @hide
      */
     @SuppressLint("DefaultLocale")
     @NonNull
@@ -237,7 +227,6 @@ public class ProtoLayoutDiffer {
      *
      * @param posId A position ID for a node.
      * @return The position ID of the node's parent or null if the parent ID cannot be generated.
-     * @hide
      */
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -258,7 +247,6 @@ public class ProtoLayoutDiffer {
      *
      * @param posId Position ID of the potential descendant node.
      * @param parentPosId Position ID of the potential parent node.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static boolean isDescendantOf(@NonNull String posId, @NonNull String parentPosId) {
@@ -274,7 +262,6 @@ public class ProtoLayoutDiffer {
      * @param layout The new layout.
      * @return The layout diff or null if the diff cannot be computed, which means the whole layout
      *     should be refreshed.
-     * @hide
      */
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)

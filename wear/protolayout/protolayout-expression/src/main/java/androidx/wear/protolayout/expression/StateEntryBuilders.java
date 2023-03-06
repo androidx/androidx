@@ -42,7 +42,6 @@ public final class StateEntryBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -81,7 +80,6 @@ public final class StateEntryBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -89,7 +87,6 @@ public final class StateEntryBuilders {
 
     /** Builder to create {@link StateEntryValue} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
@@ -104,7 +101,6 @@ public final class StateEntryBuilders {
    * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
    * created using this method can't be added to any other wrapper.
    *
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
