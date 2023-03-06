@@ -57,8 +57,7 @@ android {
     }
 
     lintOptions {
-        // TODO(b/266849030): Remove when updating library.
-        disable("UnknownNullness", "SyntheticAccessor")
+        disable("UnknownNullness")
     }
 
     namespace "androidx.appactions.interaction.capabilities.core"
