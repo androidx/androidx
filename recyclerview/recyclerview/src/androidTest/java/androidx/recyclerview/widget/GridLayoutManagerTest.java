@@ -1389,6 +1389,83 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                 Arrays.asList(0, 3));
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_focusDown_vertical_withAvailableTarget()
+            throws Throwable {
+
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android version.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(5, VERTICAL);
+       /*
+        This generates the following grid:
+        1   2   3
+        4   5
+        */
+        runScrollInDirectionOnMultipleItemsAndSucceed(uiAutomation, View.FOCUS_DOWN,
+                new HashMap<Integer, String>() {{
+                    put(0, "Item (4)");
+                    put(1, "Item (5)");
+                }});
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_focusDown_vertical_withoutAvailableTarget()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android version.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(5, VERTICAL);
+        /*
+        This generates the following grid:
+        1   2   3
+        4   5
+        */
+        runScrollInDirectionOnMultipleItemsAndFail(uiAutomation, View.FOCUS_DOWN,
+                Arrays.asList(2, 3, 4));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_focusDown_horizontal_withAvailableTarget()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android versions.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(4, HORIZONTAL);
+        /*
+        This generates the following grid:
+        1   4
+        2
+        3
+        */
+        runScrollInDirectionOnMultipleItemsAndSucceed(uiAutomation, View.FOCUS_DOWN,
+                new HashMap<Integer, String>() {{
+                    put(0, "Item (2)");
+                    put(1, "Item (3)");
+                }});
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void performActionScrollInDirection_focusDown_horizontal_withoutAvailableTarget()
+            throws Throwable {
+        // TODO(b/267511848): suppress to LOLLIPOP once U constants are finalized and available in
+        //  earlier android versions.
+
+        final UiAutomation uiAutomation = setUpGridLayoutManagerAccessibilityTest(4, HORIZONTAL);
+        /*
+        This generates the following grid:
+        1   4
+        2
+        3
+        */
+        runScrollInDirectionOnMultipleItemsAndFail(uiAutomation, View.FOCUS_DOWN,
+                Arrays.asList(2, 3));
+    }
+
     /**
      * Batch version of {@code runScrollInDirectionAndSucceed}. Sets accessibility focus on each
      * grid child whose index is a key in {@code startingIndexToScrollTargetTextMap} and then runs
