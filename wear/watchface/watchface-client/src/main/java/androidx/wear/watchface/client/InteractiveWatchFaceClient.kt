@@ -417,6 +417,7 @@ internal constructor(
     private val readyListeners =
         HashMap<InteractiveWatchFaceClient.OnWatchFaceReadyListener, Executor>()
     private val watchFaceColorsChangeListeners = HashMap<Consumer<WatchFaceColors?>, Executor>()
+    private var watchFaceReady = false
     private var watchfaceReadyListenerRegistered = false
     private var lastWatchFaceColors: WatchFaceColors? = null
     private var disconnectReason: Int? = null
@@ -688,7 +689,10 @@ internal constructor(
     internal fun onWatchFaceReady() {
         var listenerCopy: HashMap<InteractiveWatchFaceClient.OnWatchFaceReadyListener, Executor>
 
-        synchronized(lock) { listenerCopy = HashMap(readyListeners) }
+        synchronized(lock) {
+            listenerCopy = HashMap(readyListeners)
+            watchFaceReady = true
+        }
 
         for ((listener, executor) in listenerCopy) {
             executor.execute { listener.onWatchFaceReady() }
@@ -700,6 +704,11 @@ internal constructor(
         listener: InteractiveWatchFaceClient.OnWatchFaceReadyListener
     ) {
         synchronized(lock) {
+            if (watchFaceReady) {
+                executor.execute { listener.onWatchFaceReady() }
+                return
+            }
+
             require(!readyListeners.contains(listener)) {
                 "Don't call addWatchFaceReadyListener multiple times for the same listener"
             }
