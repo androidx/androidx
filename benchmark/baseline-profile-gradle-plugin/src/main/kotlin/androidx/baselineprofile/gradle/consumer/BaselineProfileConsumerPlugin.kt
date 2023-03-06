@@ -313,31 +313,37 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                                 .baselineProfiles?.addStaticSourceDirectory(absolutePath)
                         }
 
+                        // If this is an application, we need to ensure that:
+                        // If `automaticGenerationDuringBuild` is true, building a release build
+                        // should trigger the generation of the profile. This is done through a
+                        // dependsOn rule.
+                        // If `automaticGenerationDuringBuild` is false and the user calls both
+                        // tasks to generate and assemble, assembling the release should wait of the
+                        // generation to be completed. This is done through a `mustRunAfter` rule.
                         // Depending on whether the flag `automaticGenerationDuringBuild` is enabled
-                        // we can set either a dependsOn or a mustRunAfter dependency between the
-                        // task that packages the profile and the copy. Note that we cannot use
-                        // the variant src set api `addGeneratedSourceDirectory` since that
-                        // overwrites the outputDir, that would be re-set in the build dir.
-                        afterVariantBlocks.add {
-
-                            // Determines which AGP task to depend on based on whether this is an
-                            // app or a library.
-                            if (isApplication) {
-                                project.tasks.named(
-                                    camelCase("merge", variant.name, "artProfile")
-                                )
-                            } else {
-                                project.tasks.named(
-                                    camelCase("prepare", variant.name, "artProfile")
-                                )
-                            }.configure {
-
-                                // Sets the task dependency according to the configuration flag.
-                                if (baselineProfileExtension.automaticGenerationDuringBuild) {
-                                    it.dependsOn(copyTaskProvider)
-                                } else {
-                                    it.mustRunAfter(copyTaskProvider)
-                                }
+                        // Note that we cannot use the variant src set api
+                        // `addGeneratedSourceDirectory` since that overwrites the outputDir,
+                        // that would be re-set in the build dir.
+                        // Also this is specific for applications: doing this for a library would
+                        // trigger a circular task dependency since the library would require
+                        // the profile in order to build the aar for the sample app and generate
+                        // the profile.
+                        if (isApplication) {
+                            afterVariantBlocks.add {
+                                project
+                                    .tasks
+                                    .named(camelCase("merge", variant.name, "artProfile"))
+                                    .configure {
+                                        // Sets the task dependency according to the configuration
+                                        // flag.
+                                        if (baselineProfileExtension
+                                                .automaticGenerationDuringBuild
+                                        ) {
+                                            it.dependsOn(copyTaskProvider)
+                                        } else {
+                                            it.mustRunAfter(copyTaskProvider)
+                                        }
+                                    }
                             }
                         }
 
