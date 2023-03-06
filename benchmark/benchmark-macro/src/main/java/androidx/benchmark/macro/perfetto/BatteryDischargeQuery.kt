@@ -16,7 +16,12 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.Slice
+import org.intellij.lang.annotations.Language
+
 internal object BatteryDischargeQuery {
+    @Language("sql")
     private fun getFullQuery(slice: Slice) = """
         SELECT
             max(c.value)/1000 AS startMah,
@@ -34,22 +39,22 @@ internal object BatteryDischargeQuery {
     )
 
     fun getBatteryDischargeMetrics(
-        perfettoTraceProcessor: PerfettoTraceProcessor,
+    session: PerfettoTraceProcessor.Session,
         slice: Slice
     ): List<BatteryDischargeMeasurement> {
-        val queryResult = perfettoTraceProcessor.rawQuery(
+        val queryResult = session.query(
             query = getFullQuery(slice)
-        )
+        ).toList()
 
         if (queryResult.isEmpty()) {
             return emptyList()
         }
 
-        if (queryResult.size() != 1) {
+        if (queryResult.size != 1) {
             throw IllegalStateException("Unexpected query result size for battery discharge.")
         }
 
-        val row = queryResult.next()
+        val row = queryResult.single()
         return listOf(
             BatteryDischargeMeasurement(
                 name = "Start",

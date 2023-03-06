@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.perfetto
+package androidx.benchmark.perfetto
 
 import androidx.annotation.RestrictTo
-import androidx.benchmark.macro.perfetto.server.QueryResultIterator
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class Slice(
@@ -35,9 +34,9 @@ data class Slice(
 
 /**
  * Convenient function to immediately retrieve a list of slices.
- * Note that this method is provided for convenience and exhausts the iterator.
+ * Note that this method is provided for convenience.
  */
-internal fun QueryResultIterator.toSlices(): List<Slice> =
-    toList {
-        Slice(name = it["name"] as String, ts = it["ts"] as Long, dur = it["dur"] as Long)
-    }
+internal fun Sequence<Row>.toSlices(): List<Slice> =
+    map {
+        Slice(name = it.string("name"), ts = it.long("ts"), dur = it.long("dur"))
+    }.toList()
