@@ -50,17 +50,19 @@ internal constructor(
         private fun createRequestMetadata(fulfillment: Fulfillment): RequestMetadata? {
             return if (
                 fulfillment.type == Fulfillment.Type.UNKNOWN_TYPE ||
-                    fulfillment.type == Fulfillment.Type.UNRECOGNIZED
+                fulfillment.type == Fulfillment.Type.UNRECOGNIZED
             ) {
                 null
-            } else RequestMetadata.newBuilder().setRequestType(fulfillment.type).build()
+            } else {
+                RequestMetadata.newBuilder().setRequestType(fulfillment.type).build()
+            }
         }
 
         @Suppress(
-            "DEPRECATION"
+            "DEPRECATION",
         ) // Convert the deprecated "fp.valuesList" property to the new format.
         private fun convertToArgumentMap(
-            fulfillment: Fulfillment
+            fulfillment: Fulfillment,
         ): Map<String, List<FulfillmentValue>> {
             val result = mutableMapOf<String, List<FulfillmentValue>>()
             for (fp in fulfillment.paramsList) {

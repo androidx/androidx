@@ -16,9 +16,8 @@
 
 package androidx.appactions.interaction.capabilities.core.impl
 
-import androidx.annotation.NonNull
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.ActionExecutor
+import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.FutureCallback
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
@@ -37,9 +36,10 @@ import androidx.appactions.interaction.proto.ParamValue
 internal class SingleTurnCapabilitySession<
     ArgumentT,
     OutputT,
->(
+    >(
     val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
-    val actionExecutor: ActionExecutor<ArgumentT, OutputT>,
+    val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
+    override val uiHandle: Any,
 ) : ActionCapabilitySession {
     override val state: AppAction
         get() {
@@ -52,20 +52,18 @@ internal class SingleTurnCapabilitySession<
 
     override fun destroy() {}
 
-    override val uiHandle: Any = actionExecutor
-
     // single-turn capability does not have touch events
     override fun setTouchEventCallback(callback: TouchEventCallback) {
         throw UnsupportedOperationException()
     }
 
     override fun execute(
-        @NonNull argumentsWrapper: ArgumentsWrapper,
-        @NonNull callback: CallbackInternal,
+        argumentsWrapper: ArgumentsWrapper,
+        callback: CallbackInternal,
     ) {
         val paramValuesMap: Map<String, List<ParamValue>> =
             argumentsWrapper.paramValues.entries.associate {
-                entry: Map.Entry<String, List<FulfillmentValue>> ->
+                    entry: Map.Entry<String, List<FulfillmentValue>> ->
                 Pair(
                     entry.key,
                     entry.value.mapNotNull { fulfillmentValue: FulfillmentValue ->
@@ -75,7 +73,7 @@ internal class SingleTurnCapabilitySession<
             }
         val argument = actionSpec.buildArgument(paramValuesMap)
         Futures.addCallback(
-            actionExecutor.executeAsync(argument),
+            actionExecutorAsync.execute(argument),
             object : FutureCallback<ExecutionResult<OutputT>> {
                 override fun onSuccess(executionResult: ExecutionResult<OutputT>) {
                     callback.onSuccess(convertToFulfillmentResponse(executionResult))

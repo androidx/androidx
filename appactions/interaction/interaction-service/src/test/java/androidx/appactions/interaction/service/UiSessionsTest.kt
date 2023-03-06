@@ -21,6 +21,7 @@ import android.util.SizeF
 import android.widget.RemoteViews
 import androidx.appactions.interaction.capabilities.core.ActionExecutor
 import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.service.test.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -132,7 +133,9 @@ class UiSessionsTest {
 
     @Test
     fun actionExecutor_hasUpdateUiExtension() {
-        val actionExecutor = object : ActionExecutor<String, String> {}
+        val actionExecutor = ActionExecutor<String, String> {
+            ExecutionResult.getDefaultInstance()
+        }
 
         actionExecutor.updateUi(remoteViewsUiResponse)
 
