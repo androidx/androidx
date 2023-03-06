@@ -134,12 +134,15 @@ package androidx.wear.protolayout {
 
   public static final class ColorBuilders.ColorProp {
     method @ColorInt public int getArgb();
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor? getDynamicValue();
   }
 
   public static final class ColorBuilders.ColorProp.Builder {
-    ctor public ColorBuilders.ColorProp.Builder();
+    ctor @Deprecated public ColorBuilders.ColorProp.Builder();
+    ctor public ColorBuilders.ColorProp.Builder(@ColorInt int);
     method public androidx.wear.protolayout.ColorBuilders.ColorProp build();
     method public androidx.wear.protolayout.ColorBuilders.ColorProp.Builder setArgb(@ColorInt int);
+    method public androidx.wear.protolayout.ColorBuilders.ColorProp.Builder setDynamicValue(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor);
   }
 
   public final class DeviceParametersBuilders {
