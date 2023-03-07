@@ -36,7 +36,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.withContext
 
-@Suppress("ModifierInspectorInfo")
 internal fun Modifier.cursor(
     state: TextFieldState,
     value: TextFieldValue,

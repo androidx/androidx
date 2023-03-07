@@ -33,7 +33,6 @@ import kotlinx.coroutines.launch
 /**
  * Required for the press and tap [MutableInteractionSource] consistency for TextField.
  */
-@Suppress("ModifierInspectorInfo")
 internal fun Modifier.tapPressTextFieldModifier(
     interactionSource: MutableInteractionSource?,
     enabled: Boolean = true,
