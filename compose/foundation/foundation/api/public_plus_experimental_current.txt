@@ -371,8 +371,12 @@ package androidx.compose.foundation.gestures {
 
 package androidx.compose.foundation.gestures.snapping {
 
+  public final class LazyGridSnapLayoutInfoProviderKt {
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.compose.foundation.lazy.grid.LazyGridState lazyGridState, optional androidx.compose.foundation.gestures.snapping.SnapPositionInLayout positionInLayout);
+  }
+
   public final class LazyListSnapLayoutInfoProviderKt {
-    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.compose.foundation.lazy.LazyListState lazyListState, optional kotlin.jvm.functions.Function3<? super androidx.compose.ui.unit.Density,? super java.lang.Float,? super java.lang.Float,java.lang.Float> positionInLayout);
+    method @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.compose.foundation.lazy.LazyListState lazyListState, optional androidx.compose.foundation.gestures.snapping.SnapPositionInLayout positionInLayout);
     method @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.FlingBehavior rememberSnapFlingBehavior(androidx.compose.foundation.lazy.LazyListState lazyListState);
   }
 
@@ -390,6 +394,16 @@ package androidx.compose.foundation.gestures.snapping {
     method public float calculateApproachOffset(androidx.compose.ui.unit.Density, float initialVelocity);
     method public float calculateSnapStepSize(androidx.compose.ui.unit.Density);
     method public float calculateSnappingOffset(androidx.compose.ui.unit.Density, float currentVelocity);
+  }
+
+  @androidx.compose.foundation.ExperimentalFoundationApi public fun interface SnapPositionInLayout {
+    method public int position(androidx.compose.ui.unit.Density, int layoutSize, int itemSize, int itemIndex);
+    field public static final androidx.compose.foundation.gestures.snapping.SnapPositionInLayout.Companion Companion;
+  }
+
+  public static final class SnapPositionInLayout.Companion {
+    method public androidx.compose.foundation.gestures.snapping.SnapPositionInLayout getCenterToCenter();
+    property public final androidx.compose.foundation.gestures.snapping.SnapPositionInLayout CenterToCenter;
   }
 
 }

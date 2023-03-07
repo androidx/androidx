@@ -14,33 +14,55 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.demos.snapping
+package androidx.compose.foundation.gestures.snapping
 
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.fastFilter
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.lazy.grid.LazyGridItemInfo
 import androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastSumBy
+import kotlin.math.absoluteValue
 import kotlin.math.sign
-import kotlin.math.abs
 
-@OptIn(ExperimentalFoundationApi::class)
+/**
+ * A [SnapLayoutInfoProvider] for LazyGrids.
+ *
+ * @param lazyGridState The [LazyGridState] with information about the current state of the grid
+ * @param positionInLayout The desired positioning of the snapped item within the main layout.
+ * This position should be considered with regards to the start edge of the item and the placement
+ * within the viewport.
+ *
+ * @return A [SnapLayoutInfoProvider] that can be used with [SnapFlingBehavior]
+ */
+@ExperimentalFoundationApi
 fun SnapLayoutInfoProvider(
     lazyGridState: LazyGridState,
-    positionInLayout: (Float, Float) -> Float = { mainAxisLayoutSize, mainAxisItemSize ->
-        mainAxisLayoutSize / 2f - mainAxisItemSize / 2f
-    }
+    positionInLayout: SnapPositionInLayout = SnapPositionInLayout.CenterToCenter
 ) = object : SnapLayoutInfoProvider {
     private val layoutInfo: LazyGridLayoutInfo
         get() = lazyGridState.layoutInfo
 
-    override fun Density.calculateApproachOffset(initialVelocity: Float) = 0f
+    override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
+        val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(this)
+        val offset =
+            decayAnimationSpec.calculateTargetValue(NoDistance, initialVelocity).absoluteValue
+        val finalDecayOffset = (offset - calculateSnapStepSize()).coerceAtLeast(0f)
+        return if (finalDecayOffset == 0f) {
+            finalDecayOffset
+        } else {
+            finalDecayOffset * initialVelocity.sign
+        }
+    }
 
-    // use the first row/column as a baseline for snapping.
     private val singleAxisItems: List<LazyGridItemInfo>
-        get() = lazyGridState.layoutInfo.visibleItemsInfo.filter {
+        get() = lazyGridState.layoutInfo.visibleItemsInfo.fastFilter {
             if (lazyGridState.layoutInfo.orientation == Orientation.Horizontal) {
                 it.row == 0
             } else {
@@ -54,7 +76,7 @@ fun SnapLayoutInfoProvider(
         var distanceFromItemBeforeTarget = Float.NEGATIVE_INFINITY
         var distanceFromItemAfterTarget = Float.POSITIVE_INFINITY
 
-        layoutInfo.visibleItemsInfo.forEach { item ->
+        layoutInfo.visibleItemsInfo.fastForEach { item ->
             val distance =
                 calculateDistanceToDesiredSnapPosition(layoutInfo, item, positionInLayout)
 
@@ -79,9 +101,9 @@ fun SnapLayoutInfoProvider(
     override fun Density.calculateSnapStepSize(): Float {
         return if (singleAxisItems.isNotEmpty()) {
             val size = if (layoutInfo.orientation == Orientation.Vertical) {
-                singleAxisItems.sumOf { it.size.height }
+                singleAxisItems.fastSumBy { it.size.height }
             } else {
-                singleAxisItems.sumOf { it.size.width }
+                singleAxisItems.fastSumBy { it.size.width }
             }
             size / singleAxisItems.size.toFloat()
         } else {
@@ -90,68 +112,43 @@ fun SnapLayoutInfoProvider(
     }
 }
 
-internal fun calculateDistanceToDesiredSnapPosition(
+@OptIn(ExperimentalFoundationApi::class)
+internal fun Density.calculateDistanceToDesiredSnapPosition(
     layoutInfo: LazyGridLayoutInfo,
     item: LazyGridItemInfo,
-    positionInLayout: (layoutSize: Float, itemSize: Float) -> Float
+    positionInLayout: SnapPositionInLayout = SnapPositionInLayout.CenterToCenter
 ): Float {
 
     val containerSize =
         with(layoutInfo) { singleAxisViewportSize - beforeContentPadding - afterContentPadding }
 
-    val desiredDistance =
-        positionInLayout(containerSize, item.sizeOnMainAxis(layoutInfo.orientation))
+    val desiredDistance = with(positionInLayout) {
+        position(containerSize, item.sizeOnMainAxis(layoutInfo.orientation), item.index)
+    }
 
     val itemCurrentPosition = item.offsetOnMainAxis(layoutInfo.orientation)
-    return itemCurrentPosition - desiredDistance
+    return itemCurrentPosition - desiredDistance.toFloat()
 }
 
-private val LazyGridLayoutInfo.singleAxisViewportSize: Float
+private val LazyGridLayoutInfo.singleAxisViewportSize: Int
     get() = if (orientation == Orientation.Vertical) {
-        viewportSize.height.toFloat()
+        viewportSize.height
     } else {
-        viewportSize.width.toFloat()
+        viewportSize.width
     }
 
-private fun LazyGridItemInfo.sizeOnMainAxis(orientation: Orientation): Float {
+private fun LazyGridItemInfo.sizeOnMainAxis(orientation: Orientation): Int {
     return if (orientation == Orientation.Vertical) {
-        size.height.toFloat()
+        size.height
     } else {
-        size.width.toFloat()
+        size.width
     }
 }
 
-private fun LazyGridItemInfo.offsetOnMainAxis(orientation: Orientation): Float {
+private fun LazyGridItemInfo.offsetOnMainAxis(orientation: Orientation): Int {
     return if (orientation == Orientation.Vertical) {
-        offset.y.toFloat()
+        offset.y
     } else {
-        offset.x.toFloat()
-    }
-}
-
-internal fun calculateFinalOffset(velocity: Float, lowerBound: Float, upperBound: Float): Float {
-
-    fun Float.isValidDistance(): Boolean {
-        return this != Float.POSITIVE_INFINITY && this != Float.NEGATIVE_INFINITY
-    }
-
-    val finalDistance = when (sign(velocity)) {
-        0f -> {
-            if (abs(upperBound) <= abs(lowerBound)) {
-                upperBound
-            } else {
-                lowerBound
-            }
-        }
-
-        1f -> upperBound
-        -1f -> lowerBound
-        else -> 0f
-    }
-
-    return if (finalDistance.isValidDistance()) {
-        finalDistance
-    } else {
-        0f
+        offset.x
     }
 }
