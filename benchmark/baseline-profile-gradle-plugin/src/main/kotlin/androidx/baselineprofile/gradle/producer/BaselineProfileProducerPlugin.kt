@@ -181,9 +181,9 @@ class BaselineProfileProducerPlugin : Plugin<Project> {
                 val originalBuildTypeName = extendedTypeToOriginalTypeMapping[it.buildType] ?: ""
                 val configurationName = createBaselineProfileConfigurationForVariant(
                     project = project,
-                    variantName = it.name,
                     productFlavors = it.productFlavors,
-                    originalBuildTypeName = originalBuildTypeName
+                    originalBuildTypeName = originalBuildTypeName,
+                    flavorName = it.flavorName
                 )
 
                 // Prepares a block to execute later that creates the tasks for this variant
@@ -292,12 +292,13 @@ class BaselineProfileProducerPlugin : Plugin<Project> {
 
     private fun createBaselineProfileConfigurationForVariant(
         project: Project,
-        variantName: String,
+        flavorName: String?,
         productFlavors: List<Pair<String, String>>,
         originalBuildTypeName: String,
     ): String {
+
         val configurationName =
-            camelCase(variantName, CONFIGURATION_NAME_BASELINE_PROFILES)
+            camelCase(flavorName ?: "", originalBuildTypeName, CONFIGURATION_NAME_BASELINE_PROFILES)
         project.configurations
             .maybeCreate(configurationName)
             .apply {

@@ -682,6 +682,90 @@ class BaselineProfileConsumerPluginTest {
             }
     }
 
+    @Test
+    fun testVariantDependenciesWithFlavors() {
+        setupProducerProjectWithFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
+        )
+
+        // In this setup no dependency is being added through the dependency block.
+        // Instead dependencies are being added through per-variant configuration block.
+        setupConsumerProject(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            flavors = true,
+            dependencyOnProducerProject = false,
+            baselineProfileBlock = """
+                variants {
+                    free {
+                        from(project(":$producerModuleName"))
+                    }
+                    paid {
+                        from(project(":$producerModuleName"))
+                    }
+                }
+
+            """.trimIndent()
+        )
+        gradleRunner
+            .withArguments("generateReleaseBaselineProfile", "--stacktrace")
+            .build()
+
+        assertThat(readBaselineProfileFileContent("freeRelease"))
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+            )
+        assertThat(readBaselineProfileFileContent("paidRelease"))
+            .containsExactly(
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1,
+            )
+    }
+
+    @Test
+    fun testVariantDependenciesWithVariantsAndDirectConfiguration() {
+        setupProducerProjectWithFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
+        )
+
+        // In this setup no dependency is being added through the dependency block.
+        // Instead dependencies are being added through per-variant configuration block.
+        setupConsumerProject(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            flavors = true,
+            dependencyOnProducerProject = false,
+            baselineProfileBlock = """
+                variants {
+                    freeRelease {
+                        from(project(":$producerModuleName"))
+                    }
+                    paidRelease {
+                        from(project(":$producerModuleName"), "freeRelease")
+                    }
+                }
+
+            """.trimIndent()
+        )
+        gradleRunner
+            .withArguments("generateReleaseBaselineProfile", "--stacktrace")
+            .build()
+
+        assertThat(readBaselineProfileFileContent("freeRelease"))
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+            )
+
+        // This output should be the same of free release
+        assertThat(readBaselineProfileFileContent("paidRelease"))
+            .containsExactly(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+            )
+    }
+
     private fun setupConsumerProject(
         androidPlugin: String,
         flavors: Boolean = false,
