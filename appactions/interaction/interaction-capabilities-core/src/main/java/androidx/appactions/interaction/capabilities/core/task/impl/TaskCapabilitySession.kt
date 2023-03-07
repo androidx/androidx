@@ -25,14 +25,14 @@ import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.FutureCallback
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
-import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
+import androidx.appactions.interaction.proto.ParamValue
 
 internal class TaskCapabilitySession<
     ArgumentT,
     OutputT,
     ConfirmationT,
-    > (
+>(
     val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
     val appAction: AppAction,
     val taskHandler: TaskHandler<ConfirmationT>,
@@ -56,8 +56,12 @@ internal class TaskCapabilitySession<
     private val requestLock = Any()
 
     /** Contains session state and request processing logic. */
-    private val sessionOrchestrator: TaskOrchestrator<
-        ArgumentT, OutputT, ConfirmationT,> =
+    private val sessionOrchestrator:
+        TaskOrchestrator<
+            ArgumentT,
+            OutputT,
+            ConfirmationT,
+        > =
         TaskOrchestrator(
             actionSpec,
             appAction,
@@ -69,7 +73,7 @@ internal class TaskCapabilitySession<
     private var pendingTouchEventRequest: TouchEventUpdateRequest? = null
 
     override fun execute(argumentsWrapper: ArgumentsWrapper, callback: CallbackInternal) {
-        enqueueAssistantRequest(AssistantUpdateRequest.create(argumentsWrapper, callback))
+        enqueueAssistantRequest(AssistantUpdateRequest(argumentsWrapper, callback))
     }
 
     override fun updateParamValues(paramValuesMap: Map<String, List<ParamValue>>) {
@@ -89,7 +93,7 @@ internal class TaskCapabilitySession<
      */
     private fun enqueueAssistantRequest(request: AssistantUpdateRequest) {
         synchronized(requestLock) {
-            pendingAssistantRequest?.callbackInternal()?.onError(ErrorStatusInternal.CANCELLED)
+            pendingAssistantRequest?.callbackInternal?.onError(ErrorStatusInternal.CANCELLED)
             pendingAssistantRequest = request
             dispatchPendingRequestIfIdle()
         }
@@ -108,8 +112,8 @@ internal class TaskCapabilitySession<
     }
 
     /**
-     * If sessionOrchestrator is idle, select the next request to dispatch to sessionOrchestrator (if
-     * there are any pending requests).
+     * If sessionOrchestrator is idle, select the next request to dispatch to sessionOrchestrator
+     * (if there are any pending requests).
      *
      * <p>If sessionOrchestrator is not idle, do nothing, since this method will automatically be
      * called when sessionOrchestrator becomes idle.
@@ -121,10 +125,10 @@ internal class TaskCapabilitySession<
             }
             var nextRequest: UpdateRequest? = null
             if (pendingAssistantRequest != null) {
-                nextRequest = UpdateRequest.of(pendingAssistantRequest)
+                nextRequest = UpdateRequest(pendingAssistantRequest!!)
                 pendingAssistantRequest = null
             } else if (pendingTouchEventRequest != null) {
-                nextRequest = UpdateRequest.of(pendingTouchEventRequest)
+                nextRequest = UpdateRequest(pendingTouchEventRequest!!)
                 pendingTouchEventRequest = null
             }
             if (nextRequest != null) {
@@ -137,14 +141,13 @@ internal class TaskCapabilitySession<
 
                         /**
                          * A fatal exception has occurred, cause by one of the following:
-                         *
                          * <ul>
-                         *   <li>1. The developer listener threw some runtime exception
-                         *   <li>2. The SDK encountered some uncaught internal exception
+                         * <li>1. The developer listener threw some runtime exception
+                         * <li>2. The SDK encountered some uncaught internal exception
                          * </ul>
                          *
-                         * <p>In both cases, this exception will be rethrown which will crash
-                         * the app.
+                         * <p>In both cases, this exception will be rethrown which will crash the
+                         * app.
                          */
                         override fun onFailure(t: Throwable) {
                             throw IllegalStateException(

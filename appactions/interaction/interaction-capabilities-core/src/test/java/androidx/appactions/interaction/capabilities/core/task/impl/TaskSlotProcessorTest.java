@@ -80,6 +80,7 @@ public final class TaskSlotProcessorTest {
             ValidationResult validationResult, Consumer<T> valueConsumer) {
         return GenericResolverInternal.fromValueListener(
                 new ValueListener<T>() {
+                    @NonNull
                     @Override
                     public ListenableFuture<ValidationResult> onReceivedAsync(T value) {
                         valueConsumer.accept(value);
@@ -96,6 +97,7 @@ public final class TaskSlotProcessorTest {
             ValidationResult validationResult, Consumer<List<T>> valueConsumer) {
         return GenericResolverInternal.fromValueListListener(
                 new ValueListener<List<T>>() {
+                    @NonNull
                     @Override
                     public ListenableFuture<ValidationResult> onReceivedAsync(List<T> value) {
                         valueConsumer.accept(value);
@@ -153,7 +155,7 @@ public final class TaskSlotProcessorTest {
                         .get();
 
         assertThat(result.isSuccessful()).isTrue();
-        assertThat(result.processedValues())
+        assertThat(result.getProcessedValues())
                 .containsExactly(
                         CurrentValue.newBuilder()
                                 .setValue(args.get(0))
@@ -186,7 +188,7 @@ public final class TaskSlotProcessorTest {
                         .get();
 
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.processedValues())
+        assertThat(result.getProcessedValues())
                 .containsExactly(
                         CurrentValue.newBuilder()
                                 .setValue(args.get(0))
@@ -222,7 +224,7 @@ public final class TaskSlotProcessorTest {
                         .get();
 
         assertThat(result.isSuccessful()).isTrue();
-        assertThat(result.processedValues())
+        assertThat(result.getProcessedValues())
                 .containsExactly(
                         CurrentValue.newBuilder()
                                 .setValue(args.get(0))
@@ -263,7 +265,7 @@ public final class TaskSlotProcessorTest {
                         .get();
 
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.processedValues())
+        assertThat(result.getProcessedValues())
                 .containsExactly(
                         CurrentValue.newBuilder()
                                 .setValue(args.get(0))
@@ -329,7 +331,7 @@ public final class TaskSlotProcessorTest {
         assertThat(result.isSuccessful()).isFalse();
         assertThat(onReceivedCb.getFuture().get()).isEqualTo("id");
         assertThat(renderCb.getFuture().get()).containsExactly("entity-1", "entity-2");
-        assertThat(result.processedValues())
+        assertThat(result.getProcessedValues())
                 .containsExactly(
                         previouslyAccepted,
                         CurrentValue.newBuilder()
@@ -390,7 +392,7 @@ public final class TaskSlotProcessorTest {
                                 .setQuery("A")
                                 .setObject("nested")
                                 .build());
-        assertThat(result.processedValues())
+        assertThat(result.getProcessedValues())
                 .containsExactly(
                         CurrentValue.newBuilder()
                                 .setStatus(Status.REJECTED)
