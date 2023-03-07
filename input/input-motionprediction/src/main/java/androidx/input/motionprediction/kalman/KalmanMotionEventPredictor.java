@@ -18,20 +18,24 @@ package androidx.input.motionprediction.kalman;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.content.Context;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.input.motionprediction.MotionEventPredictor;
+import androidx.input.motionprediction.utils.PredictionEstimator;
 
 /**
  */
 @RestrictTo(LIBRARY)
 public class KalmanMotionEventPredictor implements MotionEventPredictor {
     private MultiPointerPredictor mMultiPointerPredictor = new MultiPointerPredictor();
+    private PredictionEstimator mPredictionEstimator;
 
-    public KalmanMotionEventPredictor() {
+    public KalmanMotionEventPredictor(@NonNull Context context) {
+        mPredictionEstimator = new PredictionEstimator(context);
     }
 
     @Override
@@ -39,6 +43,7 @@ public class KalmanMotionEventPredictor implements MotionEventPredictor {
         if (mMultiPointerPredictor == null) {
             return;
         }
+        mPredictionEstimator.record(event);
         mMultiPointerPredictor.onTouchEvent(event);
     }
 
@@ -48,7 +53,8 @@ public class KalmanMotionEventPredictor implements MotionEventPredictor {
         if (mMultiPointerPredictor == null) {
             return null;
         }
-        return mMultiPointerPredictor.predict(1);
+        final int predictionTimeDelta = mPredictionEstimator.estimate();
+        return mMultiPointerPredictor.predict(predictionTimeDelta);
     }
 
     @Override
