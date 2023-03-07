@@ -14,22 +14,61 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.gestures
+package androidx.compose.foundation.gesture
 
+import androidx.compose.foundation.gestures.awaitDragOrCancellation
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitHorizontalDragOrCancellation
+import androidx.compose.foundation.gestures.awaitHorizontalTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.awaitVerticalDragOrCancellation
+import androidx.compose.foundation.gestures.awaitVerticalTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.testutils.TestViewConfiguration
+import androidx.compose.ui.AbsoluteAlignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.TouchInjectionScope
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.junit.runners.Parameterized
+
+private const val TargetTag = "TargetLayout"
 
 @RunWith(Parameterized::class)
 class DragGestureDetectorTest(dragType: GestureType) {
+
+    @get:Rule
+    val rule = createComposeRule()
+
     enum class GestureType {
         VerticalDrag,
         HorizontalDrag,
@@ -58,7 +97,7 @@ class DragGestureDetectorTest(dragType: GestureType) {
     private var cancelOrder = -1
     private var dragOrder = -1
 
-    private val DragTouchSlopUtil = SuspendingGestureTestUtil(width = 100, height = 100) {
+    private val DragTouchSlopUtil = layoutWithGestureDetector {
         var count = 0
         detectDragGestures(
             onDragStart = {
@@ -84,7 +123,7 @@ class DragGestureDetectorTest(dragType: GestureType) {
         }
     }
 
-    private val VerticalTouchSlopUtil = SuspendingGestureTestUtil(width = 100, height = 100) {
+    private val VerticalTouchSlopUtil = layoutWithGestureDetector {
         var count = 0
         detectVerticalDragGestures(
             onDragStart = {
@@ -108,7 +147,7 @@ class DragGestureDetectorTest(dragType: GestureType) {
         }
     }
 
-    private val HorizontalTouchSlopUtil = SuspendingGestureTestUtil(width = 100, height = 100) {
+    private val HorizontalTouchSlopUtil = layoutWithGestureDetector {
         var count = 0
         detectHorizontalDragGestures(
             onDragStart = {
@@ -132,7 +171,7 @@ class DragGestureDetectorTest(dragType: GestureType) {
         }
     }
 
-    private val AwaitVerticalDragUtil = SuspendingGestureTestUtil(width = 100, height = 100) {
+    private val AwaitVerticalDragUtil = layoutWithGestureDetector {
         awaitEachGesture {
             val down = awaitFirstDown()
             val slopChange = awaitVerticalTouchSlopOrCancellation(down.id) { change, overSlop ->
@@ -162,7 +201,7 @@ class DragGestureDetectorTest(dragType: GestureType) {
         }
     }
 
-    private val AwaitHorizontalDragUtil = SuspendingGestureTestUtil(width = 100, height = 100) {
+    private val AwaitHorizontalDragUtil = layoutWithGestureDetector {
         awaitEachGesture {
             val down = awaitFirstDown()
             val slopChange =
@@ -193,7 +232,7 @@ class DragGestureDetectorTest(dragType: GestureType) {
         }
     }
 
-    private val AwaitDragUtil = SuspendingGestureTestUtil(width = 100, height = 100) {
+    private val AwaitDragUtil = layoutWithGestureDetector {
         awaitEachGesture {
             val down = awaitFirstDown()
             val slopChange = awaitTouchSlopOrCancellation(down.id) { change, overSlop ->
@@ -224,7 +263,7 @@ class DragGestureDetectorTest(dragType: GestureType) {
         }
     }
 
-    private val util = when (dragType) {
+    private val content = when (dragType) {
         GestureType.VerticalDrag -> VerticalTouchSlopUtil
         GestureType.HorizontalDrag -> HorizontalTouchSlopUtil
         GestureType.AwaitVerticalDragOrCancel -> AwaitVerticalDragUtil
@@ -262,26 +301,97 @@ class DragGestureDetectorTest(dragType: GestureType) {
         else -> false
     }
 
+    private val nothingHandler: PointerInputChange.() -> Unit = {}
+
+    private var initialPass: PointerInputChange.() -> Unit = nothingHandler
+    private var finalPass: PointerInputChange.() -> Unit = nothingHandler
+
     @Before
     fun setup() {
         dragDistance = 0f
         dragged = false
         gestureEnded = false
+
+        rule.setContent(content)
+    }
+
+    private fun layoutWithGestureDetector(
+        gestureDetector: suspend PointerInputScope.() -> Unit,
+    ): @Composable () -> Unit = {
+        CompositionLocalProvider(
+            LocalDensity provides Density(1f),
+            LocalViewConfiguration provides TestViewConfiguration(
+                minimumTouchTargetSize = DpSize.Zero
+            )
+        ) {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            // Some tests execute a lambda before the initial and final passes
+                            // so they are called here, higher up the chain, so that the
+                            // calls happen prior to the gestureDetector below. The lambdas
+                            // do things like consume events on the initial pass or validate
+                            // consumption on the final pass.
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent(PointerEventPass.Initial)
+                                    event.changes.forEach {
+                                        initialPass(it)
+                                    }
+                                    awaitPointerEvent(PointerEventPass.Final)
+                                    event.changes.forEach {
+                                        finalPass(it)
+                                    }
+                                }
+                            }
+                        }
+                        .wrapContentSize(AbsoluteAlignment.TopLeft)
+                        .size(100.toDp())
+                        .pointerInput(key1 = gestureDetector, block = gestureDetector)
+                        .testTag(TargetTag)
+                )
+            }
+        }
+    }
+
+    /**
+     * Executes [block] on the [TargetTag] layout. The optional [initialPass] is executed
+     * prior to the [PointerEventPass.Initial] and [finalPass] is executed before
+     * [PointerEventPass.Final] of the gesture detector.
+     */
+    private fun performTouch(
+        initialPass: PointerInputChange.() -> Unit = nothingHandler,
+        finalPass: PointerInputChange.() -> Unit = nothingHandler,
+        block: TouchInjectionScope.() -> Unit
+    ) {
+        this.initialPass = initialPass
+        this.finalPass = finalPass
+        rule.onNodeWithTag(TargetTag).performTouchInput(block)
+        rule.waitForIdle()
+        this.initialPass = nothingHandler
+        this.finalPass = nothingHandler
     }
 
     /**
      * A normal drag, just to ensure that the drag worked.
      */
     @Test
-    fun normalDrag() = util.executeInComposition {
-        val move = down().moveBy(dragMotion)
+    fun normalDrag() {
+        performTouch {
+            down(Offset.Zero)
+            moveBy(dragMotion)
+        }
         assertTrue(gestureStarted)
         assertTrue(dragged)
         assertEquals(0f, dragDistance)
-        val move2 = move.moveBy(dragMotion)
+        performTouch {
+            moveBy(dragMotion)
+        }
         assertEquals(18f, dragDistance)
         assertFalse(gestureEnded)
-        move2.up()
+        performTouch { up() }
         assertTrue(gestureEnded)
     }
 
@@ -289,15 +399,23 @@ class DragGestureDetectorTest(dragType: GestureType) {
      * A drag in the opposite direction doesn't cause a drag event.
      */
     @Test
-    fun crossDrag() = util.executeInComposition {
+    fun crossDrag() {
         if (!twoAxisDrag) {
-            down().moveBy(crossDragMotion).up()
+            performTouch {
+                down(Offset.Zero)
+                moveBy(crossDragMotion)
+                up()
+            }
             assertFalse(gestureStarted)
             assertFalse(dragged)
             assertFalse(gestureEnded)
 
             // now try a normal drag to ensure that it is still working.
-            down().moveBy(dragMotion).up()
+            performTouch {
+                down(Offset.Zero)
+                moveBy(dragMotion)
+                up()
+            }
             assertTrue(gestureStarted)
             assertTrue(dragged)
             assertEquals(0f, dragDistance)
@@ -309,20 +427,30 @@ class DragGestureDetectorTest(dragType: GestureType) {
      * Use two fingers and lift the finger before the touch slop is reached.
      */
     @Test
-    fun twoFingerDrag_upBeforeSlop() = util.executeInComposition {
-        val finger1 = down()
-        val finger2 = down()
+    fun twoFingerDrag_upBeforeSlop() {
+        performTouch {
+            down(0, Offset.Zero)
+            down(1, Offset.Zero)
+        }
 
         // second finger shouldn't cause a drag. It should follow finger1
-        val moveFinger2 = finger2.moveBy(dragMotion)
+        performTouch {
+            moveBy(1, dragMotion)
+        }
 
         assertFalse(gestureStarted)
         assertFalse(dragged)
 
         // now it should move to finger 2
-        finger1.up()
+        performTouch {
+            up(0)
+        }
 
-        moveFinger2.moveBy(dragMotion).moveBy(dragMotion).up()
+        performTouch {
+            moveBy(1, dragMotion)
+            moveBy(1, dragMotion)
+            up(1)
+        }
 
         assertTrue(dragged)
         assertEquals(18f, dragDistance)
@@ -333,18 +461,23 @@ class DragGestureDetectorTest(dragType: GestureType) {
      * Use two fingers and lift the finger after the touch slop is reached.
      */
     @Test
-    fun twoFingerDrag_upAfterSlop() = util.executeInComposition {
-        val finger1 = down()
-        val finger2 = down()
-
-        finger1.moveBy(dragMotion).up()
+    fun twoFingerDrag_upAfterSlop() {
+        performTouch {
+            down(0, Offset.Zero)
+            down(1, Offset.Zero)
+            moveBy(0, dragMotion)
+            up(0)
+        }
 
         assertTrue(gestureStarted)
         assertTrue(dragged)
         assertEquals(0f, dragDistance)
         assertFalse(gestureEnded)
 
-        finger2.moveBy(dragMotion).up()
+        performTouch {
+            moveBy(1, dragMotion)
+            up(1)
+        }
 
         assertEquals(18f, dragDistance)
         assertTrue(gestureEnded)
@@ -354,8 +487,16 @@ class DragGestureDetectorTest(dragType: GestureType) {
      * Cancel drag during touch slop
      */
     @Test
-    fun cancelDragDuringSlop() = util.executeInComposition {
-        down().moveBy(dragMotion) { consume() }.moveBy(dragMotion).up()
+    fun cancelDragDuringSlop() {
+        performTouch {
+            down(Offset.Zero)
+        }
+        performTouch(initialPass = { consume() }) {
+            moveBy(dragMotion)
+        }
+        performTouch {
+            up()
+        }
         assertFalse(gestureStarted)
         assertFalse(dragged)
         assertFalse(gestureEnded)
@@ -366,8 +507,17 @@ class DragGestureDetectorTest(dragType: GestureType) {
      * Cancel drag after touch slop
      */
     @Test
-    fun cancelDragAfterSlop() = util.executeInComposition {
-        down().moveBy(dragMotion).moveBy(dragMotion) { consume() }.up()
+    fun cancelDragAfterSlop() {
+        performTouch {
+            down(Offset.Zero)
+            moveBy(dragMotion)
+        }
+        performTouch(initialPass = { consume() }) {
+            moveBy(dragMotion)
+        }
+        performTouch {
+            up()
+        }
         assertTrue(gestureStarted)
         assertTrue(dragged)
         assertFalse(gestureEnded)
@@ -380,16 +530,18 @@ class DragGestureDetectorTest(dragType: GestureType) {
      * in locking the orientation.
      */
     @Test
-    fun dragLockedWithPriority() = util.executeInComposition {
+    fun dragLockedWithPriority() {
         if (!twoAxisDrag) {
-            down().moveBy(
-                (dragMotion * 2f) + crossDragMotion,
-                final = {
-                    // This should have priority because it has moved more than the other direction.
-                    assertTrue(isConsumed)
-                }
-            )
-                .up()
+            performTouch {
+                down(Offset.Zero)
+            }
+            // This should have priority because it has moved more than the other direction.
+            performTouch(finalPass = { assertTrue(isConsumed) }) {
+                moveBy((dragMotion * 2f) + crossDragMotion)
+            }
+            performTouch {
+                up()
+            }
             assertTrue(gestureStarted)
             assertTrue(dragged)
             assertTrue(gestureEnded)
@@ -403,16 +555,22 @@ class DragGestureDetectorTest(dragType: GestureType) {
      * important when you drag your finger to
      */
     @Test
-    fun dragBackAndForth() = util.executeInComposition {
+    fun dragBackAndForth() {
         if (supportsSloppyGesture) {
             try {
                 consumePositiveOnly = true
 
-                val back = down().moveBy(-dragMotion)
+                performTouch {
+                    down(Offset.Zero)
+                    moveBy(-dragMotion)
+                }
 
                 assertFalse(gestureStarted)
                 assertFalse(dragged)
-                back.moveBy(dragMotion).up()
+                performTouch {
+                    moveBy(dragMotion)
+                    up()
+                }
 
                 assertTrue(gestureStarted)
                 assertTrue(dragged)
@@ -427,15 +585,18 @@ class DragGestureDetectorTest(dragType: GestureType) {
      * detect the touch.
      */
     @Test
-    fun pointerUpTooQuickly() = util.executeInComposition {
+    fun pointerUpTooQuickly() {
         if (supportsSloppyGesture) {
             try {
                 sloppyDetector = true
 
-                val finger1 = down()
-                val finger2 = down()
-                finger1.up()
-                finger2.moveBy(dragMotion).up()
+                performTouch {
+                    down(0, Offset.Zero)
+                    down(1, Offset.Zero)
+                    up(0)
+                    moveBy(1, dragMotion)
+                    up(1)
+                }
 
                 // The sloppy detector doesn't know to look at finger2
                 assertTrue(gestureCanceled)
@@ -446,11 +607,16 @@ class DragGestureDetectorTest(dragType: GestureType) {
     }
 
     @Test
-    fun dragGestureCallbackOrder_normalFinish() = util.executeInComposition {
+    fun dragGestureCallbackOrder_normalFinish() {
         if (!supportsSloppyGesture) {
-            val progress = down().moveBy(Offset(50f, 50f))
+            performTouch {
+                down(Offset.Zero)
+                moveBy(Offset(50f, 50f))
+            }
             assertTrue(startOrder < dragOrder)
-            progress.up()
+            performTouch {
+                up()
+            }
             assertTrue(startOrder < dragOrder)
             assertTrue(dragOrder < endOrder)
             assertTrue(cancelOrder == -1)
@@ -458,9 +624,15 @@ class DragGestureDetectorTest(dragType: GestureType) {
     }
 
     @Test
-    fun dragGestureCallbackOrder_cancel() = util.executeInComposition {
+    fun dragGestureCallbackOrder_cancel() {
         if (!supportsSloppyGesture) {
-            down().moveBy(dragMotion).moveBy(dragMotion) { consume() }
+            performTouch {
+                down(Offset.Zero)
+                moveBy(dragMotion)
+            }
+            performTouch(initialPass = { consume() }) {
+                moveBy(dragMotion)
+            }
             assertTrue(startOrder < dragOrder)
             assertTrue(dragOrder < cancelOrder)
             assertTrue(endOrder == -1)
@@ -469,56 +641,48 @@ class DragGestureDetectorTest(dragType: GestureType) {
 
     // An error in the pointer input stream should stop the gesture without error.
     @Test
-    fun interruptedBeforeDrag() = util.executeInComposition {
-        down()
-        clearPointerStream()
+    fun interruptedBeforeDrag() {
+        performTouch {
+            down(Offset.Zero)
+            cancel()
+        }
         // The next stream doesn't have the existing pointer, so we lose the dragging
-        down().up()
+        performTouch {
+            down(Offset.Zero)
+            up()
+        }
         assertFalse(gestureStarted)
     }
 
     // An error in the pointer input stream should stop the gesture without error.
     @Test
-    fun interruptedBeforeTouchSlop() = util.executeInComposition {
-        down().moveBy(dragMotion / 2f)
-        clearPointerStream()
+    fun interruptedBeforeTouchSlop() {
+        performTouch {
+            down(Offset.Zero)
+            moveBy(dragMotion / 2f)
+            cancel()
+        }
         // The next stream doesn't have the existing pointer, so we lose the dragging
-        down().up()
+        performTouch {
+            down(Offset.Zero)
+            up()
+        }
         assertFalse(gestureStarted)
     }
 
     // An error in the pointer input stream should end in a drag cancellation.
     @Test
-    fun interruptedAfterTouchSlop() = util.executeInComposition {
-        down().moveBy(dragMotion * 2f)
-        clearPointerStream()
-        // The next stream doesn't have the existing pointer, so we lose the dragging
-        down().up()
-        assertTrue(gestureCanceled)
-    }
-}
-
-@RunWith(JUnit4::class)
-class DragGestureOrderTest {
-    var startCount = -1
-    var stopCount = -1
-    var dragCount = -1
-    private val DragOrderUtil = SuspendingGestureTestUtil(width = 100, height = 100) {
-        var counter = 0
-        detectDragGestures(
-            onDragStart = { startCount = counter++ },
-            onDragEnd = { stopCount = counter++ }
-        ) { _, _ ->
-            dragCount = counter++
+    fun interruptedAfterTouchSlop() {
+        performTouch {
+            down(Offset.Zero)
+            moveBy(dragMotion * 2f)
+            cancel()
         }
-    }
-
-    @Test
-    fun dragGestureCallbackOrder() = DragOrderUtil.executeInComposition {
-        val progress = down().moveBy(Offset(50f, 50f))
-        assertTrue(startCount < dragCount)
-        progress.up()
-        assertTrue(startCount < dragCount)
-        assertTrue(dragCount < stopCount)
+        // The next stream doesn't have the existing pointer, so we lose the dragging
+        performTouch {
+            down(Offset.Zero)
+            up()
+        }
+        assertTrue(gestureCanceled)
     }
 }
