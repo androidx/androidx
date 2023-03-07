@@ -14,31 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.service;
+package androidx.appactions.interaction.service
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-
-import io.grpc.BindableService;
+import androidx.annotation.RestrictTo
+import io.grpc.BindableService
 
 /**
- * Factory for returning a BindableService from AppInteractionService.
- *
- * <p>This class is public because it's used in the testing library.
+ * Factory for returning a [BindableService] from an []AppInteractionService].
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class AppInteractionServiceFactory {
-
+object AppInteractionServiceFactory {
     /**
-     * Creates a new instance of the gRPC service from the developer's AppInteractionService
-     * (android service)
+     * Creates a new instance of the gRPC service from the developer's []AppInteractionService]
+     * (android service).
      */
-    @NonNull
-    public static BindableService create(@NonNull AppInteractionService appInteractionService) {
-        return new AppInteractionServiceGrpcImpl(appInteractionService);
+    fun create(appInteractionService: AppInteractionService): BindableService {
+        return AppInteractionServiceGrpcImpl(appInteractionService)
     }
-
-    private AppInteractionServiceFactory() {}
 }

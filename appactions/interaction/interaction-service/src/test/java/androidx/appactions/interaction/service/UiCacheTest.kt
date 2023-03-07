@@ -67,6 +67,7 @@ class UiCacheTest {
         // Test reset.
         uiCache.resetUnreadUiResponse()
         assertThat(uiCache.hasUnreadUiResponse()).isFalse()
+        assertEmptyCache(uiCache)
     }
 
     @Test

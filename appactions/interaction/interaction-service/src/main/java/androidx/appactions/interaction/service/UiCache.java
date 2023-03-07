@@ -49,13 +49,17 @@ final class UiCache {
     private final Object mUiHandle;
 
     @GuardedBy("mLock")
-    @Nullable private RemoteViews mCachedRemoteViews;
+    @Nullable
+    private RemoteViews mCachedRemoteViews;
     @GuardedBy("mLock")
-    @Nullable private SizeF mCachedRemoteViewsSize;
+    @Nullable
+    private SizeF mCachedRemoteViewsSize;
     @GuardedBy("mLock")
-    @Nullable private TileLayoutInternal mCachedTileLayout;
+    @Nullable
+    private TileLayoutInternal mCachedTileLayout;
     @GuardedBy("mLock")
-    @Nullable private Set<Integer> mCachedChangedViewIds = new HashSet<>();
+    @Nullable
+    private Set<Integer> mCachedChangedViewIds = new HashSet<>();
     // Needs to be reset after latest UiResponse has been rendered. That way can know there
     // is new UI that has been sent by app that must now be rendered on this turn.
     @GuardedBy("mLock")
@@ -85,21 +89,21 @@ final class UiCache {
         return mUiHandle;
     }
 
-    @NonNull
+    @Nullable
     RemoteViewsFactory onGetViewFactoryInternal(int viewId) {
         synchronized (mLock) {
             return mCachedRemoteViewsFactories.get(viewId);
         }
     }
 
-    @NonNull
+    @Nullable
     RemoteViews getCachedRemoteViews() {
         synchronized (mLock) {
             return mCachedRemoteViews;
         }
     }
 
-    @NonNull
+    @Nullable
     SizeF getCachedRemoteViewsSize() {
         synchronized (mLock) {
             return mCachedRemoteViewsSize;
@@ -113,7 +117,7 @@ final class UiCache {
         }
     }
 
-    @NonNull
+    @Nullable
     TileLayoutInternal getCachedTileLayout() {
         synchronized (mLock) {
             return mCachedTileLayout;
@@ -129,6 +133,10 @@ final class UiCache {
     void resetUnreadUiResponse() {
         synchronized (mLock) {
             mUnreadUiResponse = false;
+            mCachedRemoteViews = null;
+            mCachedRemoteViewsSize = null;
+            mCachedTileLayout = null;
+            mCachedChangedViewIds = new HashSet<>();
         }
     }
 

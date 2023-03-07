@@ -66,7 +66,7 @@ abstract class AppInteractionService : Service() {
      * of Android security. If you choose to do so, we **strongly** recommend you get such a change
      * reviewed by Android security experts.
      */
-    protected open val getSecurityPolicy: SecurityPolicy
+    protected open val securityPolicy: SecurityPolicy
         get() =
             SecurityPolicies.anyOf(*getSecurityPolicyFromAllowedList(allowedApps).toTypedArray())
 
@@ -104,7 +104,7 @@ abstract class AppInteractionService : Service() {
         val binderReceiver = IBinderReceiver()
         val serverSecurityPolicy =
             ServerSecurityPolicy.newBuilder()
-                .servicePolicy(AppInteractionServiceGrpc.SERVICE_NAME, getSecurityPolicy)
+                .servicePolicy(AppInteractionServiceGrpc.SERVICE_NAME, securityPolicy)
                 .build()
         val server =
             BinderServerBuilder.forAddress(AndroidComponentAddress.forContext(this), binderReceiver)
