@@ -16,7 +16,6 @@
 
 package androidx.constraintlayout.compose
 
-import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -390,13 +389,16 @@ class Easing internal constructor(override val name: String) : NamedPropertyOrVa
         /**
          * Defines a Cubic-Bezier curve where the points P1 and P2 are at the given coordinate
          * ratios.
+         *
+         * P1 and P2 are typically defined within (0f, 0f) and (1f, 1f), but may be assigned beyond
+         * these values for overshoot curves.
+         *
+         * @param x1 X-axis value for P1. Value is typically defined within 0f-1f.
+         * @param y1 Y-axis value for P1. Value is typically defined within 0f-1f.
+         * @param x2 X-axis value for P2. Value is typically defined within 0f-1f.
+         * @param y2 Y-axis value for P2. Value is typically defined within 0f-1f.
          */
-        fun Cubic(
-            @FloatRange(from = 0.0, to = 1.0) x1: Float,
-            @FloatRange(from = 0.0, to = 1.0) y1: Float,
-            @FloatRange(from = 0.0, to = 1.0) x2: Float,
-            @FloatRange(from = 0.0, to = 1.0) y2: Float
-        ) = Easing("cubic($x1, $y1, $x2, $y2)")
+        fun Cubic(x1: Float, y1: Float, x2: Float, y2: Float) = Easing("cubic($x1, $y1, $x2, $y2)")
     }
 }
 
