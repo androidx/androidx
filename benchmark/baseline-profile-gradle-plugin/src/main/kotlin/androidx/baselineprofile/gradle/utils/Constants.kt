@@ -43,3 +43,6 @@ internal const val INTERMEDIATES_BASE_FOLDER = "intermediates/baselineprofiles"
 // structure: <action><variant><suffix>. For example, if action is `generate`, variant is `release`
 // and suffix is `baselineProfile` the task name will be `generateReleaseBaselineProfile`.
 internal const val TASK_NAME_SUFFIX = "baselineProfile"
+
+// Other constants
+internal const val RELEASE = "release"

@@ -888,7 +888,7 @@ private class MockProducerBuildGrade {
         import com.android.build.api.attributes.BuildTypeAttr
         import com.android.build.api.attributes.ProductFlavorAttr
         import com.android.build.gradle.internal.attributes.VariantAttr
-        import androidx.baselineprofile.gradle.attributes.BaselineProfilePluginVersionAttr
+        import androidx.baselineprofile.gradle.configuration.attribute.BaselineProfilePluginVersionAttr
 
         // This task produces a file with a fixed output
         abstract class TestProfileTask extends DefaultTask {
