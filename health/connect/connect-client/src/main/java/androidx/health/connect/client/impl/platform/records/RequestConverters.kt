@@ -20,9 +20,9 @@
 package androidx.health.connect.client.impl.platform.records
 
 import android.health.connect.AggregateRecordsRequest
-import android.health.connect.changelog.ChangeLogTokenRequest
 import android.health.connect.ReadRecordsRequestUsingFilters
 import android.health.connect.TimeInstantRangeFilter
+import android.health.connect.changelog.ChangeLogTokenRequest
 import android.health.connect.datatypes.AggregationType
 import android.health.connect.datatypes.Record as PlatformRecord
 import androidx.annotation.RequiresApi
@@ -110,6 +110,6 @@ fun AggregateMetric<Any>.toAggregationType(): AggregationType<Any> {
             ?: MASS_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
             ?: POWER_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
             ?: VOLUME_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
-            ?: MISMATCHING_UNITS_AGGREGATION_METRIC_TYPE_MAP[this]
+            ?: DOUBLE_AGGREGATION_METRIC_TYPE_MAP[this] as AggregationType<Any>?
             ?: throw IllegalArgumentException("Unsupported aggregation type $metricKey")
 }
