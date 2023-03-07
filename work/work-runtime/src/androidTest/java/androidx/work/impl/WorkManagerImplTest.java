@@ -120,6 +120,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -1177,7 +1178,7 @@ public class WorkManagerImplTest {
 
     @Test
     @MediumTest
-    public void testGetWorkInfoByIdSyncConstraints() throws Exception {
+    public void testGetWorkInfoByIdSync_constraints() throws Exception {
         Constraints constraints = new Constraints.Builder()
                 .setRequiresCharging(true)
                 .setRequiredNetworkType(CONNECTED)
@@ -1191,6 +1192,44 @@ public class WorkManagerImplTest {
         WorkInfo workInfo = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
         assertThat(workInfo.getId().toString(), is(work.getStringId()));
         assertThat(workInfo.getConstraints(), equalTo(constraints));
+    }
+
+    @Test
+    @MediumTest
+    public void testGetWorkInfoByIdSync_oneTime_schedules() throws Exception {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(SUCCEEDED)
+                .setInitialDelay(1234, TimeUnit.MILLISECONDS)
+                .build();
+        insertWorkSpecAndTags(work);
+
+        WorkInfo workInfo = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
+        assertThat(workInfo.getId().toString(), is(work.getStringId()));
+        assertThat(workInfo.getInitialDelayMillis(), equalTo(1234L));
+        assertThat(workInfo.getPeriodicityInfo(), is(nullValue()));
+    }
+
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = 26)
+    public void testGetWorkInfoByIdSync_periodic_schedules() throws Exception {
+        Duration repeatInterval = Duration.ofMinutes(60);
+        Duration flexInterval = Duration.ofMinutes(30);
+
+        PeriodicWorkRequest work =
+                new PeriodicWorkRequest.Builder(TestWorker.class, repeatInterval, flexInterval)
+                        .setInitialState(SUCCEEDED)
+                        .setInitialDelay(1234, TimeUnit.MILLISECONDS)
+                        .build();
+        insertWorkSpecAndTags(work);
+
+        WorkInfo workInfo = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
+        assertThat(workInfo.getId().toString(), is(work.getStringId()));
+        assertThat(workInfo.getInitialDelayMillis(), equalTo(1234L));
+        assertThat(workInfo.getPeriodicityInfo().getRepeatIntervalMillis(), equalTo(
+                repeatInterval.toMillis()));
+        assertThat(workInfo.getPeriodicityInfo().getFlexIntervalMillis(), equalTo(
+                flexInterval.toMillis()));
     }
 
     @Test
@@ -1799,7 +1838,7 @@ public class WorkManagerImplTest {
             }
         };
         InstantWorkTaskExecutor workTaskExecutor = new InstantWorkTaskExecutor();
-        Processor processor = new Processor(mContext,  mConfiguration, workTaskExecutor, mDatabase);
+        Processor processor = new Processor(mContext, mConfiguration, workTaskExecutor, mDatabase);
         WorkLauncherImpl launcher = new WorkLauncherImpl(processor, workTaskExecutor);
 
         Scheduler scheduler =
