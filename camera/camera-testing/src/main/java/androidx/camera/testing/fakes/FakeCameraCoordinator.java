@@ -32,7 +32,6 @@ import java.util.Map;
  * A {@link CameraCoordinator} implementation that contains concurrent camera mode and camera id
  * information.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -27,7 +27,6 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * The mirror mode.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -48,7 +47,6 @@ public class MirrorMode {
     }
 
     /**
-     * @hide
      */
     @IntDef({MIRROR_MODE_OFF, MIRROR_MODE_ON, MIRROR_MODE_FRONT_ON})
     @Retention(RetentionPolicy.SOURCE)
