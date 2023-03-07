@@ -590,7 +590,6 @@ public final class CameraUtil {
      *
      * @param context        The context used to initialize CameraX
      * @param cameraSelector The selector to select cameras with.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     @NonNull

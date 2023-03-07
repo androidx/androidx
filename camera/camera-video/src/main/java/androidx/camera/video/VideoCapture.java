@@ -278,7 +278,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * @return The mirror mode of the intended target.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @MirrorMode.Mirror
@@ -592,7 +591,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(Scope.TESTS)
@@ -1128,7 +1126,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * @inheritDoc
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1329,7 +1326,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * @param mirrorMode The mirror mode of the intended target.
          * @return The current Builder.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

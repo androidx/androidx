@@ -97,7 +97,6 @@ public abstract class CameraEffect {
     /**
      * Bitmask options for the effect targets.
      *
-     * @hide
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -227,7 +226,6 @@ public abstract class CameraEffect {
      * <p>Throws {@link IllegalArgumentException} if the effect does not contain a
      * {@link SurfaceProcessor}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull

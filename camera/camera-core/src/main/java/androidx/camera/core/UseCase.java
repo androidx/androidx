@@ -325,7 +325,6 @@ public abstract class UseCase {
      *
      * <p>If mirror mode is not set, defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @MirrorMode.Mirror
@@ -336,7 +335,6 @@ public abstract class UseCase {
     /**
      * Returns if the mirroring is required with the associated camera.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public boolean isMirroringRequired(@NonNull CameraInternal camera) {
@@ -378,7 +376,6 @@ public abstract class UseCase {
     /**
      * Gets the relative rotation degrees given whether the output should be mirrored.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @IntRange(from = 0, to = 359)
@@ -585,7 +582,6 @@ public abstract class UseCase {
     /**
      * Offers suggested stream specification for the UseCase.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void updateSuggestedStreamSpec(@NonNull StreamSpec suggestedStreamSpec) {
@@ -791,7 +787,6 @@ public abstract class UseCase {
      * Sets the {@link CameraEffect} associated with this use case.
      *
      * @throws IllegalArgumentException if the effect targets are not supported by this use case.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void setEffect(@Nullable CameraEffect effect) {
@@ -802,7 +797,6 @@ public abstract class UseCase {
     /**
      * Gets the {@link CameraEffect} associated with this use case.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -915,7 +909,6 @@ public abstract class UseCase {
      * <p>The method returns an empty set if this {@link UseCase} does not support effects. By
      * default, this method returns an empty set.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -926,7 +919,6 @@ public abstract class UseCase {
     /**
      * Returns whether the targets can be applied to this {@link UseCase} or one of its ancestors.
      *
-     * @hide
      * @see #getSupportedEffectTargets()
      */
     @RestrictTo(Scope.LIBRARY_GROUP)

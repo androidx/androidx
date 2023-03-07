@@ -645,7 +645,6 @@ public final class Preview extends UseCase {
 
     /**
      * @inheritDoc
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -959,7 +958,6 @@ public final class Preview extends UseCase {
         /**
          * setMirrorMode is not supported on Preview.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
