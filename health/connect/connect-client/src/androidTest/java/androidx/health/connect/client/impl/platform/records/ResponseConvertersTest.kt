@@ -26,6 +26,7 @@ import android.os.Build
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HydrationRecord
@@ -52,8 +53,19 @@ class ResponseConvertersTest {
     @Test
     fun getLongMetricValues_convertsValueAccurately() {
         val metricValues =
-            getLongMetricValues(mapOf(HeartRateRecord.BPM_MIN as AggregateMetric<Any> to 53L))
-        assertThat(metricValues).containsExactly(HeartRateRecord.BPM_MIN.metricKey, 53L)
+            getLongMetricValues(
+                mapOf(
+                    HeartRateRecord.BPM_MIN as AggregateMetric<Any> to 53L,
+                    ExerciseSessionRecord.EXERCISE_DURATION_TOTAL as AggregateMetric<Any> to 60_000L
+                )
+            )
+        assertThat(metricValues)
+            .containsExactly(
+                HeartRateRecord.BPM_MIN.metricKey,
+                53L,
+                ExerciseSessionRecord.EXERCISE_DURATION_TOTAL.metricKey,
+                60_000L
+            )
     }
 
     @Test
@@ -142,6 +154,8 @@ class ResponseConvertersTest {
             getLongMetricValues(
                 mapOf(
                     HeartRateRecord.BPM_MIN as AggregateMetric<Any> to 53L,
+                    ExerciseSessionRecord.EXERCISE_DURATION_TOTAL as AggregateMetric<Any> to
+                        60_000L,
                     NutritionRecord.ENERGY_TOTAL as AggregateMetric<Any> to
                         PlatformEnergy.fromJoules(418_400.0),
                     DistanceRecord.DISTANCE_TOTAL as AggregateMetric<Any> to
@@ -156,7 +170,13 @@ class ResponseConvertersTest {
                         PlatformPower.fromWatts(500.0),
                 )
             )
-        assertThat(metricValues).containsExactly(HeartRateRecord.BPM_MIN.metricKey, 53L)
+        assertThat(metricValues)
+            .containsExactly(
+                HeartRateRecord.BPM_MIN.metricKey,
+                53L,
+                ExerciseSessionRecord.EXERCISE_DURATION_TOTAL.metricKey,
+                60_000L
+            )
     }
 
     @Test
@@ -165,6 +185,8 @@ class ResponseConvertersTest {
             getDoubleMetricValues(
                 mapOf(
                     HeartRateRecord.BPM_MIN as AggregateMetric<Any> to 53L,
+                    ExerciseSessionRecord.EXERCISE_DURATION_TOTAL as AggregateMetric<Any> to
+                        60_000L,
                     NutritionRecord.ENERGY_TOTAL as AggregateMetric<Any> to
                         PlatformEnergy.fromJoules(418_400.0),
                     DistanceRecord.DISTANCE_TOTAL as AggregateMetric<Any> to
@@ -174,7 +196,7 @@ class ResponseConvertersTest {
                     PowerRecord.POWER_AVG as AggregateMetric<Any> to PlatformPower.fromWatts(366.0),
                     HydrationRecord.VOLUME_TOTAL as AggregateMetric<Any> to
                         PlatformVolume.fromMilliliters(1500.0),
-                    FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10L,
+                    FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10.0,
                     BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL as AggregateMetric<Any> to
                         PlatformEnergy.fromJoules(836_800.0),
                 )
@@ -197,24 +219,5 @@ class ResponseConvertersTest {
                 BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL.metricKey,
                 200.0
             )
-    }
-
-    @Test
-    fun getDoubleMetricValues_convertsFloorsClimbedTotalAccurately() {
-        val metricValues =
-            getDoubleMetricValues(
-                mapOf(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10L)
-            )
-        assertThat(metricValues)
-            .containsExactly(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL.metricKey, 10.0)
-    }
-
-    @Test
-    fun getLongMetricValues_ignoresFloorsClimbedTotal() {
-        val metricValues =
-            getLongMetricValues(
-                mapOf(FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10L)
-            )
-        assertThat(metricValues).isEmpty()
     }
 }
