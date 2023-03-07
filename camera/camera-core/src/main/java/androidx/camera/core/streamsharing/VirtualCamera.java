@@ -176,6 +176,8 @@ class VirtualCamera implements CameraInternal {
                     INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, // TODO: use JPEG for ImageCapture
                     cameraEdge.getCropRect(),
                     rectToSize(cameraEdge.getCropRect()),
+                    // TODO: set rotation degrees for ImageCapture.
+                    0,
                     mirroring));
         }
         return outConfigs;
