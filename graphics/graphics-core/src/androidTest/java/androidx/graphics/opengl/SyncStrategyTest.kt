@@ -20,7 +20,7 @@ import android.opengl.EGL14
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.graphics.lowlatency.FrontBufferSyncStrategy
-import androidx.graphics.lowlatency.GLFrontBufferedRenderer
+import androidx.graphics.lowlatency.FrontBufferUtils
 import androidx.graphics.opengl.egl.EGLConfigAttributes
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
@@ -37,7 +37,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RequiresApi(Build.VERSION_CODES.Q)
 class SyncStrategyTest {
-    private val mUsageFlags = GLFrontBufferedRenderer.obtainHardwareBufferUsageFlags()
+    private val mUsageFlags = FrontBufferUtils.obtainHardwareBufferUsageFlags()
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
