@@ -452,7 +452,8 @@ public class ExposureDeviceTest {
         }
 
         private void createPipeline(StreamSpec streamSpec) {
-            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(getCurrentConfig());
+            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(getCurrentConfig(),
+                    streamSpec.getResolution());
 
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             if (mDeferrableSurface != null) {

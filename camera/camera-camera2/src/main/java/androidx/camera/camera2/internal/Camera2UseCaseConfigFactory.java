@@ -29,7 +29,6 @@ import android.hardware.camera2.CameraDevice;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.internal.compat.workaround.PreviewPixelHDRnet;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.impl.CaptureConfig;
@@ -77,11 +76,6 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
             case VIDEO_CAPTURE:
                 sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_RECORD);
                 break;
-        }
-
-        if (captureType == CaptureType.PREVIEW) {
-            // Set the WYSIWYG preview for CAPTURE_TYPE_PREVIEW
-            PreviewPixelHDRnet.setHDRnet(sessionBuilder);
         }
 
         mutableConfig.insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionBuilder.build());

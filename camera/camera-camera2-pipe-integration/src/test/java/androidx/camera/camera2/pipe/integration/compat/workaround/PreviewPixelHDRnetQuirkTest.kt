@@ -81,6 +81,9 @@ class PreviewPixelHDRnetQuirkTest(
         }
     }
 
+    private val resolutionHD: Size = Size(1280, 720)
+    private val resolutionVGA: Size = Size(640, 480)
+
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
 
     @Before
@@ -100,6 +103,7 @@ class PreviewPixelHDRnetQuirkTest(
     fun previewShouldApplyToneModeForHDRNet() {
         // Arrange
         val cameraUseCaseAdapter = configureCameraUseCaseAdapter(
+            resolutionVGA,
             configType = PreviewConfig::class.java
         )
         val preview = Preview.Builder().build()
@@ -127,6 +131,7 @@ class PreviewPixelHDRnetQuirkTest(
     fun otherUseCasesNotApplyHDRNet() {
         // Arrange
         cameraUseCaseAdapter = configureCameraUseCaseAdapter(
+            resolutionVGA,
             configType = ImageCaptureConfig::class.java
         )
 
@@ -141,7 +146,27 @@ class PreviewPixelHDRnetQuirkTest(
         ).isNull()
     }
 
+    @Test
+    fun resolution16x9NotApplyHDRNet() {
+        // Arrange
+        cameraUseCaseAdapter = configureCameraUseCaseAdapter(
+            resolutionHD,
+            configType = PreviewConfig::class.java
+        )
+
+        // Act. Update UseCase to create SessionConfig
+        val preview = Preview.Builder().build()
+        cameraUseCaseAdapter.addUseCases(setOf<UseCase>(preview))
+
+        assertThat(
+            Camera2ImplConfig(
+                preview.sessionConfig.repeatingCaptureConfig.implementationOptions
+            ).getCaptureRequestOption(CaptureRequest.TONEMAP_MODE)
+        ).isNull()
+    }
+
     private fun configureCameraUseCaseAdapter(
+        resolution: Size,
         fakeCameraId: String = "0",
         configType: Class<out UseCaseConfig<*>?>,
     ): CameraUseCaseAdapter {
@@ -152,7 +177,7 @@ class PreviewPixelHDRnetQuirkTest(
                 setSuggestedStreamSpec(
                     fakeCameraId,
                     configType,
-                    StreamSpec.builder(Size(640, 480)).build()
+                    StreamSpec.builder(resolution).build()
                 )
             },
             androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter(

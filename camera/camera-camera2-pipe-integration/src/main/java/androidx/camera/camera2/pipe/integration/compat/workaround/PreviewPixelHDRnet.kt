@@ -19,19 +19,25 @@
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import android.hardware.camera2.CaptureRequest
+import android.util.Rational
+import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.PreviewPixelHDRnetQuirk
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.core.impl.SessionConfig
 
+private val ASPECT_RATIO_16_9 = Rational(16, 9)
+
 /**
  * Turns on WYSIWYG viewfinder on Pixel devices
  *
  * @see PreviewPixelHDRnetQuirk
  */
-fun SessionConfig.Builder.setupHDRnet() {
+fun SessionConfig.Builder.setupHDRnet(resolution: Size) {
     DeviceQuirks[PreviewPixelHDRnetQuirk::class.java] ?: return
+
+    if (isAspectRatioMatch(resolution, ASPECT_RATIO_16_9)) return
 
     val camera2ConfigBuilder = Camera2ImplConfig.Builder().apply {
         setCaptureRequestOption<Int>(
@@ -41,4 +47,11 @@ fun SessionConfig.Builder.setupHDRnet() {
     }
 
     addImplementationOptions(camera2ConfigBuilder.build())
+}
+
+private fun isAspectRatioMatch(
+    resolution: Size,
+    aspectRatio: Rational
+): Boolean {
+    return aspectRatio == Rational(resolution.width, resolution.height)
 }

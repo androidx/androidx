@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.content.Context
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
+import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
@@ -36,6 +37,7 @@ import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
+import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
@@ -89,10 +91,6 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             CaptureType.VIDEO_CAPTURE -> sessionBuilder.setTemplateType(
                 CameraDevice.TEMPLATE_RECORD
             )
-        }
-        if (captureType == CaptureType.PREVIEW) {
-            // Set the WYSIWYG preview for CAPTURE_TYPE_PREVIEW
-            sessionBuilder.setupHDRnet()
         }
         mutableConfig.insertOption(
             UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG,
@@ -202,7 +200,11 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
 
     object DefaultSessionOptionsUnpacker : SessionConfig.OptionUnpacker {
         @OptIn(ExperimentalCamera2Interop::class)
-        override fun unpack(config: UseCaseConfig<*>, builder: SessionConfig.Builder) {
+        override fun unpack(
+            resolution: Size,
+            config: UseCaseConfig<*>,
+            builder: SessionConfig.Builder
+        ) {
             val defaultSessionConfig = config.getDefaultSessionConfig( /*valueIfMissing=*/null)
 
             var implOptions: Config = OptionsBundle.emptyBundle()
@@ -221,6 +223,11 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
 
             // Set any additional implementation options
             builder.setImplementationOptions(implOptions)
+
+            if (config is PreviewConfig) {
+                // Set the WYSIWYG preview for CAPTURE_TYPE_PREVIEW
+                builder.setupHDRnet(resolution)
+            }
 
             // Get Camera2 extended options
             val camera2Config = Camera2ImplConfig(config)
