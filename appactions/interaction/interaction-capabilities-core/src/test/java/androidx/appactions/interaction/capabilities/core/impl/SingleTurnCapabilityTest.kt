@@ -20,6 +20,7 @@ import android.util.SizeF
 import androidx.appactions.interaction.capabilities.core.ActionCapability
 import androidx.appactions.interaction.capabilities.core.ActionExecutor
 import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
+import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync.Companion.toActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
@@ -68,7 +69,7 @@ class SingleTurnCapabilityTest {
                 ).setOptionalStringField(
                     StringProperty.Builder().setProhibited(true).build(),
                 ).build(),
-                actionExecutor,
+                actionExecutor.toActionExecutorAsync(),
             )
         val expectedFulfillmentResponse: FulfillmentResponse =
             FulfillmentResponse.newBuilder().setExecutionOutput(
@@ -114,7 +115,7 @@ class SingleTurnCapabilityTest {
                 Property.newBuilder().setRequiredEntityField(
                     EntityProperty.Builder().build(),
                 ).build(),
-                actionExecutor,
+                actionExecutor.toActionExecutorAsync(),
             )
         val session = capability.createSession(hostProperties)
         assertThat(session.uiHandle).isSameInstanceAs(actionExecutor)

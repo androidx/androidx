@@ -18,10 +18,8 @@ package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.ActionExecutor
 import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.impl.concurrent.ListenableFutureHelper
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.TaskInfo
@@ -32,45 +30,12 @@ internal class SingleTurnCapabilityImpl<
     PropertyT,
     ArgumentT,
     OutputT,
-    > private constructor(
+    > constructor(
     override val id: String,
     val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
     val property: PropertyT,
     val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
-    val uiHandle: Any,
 ) : ActionCapability {
-    /** constructor using ActionExecutor. */
-    constructor(
-        id: String,
-        actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
-        property: PropertyT,
-        actionExecutor: ActionExecutor<ArgumentT, OutputT>,
-    ) : this(
-        id,
-        actionSpec,
-        property,
-        ActionExecutorAsync<ArgumentT, OutputT> {
-                argument ->
-            ListenableFutureHelper.convertToListenableFuture {
-                actionExecutor.execute(argument)
-            }
-        },
-        actionExecutor,
-    )
-
-    /** constructor using ActionExecutorAsync.  */
-    constructor(
-        id: String,
-        actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
-        property: PropertyT,
-        actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
-    ) : this(
-        id,
-        actionSpec,
-        property,
-        actionExecutorAsync,
-        actionExecutorAsync,
-    )
     override val supportsMultiTurnTask = false
 
     override fun getAppAction(): AppAction {
@@ -84,7 +49,6 @@ internal class SingleTurnCapabilityImpl<
         return SingleTurnCapabilitySession(
             actionSpec,
             actionExecutorAsync,
-            uiHandle,
         )
     }
 }
