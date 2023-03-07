@@ -40,6 +40,7 @@ public interface MotionEventPredictor extends AutoCloseable {
      * {@link android.view.View}.
      * @param event the {@link android.view.MotionEvent} the associated view received and that
      *              needs to be recorded.
+     * @throws IllegalArgumentException if an inconsistent MotionEvent stream is sent.
      */
     void record(@NonNull MotionEvent event);
 
