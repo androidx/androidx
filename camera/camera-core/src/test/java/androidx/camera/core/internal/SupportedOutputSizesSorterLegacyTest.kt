@@ -23,6 +23,7 @@ import android.view.Surface
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
+import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeUseCaseConfig
@@ -34,7 +35,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val TARGET_ASPECT_RATIO_NONE = -99
-private val LANDSCAPE_ACTIVE_ARRAY_SIZE = Size(4032, 3024)
 private val DEFAULT_SUPPORTED_SIZES = listOf(
     Size(4032, 3024), // 4:3
     Size(3840, 2160), // 16:9
@@ -59,7 +59,7 @@ private val DEFAULT_SUPPORTED_SIZES = listOf(
 class SupportedOutputSizesSorterLegacyTest {
     private val cameraInfoInternal = FakeCameraInfoInternal()
     private val supportedOutputSizesSorterLegacy =
-        SupportedOutputSizesSorterLegacy(cameraInfoInternal, LANDSCAPE_ACTIVE_ARRAY_SIZE)
+        SupportedOutputSizesSorterLegacy(cameraInfoInternal, AspectRatioUtil.ASPECT_RATIO_4_3)
 
     @Test
     fun checkFilterOutSmallSizesByDefaultSize640x480() {

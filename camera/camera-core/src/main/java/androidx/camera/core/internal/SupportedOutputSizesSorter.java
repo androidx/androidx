@@ -22,6 +22,7 @@ import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_9_16;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio;
 
+import android.graphics.ImageFormat;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
@@ -54,17 +55,35 @@ import java.util.Map;
 class SupportedOutputSizesSorter {
     private static final String TAG = "SupportedOutputSizesCollector";
     private final CameraInfoInternal mCameraInfoInternal;
-    private final Size mActiveArraySize;
+    private final Rational mFullFovRatio;
     private final boolean mIsSensorLandscapeResolution;
     private final SupportedOutputSizesSorterLegacy mSupportedOutputSizesSorterLegacy;
 
-    SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal,
-            @NonNull Size activeArraySize) {
+    SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal) {
         mCameraInfoInternal = cameraInfoInternal;
-        mActiveArraySize = activeArraySize;
-        mIsSensorLandscapeResolution = mActiveArraySize.getWidth() >= mActiveArraySize.getHeight();
+        mFullFovRatio = calculateFullFovRatio(mCameraInfoInternal);
+        // Determines the sensor resolution orientation info by the full FOV ratio.
+        mIsSensorLandscapeResolution = mFullFovRatio != null ? mFullFovRatio.getNumerator()
+                >= mFullFovRatio.getDenominator() : true;
         mSupportedOutputSizesSorterLegacy =
-                new SupportedOutputSizesSorterLegacy(cameraInfoInternal, activeArraySize);
+                new SupportedOutputSizesSorterLegacy(cameraInfoInternal, mFullFovRatio);
+    }
+
+    /**
+     * Calculates the full FOV ratio by the output sizes retrieved from CameraInfoInternal.
+     *
+     * <p>For most devices, the full FOV ratio should match the aspect ratio of the max supported
+     * output sizes. The active pixel array info is not used because it may cause robolectric
+     * test to fail if it is not set in the test environment.
+     */
+    @Nullable
+    private Rational calculateFullFovRatio(@NonNull CameraInfoInternal cameraInfoInternal) {
+        List<Size> jpegOutputSizes = cameraInfoInternal.getSupportedResolutions(ImageFormat.JPEG);
+        if (jpegOutputSizes.isEmpty()) {
+            return null;
+        }
+        Size maxSize = Collections.max(jpegOutputSizes, new CompareSizesByArea());
+        return new Rational(maxSize.getWidth(), maxSize.getHeight());
     }
 
     @NonNull
@@ -285,11 +304,9 @@ class SupportedOutputSizesSorter {
 
         // Sort the aspect ratio key set by the target aspect ratio.
         List<Rational> aspectRatios = new ArrayList<>(aspectRatioSizeListMap.keySet());
-        Rational fullFovRatio = mActiveArraySize != null ? new Rational(
-                mActiveArraySize.getWidth(), mActiveArraySize.getHeight()) : null;
         Collections.sort(aspectRatios,
                 new AspectRatioUtil.CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
-                        aspectRatio, fullFovRatio));
+                        aspectRatio, mFullFovRatio));
 
         List<Size> resultList = new ArrayList<>();
 
