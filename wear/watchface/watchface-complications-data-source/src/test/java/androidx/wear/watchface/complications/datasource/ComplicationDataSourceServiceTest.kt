@@ -15,7 +15,6 @@
  */
 package androidx.wear.watchface.complications.datasource
 
-import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.content.Intent
 import android.content.res.Resources
 import android.os.Build
@@ -23,10 +22,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.RemoteException
+import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
 import android.util.Log
-import androidx.wear.protolayout.expression.DynamicBuilders
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -178,10 +177,12 @@ class ComplicationDataSourceServiceTest {
 
     @Test
     fun testOnComplicationRequest_isForSafeWatchFace() {
-        mService.responseData = LongTextComplicationData.Builder(
-            PlainComplicationText.Builder("hello").build(),
-            ComplicationText.EMPTY
-        ).build()
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
         val id = 123
 
         @Suppress("NewApi") // onUpdate2
@@ -199,16 +200,17 @@ class ComplicationDataSourceServiceTest {
 
         runUiThreadTasksWhileAwaitingDataLatch(1000)
         @Suppress("NewApi") // isForSafeWatchFace
-        assertThat(mService.lastRequest!!.isForSafeWatchFace)
-            .isEqualTo(TargetWatchFaceSafety.SAFE)
+        assertThat(mService.lastRequest!!.isForSafeWatchFace).isEqualTo(TargetWatchFaceSafety.SAFE)
     }
 
     @Test
     fun testOnComplicationRequest_isForSafeWatchFace_malformedBundle() {
-        mService.responseData = LongTextComplicationData.Builder(
-            PlainComplicationText.Builder("hello").build(),
-            ComplicationText.EMPTY
-        ).build()
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
         val id = 123
 
         @Suppress("NewApi") // onUpdate2
@@ -232,8 +234,7 @@ class ComplicationDataSourceServiceTest {
         mService.responseData =
             LongTextComplicationData.Builder(
                     ComplicationTextExpression(
-                        DynamicBuilders.DynamicString.constant("hello")
-                            .concat(DynamicBuilders.DynamicString.constant(" world"))
+                        DynamicString.constant("hello").concat(DynamicString.constant(" world"))
                     ),
                     ComplicationText.EMPTY
                 )
@@ -251,8 +252,8 @@ class ComplicationDataSourceServiceTest {
                 eq(
                     LongTextComplicationData.Builder(
                             ComplicationTextExpression(
-                                DynamicBuilders.DynamicString.constant("hello")
-                                    .concat(DynamicBuilders.DynamicString.constant(" world"))
+                                DynamicString.constant("hello")
+                                    .concat(DynamicString.constant(" world"))
                             ),
                             ComplicationText.EMPTY
                         )
@@ -269,8 +270,7 @@ class ComplicationDataSourceServiceTest {
         mService.responseData =
             LongTextComplicationData.Builder(
                     ComplicationTextExpression(
-                        DynamicBuilders.DynamicString.constant("hello")
-                            .concat(DynamicBuilders.DynamicString.constant(" world"))
+                        DynamicString.constant("hello").concat(DynamicString.constant(" world"))
                     ),
                     ComplicationText.EMPTY
                 )
@@ -287,7 +287,10 @@ class ComplicationDataSourceServiceTest {
             .updateComplicationData(
                 eq(123),
                 argThat { data ->
-                    data.longText!!.getTextAt(Resources.getSystem(), 0) == "hello world"
+                    data.longText ==
+                        PlainComplicationText.Builder("hello world")
+                            .build()
+                            .toWireComplicationText()
                 }
             )
     }
@@ -516,10 +519,12 @@ class ComplicationDataSourceServiceTest {
     @Suppress("NewApi") // onSynchronousComplicationRequest2
     fun testImmediateRequest_isForSafeWatchFace() {
         val id = 123
-        mService.responseData = LongTextComplicationData.Builder(
-            PlainComplicationText.Builder("hello").build(),
-            ComplicationText.EMPTY
-        ).build()
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
         val thread = HandlerThread("testThread")
         try {
             thread.start()
@@ -561,10 +566,12 @@ class ComplicationDataSourceServiceTest {
     @Suppress("NewApi") // onSynchronousComplicationRequest2
     fun testImmediateRequest_isForSafeWatchFace_malformedBundle() {
         val id = 123
-        mService.responseData = LongTextComplicationData.Builder(
-            PlainComplicationText.Builder("hello").build(),
-            ComplicationText.EMPTY
-        ).build()
+        mService.responseData =
+            LongTextComplicationData.Builder(
+                    PlainComplicationText.Builder("hello").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
         val thread = HandlerThread("testThread")
         try {
             thread.start()

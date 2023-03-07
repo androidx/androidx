@@ -48,13 +48,13 @@ import kotlinx.coroutines.flow.update
  * [androidx.wear.protolayout.expression.DynamicBuilders.DynamicType] within its fields.
  *
  * Due to [WireComplicationData]'s shallow copy strategy the input is modified in-place.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationDataExpressionEvaluator(
     val unevaluatedData: WireComplicationData,
     private val stateStore: ObservableStateStore = ObservableStateStore(emptyMap()),
     private val sensorGateway: SensorGateway? = null,
+    private val keepExpression: Boolean = false,
 ) : AutoCloseable {
     /**
      * Java compatibility class for [ComplicationDataExpressionEvaluator].
@@ -62,15 +62,37 @@ class ComplicationDataExpressionEvaluator(
      * Unlike [data], [listener] is not invoked until there is a value (until [data] is non-null).
      */
     class Compat
-    @JvmOverloads
-    constructor(
+    internal constructor(
         val unevaluatedData: WireComplicationData,
         private val listener: Consumer<WireComplicationData>,
-        stateStore: ObservableStateStore = ObservableStateStore(emptyMap()),
-        sensorGateway: SensorGateway? = null,
+        stateStore: ObservableStateStore,
+        sensorGateway: SensorGateway?,
+        keepExpression: Boolean,
     ) : AutoCloseable {
         private val evaluator =
-            ComplicationDataExpressionEvaluator(unevaluatedData, stateStore, sensorGateway)
+            ComplicationDataExpressionEvaluator(
+                unevaluatedData,
+                stateStore,
+                sensorGateway,
+                keepExpression,
+            )
+
+        /** Builder for [ComplicationDataExpressionEvaluator.Compat]. */
+        class Builder(
+            private val unevaluatedData: WireComplicationData,
+            private val listener: Consumer<WireComplicationData>,
+        ) {
+            private var stateStore: ObservableStateStore = ObservableStateStore(emptyMap())
+            private var sensorGateway: SensorGateway? = null
+            private var keepExpression: Boolean = false
+
+            fun setStateStore(value: ObservableStateStore) = apply { stateStore = value }
+            fun setSensorGateway(value: SensorGateway?) = apply { sensorGateway = value }
+            fun setKeepExpression(value: Boolean) = apply { keepExpression = value }
+
+            fun build() =
+                Compat(unevaluatedData, listener, stateStore, sensorGateway, keepExpression)
+        }
 
         /**
          * @see ComplicationDataExpressionEvaluator.init, [executor] is used in place of
@@ -133,7 +155,11 @@ class ComplicationDataExpressionEvaluator(
 
         if (unevaluatedData.hasRangedValueExpression()) {
             unevaluatedData.rangedValueExpression
-                ?.buildReceiver(coroutineScope) { setRangedValue(it) }
+                ?.buildReceiver(
+                    coroutineScope,
+                    expressionTrimmer = { setRangedValueExpression(null) },
+                    setter = { setRangedValue(it) },
+                )
                 ?.let { receivers += it }
         }
         if (unevaluatedData.hasLongText()) {
@@ -167,10 +193,14 @@ class ComplicationDataExpressionEvaluator(
 
     private fun DynamicFloat.buildReceiver(
         coroutineScope: CoroutineScope,
-        setter: WireComplicationData.Builder.(Float) -> WireComplicationData.Builder
+        expressionTrimmer: WireComplicationData.Builder.() -> WireComplicationData.Builder,
+        setter: WireComplicationData.Builder.(Float) -> WireComplicationData.Builder,
     ) =
         ComplicationEvaluationResultReceiver(
-            setter,
+            setter = {
+                if (!keepExpression) expressionTrimmer(this)
+                setter(this, it)
+            },
             binder = { receiver ->
                 evaluator.bind(
                     this@buildReceiver,
@@ -182,11 +212,19 @@ class ComplicationDataExpressionEvaluator(
 
     private fun WireComplicationText.buildReceiver(
         coroutineScope: CoroutineScope,
-        setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder
+        setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder,
     ) =
         expression?.let { expression ->
             ComplicationEvaluationResultReceiver<String>(
-                setter = { setter(WireComplicationText(it, expression)) },
+                setter = {
+                    setter(
+                        if (keepExpression) {
+                            WireComplicationText(it, expression)
+                        } else {
+                            WireComplicationText(it)
+                        }
+                    )
+                },
                 binder = { receiver ->
                     evaluator.bind(
                         expression,
