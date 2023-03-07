@@ -65,6 +65,6 @@ public interface MotionEventPredictor extends AutoCloseable {
      * @return the new predictor instance
      */
     static @NonNull MotionEventPredictor newInstance(@NonNull View view) {
-        return new KalmanMotionEventPredictor();
+        return new KalmanMotionEventPredictor(view.getContext());
     }
 }
