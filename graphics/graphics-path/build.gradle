@@ -24,9 +24,8 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    androidTestImplementation(project(':appcompat:appcompat'))
 
-    implementation(project(':appcompat:appcompat'))
+    implementation('androidx.appcompat:appcompat:1.6.1')
     implementation('androidx.core:core:1.5.0-beta01')
 
     androidTestImplementation("androidx.annotation:annotation:1.4.0")
