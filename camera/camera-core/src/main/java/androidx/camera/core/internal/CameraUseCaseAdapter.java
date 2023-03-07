@@ -18,7 +18,6 @@ package androidx.camera.core.internal;
 
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
-import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.camera.core.processing.TargetUtils.getNumberOfTargets;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
@@ -551,14 +550,12 @@ public final class CameraUseCaseAdapter implements Camera {
             suggestedStreamSpecs.put(useCase, useCase.getAttachedStreamSpec());
         }
 
-        Rect sensorRect = ((CameraControlInternal) getCameraControl()).getSensorRect();
-        SupportedOutputSizesSorter supportedOutputSizesSorter = new SupportedOutputSizesSorter(
-                (CameraInfoInternal) getCameraInfo(), rectToSize(sensorRect));
-
         // Calculate resolution for new use cases.
         if (!newUseCases.isEmpty()) {
             Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
             Map<UseCaseConfig<?>, List<Size>> configToSupportedSizesMap = new HashMap<>();
+            SupportedOutputSizesSorter supportedOutputSizesSorter = new SupportedOutputSizesSorter(
+                    (CameraInfoInternal) getCameraInfo());
             for (UseCase useCase : newUseCases) {
                 ConfigPair configPair = configPairMap.get(useCase);
                 // Combine with default configuration.

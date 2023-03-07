@@ -54,15 +54,17 @@ class SupportedOutputSizesSorterLegacy {
     private static final String TAG = "SupportedOutputSizesCollector";
     private final int mSensorOrientation;
     private final int mLensFacing;
-    private final Size mActiveArraySize;
+    private final Rational mFullFovRatio;
     private final boolean mIsSensorLandscapeResolution;
 
     SupportedOutputSizesSorterLegacy(@NonNull CameraInfoInternal cameraInfoInternal,
-            @NonNull Size activeArraySize) {
+            @Nullable Rational fullFovRatio) {
         mSensorOrientation = cameraInfoInternal.getSensorRotationDegrees();
         mLensFacing = cameraInfoInternal.getLensFacing();
-        mActiveArraySize = activeArraySize;
-        mIsSensorLandscapeResolution = mActiveArraySize.getWidth() >= mActiveArraySize.getHeight();
+        mFullFovRatio = fullFovRatio;
+        // Determines the sensor resolution orientation info by the full FOV ratio.
+        mIsSensorLandscapeResolution = mFullFovRatio != null ? mFullFovRatio.getNumerator()
+                >= mFullFovRatio.getDenominator() : true;
     }
 
     /**
@@ -161,11 +163,9 @@ class SupportedOutputSizesSorterLegacy {
 
             // Sort the aspect ratio key set by the target aspect ratio.
             List<Rational> aspectRatios = new ArrayList<>(aspectRatioSizeListMap.keySet());
-            Rational fullFovRatio = mActiveArraySize != null ? new Rational(
-                    mActiveArraySize.getWidth(), mActiveArraySize.getHeight()) : null;
             Collections.sort(aspectRatios,
                     new AspectRatioUtil.CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
-                            aspectRatio, fullFovRatio));
+                            aspectRatio, mFullFovRatio));
 
             // Put available sizes into final result list by aspect ratio distance to target ratio.
             for (Rational rational : aspectRatios) {
