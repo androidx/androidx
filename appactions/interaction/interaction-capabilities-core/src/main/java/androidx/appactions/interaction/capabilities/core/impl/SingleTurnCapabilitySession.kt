@@ -88,7 +88,7 @@ internal class SingleTurnCapabilitySession<
     }
 
     /** Converts typed {@link ExecutionResult} to {@link FulfillmentResponse} proto. */
-    private fun convertToFulfillmentResponse(
+    internal fun convertToFulfillmentResponse(
         executionResult: ExecutionResult<OutputT>,
     ): FulfillmentResponse {
         val fulfillmentResponseBuilder =

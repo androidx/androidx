@@ -646,7 +646,7 @@ public final class TypeConverters {
         return builder.setStructValue(Struct.newBuilder().putAllFields(fieldsMap).build()).build();
     }
 
-    private static String getStructType(Struct struct) throws StructConversionException {
+    static String getStructType(Struct struct) throws StructConversionException {
         Map<String, Value> fieldsMap = struct.getFieldsMap();
         if (!fieldsMap.containsKey(FIELD_NAME_TYPE)
                 || fieldsMap.get(FIELD_NAME_TYPE).getStringValue().isEmpty()) {
