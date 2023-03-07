@@ -7483,6 +7483,11 @@ public class ExifInterface {
 
         switch (mMimeType) {
             case IMAGE_TYPE_JPEG:
+                if (totalSize > 0xFFFF) {
+                    throw new IllegalStateException(
+                            "Size of exif data (" + totalSize + " bytes) exceeds the max size of a "
+                            + "JPEG APP1 segment (65536 bytes)");
+                }
                 // Write JPEG specific data (APP1 size, APP1 identifier)
                 dataOutputStream.writeUnsignedShort(totalSize);
                 dataOutputStream.write(IDENTIFIER_EXIF_APP1);
@@ -8015,10 +8020,18 @@ public class ExifInterface {
         }
 
         public void writeUnsignedShort(int val) throws IOException {
+            if (val > 0xFFFF) {
+                throw new IllegalArgumentException("val is larger than the maximum value of a "
+                        + "16-bit unsigned integer");
+            }
             writeShort((short) val);
         }
 
         public void writeUnsignedInt(long val) throws IOException {
+            if (val > 0xFFFF_FFFFL) {
+                throw new IllegalArgumentException("val is larger than the maximum value of a "
+                        + "32-bit unsigned integer");
+            }
             writeInt((int) val);
         }
     }
