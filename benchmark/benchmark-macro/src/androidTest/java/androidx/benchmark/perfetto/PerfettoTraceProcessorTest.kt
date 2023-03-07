@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.perfetto
+package androidx.benchmark.perfetto
 
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.createTempFileFromAsset
@@ -36,7 +36,6 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class PerfettoTraceProcessorTest {
-
     @Test
     fun shellPath() {
         assumeTrue(isAbiSupported())
@@ -52,7 +51,7 @@ class PerfettoTraceProcessorTest {
     fun getJsonMetrics_tracePathWithSpaces() {
         assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
-            PerfettoTraceProcessor.runServer("/a b") { }
+            PerfettoTraceProcessor.runSingleSessionServer("/a b") { }
         }
     }
 
@@ -60,7 +59,7 @@ class PerfettoTraceProcessorTest {
     fun getJsonMetrics_metricWithSpaces() {
         assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
-            PerfettoTraceProcessor.runServer(
+            PerfettoTraceProcessor.runSingleSessionServer(
                 createTempFileFromAsset(
                     "api31_startup_cold",
                     ".perfetto-trace"
@@ -79,7 +78,7 @@ class PerfettoTraceProcessorTest {
         }
 
         assertFailsWith<IllegalStateException> {
-            PerfettoTraceProcessor.runServer(
+            PerfettoTraceProcessor.runSingleSessionServer(
                 createTempFileFromAsset(
                     "api31_startup_cold",
                     ".perfetto-trace"
@@ -95,8 +94,7 @@ class PerfettoTraceProcessorTest {
         // check known slice content is queryable
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
-        PerfettoTraceProcessor.runServer(traceFile.absolutePath) {
-
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             assertEquals(
                 expected = listOf(
                     Slice(
@@ -127,7 +125,90 @@ class PerfettoTraceProcessorTest {
     }
 
     @Test
-    fun validateTraceProcessorBinariesExist() {
+    fun query() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            // raw list of maps
+            assertEquals(
+                expected = listOf(
+                    rowOf(
+                        "name" to "activityStart",
+                        "ts" to 186975009436431L,
+                        "dur" to 29580628L)
+                ),
+                actual = query(
+                    "SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\""
+                ).toList(),
+            )
+            query("""
+                    |SELECT
+                    |    slice.name,slice.ts,slice.dur
+                    |FROM slice
+                    |    INNER JOIN thread_track on slice.track_id = thread_track.id
+                    |    INNER JOIN thread USING(utid)
+                    |    INNER JOIN process USING(upid)
+                    |WHERE
+                    |    slice.name LIKE \"activityStart\"
+                """.trimMargin()
+            ).forEach { println(it) }
+
+            // list of lists
+            assertEquals(
+                expected = listOf(
+                    listOf("activityStart", 186975009436431L, 29580628L)
+                ),
+                actual = query(
+                    "SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\""
+                ).map {
+                    listOf(it.string("name"), it.long("ts"), it.long("dur"))
+                }.toList(),
+            )
+
+            // multiple result query
+            assertEquals(
+                expected = listOf(
+                    listOf("activityStart", 186975009436431L, 29580628L),
+                    listOf("activityResume", 186975039764298L, 6570418L)
+                ),
+                actual = query(
+                    "SELECT name,ts,dur FROM slice WHERE" +
+                        " name LIKE \"activityStart\" OR" +
+                        " name LIKE \"activityResume\""
+                ).map {
+                    listOf(it.string("name"), it.long("ts"), it.long("dur"))
+                }.toList(),
+            )
+        }
+    }
+
+    /**
+     * Validate parsing of bytes is possible
+     */
+    @Test
+    fun queryBytes() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            val bytes = queryBytes(
+                "SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\""
+            )
+            assertEquals(
+                expected = listOf(
+                    rowOf(
+                        "name" to "activityStart",
+                        "ts" to 186975009436431L,
+                        "dur" to 29580628L)
+                ),
+                actual = QueryResultIterator(perfetto.protos.QueryResult.ADAPTER.decode(bytes))
+                    .asSequence()
+                    .toList(),
+            )
+        }
+    }
+
+    @Test
+    fun validatePerfettoTraceProcessorBinariesExist() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val suffixes = listOf("aarch64")
         val entries = suffixes.map { "trace_processor_shell_$it" }.toSet()
@@ -157,7 +238,6 @@ class PerfettoTraceProcessorTest {
         assertTrue(!isRunning())
 
         PerfettoTraceProcessor.runServer {
-
             // Check server is running
             assertTrue(isRunning())
         }

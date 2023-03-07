@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.perfetto.server
+package androidx.benchmark.perfetto
 
-import androidx.annotation.RestrictTo
-import okio.ByteString
 import perfetto.protos.QueryResult
 
 /**
- * Wrapper class around [QueryResult] returned after executing a query on perfetto. The parsing
- * logic is copied from the python project:
- * https://github.com/google/perfetto/blob/master/python/perfetto/trace_processor/api.py#L89
+ * Iterator for results from a [PerfettoTraceProcessor] query.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // for internal benchmarking only
-class QueryResultIterator internal constructor(queryResult: QueryResult) :
-    Iterator<Map<String, Any?>> {
-
+internal class QueryResultIterator internal constructor(queryResult: QueryResult) : Iterator<Row> {
     private val dataLists = object {
         val stringBatches = mutableListOf<String>()
         val varIntBatches = mutableListOf<Long>()
         val float64Batches = mutableListOf<Double>()
-        val blobBatches = mutableListOf<ByteString>()
+        val blobBatches = mutableListOf<ByteArray>()
 
         var stringIndex = 0
         var varIntIndex = 0
@@ -49,14 +42,13 @@ class QueryResultIterator internal constructor(queryResult: QueryResult) :
     private var currentIndex = 0
 
     init {
-
         // Parsing every batch
         for (batch in queryResult.batch) {
             val stringsBatch = batch.string_cells!!.split(0x00.toChar()).dropLast(1)
             dataLists.stringBatches.addAll(stringsBatch)
             dataLists.varIntBatches.addAll(batch.varint_cells)
             dataLists.float64Batches.addAll(batch.float64_cells)
-            dataLists.blobBatches.addAll(batch.blob_cells)
+            dataLists.blobBatches.addAll(batch.blob_cells.map { it.toByteArray() })
             cells.addAll(batch.cells)
         }
 
@@ -78,6 +70,9 @@ class QueryResultIterator internal constructor(queryResult: QueryResult) :
         return count == 0
     }
 
+    /**
+     * Returns true if there are more rows not yet parsed from the query result.
+     */
     override fun hasNext(): Boolean {
         return currentIndex < count
     }
@@ -88,7 +83,10 @@ class QueryResultIterator internal constructor(queryResult: QueryResult) :
      * @throws IllegalArgumentException if the query returns an invalid cell type
      * @throws NoSuchElementException if the query has no next row.
      */
-    override fun next(): Map<String, Any?> {
+    override fun next(): Row {
+        // Parsing logic is copied from the python project:
+        // https://github.com/google/perfetto/blob/master/python/perfetto/trace_processor/api.py#L89
+
         if (!hasNext()) throw NoSuchElementException()
 
         val row = mutableMapOf<String, Any?>()
@@ -126,14 +124,6 @@ class QueryResultIterator internal constructor(queryResult: QueryResult) :
         }
 
         currentIndex += 1
-        return row
-    }
-
-    /**
-     * Converts this iterator to a list of [T] using the given mapping function.
-     * Note that this method is provided for convenience and exhausts the iterator.
-     */
-    fun <T> toList(mapFunc: (Map<String, Any?>) -> (T)): List<T> {
-        return this.asSequence().map(mapFunc).toList()
+        return Row(row)
     }
 }
