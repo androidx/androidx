@@ -44,7 +44,7 @@ fun interface ActionExecutorAsync<ArgumentT, OutputT> {
                 override fun execute(
                     argument: ArgumentT,
                 ): ListenableFuture<ExecutionResult<OutputT>> =
-                    ListenableFutureHelper.convertToListenableFuture {
+                    ListenableFutureHelper.convertToListenableFuture("ActionExecutor#execute") {
                         this@toActionExecutorAsync.execute(argument)
                     }
             }
