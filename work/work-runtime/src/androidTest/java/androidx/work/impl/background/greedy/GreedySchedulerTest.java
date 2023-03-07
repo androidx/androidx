@@ -85,6 +85,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     public void testGreedyScheduler_startsUnconstrainedWork() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec = work.getWorkSpec();
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         mGreedyScheduler.schedule(workSpec);
         ArgumentCaptor<StartStopToken> captor = ArgumentCaptor.forClass(StartStopToken.class);
         verify(mWorkLauncher).startWork(captor.capture());
@@ -110,6 +111,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @SmallTest
     public void testGreedyScheduler_startsDelayedWork() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setInitialDelay(1000L, TimeUnit.MILLISECONDS)
                 .build();
         mGreedyScheduler.schedule(work.getWorkSpec());
@@ -170,6 +172,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
                 .setConstraints(new Constraints.Builder().setRequiresCharging(true).build())
                 .build();
         final WorkSpec workSpec = work.getWorkSpec();
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         Set<WorkSpec> expected = new HashSet<WorkSpec>();
         expected.add(workSpec);
 
