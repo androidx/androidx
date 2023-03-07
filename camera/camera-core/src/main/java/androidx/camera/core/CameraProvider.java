@@ -70,7 +70,6 @@ public interface CameraProvider {
      *
      * @return list of combinations of {@link CameraInfo}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -81,7 +80,6 @@ public interface CameraProvider {
      *
      * @return true if concurrent mode is enabled, otherwise false.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     boolean isConcurrentCameraModeOn();

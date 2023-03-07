@@ -38,7 +38,6 @@ import java.util.List;
  * All camera devices intended to be operated concurrently, must be opened before configuring
  * sessions on any of the camera devices.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21)

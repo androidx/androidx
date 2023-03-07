@@ -2729,7 +2729,6 @@ public final class ImageCapture extends UseCase {
         /**
          * setMirrorMode is not supported on ImageCapture.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

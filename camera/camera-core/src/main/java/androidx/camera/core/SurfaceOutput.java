@@ -68,7 +68,6 @@ public interface SurfaceOutput {
     /**
      * This field indicates the format of the {@link Surface}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @CameraEffect.Formats

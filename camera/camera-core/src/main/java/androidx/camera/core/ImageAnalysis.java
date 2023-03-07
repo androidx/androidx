@@ -1241,7 +1241,6 @@ public final class ImageAnalysis extends UseCase {
         /**
          * setMirrorMode is not supported on ImageAnalysis.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
