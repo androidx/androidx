@@ -389,6 +389,7 @@ class CameraControlAdapterDeviceTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/266740827
     @Test
     fun setZoomRatio_operationCanceledExceptionIfNoUseCase() {
         assertFutureFailedWithOperationCancellation(cameraControl.setZoomRatio(1.5f))
