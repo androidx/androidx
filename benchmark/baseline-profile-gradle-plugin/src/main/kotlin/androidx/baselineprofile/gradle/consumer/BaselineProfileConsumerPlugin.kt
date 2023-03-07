@@ -180,8 +180,15 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
 
                     if (variant.buildType !in nonDebuggableBuildTypes) return@onVariants
 
+                    // For test only: this registers a print task with the configuration of the
+                    // variant.
+                    baselineProfileExtension
+                        .registerPrintConfigurationTaskForVariant(project, variant)
+
                     // Sets the r8 rewrite baseline profile for the non debuggable variant.
-                    if (baselineProfileExtension.enableR8BaselineProfileRewrite &&
+                    val enableR8Rewrite = baselineProfileExtension
+                        .getValueForVariant(variant) { enableR8BaselineProfileRewrite }
+                    if (enableR8Rewrite &&
                         project.agpVersion() >= AndroidPluginVersion(8, 0, 0).beta(2)
                     ) {
                         // TODO: Note that currently there needs to be at least a baseline profile,
@@ -191,7 +198,7 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                         @Suppress("UnstableApiUsage")
                         variant.experimentalProperties.put(
                             PROPERTY_R8_REWRITE_BASELINE_PROFILE_RULES,
-                            baselineProfileExtension.enableR8BaselineProfileRewrite
+                            enableR8Rewrite
                         )
                     }
 
@@ -215,7 +222,8 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                     // artifact per task, specific for that variant.
                     // When mergeIntoMain is not specified, it's by default true for libraries and false
                     // for apps.
-                    val mergeIntoMain = baselineProfileExtension.mergeIntoMain ?: !isApplication
+                    val mergeIntoMain = baselineProfileExtension
+                        .getValueForVariant(variant, default = !isApplication) { mergeIntoMain }
 
                     // TODO: When `mergeIntoMain` is true it lazily triggers the generation of all
                     //  the variants for all the build types. Due to b/265438201, that fails when
@@ -263,27 +271,28 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                             // is always stored in the intermediates
                             task.baselineProfileDir.set(mergedTaskOutputDir)
 
-                            // Sets the package filter rules. If this is the first task
+                            // Sets the package filter rules. Note that variant rules are merged
+                            // with global rules here.
                             task.filterRules.addAll(
-                                baselineProfileExtension.filterRules
-                                    .filter {
-                                        it.key in listOfNotNull(
-                                            "main",
-                                            variant.flavorName,
-                                            variant.buildType,
-                                            variant.name
-                                        )
-                                    }
-                                    .flatMap { it.value.rules }
+                                listOfNotNull(
+                                    "main",
+                                    variant.flavorName,
+                                    variant.buildType,
+                                    variant.name
+                                ).mapNotNull {
+                                    baselineProfileExtension.variants.findByName(it)?.filters
+                                }.flatMap { it.rules }
                             )
                         }
 
                     // If `saveInSrc` is true, we create an additional task to copy the output
                     // of the merge task in the src folder.
-                    val lastTaskProvider = if (baselineProfileExtension.saveInSrc) {
+                    val saveInSrc = baselineProfileExtension
+                        .getValueForVariant(variant) { saveInSrc }
+                    val lastTaskProvider = if (saveInSrc) {
 
-                        val baselineProfileOutputDir =
-                            baselineProfileExtension.baselineProfileOutputDir
+                        val baselineProfileOutputDir = baselineProfileExtension
+                            .getValueForVariant(variant) { baselineProfileOutputDir }
                         val srcOutputDir = project
                             .layout
                             .projectDirectory
@@ -336,9 +345,11 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                                     .configure {
                                         // Sets the task dependency according to the configuration
                                         // flag.
-                                        if (baselineProfileExtension
-                                                .automaticGenerationDuringBuild
-                                        ) {
+                                        val automaticGeneration = baselineProfileExtension
+                                            .getValueForVariant(variant) {
+                                                automaticGenerationDuringBuild
+                                            }
+                                        if (automaticGeneration) {
                                             it.dependsOn(copyTaskProvider)
                                         } else {
                                             it.mustRunAfter(copyTaskProvider)
@@ -351,8 +362,9 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                         copyTaskProvider
                     } else {
 
-                        if (baselineProfileExtension.automaticGenerationDuringBuild) {
-
+                        val automaticGeneration = baselineProfileExtension
+                            .getValueForVariant(variant) { automaticGenerationDuringBuild }
+                        if (automaticGeneration) {
                             // If the flag `automaticGenerationDuringBuild` is true, we can set the
                             // merge task to provide generated sources for the variant, using the
                             // src set variant api. This means that we don't need to manually depend
@@ -545,6 +557,106 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                     }
                 }
             }
+    }
+
+    private fun <T> BaselineProfileConsumerExtension.getValueForVariant(
+        variant: Variant,
+        default: T? = null,
+        getter: BaselineProfileVariantConfigurationImpl.() -> (T?)
+    ): T {
+
+        // Here we select a setting for the given variant. [BaselineProfileVariantConfiguration]
+        // are evaluated in the following order: variant, flavor, build type, `main`.
+        // If a property is found it will return it. Note that `main` should have all the defaults
+        // set so this method never returns a nullable value and should always return.
+
+        val definedProperties = listOfNotNull(
+            variant.name,
+            variant.flavorName,
+            variant.buildType,
+            "main"
+        ).mapNotNull {
+            val variantConfig = variants.findByName(it) ?: return@mapNotNull null
+            return@mapNotNull Pair(it, getter.invoke(variantConfig))
+        }.filter { it.second != null }
+
+        // This is a case where the property is defined in both build type and flavor.
+        // In this case it should fail because the result is ambiguous.
+        val propMap = definedProperties.toMap()
+        if (variant.flavorName in propMap &&
+            variant.buildType in propMap &&
+            propMap[variant.flavorName] != propMap[variant.buildType]
+        ) {
+            throw GradleException(
+                """
+            The per-variant configuration for baseline profiles is ambiguous. This happens when
+            that the same property has been defined in both a build type and a flavor.
+
+            For example:
+
+            baselineProfiles {
+                variants {
+                    free {
+                        saveInSrc = true
+                    }
+                    release {
+                        saveInSrc = false
+                    }
+                }
+            }
+
+            In this case for `freeRelease` it's not possible to determine the exact value of the
+            property. Please specify either the build type or the flavor.
+            """.trimIndent()
+            )
+        }
+
+        val value = definedProperties.firstOrNull()?.second
+        if (value != null) {
+            return value
+        }
+        if (default != null) {
+            return default
+        }
+
+        // This should never happen. It means the extension is missing a default property and no
+        // default was specified when accessing this value. This cannot happen because of the user
+        // configuration.
+        throw GradleException("The required property does not have a default.")
+    }
+
+    fun BaselineProfileConsumerExtension.registerPrintConfigurationTaskForVariant(
+        project: Project,
+        variant: Variant
+    ) {
+        project
+            .tasks
+            .maybeRegister<PrintConfigurationForVariant>(
+                "printBaselineProfileExtensionForVariant",
+                variant.name
+            ) {
+                it.text.set(
+                    """
+            mergeIntoMain=`${getValueForVariant(variant, default = "null") { mergeIntoMain }}`
+            baselineProfileOutputDir=`${getValueForVariant(variant) { baselineProfileOutputDir }}`
+            enableR8BaselineProfileRewrite=`${getValueForVariant(variant) { enableR8BaselineProfileRewrite }}`
+            saveInSrc=`${getValueForVariant(variant) { saveInSrc }}`
+            automaticGenerationDuringBuild=`${getValueForVariant(variant) { automaticGenerationDuringBuild }}`
+                """.trimIndent()
+                )
+            }
+    }
+}
+
+@DisableCachingByDefault(because = "Not worth caching. Used only for tests.")
+abstract class PrintConfigurationForVariant : DefaultTask() {
+
+    @get: Input
+    abstract val text: Property<String>
+
+    @TaskAction
+    fun exec() {
+        logger.warn(text.get())
     }
 }
 

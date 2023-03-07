@@ -56,11 +56,17 @@ baselineProfile {
     filter {
         include "androidx.benchmark.integration.baselineprofile.flavors.consumer.*"
     }
-    filter("free") {
-        include "androidx.benchmark.integration.baselineprofile.flavors.consumer.free.*"
-    }
-    filter("paid") {
-        include "androidx.benchmark.integration.baselineprofile.flavors.consumer.paid.*"
+    variants {
+        free {
+            filter {
+                include "androidx.benchmark.integration.baselineprofile.flavors.consumer.free.*"
+            }
+        }
+        paid {
+            filter {
+                include "androidx.benchmark.integration.baselineprofile.flavors.consumer.paid.*"
+            }
+        }
     }
 
     // Note that these are the default settings, just reported here to make it explicit.

@@ -531,6 +531,157 @@ class BaselineProfileConsumerPluginTest {
         }
     }
 
+    @Test
+    fun testVariantConfigurationOverrideForFlavors() {
+        setupProducerProjectWithFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
+        )
+        setupConsumerProject(
+            androidPlugin = "com.android.library",
+            flavors = true,
+            baselineProfileBlock = """
+
+                // Global configuration
+                enableR8BaselineProfileRewrite = false
+                saveInSrc = true
+                automaticGenerationDuringBuild = false
+                baselineProfileOutputDir = "generated/baselineProfiles"
+                mergeIntoMain = true
+
+                // Per variant configuration overrides global configuration.
+                variants {
+                    free {
+                        enableR8BaselineProfileRewrite = true
+                        saveInSrc = false
+                        automaticGenerationDuringBuild = true
+                        baselineProfileOutputDir = "somefolder"
+                        mergeIntoMain = false
+                    }
+                    paidRelease {
+                        enableR8BaselineProfileRewrite = true
+                        saveInSrc = false
+                        automaticGenerationDuringBuild = true
+                        baselineProfileOutputDir = "someOtherfolder"
+                        mergeIntoMain = false
+                    }
+                }
+
+            """.trimIndent()
+        )
+
+        gradleRunner.buildAndAssertThatOutput(
+            "printBaselineProfileExtensionForVariantFreeRelease"
+        ) {
+            contains("enableR8BaselineProfileRewrite=`true`")
+            contains("saveInSrc=`false`")
+            contains("automaticGenerationDuringBuild=`true`")
+            contains("baselineProfileOutputDir=`somefolder`")
+            contains("mergeIntoMain=`false`")
+        }
+
+        gradleRunner.buildAndAssertThatOutput(
+            "printBaselineProfileExtensionForVariantPaidRelease"
+        ) {
+            contains("enableR8BaselineProfileRewrite=`true`")
+            contains("saveInSrc=`false`")
+            contains("automaticGenerationDuringBuild=`true`")
+            contains("baselineProfileOutputDir=`someOtherfolder`")
+            contains("mergeIntoMain=`false`")
+        }
+    }
+
+    @Test
+    fun testVariantConfigurationOverrideForBuildTypes() {
+        setupProducerProjectWithFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
+        )
+        setupConsumerProject(
+            androidPlugin = "com.android.library",
+            flavors = true,
+            baselineProfileBlock = """
+
+                // Global configuration
+                enableR8BaselineProfileRewrite = false
+                saveInSrc = true
+                automaticGenerationDuringBuild = false
+                baselineProfileOutputDir = "generated/baselineProfiles"
+                mergeIntoMain = true
+
+                // Per variant configuration overrides global configuration.
+                variants {
+                    release {
+                        enableR8BaselineProfileRewrite = true
+                        saveInSrc = false
+                        automaticGenerationDuringBuild = true
+                        baselineProfileOutputDir = "myReleaseFolder"
+                        mergeIntoMain = false
+                    }
+                    paidRelease {
+                        enableR8BaselineProfileRewrite = true
+                        saveInSrc = false
+                        automaticGenerationDuringBuild = true
+                        baselineProfileOutputDir = "someOtherfolder"
+                        mergeIntoMain = false
+                    }
+                }
+
+            """.trimIndent()
+        )
+
+        gradleRunner.buildAndAssertThatOutput(
+            "printBaselineProfileExtensionForVariantFreeRelease"
+        ) {
+            contains("enableR8BaselineProfileRewrite=`true`")
+            contains("saveInSrc=`false`")
+            contains("automaticGenerationDuringBuild=`true`")
+            contains("baselineProfileOutputDir=`myReleaseFolder`")
+            contains("mergeIntoMain=`false`")
+        }
+
+        gradleRunner.buildAndAssertThatOutput(
+            "printBaselineProfileExtensionForVariantPaidRelease"
+        ) {
+            contains("enableR8BaselineProfileRewrite=`true`")
+            contains("saveInSrc=`false`")
+            contains("automaticGenerationDuringBuild=`true`")
+            contains("baselineProfileOutputDir=`someOtherfolder`")
+            contains("mergeIntoMain=`false`")
+        }
+    }
+
+    @Test
+    fun testVariantConfigurationOverrideForFlavorsAndBuildType() {
+        setupProducerProjectWithFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
+        )
+        setupConsumerProject(
+            androidPlugin = "com.android.library",
+            flavors = true,
+            baselineProfileBlock = """
+                variants {
+                    free {
+                        saveInSrc = true
+                    }
+                    release {
+                        saveInSrc = false
+                    }
+                }
+
+            """.trimIndent()
+        )
+        gradleRunner
+            .withArguments("printBaselineProfileExtensionForVariantFreeRelease", "--stacktrace")
+            .buildAndFail()
+            .output
+            .let {
+                assertThat(it)
+                    .contains("The per-variant configuration for baseline profiles is ambiguous")
+            }
+    }
+
     private fun setupConsumerProject(
         androidPlugin: String,
         flavors: Boolean = false,
