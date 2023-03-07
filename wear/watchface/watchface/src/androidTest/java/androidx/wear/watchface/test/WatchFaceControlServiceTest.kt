@@ -29,6 +29,7 @@ import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.watchface.CanvasType
@@ -121,6 +122,7 @@ val DEVICE_CONFIG =
         /* digitalPreviewReferenceTimeMillis = */ 0
     )
 
+@SdkSuppress(maxSdkVersion = 32) // b/271922712
 @RunWith(AndroidJUnit4::class)
 @RequiresApi(Build.VERSION_CODES.O_MR1)
 @MediumTest
