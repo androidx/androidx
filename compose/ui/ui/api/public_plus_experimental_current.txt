@@ -3359,7 +3359,7 @@ package androidx.compose.ui.state {
 package androidx.compose.ui.text {
 
   public final class TextMeasurerHelperKt {
-    method @androidx.compose.runtime.Composable @androidx.compose.ui.text.ExperimentalTextApi public static androidx.compose.ui.text.TextMeasurer rememberTextMeasurer(optional int cacheSize);
+    method @androidx.compose.runtime.Composable public static androidx.compose.ui.text.TextMeasurer rememberTextMeasurer(optional int cacheSize);
   }
 
 }
