@@ -44,6 +44,9 @@ class CameraQuirks @Inject constructor(private val cameraMetadata: CameraMetadat
         if (CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)) {
             quirks.add(CamcorderProfileResolutionQuirk(cameraMetadata))
         }
+        if (JpegHalCorruptImageQuirk.isEnabled()) {
+            quirks.add(JpegHalCorruptImageQuirk())
+        }
 
         Quirks(quirks)
     }
