@@ -1282,7 +1282,7 @@ internal class ComposerImpl(
 
     internal val hasPendingChanges: Boolean get() = changes.isNotEmpty()
 
-    private var reader: SlotReader = slotTable.openReader().also { it.close() }
+    internal var reader: SlotReader = slotTable.openReader().also { it.close() }
 
     internal var insertTable = SlotTable()
 
@@ -1455,7 +1455,7 @@ internal class ComposerImpl(
         endGroup()
         parentContext.doneComposing()
         endGroup()
-        recordEndRoot()
+        changeListWriter.endRoot()
         finalizeCompose()
         reader.close()
         forciblyRecompose = false
@@ -1635,7 +1635,6 @@ internal class ComposerImpl(
         changeListWriter.moveDown(node)
 
         if (reusing && node is ComposeNodeLifecycleCallback) {
-            recordApplierOperation()
             changeListWriter.useNode(node)
         }
     }
@@ -1714,7 +1713,6 @@ internal class ComposerImpl(
                 (applier.current as T).block(value)
             }
         } else {
-            recordApplierOperation()
             changeListWriter.updateNode(value, block)
         }
     }
@@ -1893,7 +1891,6 @@ internal class ComposerImpl(
             if (value is RememberObserver) {
                 abandonSet.add(value)
             }
-            recordSlotTableOperation(forParent = true)
             changeListWriter.updateValue(value, groupSlotIndex)
         }
     }
@@ -2106,7 +2103,6 @@ internal class ComposerImpl(
             reader.startNode()
         } else {
             if (data != null && reader.groupAux !== data) {
-                recordSlotTableOperation()
                 changeListWriter.updateAuxData(data)
             }
             reader.startGroup()
@@ -2180,11 +2176,10 @@ internal class ComposerImpl(
                 val relativePosition = pending.slotPositionOf(keyInfo)
                 val currentRelativePosition = relativePosition - pending.groupIndex
                 pending.registerMoveSlot(relativePosition, pending.groupIndex)
-                recordReaderMoving(location)
+                changeListWriter.moveReaderRelativeTo(location)
                 reader.reposition(location)
                 if (currentRelativePosition > 0) {
                     // The slot group must be moved, record the move to be performed during apply.
-                    recordSlotEditingOperation()
                     changeListWriter.moveCurrentGroup(currentRelativePosition)
                 }
                 startReaderGroup(isNode, data)
@@ -2296,9 +2291,12 @@ internal class ComposerImpl(
                     // If the key info was not used the group was deleted, remove the nodes in the
                     // group
                     val deleteOffset = pending.nodePositionOf(previousInfo)
-                    recordRemoveNode(deleteOffset + pending.startIndex, previousInfo.nodes)
+                    changeListWriter.removeNode(
+                        nodeIndex = deleteOffset + pending.startIndex,
+                        count = previousInfo.nodes
+                    )
                     pending.updateNodeCount(previousInfo.location, 0)
-                    recordReaderMoving(previousInfo.location)
+                    changeListWriter.moveReaderRelativeTo(previousInfo.location)
                     reader.reposition(previousInfo.location)
                     recordDelete()
                     reader.skipGroup()
@@ -2329,7 +2327,7 @@ internal class ComposerImpl(
                         placedKeys.add(currentInfo)
                         if (nodePosition != nodeOffset) {
                             val updatedCount = pending.updatedNodeCountOf(currentInfo)
-                            recordMoveNode(
+                            changeListWriter.moveNode(
                                 from = nodePosition + pending.startIndex,
                                 to = nodeOffset + pending.startIndex,
                                 count = updatedCount
@@ -2347,12 +2345,12 @@ internal class ComposerImpl(
 
             // If there are any current nodes left they where inserted into the right location
             // when the group began so the rest are ignored.
-            realizeMovement()
+            changeListWriter.endNodeMovement()
 
             // We have now processed the entire list so move the slot table to the end of the list
             // by moving to the last key and skipping it.
             if (previous.size > 0) {
-                recordReaderMoving(reader.groupEnd)
+                changeListWriter.moveReaderRelativeTo(reader.groupEnd)
                 reader.skipToGroupEnd()
             }
         }
@@ -2364,7 +2362,7 @@ internal class ComposerImpl(
             val startSlot = reader.currentGroup
             recordDelete()
             val nodesToRemove = reader.skipGroup()
-            recordRemoveNode(removeIndex, nodesToRemove)
+            changeListWriter.removeNode(removeIndex, nodesToRemove)
             invalidations.removeRange(startSlot, reader.currentGroup)
         }
 
@@ -2390,7 +2388,7 @@ internal class ComposerImpl(
             }
         } else {
             if (isNode) changeListWriter.moveUp()
-            recordEndGroup()
+            changeListWriter.endCurrentGroup()
             val parentGroup = reader.parent
             val parentNodeCount = updatedNodeCount(parentGroup)
             if (expectedNodeCount != parentNodeCount) {
@@ -2400,7 +2398,7 @@ internal class ComposerImpl(
                 expectedNodeCount = 1
             }
             reader.endGroup()
-            realizeMovement()
+            changeListWriter.endNodeMovement()
         }
 
         exitGroup(expectedNodeCount, inserting)
@@ -2779,13 +2777,11 @@ internal class ComposerImpl(
                     when (data) {
                         is RememberObserver -> {
                             reader.reposition(group)
-                            recordSlotTableOperation()
                             changeListWriter.clearSlotValue(index, data)
                         }
                         is RecomposeScopeImpl -> {
                             data.release()
                             reader.reposition(group)
-                            recordSlotTableOperation()
                             changeListWriter.clearSlotValue(index, data)
                         }
                     }
@@ -2985,17 +2981,19 @@ internal class ComposerImpl(
                     }
                     to.slotTable.read { reader ->
                         reader.reposition(location)
-                        writersReaderDelta = location
+                        changeListWriter.moveReaderToAbsolute(location)
                         val offsetChanges = ChangeList()
                         recomposeMovableContent {
                             changeListWriter.withChangeList(offsetChanges) {
                                 withReader(reader) {
-                                    invokeMovableContentLambda(
-                                        to.content,
-                                        to.locals,
-                                        to.parameter,
-                                        force = true
-                                    )
+                                    changeListWriter.withoutImplicitRootStart {
+                                        invokeMovableContentLambda(
+                                            to.content,
+                                            to.locals,
+                                            to.parameter,
+                                            force = true
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -3043,22 +3041,23 @@ internal class ComposerImpl(
                         withReader(reader) {
                             val newLocation = fromTable.anchorIndex(fromAnchor)
                             reader.reposition(newLocation)
-                            writersReaderDelta = newLocation
+                            changeListWriter.moveReaderToAbsolute(newLocation)
                             val offsetChanges = ChangeList()
-
                             changeListWriter.withChangeList(offsetChanges) {
-                                recomposeMovableContent(
-                                    from = from.composition,
-                                    to = to.composition,
-                                    reader.currentGroup,
-                                    invalidations = from.invalidations
-                                ) {
-                                    invokeMovableContentLambda(
-                                        to.content,
-                                        to.locals,
-                                        to.parameter,
-                                        force = true
-                                    )
+                                changeListWriter.withoutImplicitRootStart {
+                                    recomposeMovableContent(
+                                        from = from.composition,
+                                        to = to.composition,
+                                        reader.currentGroup,
+                                        invalidations = from.invalidations
+                                    ) {
+                                        invokeMovableContentLambda(
+                                            to.content,
+                                            to.locals,
+                                            to.parameter,
+                                            force = true
+                                        )
+                                    }
                                 }
                             }
                             changeListWriter.includeOperationsIn(
@@ -3071,7 +3070,7 @@ internal class ComposerImpl(
                 changeListWriter.skipToEndOfCurrentGroup()
             }
             changeListWriter.endMovableContentPlacement()
-            writersReaderDelta = 0
+            changeListWriter.moveReaderToAbsolute(0)
         }
     }
 
@@ -3095,11 +3094,9 @@ internal class ComposerImpl(
         invalidations: List<Pair<RecomposeScopeImpl, IdentityArraySet<Any>?>> = emptyList(),
         block: () -> R
     ): R {
-        val savedImplicitRootStart = this.implicitRootStart
         val savedIsComposing = isComposing
         val savedNodeIndex = nodeIndex
         try {
-            implicitRootStart = false
             isComposing = true
             nodeIndex = 0
             invalidations.fastForEach { (scope, instances) ->
@@ -3113,7 +3110,6 @@ internal class ComposerImpl(
             }
             return from?.delegateInvalidations(to, index ?: -1, block) ?: block()
         } finally {
-            implicitRootStart = savedImplicitRootStart
             isComposing = savedIsComposing
             nodeIndex = savedNodeIndex
         }
@@ -3262,57 +3258,6 @@ internal class ComposerImpl(
     }
 
     /**
-     * Record a change ensuring, when it is applied, that the applier is focused on the current
-     * node.
-     */
-    private fun recordApplierOperation() {
-        changeListWriter.pushPendingUpsAndDowns()
-    }
-
-    /**
-     * Record a change that will insert, remove or move a slot table group. This ensures the slot
-     * table is prepared for the change by ensuring the parent group is started and then ended
-     * as the group is left.
-     */
-    private fun recordSlotEditingOperation() {
-        realizeOperationLocation()
-        recordSlotEditing()
-    }
-
-    /**
-     * Record a change ensuring, when it is applied, the write matches the current slot in the
-     * reader.
-     */
-    private fun recordSlotTableOperation(forParent: Boolean = false) {
-        realizeOperationLocation(forParent)
-    }
-
-    // Navigating the writer slot is performed relatively as the location of a group in the writer
-    // might be different than it is in the reader as groups can be inserted, deleted, or moved.
-    //
-    // writersReaderDelta tracks the difference between reader's current slot the current of
-    // the writer must be before the recorded change is applied. Moving the writer to a location
-    // is performed by advancing the writer the same the number of slots traversed by the reader
-    // since the last write change. This works transparently for inserts. For deletes the number
-    // of nodes deleted needs to be added to writersReaderDelta. When slots move the delta is
-    // updated as if the move has already taken place. The delta is updated again once the group
-    // begin edited is complete.
-    //
-    // The SlotTable requires that the group that contains any moves, inserts or removes must have
-    // the group that contains the moved, inserted or removed groups be started with a startGroup
-    // and terminated with a endGroup so the effects of the inserts, deletes, and moves can be
-    // recorded correctly in its internal data structures. The startedGroups stack maintains the
-    // groups that must be closed before we can move past the started group.
-
-    /**
-     * The skew or delta between where the writer will be and where the reader is now. This can
-     * be thought of as the unrealized distance the writer must move to match the current slot in
-     * the reader. When an operation affects the slot table the writer location must be realized
-     * by moving the writer slot table the unrealized distance.
-     */
-    private var writersReaderDelta = 0
-
-    /**
      * Record whether any groups were stared. If no groups were started then the root group
      * doesn't need to be started or ended either.
      */
@@ -3329,25 +3274,10 @@ internal class ComposerImpl(
      */
     private val startedGroups = IntStack()
 
-    private fun realizeOperationLocation(forParent: Boolean = false) {
-        val location = if (forParent) reader.parent else reader.currentGroup
-        val distance = location - writersReaderDelta
-        runtimeCheck(distance >= 0) {
-            "Tried to seek backward"
-        }
-        if (distance > 0) {
-            changeListWriter.advanceSlotsBy(distance)
-            writersReaderDelta = location
-        }
-    }
-
     private fun recordInsert(anchor: Anchor) {
         if (insertFixups.isEmpty()) {
-            recordSlotEditingOperation()
             changeListWriter.insertSlots(anchor, insertTable)
         } else {
-            changeListWriter.pushPendingUpsAndDowns()
-            recordSlotEditingOperation()
             changeListWriter.insertSlots(anchor, insertTable, insertFixups.toMutableList())
             insertFixups.clear()
         }
@@ -3367,18 +3297,11 @@ internal class ComposerImpl(
         insertFixups.add(insertUpFixups.pop())
     }
 
-    /**
-     * When a group is removed the reader will move but the writer will not so to ensure both the
-     * writer and reader are tracking the same slot we advance the [writersReaderDelta] to
-     * account for the removal.
-     */
     private fun recordDelete() {
         // It is import that the movable content is reported first so it can be removed before the
         // group itself is removed.
         reportFreeMovableContent(reader.currentGroup)
-        recordSlotEditingOperation()
         changeListWriter.removeCurrentGroup()
-        writersReaderDelta += reader.groupSize
     }
 
     /**
@@ -3423,17 +3346,12 @@ internal class ComposerImpl(
                         currentCompositionLocalScope(group)
                     )
                     parentContext.deletedMovableContent(reference)
-                    recordSlotEditing()
+                    changeListWriter.recordSlotEditing()
                     changeListWriter.releaseMovableGroupAtCurrent(
                         composition, parentContext, reference
                     )
                     if (needsNodeDelete) {
-                        realizeMovement()
-                        changeListWriter.pushPendingUpsAndDowns()
-                        val nodeCount = if (reader.isNode(group)) 1 else reader.nodeCount(group)
-                        if (nodeCount > 0) {
-                            recordRemoveNode(nodeIndex, nodeCount)
-                        }
+                        changeListWriter.endNodeMovementAndDeleteNode(nodeIndex, group)
                         0 // These nodes were deleted
                     } else reader.nodeCount(group)
                 } else if (key == referenceKey && objectKey == reference) {
@@ -3471,7 +3389,7 @@ internal class ComposerImpl(
                     // recomposition.
                     val isNode = reader.isNode(current)
                     if (isNode) {
-                        realizeMovement()
+                        changeListWriter.endNodeMovement()
                         changeListWriter.moveDown(reader.node(current))
                     }
                     runningNodeCount += reportGroup(
@@ -3480,7 +3398,7 @@ internal class ComposerImpl(
                         nodeIndex = if (isNode) 0 else nodeIndex + runningNodeCount
                     )
                     if (isNode) {
-                        realizeMovement()
+                        changeListWriter.endNodeMovement()
                         changeListWriter.moveUp()
                     }
                     current += reader.groupSize(current)
@@ -3489,7 +3407,7 @@ internal class ComposerImpl(
             } else reader.nodeCount(group)
         }
         reportGroup(groupBeingRemoved, needsNodeDelete = false, nodeIndex = 0)
-        realizeMovement()
+        changeListWriter.endNodeMovement()
     }
 
     /**
@@ -3504,73 +3422,15 @@ internal class ComposerImpl(
                 this.reader = reader
                 changeListWriter.withChangeList(changes) {
                     reportFreeMovableContent(0)
-                    changeListWriter.pushPendingUpsAndDowns()
-                    if (startedGroup) {
-                        changeListWriter.skipToEndOfCurrentGroup()
-                        recordEndRoot()
-                    }
+                    changeListWriter.releaseMovableContent()
                 }
             }
-        }
-    }
-
-    /**
-     * Called when reader current is moved directly, such as when a group moves, to [location].
-     */
-    private fun recordReaderMoving(location: Int) {
-        val distance = reader.currentGroup - writersReaderDelta
-
-        // Ensure the next skip will account for the distance we have already travelled.
-        writersReaderDelta = location - distance
-    }
-
-    private fun recordSlotEditing() {
-        // During initial composition (when the slot table is empty), no group needs
-        // to be started.
-        if (reader.size > 0) {
-            val reader = reader
-            val location = reader.parent
-
-            if (startedGroups.peekOr(invalidGroupLocation) != location) {
-                if (!startedGroup && implicitRootStart) {
-                    // We need to ensure the root group is started.
-                    recordSlotTableOperation()
-                    changeListWriter.ensureRootStarted()
-                    startedGroup = true
-                }
-                if (location > 0) {
-                    val anchor = reader.anchor(location)
-                    startedGroups.push(location)
-                    recordSlotTableOperation()
-                    changeListWriter.ensureGroupStarted(anchor)
-                }
-            }
-        }
-    }
-
-    private fun recordEndGroup() {
-        val location = reader.parent
-        val currentStartedGroup = startedGroups.peekOr(-1)
-        runtimeCheck(currentStartedGroup <= location) { "Missed recording an endGroup" }
-        if (startedGroups.peekOr(-1) == location) {
-            startedGroups.pop()
-            recordSlotTableOperation()
-            changeListWriter.endCurrentGroup()
-        }
-    }
-
-    private fun recordEndRoot() {
-        if (startedGroup) {
-            recordSlotTableOperation()
-            changeListWriter.endCurrentGroup()
-            startedGroup = false
         }
     }
 
     private fun finalizeCompose() {
         changeListWriter.finalizeComposition()
         runtimeCheck(pendingStack.isEmpty()) { "Start/end imbalance" }
-        runtimeCheck(startedGroups.isEmpty()) { "Missed recording an endGroup()" }
         cleanUpCompose()
     }
 
@@ -3578,69 +3438,15 @@ internal class ComposerImpl(
         pending = null
         nodeIndex = 0
         groupNodeCount = 0
-        writersReaderDelta = 0
         compoundKeyHash = 0
         nodeExpected = false
-        startedGroup = false
-        startedGroups.clear()
+        changeListWriter.resetTransientState()
         invalidateStack.clear()
         clearUpdatedNodeCounts()
     }
 
     internal fun verifyConsistent() {
         insertTable.verifyWellFormed()
-    }
-
-    private var previousRemove = -1
-    private var previousMoveFrom = -1
-    private var previousMoveTo = -1
-    private var previousCount = 0
-
-    private fun recordRemoveNode(nodeIndex: Int, count: Int) {
-        if (count > 0) {
-            runtimeCheck(nodeIndex >= 0) { "Invalid remove index $nodeIndex" }
-            if (previousRemove == nodeIndex) previousCount += count
-            else {
-                realizeMovement()
-                previousRemove = nodeIndex
-                previousCount = count
-            }
-        }
-    }
-
-    private fun recordMoveNode(from: Int, to: Int, count: Int) {
-        if (count > 0) {
-            if (previousCount > 0 && previousMoveFrom == from - previousCount &&
-                previousMoveTo == to - previousCount
-            ) {
-                previousCount += count
-            } else {
-                realizeMovement()
-                previousMoveFrom = from
-                previousMoveTo = to
-                previousCount = count
-            }
-        }
-    }
-
-    private fun realizeMovement() {
-        val count = previousCount
-        previousCount = 0
-        if (count > 0) {
-            if (previousRemove >= 0) {
-                val removeIndex = previousRemove
-                previousRemove = -1
-                recordApplierOperation()
-                changeListWriter.removeNode(removeIndex, count)
-            } else {
-                val from = previousMoveFrom
-                previousMoveFrom = -1
-                val to = previousMoveTo
-                previousMoveTo = -1
-                recordApplierOperation()
-                changeListWriter.moveNode(to, from, count)
-            }
-        }
     }
 
     /**

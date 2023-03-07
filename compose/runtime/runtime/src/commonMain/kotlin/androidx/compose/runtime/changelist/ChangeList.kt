@@ -206,18 +206,14 @@ internal class ChangeList : OperationsDebugStringFormattable {
     }
 
     fun pushAdvanceSlotsBy(distance: Int) {
-        if (distance > 0) {
-            operations.push(AdvanceSlotsBy) {
-                setInt(AdvanceSlotsBy.Distance, distance)
-            }
+        operations.push(AdvanceSlotsBy) {
+            setInt(AdvanceSlotsBy.Distance, distance)
         }
     }
 
     fun pushUps(count: Int) {
-        if (count > 0) {
-            operations.push(Ups) {
-                setInt(Ups.Count, count)
-            }
+        operations.push(Ups) {
+            setInt(Ups.Count, count)
         }
     }
 

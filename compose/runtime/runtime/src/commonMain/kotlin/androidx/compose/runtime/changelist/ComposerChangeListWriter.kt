@@ -23,12 +23,15 @@ import androidx.compose.runtime.ComposerImpl
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.ControlledComposition
+import androidx.compose.runtime.IntStack
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.MovableContentState
 import androidx.compose.runtime.MovableContentStateReference
 import androidx.compose.runtime.RememberObserver
+import androidx.compose.runtime.SlotReader
 import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.Stack
+import androidx.compose.runtime.runtimeCheck
 
 internal class ComposerChangeListWriter(
     /**
@@ -41,6 +44,51 @@ internal class ComposerChangeListWriter(
      */
     var changeList: ChangeList
 ) {
+    private val reader: SlotReader
+        get() = composer.reader
+
+    /**
+     * Record whether any groups were stared. If no groups were started then the root group
+     * doesn't need to be started or ended either.
+     */
+    private var startedGroup: Boolean = false
+
+    /**
+     * A stack of the location of the groups that were started.
+     */
+    private val startedGroups = IntStack()
+
+    /**
+     * When inserting movable content, the group start and end is handled elsewhere. This flag lets
+     * us disable automatic insertion of the root group for movable content. Set to `false` when
+     * inserting movable content.
+     */
+    var implicitRootStart: Boolean = true
+
+    // Navigating the writer slot is performed relatively as the location of a group in the writer
+    // might be different than it is in the reader as groups can be inserted, deleted, or moved.
+    //
+    // writersReaderDelta tracks the difference between reader's current slot the current of
+    // the writer must be before the recorded change is applied. Moving the writer to a location
+    // is performed by advancing the writer the same the number of slots traversed by the reader
+    // since the last write change. This works transparently for inserts. For deletes the number
+    // of nodes deleted needs to be added to writersReaderDelta. When slots move the delta is
+    // updated as if the move has already taken place. The delta is updated again once the group
+    // begin edited is complete.
+    //
+    // The SlotTable requires that the group that contains any moves, inserts or removes must have
+    // the group that contains the moved, inserted or removed groups be started with a startGroup
+    // and terminated with a endGroup so the effects of the inserts, deletes, and moves can be
+    // recorded correctly in its internal data structures. The startedGroups stack maintains the
+    // groups that must be closed before we can move past the started group.
+
+    /**
+     * The skew or delta between where the writer will be and where the reader is now. This can
+     * be thought of as the unrealized distance the writer must move to match the current slot in
+     * the reader. When an operation affects the slot table the writer location must be realized
+     * by moving the writer slot table the unrealized distance.
+     */
+    private var writersReaderDelta: Int = 0
 
     // Navigation of the node tree is performed by recording all the locations of the nodes as
     // they are traversed by the reader and recording them in the downNodes array. When the node
@@ -50,6 +98,81 @@ internal class ComposerChangeListWriter(
     // from the downNodes stack.
     private var pendingUps = 0
     private var pendingDownNodes = Stack<Any?>()
+
+    private var removeFrom = -1
+    private var moveFrom = -1
+    private var moveTo = -1
+    private var moveCount = 0
+
+    private fun pushApplierOperationPreamble() {
+        pushPendingUpsAndDowns()
+    }
+
+    private fun pushSlotEditingOperationPreamble() {
+        realizeOperationLocation()
+        recordSlotEditing()
+    }
+
+    private fun pushSlotTableOperationPreamble(useParentSlot: Boolean = false) {
+        realizeOperationLocation(useParentSlot)
+    }
+
+    /**
+     * Called when reader current is moved directly, such as when a group moves, to [location].
+     */
+    fun moveReaderRelativeTo(location: Int) {
+        // Ensure the next skip will account for the distance we have already travelled.
+        writersReaderDelta += location - reader.currentGroup
+    }
+
+    fun moveReaderToAbsolute(location: Int) {
+        writersReaderDelta = location
+    }
+
+    fun recordSlotEditing() {
+        // During initial composition (when the slot table is empty), no group needs
+        // to be started.
+        if (reader.size > 0) {
+            val reader = reader
+            val location = reader.parent
+
+            if (startedGroups.peekOr(invalidGroupLocation) != location) {
+                ensureRootStarted()
+
+                if (location > 0) {
+                    val anchor = reader.anchor(location)
+                    startedGroups.push(location)
+                    ensureGroupStarted(anchor)
+                }
+            }
+        }
+    }
+
+    private fun ensureRootStarted() {
+        if (!startedGroup && implicitRootStart) {
+            pushSlotTableOperationPreamble()
+            changeList.pushEnsureRootStarted()
+            startedGroup = true
+        }
+    }
+
+    private fun ensureGroupStarted(anchor: Anchor) {
+        pushSlotTableOperationPreamble()
+        changeList.pushEnsureGroupStarted(anchor)
+        startedGroup = true
+    }
+
+    private fun realizeOperationLocation(forParent: Boolean = false) {
+        val location = if (forParent) reader.parent else reader.currentGroup
+        val distance = location - writersReaderDelta
+        runtimeCheck(distance >= 0) {
+            "Tried to seek backward"
+        }
+        if (distance > 0) {
+            changeList.pushAdvanceSlotsBy(distance)
+            writersReaderDelta = location
+        }
+    }
 
     inline fun withChangeList(
         newChangeList: ChangeList,
@@ -64,6 +187,16 @@ internal class ComposerChangeListWriter(
         }
     }
 
+    inline fun withoutImplicitRootStart(block: () -> Unit) {
+        val previousImplicitRootStart = implicitRootStart
+        try {
+            implicitRootStart = false
+            block()
+        } finally {
+            implicitRootStart = previousImplicitRootStart
+        }
+    }
+
     fun deactivate(node: ComposeNodeLifecycleCallback) {
         changeList.pushDeactivate(node)
     }
@@ -73,6 +206,7 @@ internal class ComposerChangeListWriter(
     }
 
     fun updateValue(value: Any?, groupSlotIndex: Int) {
+        pushSlotTableOperationPreamble(useParentSlot = true)
         changeList.pushUpdateValue(value, groupSlotIndex)
     }
 
@@ -81,23 +215,33 @@ internal class ComposerChangeListWriter(
     }
 
     fun clearSlotValue(index: Int, data: Any) {
+        pushSlotTableOperationPreamble()
         changeList.pushClearSlotValue(index, data)
     }
 
     fun updateAuxData(data: Any?) {
+        pushSlotTableOperationPreamble()
         changeList.pushUpdateAuxData(data)
     }
 
-    fun ensureRootStarted() {
-        changeList.pushEnsureRootStarted()
-    }
-
-    fun ensureGroupStarted(anchor: Anchor) {
-        changeList.pushEnsureGroupStarted(anchor)
+    fun endRoot() {
+        if (startedGroup) {
+            pushSlotTableOperationPreamble()
+            pushSlotTableOperationPreamble()
+            changeList.pushEndCurrentGroup()
+            startedGroup = false
+        }
     }
 
     fun endCurrentGroup() {
-        changeList.pushEndCurrentGroup()
+        val location = reader.parent
+        val currentStartedGroup = startedGroups.peekOr(-1)
+        runtimeCheck(currentStartedGroup <= location) { "Missed recording an endGroup" }
+        if (startedGroups.peekOr(-1) == location) {
+            pushSlotTableOperationPreamble()
+            startedGroups.pop()
+            changeList.pushEndCurrentGroup()
+        }
     }
 
     fun skipToEndOfCurrentGroup() {
@@ -105,13 +249,22 @@ internal class ComposerChangeListWriter(
     }
 
     fun removeCurrentGroup() {
+        /*
+           When a group is removed the reader will move but the writer will not so to ensure both
+           the writer and reader are tracking the same slot we advance `writersReaderDelta` to
+           account for the removal.
+         */
+        pushSlotEditingOperationPreamble()
         changeList.pushRemoveCurrentGroup()
+        writersReaderDelta += reader.groupSize
     }
 
     fun insertSlots(
         anchor: Anchor,
         from: SlotTable
     ) {
+        pushPendingUpsAndDowns()
+        pushSlotEditingOperationPreamble()
         changeList.pushInsertSlots(anchor, from)
     }
 
@@ -120,12 +273,15 @@ internal class ComposerChangeListWriter(
         from: SlotTable,
         fixups: List<Change>
     ) {
+        pushPendingUpsAndDowns()
+        pushSlotEditingOperationPreamble()
         changeList.pushInsertSlots(anchor, from, fixups)
     }
 
     fun moveCurrentGroup(
         offset: Int
     ) {
+        pushSlotEditingOperationPreamble()
         changeList.pushMoveCurrentGroup(offset)
     }
 
@@ -137,23 +293,85 @@ internal class ComposerChangeListWriter(
     }
 
     fun useNode(node: Any?) {
+        pushApplierOperationPreamble()
         changeList.pushUseNode(node)
     }
 
     fun <T, V> updateNode(value: V, block: T.(V) -> Unit) {
+        pushApplierOperationPreamble()
         changeList.pushUpdateNode(value, block)
     }
 
-    fun removeNode(removeFrom: Int, moveCount: Int) {
+    fun removeNode(nodeIndex: Int, count: Int) {
+        if (count > 0) {
+            runtimeCheck(nodeIndex >= 0) { "Invalid remove index $nodeIndex" }
+            if (removeFrom == nodeIndex) {
+                moveCount += count
+            } else {
+                realizeNodeMovementOperations()
+                removeFrom = nodeIndex
+                moveCount = count
+            }
+        }
+    }
+
+    fun moveNode(from: Int, to: Int, count: Int) {
+        if (count > 0) {
+            if (moveCount > 0 && moveFrom == from - moveCount && moveTo == to - moveCount) {
+                moveCount += count
+            } else {
+                realizeNodeMovementOperations()
+                moveFrom = from
+                moveTo = to
+                moveCount = count
+            }
+        }
+    }
+
+    fun releaseMovableContent() {
+        pushPendingUpsAndDowns()
+        if (startedGroup) {
+            skipToEndOfCurrentGroup()
+            endRoot()
+        }
+    }
+
+    fun endNodeMovement() {
+        realizeNodeMovementOperations()
+    }
+
+    fun endNodeMovementAndDeleteNode(nodeIndex: Int, group: Int) {
+        endNodeMovement()
+        pushPendingUpsAndDowns()
+        val nodeCount = if (reader.isNode(group)) 1 else reader.nodeCount(group)
+        if (nodeCount > 0) {
+            removeNode(nodeIndex, nodeCount)
+        }
+    }
+
+    private fun realizeNodeMovementOperations() {
+        if (moveCount > 0) {
+            if (removeFrom >= 0) {
+                realizeRemoveNode(removeFrom, moveCount)
+                removeFrom = -1
+            } else {
+                realizeMoveNode(moveTo, moveFrom, moveCount)
+
+                moveFrom = -1
+                moveTo = -1
+            }
+            moveCount = 0
+        }
+    }
+
+    private fun realizeRemoveNode(removeFrom: Int, moveCount: Int) {
+        pushApplierOperationPreamble()
         changeList.pushRemoveNode(removeFrom, moveCount)
     }
 
-    fun moveNode(to: Int, from: Int, count: Int) {
+    private fun realizeMoveNode(to: Int, from: Int, count: Int) {
+        pushApplierOperationPreamble()
         changeList.pushMoveNode(to, from, count)
-    }
-
-    fun advanceSlotsBy(distance: Int) {
-        changeList.pushAdvanceSlotsBy(distance)
     }
 
     fun moveUp() {
@@ -168,24 +386,15 @@ internal class ComposerChangeListWriter(
         pendingDownNodes.push(node)
     }
 
-    // TODO: Make private and remove explicit calls from Composer.
-    fun pushPendingUpsAndDowns() {
-        pushUps(pendingUps)
-        pendingUps = 0
-
-        pushDowns(pendingDownNodes.toArray())
-        pendingDownNodes.clear()
-    }
-
-    private fun pushUps(count: Int) {
-        if (count > 0) {
-            changeList.pushUps(count)
+    private fun pushPendingUpsAndDowns() {
+        if (pendingUps > 0) {
+            changeList.pushUps(pendingUps)
+            pendingUps = 0
         }
-    }
 
-    private fun pushDowns(nodes: Array<Any?>) {
-        if (nodes.isNotEmpty()) {
-            changeList.pushDowns(nodes)
+        if (pendingDownNodes.isNotEmpty()) {
+            changeList.pushDowns(pendingDownNodes.toArray())
+            pendingDownNodes.clear()
         }
     }
 
@@ -229,6 +438,7 @@ internal class ComposerChangeListWriter(
 
     fun endMovableContentPlacement() {
         changeList.pushEndMovableContentPlacement()
+        writersReaderDelta = 0
     }
 
     fun includeOperationsIn(
@@ -240,5 +450,16 @@ internal class ComposerChangeListWriter(
 
     fun finalizeComposition() {
         pushPendingUpsAndDowns()
+        runtimeCheck(startedGroups.isEmpty()) { "Missed recording an endGroup()" }
+    }
+
+    fun resetTransientState() {
+        startedGroup = false
+        startedGroups.clear()
+        writersReaderDelta = 0
+    }
+
+    companion object {
+        private const val invalidGroupLocation = -2
     }
 }
