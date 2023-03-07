@@ -751,6 +751,7 @@ public class WatchFaceServiceTest {
         }
 
         assertThat(InteractiveInstanceManager.getInstances()).isEmpty()
+        assertThat(InteractiveInstanceManager.getParameterlessEngine()).isNull()
         validateMockitoUsage()
     }
 
@@ -3756,6 +3757,21 @@ public class WatchFaceServiceTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun directBoot() {
         val instanceId = "DirectBootInstance"
+        val params = WallpaperInteractiveWatchFaceInstanceParams(
+            instanceId,
+            DeviceConfig(false, false, 0, 0),
+            WatchUiState(false, 0),
+            UserStyle(
+                hashMapOf(
+                    colorStyleSetting to blueStyleOption,
+                    watchHandStyleSetting to gothicStyleOption
+                )
+            )
+                .toWireFormat(),
+            null,
+            null,
+            null
+        )
         testWatchFaceService =
             TestWatchFaceService(
                 WatchFaceType.ANALOG,
@@ -3772,21 +3788,7 @@ public class WatchFaceServiceTest {
                 watchState,
                 handler,
                 null,
-                WallpaperInteractiveWatchFaceInstanceParams(
-                    instanceId,
-                    DeviceConfig(false, false, 0, 0),
-                    WatchUiState(false, 0),
-                    UserStyle(
-                            hashMapOf(
-                                colorStyleSetting to blueStyleOption,
-                                watchHandStyleSetting to gothicStyleOption
-                            )
-                        )
-                        .toWireFormat(),
-                    null,
-                    null,
-                    null
-                ),
+                params,
                 choreographer
             )
 
@@ -3794,15 +3796,34 @@ public class WatchFaceServiceTest {
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
 
         // This increments refcount to 2
-        val instance = InteractiveInstanceManager.getAndRetainInstance(instanceId)
+        val instance =
+            InteractiveInstanceManager
+                .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                    InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                        params,
+                        object : IPendingInteractiveWatchFace.Stub() {
+                            override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
+
+                            override fun onInteractiveWatchFaceCreated(
+                                iInteractiveWatchFace: IInteractiveWatchFace
+                            ) {
+                                fail("Shouldn't get called")
+                            }
+
+                            override fun onInteractiveWatchFaceCrashed(
+                                exception: CrashInfoParcel?
+                            ) {
+                                fail("WatchFace crashed: $exception")
+                            }
+                        }
+                    )
+                )
         assertThat(instance).isNotNull()
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
         val userStyle = watchFaceImpl.currentUserStyleRepository.userStyle.value
         assertThat(userStyle[colorStyleSetting]).isEqualTo(blueStyleOption)
         assertThat(userStyle[watchHandStyleSetting]).isEqualTo(gothicStyleOption)
         instance!!.release()
-
-        InteractiveInstanceManager.releaseInstance(instanceId)
     }
 
     @Test
@@ -6521,6 +6542,78 @@ public class WatchFaceServiceTest {
 
         // The headlessInstances should become empty, otherwise there's a leak.
         assertThat(HeadlessWatchFaceImpl.headlessInstances).isEmpty()
+    }
+
+    @Test
+    public fun attachToExistingParameterlessEngine() {
+        // Construct a parameterless engine.
+        testWatchFaceService =
+            TestWatchFaceService(
+                WatchFaceType.DIGITAL,
+                emptyList(),
+                { _, currentUserStyleRepository, watchState ->
+                    renderer =
+                        TestRenderer(
+                            surfaceHolder,
+                            currentUserStyleRepository,
+                            watchState,
+                            INTERACTIVE_UPDATE_RATE_MS
+                        )
+                    renderer
+                },
+                UserStyleSchema(emptyList()),
+                watchState,
+                handler,
+                null,
+                null,
+                choreographer,
+                mockSystemTimeMillis = looperTimeMillis,
+                complicationCache = null
+            )
+
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        engineWrapper.onVisibilityChanged(true)
+
+        val callback = object : IPendingInteractiveWatchFace.Stub() {
+            override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
+
+            override fun onInteractiveWatchFaceCreated(
+                iInteractiveWatchFace: IInteractiveWatchFace
+            ) {
+                interactiveWatchFaceInstance = iInteractiveWatchFace
+            }
+
+            override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                fail("WatchFace crashed: $exception")
+            }
+        }
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        INTERACTIVE_INSTANCE_ID,
+                        DeviceConfig(false, false, 0, 0),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        null,
+                        null,
+                        null
+                    ),
+                    callback
+                )
+             )
+
+        runBlocking {
+            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
+            engineWrapper.deferredValidation.awaitWithTimeout()
+        }
+
+        assertThat(this::interactiveWatchFaceInstance.isInitialized).isTrue()
+        assertThat(watchFaceImpl.renderer.watchState.watchFaceInstanceId.value)
+            .isEqualTo(INTERACTIVE_INSTANCE_ID)
     }
 
     private fun getLeftShortTextComplicationDataText(): CharSequence {
