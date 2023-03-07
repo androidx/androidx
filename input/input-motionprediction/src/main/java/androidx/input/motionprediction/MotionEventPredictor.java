@@ -30,10 +30,9 @@ import androidx.input.motionprediction.kalman.KalmanMotionEventPredictor;
  * {@link #newInstance(android.view.View)}; put the motion events you receive into it with
  * {@link #record(android.view.MotionEvent)}, and call {@link #predict()} to retrieve the
  * predicted  {@link android.view.MotionEvent} that would occur at the moment the next frame is
- * rendered on the display. Once no more predictions are needed, call {@link #close()} to stop it
- * and clean up resources.
+ * rendered on the display.
  */
-public interface MotionEventPredictor extends AutoCloseable {
+public interface MotionEventPredictor {
     /**
      * Record a user's movement to the predictor. You should call this for every
      * {@link android.view.MotionEvent} that is received by the associated
@@ -51,13 +50,6 @@ public interface MotionEventPredictor extends AutoCloseable {
      */
     @Nullable
     MotionEvent predict();
-
-    /**
-     * Notify the predictor that no more predictions are needed. Any subsequent call to
-     * {@link #predict()} will return null.
-     */
-    @Override
-    void close();
 
     /**
      * Create a new motion predictor associated to a specific {@link android.view.View}
