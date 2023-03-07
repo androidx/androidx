@@ -34,8 +34,16 @@ object DeviceQuirksLoader {
         val quirks: MutableList<Quirk> = mutableListOf()
 
         // Load all device specific quirks, preferably in lexicographical order
+        if (ImageCapturePixelHDRPlusQuirk.isEnabled()) {
+            quirks.add(ImageCapturePixelHDRPlusQuirk())
+        }
+
         if (InvalidVideoProfilesQuirk.isEnabled()) {
             quirks.add(InvalidVideoProfilesQuirk())
+        }
+
+        if (PreviewPixelHDRnetQuirk.isEnabled()) {
+            quirks.add(PreviewPixelHDRnetQuirk())
         }
 
         if (RepeatingStreamConstraintForVideoRecordingQuirk.isEnabled()) {
