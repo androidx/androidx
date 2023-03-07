@@ -84,7 +84,6 @@ class Configuration internal constructor(builder: Builder) {
 
     /**
      * The minimum logging level, corresponding to the constants found in [android.util.Log]
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val minimumLoggingLevel: Int
@@ -122,7 +121,6 @@ class Configuration internal constructor(builder: Builder) {
     /**
      * The maximum number of system requests which can be enqueued by [WorkManager]
      * when using [android.app.job.JobScheduler] or [android.app.AlarmManager]
-     * @hide
      */
     @get:IntRange(from = MIN_SCHEDULER_LIMIT.toLong(), to = Scheduler.MAX_SCHEDULER_LIMIT.toLong())
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -130,7 +128,6 @@ class Configuration internal constructor(builder: Builder) {
 
     /**
      * @return `true` If the default task [Executor] is being used
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val isUsingDefaultTaskExecutor: Boolean
@@ -188,7 +185,6 @@ class Configuration internal constructor(builder: Builder) {
          * template.
          *
          * @param configuration An existing [Configuration] to use as a template
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         constructor(configuration: Configuration) {

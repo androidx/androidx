@@ -23,7 +23,6 @@ import androidx.work.impl.StartStopToken
 /**
  * A [Runnable] that can start work on the
  * [androidx.work.impl.Processor].
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class StartWorkRunnable(

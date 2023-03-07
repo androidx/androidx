@@ -98,7 +98,6 @@ public class PreferenceManager {
     /**
      * Used by Settings.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public PreferenceManager(@NonNull Context context) {
@@ -204,7 +203,6 @@ public class PreferenceManager {
      * @param rootPreferences Optional existing hierarchy to merge the new
      *                        hierarchies into.
      * @return The root hierarchy (if one was not provided, the new hierarchy's root)
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
