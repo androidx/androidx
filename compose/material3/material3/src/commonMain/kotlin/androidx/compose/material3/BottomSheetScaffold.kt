@@ -261,6 +261,8 @@ private fun StandardBottomSheet(
     ) {
         Column(Modifier.fillMaxWidth()) {
             if (dragHandle != null) {
+                val collapseActionLabel = getString(Strings.BottomSheetCollapseDescription)
+                val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
                 Box(Modifier
                     .align(CenterHorizontally)
                     .semantics {
@@ -270,11 +272,15 @@ private fun StandardBottomSheet(
                             if (swipeableState.anchors.size > 1 && sheetSwipeEnabled) {
                                 if (currentValue == PartiallyExpanded) {
                                     if (swipeableState.confirmValueChange(Expanded)) {
-                                        expand { scope.launch { expand() }; true }
+                                        expand(expandActionLabel) {
+                                            scope.launch { expand() }; true
+                                        }
                                     }
                                 } else {
                                     if (swipeableState.confirmValueChange(PartiallyExpanded)) {
-                                        collapse { scope.launch { partialExpand() }; true }
+                                        collapse(collapseActionLabel) {
+                                            scope.launch { partialExpand() }; true
+                                        }
                                     }
                                 }
                             }

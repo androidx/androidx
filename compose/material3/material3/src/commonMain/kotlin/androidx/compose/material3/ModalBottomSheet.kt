@@ -183,25 +183,28 @@ fun ModalBottomSheet(
             ) {
                 Column(Modifier.fillMaxWidth()) {
                     if (dragHandle != null) {
+                        val collapseActionLabel = getString(Strings.BottomSheetCollapseDescription)
+                        val dismissActionLabel = getString(Strings.BottomSheetDismissDescription)
+                        val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
                         Box(Modifier
                             .align(Alignment.CenterHorizontally)
                             .semantics {
                                 // Provides semantics to interact with the bottomsheet based on its
                                 // current value.
                                 with(sheetState) {
-                                    dismiss {
+                                    dismiss(dismissActionLabel) {
                                         animateToDismiss()
                                         true
                                     }
                                     if (currentValue == PartiallyExpanded) {
-                                        expand {
+                                        expand(expandActionLabel) {
                                             if (swipeableState.confirmValueChange(Expanded)) {
                                                 scope.launch { sheetState.expand() }
                                             }
                                             true
                                         }
                                     } else if (hasPartiallyExpandedState) {
-                                        collapse {
+                                        collapse(collapseActionLabel) {
                                             if (
                                                 swipeableState.confirmValueChange(PartiallyExpanded)
                                             ) {
