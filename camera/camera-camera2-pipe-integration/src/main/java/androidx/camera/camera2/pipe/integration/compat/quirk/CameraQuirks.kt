@@ -47,6 +47,9 @@ class CameraQuirks @Inject constructor(private val cameraMetadata: CameraMetadat
         if (JpegHalCorruptImageQuirk.isEnabled()) {
             quirks.add(JpegHalCorruptImageQuirk())
         }
+        if (YuvImageOnePixelShiftQuirk.isEnabled()) {
+            quirks.add(YuvImageOnePixelShiftQuirk())
+        }
 
         Quirks(quirks)
     }
