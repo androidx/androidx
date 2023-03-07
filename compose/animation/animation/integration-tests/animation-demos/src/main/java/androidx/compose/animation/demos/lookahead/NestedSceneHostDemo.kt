@@ -28,25 +28,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.intermediateLayout
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun NestedSceneHostDemo() {
     SceneHost {
-        Box(Modifier.padding(top = 100.dp).fillMaxSize()
-            .intermediateLayout { measurable, constraints, _ ->
-                println("SPEC, actually measure parent")
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) {
-                    println("SPEC, actually place parent")
-                    placeable.place(0, 0)
-                }
-            }) {
+        Box(
+            Modifier
+                .padding(top = 100.dp)
+                .fillMaxSize()
+                .intermediateLayout { measurable, constraints ->
+                    println("SPEC, actually measure parent")
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        println("SPEC, actually place parent")
+                        placeable.place(0, 0)
+                    }
+                }) {
             SceneHost {
                 Column {
                     Box(
-                        Modifier.size(100.dp).background(Color.Red)
-                            .intermediateLayout { measurable, constraints, _ ->
+                        Modifier
+                            .size(100.dp)
+                            .background(Color.Red)
+                            .intermediateLayout { measurable, constraints ->
                                 println("SPEC, actually measure child")
                                 val placeable = measurable.measure(constraints)
                                 layout(placeable.width, placeable.height) {
@@ -55,7 +61,9 @@ fun NestedSceneHostDemo() {
                                 }
                             })
                     Box(
-                        Modifier.size(100.dp).background(Color.Green)
+                        Modifier
+                            .size(100.dp)
+                            .background(Color.Green)
                     )
                 }
             }

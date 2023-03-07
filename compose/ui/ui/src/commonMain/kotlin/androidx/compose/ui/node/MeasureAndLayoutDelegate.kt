@@ -20,9 +20,9 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.node.LayoutNode.LayoutState.Idle
 import androidx.compose.ui.node.LayoutNode.LayoutState.LayingOut
-import androidx.compose.ui.node.LayoutNode.LayoutState.Measuring
 import androidx.compose.ui.node.LayoutNode.LayoutState.LookaheadLayingOut
 import androidx.compose.ui.node.LayoutNode.LayoutState.LookaheadMeasuring
+import androidx.compose.ui.node.LayoutNode.LayoutState.Measuring
 import androidx.compose.ui.node.LayoutNode.UsageByParent.InLayoutBlock
 import androidx.compose.ui.node.LayoutNode.UsageByParent.InMeasureBlock
 import androidx.compose.ui.unit.Constraints
@@ -112,14 +112,14 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * Requests lookahead remeasure for this [layoutNode] and nodes affected by its measure result
      *
      * Note: This should only be called on a [LayoutNode] in the subtree defined in a
-     * LookaheadLayout. The caller is responsible for checking with [LayoutNode.mLookaheadScope]
+     * LookaheadLayout. The caller is responsible for checking with [LayoutNode.lookaheadRoot]
      * is valid (i.e. non-null) before calling this method.
      *
      * @return true if the [measureAndLayout] execution should be scheduled as a result
      * of the request.
      */
     fun requestLookaheadRemeasure(layoutNode: LayoutNode, forced: Boolean = false): Boolean {
-        check(layoutNode.mLookaheadScope != null) {
+        check(layoutNode.lookaheadRoot != null) {
             "Error: requestLookaheadRemeasure cannot be called on a node outside" +
                 " LookaheadLayout"
         }
@@ -282,7 +282,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * @return true if the [LayoutNode] size has been changed.
      */
     private fun doLookaheadRemeasure(layoutNode: LayoutNode, constraints: Constraints?): Boolean {
-        if (layoutNode.mLookaheadScope == null) return false
+        if (layoutNode.lookaheadRoot == null) return false
         val lookaheadSizeChanged = if (constraints != null) {
             layoutNode.lookaheadRemeasure(constraints)
         } else {
@@ -291,7 +291,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
 
         val parent = layoutNode.parent
         if (lookaheadSizeChanged && parent != null) {
-            if (parent.mLookaheadScope == null) {
+            if (parent.lookaheadRoot == null) {
                 requestRemeasure(parent)
             } else if (layoutNode.measuredByParentInLookahead == InMeasureBlock) {
                 requestLookaheadRemeasure(parent)
@@ -548,7 +548,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         get() = measurePending && measureAffectsParent
 
     private val LayoutNode.canAffectParentInLookahead
-        get() = lookaheadLayoutPending &&
+        get() = lookaheadMeasurePending &&
             (measuredByParentInLookahead == InMeasureBlock ||
                 layoutDelegate.lookaheadAlignmentLinesOwner?.alignmentLines?.required == true)
 

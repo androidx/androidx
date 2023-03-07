@@ -32,7 +32,6 @@ import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.layout.LayoutNodeSubcompositionsState
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureScope
@@ -90,6 +89,59 @@ internal class LayoutNode(
     InteroperableComposeUiNode,
     Owner.OnLayoutCompletedListener {
 
+    internal var isVirtualLookaheadRoot: Boolean = false
+
+    // Indicates whether there's an explicit lookahead scope defined on any virtual child.
+    internal val hasExplicitLookaheadScope: Boolean
+        get() = virtualLookaheadChildren?.isNotEmpty() ?: false
+
+    // Indicates whether there's any IntermediateLayoutModifierNode on this node. This gets updated
+    // when an IntermediateLayoutModifierNodes gets attached or detached.
+    internal var hasLocalLookahead: Boolean = false
+        set(value) {
+            field = value
+            if (isAttached) {
+                updateLookaheadRoot()
+            }
+        }
+
+    // Update the lookaheadRoot to reference the LayoutNode itself if it contains modifiers that
+    // require local lookahead, or if it has a virtual child created for an explicit lookahead
+    // scope. If neither of the two conditions are met, then we fallback to use parent's
+    // lookahead root.
+    private fun updateLookaheadRoot() {
+        val newRoot =
+            if (hasExplicitLookaheadScope || (parent?.lookaheadRoot == null && hasLocalLookahead)) {
+                this
+            } else {
+                parent?.lookaheadRoot
+            }
+        lookaheadRoot = newRoot
+    }
+
+    /**
+     * This lookaheadRoot references the closest root to the LayoutNode, not the top-level
+     * lookahead root.
+     */
+    internal var lookaheadRoot: LayoutNode? = null
+        private set(newRoot) {
+            if (newRoot != field) {
+                field = newRoot
+                if (newRoot != null) {
+                    layoutDelegate.ensureLookaheadDelegateCreated()
+                    forEachCoordinatorIncludingInner {
+                        it.ensureLookaheadDelegateCreated()
+                    }
+                }
+                if (isAttached) {
+                    updateSubtreeLookaheadRoot()
+                }
+                invalidateMeasurements()
+            }
+        }
+
+    private var virtualLookaheadChildren: MutableVector<LayoutNode>? = null
+
     val isPlacedInLookahead: Boolean?
         get() = lookaheadPassDelegate?.isPlaced
 
@@ -137,7 +189,8 @@ internal class LayoutNode(
             unfoldedVirtualChildrenListDirty = true
         }
         if (isVirtual) {
-            this.parent?.unfoldedVirtualChildrenListDirty = true
+            // Invalidate all virtual unfolded parent until we reach a non-virtual one
+            this._foldedParent?.invalidateUnfoldedVirtualChildren()
         }
     }
 
@@ -184,7 +237,11 @@ internal class LayoutNode(
      */
     internal val parent: LayoutNode?
         get() {
-            return if (_foldedParent?.isVirtual == true) _foldedParent?.parent else _foldedParent
+            var parent = _foldedParent
+            while (parent?.isVirtual == true) {
+                parent = parent._foldedParent
+            }
+            return parent
         }
 
     /**
@@ -267,23 +324,9 @@ internal class LayoutNode(
         onZSortedChildrenInvalidated()
 
         if (instance.isVirtual) {
-            require(!isVirtual) { "Virtual LayoutNode can't be added into a virtual parent" }
             virtualChildrenCount++
         }
         invalidateUnfoldedVirtualChildren()
-
-        instance.outerCoordinator.wrappedBy = if (isVirtual) {
-            // if this node is virtual we use the inner coordinator of our parent
-            _foldedParent?.innerCoordinator
-        } else {
-            innerCoordinator
-        }
-        // and if the child is virtual we set our inner coordinator for the grandchildren
-        if (instance.isVirtual) {
-            instance._foldedChildren.forEach {
-                it.outerCoordinator.wrappedBy = innerCoordinator
-            }
-        }
 
         val owner = this.owner
         if (owner != null) {
@@ -403,6 +446,9 @@ internal class LayoutNode(
             isPlaced = true
         }
 
+        // Use the inner coordinator of first non-virtual parent
+        outerCoordinator.wrappedBy = parent?.innerCoordinator
+
         this.owner = owner
         this.depth = (parent?.depth ?: -1) + 1
         @OptIn(ExperimentalComposeUiApi::class)
@@ -410,11 +456,13 @@ internal class LayoutNode(
             owner.onSemanticsChange()
         }
         owner.onAttach(this)
-        // Update lookahead scope when attached. For nested cases, we'll always use the
-        // lookahead scope from the out-most LookaheadRoot.
-        mLookaheadScope =
-            parent?.mLookaheadScope ?: if (isLookaheadRoot) LookaheadScope(this) else null
 
+        if (isVirtualLookaheadRoot) {
+            parent!!.addVirtualLookaheadChild(this)
+        }
+        // Update lookahead root when attached. For nested cases, we'll always use the
+        // closest lookahead root
+        updateLookaheadRoot()
         nodes.attach(performInvalidations = false)
         _foldedChildren.forEach { child ->
             child.attach(owner)
@@ -456,6 +504,12 @@ internal class LayoutNode(
         nodes.detach()
         owner.onDetach(this)
         this.owner = null
+
+        if (isVirtualLookaheadRoot) {
+            parent!!.removeVirtualLookaheadChild(this)
+        }
+        hasLocalLookahead = false
+        lookaheadRoot = null
         depth = 0
         _foldedChildren.forEach { child ->
             child.detach()
@@ -463,6 +517,32 @@ internal class LayoutNode(
         placeOrder = NotPlacedPlaceOrder
         previousPlaceOrder = NotPlacedPlaceOrder
         isPlaced = false
+    }
+
+    private fun addVirtualLookaheadChild(layoutNode: LayoutNode) {
+        virtualLookaheadChildren?.add(layoutNode) ?: run {
+            virtualLookaheadChildren = mutableVectorOf(this)
+        }
+        updateLookaheadRoot()
+    }
+
+    private fun removeVirtualLookaheadChild(layoutNode: LayoutNode) {
+        virtualLookaheadChildren?.remove(layoutNode)
+        updateLookaheadRoot()
+    }
+
+    // Update subtree (excluding self)'s lookahead root. If the lookahead root is null, the subtree
+    // may propagate local lookahead roots down the tree.
+    private fun updateSubtreeLookaheadRoot() {
+        forEachChild {
+            if (it.isAttached) {
+                val oldRoot = it.lookaheadRoot
+                it.updateLookaheadRoot()
+                if (oldRoot != it.lookaheadRoot) {
+                    it.updateSubtreeLookaheadRoot()
+                }
+            }
+        }
     }
 
     private val _zSortedChildren = mutableVectorOf<LayoutNode>()
@@ -584,17 +664,6 @@ internal class LayoutNode(
             }
         }
 
-    internal var mLookaheadScope: LookaheadScope? = null
-        private set(newScope) {
-            if (newScope != field) {
-                field = newScope
-                layoutDelegate.onLookaheadScopeChanged(newScope)
-                forEachCoordinatorIncludingInner { coordinator ->
-                    coordinator.updateLookaheadScope(newScope)
-                }
-            }
-        }
-
     /**
      * The layout direction of the layout node.
      */
@@ -703,18 +772,6 @@ internal class LayoutNode(
     @Deprecated("Temporary API to support ConstraintLayout prototyping.")
     internal var canMultiMeasure: Boolean = false
 
-    var isLookaheadRoot: Boolean = false
-        set(value) {
-            if (value != field) {
-                if (!value) {
-                    mLookaheadScope = null
-                } else {
-                    mLookaheadScope = LookaheadScope(this)
-                }
-                field = value
-            }
-        }
-
     internal val nodes = NodeChain(this)
     internal val innerCoordinator: NodeCoordinator
         get() = nodes.innerCoordinator
@@ -779,6 +836,7 @@ internal class LayoutNode(
     /**
      * The [Modifier] currently applied to this node.
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     override var modifier: Modifier = Modifier
         set(value) {
             require(!isVirtual || modifier === Modifier) {
@@ -786,14 +844,10 @@ internal class LayoutNode(
             }
             field = value
             nodes.updateFrom(value)
-
-            // TODO(lmr): we don't need to do this every time and should attempt to avoid it
-            //  whenever possible!
-            forEachCoordinatorIncludingInner {
-                it.updateLookaheadScope(mLookaheadScope)
-            }
-
             layoutDelegate.updateParentData()
+            if (nodes.has(Nodes.IntermediateMeasure)) {
+                hasLocalLookahead = true
+            }
         }
 
     private fun resetModifierState() {
@@ -1045,6 +1099,7 @@ internal class LayoutNode(
                     // no extra work required and node is ready to be displayed
                 }
             }
+
             else -> throw IllegalStateException("Unexpected state ${it.layoutState}")
         }
     }
@@ -1074,7 +1129,7 @@ internal class LayoutNode(
      * measure and layout from the owner.
      */
     internal fun requestLookaheadRemeasure(forceRequest: Boolean = false) {
-        check(mLookaheadScope != null) {
+        check(lookaheadRoot != null) {
             "Lookahead measure cannot be requested on a node that is not a part of the" +
                 "LookaheadLayout"
         }
@@ -1090,7 +1145,7 @@ internal class LayoutNode(
      * measurement need to be re-done. Such events include modifier change, attach/detach, etc.
      */
     internal fun invalidateMeasurements() {
-        if (mLookaheadScope != null) {
+        if (lookaheadRoot != null) {
             requestLookaheadRemeasure()
         } else {
             requestRemeasure()
@@ -1180,7 +1235,7 @@ internal class LayoutNode(
     ): Boolean {
         // Only lookahead remeasure when the constraints are valid and the node is in
         // a LookaheadLayout (by checking whether the lookaheadScope is set)
-        return if (constraints != null && mLookaheadScope != null) {
+        return if (constraints != null && lookaheadRoot != null) {
             lookaheadPassDelegate!!.remeasure(constraints)
         } else {
             false

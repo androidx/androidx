@@ -36,7 +36,6 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadLayoutCoordinatesImpl
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
@@ -187,31 +186,12 @@ internal abstract class NodeCoordinator(
             }
         }
 
-    internal var lookaheadDelegate: LookaheadDelegate? = null
-        private set
+    abstract var lookaheadDelegate: LookaheadDelegate?
+        protected set
 
     private var oldAlignmentLines: MutableMap<AlignmentLine, Int>? = null
 
-    /**
-     * Creates a new lookaheadDelegate instance when the scope changes. If the provided scope is
-     * null, it means the lookahead root does not exit (or no longer exists), set
-     * the [lookaheadDelegate] to null.
-     */
-    internal fun updateLookaheadScope(scope: LookaheadScope?) {
-        lookaheadDelegate = scope?.let {
-            if (it != lookaheadDelegate?.lookaheadScope) {
-                createLookaheadDelegate(it)
-            } else {
-                lookaheadDelegate
-            }
-        }
-    }
-
-    protected fun updateLookaheadDelegate(lookaheadDelegate: LookaheadDelegate) {
-        this.lookaheadDelegate = lookaheadDelegate
-    }
-
-    abstract fun createLookaheadDelegate(scope: LookaheadScope): LookaheadDelegate
+    abstract fun ensureLookaheadDelegateCreated()
 
     override val providedAlignmentLines: Set<AlignmentLine>
         get() {
@@ -377,12 +357,6 @@ internal abstract class NodeCoordinator(
 
     @OptIn(ExperimentalComposeUiApi::class)
     fun onPlaced() {
-        val lookahead = lookaheadDelegate
-        if (lookahead != null) {
-            visitNodes(Nodes.LayoutAware) {
-                it.onLookaheadPlaced(lookahead.lookaheadLayoutCoordinates)
-            }
-        }
         visitNodes(Nodes.LayoutAware) {
             it.onPlaced(this)
         }

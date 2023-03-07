@@ -131,7 +131,7 @@ class PlacementLayoutCoordinatesTest {
         var boxSize by mutableStateOf(IntSize.Zero)
         var alignment by mutableStateOf(Alignment.Center)
         rule.setContent {
-            SimpleLookaheadLayout {
+            LookaheadScope {
                 Box(Modifier.fillMaxSize()) {
                     Box(
                         Modifier
@@ -213,7 +213,7 @@ class PlacementLayoutCoordinatesTest {
     fun coordinatesWhileAligningWithLookaheadLayout() {
         val locations = mutableStateListOf<LayoutCoordinates?>()
         rule.setContent {
-            SimpleLookaheadLayout {
+            LookaheadScope {
                 Row(Modifier.fillMaxSize()) {
                     Box(Modifier.alignByBaseline()) {
                         Text("Hello")
@@ -279,7 +279,7 @@ class PlacementLayoutCoordinatesTest {
     fun coordinatesWhileAligningInLookaheadLayout() {
         val locations = mutableStateListOf<LayoutCoordinates?>()
         rule.setContent {
-            SimpleLookaheadLayout {
+            LookaheadScope {
                 Row(Modifier.fillMaxSize()) {
                     Box(Modifier.alignByBaseline()) {
                         Text("Hello")
@@ -669,17 +669,4 @@ class PlacementLayoutCoordinatesTest {
         rule.waitForIdle()
         assertEquals(1, locations.size)
     }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun SimpleLookaheadLayout(content: @Composable LookaheadLayoutScope.() -> Unit) {
-    LookaheadLayout(
-        content = content, measurePolicy = { measurables, constraints ->
-            val p = measurables[0].measure(constraints)
-            layout(p.width, p.height) {
-                p.place(0, 0)
-            }
-        }
-    )
 }
