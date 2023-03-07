@@ -18,6 +18,7 @@ dependencies {
     docs(project(":ads:ads-identifier-testing"))
     kmpDocs(project(":annotation:annotation"))
     docs(project(":annotation:annotation-experimental"))
+    docs(project(":appactions:interaction:interaction-capabilities-communication"))
     docs(project(":appactions:interaction:interaction-capabilities-core"))
     docs(project(":appactions:interaction:interaction-capabilities-productivity"))
     docs(project(":appactions:interaction:interaction-capabilities-safety"))
