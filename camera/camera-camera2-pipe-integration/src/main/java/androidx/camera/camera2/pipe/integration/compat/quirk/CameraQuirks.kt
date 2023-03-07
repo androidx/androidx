@@ -35,7 +35,12 @@ class CameraQuirks @Inject constructor(private val cameraMetadata: CameraMetadat
      */
     val quirks: Quirks by lazy {
         val quirks: MutableList<Quirk> = mutableListOf()
-        // Go through all defined camera quirks, and add them to `quirks` if they should be loaded
+
+        // Go through all defined camera quirks in lexicographical order,
+        // and add them to `quirks` if they should be loaded
+        if (AfRegionFlipHorizontallyQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(AfRegionFlipHorizontallyQuirk())
+        }
         if (CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)) {
             quirks.add(CamcorderProfileResolutionQuirk(cameraMetadata))
         }
