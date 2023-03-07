@@ -39,6 +39,7 @@ import org.robolectric.RobolectricTestRunner
 /** Test class to verify [TestSplitAttributesCalculatorParams]. */
 @RunWith(RobolectricTestRunner::class)
 class SplitAttributesCalculatorParamsTestingTest {
+
     /** Verifies if the default values of [TestSplitAttributesCalculatorParams] are as expected. */
     @Test
     fun testDefaults() {
