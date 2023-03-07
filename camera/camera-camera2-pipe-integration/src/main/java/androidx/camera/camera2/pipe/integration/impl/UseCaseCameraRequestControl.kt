@@ -130,9 +130,9 @@ interface UseCaseCameraRequestControl {
     // 3A
     suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A>
     suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
+        aeRegions: List<MeteringRectangle>? = null,
+        afRegions: List<MeteringRectangle>? = null,
+        awbRegions: List<MeteringRectangle>? = null,
         afTriggerStartAeMode: AeMode? = null
     ): Deferred<Result3A>
 
@@ -217,9 +217,9 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         }
 
     override suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
         afTriggerStartAeMode: AeMode?
     ): Deferred<Result3A> = graph.acquireSession().use {
         it.lock3A(
