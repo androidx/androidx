@@ -26,6 +26,8 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraControlStateAdapte
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
@@ -35,7 +37,6 @@ import androidx.camera.camera2.pipe.integration.impl.State3AControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
-import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.impl.ImageFormatConstants
 import com.google.common.util.concurrent.MoreExecutors
@@ -107,6 +108,9 @@ object FakeCameraInfoAdapterCreator {
             CameraCallbackMap(),
             FocusMeteringControl(
                 cameraProperties,
+                MeteringRegionCorrection.Bindings.provideMeteringRegionCorrection(
+                    CameraQuirks(cameraProperties.metadata)
+                ),
                 state3AControl,
                 useCaseThreads,
                 FakeZoomCompat(),

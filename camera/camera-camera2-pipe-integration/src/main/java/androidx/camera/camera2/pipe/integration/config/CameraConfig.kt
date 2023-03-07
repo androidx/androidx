@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInternalAdapter
 import androidx.camera.camera2.pipe.integration.compat.Camera2CameraControlCompat
+import androidx.camera.camera2.pipe.integration.compat.CameraCompatModule
 import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
@@ -150,7 +151,8 @@ class CameraConfig(val cameraId: CameraId) {
 @Subcomponent(
     modules = [
         CameraModule::class,
-        CameraConfig::class
+        CameraConfig::class,
+        CameraCompatModule::class,
     ]
 )
 interface CameraComponent {
