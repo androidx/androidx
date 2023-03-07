@@ -33,8 +33,10 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -306,6 +308,7 @@ internal open class AndroidViewHolder(
         layoutNode.interopViewFactoryHolder = this@AndroidViewHolder
 
         val coreModifier = Modifier
+            .nestedScroll(NoOpScrollConnection, dispatcher)
             .semantics(true) {}
             .pointerInteropFilter(this)
             .drawBehind {
@@ -548,6 +551,12 @@ private fun View.layoutAccordingTo(layoutNode: LayoutNode) {
 }
 
 private const val Unmeasured = Int.MIN_VALUE
+
+/**
+ * No-op Connection required by nested scroll modifier. This is No-op because we don't want
+ * to influence nested scrolling with it and it is required by [Modifier.nestedScroll].
+ */
+private val NoOpScrollConnection = object : NestedScrollConnection {}
 
 private fun Int.toComposeOffset() = toFloat() * -1
 
