@@ -1207,4 +1207,40 @@ class ModalBottomSheetTest {
         rule.waitForIdle()
         assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.HalfExpanded)
     }
+
+    // TODO: Migrate to manual clock mode once b/269613287 is fixed
+    @Test
+    fun modalBottomSheet_anchorChangeHandler_missingAnchor_immediatelySnapsForInitialization() {
+        val stateRestorationTester = StateRestorationTester(rule)
+
+        // Not backed by state as we don't want changes to cause recompositions
+        var sheetState = ModalBottomSheetState(ModalBottomSheetValue.HalfExpanded)
+        var tallSheetContent = true
+
+        stateRestorationTester.setContent {
+            ModalBottomSheetLayout(
+                sheetState = sheetState,
+                sheetContent = {
+                    Box(Modifier.fillMaxHeight(if (tallSheetContent) 1f else 0.4f))
+                },
+                content = { Box(Modifier.fillMaxSize()) }
+            )
+        }
+
+        assertThat(sheetState.hasHalfExpandedState).isTrue()
+        assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.HalfExpanded)
+
+        tallSheetContent = false
+        // Recreate the sheet state so it doesn't have anchors or an offset yet
+        sheetState = ModalBottomSheetState(ModalBottomSheetValue.HalfExpanded)
+
+        assertThat(sheetState.swipeableState.anchors).isEmpty()
+        assertThat(sheetState.swipeableState.offset).isNull()
+
+        stateRestorationTester.emulateSavedInstanceStateRestore()
+        rule.waitForIdle()
+
+        assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Expanded)
+        assertThat(sheetState.hasHalfExpandedState).isFalse()
+    }
 }
