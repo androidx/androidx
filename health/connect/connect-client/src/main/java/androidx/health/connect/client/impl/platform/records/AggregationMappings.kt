@@ -46,6 +46,7 @@ import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeightRecord
@@ -53,6 +54,7 @@ import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
+import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.WeightRecord
@@ -62,12 +64,21 @@ import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.Mass
 import androidx.health.connect.client.units.Power
 import androidx.health.connect.client.units.Volume
+import java.time.Duration
 
 internal val DOUBLE_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Double>, PlatformAggregateMetric<Double>> =
     mapOf(
         FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL to
             PlatformFloorsClimbedRecord.FLOORS_CLIMBED_TOTAL,
+    )
+
+internal val DURATION_AGGREGATION_METRIC_TYPE_MAP:
+    Map<AggregateMetric<Duration>, PlatformAggregateMetric<Long>> =
+    mapOf(
+        ExerciseSessionRecord.EXERCISE_DURATION_TOTAL to
+            PlatformExerciseSessionRecord.EXERCISE_DURATION_TOTAL,
+        SleepSessionRecord.SLEEP_DURATION_TOTAL to PlatformSleepSessionRecord.SLEEP_DURATION_TOTAL
     )
 
 internal val ENERGY_AGGREGATION_METRIC_TYPE_MAP:
