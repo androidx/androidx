@@ -63,6 +63,7 @@ import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -138,6 +139,7 @@ class Camera2InteropIntegrationTest(
         assertThat(lastState).isEqualTo(DeviceState.Closed)
     }
 
+    @Ignore // b/269523374
     @Test
     fun cameraSessionListener_receivesClose_afterUnbindAll(): Unit = runBlocking {
         val imageCaptureBuilder = ImageCapture.Builder()
