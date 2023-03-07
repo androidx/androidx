@@ -28,6 +28,7 @@ import androidx.annotation.StyleRes;
 import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.ResourceProto;
+import androidx.wear.protolayout.proto.StateProto;
 import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance;
 import androidx.wear.tiles.ResourceBuilders;
 import androidx.wear.tiles.StateBuilders;
@@ -104,15 +105,17 @@ public final class TileRenderer {
             @NonNull androidx.wear.tiles.ResourceBuilders.Resources resources,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
-        // TODO(b/270678226): Use load action listener.
-
         this.mLayout = fromTileLayout(layout);
         this.mResources = fromTileResources(resources);
         this.mUiExecutor = MoreExecutors.newDirectExecutorService();
+        ProtoLayoutViewInstance.LoadActionListener instanceListener =
+                nextState -> loadActionExecutor.execute(
+                        () -> loadActionListener.onClick(fromProtoLayoutState(nextState)));
 
         ProtoLayoutViewInstance.Config.Builder config =
                 new ProtoLayoutViewInstance.Config.Builder(uiContext, mUiExecutor, mUiExecutor,
-                        TileService.EXTRA_CLICKABLE_ID);
+                        TileService.EXTRA_CLICKABLE_ID)
+                        .setLoadActionListener(instanceListener);
         this.mInstance = new ProtoLayoutViewInstance(config.build());
     }
 
@@ -128,6 +131,10 @@ public final class TileRenderer {
         return checkNotNull(
                 LayoutElementBuilders.Layout
                         .fromByteArray(layout.toByteArray())).toProto();
+    }
+
+    @NonNull StateBuilders.State fromProtoLayoutState(@NonNull StateProto.State state) {
+        return StateBuilders.State.fromProto(state);
     }
 
     /**
