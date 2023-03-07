@@ -753,6 +753,42 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun hasSurfaceProcessingQuirk_nodeIsNeeded() {
+        // Arrange.
+        VideoCapture.sEnableSurfaceProcessingByQuirk = true
+        setupCamera()
+        createCameraUseCaseAdapter()
+
+        // Act.
+        val videoCapture = createVideoCapture()
+        addAndAttachUseCases(videoCapture)
+
+        // Assert.
+        assertThat(videoCapture.node).isNotNull()
+
+        // Clean-up.
+        VideoCapture.sEnableSurfaceProcessingByQuirk = false
+    }
+
+    @Test
+    fun hasSurfaceProcessingQuirkButNoCameraTransform_nodeIsNotNeeded() {
+        // Arrange.
+        VideoCapture.sEnableSurfaceProcessingByQuirk = true
+        setupCamera(hasTransform = false)
+        createCameraUseCaseAdapter()
+
+        // Act.
+        val videoCapture = createVideoCapture()
+        addAndAttachUseCases(videoCapture)
+
+        // Assert.
+        assertThat(videoCapture.node).isNull()
+
+        // Clean-up.
+        VideoCapture.sEnableSurfaceProcessingByQuirk = false
+    }
+
+    @Test
     fun defaultMirrorModeIsOff() {
         val videoCapture = createVideoCapture()
         assertThat(videoCapture.mirrorMode).isEqualTo(MIRROR_MODE_OFF)
