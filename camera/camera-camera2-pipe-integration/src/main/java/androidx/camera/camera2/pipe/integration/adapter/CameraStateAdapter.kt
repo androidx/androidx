@@ -224,10 +224,10 @@ class CameraStateAdapter @Inject constructor() {
                         CameraState.ERROR_OTHER_RECOVERABLE_ERROR
 
                     CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION ->
-                        CameraState.ERROR_OTHER_RECOVERABLE_ERROR
+                        CameraState.ERROR_CAMERA_FATAL_ERROR
 
                     CameraError.ERROR_SECURITY_EXCEPTION ->
-                        CameraState.ERROR_OTHER_RECOVERABLE_ERROR
+                        CameraState.ERROR_CAMERA_FATAL_ERROR
 
                     else -> throw IllegalArgumentException("Unexpected CameraError: $this")
                 }
@@ -246,7 +246,8 @@ class CameraStateAdapter @Inject constructor() {
         internal fun isRecoverableError(cameraError: CameraError) =
             cameraError == CameraError.ERROR_CAMERA_DISCONNECTED ||
                 cameraError == CameraError.ERROR_CAMERA_IN_USE ||
-                cameraError == CameraError.ERROR_CAMERA_LIMIT_EXCEEDED
+                cameraError == CameraError.ERROR_CAMERA_LIMIT_EXCEEDED ||
+                cameraError == CameraError.ERROR_CAMERA_DEVICE
 
         internal fun MutableLiveData<CameraState>.setOrPostValue(cameraState: CameraState) {
             if (Looper.myLooper() == Looper.getMainLooper()) {
