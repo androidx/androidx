@@ -49,6 +49,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
+import javax.inject.Named
 import javax.inject.Scope
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -113,9 +114,15 @@ abstract class CameraModule {
             requestListener
         )
 
+        @CameraScope
         @Provides
         fun provideCameraMetadata(cameraPipe: CameraPipe, config: CameraConfig): CameraMetadata =
             checkNotNull(cameraPipe.cameras().awaitCameraMetadata(config.cameraId))
+
+        @CameraScope
+        @Provides
+        @Named("CameraId")
+        fun provideCameraIdString(config: CameraConfig): String = config.cameraId.value
     }
 
     @Binds
