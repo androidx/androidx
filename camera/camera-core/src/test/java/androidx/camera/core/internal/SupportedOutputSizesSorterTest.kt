@@ -29,7 +29,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.internal.DoNotInstrument
 
-private val LANDSCAPE_ACTIVE_ARRAY_SIZE = Size(4032, 3024)
 private val DEFAULT_SUPPORTED_SIZES = listOf(
     Size(4032, 3024), // 4:3
     Size(3840, 2160), // 16:9
@@ -60,8 +59,7 @@ class SupportedOutputSizesSorterTest {
         val cameraInfoInternal = FakeCameraInfoInternal().apply {
             setSupportedResolutions(imageFormat, DEFAULT_SUPPORTED_SIZES)
         }
-        val supportedOutputSizesSorter =
-            SupportedOutputSizesSorter(cameraInfoInternal, LANDSCAPE_ACTIVE_ARRAY_SIZE)
+        val supportedOutputSizesSorter = SupportedOutputSizesSorter(cameraInfoInternal)
         // Sets up the custom ordered resolutions
         val useCaseConfig =
             FakeUseCaseConfig.Builder(CaptureType.IMAGE_CAPTURE, imageFormat).apply {
@@ -94,8 +92,7 @@ class SupportedOutputSizesSorterTest {
         val cameraInfoInternal = FakeCameraInfoInternal().apply {
             setSupportedResolutions(imageFormat, DEFAULT_SUPPORTED_SIZES)
         }
-        val supportedOutputSizesSorter =
-            SupportedOutputSizesSorter(cameraInfoInternal, LANDSCAPE_ACTIVE_ARRAY_SIZE)
+        val supportedOutputSizesSorter = SupportedOutputSizesSorter(cameraInfoInternal)
         // Sets up the custom supported resolutions
         val useCaseConfig =
             FakeUseCaseConfig.Builder(CaptureType.IMAGE_CAPTURE, imageFormat).apply {
