@@ -140,7 +140,7 @@ class FocusRequester {
          * [Modifier.focusProperties][focusProperties] implies that we want to block focus search
          * from proceeding in the specified [direction][FocusDirection].
          *
-         * @sample androidx.compose.ui.samples.CancelFocusMoveSample()
+         * @sample androidx.compose.ui.samples.CancelFocusMoveSample
          */
         @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
         @get:ExperimentalComposeUiApi
