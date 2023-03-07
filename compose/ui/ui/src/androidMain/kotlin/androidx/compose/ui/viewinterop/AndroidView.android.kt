@@ -28,16 +28,13 @@ import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.Updater
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.currentCompositeKeyHash
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.materialize
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.UiApplier
@@ -98,10 +95,7 @@ fun <T : View> AndroidView(
     modifier: Modifier = Modifier,
     update: (T) -> Unit = NoOpUpdate
 ) {
-    val dispatcher = remember { NestedScrollDispatcher() }
-    val materializedModifier = currentComposer.materialize(
-        modifier.nestedScroll(NoOpScrollConnection, dispatcher)
-    )
+    val materializedModifier = currentComposer.materialize(modifier)
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
 
@@ -113,7 +107,7 @@ fun <T : View> AndroidView(
     val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
 
     ComposeNode<LayoutNode, UiApplier>(
-        factory = createAndroidViewNodeFactory(factory, dispatcher),
+        factory = createAndroidViewNodeFactory(factory),
         update = {
             updateViewHolderParams<T>(
                 modifier = materializedModifier,
@@ -192,20 +186,7 @@ fun <T : View> AndroidView(
     update: (T) -> Unit = NoOpUpdate,
     onRelease: (T) -> Unit = NoOpUpdate
 ) {
-    // TODO: There is a potential edge case with nested scrolling where this dispatcher may become
-    //  out of sync in the ViewHolder and in the materialized Modifier. This will happen whenever
-    //  the node is reused because remember blocks are reset and therefore a new dispatcher will be
-    //  created when reusing an AndroidView composable, but the new dispatcher will not make its
-    //  way into the AndroidViewHolder, meaning the composable and view will no longer be connected
-    //  to one another after reuse. This can be addressed by moving the nested scrolling behavior
-    //  into AndroidViewHolder, which requires refactoring the nestedScroll modifier to
-    //  Modifier.Node (in progress in aosp/2404403). This only affects this overload of AndroidView,
-    //  and not the stable, non-reusable AndroidView API.
-    val dispatcher = remember { NestedScrollDispatcher() }
-    val materializedModifier = currentComposer.materialize(
-        modifier.nestedScroll(NoOpScrollConnection, dispatcher)
-    )
-
+    val materializedModifier = currentComposer.materialize(modifier)
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
 
@@ -217,7 +198,7 @@ fun <T : View> AndroidView(
     val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
 
     ReusableComposeNode<LayoutNode, UiApplier>(
-        factory = createAndroidViewNodeFactory(factory, dispatcher),
+        factory = createAndroidViewNodeFactory(factory),
         update = {
             updateViewHolderParams<T>(
                 modifier = materializedModifier,
@@ -235,8 +216,7 @@ fun <T : View> AndroidView(
 
 @Composable
 private fun <T : View> createAndroidViewNodeFactory(
-    factory: (Context) -> T,
-    dispatcher: NestedScrollDispatcher
+    factory: (Context) -> T
 ): () -> LayoutNode {
     val context = LocalContext.current
     val parentReference = rememberCompositionContext()
@@ -248,7 +228,6 @@ private fun <T : View> createAndroidViewNodeFactory(
             context = context,
             factory = factory,
             parentContext = parentReference,
-            dispatcher = dispatcher,
             saveStateRegistry = stateRegistry,
             saveStateKey = stateKey
         ).layoutNode
@@ -286,18 +265,12 @@ private fun <T : View> LayoutNode.requireViewFactoryHolder(): ViewFactoryHolder<
  */
 val NoOpUpdate: View.() -> Unit = {}
 
-/**
- * No-op Connection required by nested scroll modifier. This is No-op because we don't want
- * to influence nested scrolling with it and it is required by [Modifier.nestedScroll].
- */
-private val NoOpScrollConnection = object : NestedScrollConnection {}
-
 internal class ViewFactoryHolder<T : View> private constructor(
     context: Context,
     parentContext: CompositionContext? = null,
     val typedView: T,
     // NestedScrollDispatcher that will be passed/used for nested scroll interop
-    val dispatcher: NestedScrollDispatcher,
+    val dispatcher: NestedScrollDispatcher = NestedScrollDispatcher(),
     private val saveStateRegistry: SaveableStateRegistry?,
     private val saveStateKey: String
 ) : AndroidViewHolder(context, parentContext, dispatcher, typedView), ViewRootForInspector {
@@ -306,13 +279,11 @@ internal class ViewFactoryHolder<T : View> private constructor(
         context: Context,
         factory: (Context) -> T,
         parentContext: CompositionContext? = null,
-        dispatcher: NestedScrollDispatcher,
         saveStateRegistry: SaveableStateRegistry?,
         saveStateKey: String
     ) : this(
         context = context,
         typedView = factory(context),
-        dispatcher = dispatcher,
         parentContext = parentContext,
         saveStateRegistry = saveStateRegistry,
         saveStateKey = saveStateKey,
