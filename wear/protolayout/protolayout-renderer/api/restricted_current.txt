@@ -17,5 +17,9 @@ package androidx.wear.protolayout.renderer.impl {
     method public com.google.common.util.concurrent.ListeningExecutorService getUiExecutorService();
   }
 
+  public static interface ProtoLayoutViewInstance.LoadActionListener {
+    method public void onClick(androidx.wear.protolayout.proto.StateProto.State);
+  }
+
 }
 
