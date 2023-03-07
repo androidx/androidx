@@ -32,11 +32,6 @@ public class KalmanMotionEventPredictor implements MotionEventPredictor {
     private MultiPointerPredictor mMultiPointerPredictor = new MultiPointerPredictor();
 
     public KalmanMotionEventPredictor() {
-        // 1 may seem arbitrary, but this basically tells the predictor to
-        // just predict the next MotionEvent.
-        // This will need to change as we want to build a prediction depending
-        // on the expected time that the frame will arrive to the screen.
-        mMultiPointerPredictor.setPredictionTarget(1);
     }
 
     @Override
@@ -53,7 +48,7 @@ public class KalmanMotionEventPredictor implements MotionEventPredictor {
         if (mMultiPointerPredictor == null) {
             return null;
         }
-        return mMultiPointerPredictor.predict();
+        return mMultiPointerPredictor.predict(1);
     }
 
     @Override
