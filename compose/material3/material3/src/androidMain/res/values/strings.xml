@@ -74,6 +74,12 @@
     <string name="date_range_input_invalid_range_input">Invalid date range input</string>
     <!-- Names the drag handle visual for bottom sheet. -->
     <string name="bottom_sheet_drag_handle_description">Drag handle</string>
+    <!-- Describes the collapse action for bottom sheet. -->
+    <string name="bottom_sheet_collapse_description">Collapse bottom sheet</string>
+    <!-- Describes the dismiss action for bottom sheet. -->
+    <string name="bottom_sheet_dismiss_description">Dismiss bottom sheet</string>
+    <!-- Describes the expand action visual for bottom sheet. -->
+    <string name="bottom_sheet_expand_description">Expand bottom sheet</string>
     <!-- Spoken description of a tooltip -->
     <string name="tooltip_pane_description">Tooltip</string>
     <string name="tooltip_long_press_label">Show tooltip</string>
