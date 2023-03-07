@@ -16,16 +16,15 @@
 
 package androidx.compose.ui.input.nestedscroll
 
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.modifier.ModifierLocalNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CoroutineScope
-import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /**
  * Interface to connect to the nested scroll system.
@@ -115,11 +114,13 @@ interface NestedScrollConnection {
  */
 class NestedScrollDispatcher {
 
+    internal var modifierLocalNode: ModifierLocalNode? = null
+
     // lambda to calculate the most outer nested scroll scope for this dispatcher on demand
-    internal var calculateNestedScrollScope: () -> CoroutineScope? = { originNestedScrollScope }
+    internal var calculateNestedScrollScope: () -> CoroutineScope? = { scope }
 
     // the original nested scroll scope for this dispatcher (immediate scope it was created in)
-    internal var originNestedScrollScope: CoroutineScope? = null
+    internal var scope: CoroutineScope? = null
 
     /**
      * Get the outer coroutine scope to dispatch nested fling on.
@@ -151,7 +152,10 @@ class NestedScrollDispatcher {
      * Parent to be set when attached to nested scrolling chain. `null` is valid and means there no
      * nested scrolling parent above
      */
-    internal var parent: NestedScrollConnection? = null
+    internal val parent: NestedScrollConnection?
+        get() = modifierLocalNode?.run {
+            ModifierLocalNestedScroll.current
+        }
 
     /**
      * Dispatch pre scroll pass. This triggers [NestedScrollConnection.onPreScroll] on all the
@@ -232,6 +236,7 @@ value class NestedScrollSource internal constructor(
             Fling -> "Fling"
             @OptIn(ExperimentalComposeUiApi::class)
             Relocate -> "Relocate"
+
             else -> "Invalid"
         }
     }
@@ -327,18 +332,38 @@ value class NestedScrollSource internal constructor(
 fun Modifier.nestedScroll(
     connection: NestedScrollConnection,
     dispatcher: NestedScrollDispatcher? = null
-): Modifier = composed(
-    inspectorInfo = debugInspectorInfo {
+): Modifier = this then NestedScrollElement(connection, dispatcher)
+
+private class NestedScrollElement(
+    val connection: NestedScrollConnection,
+    val dispatcher: NestedScrollDispatcher?
+) : ModifierNodeElement<NestedScrollNode>() {
+    override fun create(): NestedScrollNode {
+        return NestedScrollNode(connection, dispatcher)
+    }
+
+    override fun update(node: NestedScrollNode): NestedScrollNode {
+        node.connection = connection
+        node.updateDispatcher(dispatcher)
+        return node
+    }
+
+    override fun hashCode(): Int {
+        var result = connection.hashCode()
+        result = 31 * result + dispatcher.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is NestedScrollElement) return false
+        if (other.connection != connection) return false
+        if (other.dispatcher != dispatcher) return false
+        return true
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
         name = "nestedScroll"
         properties["connection"] = connection
         properties["dispatcher"] = dispatcher
-    }
-) {
-    val scope = rememberCoroutineScope()
-    // provide noop dispatcher if needed
-    val resolvedDispatcher = dispatcher ?: remember { NestedScrollDispatcher() }
-    remember(connection, resolvedDispatcher, scope) {
-        resolvedDispatcher.originNestedScrollScope = scope
-        NestedScrollModifierLocal(resolvedDispatcher, connection)
     }
 }
