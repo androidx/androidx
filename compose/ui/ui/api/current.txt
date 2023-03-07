@@ -2260,12 +2260,6 @@ package androidx.compose.ui.node {
     method public void onGloballyPositioned(androidx.compose.ui.layout.LayoutCoordinates coordinates);
   }
 
-  public interface IntermediateLayoutModifierNode extends androidx.compose.ui.node.LayoutModifierNode {
-    method public long getTargetSize();
-    method public void setTargetSize(long);
-    property public abstract long targetSize;
-  }
-
   public interface LayoutAwareModifierNode extends androidx.compose.ui.node.DelegatableNode {
     method public default void onPlaced(androidx.compose.ui.layout.LayoutCoordinates coordinates);
     method public default void onRemeasured(long size);

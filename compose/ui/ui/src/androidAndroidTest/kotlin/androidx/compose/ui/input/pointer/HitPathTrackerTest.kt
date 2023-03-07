@@ -39,7 +39,6 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.node.InternalCoreApi
@@ -3563,9 +3562,11 @@ internal class LayoutCoordinatesStub(
 ) : NodeCoordinator(LayoutNode()) {
 
     var additionalOffset = Offset.Zero
-    override fun createLookaheadDelegate(scope: LookaheadScope): LookaheadDelegate {
+    override fun ensureLookaheadDelegateCreated() {
         TODO("Not yet implemented")
     }
+
+    override var lookaheadDelegate: LookaheadDelegate? = null
 
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = TODO("not implemented")

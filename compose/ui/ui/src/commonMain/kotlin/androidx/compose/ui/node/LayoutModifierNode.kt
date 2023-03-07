@@ -80,7 +80,9 @@ interface LayoutModifierNode : Remeasurement, DelegatableNode {
         measurable: IntrinsicMeasurable,
         height: Int
     ): Int = NodeMeasuringIntrinsics.minWidth(
-        this@LayoutModifierNode,
+        { intrinsicMeasurable, constraints ->
+            measure(intrinsicMeasurable, constraints)
+        },
         this,
         measurable,
         height
@@ -93,7 +95,9 @@ interface LayoutModifierNode : Remeasurement, DelegatableNode {
         measurable: IntrinsicMeasurable,
         width: Int
     ): Int = NodeMeasuringIntrinsics.minHeight(
-        this@LayoutModifierNode,
+        { intrinsicMeasurable, constraints ->
+            measure(intrinsicMeasurable, constraints)
+        },
         this,
         measurable,
         width
@@ -106,7 +110,9 @@ interface LayoutModifierNode : Remeasurement, DelegatableNode {
         measurable: IntrinsicMeasurable,
         height: Int
     ): Int = NodeMeasuringIntrinsics.maxWidth(
-        this@LayoutModifierNode,
+        { intrinsicMeasurable, constraints ->
+            measure(intrinsicMeasurable, constraints)
+        },
         this,
         measurable,
         height
@@ -119,7 +125,9 @@ interface LayoutModifierNode : Remeasurement, DelegatableNode {
         measurable: IntrinsicMeasurable,
         width: Int
     ): Int = NodeMeasuringIntrinsics.maxHeight(
-        this@LayoutModifierNode,
+        { intrinsicMeasurable, constraints ->
+            measure(intrinsicMeasurable, constraints)
+        },
         this,
         measurable,
         width
@@ -147,18 +155,14 @@ fun LayoutModifierNode.invalidateMeasurements() = requireLayoutNode().invalidate
 
 internal fun LayoutModifierNode.requestRemeasure() = requireLayoutNode().requestRemeasure()
 
-/**
- * IntermediateLayoutModifier is a [LayoutModifierNode] that will be skipped when
- * looking ahead. During measure pass, [measure] will be invoked with the constraints from the
- * look-ahead, as well as the target size.
- */
-interface IntermediateLayoutModifierNode : LayoutModifierNode {
-    var targetSize: IntSize
-}
+internal object NodeMeasuringIntrinsics {
+    // Fun interface for measure block to avoid autoBoxing of Constraints
+    internal fun interface MeasureBlock {
+        fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult
+    }
 
-private object NodeMeasuringIntrinsics {
     internal fun minWidth(
-        node: LayoutModifierNode,
+        measureBlock: MeasureBlock,
         instrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         h: Int
@@ -169,15 +173,19 @@ private object NodeMeasuringIntrinsics {
             IntrinsicWidthHeight.Width
         )
         val constraints = Constraints(maxHeight = h)
-        val layoutResult = with(node) {
-            IntrinsicsMeasureScope(instrinsicMeasureScope, instrinsicMeasureScope.layoutDirection)
-                .measure(measurable, constraints)
-        }
+        val layoutResult =
+            with(measureBlock) {
+                IntrinsicsMeasureScope(
+                    instrinsicMeasureScope,
+                    instrinsicMeasureScope.layoutDirection
+                ).measure(measurable, constraints)
+            }
+
         return layoutResult.width
     }
 
     internal fun minHeight(
-        node: LayoutModifierNode,
+        measureBlock: MeasureBlock,
         instrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         w: Int
@@ -188,7 +196,7 @@ private object NodeMeasuringIntrinsics {
             IntrinsicWidthHeight.Height
         )
         val constraints = Constraints(maxWidth = w)
-        val layoutResult = with(node) {
+        val layoutResult = with(measureBlock) {
             IntrinsicsMeasureScope(instrinsicMeasureScope, instrinsicMeasureScope.layoutDirection)
                 .measure(measurable, constraints)
         }
@@ -196,7 +204,7 @@ private object NodeMeasuringIntrinsics {
     }
 
     internal fun maxWidth(
-        node: LayoutModifierNode,
+        measureBlock: MeasureBlock,
         instrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         h: Int
@@ -207,7 +215,7 @@ private object NodeMeasuringIntrinsics {
             IntrinsicWidthHeight.Width
         )
         val constraints = Constraints(maxHeight = h)
-        val layoutResult = with(node) {
+        val layoutResult = with(measureBlock) {
             IntrinsicsMeasureScope(instrinsicMeasureScope, instrinsicMeasureScope.layoutDirection)
                 .measure(measurable, constraints)
         }
@@ -215,7 +223,7 @@ private object NodeMeasuringIntrinsics {
     }
 
     internal fun maxHeight(
-        node: LayoutModifierNode,
+        measureBlock: MeasureBlock,
         instrinsicMeasureScope: IntrinsicMeasureScope,
         intrinsicMeasurable: IntrinsicMeasurable,
         w: Int
@@ -226,7 +234,7 @@ private object NodeMeasuringIntrinsics {
             IntrinsicWidthHeight.Height
         )
         val constraints = Constraints(maxWidth = w)
-        val layoutResult = with(node) {
+        val layoutResult = with(measureBlock) {
             IntrinsicsMeasureScope(instrinsicMeasureScope, instrinsicMeasureScope.layoutDirection)
                 .measure(measurable, constraints)
         }

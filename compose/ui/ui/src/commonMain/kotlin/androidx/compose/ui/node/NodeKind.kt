@@ -30,9 +30,8 @@ import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
-import androidx.compose.ui.layout.IntermediateLayoutModifier
+import androidx.compose.ui.layout.IntermediateLayoutModifierNode
 import androidx.compose.ui.layout.LayoutModifier
-import androidx.compose.ui.layout.LookaheadOnPlacedModifier
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.OnPlacedModifier
 import androidx.compose.ui.layout.OnRemeasuredModifier
@@ -105,9 +104,6 @@ internal fun calculateNodeKindSetFrom(element: Modifier.Element): Int {
     if (element is LayoutModifier) {
         mask = mask or Nodes.Layout
     }
-    if (element is IntermediateLayoutModifier) {
-        mask = mask or Nodes.IntermediateMeasure
-    }
     if (element is DrawModifier) {
         mask = mask or Nodes.Draw
     }
@@ -137,8 +133,7 @@ internal fun calculateNodeKindSetFrom(element: Modifier.Element): Int {
     }
     if (
         element is OnPlacedModifier ||
-        element is OnRemeasuredModifier ||
-        element is LookaheadOnPlacedModifier
+        element is OnRemeasuredModifier
     ) {
         mask = mask or Nodes.LayoutAware
     }
