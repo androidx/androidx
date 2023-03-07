@@ -13,6 +13,6 @@
 ** limitations under the License.
 */
 
-package android.support.v4.media;
+package android.support.v4.media.session;
 
-parcelable MediaMetadataCompat;
+@JavaOnlyStableParcelable parcelable ParcelableVolumeInfo;

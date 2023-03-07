@@ -15,4 +15,6 @@
 
 package android.support.v4.media.session;
 
-parcelable ParcelableVolumeInfo;
+@JavaOnlyStableParcelable parcelable MediaSessionCompat.Token;
+@JavaOnlyStableParcelable parcelable MediaSessionCompat.QueueItem;
+@JavaOnlyStableParcelable parcelable MediaSessionCompat.ResultReceiverWrapper;

@@ -13,6 +13,6 @@
 ** limitations under the License.
 */
 
-package android.support.v4.media.session;
+package android.support.v4.media;
 
-parcelable PlaybackStateCompat;
+@JavaOnlyStableParcelable parcelable RatingCompat;
