@@ -348,7 +348,8 @@ open class ScreenshotTestRule(
 
     private fun getDeviceModel(): String {
         var model = Build.MODEL.lowercase()
-        arrayOf("phone", "x86_64", "x86", "x64", "gms").forEach {
+        model = model.replace("sdk_gphone64_", "emulator")
+        arrayOf("phone", "x86_64", "x86", "x64", "gms", "arm64").forEach {
             model = model.replace(it, "")
         }
         return model.trim().replace(" ", "_")
