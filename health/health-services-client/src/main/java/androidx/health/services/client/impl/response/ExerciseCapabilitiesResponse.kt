@@ -26,7 +26,6 @@ import androidx.health.services.client.proto.ResponsesProto
  * Response containing the [ExerciseCapabilities] of the Health Services exercise client on the
  * device.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseCapabilitiesResponse(

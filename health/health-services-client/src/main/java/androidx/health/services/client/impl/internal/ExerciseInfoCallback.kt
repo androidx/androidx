@@ -26,7 +26,6 @@ import com.google.common.util.concurrent.SettableFuture
 /**
  * A callback for ipc invocations dealing with [ExerciseInfo].
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseInfoCallback(private val resultFuture: SettableFuture<ExerciseInfo>) :

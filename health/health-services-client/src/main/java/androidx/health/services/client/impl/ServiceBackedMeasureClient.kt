@@ -44,7 +44,6 @@ import java.util.concurrent.Executor
 /**
  * [MeasureClient] implementation that is backed by Health Services.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)

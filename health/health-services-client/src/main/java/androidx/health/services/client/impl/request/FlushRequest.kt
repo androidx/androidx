@@ -24,7 +24,6 @@ import androidx.health.services.client.proto.RequestsProto
 /**
  * Request to flush data metrics.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FlushRequest(public val packageName: String) :

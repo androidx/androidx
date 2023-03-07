@@ -24,7 +24,6 @@ import androidx.health.services.client.data.ExerciseGoal
 /**
  * Request for adding a [ExerciseGoal] to an exercise.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public data class ExerciseGoalRequest(val packageName: String, val exerciseGoal: ExerciseGoal<*>) :
