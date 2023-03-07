@@ -19,6 +19,7 @@ package androidx.datastore.core
 import android.content.Context
 import android.os.Bundle
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.test.core.app.ApplicationProvider
 import androidx.testing.TestMessageProto.FooProto
 import com.google.common.truth.Truth.assertThat
@@ -100,8 +101,6 @@ class MultiProcessDataStoreMultiProcessTest {
     private lateinit var dataStoreContext: CoroutineContext
     private lateinit var dataStoreScope: TestScope
 
-    private val TAG = "MPDS test"
-
     private val protoSerializer: Serializer<FooProto> = ProtoSerializer<FooProto>(
         FooProto.getDefaultInstance(),
         ExtensionRegistryLite.getEmptyRegistry()
@@ -114,7 +113,7 @@ class MultiProcessDataStoreMultiProcessTest {
         return data
     }
 
-    internal fun createDataStore(
+    private fun createDataStore(
         bundle: Bundle,
         scope: TestScope
     ): DataStoreImpl<FooProto> {
@@ -162,7 +161,7 @@ class MultiProcessDataStoreMultiProcessTest {
 
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
-                it.let { WRITE_TEXT(it) }
+                WRITE_TEXT(it)
             }
         }
     }
@@ -207,7 +206,7 @@ class MultiProcessDataStoreMultiProcessTest {
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
                 waitForSignal()
-                it.let { WRITE_BOOLEAN(it) }
+                WRITE_BOOLEAN(it)
             }
         }
     }
@@ -242,7 +241,7 @@ class MultiProcessDataStoreMultiProcessTest {
         val write = async(newSingleThreadContext("blockedWriter")) {
             dataStore.updateData {
                 condition.await()
-                it.let { WRITE_BOOLEAN(it) }
+                WRITE_BOOLEAN(it)
             }
         }
 
@@ -269,7 +268,7 @@ class MultiProcessDataStoreMultiProcessTest {
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
                 waitForSignal()
-                it.let { WRITE_TEXT(it) }
+                WRITE_TEXT(it)
             }
         }
     }
@@ -331,14 +330,14 @@ class MultiProcessDataStoreMultiProcessTest {
 
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
-                it.let { INCREMENT_INTEGER(it) }
+                INCREMENT_INTEGER(it)
             }
 
             waitForSignal()
 
             val write = async {
                 store.updateData {
-                    it.let { WRITE_BOOLEAN(it) }
+                    WRITE_BOOLEAN(it)
                 }
             }
             waitForSignal()
@@ -391,7 +390,7 @@ class MultiProcessDataStoreMultiProcessTest {
 
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
-                it.let { WRITE_TEXT(it) }
+                WRITE_TEXT(it)
             }
         }
     }
@@ -412,7 +411,7 @@ class MultiProcessDataStoreMultiProcessTest {
         val write = localScope.async {
             dataStore.updateData {
                 blockWrite.await()
-                it.let { WRITE_BOOLEAN(it) }
+                WRITE_BOOLEAN(it)
             }
         }
 
@@ -443,7 +442,7 @@ class MultiProcessDataStoreMultiProcessTest {
 
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
-                it.let { WRITE_TEXT(it) }
+                WRITE_TEXT(it)
             }
         }
     }
@@ -490,23 +489,8 @@ class MultiProcessDataStoreMultiProcessTest {
 
         override fun runTest() = runBlocking<Unit> {
             store.updateData {
-                it.let { WRITE_TEXT(it) }
+                WRITE_TEXT(it)
             }
-        }
-    }
-
-    /**
-     * A corruption handler that attempts to replace the on-disk data with data from produceNewData.
-     *
-     * TODO(zhiyuanwang): replace with androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-     */
-    private class ReplaceFileCorruptionHandler<T>(
-        private val produceNewData: (CorruptionException) -> T
-    ) : CorruptionHandler<T> {
-
-        @Throws(IOException::class)
-        override suspend fun handleCorruption(ex: CorruptionException): T {
-            return produceNewData(ex)
         }
     }
 }
