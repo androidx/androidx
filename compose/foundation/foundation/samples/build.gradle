@@ -36,7 +36,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.2.1")
     implementation("androidx.compose.ui:ui:1.2.1")
     implementation("androidx.compose.ui:ui-text:1.2.1")
-    implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation("androidx.compose.ui:ui-tooling-preview:1.4.0-beta02")
     debugImplementation(project(":compose:ui:ui-tooling"))
 }
 
