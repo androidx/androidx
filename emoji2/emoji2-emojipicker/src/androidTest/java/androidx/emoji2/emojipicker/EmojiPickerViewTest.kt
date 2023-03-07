@@ -39,6 +39,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import org.hamcrest.Description
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -120,6 +121,8 @@ class EmojiPickerViewTest {
         activityTestRule.scenario.onActivity {
             view = it.findViewById(R.id.emojiPickerTest)
         }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
         // Scroll to the nose emoji, long click then select nose in dark skin tone
         findViewByEmoji(view, NOSE_EMOJI)
             ?: onView(withId(EmojiPickerViewR.id.emoji_picker_body))
@@ -143,7 +146,6 @@ class EmojiPickerViewTest {
     @Test
     fun testHeader_highlightCurrentCategory() {
         disableRecent()
-
         assertSelectedHeaderIndex(0)
         scrollToEmoji(NOSE_EMOJI)
         assertSelectedHeaderIndex(1)
