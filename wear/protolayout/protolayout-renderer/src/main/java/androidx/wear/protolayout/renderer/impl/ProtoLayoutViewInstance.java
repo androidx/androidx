@@ -39,12 +39,12 @@ import androidx.wear.protolayout.expression.pipeline.ObservableStateStore;
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.ResourceProto;
+import androidx.wear.protolayout.proto.StateProto;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.ProtoLayoutVisibilityState;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.InflateResult;
-import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.LoadActionListener;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewGroupMutation;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewMutationException;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutThemeImpl;
@@ -68,6 +68,20 @@ import java.util.concurrent.ExecutionException;
  */
 @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 public class ProtoLayoutViewInstance implements AutoCloseable {
+    /**
+     * Listener for clicks on Clickable objects that have an Action to (re)load the contents of a
+     * layout.
+     */
+    public interface LoadActionListener {
+
+        /**
+         * Called when a Clickable that has a LoadAction is clicked.
+         *
+         * @param nextState The state that the next layout should be in.
+         */
+        void onClick(@NonNull StateProto.State nextState);
+    }
+
     private static final int DEFAULT_MAX_CONCURRENT_RUNNING_ANIMATIONS = 4;
 
     @NonNull private static final String TAG = "ProtoLayoutViewInstance";
@@ -688,7 +702,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         ProtoLayoutInflater.Config.Builder inflaterConfigBuilder =
                 new ProtoLayoutInflater.Config.Builder(mUiContext, layout, resolvers)
                         .setLoadActionExecutor(mUiExecutorService)
-                        .setLoadActionListener(mLoadActionListener)
+                        .setLoadActionListener(mLoadActionListener::onClick)
                         .setRendererResources(mRendererResources)
                         .setProtoLayoutTheme(mProtoLayoutTheme)
                         .setAnimationEnabled(mAnimationEnabled)
