@@ -22,7 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.tv.foundation.lazy.layout.LazyLayoutSemanticState
 
 // TODO (b/233188423): Address IllegalExperimentalApiUsage before moving to beta
-@Suppress("ComposableModifierFactory", "ModifierInspectorInfo", "IllegalExperimentalApiUsage")
+@Suppress("ComposableModifierFactory", "IllegalExperimentalApiUsage")
 @ExperimentalFoundationApi
 @Composable
 internal fun rememberLazyListSemanticState(

@@ -232,7 +232,6 @@ internal class TextFieldKeyInput(
     }
 }
 
-@Suppress("ModifierInspectorInfo")
 internal fun Modifier.textFieldKeyInput(
     state: TextFieldState,
     manager: TextFieldSelectionManager,
