@@ -16,6 +16,8 @@
 
 package androidx.camera.core.processing;
 
+import static android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
+
 import static java.util.Objects.requireNonNull;
 
 import android.opengl.EGL14;
@@ -24,7 +26,6 @@ import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
-import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.util.Log;
 import android.util.Size;
@@ -86,8 +87,8 @@ public final class OpenGlRenderer {
     private static final float[] VERTEX_COORDS = {
             -1.0f, -1.0f,   // 0 bottom left
             1.0f, -1.0f,    // 1 bottom right
-            -1.0f,  1.0f,   // 2 top left
-            1.0f,  1.0f,    // 3 top right
+            -1.0f, 1.0f,   // 2 top left
+            1.0f, 1.0f,    // 3 top right
     };
     private static final FloatBuffer VERTEX_BUF = createFloatBuffer(VERTEX_COORDS);
 
@@ -100,7 +101,6 @@ public final class OpenGlRenderer {
     private static final FloatBuffer TEX_BUF = createFloatBuffer(TEX_COORDS);
 
     private static final int SIZEOF_FLOAT = 4;
-    private static final int TEX_TARGET = GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
     private static final OutputSurface NO_OUTPUT_SURFACE =
             OutputSurface.of(EGL14.EGL_NO_SURFACE, 0, 0);
 
@@ -119,7 +119,7 @@ public final class OpenGlRenderer {
     private EGLSurface mTempSurface = EGL14.EGL_NO_SURFACE;
     @Nullable
     private Surface mCurrentSurface;
-    private int mTexId = -1;
+    private int mExternalTextureId = -1;
     private int mProgramHandle = -1;
     private int mTexMatrixLoc = -1;
     private int mPositionLoc = -1;
@@ -133,10 +133,10 @@ public final class OpenGlRenderer {
      * thread as this method, so called GL thread, otherwise an {@link IllegalStateException}
      * will be thrown.
      *
-     * @throws IllegalStateException if the renderer is already initialized or failed to be
-     * initialized.
+     * @throws IllegalStateException    if the renderer is already initialized or failed to be
+     *                                  initialized.
      * @throws IllegalArgumentException if the ShaderProvider fails to create shader or provides
-     * invalid shader string.
+     *                                  invalid shader string.
      */
     public void init(@NonNull ShaderProvider shaderProvider) {
         checkInitializedOrThrow(false);
@@ -147,6 +147,7 @@ public final class OpenGlRenderer {
             createProgram(shaderProvider);
             loadLocations();
             createTexture();
+            useAndConfigureProgram();
         } catch (IllegalStateException | IllegalArgumentException e) {
             releaseInternal();
             throw e;
@@ -172,7 +173,7 @@ public final class OpenGlRenderer {
      * Register the output surface.
      *
      * @throws IllegalStateException if the renderer is not initialized or the caller doesn't run
-     * on the GL thread.
+     *                               on the GL thread.
      */
     public void registerOutputSurface(@NonNull Surface surface) {
         checkInitializedOrThrow(true);
@@ -187,7 +188,7 @@ public final class OpenGlRenderer {
      * Unregister the output surface.
      *
      * @throws IllegalStateException if the renderer is not initialized or the caller doesn't run
-     * on the GL thread.
+     *                               on the GL thread.
      */
     public void unregisterOutputSurface(@NonNull Surface surface) {
         checkInitializedOrThrow(true);
@@ -201,20 +202,21 @@ public final class OpenGlRenderer {
      *
      * @return the texture name
      * @throws IllegalStateException if the renderer is not initialized or the caller doesn't run
-     * on the GL thread.
+     *                               on the GL thread.
      */
     public int getTextureName() {
         checkInitializedOrThrow(true);
         checkGlThreadOrThrow();
 
-        return mTexId;
+        return mExternalTextureId;
     }
 
     /**
      * Renders the texture image to the output surface.
      *
      * @throws IllegalStateException if the renderer is not initialized, the caller doesn't run
-     * on the GL thread or the surface is not registered by {@link #registerOutputSurface(Surface)}.
+     *                               on the GL thread or the surface is not registered by
+     *                               {@link #registerOutputSurface(Surface)}.
      */
     public void render(long timestampNs, @NonNull float[] textureTransform,
             @NonNull Surface surface) {
@@ -241,52 +243,15 @@ public final class OpenGlRenderer {
             GLES20.glScissor(0, 0, outputSurface.getWidth(), outputSurface.getHeight());
         }
 
-        // Select the program.
-        GLES20.glUseProgram(mProgramHandle);
-        checkGlErrorOrThrow("glUseProgram");
-
-        // Set the texture.
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(TEX_TARGET, mTexId);
-
         // TODO(b/245855601): Upload the matrix to GPU when textureTransform is changed.
         // Copy the texture transformation matrix over.
         GLES20.glUniformMatrix4fv(mTexMatrixLoc, /*count=*/1, /*transpose=*/false, textureTransform,
                 /*offset=*/0);
         checkGlErrorOrThrow("glUniformMatrix4fv");
 
-        // Enable the "aPosition" vertex attribute.
-        GLES20.glEnableVertexAttribArray(mPositionLoc);
-        checkGlErrorOrThrow("glEnableVertexAttribArray");
-
-        // Connect vertexBuffer to "aPosition".
-        int coordsPerVertex = 2;
-        int vertexStride = 0;
-        GLES20.glVertexAttribPointer(mPositionLoc, coordsPerVertex, GLES20.GL_FLOAT,
-                /*normalized=*/false, vertexStride, VERTEX_BUF);
-        checkGlErrorOrThrow("glVertexAttribPointer");
-
-        // Enable the "aTextureCoord" vertex attribute.
-        GLES20.glEnableVertexAttribArray(mTexCoordLoc);
-        checkGlErrorOrThrow("glEnableVertexAttribArray");
-
-        // Connect texBuffer to "aTextureCoord".
-        int coordsPerTex = 2;
-        int texStride = 0;
-        GLES20.glVertexAttribPointer(mTexCoordLoc, coordsPerTex, GLES20.GL_FLOAT,
-                /*normalized=*/false, texStride, TEX_BUF);
-        checkGlErrorOrThrow("glVertexAttribPointer");
-
         // Draw the rect.
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /*firstVertex=*/0, /*vertexCount=*/4);
         checkGlErrorOrThrow("glDrawArrays");
-
-        // TODO(b/245855601): Figure out if these calls are necessary.
-        // Done -- disable vertex array, texture, and program.
-        GLES20.glDisableVertexAttribArray(mPositionLoc);
-        GLES20.glDisableVertexAttribArray(mTexCoordLoc);
-        GLES20.glUseProgram(0);
-        GLES20.glBindTexture(TEX_TARGET, 0);
 
         // Set timestamp
         EGLExt.eglPresentationTimeANDROID(mEglDisplay, outputSurface.getEglSurface(), timestampNs);
@@ -391,6 +356,38 @@ public final class OpenGlRenderer {
         }
     }
 
+    private void useAndConfigureProgram() {
+        // Select the program.
+        GLES20.glUseProgram(mProgramHandle);
+        checkGlErrorOrThrow("glUseProgram");
+
+        // Set the texture.
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, mExternalTextureId);
+
+        // Enable the "aPosition" vertex attribute.
+        GLES20.glEnableVertexAttribArray(mPositionLoc);
+        checkGlErrorOrThrow("glEnableVertexAttribArray");
+
+        // Connect vertexBuffer to "aPosition".
+        int coordsPerVertex = 2;
+        int vertexStride = 0;
+        GLES20.glVertexAttribPointer(mPositionLoc, coordsPerVertex, GLES20.GL_FLOAT,
+                /*normalized=*/false, vertexStride, VERTEX_BUF);
+        checkGlErrorOrThrow("glVertexAttribPointer");
+
+        // Enable the "aTextureCoord" vertex attribute.
+        GLES20.glEnableVertexAttribArray(mTexCoordLoc);
+        checkGlErrorOrThrow("glEnableVertexAttribArray");
+
+        // Connect texBuffer to "aTextureCoord".
+        int coordsPerTex = 2;
+        int texStride = 0;
+        GLES20.glVertexAttribPointer(mTexCoordLoc, coordsPerTex, GLES20.GL_FLOAT,
+                /*normalized=*/false, texStride, TEX_BUF);
+        checkGlErrorOrThrow("glVertexAttribPointer");
+    }
+
     private void loadLocations() {
         mPositionLoc = GLES20.glGetAttribLocation(mProgramHandle, "aPosition");
         checkLocationOrThrow(mPositionLoc, "aPosition");
@@ -406,16 +403,20 @@ public final class OpenGlRenderer {
         checkGlErrorOrThrow("glGenTextures");
 
         int texId = textures[0];
-        GLES20.glBindTexture(TEX_TARGET, texId);
+        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texId);
         checkGlErrorOrThrow("glBindTexture " + texId);
 
-        GLES20.glTexParameterf(TEX_TARGET, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-        GLES20.glTexParameterf(TEX_TARGET, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(TEX_TARGET, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-        GLES20.glTexParameteri(TEX_TARGET, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameterf(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER,
+                GLES20.GL_NEAREST);
+        GLES20.glTexParameterf(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER,
+                GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S,
+                GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T,
+                GLES20.GL_CLAMP_TO_EDGE);
         checkGlErrorOrThrow("glTexParameter");
 
-        mTexId = texId;
+        mExternalTextureId = texId;
     }
 
     private int loadFragmentShader(@NonNull ShaderProvider shaderProvider) {
@@ -493,7 +494,7 @@ public final class OpenGlRenderer {
         mTexMatrixLoc = -1;
         mPositionLoc = -1;
         mTexCoordLoc = -1;
-        mTexId = -1;
+        mExternalTextureId = -1;
         mCurrentSurface = null;
         mGlThread = null;
     }
@@ -609,7 +610,7 @@ public final class OpenGlRenderer {
     }
 
     private static int querySurface(@NonNull EGLDisplay eglDisplay, @NonNull EGLSurface eglSurface,
-             int what) {
+            int what) {
         int[] value = new int[1];
         EGL14.eglQuerySurface(eglDisplay, eglSurface, what, value, /*offset=*/0);
         return value[0];
