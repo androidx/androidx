@@ -43,7 +43,7 @@ import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatN
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.FixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.Int32ToFloatNode;
-import androidx.wear.protolayout.expression.pipeline.FloatNodes.StateFloatNode;
+import androidx.wear.protolayout.expression.pipeline.FloatNodes.StateFloatSourceNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.FixedInstantNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.PlatformTimeSourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
@@ -939,9 +939,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 node = new FixedFloatNode(floatSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
-                node =
-                        new StateFloatNode(
-                                mStateStore, floatSource.getStateSource().getSourceKey(), consumer);
+                node = new StateFloatSourceNode(
+                                mStateStore, floatSource.getStateSource(), consumer);
                 break;
             case ARITHMETIC_OPERATION:
                 {

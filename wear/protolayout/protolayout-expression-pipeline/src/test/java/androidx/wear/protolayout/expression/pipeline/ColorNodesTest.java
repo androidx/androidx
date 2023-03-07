@@ -57,6 +57,7 @@ public class ColorNodesTest {
         FixedColor protoNode = FixedColor.newBuilder().setArgb(FROM_COLOR).build();
         FixedColorNode node = new FixedColorNode(protoNode, new AddToListCallback<>(results));
 
+        node.preInit();
         node.init();
 
         assertThat(results).containsExactly(FROM_COLOR);
@@ -152,6 +153,7 @@ public class ColorNodesTest {
                         protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
+        node.preInit();
         node.init();
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -174,6 +176,7 @@ public class ColorNodesTest {
                         protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(false);
 
+        node.preInit();
         node.init();
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -195,6 +198,7 @@ public class ColorNodesTest {
                         protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
+        node.preInit();
         node.init();
         shadowOf(Looper.getMainLooper()).idle();
 
