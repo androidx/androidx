@@ -263,7 +263,8 @@ class Context private constructor(
         INCREMENTAL("room.incremental", defaultValue = true),
         EXPAND_PROJECTION("room.expandProjection", defaultValue = false),
         USE_NULL_AWARE_CONVERTER("room.useNullAwareTypeAnalysis", defaultValue = false),
-        GENERATE_KOTLIN("room.generateKotlin", defaultValue = false);
+        GENERATE_KOTLIN("room.generateKotlin", defaultValue = false),
+        EXPORT_SCHEMA_RESOURCE("room.exportSchemaResource", defaultValue = false);
 
         /**
          * Returns the value of this option passed through the [XProcessingEnv]. If the value
