@@ -79,7 +79,6 @@ private val DefaultCacheSize = 8
  * other layout affecting input, cache can be skipped because most repeated measure calls would miss
  * the cache.
  */
-@ExperimentalTextApi
 @Immutable
 class TextMeasurer constructor(
     private val fallbackFontFamilyResolver: FontFamily.Resolver,
