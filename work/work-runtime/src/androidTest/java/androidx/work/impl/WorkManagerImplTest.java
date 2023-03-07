@@ -1304,6 +1304,79 @@ public class WorkManagerImplTest {
     }
 
     @Test
+    @SmallTest
+    public void testGetWorkInfoById_earliestPossibleRunTime_notEnqueued()
+            throws ExecutionException, InterruptedException {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        work.getWorkSpec().state = RUNNING;
+        work.getWorkSpec().lastEnqueueTime = 1000L;
+        insertWorkSpecAndTags(work);
+
+        WorkInfo info = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
+
+        assertThat(info.getState(), equalTo(RUNNING));
+        assertThat(info.getEarliestPossibleRuntimeMillis(), equalTo(Long.MAX_VALUE));
+    }
+
+    @Test
+    @SmallTest
+    public void testGetWorkInfoById_earliestPossibleRunTime_enqueued()
+            throws ExecutionException, InterruptedException {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        work.getWorkSpec().lastEnqueueTime = 1000L;
+        insertWorkSpecAndTags(work);
+
+        WorkInfo info = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
+
+        assertThat(info.getState(), equalTo(ENQUEUED));
+        assertThat(info.getEarliestPossibleRuntimeMillis(),
+                equalTo(1000L));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    public void testGetWorkInfoById_earliestPossibleRunTime_onetime_initialDelay()
+            throws ExecutionException, InterruptedException {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).setInitialDelay(
+                Duration.ofMillis(2000)).build();
+        work.getWorkSpec().lastEnqueueTime = 1000L;
+        insertWorkSpecAndTags(work);
+
+        WorkInfo info = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
+
+        assertThat(info.getState(), equalTo(ENQUEUED));
+        assertThat(info.getEarliestPossibleRuntimeMillis(),
+                equalTo(3000L));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    public void testGetWorkInfoById_earliestPossibleRunTime_periodic_period()
+            throws ExecutionException, InterruptedException {
+        Duration period = Duration.ofMinutes(15);
+        Duration initialDelay = Duration.ofMillis(2000);
+        Duration lastEnqueueTime = Duration.ofMillis(1000L);
+
+        PeriodicWorkRequest work0 = new PeriodicWorkRequest.Builder(
+                TestWorker.class, period)
+                .setInitialDelay(initialDelay)
+                .build();
+
+        work0.getWorkSpec().lastEnqueueTime = lastEnqueueTime.toMillis();
+        work0.getWorkSpec().setPeriodCount(3);
+        insertWorkSpecAndTags(work0);
+
+        WorkInfo info = mWorkManagerImpl.getWorkInfoById(work0.getId()).get();
+
+        assertThat(info.getState(), equalTo(ENQUEUED));
+        assertThat(info.getEarliestPossibleRuntimeMillis(),
+                equalTo(lastEnqueueTime.plus(period).toMillis()));
+        assertThat(info.getInitialDelayMillis(), equalTo(initialDelay.toMillis()));
+    }
+
+    @Test
     @MediumTest
     public void testGetWorkInfosByTagSync() throws ExecutionException, InterruptedException {
         final String firstTag = "first_tag";
@@ -1850,7 +1923,7 @@ public class WorkManagerImplTest {
                         mWorkManagerImpl.getConfiguration(),
                         trackers,
                         processor, launcher);
-        mWorkManagerImpl =  createWorkManager(mContext, mConfiguration, workTaskExecutor,
+        mWorkManagerImpl = createWorkManager(mContext, mConfiguration, workTaskExecutor,
                 mDatabase, trackers, processor, schedulers(scheduler));
 
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
@@ -2072,6 +2145,10 @@ public class WorkManagerImplTest {
 
     @NonNull
     private static WorkInfo createWorkInfo(UUID id, WorkInfo.State state, List<String> tags) {
-        return new WorkInfo(id, state, new HashSet<>(tags), Data.EMPTY, Data.EMPTY, 0, 0);
+        return new WorkInfo(
+                id, state, new HashSet<>(tags), Data.EMPTY, Data.EMPTY, 0, 0,
+                Constraints.NONE, 0, null,
+                Long.MAX_VALUE // Documented error value.
+        );
     }
 }
