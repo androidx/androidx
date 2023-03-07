@@ -449,11 +449,11 @@ sealed class Snapshot(
                 val snapshot =
                     if (currentSnapshot == null || currentSnapshot is MutableSnapshot)
                         TransparentObserverMutableSnapshot(
-                            previousSnapshot = currentSnapshot as? MutableSnapshot,
+                            parentSnapshot = currentSnapshot as? MutableSnapshot,
                             specifiedReadObserver = readObserver,
                             specifiedWriteObserver = writeObserver,
                             mergeParentObservers = true,
-                            ownsPreviousSnapshot = false
+                            ownsParentSnapshot = false
                         )
                     else if (readObserver == null) return block()
                     else currentSnapshot.takeNestedSnapshot(readObserver)
@@ -1017,7 +1017,7 @@ open class MutableSnapshot internal constructor(
     /**
      * A list of the pinned snapshots handles that must be released by this snapshot
      */
-    internal var previousPinnedSnapshots: IntArray = IntArray(0)
+    internal var previousPinnedSnapshots: IntArray = EmptyIntArray
 
     /**
      * The number of pending nested snapshots of this snapshot. To simplify the code, this
@@ -1029,6 +1029,10 @@ open class MutableSnapshot internal constructor(
      * Tracks whether the snapshot has been applied.
      */
     internal var applied = false
+
+    private companion object {
+        private val EmptyIntArray = IntArray(0)
+    }
 }
 
 /**
@@ -1435,32 +1439,32 @@ internal class NestedMutableSnapshot(
  * A pseudo snapshot that doesn't introduce isolation but does introduce observers.
  */
 internal class TransparentObserverMutableSnapshot(
-    private val previousSnapshot: MutableSnapshot?,
-    internal val specifiedReadObserver: ((Any) -> Unit)?,
-    internal val specifiedWriteObserver: ((Any) -> Unit)?,
+    private val parentSnapshot: MutableSnapshot?,
+    specifiedReadObserver: ((Any) -> Unit)?,
+    specifiedWriteObserver: ((Any) -> Unit)?,
     private val mergeParentObservers: Boolean,
-    private val ownsPreviousSnapshot: Boolean
+    private val ownsParentSnapshot: Boolean
 ) : MutableSnapshot(
     INVALID_SNAPSHOT,
     SnapshotIdSet.EMPTY,
     mergedReadObserver(
         specifiedReadObserver,
-        previousSnapshot?.readObserver ?: currentGlobalSnapshot.get().readObserver,
+        parentSnapshot?.readObserver ?: currentGlobalSnapshot.get().readObserver,
         mergeParentObservers
     ),
     mergedWriteObserver(
         specifiedWriteObserver,
-        previousSnapshot?.writeObserver ?: currentGlobalSnapshot.get().writeObserver
+        parentSnapshot?.writeObserver ?: currentGlobalSnapshot.get().writeObserver
     )
 ) {
     private val currentSnapshot: MutableSnapshot
-        get() = previousSnapshot ?: currentGlobalSnapshot.get()
+        get() = parentSnapshot ?: currentGlobalSnapshot.get()
 
     override fun dispose() {
         // Explicitly don't call super.dispose()
         disposed = true
-        if (ownsPreviousSnapshot) {
-            previousSnapshot?.dispose()
+        if (ownsParentSnapshot) {
+            parentSnapshot?.dispose()
         }
     }
 
@@ -1514,11 +1518,11 @@ internal class TransparentObserverMutableSnapshot(
                 writeObserver = mergedWriteObserver
             )
             TransparentObserverMutableSnapshot(
-                previousSnapshot = nestedSnapshot,
+                parentSnapshot = nestedSnapshot,
                 specifiedReadObserver = mergedReadObserver,
                 specifiedWriteObserver = mergedWriteObserver,
                 mergeParentObservers = false,
-                ownsPreviousSnapshot = true
+                ownsParentSnapshot = true
             )
         } else {
             currentSnapshot.takeNestedMutableSnapshot(
@@ -1617,11 +1621,11 @@ private fun createTransparentSnapshotWithNoParentReadObserver(
     ownsPreviousSnapshot: Boolean = false
 ): Snapshot = if (previousSnapshot is MutableSnapshot || previousSnapshot == null) {
     TransparentObserverMutableSnapshot(
-        previousSnapshot = previousSnapshot as? MutableSnapshot,
+        parentSnapshot = previousSnapshot as? MutableSnapshot,
         specifiedReadObserver = readObserver,
         specifiedWriteObserver = null,
         mergeParentObservers = false,
-        ownsPreviousSnapshot = ownsPreviousSnapshot
+        ownsParentSnapshot = ownsPreviousSnapshot
     )
 } else {
     TransparentObserverSnapshot(

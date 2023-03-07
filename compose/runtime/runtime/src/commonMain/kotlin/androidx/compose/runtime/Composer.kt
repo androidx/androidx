@@ -1261,6 +1261,15 @@ internal class ComposerImpl(
     private var snapshot = currentSnapshot()
     private var compositionToken: Int = 0
     private var sourceInformationEnabled = true
+    private val derivedStateObserver = object : DerivedStateObserver {
+        override fun start(derivedState: DerivedState<*>) {
+            childrenComposing++
+        }
+
+        override fun done(derivedState: DerivedState<*>) {
+            childrenComposing--
+        }
+    }
 
     private val invalidateStack = Stack<RecomposeScopeImpl>()
 
@@ -3316,14 +3325,7 @@ internal class ComposerImpl(
                 // ^^ Experimental for forced
 
                 // Ignore reads of derivedStateOf recalculations
-                observeDerivedStateRecalculations(
-                    start = {
-                        childrenComposing++
-                    },
-                    done = {
-                        childrenComposing--
-                    },
-                ) {
+                observeDerivedStateRecalculations(derivedStateObserver) {
                     if (content != null) {
                         startGroup(invocationKey, invocation)
                         invokeComposable(this, content)

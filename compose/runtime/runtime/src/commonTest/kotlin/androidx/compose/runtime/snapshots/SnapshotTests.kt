@@ -963,11 +963,11 @@ class SnapshotTests {
     @Test
     fun testNestedWithinTransparentMutableSnapshotDisposedCorrectly() {
         val outerSnapshot = TransparentObserverMutableSnapshot(
-            previousSnapshot = currentSnapshot() as? MutableSnapshot,
+            parentSnapshot = currentSnapshot() as? MutableSnapshot,
             specifiedReadObserver = null,
             specifiedWriteObserver = null,
             mergeParentObservers = false,
-            ownsPreviousSnapshot = false
+            ownsParentSnapshot = false
         )
 
         try {
@@ -1027,11 +1027,11 @@ class SnapshotTests {
         val state by mutableStateOf(0)
 
         val outerSnapshot = TransparentObserverMutableSnapshot(
-            previousSnapshot = currentSnapshot() as? MutableSnapshot,
+            parentSnapshot = currentSnapshot() as? MutableSnapshot,
             specifiedReadObserver = { outerChanges++ },
             specifiedWriteObserver = null,
             mergeParentObservers = false,
-            ownsPreviousSnapshot = false
+            ownsParentSnapshot = false
         )
 
         try {
