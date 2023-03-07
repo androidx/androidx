@@ -459,6 +459,78 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun getLineForVerticalPosition_ltr_lineTopCenterBottom_paddingFalse() {
+        val text = "ab\ncde\n\nfg"
+        // default density for the pixel 2 XL where test fails.
+        val density = Density(3.5f, 1.0f)
+        // font size where test fails
+        val fontSize = 14.sp
+
+        @Suppress("DEPRECATION") val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(
+                fontSize = fontSize,
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+            density = density
+        )
+
+        assertThat(paragraph.lineCount).isEqualTo(4)
+
+        for (index in 0 until paragraph.lineCount) {
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineTop(index))
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(
+                    (paragraph.getLineTop(index) + paragraph.getLineBottom(index)) / 2f
+                )
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineBottom(index) - 1f)
+            ).isEqualTo(index)
+        }
+    }
+
+    @Test
+    fun getLineForVerticalPosition_ltr_lineTopCenterBottom_paddingTrue() {
+        val text = "ab\ncde\n\nfg"
+        // default density for the pixel 2 XL where test fails.
+        val density = Density(3.5f, 1.0f)
+        // font size where test fails
+        val fontSize = 14.sp
+
+        @Suppress("DEPRECATION") val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(
+                fontSize = fontSize,
+                platformStyle = PlatformTextStyle(includeFontPadding = true)
+            ),
+            density = density
+        )
+
+        assertThat(paragraph.lineCount).isEqualTo(4)
+
+        for (index in 0 until paragraph.lineCount) {
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineTop(index))
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(
+                    (paragraph.getLineTop(index) + paragraph.getLineBottom(index)) / 2f
+                )
+            ).isEqualTo(index)
+
+            assertThat(
+                paragraph.getLineForVerticalPosition(paragraph.getLineBottom(index) - 1f)
+            ).isEqualTo(index)
+        }
+    }
+
+    @Test
     fun getBoundingBox_ltr_singleLine() {
         with(defaultDensity) {
             val text = "abc"

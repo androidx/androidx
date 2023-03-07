@@ -490,7 +490,7 @@ class TextLayout constructor(
 
     fun getLineEllipsisCount(lineIndex: Int): Int = layout.getEllipsisCount(lineIndex)
 
-    fun getLineForVertical(vertical: Int): Int = layout.getLineForVertical(topPadding + vertical)
+    fun getLineForVertical(vertical: Int): Int = layout.getLineForVertical(vertical - topPadding)
 
     fun getOffsetForHorizontal(line: Int, horizontal: Float): Int {
         return layout.getOffsetForHorizontal(line, horizontal + -1 * getHorizontalPadding(line))
