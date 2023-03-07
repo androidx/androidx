@@ -381,7 +381,7 @@ package androidx.constraintlayout.compose {
   }
 
   public static final class Easing.Companion {
-    method public androidx.constraintlayout.compose.Easing Cubic(@FloatRange(from=0.0, to=1.0) float x1, @FloatRange(from=0.0, to=1.0) float y1, @FloatRange(from=0.0, to=1.0) float x2, @FloatRange(from=0.0, to=1.0) float y2);
+    method public androidx.constraintlayout.compose.Easing Cubic(float x1, float y1, float x2, float y2);
     method public androidx.constraintlayout.compose.Easing getAccelerate();
     method public androidx.constraintlayout.compose.Easing getAnticipate();
     method public androidx.constraintlayout.compose.Easing getDecelerate();
