@@ -21,6 +21,7 @@ import androidx.appactions.interaction.capabilities.core.ActionCapability
 import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
+import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.FulfillmentRequest
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.SessionInfo
@@ -424,7 +425,7 @@ class AppInteractionServiceGrpcImplTest {
         whenever(mockSession.execute(any(), any())).thenAnswer { invocation ->
             (invocation.arguments[1] as CallbackInternal).onSuccess(testFulfillmentResponse)
         }
-        whenever(mockSession.state).thenReturn(AppAction.getDefaultInstance())
+        whenever(mockSession.state).thenReturn(AppDialogState.getDefaultInstance())
         whenever(mockSession.status).thenReturn(ActionCapabilitySession.Status.UNINITIATED)
         whenever(mockSession.uiHandle).thenReturn(Any())
         return mockSession

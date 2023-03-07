@@ -57,6 +57,8 @@ import androidx.appactions.interaction.capabilities.core.values.EntityValue
 import androidx.appactions.interaction.capabilities.core.values.ListItem
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
+import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
+import androidx.appactions.interaction.proto.AppActionsContext.DialogParameter
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
@@ -527,18 +529,16 @@ class TaskCapabilityImplTest {
         assertThat(onSuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
         assertThat(session.state)
             .isEqualTo(
-                AppAction.newBuilder()
-                    .setName("actions.intent.TEST")
-                    .setIdentifier("id")
+                AppDialogState.newBuilder()
+                    .setFulfillmentIdentifier("id")
                     .addParams(
-                        IntentParameter.newBuilder()
+                        DialogParameter.newBuilder()
                             .setName("required")
-                            .setIsRequired(true)
                             .addCurrentValue(
                                 CurrentValue.newBuilder()
                                     .setValue(
                                         buildSearchActionParamValue(
-                                            "invalid",
+                                            "invalid"
                                         ),
                                     )
                                     .setStatus(
@@ -555,7 +555,7 @@ class TaskCapabilityImplTest {
                                                     )
                                                     .setName(
                                                         "valid1",
-                                                    ),
+                                                    )
                                             )
                                             .addEntities(
                                                 Entity
@@ -569,11 +569,7 @@ class TaskCapabilityImplTest {
                                             ),
                                     ),
                             ),
-                    )
-                    .setTaskInfo(
-                        TaskInfo.newBuilder().setSupportsPartialFulfillment(true),
-                    )
-                    .build(),
+                    ).build()
             )
 
         // TURN 2.
@@ -592,13 +588,11 @@ class TaskCapabilityImplTest {
         assertThat(turn2SuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
         assertThat(session.state)
             .isEqualTo(
-                AppAction.newBuilder()
-                    .setName("actions.intent.TEST")
-                    .setIdentifier("id")
+                AppDialogState.newBuilder()
+                    .setFulfillmentIdentifier("id")
                     .addParams(
-                        IntentParameter.newBuilder()
+                        DialogParameter.newBuilder()
                             .setName("required")
-                            .setIsRequired(true)
                             .addCurrentValue(
                                 CurrentValue.newBuilder()
                                     .setValue(
@@ -615,10 +609,7 @@ class TaskCapabilityImplTest {
                                     ),
                             ),
                     )
-                    .setTaskInfo(
-                        TaskInfo.newBuilder().setSupportsPartialFulfillment(true),
-                    )
-                    .build(),
+                    .build()
             )
     }
 
@@ -705,13 +696,11 @@ class TaskCapabilityImplTest {
         assertThat(onFinishListItemCb.getFuture().isDone()).isFalse()
         assertThat(session.state)
             .isEqualTo(
-                AppAction.newBuilder()
-                    .setName("actions.intent.TEST")
-                    .setIdentifier("selectListItem")
+                AppDialogState.newBuilder()
+                    .setFulfillmentIdentifier("selectListItem")
                     .addParams(
-                        IntentParameter.newBuilder()
+                        DialogParameter.newBuilder()
                             .setName("listItem")
-                            .setIsRequired(true)
                             .addCurrentValue(
                                 CurrentValue.newBuilder()
                                     .setValue(
@@ -720,7 +709,7 @@ class TaskCapabilityImplTest {
                                         ),
                                     )
                                     .setStatus(
-                                        CurrentValue.Status.DISAMBIG,
+                                        CurrentValue.Status.DISAMBIG
                                     )
                                     .setDisambiguationData(
                                         DisambiguationData
@@ -744,15 +733,11 @@ class TaskCapabilityImplTest {
                             .build(),
                     )
                     .addParams(
-                        IntentParameter.newBuilder()
+                        DialogParameter.newBuilder()
                             .setName("string")
-                            .setIsRequired(true)
-                            .build(),
+                            .build()
                     )
-                    .setTaskInfo(
-                        TaskInfo.newBuilder().setSupportsPartialFulfillment(true),
-                    )
-                    .build(),
+                    .build()
             )
 
         // second sync request, sending grounded ParamValue with identifier only
@@ -983,13 +968,14 @@ class TaskCapabilityImplTest {
             return !paramValue.hasIdentifier()
         }
 
-        // TODO(b/269638788) migrate session state to AppDialogState message
-        @Suppress("DEPRECATION")
-        private fun getCurrentValues(argName: String, appAction: AppAction): List<CurrentValue> {
-            return appAction.getParamsList().stream()
-                .filter { intentParam -> intentParam.getName().equals(argName) }
+        private fun getCurrentValues(
+            argName: String,
+            appDialogState: AppDialogState
+        ): List<CurrentValue> {
+            return appDialogState.getParamsList().stream()
+                .filter { dialogParam -> dialogParam.getName().equals(argName) }
                 .findFirst()
-                .orElse(IntentParameter.getDefaultInstance())
+                .orElse(DialogParameter.getDefaultInstance())
                 .getCurrentValueList()
         }
 

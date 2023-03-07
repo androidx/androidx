@@ -40,7 +40,8 @@ import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLo
 import androidx.appactions.interaction.capabilities.core.impl.utils.LoggerInternal;
 import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.MissingRequiredArgException;
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction;
-import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
+import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState;
+import androidx.appactions.interaction.proto.AppActionsContext.DialogParameter;
 import androidx.appactions.interaction.proto.CurrentValue;
 import androidx.appactions.interaction.proto.CurrentValue.Status;
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment;
@@ -48,13 +49,11 @@ import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.Fulf
 import androidx.appactions.interaction.proto.FulfillmentResponse;
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput;
 import androidx.appactions.interaction.proto.ParamValue;
-import androidx.appactions.interaction.proto.TaskInfo;
 import androidx.appactions.interaction.proto.TouchEventMetadata;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -613,31 +612,20 @@ final class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT> {
                 "create FulfillmentResponse from ExecutionResult");
     }
 
-    private List<IntentParameter> addStateToParamsContext(List<IntentParameter> params) {
-        List<IntentParameter> updatedList = new ArrayList<>();
-        params.stream()
+    AppDialogState getAppDialogState() {
+        AppDialogState.Builder appDialogStateBuilder = AppDialogState.newBuilder();
+        mAppAction.getParamsList().stream()
                 .forEach(
-                        param -> {
-                            List<CurrentValue> vals = mCurrentValuesMap.get(param.getName());
+                        intentParam -> {
+                            List<CurrentValue> vals = mCurrentValuesMap.get(intentParam.getName());
+                            DialogParameter.Builder dialogParameterBuilder =
+                                    DialogParameter.newBuilder().setName(intentParam.getName());
                             if (vals != null) {
-                                updatedList.add(
-                                        param.toBuilder()
-                                                .clearCurrentValue()
-                                                .addAllCurrentValue(vals)
-                                                .build());
-                            } else {
-                                updatedList.add(param);
+                                dialogParameterBuilder.addAllCurrentValue(vals);
                             }
+                            appDialogStateBuilder.addParams(dialogParameterBuilder);
                         });
-        return updatedList;
-    }
-
-    AppAction getAppAction() {
-        return mAppAction.toBuilder()
-                .clearParams()
-                .addAllParams(addStateToParamsContext(mAppAction.getParamsList()))
-                .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(true))
-                .build();
+        return appDialogStateBuilder.setFulfillmentIdentifier(mAppAction.getIdentifier()).build();
     }
 
     /** Convert from java capabilities {@link ExecutionResult} to {@link StructuredOutput} proto. */
