@@ -54,7 +54,6 @@ import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FloatToInt32Node
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartOpNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.PlatformInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
-import androidx.wear.protolayout.expression.pipeline.PlatformDataSources.SensorGatewayPlatformDataSource;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.FixedStringNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.FloatFormatNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.Int32FormatNode;
