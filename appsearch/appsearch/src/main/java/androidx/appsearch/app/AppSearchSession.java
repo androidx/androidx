@@ -208,17 +208,14 @@ public interface AppSearchSession extends Closeable {
      *
      * <p>Search suggestions with the multiple term {@code suggestionQueryExpression} "org t", the
      * suggested result will be "org term1" - The last token is completed by the suggested
-     * String, even if it won't return any result.
+     * String.
      *
-     * <p>Search suggestions with operators. All operators will be considered as a normal term.
-     * <ul>
-     *     <li>Search suggestions with the {@code suggestionQueryExpression} "term1 OR", the
-     *     suggested result is "term1 org".
-     *     <li>Search suggestions with the {@code suggestionQueryExpression} "term3 OR t", the
-     *     suggested result is "term3 OR term1".
-     *     <li>Search suggestions with the {@code suggestionQueryExpression} "content:t", the
-     *     suggested result is empty. It cannot find a document that contains the term "content:t".
-     * </ul>
+     * <p>Operators in {@link #search} are supported.
+     * <p><b>NOTE:</b> Exclusion and Grouped Terms in the last term is not supported.
+     * <p>example: "apple -f": This Api will throw an
+     * {@link androidx.appsearch.exceptions.AppSearchException} with
+     * {@link AppSearchResult#RESULT_INVALID_ARGUMENT}.
+     * <p>example: "apple (f)": This Api will return an empty results.
      *
      * <p>Invalid example: All these input {@code suggestionQueryExpression} don't have a valid
      * last token, AppSearch will return an empty result list.
@@ -228,10 +225,6 @@ public interface AppSearchSession extends Closeable {
      *     <li>"f:"    - Ending in an operator.
      *     <li>"f    " - Ending in trailing space.
      * </ul>
-     *
-     * <p>Property restrict query like "subject:f" is not supported in suggestion API. It will
-     * return suggested String starting with "f" even if the term appears other than "subject"
-     * property.
      *
      * @param suggestionQueryExpression the non empty query string to search suggestions
      * @param searchSuggestionSpec      spec for setting document filters
@@ -243,11 +236,6 @@ public interface AppSearchSession extends Closeable {
      * @see #search(String, SearchSpec)
      * <!--@exportToFramework:ifJetpack()-->@hide<!--@exportToFramework:else()-->
      */
-    //TODO(b/227356108) Change the comment in this API after fix following issues.
-    // 1: support property restrict tokenization, Example: [subject:car] will return ["cart",
-    // "carburetor"] if AppSearch has documents contain those terms.
-    // 2: support multiple terms, Example: [bar f] will return suggestions [bar foo] that could
-    // be used to retrieve documents that contain both terms "bar" and "foo".
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     ListenableFuture<List<SearchSuggestionResult>> searchSuggestionAsync(

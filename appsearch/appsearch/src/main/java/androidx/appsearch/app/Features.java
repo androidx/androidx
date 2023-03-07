@@ -144,6 +144,13 @@ public interface Features {
     String JOIN_SPEC_AND_QUALIFIED_ID = "JOIN_SPEC_AND_QUALIFIED_ID";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link AppSearchSession#searchSuggestionAsync}.
+     * @hide
+     */
+    String SEARCH_SUGGESTION = "SEARCH_SUGGESTION";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.

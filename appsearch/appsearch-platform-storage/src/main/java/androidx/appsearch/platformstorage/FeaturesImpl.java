@@ -48,6 +48,8 @@ final class FeaturesImpl implements Features {
 
             // Android U Features
             case Features.JOIN_SPEC_AND_QUALIFIED_ID:
+                // fall through
+            case Features.SEARCH_SUGGESTION:
                 return BuildCompat.isAtLeastU();
             case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
                 // TODO(b/203700301) : Update to reflect support in Android U+ once this feature is
