@@ -47,7 +47,7 @@ internal constructor(
             )
         }
 
-        private fun createRequestMetadata(fulfillment: Fulfillment): RequestMetadata? {
+        internal fun createRequestMetadata(fulfillment: Fulfillment): RequestMetadata? {
             return if (
                 fulfillment.type == Fulfillment.Type.UNKNOWN_TYPE ||
                 fulfillment.type == Fulfillment.Type.UNRECOGNIZED
@@ -61,7 +61,7 @@ internal constructor(
         @Suppress(
             "DEPRECATION",
         ) // Convert the deprecated "fp.valuesList" property to the new format.
-        private fun convertToArgumentMap(
+        internal fun convertToArgumentMap(
             fulfillment: Fulfillment,
         ): Map<String, List<FulfillmentValue>> {
             val result = mutableMapOf<String, List<FulfillmentValue>>()

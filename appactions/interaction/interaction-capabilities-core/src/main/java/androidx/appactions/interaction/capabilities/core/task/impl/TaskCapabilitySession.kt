@@ -118,7 +118,7 @@ internal class TaskCapabilitySession<
      * <p>If sessionOrchestrator is not idle, do nothing, since this method will automatically be
      * called when sessionOrchestrator becomes idle.
      */
-    private fun dispatchPendingRequestIfIdle() {
+    internal fun dispatchPendingRequestIfIdle() {
         synchronized(requestLock) {
             if (!sessionOrchestrator.isIdle()) {
                 return
