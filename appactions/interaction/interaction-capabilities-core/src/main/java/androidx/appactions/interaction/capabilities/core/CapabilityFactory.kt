@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-package androidx.appactions.interaction.capabilities.communication;
+package androidx.appactions.interaction.capabilities.core
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo
+
+/** Annotates a class for creating some ActionCapability.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class CapabilityFactory(val name: String)
