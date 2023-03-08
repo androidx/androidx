@@ -60,7 +60,10 @@ fun SearchBarSample() {
         // Talkback focus order sorts based on x and y position before considering z-index. The
         // extra Box with semantics and fillMaxWidth is a workaround to get the search bar to focus
         // before the content.
-        Box(Modifier.semantics { isContainer = true }.zIndex(1f).fillMaxWidth()) {
+        Box(Modifier.semantics {
+            @Suppress("DEPRECATION")
+            isContainer = true
+        }.zIndex(1f).fillMaxWidth()) {
             SearchBar(
                 modifier = Modifier.align(Alignment.TopCenter),
                 query = text,
@@ -119,7 +122,10 @@ fun DockedSearchBarSample() {
         // Talkback focus order sorts based on x and y position before considering z-index. The
         // extra Box with semantics and fillMaxWidth is a workaround to get the search bar to focus
         // before the content.
-        Box(Modifier.semantics { isContainer = true }.zIndex(1f).fillMaxWidth()) {
+        Box(Modifier.semantics {
+            @Suppress("DEPRECATION")
+            isContainer = true
+        }.zIndex(1f).fillMaxWidth()) {
             DockedSearchBar(
                 modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
                 query = text,

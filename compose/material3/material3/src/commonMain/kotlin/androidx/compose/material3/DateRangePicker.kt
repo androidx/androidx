@@ -624,7 +624,10 @@ private fun SwitchableDateEntryContent(
     Crossfade(
         targetState = displayMode,
         animationSpec = spring(),
-        modifier = Modifier.semantics { isContainer = true }) { mode ->
+        modifier = Modifier.semantics {
+            @Suppress("DEPRECATION")
+            isContainer = true
+        }) { mode ->
         when (mode) {
             DisplayMode.Picker -> DateRangePickerContent(
                 selectedStartDateMillis = selectedStartDateMillis,

@@ -680,7 +680,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         fun depthFirstSearch(currNode: SemanticsNode) {
             // Add this node to the list we will eventually sort
             geometryList.add(currNode)
-            if (currNode.semanticsNodeIsStructurallySignificant) {
+            if (currNode.isTraversalGroup == true) {
                 // Recurse and record the container's children, sorted
                 containerMapToChildren[currNode.id] = subtreeSortedByGeometryGrouping(
                     layoutIsRtl, currNode.children.toMutableList()
@@ -3256,25 +3256,8 @@ private fun SemanticsNode.hasPaneTitle() = config.contains(SemanticsProperties.P
 private val SemanticsNode.isPassword: Boolean get() = config.contains(SemanticsProperties.Password)
 private val SemanticsNode.isTextField get() = this.unmergedConfig.contains(SemanticsActions.SetText)
 private val SemanticsNode.isRtl get() = layoutInfo.layoutDirection == LayoutDirection.Rtl
-private val SemanticsNode.isContainer get() = config.getOrNull(SemanticsProperties.IsContainer)
-private val SemanticsNode.hasCollectionInfo
-    get() =
-        config.contains(SemanticsProperties.CollectionInfo)
-private val SemanticsNode.isScrollable get() = config.contains(SemanticsActions.ScrollBy)
-
-private val SemanticsNode.semanticsNodeIsStructurallySignificant: Boolean
-    get() {
-        // We check if `isContainer == false` first to ensure if this flag is set, the node is not
-        // considered structural, even if it is a collection or a scrollable.
-        if (this.isContainer == false) {
-            return false
-        } else if (this.isContainer == true ||
-            this.hasCollectionInfo || this.isScrollable
-        ) {
-            return true
-        }
-        return false
-    }
+private val SemanticsNode.isTraversalGroup get() =
+    config.getOrNull(SemanticsProperties.IsTraversalGroup)
 
 private val SemanticsNode.infoContentDescriptionOrNull get() = this.unmergedConfig.getOrNull(
     SemanticsProperties.ContentDescription)?.firstOrNull()
