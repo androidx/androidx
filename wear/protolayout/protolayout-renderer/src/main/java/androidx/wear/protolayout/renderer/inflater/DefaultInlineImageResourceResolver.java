@@ -22,6 +22,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +36,7 @@ import java.nio.ByteBuffer;
 /** Resource resolver for inline resources. */
 public class DefaultInlineImageResourceResolver implements InlineImageResourceResolver {
     private static final int RGB565_BYTES_PER_PX = 2;
+    private static final String TAG = "InlineImageResolver";
 
     @NonNull private final Context mAppContext;
 
@@ -102,12 +104,15 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
         return bitmap;
     }
 
-    @NonNull
+    @Nullable
     private Bitmap loadStructuredBitmap(@NonNull InlineImageResource inlineImage) {
         Bitmap bitmap =
                 BitmapFactory.decodeByteArray(
                         inlineImage.getData().toByteArray(), 0, inlineImage.getData().size());
-
+        if (bitmap == null) {
+            Log.e(TAG, "Unable to load structured bitmap.");
+            return null;
+        }
         return Bitmap.createScaledBitmap(
                 bitmap, inlineImage.getWidthPx(), inlineImage.getHeightPx(), /* filter= */ true);
     }
