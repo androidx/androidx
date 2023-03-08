@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package androidx.compose.foundation.demos.text2
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.TextFieldState
 import androidx.compose.material.LocalTextStyle
@@ -49,7 +51,7 @@ fun BasicTextField2Demos() {
 @Composable
 fun PlainBasicTextField2() {
     val state = remember { TextFieldState() }
-    BasicTextField2(state, Modifier.fillMaxWidth(), textStyle = LocalTextStyle.current)
+    BasicTextField2(state, Modifier, textStyle = LocalTextStyle.current)
 }
 
 @Composable
@@ -62,7 +64,7 @@ fun StateTogglingBasicTextField2() {
         counter %= 2
     })
 
-    BasicTextField2(state, Modifier.fillMaxWidth(), textStyle = LocalTextStyle.current)
+    BasicTextField2(state, Modifier, textStyle = LocalTextStyle.current)
 }
 
 @Composable
@@ -72,5 +74,5 @@ fun DigitsOnlyBasicTextField2() {
             if (new.text.isDigitsOnly()) new else old
         }
     }
-    BasicTextField2(state, Modifier.fillMaxWidth(), textStyle = LocalTextStyle.current)
+    BasicTextField2(state, Modifier, textStyle = LocalTextStyle.current)
 }

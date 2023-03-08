@@ -16,8 +16,10 @@
 
 package androidx.compose.foundation.text2.service
 
+import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.text2.TextFieldState
 import androidx.compose.foundation.text2.input.EditCommand
+import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 
 /**
@@ -59,4 +61,9 @@ internal interface EditableTextInputSession : TextInputSession {
      * Callback to execute for InputConnection to communicate the changes requested by the IME.
      */
     fun requestEdits(editCommands: List<EditCommand>)
+
+    /**
+     * IME configuration to use when creating new [InputConnection]s while this session is active.
+     */
+    val imeOptions: ImeOptions
 }

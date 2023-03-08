@@ -26,6 +26,7 @@ import androidx.compose.foundation.text2.input.SetComposingTextCommand
 import androidx.compose.foundation.text2.input.SetSelectionCommand
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -48,6 +49,7 @@ class StatelessInputConnectionTest {
 
     private var isOpen: Boolean = true
     private var value: TextFieldValue = TextFieldValue()
+    private var imeOptions: ImeOptions = ImeOptions.Default
     private var onRequestEdits: ((List<EditCommand>) -> Unit)? = null
 
     private val activeSessionProvider: () -> EditableTextInputSession? = { activeSession }
@@ -61,6 +63,9 @@ class StatelessInputConnectionTest {
 
             override val value: TextFieldValue
                 get() = this@StatelessInputConnectionTest.value
+
+            override val imeOptions: ImeOptions
+                get() = this@StatelessInputConnectionTest.imeOptions
 
             override fun requestEdits(editCommands: List<EditCommand>) {
                 onRequestEdits?.invoke(editCommands)

@@ -16,10 +16,12 @@
 
 package androidx.compose.foundation.text2
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.input.EditProcessor
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 
+@ExperimentalFoundationApi
 class TextFieldState(
     initialValue: TextFieldValue = TextFieldValue(),
     filter: TextEditFilter = TextEditFilter.Default
@@ -31,6 +33,7 @@ class TextFieldState(
         get() = editProcessor.value
 }
 
+@ExperimentalFoundationApi
 fun interface TextEditFilter {
 
     fun filter(oldValue: TextFieldValue, newValue: TextFieldValue): TextFieldValue
@@ -40,6 +43,7 @@ fun interface TextEditFilter {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldState.deselect() {
     editProcessor.reset(value.copy(selection = TextRange.Zero, composition = TextRange.Zero))
 }
