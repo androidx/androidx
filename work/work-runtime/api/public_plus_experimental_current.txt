@@ -394,11 +394,15 @@ package androidx.work {
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long!> getLastCancelAllTimeMillis();
     method public abstract androidx.lifecycle.LiveData<java.lang.Long!> getLastCancelAllTimeMillisLiveData();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkInfo!> getWorkInfoById(java.util.UUID);
+    method public abstract kotlinx.coroutines.flow.Flow<androidx.work.WorkInfo!> getWorkInfoByIdFlow(java.util.UUID);
     method public abstract androidx.lifecycle.LiveData<androidx.work.WorkInfo!> getWorkInfoByIdLiveData(java.util.UUID);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfos(androidx.work.WorkQuery);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTag(String);
+    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTagFlow(String);
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosByTagLiveData(String);
+    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosFlow(androidx.work.WorkQuery);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWork(String);
+    method public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWorkFlow(String);
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosForUniqueWorkLiveData(String);
     method public abstract androidx.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo!>!> getWorkInfosLiveData(androidx.work.WorkQuery);
     method public static void initialize(android.content.Context, androidx.work.Configuration);
