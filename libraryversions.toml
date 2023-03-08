@@ -1,6 +1,5 @@
 [versions]
 ACTIVITY = "1.8.0-alpha02"
-ADS_IDENTIFIER = "1.0.0-alpha06"
 ANNOTATION = "1.7.0-alpha01"
 ANNOTATION_EXPERIMENTAL = "1.4.0-alpha01"
 APPACTIONS_INTERACTION = "1.0.0-alpha01"
@@ -157,7 +156,6 @@ WORK = "2.9.0-alpha01"
 
 [groups]
 ACTIVITY = { group = "androidx.activity", atomicGroupVersion = "versions.ACTIVITY" }
-ADS = { group = "androidx.ads" }
 ANNOTATION = { group = "androidx.annotation" }
 APPACTIONS_INTERACTION = { group = "androidx.appactions.interaction", atomicGroupVersion = "versions.APPACTIONS_INTERACTION" }
 APPCOMPAT = { group = "androidx.appcompat", atomicGroupVersion = "versions.APPCOMPAT" }
