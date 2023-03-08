@@ -48,7 +48,6 @@ import kotlinx.coroutines.flow.update
  * [androidx.wear.protolayout.expression.DynamicBuilders.DynamicType] within its fields.
  *
  * Due to [WireComplicationData]'s shallow copy strategy the input is modified in-place.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationDataExpressionEvaluator(
@@ -217,7 +216,7 @@ class ComplicationDataExpressionEvaluator(
         state
             .onEach {
                 if (it.invalid.isNotEmpty()) _data.value = INVALID_DATA
-                else if (it.pending.isEmpty()) _data.value = it.data
+                else if (it.pending.isEmpty() && it.preUpdateCount == 0) _data.value = it.data
             }
             .launchIn(coroutineScope)
     }
@@ -231,16 +230,45 @@ class ComplicationDataExpressionEvaluator(
         val pending: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
         val invalid: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
         val complete: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
+        val preUpdateCount: Int = 0,
     ) {
         val all = pending + invalid + complete
 
-        fun withInvalid(receiver: ComplicationEvaluationResultReceiver<out Any>) =
-            State(data, pending - receiver, invalid + receiver, complete - receiver)
+        init {
+            require(preUpdateCount >= 0) {
+                "DynamicTypeValueReceiver invoked onData() more times than onPreUpdate()."
+            }
+        }
 
-        fun withComplete(
+        fun withPreUpdate() =
+            State(
+                data,
+                pending = pending,
+                invalid = invalid,
+                complete = complete,
+                preUpdateCount + 1,
+            )
+
+        fun withInvalid(receiver: ComplicationEvaluationResultReceiver<out Any>) =
+            State(
+                data,
+                pending = pending - receiver,
+                invalid = invalid + receiver,
+                complete = complete - receiver,
+                preUpdateCount - 1,
+            )
+
+        fun withUpdate(
             data: WireComplicationData,
             receiver: ComplicationEvaluationResultReceiver<out Any>,
-        ) = State(data, pending - receiver, invalid - receiver, complete + receiver)
+        ) =
+            State(
+                data,
+                pending = pending - receiver,
+                invalid = invalid - receiver,
+                complete = complete + receiver,
+                preUpdateCount - 1,
+            )
     }
 
     private inner class ComplicationEvaluationResultReceiver<T : Any>(
@@ -262,14 +290,13 @@ class ComplicationDataExpressionEvaluator(
             boundDynamicType.close()
         }
 
-        override fun onPreUpdate() {}
+        override fun onPreUpdate() {
+            state.update { it.withPreUpdate() }
+        }
 
         override fun onData(newData: T) {
             state.update {
-                it.withComplete(
-                    setter(WireComplicationData.Builder(it.data), newData).build(),
-                    this
-                )
+                it.withUpdate(setter(WireComplicationData.Builder(it.data), newData).build(), this)
             }
         }
 
