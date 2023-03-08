@@ -308,10 +308,10 @@ class MediaRouter2Utils {
         @DoNotInline
         public static void copyDescriptorVisibilityToBuilder(MediaRoute2Info.Builder builder,
                 MediaRouteDescriptor descriptor) {
-            if (descriptor.isVisibilityRestricted()) {
-                builder.setVisibilityRestricted(descriptor.getAllowedPackages());
-            } else {
+            if (descriptor.isVisibilityPublic()) {
                 builder.setVisibilityPublic();
+            } else {
+                builder.setVisibilityRestricted(descriptor.getAllowedPackages());
             }
         }
     }
