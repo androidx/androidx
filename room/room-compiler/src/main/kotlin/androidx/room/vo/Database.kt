@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
 import java.io.File
+import java.io.OutputStream
 import org.apache.commons.codec.digest.DigestUtils
 
 /**
@@ -124,5 +125,10 @@ data class Database(
             }
         }
         SchemaBundle.serialize(schemaBundle, file)
+    }
+
+    fun exportSchema(outputStream: OutputStream) {
+        val schemaBundle = SchemaBundle(SchemaBundle.LATEST_FORMAT, bundle)
+        SchemaBundle.serialize(schemaBundle, outputStream)
     }
 }
