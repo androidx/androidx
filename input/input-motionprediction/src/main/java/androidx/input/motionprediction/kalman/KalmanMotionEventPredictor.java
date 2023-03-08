@@ -31,8 +31,8 @@ import androidx.input.motionprediction.utils.PredictionEstimator;
  */
 @RestrictTo(LIBRARY)
 public class KalmanMotionEventPredictor implements MotionEventPredictor {
-    private MultiPointerPredictor mMultiPointerPredictor = new MultiPointerPredictor();
-    private PredictionEstimator mPredictionEstimator;
+    private final MultiPointerPredictor mMultiPointerPredictor = new MultiPointerPredictor();
+    private final PredictionEstimator mPredictionEstimator;
 
     public KalmanMotionEventPredictor(@NonNull Context context) {
         mPredictionEstimator = new PredictionEstimator(context);
@@ -40,9 +40,6 @@ public class KalmanMotionEventPredictor implements MotionEventPredictor {
 
     @Override
     public void record(@NonNull MotionEvent event) {
-        if (mMultiPointerPredictor == null) {
-            return;
-        }
         mPredictionEstimator.record(event);
         mMultiPointerPredictor.onTouchEvent(event);
     }
@@ -50,15 +47,7 @@ public class KalmanMotionEventPredictor implements MotionEventPredictor {
     @Nullable
     @Override
     public MotionEvent predict() {
-        if (mMultiPointerPredictor == null) {
-            return null;
-        }
         final int predictionTimeDelta = mPredictionEstimator.estimate();
         return mMultiPointerPredictor.predict(predictionTimeDelta);
-    }
-
-    @Override
-    public void close() {
-        mMultiPointerPredictor = null;
     }
 }
