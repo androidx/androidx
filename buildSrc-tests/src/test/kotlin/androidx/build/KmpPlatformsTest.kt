@@ -23,49 +23,51 @@ class KmpPlatformsTest {
 
     @Test
     fun withAnEmptyFlag_itReturnsTheDefaultValue() {
-        assertThat(KmpFlagParser.parse("")).isEqualTo(setOf(KmpPlatform.JVM))
+        assertThat(KmpFlagParser.parse("")).isEqualTo(KmpPlatform.enabledByDefault.toSet()
+)
     }
 
     @Test
     fun withANullFlag_itReturnsTheDefaultValue() {
-        assertThat(KmpFlagParser.parse(null)).isEqualTo(setOf(KmpPlatform.JVM))
+        assertThat(KmpFlagParser.parse(null)).isEqualTo(KmpPlatform.enabledByDefault.toSet()
+)
     }
 
     @Test
     fun withASingleDefaultPlatform_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("+jvm")).isEqualTo(setOf(KmpPlatform.JVM))
+        assertThat(KmpFlagParser.parse("+jvm")).isEqualTo(KmpPlatform.enabledByDefault.toSet())
     }
 
     @Test
     fun withNoPlatforms_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("-jvm")).isEqualTo(emptySet<KmpPlatform>())
+        assertThat(KmpFlagParser.parse("-jvm,-mac,-linux")).isEqualTo(emptySet<KmpPlatform>())
     }
 
     @Test
     fun withASingleNonDefaultPlatform_itParsesTheFlagCorrectly() {
         assertThat(KmpFlagParser.parse("+js")).isEqualTo(
-            setOf(KmpPlatform.JVM, KmpPlatform.JS)
+            KmpPlatform.enabledByDefault.toSet() + KmpPlatform.JS
         )
     }
 
     @Test
     fun withAMultiplePlatforms_itParsesTheFlagCorrectly() {
         assertThat(KmpFlagParser.parse("+js,+mac")).isEqualTo(
-            setOf(KmpPlatform.JVM, KmpPlatform.JS, KmpPlatform.MAC)
+            setOf(KmpPlatform.JVM, KmpPlatform.JS, KmpPlatform.MAC, KmpPlatform.LINUX)
         )
     }
 
     @Test
     fun withNegativeFlags_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("-jvm,+mac")).isEqualTo(
-            setOf(KmpPlatform.MAC)
+        assertThat(KmpFlagParser.parse("-jvm,-linux,+js")).isEqualTo(
+            setOf(KmpPlatform.MAC, KmpPlatform.JS)
         )
     }
 
     @Test
-    fun withTheNativeFlag_itParsesTheFlagCorrectly() {
-        assertThat(KmpFlagParser.parse("+native")).isEqualTo(
-            setOf(KmpPlatform.JVM, KmpPlatform.MAC, KmpPlatform.LINUX)
+    fun withTheNegativeNativeFlag_itParsesTheFlagCorrectly() {
+        assertThat(KmpFlagParser.parse("-native")).isEqualTo(
+            setOf(KmpPlatform.JVM)
         )
     }
 

@@ -273,6 +273,9 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         extension: AndroidXExtension,
         plugin: KotlinBasePluginWrapper
     ) {
+        if (plugin is KotlinMultiplatformPluginWrapper) {
+            project.configureMultiplatformConfigurationCacheIncompatibleTasks()
+        }
         project.afterEvaluate {
             project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
                 if (extension.type.compilationTarget == CompilationTarget.HOST &&
@@ -788,11 +791,12 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
     private fun Project.overrideKotlinNativeDependenciesUrlToLocalDirectory() {
         val konanPrebuiltsFolder = getKonanPrebuiltsFolder()
         // use relative path so it doesn't affect gradle remote cache.
-        val relativeRootPath = konanPrebuiltsFolder.relativeTo(rootProject.projectDir).path
+        val workingDir = File(System.getProperty("user.dir"))
+        val relativeWorkingDirPath = konanPrebuiltsFolder.relativeTo(workingDir).path
         val relativeProjectPath = konanPrebuiltsFolder.relativeTo(projectDir).path
         tasks.withType(KotlinNativeCompile::class.java).configureEach {
             it.kotlinOptions.freeCompilerArgs += listOf(
-                "-Xoverride-konan-properties=dependenciesUrl=file:$relativeRootPath"
+                "-Xoverride-konan-properties=dependenciesUrl=file:$relativeWorkingDirPath"
             )
         }
         tasks.withType(CInteropProcess::class.java).configureEach {
@@ -972,8 +976,25 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
     }
 }
 
+private fun Project.configureMultiplatformConfigurationCacheIncompatibleTasks() {
+    tasks.matching {
+        taskTypesIncompatibleWithConfigurationCache.contains(it::class.qualifiedName)
+    }.configureEach {
+        it.notCompatibleWithConfigurationCache(
+            taskTypesIncompatibleWithConfigurationCache[it::class.qualifiedName]!!
+        )
+    }
+}
+
 private const val PROJECTS_MAP_KEY = "projects"
 private const val ACCESSED_PROJECTS_MAP_KEY = "accessedProjectsMap"
+private val taskTypesIncompatibleWithConfigurationCache = mapOf(
+    "org.jetbrains.kotlin.gradle.targets.native.internal." +
+        "CInteropMetadataDependencyTransformationTask_Decorated" to
+        "https://youtrack.jetbrains.com/issue/KT-55259",
+    "org.jetbrains.kotlin.gradle.plugin.mpp.MetadataDependencyTransformationTask_Decorated" to
+        "https://youtrack.jetbrains.com/issue/KT-55051"
+)
 
 /**
  * Hides a project's Javadoc tasks from the output of `./gradlew tasks` by setting their group to
