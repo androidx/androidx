@@ -749,7 +749,7 @@ class GLFrontBufferedRendererTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun testUsageFlagContainsFrontBufferUsage() {
-        val usageFlags = GLFrontBufferedRenderer.obtainHardwareBufferUsageFlags()
+        val usageFlags = FrontBufferUtils.obtainHardwareBufferUsageFlags()
         if (UsageFlagsVerificationHelper.isSupported(HardwareBuffer.USAGE_FRONT_BUFFER)) {
             assertNotEquals(0, usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER)
         } else {
@@ -760,7 +760,7 @@ class GLFrontBufferedRendererTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun testUsageFlagContainsComposerOverlay() {
-        val usageFlags = GLFrontBufferedRenderer.obtainHardwareBufferUsageFlags()
+        val usageFlags = FrontBufferUtils.obtainHardwareBufferUsageFlags()
         if (UsageFlagsVerificationHelper.isSupported(HardwareBuffer.USAGE_COMPOSER_OVERLAY)) {
             assertNotEquals(
                 0,
@@ -775,11 +775,11 @@ class GLFrontBufferedRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testBaseFlags() {
         assertNotEquals(
-            0, GLFrontBufferedRenderer.BaseFlags and
+            0, FrontBufferUtils.BaseFlags and
                 HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
         )
         assertNotEquals(
-            0, GLFrontBufferedRenderer.BaseFlags and
+            0, FrontBufferUtils.BaseFlags and
                 HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
         )
     }

@@ -294,7 +294,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
         mGLRenderer = renderer
 
-        mHardwareBufferUsageFlags = obtainHardwareBufferUsageFlags()
+        mHardwareBufferUsageFlags = FrontBufferUtils.obtainHardwareBufferUsageFlags()
 
         mFrontBufferSyncStrategy = FrontBufferSyncStrategy(mHardwareBufferUsageFlags)
     }
@@ -324,7 +324,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 bufferWidth,
                 bufferHeight,
                 format = HardwareBuffer.RGBA_8888,
-                usage = BaseFlags,
+                usage = FrontBufferUtils.BaseFlags,
                 maxPoolSize = 4
             )
 
@@ -675,32 +675,6 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     companion object {
 
         internal const val TAG = "GLFrontBufferedRenderer"
-
-        // Leverage the same value as HardwareBuffer.USAGE_COMPOSER_OVERLAY.
-        // While this constant was introduced in the SDK in the Android T release, it has
-        // been available within the NDK as part of
-        // AHardwareBuffer_UsageFlags#AHARDWAREBUFFER_USAGE_COMPOSER_OVERLAY for quite some time.
-        // This flag is required for usage of ASurfaceTransaction#setBuffer
-        // Use a separate constant with the same value to avoid SDK warnings of accessing the
-        // newly added constant in the SDK.
-        // See:
-        // developer.android.com/ndk/reference/group/a-hardware-buffer#ahardwarebuffer_usageflags
-        private const val USAGE_COMPOSER_OVERLAY: Long = 2048L
-
-        /**
-         * Flags that are expected to be supported on all [HardwareBuffer] instances
-         */
-        internal const val BaseFlags =
-            HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
-                HardwareBuffer.USAGE_GPU_COLOR_OUTPUT or
-                USAGE_COMPOSER_OVERLAY
-
-        internal fun obtainHardwareBufferUsageFlags(): Long =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                UsageFlagsVerificationHelper.obtainUsageFlagsV33()
-            } else {
-                BaseFlags
-            }
     }
 
     @JvmDefaultWithCompatibility
@@ -872,50 +846,6 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             transaction: SurfaceControlCompat.Transaction
         ) {
             // Default implementation is a no-op
-        }
-    }
-}
-
-/**
- * Helper class to avoid class verification failures
- */
-@RequiresApi(Build.VERSION_CODES.Q)
-internal class UsageFlagsVerificationHelper private constructor() {
-    companion object {
-
-        /**
-         * Helper method to determine if a particular HardwareBuffer usage flag is supported.
-         * Even though the FRONT_BUFFER_USAGE and COMPOSER_OVERLAY flags are introduced in
-         * Android T, not all devices may support this flag. So we conduct a capability query
-         * with a sample 1x1 HardwareBuffer with the provided flag to see if it is compatible
-         */
-        // Suppressing WrongConstant warnings as we are leveraging a constant with the same value
-        // as HardwareBuffer.USAGE_COMPOSER_OVERLAY to avoid SDK checks as the constant has been
-        // supported in the NDK for several platform releases.
-        // See:
-        // developer.android.com/ndk/reference/group/a-hardware-buffer#ahardwarebuffer_usageflags
-        @SuppressLint("WrongConstant")
-        @RequiresApi(Build.VERSION_CODES.Q)
-        @androidx.annotation.DoNotInline
-        internal fun isSupported(flag: Long): Boolean =
-            HardwareBuffer.isSupported(
-                1, // width
-                1, // height
-                HardwareBuffer.RGBA_8888, // format
-                1, // layers
-                GLFrontBufferedRenderer.BaseFlags or flag
-            )
-
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        @androidx.annotation.DoNotInline
-        fun obtainUsageFlagsV33(): Long {
-            // First verify if the front buffer usage flag is supported along with the
-            // "usage composer overlay" flag that was introduced in API level
-            return if (isSupported(HardwareBuffer.USAGE_FRONT_BUFFER)) {
-                GLFrontBufferedRenderer.BaseFlags or HardwareBuffer.USAGE_FRONT_BUFFER
-            } else {
-                GLFrontBufferedRenderer.BaseFlags
-            }
         }
     }
 }
