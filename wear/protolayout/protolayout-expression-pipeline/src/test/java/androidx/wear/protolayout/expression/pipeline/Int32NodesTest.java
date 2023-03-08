@@ -57,6 +57,7 @@ public class Int32NodesTest {
         FixedInt32 protoNode = FixedInt32.newBuilder().setValue(56).build();
         FixedInt32Node node = new FixedInt32Node(protoNode, new AddToListCallback<>(results));
 
+        node.preInit();
         node.init();
 
         assertThat(results).containsExactly(56);
@@ -219,6 +220,7 @@ public class Int32NodesTest {
                         protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
+        node.preInit();
         node.init();
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -243,6 +245,7 @@ public class Int32NodesTest {
                         protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(false);
 
+        node.preInit();
         node.init();
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -266,6 +269,7 @@ public class Int32NodesTest {
                         protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
+        node.preInit();
         node.init();
         shadowOf(Looper.getMainLooper()).idle();
 
