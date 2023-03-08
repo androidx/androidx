@@ -18,6 +18,8 @@
 
 package androidx.camera.camera2.pipe.integration.config
 
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.params.StreamConfigurationMap
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraId
@@ -124,6 +126,13 @@ abstract class CameraModule {
         @Provides
         @Named("CameraId")
         fun provideCameraIdString(config: CameraConfig): String = config.cameraId.value
+
+        @CameraScope
+        @Provides
+        fun provideStreamConfigurationMap(cameraMetadata: CameraMetadata): StreamConfigurationMap {
+            return cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
+                ?: throw IllegalArgumentException("Cannot retrieve SCALER_STREAM_CONFIGURATION_MAP")
+        }
     }
 
     @Binds

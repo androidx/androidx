@@ -17,6 +17,8 @@
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.hardware.camera2.CameraCharacteristics
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.impl.Quirks
 import com.google.common.truth.Truth
@@ -28,6 +30,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowBuild
 import org.robolectric.shadows.ShadowCameraCharacteristics
+import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
@@ -60,11 +63,19 @@ class AfRegionFlipHorizontallyQuirkTest(
             lensFacing
         )
 
-        val cameraMetadata = FakeCameraMetadata(characteristics = mapOf(
-            CameraCharacteristics.LENS_FACING to lensFacing
-        ))
+        val cameraMetadata = FakeCameraMetadata(
+            characteristics = mapOf(
+                CameraCharacteristics.LENS_FACING to lensFacing
+            )
+        )
 
-        return CameraQuirks(cameraMetadata).quirks
+        return CameraQuirks(
+            cameraMetadata,
+            StreamConfigurationMapCompat(
+                StreamConfigurationMapBuilder.newBuilder().build(),
+                OutputSizesCorrector(cameraMetadata)
+            )
+        ).quirks
     }
 
     @Test

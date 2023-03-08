@@ -19,10 +19,8 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
-import android.os.Build
 import android.util.Range
 import android.util.Size
 import android.view.Surface
@@ -30,6 +28,8 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
@@ -37,7 +37,6 @@ import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
-import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.ExposureState
@@ -46,7 +45,6 @@ import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.EncoderProfilesProvider
-import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.CameraOrientationUtil
@@ -69,7 +67,8 @@ class CameraInfoAdapter @Inject constructor(
     private val cameraCallbackMap: CameraCallbackMap,
     private val focusMeteringControl: FocusMeteringControl,
     private val cameraQuirks: CameraQuirks,
-    private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter
+    private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter,
+    private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
 ) : CameraInfoInternal {
     @OptIn(ExperimentalCamera2Interop::class)
     internal val camera2CameraInfo: Camera2CameraInfo by lazy {
@@ -145,27 +144,13 @@ class CameraInfoAdapter @Inject constructor(
 
     @SuppressLint("ClassVerificationFailure")
     override fun getSupportedResolutions(format: Int): List<Size> {
-        val streamConfigurationMap =
-            cameraProperties.metadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
-        return if (Build.VERSION.SDK_INT < 23 &&
-            format == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-        ) {
-            streamConfigurationMap.getOutputSizes(SurfaceTexture::class.java)
-        } else {
-            streamConfigurationMap.getOutputSizes(format)
-        }?.toList() ?: emptyList()
+        return streamConfigurationMapCompat.getOutputSizes(format)?.toList() ?: emptyList()
     }
 
     @SuppressLint("ClassVerificationFailure")
     override fun getSupportedHighResolutions(format: Int): List<Size> {
-        val streamConfigurationMap =
-            cameraProperties.metadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
-        if (Build.VERSION.SDK_INT >= 23) {
-            streamConfigurationMap.getHighResolutionOutputSizes(format)?.let {
-                return it.toList()
-            }
-        }
-        return emptyList()
+        return streamConfigurationMapCompat.getHighResolutionOutputSizes(format)?.toList()
+            ?: emptyList()
     }
 
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
