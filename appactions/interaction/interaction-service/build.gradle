@@ -38,14 +38,14 @@ dependencies {
     bundleInside(project(":appactions:interaction:interaction-service-proto"))
 
     implementation(project(":appactions:interaction:interaction-capabilities-core"))
+    implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation("androidx.wear.tiles:tiles:1.1.0")
     implementation(libs.grpcAndroid)
     implementation(libs.grpcBinder)
     implementation(libs.grpcStub)
     implementation(libs.kotlinStdlib)
-    implementation("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.wear.tiles:tiles:1.1.0")
-    implementation("javax.annotation:javax.annotation-api:1.3.2")
+    implementation(libs.jsr250)
 
     testImplementation(project(":appactions:interaction:interaction-service-proto"))
     testImplementation(libs.kotlinStdlib)
