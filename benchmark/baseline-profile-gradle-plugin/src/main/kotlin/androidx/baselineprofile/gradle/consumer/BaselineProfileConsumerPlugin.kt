@@ -124,7 +124,8 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
             variantName = "",
             flavorName = "",
             buildTypeName = "",
-            mainConfiguration = null
+            mainConfiguration = null,
+            hasDirectConfiguration = false
         )
 
         // Here we select the build types we want to process, i.e. non debuggable build types that
@@ -202,6 +203,10 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                         )
                     }
 
+                    // Check if this variant has any direct dependency
+                    val variantDependencies = baselineProfileExtension
+                        .getMergedListValuesForVariant(variant) { dependencies }
+
                     // Creates the configuration to carry the specific variant artifact
                     val baselineProfileConfiguration =
                         createBaselineProfileConfigurationForVariant(
@@ -210,8 +215,31 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                             productFlavors = variant.productFlavors,
                             flavorName = variant.flavorName ?: "",
                             buildTypeName = variant.buildType ?: "",
-                            mainConfiguration = mainBaselineProfileConfiguration
+                            mainConfiguration = mainBaselineProfileConfiguration,
+                            hasDirectConfiguration = variantDependencies.any { it.second != null }
                         )
+
+                    // Adds the custom dependencies for baseline profiles. Note that dependencies
+                    // for global, build type, flavor and variant specific are all merged.
+                    variantDependencies.forEach {
+                        val targetProject = it.first
+                        val variantName = it.second
+                        val targetProjectDependency = if (variantName != null) {
+                            val configurationName = camelCase(
+                                variantName,
+                                CONFIGURATION_NAME_BASELINE_PROFILES
+                            )
+                            project.dependencies.project(
+                                mutableMapOf(
+                                    "path" to targetProject.path,
+                                    "configuration" to configurationName
+                                )
+                            )
+                        } else {
+                            project.dependencyFactory.create(targetProject)
+                        }
+                        baselineProfileConfiguration.dependencies.add(targetProjectDependency)
+                    }
 
                     // There are 2 different ways in which the output task can merge the baseline
                     // profile rules, according to [BaselineProfileConsumerExtension#mergeIntoMain].
@@ -274,14 +302,8 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                             // Sets the package filter rules. Note that variant rules are merged
                             // with global rules here.
                             task.filterRules.addAll(
-                                listOfNotNull(
-                                    "main",
-                                    variant.flavorName,
-                                    variant.buildType,
-                                    variant.name
-                                ).mapNotNull {
-                                    baselineProfileExtension.variants.findByName(it)?.filters
-                                }.flatMap { it.rules }
+                                baselineProfileExtension
+                                    .getMergedListValuesForVariant(variant) { filters.rules }
                             )
                         }
 
@@ -458,7 +480,8 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
         productFlavors: List<Pair<String, String>>,
         flavorName: String,
         buildTypeName: String,
-        mainConfiguration: Configuration?
+        mainConfiguration: Configuration?,
+        hasDirectConfiguration: Boolean
     ): Configuration {
 
         val buildTypeConfiguration =
@@ -501,6 +524,10 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
 
                 isCanBeResolved = true
                 isCanBeConsumed = false
+
+                // Skip the attributes configuration if there is a direct named configuration
+                // matching this one.
+                if (hasDirectConfiguration) return@apply
 
                 attributes {
 
@@ -558,6 +585,15 @@ class BaselineProfileConsumerPlugin : Plugin<Project> {
                 }
             }
     }
+
+    private fun <T> BaselineProfileConsumerExtension.getMergedListValuesForVariant(
+        variant: Variant,
+        getter: BaselineProfileVariantConfigurationImpl.() -> (List<T>)
+    ): List<T> =
+        listOfNotNull("main", variant.flavorName, variant.buildType, variant.name)
+            .mapNotNull { variants.findByName(it) }
+            .map { getter.invoke(it) }
+            .flatten()
 
     private fun <T> BaselineProfileConsumerExtension.getValueForVariant(
         variant: Variant,

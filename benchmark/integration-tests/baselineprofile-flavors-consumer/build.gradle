@@ -48,8 +48,6 @@ android {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
-
-    baselineProfile(project(":benchmark:integration-tests:baselineprofile-flavors-producer"))
 }
 
 baselineProfile {
@@ -57,14 +55,16 @@ baselineProfile {
         include "androidx.benchmark.integration.baselineprofile.flavors.consumer.*"
     }
     variants {
-        free {
+        freeRelease {
             filter {
                 include "androidx.benchmark.integration.baselineprofile.flavors.consumer.free.*"
+                from(project(":benchmark:integration-tests:baselineprofile-flavors-producer"))
             }
         }
-        paid {
+        paidRelease {
             filter {
                 include "androidx.benchmark.integration.baselineprofile.flavors.consumer.paid.*"
+                from(project(":benchmark:integration-tests:baselineprofile-flavors-producer"))
             }
         }
     }
