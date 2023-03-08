@@ -59,6 +59,8 @@ import androidx.health.connect.client.response.ReadRecordResponse
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
 import kotlin.reflect.KClass
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -68,6 +70,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 @RequiresApi(api = 34)
 class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionController {
+
+    private val executor = Dispatchers.Default.asExecutor()
 
     private val context: Context
     private val timeSource: TimeSource
@@ -99,7 +103,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             suspendCancellableCoroutine { continuation ->
                 healthConnectManager.insertRecords(
                     records.map { it.toPlatformRecord() },
-                    Runnable::run,
+                    executor,
                     continuation.asOutcomeReceiver()
                 )
             }
@@ -112,7 +116,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             suspendCancellableCoroutine { continuation ->
                 healthConnectManager.updateRecords(
                     records.map { it.toPlatformRecord() },
-                    Runnable::run,
+                    executor,
                     continuation.asOutcomeReceiver()
                 )
             }
@@ -140,7 +144,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                             )
                         }
                     },
-                    Runnable::run,
+                    executor,
                     continuation.asOutcomeReceiver()
                 )
             }
@@ -156,7 +160,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                 healthConnectManager.deleteRecords(
                     recordType.toPlatformRecordClass(),
                     timeRangeFilter.toPlatformTimeRangeFilter(timeSource),
-                    Runnable::run,
+                    executor,
                     continuation.asOutcomeReceiver()
                 )
             }
@@ -174,7 +178,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                     ReadRecordsRequestUsingIds.Builder(recordType.toPlatformRecordClass())
                         .addId(recordId)
                         .build(),
-                    Runnable::run,
+                    executor,
                     continuation.asOutcomeReceiver()
                 )
             }
@@ -193,7 +197,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             suspendCancellableCoroutine { continuation ->
                 healthConnectManager.readRecords(
                     request.toPlatformRequest(timeSource),
-                    Runnable::run,
+                    executor,
                     continuation.asOutcomeReceiver()
                 )
             }
@@ -207,7 +211,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                 suspendCancellableCoroutine { continuation ->
                     healthConnectManager.aggregate(
                         request.toPlatformRequest(timeSource),
-                        Runnable::run,
+                        executor,
                         continuation.asOutcomeReceiver()
                     )
                 }
@@ -223,7 +227,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                     healthConnectManager.aggregateGroupByDuration(
                         request.toPlatformRequest(timeSource),
                         request.timeRangeSlicer,
-                        Runnable::run,
+                        executor,
                         continuation.asOutcomeReceiver()
                     )
                 }
@@ -239,7 +243,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                     healthConnectManager.aggregateGroupByPeriod(
                         request.toPlatformRequest(timeSource),
                         request.timeRangeSlicer,
-                        Runnable::run,
+                        executor,
                         continuation.asOutcomeReceiver()
                     )
                 }
@@ -252,7 +256,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                 suspendCancellableCoroutine { continuation ->
                     healthConnectManager.getChangeLogToken(
                         request.toPlatformRequest(),
-                        Runnable::run,
+                        executor,
                         continuation.asOutcomeReceiver()
                     )
                 }
@@ -276,7 +280,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             suspendCancellableCoroutine { continuation ->
                 healthConnectManager.getChangeLogs(
                     ChangeLogsRequest.Builder(changesToken).build(),
-                    Runnable::run,
+                    executor,
                     continuation.asOutcomeReceiver()
                 )
             }
