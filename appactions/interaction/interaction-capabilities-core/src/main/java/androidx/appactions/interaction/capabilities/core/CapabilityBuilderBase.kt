@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core
 
 import androidx.annotation.RestrictTo
+import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync.Companion.toActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.impl.SingleTurnCapabilityImpl
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
@@ -48,7 +49,6 @@ abstract class CapabilityBuilderBase<
 ) {
     private var id: String? = null
     private var property: PropertyT? = null
-    private var actionExecutor: ActionExecutor<ArgumentT, OutputT>? = null
     private var actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>? = null
     private var sessionFactory: SessionFactory<SessionT>? = null
 
@@ -95,8 +95,7 @@ abstract class CapabilityBuilderBase<
      * which accepts the ActionExecutorAsync instead.
      */
     fun setExecutor(actionExecutor: ActionExecutor<ArgumentT, OutputT>) = asBuilder().apply {
-        this.actionExecutorAsync = null
-        this.actionExecutor = actionExecutor
+        this.actionExecutorAsync = actionExecutor.toActionExecutorAsync()
     }
 
     /**
@@ -110,7 +109,6 @@ abstract class CapabilityBuilderBase<
     fun setExecutor(
         actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
     ) = asBuilder().apply {
-        this.actionExecutor = null
         this.actionExecutorAsync = actionExecutorAsync
     }
 
@@ -130,14 +128,7 @@ abstract class CapabilityBuilderBase<
     open fun build(): ActionCapability {
         val checkedId = requireNotNull(id, { "setId must be called before build" })
         val checkedProperty = requireNotNull(property, { "property must not be null." })
-        if (actionExecutor != null) {
-            return SingleTurnCapabilityImpl(
-                checkedId,
-                actionSpec,
-                checkedProperty,
-                actionExecutor!!,
-            )
-        } else if (actionExecutorAsync != null) {
+        if (actionExecutorAsync != null) {
             return SingleTurnCapabilityImpl(
                 checkedId,
                 actionSpec,

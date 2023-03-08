@@ -39,7 +39,6 @@ internal class SingleTurnCapabilitySession<
     >(
     val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
     val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
-    override val uiHandle: Any,
 ) : ActionCapabilitySession {
     override val state: AppAction
         get() {
@@ -49,6 +48,8 @@ internal class SingleTurnCapabilitySession<
         get() {
             throw UnsupportedOperationException()
         }
+
+    override val uiHandle: Any = actionExecutorAsync.uiHandle
 
     override fun destroy() {}
 
