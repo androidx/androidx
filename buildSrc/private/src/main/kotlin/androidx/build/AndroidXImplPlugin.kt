@@ -53,7 +53,6 @@ import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestPlugin
 import com.android.build.gradle.TestedExtension
-import com.android.build.gradle.internal.tasks.AnalyticsRecordingTask
 import com.android.build.gradle.internal.tasks.CheckAarMetadataTask
 import com.android.build.gradle.internal.tasks.ListingFileRedirectTask
 import java.io.File
@@ -714,12 +713,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         // lives alongside the project's buildDir.
         externalNativeBuild.cmake.buildStagingDirectory =
             File(project.buildDir, "../nativeBuildStaging")
-
-        // disable analytics recording
-        // It's always out-of-date, and we don't release any apps in this repo
-        project.tasks.withType(AnalyticsRecordingTask::class.java).configureEach { task ->
-            task.enabled = false
-        }
     }
 
     /**
