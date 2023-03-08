@@ -261,4 +261,336 @@ object ClickableSurfaceDefaults {
     )
 }
 
+/**
+ * Contains the default values used by Toggleable Surface.
+ */
+@ExperimentalTvMaterial3Api
+object ToggleableSurfaceDefaults {
+    /**
+     * Creates a [ToggleableSurfaceShape] that represents the default container shapes used in a
+     * toggleable Surface.
+     *
+     * @param shape the shape used when the Surface is enabled, and has no other
+     * [Interaction]s.
+     * @param focusedShape the shape used when the Surface is enabled and focused.
+     * @param pressedShape the shape used when the Surface is enabled and pressed.
+     * @param selectedShape the shape used when the Surface is enabled and selected.
+     * @param disabledShape the shape used when the Surface is not enabled.
+     * @param focusedSelectedShape the shape used when the Surface is enabled, focused and selected.
+     * @param focusedDisabledShape the shape used when the Surface is not enabled and focused.
+     * @param pressedSelectedShape the shape used when the Surface is enabled, pressed and selected.
+     * @param selectedDisabledShape the shape used when the Surface is not enabled and selected.
+     * @param focusedSelectedDisabledShape the shape used when the Surface is not enabled, focused
+     * and selected.
+     */
+    @ReadOnlyComposable
+    @Composable
+    fun shape(
+        shape: Shape = MaterialTheme.shapes.medium,
+        focusedShape: Shape = shape,
+        pressedShape: Shape = shape,
+        selectedShape: Shape = shape,
+        disabledShape: Shape = shape,
+        focusedSelectedShape: Shape = shape,
+        focusedDisabledShape: Shape = disabledShape,
+        pressedSelectedShape: Shape = shape,
+        selectedDisabledShape: Shape = disabledShape,
+        focusedSelectedDisabledShape: Shape = disabledShape
+    ) = ToggleableSurfaceShape(
+        shape = shape,
+        focusedShape = focusedShape,
+        pressedShape = pressedShape,
+        selectedShape = selectedShape,
+        disabledShape = disabledShape,
+        focusedSelectedShape = focusedSelectedShape,
+        focusedDisabledShape = focusedDisabledShape,
+        pressedSelectedShape = pressedSelectedShape,
+        selectedDisabledShape = selectedDisabledShape,
+        focusedSelectedDisabledShape = focusedSelectedDisabledShape
+    )
+
+    /**
+     * Creates a [ToggleableSurfaceColor] that represents the default container colors used in a
+     * toggleable Surface.
+     *
+     * @param color the color used when the Surface is enabled, and has no other [Interaction]s.
+     * @param focusedColor the color used when the Surface is enabled and focused.
+     * @param pressedColor the color used when the Surface is enabled and pressed.
+     * @param selectedColor the color used when the Surface is enabled and selected.
+     * @param disabledColor the color used when the Surface is not enabled.
+     * @param focusedSelectedColor the color used when the Surface is enabled, focused and selected.
+     * @param pressedSelectedColor the color used when the Surface is enabled, pressed and selected.
+     */
+    @ReadOnlyComposable
+    @Composable
+    fun color(
+        color: Color = MaterialTheme.colorScheme.surface,
+        focusedColor: Color = MaterialTheme.colorScheme.inverseSurface,
+        pressedColor: Color = MaterialTheme.colorScheme.inverseSurface,
+        selectedColor: Color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.5f),
+        disabledColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(
+            alpha = DisabledBackgroundAlpha
+        ),
+        focusedSelectedColor: Color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.5f),
+        pressedSelectedColor: Color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.5f)
+    ) = ToggleableSurfaceColor(
+        color = color,
+        focusedColor = focusedColor,
+        pressedColor = pressedColor,
+        selectedColor = selectedColor,
+        disabledColor = disabledColor,
+        focusedSelectedColor = focusedSelectedColor,
+        pressedSelectedColor = pressedSelectedColor
+    )
+
+    /**
+     * Creates a [ToggleableSurfaceColor] that represents the default content colors used in a
+     * toggleable Surface.
+     *
+     * @param color the color used when the Surface is enabled, and has no other [Interaction]s.
+     * @param focusedColor the color used when the Surface is enabled and focused.
+     * @param pressedColor the color used when the Surface is enabled and pressed.
+     * @param selectedColor the color used when the Surface is enabled and selected.
+     * @param disabledColor the color used when the Surface is not enabled.
+     * @param focusedSelectedColor the color used when the Surface is enabled, focused and selected.
+     * @param pressedSelectedColor the color used when the Surface is enabled, pressed and selected.
+     */
+    @ReadOnlyComposable
+    @Composable
+    fun contentColor(
+        color: Color = MaterialTheme.colorScheme.onSurface,
+        focusedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
+        pressedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
+        selectedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
+        disabledColor: Color = MaterialTheme.colorScheme.onSurface,
+        focusedSelectedColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
+        pressedSelectedColor: Color = MaterialTheme.colorScheme.inverseOnSurface
+    ) = ToggleableSurfaceColor(
+        color = color,
+        focusedColor = focusedColor,
+        pressedColor = pressedColor,
+        selectedColor = selectedColor,
+        disabledColor = disabledColor,
+        focusedSelectedColor = focusedSelectedColor,
+        pressedSelectedColor = pressedSelectedColor
+    )
+
+    /**
+     * Creates a [ToggleableSurfaceScale] that represents the default scales used in a
+     * toggleable Surface. scales are used to modify the size of a composable in different
+     * [Interaction] states e.g. 1f (original) in default state, 1.2f (scaled up) in focused state,
+     * 0.8f (scaled down) in pressed state, etc.
+     *
+     * @param scale the scale used when the Surface is enabled, and has no other
+     * [Interaction]s.
+     * @param focusedScale the scale used when the Surface is enabled and focused.
+     * @param pressedScale the scale used when the Surface is enabled and pressed.
+     * @param selectedScale the scale used when the Surface is enabled and selected.
+     * @param disabledScale the scale used when the Surface is not enabled.
+     * @param focusedSelectedScale the scale used when the Surface is enabled, focused and
+     * selected.
+     * @param focusedDisabledScale the scale used when the Surface is not enabled and
+     * focused.
+     * @param pressedSelectedScale the scale used when the Surface is enabled, pressed and
+     * selected.
+     * @param selectedDisabledScale the scale used when the Surface is not enabled and
+     * selected.
+     * @param focusedSelectedDisabledScale the scale used when the Surface is not enabled,
+     * focused and selected.
+     */
+    fun scale(
+        scale: Float = 1f,
+        focusedScale: Float = 1.1f,
+        pressedScale: Float = scale,
+        selectedScale: Float = scale,
+        disabledScale: Float = scale,
+        focusedSelectedScale: Float = focusedScale,
+        focusedDisabledScale: Float = disabledScale,
+        pressedSelectedScale: Float = scale,
+        selectedDisabledScale: Float = disabledScale,
+        focusedSelectedDisabledScale: Float = disabledScale
+    ) = ToggleableSurfaceScale(
+        scale = scale,
+        focusedScale = focusedScale,
+        pressedScale = pressedScale,
+        selectedScale = selectedScale,
+        disabledScale = disabledScale,
+        focusedSelectedScale = focusedSelectedScale,
+        focusedDisabledScale = focusedDisabledScale,
+        pressedSelectedScale = pressedSelectedScale,
+        selectedDisabledScale = selectedDisabledScale,
+        focusedSelectedDisabledScale = focusedSelectedDisabledScale
+    )
+
+    /**
+     * Creates a [ToggleableSurfaceBorder] that represents the default [Border]s applied on a
+     * toggleable Surface in different [Interaction] states.
+     *
+     * @param border the [Border] used when the Surface is enabled, and has no other
+     * [Interaction]s.
+     * @param focusedBorder the [Border] used when the Surface is enabled and focused.
+     * @param pressedBorder the [Border] used when the Surface is enabled and pressed.
+     * @param selectedBorder the [Border] used when the Surface is enabled and selected.
+     * @param disabledBorder the [Border] used when the Surface is not enabled.
+     * @param focusedSelectedBorder the [Border] used when the Surface is enabled, focused and
+     * selected.
+     * @param focusedDisabledBorder the [Border] used when the Surface is not enabled and focused.
+     * @param pressedSelectedBorder the [Border] used when the Surface is enabled, pressed and
+     * selected.
+     * @param selectedDisabledBorder the [Border] used when the Surface is not enabled and
+     * selected.
+     * @param focusedSelectedDisabledBorder the [Border] used when the Surface is not enabled,
+     * focused and selected.
+     */
+    fun border(
+        border: Border = Border.None,
+        focusedBorder: Border = border,
+        pressedBorder: Border = focusedBorder,
+        selectedBorder: Border = border,
+        disabledBorder: Border = border,
+        focusedSelectedBorder: Border = focusedBorder,
+        focusedDisabledBorder: Border = disabledBorder,
+        pressedSelectedBorder: Border = border,
+        selectedDisabledBorder: Border = disabledBorder,
+        focusedSelectedDisabledBorder: Border = disabledBorder
+    ) = ToggleableSurfaceBorder(
+        border = border,
+        focusedBorder = focusedBorder,
+        pressedBorder = pressedBorder,
+        selectedBorder = selectedBorder,
+        disabledBorder = disabledBorder,
+        focusedSelectedBorder = focusedSelectedBorder,
+        focusedDisabledBorder = focusedDisabledBorder,
+        pressedSelectedBorder = pressedSelectedBorder,
+        selectedDisabledBorder = selectedDisabledBorder,
+        focusedSelectedDisabledBorder = focusedSelectedDisabledBorder
+    )
+
+    /**
+     * Creates a [ToggleableSurfaceGlow] that represents the default [Glow]s used in a
+     * toggleable Surface.
+     *
+     * @param glow the [Glow] used when the Surface is enabled, and has no other [Interaction]s.
+     * @param focusedGlow the [Glow] used when the Surface is enabled and focused.
+     * @param pressedGlow the [Glow] used when the Surface is enabled and pressed.
+     * @param selectedGlow the [Glow] used when the Surface is enabled and selected.
+     * @param focusedSelectedGlow the [Glow] used when the Surface is enabled, focused and selected.
+     * @param pressedSelectedGlow the [Glow] used when the Surface is enabled, pressed and selected.
+     */
+    fun glow(
+        glow: Glow = Glow.None,
+        focusedGlow: Glow = glow,
+        pressedGlow: Glow = glow,
+        selectedGlow: Glow = glow,
+        focusedSelectedGlow: Glow = focusedGlow,
+        pressedSelectedGlow: Glow = glow
+    ) = ToggleableSurfaceGlow(
+        glow = glow,
+        focusedGlow = focusedGlow,
+        pressedGlow = pressedGlow,
+        selectedGlow = selectedGlow,
+        focusedSelectedGlow = focusedSelectedGlow,
+        pressedSelectedGlow = pressedSelectedGlow
+    )
+
+    internal fun shape(
+        enabled: Boolean,
+        focused: Boolean,
+        pressed: Boolean,
+        selected: Boolean,
+        shape: ToggleableSurfaceShape
+    ): Shape {
+        return when {
+            enabled && selected && pressed -> shape.pressedSelectedShape
+            enabled && selected && focused -> shape.focusedSelectedShape
+            enabled && selected -> shape.selectedShape
+            enabled && pressed -> shape.pressedShape
+            enabled && focused -> shape.focusedShape
+            enabled -> shape.shape
+            !enabled && selected && focused -> shape.focusedSelectedDisabledShape
+            !enabled && selected -> shape.selectedDisabledShape
+            !enabled && focused -> shape.focusedDisabledShape
+            else -> shape.disabledShape
+        }
+    }
+
+    internal fun color(
+        enabled: Boolean,
+        focused: Boolean,
+        pressed: Boolean,
+        selected: Boolean,
+        color: ToggleableSurfaceColor
+    ): Color {
+        return when {
+            enabled && selected && pressed -> color.pressedSelectedColor
+            enabled && selected && focused -> color.focusedSelectedColor
+            enabled && selected -> color.selectedColor
+            enabled && pressed -> color.pressedColor
+            enabled && focused -> color.focusedColor
+            enabled -> color.color
+            else -> color.disabledColor
+        }
+    }
+
+    internal fun scale(
+        enabled: Boolean,
+        focused: Boolean,
+        pressed: Boolean,
+        selected: Boolean,
+        scale: ToggleableSurfaceScale
+    ): Float {
+        return when {
+            enabled && selected && pressed -> scale.pressedSelectedScale
+            enabled && selected && focused -> scale.focusedSelectedScale
+            enabled && selected -> scale.selectedScale
+            enabled && pressed -> scale.pressedScale
+            enabled && focused -> scale.focusedScale
+            enabled -> scale.scale
+            !enabled && selected && focused -> scale.focusedSelectedDisabledScale
+            !enabled && selected -> scale.selectedDisabledScale
+            !enabled && focused -> scale.focusedDisabledScale
+            else -> scale.disabledScale
+        }
+    }
+
+    internal fun border(
+        enabled: Boolean,
+        focused: Boolean,
+        pressed: Boolean,
+        selected: Boolean,
+        border: ToggleableSurfaceBorder
+    ): Border {
+        return when {
+            enabled && selected && pressed -> border.pressedSelectedBorder
+            enabled && selected && focused -> border.focusedSelectedBorder
+            enabled && selected -> border.selectedBorder
+            enabled && pressed -> border.pressedBorder
+            enabled && focused -> border.focusedBorder
+            enabled -> border.border
+            !enabled && selected && focused -> border.focusedSelectedDisabledBorder
+            !enabled && selected -> border.selectedDisabledBorder
+            !enabled && focused -> border.focusedDisabledBorder
+            else -> border.disabledBorder
+        }
+    }
+
+    internal fun glow(
+        enabled: Boolean,
+        focused: Boolean,
+        pressed: Boolean,
+        selected: Boolean,
+        glow: ToggleableSurfaceGlow
+    ): Glow {
+        return when {
+            enabled && selected && pressed -> glow.pressedSelectedGlow
+            enabled && selected && focused -> glow.focusedSelectedGlow
+            enabled && selected -> glow.selectedGlow
+            enabled && pressed -> glow.pressedGlow
+            enabled && focused -> glow.focusedGlow
+            enabled -> glow.glow
+            else -> Glow.None
+        }
+    }
+}
+
 private const val DisabledBackgroundAlpha = 0.4f
