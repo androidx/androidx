@@ -28,7 +28,6 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewStructure
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityManager.AccessibilityStateChangeListener
@@ -43,7 +42,6 @@ import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.VisibleForTesting.Companion.PRIVATE
-import androidx.collection.ArrayMap
 import androidx.collection.ArraySet
 import androidx.collection.SparseArrayCompat
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -89,7 +87,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
-import androidx.compose.ui.util.fastMap
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
@@ -98,7 +95,6 @@ import androidx.core.view.accessibility.AccessibilityEventCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
-import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.lifecycle.Lifecycle
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -296,35 +292,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     )
 
     /**
-     * True if any accessibility service enabled in the system, or if any content capture service
-     * enabled in the system.
+     * True if any accessibility service enabled in the system, except the UIAutomator (as it
+     * doesn't appear in the list of enabled services)
      */
     @VisibleForTesting
     internal val isEnabled: Boolean
         get() {
-            return isEnabledForAccessibility || isEnabledForContentCapture
-        }
-
-    /**
-     * True if any accessibility service enabled in the system, except the UIAutomator (as it
-     * doesn't appear in the list of enabled services)
-     */
-    private val isEnabledForAccessibility: Boolean
-        get() {
             // checking the list allows us to filter out the UIAutomator which doesn't appear in it
             return accessibilityForceEnabledForTesting ||
                 accessibilityManager.isEnabled && enabledServices.isNotEmpty()
-        }
-
-    /**
-     * True if any content capture service enabled in the system.
-     *
-     * TODO(b/272068594): follow up on improving the performance and actually enabling the content
-     * capture feature in production later.
-     */
-    private val isEnabledForContentCapture: Boolean
-        get() {
-            return contentCaptureForceEnabledForTesting
         }
 
     /**
@@ -355,11 +331,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     private val boundsUpdateChannel = Channel<Unit>(Channel.CONFLATED)
     private var currentSemanticsNodesInvalidated = true
 
-    internal var contentCaptureForceEnabledForTesting = false
-    internal var contentCaptureSession: ContentCaptureSessionCompat? = null
-    internal val bufferedContentCaptureAppearedNodes = ArrayMap<Int, ViewStructure>()
-    internal val bufferedContentCaptureDisappearedNodes = ArraySet<Int>()
-
     private class PendingTextTraversedEvent(
         val node: SemanticsNode,
         val action: Int,
@@ -376,7 +347,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * semantics tree. They key is the virtual view id(the root node has a key of
      * AccessibilityNodeProviderCompat.HOST_VIEW_ID and other node has a key of its id).
      */
-    internal var currentSemanticsNodes: Map<Int, SemanticsNodeWithAdjustedBounds> = mapOf()
+    private var currentSemanticsNodes: Map<Int, SemanticsNodeWithAdjustedBounds> = mapOf()
         get() {
             if (currentSemanticsNodesInvalidated) { // first instance of retrieving all nodes
                 currentSemanticsNodesInvalidated = false
@@ -434,7 +405,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 accessibilityManager.addTouchExplorationStateChangeListener(
                     touchExplorationStateListener
                 )
-                contentCaptureSession = view.getContentCaptureSessionCompat()
             }
 
             override fun onViewDetachedFromWindow(view: View) {
@@ -444,7 +414,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 accessibilityManager.removeTouchExplorationStateChangeListener(
                     touchExplorationStateListener
                 )
-                contentCaptureSession = null
             }
         })
     }
@@ -746,7 +715,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 } else if (role == Role.Switch) {
                     info.roleDescription = view.context.resources.getString(R.string.switch_role)
                 } else {
-                    val className = role.toLegacyClassName()
+                    val className = when (it) {
+                        Role.Button -> "android.widget.Button"
+                        Role.Checkbox -> "android.widget.CheckBox"
+                        Role.RadioButton -> "android.widget.RadioButton"
+                        Role.Image -> "android.widget.ImageView"
+                        Role.DropdownList -> "android.widget.Spinner"
+                        else -> null
+                    }
                     // Images are often minor children of larger widgets, so we only want to
                     // announce the Image role when the image itself is focusable.
                     if (role != Role.Image ||
@@ -1416,7 +1392,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      */
     private fun sendEvent(event: AccessibilityEvent): Boolean {
         // only send an event if there's an enabled service listening for events of this type
-        if (!isEnabledForAccessibility) {
+        if (!isEnabled) {
             return false
         }
 
@@ -2065,17 +2041,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     /**
      * This suspend function loops for the entire lifetime of the Compose instance: it consumes
-     * recent layout changes and sends events to the accessibility and content capture framework in
-     * batches separated by a 100ms delay.
+     * recent layout changes and sends events to the accessibility framework in batches separated
+     * by a 100ms delay.
      */
     suspend fun boundsUpdatesEventLoop() {
         try {
             val subtreeChangedSemanticsNodesIds = ArraySet<Int>()
             for (notification in boundsUpdateChannel) {
-                if (isEnabledForContentCapture) {
-                    notifyContentCaptureChanges()
-                }
-                if (isEnabledForAccessibility) {
+                if (isEnabled) {
                     for (i in subtreeChangedLayoutNodes.indices) {
                         @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
                         sendSubtreeChangeAccessibilityEvents(
@@ -2169,11 +2142,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun checkForSemanticsChanges() {
         // Structural change
-        sendAccessibilitySemanticsStructureChangeEvents(
-            view.semanticsOwner.unmergedRootSemanticsNode,
-            previousSemanticsRoot
-        )
-        sendContentCaptureSemanticsStructureChangeEvents(
+        sendSemanticsStructureChangeEvents(
             view.semanticsOwner.unmergedRootSemanticsNode,
             previousSemanticsRoot
         )
@@ -2242,15 +2211,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 }
                 @Suppress("UNCHECKED_CAST")
                 when (entry.key) {
-                    SemanticsProperties.Text -> {
-                        val oldText = oldNode.unmergedConfig.getOrNull(SemanticsProperties.Text)
-                            ?.firstOrNull()
-                        val newText = newNode.unmergedConfig.getOrNull(SemanticsProperties.Text)
-                            ?.firstOrNull()
-                        if (oldText != newText) {
-                            sendContentCaptureTextUpdateEvent(newNode.id, newText.toString())
-                        }
-                    }
                     SemanticsProperties.PaneTitle -> {
                         val paneTitle = entry.value as String
                         // If oldNode doesn't have pane title, it will be handled in
@@ -2536,17 +2496,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
-    private fun sendContentCaptureTextUpdateEvent(id: Int, newText: String) {
-        val session = contentCaptureSession ?: return
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            return
-        }
-        // TODO: consider having a `newContentCaptureId` function to improve readability.
-        val autofillId = session.newAutofillId(id.toLong())
-        checkNotNull(autofillId) { "Invalid content capture ID" }
-        session.notifyViewTextChanged(autofillId, newText)
-    }
-
     // List of visible scrollable nodes (which are observing scroll state snapshot writes).
     private val scrollObservationScopes = mutableListOf<ScrollObservationScope>()
 
@@ -2662,100 +2611,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         sendEvent(event)
     }
 
-    private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionCompat? {
-        ViewCompat.setImportantForContentCapture(this, ViewCompat.IMPORTANT_FOR_CONTENT_CAPTURE_YES)
-        return ViewCompat.getContentCaptureSession(this)
-    }
-
-    private fun SemanticsNode.toViewStructure(): ViewStructure? {
-        val session = contentCaptureSession ?: return null
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            return null
-        }
-
-        val rootAutofillId = ViewCompat.getAutofillId(view) ?: return null
-        val parentNode = parent
-        val parentAutofillId = if (parentNode != null) {
-            session.newAutofillId(parentNode.id.toLong()) ?: return null
-        } else {
-            rootAutofillId.toAutofillId()
-        }
-        val structure = session.newVirtualViewStructure(
-            parentAutofillId, id.toLong()) ?: return null
-
-        val configuration = this.unmergedConfig
-        if (configuration.contains(SemanticsProperties.Password)) {
-            return null
-        }
-
-        configuration.getOrNull(SemanticsProperties.Text)?.let {
-            structure.setClassName("android.widget.TextView")
-            structure.setText(it.fastJoinToString("\n"))
-        }
-        configuration.getOrNull(SemanticsProperties.EditableText)?.let {
-            structure.setClassName("android.widget.EditText")
-            structure.setText(it)
-        }
-        configuration.getOrNull(SemanticsProperties.ContentDescription)?.let {
-            structure.setContentDescription(it.fastJoinToString("\n"))
-        }
-        configuration.getOrNull(SemanticsProperties.Role)?.toLegacyClassName()?.let {
-            structure.setClassName(it)
-        }
-
-        with(boundsInWindow) {
-            structure.setDimens(
-                left.toInt(), top.toInt(), 0, 0, width.toInt(), height.toInt()
-            )
-        }
-        return structure.toViewStructure()
-    }
-
-    private fun bufferContentCaptureViewAppeared(virtualId: Int, viewStructure: ViewStructure?) {
-        if (viewStructure == null) {
-            return
-        }
-
-        if (bufferedContentCaptureDisappearedNodes.contains(virtualId)) {
-            // disappear then appear
-            bufferedContentCaptureDisappearedNodes.remove(virtualId)
-        } else {
-            bufferedContentCaptureAppearedNodes[virtualId] = viewStructure
-        }
-    }
-    private fun bufferContentCaptureViewDisappeared(virtualId: Int) {
-        if (bufferedContentCaptureAppearedNodes.containsKey(virtualId)) {
-            // appear then disappear
-            bufferedContentCaptureAppearedNodes.remove(virtualId)
-        } else {
-            bufferedContentCaptureDisappearedNodes.add(virtualId)
-        }
-    }
-
-    private fun notifyContentCaptureChanges() {
-        val session = contentCaptureSession ?: return
-
-        if (bufferedContentCaptureAppearedNodes.isNotEmpty()) {
-            session.notifyViewsAppeared(
-                bufferedContentCaptureAppearedNodes.values.toList())
-            bufferedContentCaptureAppearedNodes.clear()
-        }
-        if (bufferedContentCaptureDisappearedNodes.isNotEmpty()) {
-            session.notifyViewsDisappeared(
-                    bufferedContentCaptureDisappearedNodes
-                        .toList()
-                        .fastMap { it.toLong() }
-                        .toLongArray())
-            bufferedContentCaptureDisappearedNodes.clear()
-        }
-    }
-
-    private fun notifySubtreeAppeared(node: SemanticsNode) {
-        bufferContentCaptureViewAppeared(node.id, node.toViewStructure())
-        node.replacedChildren.fastForEach { child -> notifySubtreeAppeared(child) }
-    }
-
-    private fun sendAccessibilitySemanticsStructureChangeEvents(
+    private fun sendSemanticsStructureChangeEvents(
         newNode: SemanticsNode,
         oldNode: SemanticsNodeCopy
     ) {
@@ -2782,36 +2638,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         newNode.replacedChildren.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id)) {
-                sendAccessibilitySemanticsStructureChangeEvents(
-                    child, previousSemanticsNodes[child.id]!!)
-            }
-        }
-    }
-
-    @VisibleForTesting(otherwise = PRIVATE)
-    internal fun sendContentCaptureSemanticsStructureChangeEvents(
-        newNode: SemanticsNode,
-        oldNode: SemanticsNodeCopy
-    ) {
-        // Iterate the new tree to notify content capture appear
-        newNode.replacedChildren.fastForEach { child ->
-            if (currentSemanticsNodes.contains(child.id) &&
-                !oldNode.children.contains(child.id)) {
-                notifySubtreeAppeared(child)
-            }
-        }
-        // Notify content capture disappear
-        for (entry in previousSemanticsNodes.entries) {
-            if (!currentSemanticsNodes.contains(entry.key)) {
-                bufferContentCaptureViewDisappeared(entry.key)
-            }
-        }
-
-        newNode.replacedChildren.fastForEach { child ->
-            if (currentSemanticsNodes.contains(child.id) &&
-                previousSemanticsNodes.contains(child.id)) {
-                sendContentCaptureSemanticsStructureChangeEvents(
-                    child, previousSemanticsNodes[child.id]!!)
+                sendSemanticsStructureChangeEvents(child, previousSemanticsNodes[child.id]!!)
             }
         }
     }
@@ -3361,13 +3188,3 @@ internal fun List<ScrollObservationScope>.findById(id: Int): ScrollObservationSc
     }
     return null
 }
-
-private fun Role.toLegacyClassName(): String? =
-    when (this) {
-        Role.Button -> "android.widget.Button"
-        Role.Checkbox -> "android.widget.CheckBox"
-        Role.RadioButton -> "android.widget.RadioButton"
-        Role.Image -> "android.widget.ImageView"
-        Role.DropdownList -> "android.widget.Spinner"
-        else -> null
-    }
