@@ -149,7 +149,6 @@ public abstract class Transition implements Cloneable {
 
     private static final int MATCH_LAST = MATCH_ITEM_ID;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({MATCH_INSTANCE, MATCH_NAME, MATCH_ID, MATCH_ITEM_ID})
     @Retention(RetentionPolicy.SOURCE)
@@ -864,7 +863,6 @@ public abstract class Transition implements Cloneable {
      * This is called internally once all animations have been set up by the
      * transition hierarchy. \
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void runAnimators() {
@@ -1708,7 +1706,6 @@ public abstract class Transition implements Cloneable {
      * TransitionListener#onTransitionPause(Transition)} to all listeners
      * and pausing all running animators started by this transition.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void pause(@Nullable View sceneRoot) {
@@ -1735,7 +1732,6 @@ public abstract class Transition implements Cloneable {
      * TransitionListener#onTransitionPause(Transition)} to all listeners
      * and pausing all running animators started by this transition.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void resume(@Nullable View sceneRoot) {
@@ -1877,7 +1873,6 @@ public abstract class Transition implements Cloneable {
      * animation, and, when the animator ends, calls {@link #end()}.
      *
      * @param animator The Animator to be run during this transition.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void animate(@Nullable Animator animator) {
@@ -1910,7 +1905,6 @@ public abstract class Transition implements Cloneable {
      * TransitionSet classes prior to a Transition subclass starting;
      * subclasses should not need to call it directly.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void start() {
@@ -1937,7 +1931,6 @@ public abstract class Transition implements Cloneable {
      * Animator and end() was called in the onAnimationEnd()
      * callback of the AnimatorListener.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void end() {
@@ -1970,7 +1963,6 @@ public abstract class Transition implements Cloneable {
     /**
      * Force the transition to move to its end state, ending all the animators.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void forceToEnd(@Nullable ViewGroup sceneRoot) {
@@ -1996,7 +1988,6 @@ public abstract class Transition implements Cloneable {
     /**
      * This method cancels a transition that is currently running.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void cancel() {
