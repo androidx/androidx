@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-@RequiresApi(21)
+@RequiresApi(23)
 class StreamConfigurationMapCompatApi23Impl extends StreamConfigurationMapCompatBaseImpl {
 
     StreamConfigurationMapCompatApi23Impl(@NonNull StreamConfigurationMap map) {

@@ -26,6 +26,8 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraControlStateAdapte
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
@@ -95,7 +97,13 @@ object FakeCameraInfoAdapterCreator {
         val state3AControl = State3AControl(cameraProperties).apply {
             useCaseCamera = fakeUseCaseCamera
         }
-        val fakeCameraQuirks = CameraQuirks(FakeCameraMetadata())
+        val fakeCameraQuirks = CameraQuirks(
+            FakeCameraMetadata(),
+            StreamConfigurationMapCompat(
+                StreamConfigurationMapBuilder.newBuilder().build(),
+                OutputSizesCorrector(FakeCameraMetadata())
+            )
+        )
         return CameraInfoAdapter(
             cameraProperties,
             CameraConfig(cameraId),
@@ -109,7 +117,13 @@ object FakeCameraInfoAdapterCreator {
             FocusMeteringControl(
                 cameraProperties,
                 MeteringRegionCorrection.Bindings.provideMeteringRegionCorrection(
-                    CameraQuirks(cameraProperties.metadata)
+                    CameraQuirks(
+                        cameraProperties.metadata,
+                        StreamConfigurationMapCompat(
+                            StreamConfigurationMapBuilder.newBuilder().build(),
+                            OutputSizesCorrector(cameraProperties.metadata)
+                        )
+                    )
                 ),
                 state3AControl,
                 useCaseThreads,
@@ -118,7 +132,11 @@ object FakeCameraInfoAdapterCreator {
                 useCaseCamera = fakeUseCaseCamera
             },
             fakeCameraQuirks,
-            EncoderProfilesProviderAdapter(cameraId.value)
+            EncoderProfilesProviderAdapter(cameraId.value),
+            StreamConfigurationMapCompat(
+                streamConfigurationMap,
+                OutputSizesCorrector(cameraProperties.metadata)
+            )
         )
     }
 }

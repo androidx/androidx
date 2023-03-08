@@ -25,11 +25,12 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.hardware.display.DisplayManager
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
-import android.os.Build
 import android.util.Size
 import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.ImageFormatConstants
@@ -74,6 +75,7 @@ class SupportedSurfaceCombination(
     internal lateinit var surfaceSizeDefinition: SurfaceSizeDefinition
     private val displayManager: DisplayManager =
         (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
+    private val streamConfigurationMapCompat = getStreamConfigurationMapCompat()
 
     init {
         checkCapabilities()
@@ -318,7 +320,7 @@ class SupportedSurfaceCombination(
         } catch (e: NumberFormatException) {
             // The camera Id is not an integer because the camera may be a removable device. Use
             // StreamConfigurationMap to determine the RECORD size.
-            return getRecordSizeFromStreamConfigurationMap()
+            return getRecordSizeFromStreamConfigurationMapCompat()
         }
         var profiles: EncoderProfilesProxy? = null
         if (encoderProfilesProviderAdapter.hasProfile(cameraId)) {
@@ -332,9 +334,10 @@ class SupportedSurfaceCombination(
     /**
      * Obtains the stream configuration map from camera meta data.
      */
-    private fun getStreamConfigurationMap(): StreamConfigurationMap {
-        return cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
+    private fun getStreamConfigurationMapCompat(): StreamConfigurationMapCompat {
+        val map = cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
             ?: throw IllegalArgumentException("Cannot retrieve SCALER_STREAM_CONFIGURATION_MAP")
+        return StreamConfigurationMapCompat(map, OutputSizesCorrector(cameraMetadata))
     }
 
     /**
@@ -343,9 +346,8 @@ class SupportedSurfaceCombination(
      *
      * @return Maximum supported video size.
      */
-    private fun getRecordSizeFromStreamConfigurationMap(): Size {
-        val map: StreamConfigurationMap = getStreamConfigurationMap()
-        val videoSizeArr = map.getOutputSizes(
+    private fun getRecordSizeFromStreamConfigurationMapCompat(): Size {
+        val videoSizeArr = streamConfigurationMapCompat.getOutputSizes(
             MediaRecorder::class.java
         ) ?: return RESOLUTION_480P
         Arrays.sort(videoSizeArr, CompareSizesByArea(true))
@@ -480,45 +482,22 @@ class SupportedSurfaceCombination(
      * @return the max supported output size for the image format
      */
     internal fun getMaxOutputSizeByFormat(imageFormat: Int): Size {
-        val outputSizes = getAllOutputSizesByFormat(imageFormat)
-        return Collections.max(listOf(*outputSizes), CompareSizesByArea())
-    }
-
-    /**
-     * Get all output sizes for a given image format.
-     */
-    private fun doGetAllOutputSizesByFormat(imageFormat: Int): Array<Size> {
-        val map: StreamConfigurationMap = getStreamConfigurationMap()
-        val outputSizes = if (Build.VERSION.SDK_INT < 23 &&
-            imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-        ) {
-            // This is a little tricky that 0x22 that is internal defined in
-            // StreamConfigurationMap.java to be equal to ImageFormat.PRIVATE that is public
-            // after Android level 23 but not public in Android L. Use {@link SurfaceTexture}
-            // or {@link MediaCodec} will finally mapped to 0x22 in StreamConfigurationMap to
-            // retrieve the output sizes information.
-            map.getOutputSizes(SurfaceTexture::class.java)
-        } else {
-            map.getOutputSizes(imageFormat)
-        }
-        // TODO(b/244477758): Exclude problematic sizes
-
-        // Sort the output sizes. The Comparator result must be reversed to have a descending order
-        // result.
-        Arrays.sort(outputSizes, CompareSizesByArea(true))
-        return outputSizes
-    }
-
-    /**
-     * Retrieves the output size associated with the given format.
-     */
-    private fun getAllOutputSizesByFormat(imageFormat: Int): Array<Size> {
-        var outputs: Array<Size>? = outputSizesCache[imageFormat]
-        if (outputs == null) {
-            outputs = doGetAllOutputSizesByFormat(imageFormat)
-            outputSizesCache[imageFormat] = outputs
-        }
-        return outputs
+        // Needs to retrieve the output size from the original stream configuration map without
+        // quirks applied.
+        val map: StreamConfigurationMap =
+            streamConfigurationMapCompat.toStreamConfigurationMap()
+        val outputSizes: Array<Size> =
+            if (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
+                // This is a little tricky that 0x22 that is internal defined in
+                // StreamConfigurationMap.java to be equal to ImageFormat.PRIVATE that is public
+                // after Android level 23 but not public in Android L. Use {@link SurfaceTexture}
+                // or {@link MediaCodec} will finally mapped to 0x22 in StreamConfigurationMap to
+                // retrieve the output sizes information.
+                map.getOutputSizes(SurfaceTexture::class.java)
+            } else {
+                map.getOutputSizes(imageFormat)
+            }
+        return Collections.max(outputSizes.asList(), CompareSizesByArea())
     }
 
     /**
