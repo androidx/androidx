@@ -26,7 +26,7 @@ class AppVerificationInfoTest {
 
     @Test
     fun builderPattern() {
-        var verificationInfo: AppVerificationInfo =
+        val verificationInfo: AppVerificationInfo =
             AppVerificationInfo.Builder()
                 .setPackageName("packageName")
                 .addSignature(listOf(ByteArray(5)))
