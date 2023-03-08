@@ -18,6 +18,7 @@ package org.chromium.android_webview.js_sandbox.common;
 
 import android.content.res.AssetFileDescriptor;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateCallback;
+import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateSyncCallback;
 
 /**
  * Used by the embedding app to execute JavaScript in a sandboxed environment.
@@ -52,6 +53,6 @@ interface IJsSandboxIsolate {
      * @param callback used to pass the information back to the embedding app
      *                 from the sandbox.
      */
-    void evaluateJavascriptWithFd(in AssetFileDescriptor afd, in IJsSandboxIsolateCallback callback)
+    void evaluateJavascriptWithFd(in AssetFileDescriptor afd, in IJsSandboxIsolateSyncCallback callback)
         = 3;
 }

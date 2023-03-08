@@ -46,7 +46,11 @@ import java.lang.annotation.Target;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -93,7 +97,18 @@ public final class JavaScriptSandbox implements AutoCloseable {
     @GuardedBy("mLock")
     private HashSet<JavaScriptIsolate> mActiveIsolateSet = new HashSet<JavaScriptIsolate>();
 
+    final ExecutorService mThreadPoolTaskExecutor =
+            Executors.newCachedThreadPool(new ThreadFactory() {
+                private final AtomicInteger mCount = new AtomicInteger(1);
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "JavaScriptSandbox Thread #" + mCount.getAndIncrement());
+                }
+            });
+
     /**
+     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value =
@@ -238,7 +253,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
         }
 
         ConnectionSetup(Context context,
-                        @NonNull CallbackToFutureAdapter.Completer<JavaScriptSandbox> completer) {
+                @NonNull CallbackToFutureAdapter.Completer<JavaScriptSandbox> completer) {
             mContext = context;
             mCompleter = completer;
         }
@@ -370,19 +385,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
      */
     @NonNull
     public JavaScriptIsolate createIsolate() {
-        synchronized (mLock) {
-            if (mJsSandboxService == null) {
-                throw new IllegalStateException(
-                        "Attempting to createIsolate on a service that isn't connected");
-            }
-            IJsSandboxIsolate isolateStub;
-            try {
-                isolateStub = mJsSandboxService.createIsolate();
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
-            return createJsIsolateLocked(isolateStub);
-        }
+        return createIsolate(new IsolateStartupParameters());
     }
 
     /**
@@ -414,7 +417,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
-            return createJsIsolateLocked(isolateStub);
+            return createJsIsolateLocked(isolateStub, settings);
         }
     }
 
@@ -446,8 +449,9 @@ public final class JavaScriptSandbox implements AutoCloseable {
 
     @GuardedBy("mLock")
     @SuppressWarnings("NullAway")
-    private JavaScriptIsolate createJsIsolateLocked(IJsSandboxIsolate isolateStub) {
-        JavaScriptIsolate isolate = new JavaScriptIsolate(isolateStub, this);
+    private JavaScriptIsolate createJsIsolateLocked(IJsSandboxIsolate isolateStub,
+            IsolateStartupParameters settings) {
+        JavaScriptIsolate isolate = new JavaScriptIsolate(isolateStub, this, settings);
         mActiveIsolateSet.add(isolate);
         return isolate;
     }
@@ -503,6 +507,12 @@ public final class JavaScriptSandbox implements AutoCloseable {
             if (mJsSandboxService == null) {
                 return;
             }
+            // This is the closest thing to a .close() method for ExecutorServices. This doesn't
+            // force the threads or their Runnables to immediately terminate, but will ensure
+            // that once the
+            // worker threads finish their current runnable (if any) that the thread pool terminates
+            // them, preventing a leak of threads.
+            mThreadPoolTaskExecutor.shutdownNow();
             notifyIsolatesAboutClosureLocked();
             mConnection.mContext.unbindService(mConnection);
             // Currently we consider that we are ready for a new connection once we unbind. This
