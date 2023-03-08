@@ -27,6 +27,7 @@ import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
 import android.util.Rational
 import android.util.Size
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
@@ -56,6 +57,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeUseCase
+import androidx.concurrent.futures.await
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -91,6 +93,7 @@ private const val CAMERA_ID_1 = "1" // 1920x1080 sensor size
 private const val CAMERA_ID_2 = "2" // 640x480 sensor size, not support AF_AUTO.
 private const val CAMERA_ID_3 = "3" // camera that does not support 3A regions.
 private const val CAMERA_ID_4 = "4" // camera 0 with LENS_FACING_FRONT
+private const val CAMERA_ID_5 = "5" // camera 0 supporting AF regions only
 
 private const val SENSOR_WIDTH = 640
 private const val SENSOR_HEIGHT = 480
@@ -329,18 +332,11 @@ class FocusMeteringControlTest {
     fun startFocusAndMetering_invalidPoint() = runBlocking {
         val invalidPoint = pointFactory.createPoint(1f, 1.1f)
 
-        startFocusMeteringAndAwait(FocusMeteringAction.Builder(invalidPoint).build())
+        val future = focusMeteringControl.startFocusAndMetering(
+            FocusMeteringAction.Builder(invalidPoint).build()
+        )
 
-        // TODO: This will probably throw an invalid argument exception in future instead of
-        //  passing the parameters to request control, better to assert the exception then.
-
-        val meteringRequests = fakeRequestControl.focusMeteringCalls.lastOrNull()
-            ?: FakeUseCaseCameraRequestControl.FocusMeteringParams()
-        with(meteringRequests) {
-            assertWithMessage("Wrong number of AE regions").that(aeRegions.size).isEqualTo(0)
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(0)
-            assertWithMessage("Wrong number of AWB regions").that(awbRegions.size).isEqualTo(0)
-        }
+        assertFutureFailedWithIllegalArgumentException(future)
     }
 
     @Test
@@ -348,14 +344,14 @@ class FocusMeteringControlTest {
         startFocusMeteringAndAwait(FocusMeteringAction.Builder(point1).build())
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AE regions").that(aeRegions.size).isEqualTo(1)
-            assertWithMessage("Wrong AE region").that(aeRegions[0].rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong number of AE regions").that(aeRegions?.size).isEqualTo(1)
+            assertWithMessage("Wrong AE region").that(aeRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
 
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
-            assertWithMessage("Wrong AF region").that(afRegions[0].rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
+            assertWithMessage("Wrong AF region").that(afRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
 
-            assertWithMessage("Wrong number of AWB regions").that(awbRegions.size).isEqualTo(1)
-            assertWithMessage("Wrong AWB region").that(awbRegions[0].rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong number of AWB regions").that(awbRegions?.size).isEqualTo(1)
+            assertWithMessage("Wrong AWB region").that(awbRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
         }
     }
 
@@ -370,18 +366,18 @@ class FocusMeteringControlTest {
         )
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AE regions").that(aeRegions.size).isEqualTo(3)
-            assertWithMessage("Wrong AE region").that(aeRegions[0].rect).isEqualTo(M_RECT_1)
-            assertWithMessage("Wrong AE region").that(aeRegions[1].rect).isEqualTo(M_RECT_2)
-            assertWithMessage("Wrong AE region").that(aeRegions[2].rect).isEqualTo(M_RECT_3)
+            assertWithMessage("Wrong number of AE regions").that(aeRegions?.size).isEqualTo(3)
+            assertWithMessage("Wrong AE region").that(aeRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong AE region").that(aeRegions?.get(1)?.rect).isEqualTo(M_RECT_2)
+            assertWithMessage("Wrong AE region").that(aeRegions?.get(2)?.rect).isEqualTo(M_RECT_3)
 
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(3)
-            assertWithMessage("Wrong AF region").that(afRegions[0].rect).isEqualTo(M_RECT_1)
-            assertWithMessage("Wrong AF region").that(afRegions[1].rect).isEqualTo(M_RECT_2)
-            assertWithMessage("Wrong AF region").that(afRegions[2].rect).isEqualTo(M_RECT_3)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(3)
+            assertWithMessage("Wrong AF region").that(afRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong AF region").that(afRegions?.get(1)?.rect).isEqualTo(M_RECT_2)
+            assertWithMessage("Wrong AF region").that(afRegions?.get(2)?.rect).isEqualTo(M_RECT_3)
 
-            assertWithMessage("Wrong number of AWB regions").that(awbRegions.size).isEqualTo(1)
-            assertWithMessage("Wrong AWB region").that(awbRegions[0].rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong number of AWB regions").that(awbRegions?.size).isEqualTo(1)
+            assertWithMessage("Wrong AWB region").that(awbRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
         }
     }
 
@@ -414,18 +410,22 @@ class FocusMeteringControlTest {
         )
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AE regions").that(aeRegions.size).isEqualTo(3)
-            assertWithMessage("Wrong AE region").that(aeRegions[0].rect).isEqualTo(M_RECT_1)
-            assertWithMessage("Wrong AE region").that(aeRegions[1].rect).isEqualTo(M_RECT_2)
-            assertWithMessage("Wrong AE region").that(aeRegions[2].rect).isEqualTo(M_RECT_3)
+            assertWithMessage("Wrong number of AE regions").that(aeRegions?.size).isEqualTo(3)
+            assertWithMessage("Wrong AE region").that(aeRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong AE region").that(aeRegions?.get(1)?.rect).isEqualTo(M_RECT_2)
+            assertWithMessage("Wrong AE region").that(aeRegions?.get(2)?.rect).isEqualTo(M_RECT_3)
 
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(3)
-            assertWithMessage("Wrong AF region").that(afRegions[0].rect).isEqualTo(flippedRect1)
-            assertWithMessage("Wrong AF region").that(afRegions[1].rect).isEqualTo(flippedRect2)
-            assertWithMessage("Wrong AF region").that(afRegions[2].rect).isEqualTo(flippedRect3)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(3)
+            assertWithMessage("Wrong AF region")
+                .that(afRegions?.get(0)?.rect).isEqualTo(flippedRect1)
+            assertWithMessage("Wrong AF region")
+                .that(afRegions?.get(1)?.rect).isEqualTo(flippedRect2)
+            assertWithMessage("Wrong AF region")
+                .that(afRegions?.get(2)?.rect).isEqualTo(flippedRect3)
 
-            assertWithMessage("Wrong number of AWB regions").that(awbRegions.size).isEqualTo(1)
-            assertWithMessage("Wrong AWB region").that(awbRegions[0].rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong number of AWB regions")
+                .that(awbRegions?.size).isEqualTo(1)
+            assertWithMessage("Wrong AWB region").that(awbRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
         }
     }
 
@@ -444,16 +444,16 @@ class FocusMeteringControlTest {
         )
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AE regions").that(aeRegions.size).isEqualTo(2)
-            assertWithMessage("Wrong AE region").that(aeRegions[0].rect).isEqualTo(M_RECT_2)
-            assertWithMessage("Wrong AE region").that(aeRegions[1].rect).isEqualTo(M_RECT_3)
+            assertWithMessage("Wrong number of AE regions").that(aeRegions?.size).isEqualTo(2)
+            assertWithMessage("Wrong AE region").that(aeRegions?.get(0)?.rect).isEqualTo(M_RECT_2)
+            assertWithMessage("Wrong AE region").that(aeRegions?.get(1)?.rect).isEqualTo(M_RECT_3)
 
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(2)
-            assertWithMessage("Wrong AF region").that(afRegions[0].rect).isEqualTo(M_RECT_2)
-            assertWithMessage("Wrong AF region").that(afRegions[1].rect).isEqualTo(M_RECT_3)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(2)
+            assertWithMessage("Wrong AF region").that(afRegions?.get(0)?.rect).isEqualTo(M_RECT_2)
+            assertWithMessage("Wrong AF region").that(afRegions?.get(1)?.rect).isEqualTo(M_RECT_3)
 
-            assertWithMessage("Wrong number of AWB regions").that(awbRegions.size).isEqualTo(1)
-            assertWithMessage("Wrong AWB region").that(awbRegions[0].rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong number of AWB regions").that(awbRegions?.size).isEqualTo(1)
+            assertWithMessage("Wrong AWB region").that(awbRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
         }
     }
 
@@ -468,14 +468,14 @@ class FocusMeteringControlTest {
         )
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AE regions").that(aeRegions.size).isEqualTo(1)
-            assertWithMessage("Wrong AE region").that(aeRegions[0].rect).isEqualTo(M_RECT_3)
+            assertWithMessage("Wrong number of AE regions").that(aeRegions?.size).isEqualTo(1)
+            assertWithMessage("Wrong AE region").that(aeRegions?.get(0)?.rect).isEqualTo(M_RECT_3)
 
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
-            assertWithMessage("Wrong AF region").that(afRegions[0].rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
+            assertWithMessage("Wrong AF region").that(afRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
 
-            assertWithMessage("Wrong number of AWB regions").that(awbRegions.size).isEqualTo(1)
-            assertWithMessage("Wrong AWB region").that(awbRegions[0].rect).isEqualTo(M_RECT_2)
+            assertWithMessage("Wrong number of AWB regions").that(awbRegions?.size).isEqualTo(1)
+            assertWithMessage("Wrong AWB region").that(awbRegions?.get(0)?.rect).isEqualTo(M_RECT_2)
         }
     }
 
@@ -508,9 +508,9 @@ class FocusMeteringControlTest {
             cropRect.centerY() + areaHeight / 2
         )
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
             assertWithMessage("Wrong AF region")
-                .that(afRegions[0].rect).isEqualTo(adjustedRect)
+                .that(afRegions?.get(0)?.rect).isEqualTo(adjustedRect)
         }
     }
 
@@ -549,9 +549,9 @@ class FocusMeteringControlTest {
             cropRect.centerY() + areaHeight / 2
         )
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
             assertWithMessage("Wrong AF region")
-                .that(afRegions[0].rect).isEqualTo(adjustedRect)
+                .that(afRegions?.get(0)?.rect).isEqualTo(adjustedRect)
         }
     }
 
@@ -568,9 +568,9 @@ class FocusMeteringControlTest {
         )
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
             assertWithMessage("Wrong AF region")
-                .that(afRegions[0].rect).isEqualTo(M_RECT_PVIEW_RATIO_16x9_SENSOR_640x480)
+                .that(afRegions?.get(0)?.rect).isEqualTo(M_RECT_PVIEW_RATIO_16x9_SENSOR_640x480)
         }
     }
 
@@ -588,9 +588,9 @@ class FocusMeteringControlTest {
         )
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
             assertWithMessage("Wrong AF region")
-                .that(afRegions[0].rect).isEqualTo(M_RECT_PVIEW_RATIO_4x3_SENSOR_1920x1080)
+                .that(afRegions?.get(0)?.rect).isEqualTo(M_RECT_PVIEW_RATIO_4x3_SENSOR_1920x1080)
         }
     }
 
@@ -613,9 +613,9 @@ class FocusMeteringControlTest {
         )
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
             assertWithMessage("Wrong AF region")
-                .that(afRegions[0].rect).isEqualTo(M_RECT_PVIEW_RATIO_16x9_SENSOR_640x480)
+                .that(afRegions?.get(0)?.rect).isEqualTo(M_RECT_PVIEW_RATIO_16x9_SENSOR_640x480)
         }
     }
 
@@ -638,8 +638,8 @@ class FocusMeteringControlTest {
         // which is the size of SENSOR_1 in this test. So the point is not adjusted,
         // and simply M_RECT_1 (metering rectangle of point1 with SENSOR_1) should be used.
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(1)
-            assertWithMessage("Wrong AF region").that(afRegions[0].rect).isEqualTo(M_RECT_1)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
+            assertWithMessage("Wrong AF region").that(afRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
         }
     }
 
@@ -656,22 +656,22 @@ class FocusMeteringControlTest {
         )
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong number of AF regions").that(afRegions.size).isEqualTo(3)
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(3)
 
             assertWithMessage("Wrong AF region width")
-                .that(afRegions[0].rect.width()).isEqualTo((SENSOR_WIDTH * 1.0f).toInt())
+                .that(afRegions?.get(0)?.rect?.width()).isEqualTo((SENSOR_WIDTH * 1.0f).toInt())
             assertWithMessage("Wrong AF region height")
-                .that(afRegions[0].rect.height()).isEqualTo((SENSOR_HEIGHT * 1.0f).toInt())
+                .that(afRegions?.get(0)?.rect?.height()).isEqualTo((SENSOR_HEIGHT * 1.0f).toInt())
 
             assertWithMessage("Wrong AF region width")
-                .that(afRegions[1].rect.width()).isEqualTo((SENSOR_WIDTH * 0.5f).toInt())
+                .that(afRegions?.get(1)?.rect?.width()).isEqualTo((SENSOR_WIDTH * 0.5f).toInt())
             assertWithMessage("Wrong AF region height")
-                .that(afRegions[1].rect.height()).isEqualTo((SENSOR_HEIGHT * 0.5f).toInt())
+                .that(afRegions?.get(1)?.rect?.height()).isEqualTo((SENSOR_HEIGHT * 0.5f).toInt())
 
             assertWithMessage("Wrong AF region width")
-                .that(afRegions[2].rect.width()).isEqualTo((SENSOR_WIDTH * 0.1f).toInt())
+                .that(afRegions?.get(2)?.rect?.width()).isEqualTo((SENSOR_WIDTH * 0.1f).toInt())
             assertWithMessage("Wrong AF region height")
-                .that(afRegions[2].rect.height()).isEqualTo((SENSOR_HEIGHT * 0.1f).toInt())
+                .that(afRegions?.get(2)?.rect?.height()).isEqualTo((SENSOR_HEIGHT * 0.1f).toInt())
         }
     }
 
@@ -860,11 +860,7 @@ class FocusMeteringControlTest {
         ).build()
         val future = focusMeteringControl.startFocusAndMetering(action)
 
-        assertThrows(ExecutionException::class.java) {
-            future[500, TimeUnit.MILLISECONDS]
-        }.also {
-            assertThat(it.cause).isInstanceOf(IllegalArgumentException::class.java)
-        }
+        assertFutureFailedWithIllegalArgumentException(future)
     }
 
     @Test
@@ -876,11 +872,7 @@ class FocusMeteringControlTest {
         ).build()
         val future = focusMeteringControl.startFocusAndMetering(action)
 
-        assertThrows(ExecutionException::class.java) {
-            future[500, TimeUnit.MILLISECONDS]
-        }.also {
-            assertThat(it.cause).isInstanceOf(IllegalArgumentException::class.java)
-        }
+        assertFutureFailedWithIllegalArgumentException(future)
     }
 
     @Test
@@ -892,11 +884,7 @@ class FocusMeteringControlTest {
         ).build()
         val future = focusMeteringControl.startFocusAndMetering(action)
 
-        assertThrows(ExecutionException::class.java) {
-            future[500, TimeUnit.MILLISECONDS]
-        }.also {
-            assertThat(it.cause).isInstanceOf(IllegalArgumentException::class.java)
-        }
+        assertFutureFailedWithIllegalArgumentException(future)
     }
 
     @Test
@@ -939,11 +927,7 @@ class FocusMeteringControlTest {
             .addPoint(invalidPt3, FocusMeteringAction.FLAG_AWB).build()
         val future = focusMeteringControl.startFocusAndMetering(action)
 
-        assertThrows(ExecutionException::class.java) {
-            future[500, TimeUnit.MILLISECONDS]
-        }.also {
-            assertThat(it.cause).isInstanceOf(IllegalArgumentException::class.java)
-        }
+        assertFutureFailedWithIllegalArgumentException(future)
     }
 
     @Test
@@ -1236,6 +1220,66 @@ class FocusMeteringControlTest {
         assertFutureFocusCompleted(future, false)
     }
 
+    @Test
+    fun startFocusMetering_noAePoint_aeRegionsSetToDefault() {
+        startFocusMeteringAndAwait(
+            FocusMeteringAction.Builder(
+                point1, FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AWB
+            ).build()
+        )
+
+        with(fakeRequestControl.focusMeteringCalls.last()) {
+            assertWithMessage("Wrong AE regions").that(aeRegions)
+                .isEqualTo(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT.toList())
+        }
+    }
+
+    @Test
+    fun startFocusMetering_noAfPoint_afRegionsSetToDefault() {
+        startFocusMeteringAndAwait(
+            FocusMeteringAction.Builder(
+                point1, FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB
+            ).build()
+        )
+
+        with(fakeRequestControl.focusMeteringCalls.last()) {
+            assertWithMessage("Wrong AF regions").that(afRegions)
+                .isEqualTo(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT.toList())
+        }
+    }
+
+    @Test
+    fun startFocusMetering_noAwbPoint_awbRegionsSetToDefault() {
+        startFocusMeteringAndAwait(
+            FocusMeteringAction.Builder(
+                point1, FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AF
+            ).build()
+        )
+
+        with(fakeRequestControl.focusMeteringCalls.last()) {
+            assertWithMessage("Wrong AWB regions").that(awbRegions)
+                .isEqualTo(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT.toList())
+        }
+    }
+
+    @Test
+    fun startFocusMetering_onlyAfSupported_unsupportedRegionsNotSet() {
+        // camera 5 supports 1 AF and 0 AE/AWB regions
+        focusMeteringControl = initFocusMeteringControl(cameraId = CAMERA_ID_5)
+
+        startFocusMeteringAndAwait(FocusMeteringAction.Builder(
+            point1,
+            FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE or
+                FocusMeteringAction.FLAG_AWB
+        ).build())
+
+        with(fakeRequestControl.focusMeteringCalls.last()) {
+            assertWithMessage("Wrong number of AE regions").that(aeRegions).isNull()
+            assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
+            assertWithMessage("Wrong number of AWB regions").that(awbRegions).isNull()
+        }
+    }
+
     // TODO: Port the following tests once their corresponding logics have been implemented.
     //  - [b/255679866] triggerAfWithTemplate, triggerAePrecaptureWithTemplate,
     //          cancelAfAeTriggerWithTemplate
@@ -1246,6 +1290,14 @@ class FocusMeteringControlTest {
     ) {
         val focusMeteringResult = future[3, TimeUnit.SECONDS]
         assertThat(focusMeteringResult.isFocusSuccessful).isEqualTo(isFocused)
+    }
+
+    private fun <T> assertFutureFailedWithIllegalArgumentException(future: ListenableFuture<T>) {
+        assertThrows(ExecutionException::class.java) {
+            future[3, TimeUnit.SECONDS]
+        }.apply {
+            assertThat(cause).isInstanceOf(IllegalArgumentException::class.java)
+        }
     }
 
     private fun <T> assertFutureFailedWithOperationCancellation(future: ListenableFuture<T>) {
@@ -1458,6 +1510,18 @@ class FocusMeteringControlTest {
         cameraPropertiesMap[CAMERA_ID_4] = initCameraProperties(
             CAMERA_ID_4,
             characteristics4
+        )
+
+        // **** Camera 5 characteristics (same as Camera 0, but supports AF regions only) **** //
+        val characteristics5 = characteristics0 + mapOf(
+            CameraCharacteristics.CONTROL_MAX_REGIONS_AF to 3,
+            CameraCharacteristics.CONTROL_MAX_REGIONS_AE to 0,
+            CameraCharacteristics.CONTROL_MAX_REGIONS_AWB to 0
+        )
+
+        cameraPropertiesMap[CAMERA_ID_5] = initCameraProperties(
+            CAMERA_ID_5,
+            characteristics5
         )
     }
 

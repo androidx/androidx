@@ -26,6 +26,7 @@ import android.util.Rational
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
+import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
@@ -158,10 +159,21 @@ class FocusMeteringControl @Inject constructor(
                     (false to autoFocusTimeoutMs)
                 }
                 withTimeoutOrNull(timeout) {
+                    /**
+                     * If device does not support a 3A region, we should not update it at all.
+                     * If device does support but a region list is empty, it means any previously
+                     * set region should be removed, so the no-op METERING_REGIONS_DEFAULT is used.
+                     */
                     useCaseCamera.requestControl.startFocusAndMeteringAsync(
-                        aeRegions = aeRectangles,
-                        afRegions = afRectangles,
-                        awbRegions = awbRectangles,
+                        aeRegions = if (maxAeRegionCount > 0)
+                            aeRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
+                        else null,
+                        afRegions = if (maxAfRegionCount > 0)
+                            afRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
+                        else null,
+                        awbRegions = if (maxAwbRegionCount > 0)
+                            awbRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
+                        else null,
                         afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON)
                     ).await()
                 }.let { result3A ->
