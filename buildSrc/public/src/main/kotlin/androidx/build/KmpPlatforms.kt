@@ -34,7 +34,7 @@ enum class KmpPlatform {
     LINUX;
     companion object {
         val native = listOf(MAC, LINUX)
-        val enabledByDefault = listOf(JVM) + native
+        val enabledByDefault = listOf(JVM)
         private const val JVM_PLATFORM = "jvm"
         private const val JS_PLATFORM = "js"
         private const val MAC_ARM_64 = "macosarm64"
