@@ -16,12 +16,18 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.annotation.RestrictTo
+import androidx.appactions.interaction.capabilities.core.impl.concurrent.ListenableFutureHelper
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * An ListenableFuture-based interface of executing an action.
  */
 fun interface ActionExecutorAsync<ArgumentT, OutputT> {
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val uiHandle: Any
+        get() = this
+
     /**
      * Calls to execute the action.
      *
@@ -29,4 +35,18 @@ fun interface ActionExecutorAsync<ArgumentT, OutputT> {
      * @return A ListenableFuture containing the ExecutionResult
      */
     fun execute(argument: ArgumentT): ListenableFuture<ExecutionResult<OutputT>>
+
+    companion object {
+        fun <ArgumentT, OutputT> ActionExecutor<ArgumentT, OutputT>
+            .toActionExecutorAsync(): ActionExecutorAsync<ArgumentT, OutputT> =
+            object : ActionExecutorAsync<ArgumentT, OutputT> {
+                override val uiHandle = this@toActionExecutorAsync
+                override fun execute(
+                    argument: ArgumentT,
+                ): ListenableFuture<ExecutionResult<OutputT>> =
+                    ListenableFutureHelper.convertToListenableFuture {
+                        this@toActionExecutorAsync.execute(argument)
+                    }
+            }
+    }
 }
