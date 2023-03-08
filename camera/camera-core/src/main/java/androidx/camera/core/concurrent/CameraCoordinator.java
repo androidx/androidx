@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.CameraStateRegistry;
 
@@ -70,19 +71,19 @@ public interface CameraCoordinator {
     List<List<CameraSelector>> getConcurrentCameraSelectors();
 
     /**
-     * Gets active concurrent camera selectors.
+     * Gets active concurrent camera infos.
      *
-     * @return list of active concurrent camera selectors.
+     * @return list of active concurrent camera infos.
      */
     @NonNull
-    List<CameraSelector> getActiveConcurrentCameraSelectors();
+    List<CameraInfo> getActiveConcurrentCameraInfos();
 
     /**
-     * Sets active concurrent camera selectors.
+     * Sets active concurrent camera infos.
      *
-     * @param cameraSelectors list of active concurrent camera selectors.
+     * @param cameraInfos list of active concurrent camera infos.
      */
-    void setActiveConcurrentCameraSelectors(@NonNull List<CameraSelector> cameraSelectors);
+    void setActiveConcurrentCameraInfos(@NonNull List<CameraInfo> cameraInfos);
 
     /**
      * Returns paired camera id in concurrent mode.

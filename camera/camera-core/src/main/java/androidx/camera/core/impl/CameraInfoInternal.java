@@ -121,6 +121,7 @@ public interface CameraInfoInternal extends CameraInfo {
                     throw new IllegalStateException("Unable to find camera with id " + cameraId
                             + " from list of available cameras.");
                 })
+                .addCameraFilter(new LensFacingCameraFilter(getLensFacing()))
                 .build();
     }
 }
