@@ -16,16 +16,20 @@
 
 package androidx.camera.camera2.internal;
 
+import android.util.Size;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
+import androidx.camera.camera2.internal.compat.workaround.PreviewPixelHDRnet;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
+import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 
@@ -40,7 +44,9 @@ final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @Override
-    public void unpack(@NonNull UseCaseConfig<?> config,
+    public void unpack(
+            @NonNull Size resolution,
+            @NonNull UseCaseConfig<?> config,
             @NonNull final SessionConfig.Builder builder) {
         SessionConfig defaultSessionConfig =
                 config.getDefaultSessionConfig(/*valueIfMissing=*/ null);
@@ -60,6 +66,11 @@ final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker
 
         // Set the any additional implementation options
         builder.setImplementationOptions(implOptions);
+
+        // Apply quirks
+        if (config instanceof PreviewConfig) {
+            PreviewPixelHDRnet.setHDRnet(resolution, builder);
+        }
 
         // Get Camera2 extended options
         final Camera2ImplConfig camera2Config = new Camera2ImplConfig(config);

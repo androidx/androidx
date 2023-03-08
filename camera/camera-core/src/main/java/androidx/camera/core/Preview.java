@@ -216,7 +216,8 @@ public final class Preview extends UseCase {
         }
 
         checkMainThread();
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
+                streamSpec.getResolution());
 
         // Close previous session's deferrable surface before creating new one
         clearPipeline();
@@ -285,7 +286,8 @@ public final class Preview extends UseCase {
         }
 
         // Send the camera Surface to the camera2.
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
+                streamSpec.getResolution());
         addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, streamSpec);
         return sessionConfigBuilder;
     }

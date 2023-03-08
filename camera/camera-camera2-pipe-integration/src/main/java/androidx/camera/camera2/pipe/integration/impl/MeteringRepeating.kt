@@ -76,7 +76,7 @@ class MeteringRepeating(
         Builder(cameraProperties, displayInfoManager)
 
     override fun onSuggestedStreamSpecUpdated(suggestedStreamSpec: StreamSpec): StreamSpec {
-        updateSessionConfig(createPipeline().build())
+        updateSessionConfig(createPipeline(meteringSurfaceSize).build())
         notifyActive()
         return StreamSpec.builder(meteringSurfaceSize).build()
     }
@@ -95,15 +95,15 @@ class MeteringRepeating(
         updateSuggestedStreamSpec(StreamSpec.builder(DEFAULT_PREVIEW_SIZE).build())
     }
 
-    private fun createPipeline(): SessionConfig.Builder {
+    private fun createPipeline(resolution: Size): SessionConfig.Builder {
         synchronized(deferrableSurfaceLock) {
             val surfaceTexture = SurfaceTexture(0).apply {
-                setDefaultBufferSize(meteringSurfaceSize.width, meteringSurfaceSize.height)
+                setDefaultBufferSize(resolution.width, resolution.height)
             }
             val surface = Surface(surfaceTexture)
 
             deferrableSurface?.close()
-            deferrableSurface = ImmediateSurface(surface, meteringSurfaceSize, imageFormat)
+            deferrableSurface = ImmediateSurface(surface, resolution, imageFormat)
             deferrableSurface!!.terminationFuture
                 .addListener(
                     {
@@ -115,12 +115,12 @@ class MeteringRepeating(
         }
 
         return SessionConfig.Builder
-            .createFrom(MeteringRepeatingConfig())
+            .createFrom(MeteringRepeatingConfig(), resolution)
             .apply {
                 setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
                 addSurface(deferrableSurface!!)
                 addErrorListener { _, _ ->
-                    updateSessionConfig(createPipeline().build())
+                    updateSessionConfig(createPipeline(resolution).build())
                     notifyReset()
                 }
             }

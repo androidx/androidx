@@ -1327,7 +1327,7 @@ class VideoCaptureTest {
         videoEncoderInfoFinder: Function<VideoEncoderConfig, VideoEncoderInfo> =
             Function { createVideoEncoderInfo() },
     ): VideoCapture<VideoOutput> = VideoCapture.Builder(videoOutput)
-        .setSessionOptionUnpacker { _, _ -> }
+        .setSessionOptionUnpacker { _, _, _ -> }
         .apply {
             targetRotation?.let { setTargetRotation(it) }
             mirrorMode?.let { setMirrorMode(it) }
