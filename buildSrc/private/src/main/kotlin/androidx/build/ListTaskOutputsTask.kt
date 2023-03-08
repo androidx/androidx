@@ -135,7 +135,9 @@ val taskNamesKnownToDuplicateOutputs = setOf(
 
 val taskTypesKnownToDuplicateOutputs = setOf(
     // b/224564238
-    "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated"
+    "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated",
+    "org.jetbrains.kotlin.gradle.targets.native.internal." +
+        "CInteropMetadataDependencyTransformationTask_Decorated"
 )
 
 fun shouldValidateTaskOutput(task: Task): Boolean {
