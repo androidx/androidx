@@ -170,6 +170,7 @@ package androidx.mediarouter.media {
     method public android.os.Bundle asBundle();
     method public boolean canDisconnectAndKeepPlaying();
     method public static androidx.mediarouter.media.MediaRouteDescriptor? fromBundle(android.os.Bundle?);
+    method public java.util.Set<java.lang.String!> getAllowedPackages();
     method public int getConnectionState();
     method public java.util.List<android.content.IntentFilter!> getControlFilters();
     method public java.util.Set<java.lang.String!> getDeduplicationIds();
@@ -190,6 +191,7 @@ package androidx.mediarouter.media {
     method public boolean isDynamicGroupRoute();
     method public boolean isEnabled();
     method public boolean isValid();
+    method public boolean isVisibilityPublic();
   }
 
   public static final class MediaRouteDescriptor.Builder {

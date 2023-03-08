@@ -70,7 +70,7 @@ public final class MediaRouteDescriptor {
     static final String KEY_MIN_CLIENT_VERSION = "minClientVersion";
     static final String KEY_MAX_CLIENT_VERSION = "maxClientVersion";
     static final String KEY_DEDUPLICATION_IDS = "deduplicationIds";
-    static final String KEY_IS_VISIBILITY_RESTRICTED = "isVisibilityRestricted";
+    static final String KEY_IS_VISIBILITY_PUBLIC = "isVisibilityPublic";
     static final String KEY_ALLOWED_PACKAGES = "allowedPackages";
 
     final Bundle mBundle;
@@ -338,21 +338,17 @@ public final class MediaRouteDescriptor {
     }
 
     /**
-     * Gets whether the route visibility is restricted or not.
-     * @hide
+     * Gets whether the route visibility is public or not.
      */
-    @RestrictTo(LIBRARY)
-    public boolean isVisibilityRestricted() {
-        return mBundle.getBoolean(KEY_IS_VISIBILITY_RESTRICTED, /* defaultValue= */ false);
+    public boolean isVisibilityPublic() {
+        return mBundle.getBoolean(KEY_IS_VISIBILITY_PUBLIC, /* defaultValue= */ true);
     }
 
     /**
      * Gets the set of allowed packages which are able to see the route or an empty set if only
      * the route provider's package is allowed to see this route. This applies only when
-     * {@link #isVisibilityRestricted} returns {@code true}.
-     * @hide
+     * {@link #isVisibilityPublic} returns {@code false}.
      */
-    @RestrictTo(LIBRARY)
     @NonNull
     public Set<String> getAllowedPackages() {
         if (!mBundle.containsKey(KEY_ALLOWED_PACKAGES)) {
@@ -396,7 +392,7 @@ public final class MediaRouteDescriptor {
                 + ", isValid=" + isValid()
                 + ", minClientVersion=" + getMinClientVersion()
                 + ", maxClientVersion=" + getMaxClientVersion()
-                + ", isVisibilityRestricted=" + isVisibilityRestricted()
+                + ", isVisibilityPublic=" + isVisibilityPublic()
                 + ", allowedPackages=" + Arrays.toString(getAllowedPackages().toArray())
                 + " }";
     }
@@ -851,7 +847,7 @@ public final class MediaRouteDescriptor {
         @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder"})
         public Builder setVisibilityPublic() {
-            mBundle.putBoolean(KEY_IS_VISIBILITY_RESTRICTED, false);
+            mBundle.putBoolean(KEY_IS_VISIBILITY_PUBLIC, true);
             mAllowedPackages.clear();
             return this;
         }
@@ -872,7 +868,7 @@ public final class MediaRouteDescriptor {
         @NonNull
         @SuppressLint({"MissingGetterMatchingBuilder"})
         public Builder setVisibilityRestricted(@NonNull Set<String> allowedPackages) {
-            mBundle.putBoolean(KEY_IS_VISIBILITY_RESTRICTED, true);
+            mBundle.putBoolean(KEY_IS_VISIBILITY_PUBLIC, false);
             mAllowedPackages = new HashSet<>(allowedPackages);
             return this;
         }

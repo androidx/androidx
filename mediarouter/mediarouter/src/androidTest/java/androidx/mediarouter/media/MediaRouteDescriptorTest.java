@@ -116,7 +116,7 @@ public class MediaRouteDescriptorTest {
                 FAKE_MEDIA_ROUTE_ID_1, FAKE_MEDIA_ROUTE_NAME)
                 .build();
 
-        assertFalse(routeDescriptor.isVisibilityRestricted());
+        assertTrue(routeDescriptor.isVisibilityPublic());
     }
 
     @Test
@@ -129,7 +129,7 @@ public class MediaRouteDescriptorTest {
                 .setVisibilityRestricted(allowedPackages)
                 .build();
 
-        assertTrue(routeDescriptor.isVisibilityRestricted());
+        assertFalse(routeDescriptor.isVisibilityPublic());
     }
 
     @Test
