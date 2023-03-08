@@ -166,6 +166,11 @@ class CapturePipelineTest {
         extras = emptyMap(),
         template = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
     )
+    private val fakeCameraProperties = FakeCameraProperties(
+        FakeCameraMetadata(
+            mapOf(CameraCharacteristics.FLASH_INFO_AVAILABLE to true),
+        )
+    )
     private var runningRepeatingStream: ScheduledFuture<*>? = null
         set(value) {
             runningRepeatingStream?.cancel(false)
@@ -178,11 +183,6 @@ class CapturePipelineTest {
     @Before
     fun setUp() {
         val fakeUseCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
-        val fakeCameraProperties = FakeCameraProperties(
-            FakeCameraMetadata(
-                mapOf(CameraCharacteristics.FLASH_INFO_AVAILABLE to true),
-            )
-        )
 
         torchControl = TorchControl(
             fakeCameraProperties,
@@ -204,6 +204,7 @@ class CapturePipelineTest {
             torchControl = torchControl,
             threads = fakeUseCaseThreads,
             requestListener = comboRequestListener,
+            cameraProperties = fakeCameraProperties,
             useCaseGraphConfig = UseCaseGraphConfig(
                 graph = FakeCameraGraph(fakeCameraGraphSession = fakeCameraGraphSession),
                 surfaceToStreamMap = emptyMap(),

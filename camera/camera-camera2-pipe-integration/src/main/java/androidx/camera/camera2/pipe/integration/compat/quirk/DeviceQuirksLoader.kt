@@ -34,6 +34,10 @@ object DeviceQuirksLoader {
         val quirks: MutableList<Quirk> = mutableListOf()
 
         // Load all device specific quirks, preferably in lexicographical order
+        if (FlashAvailabilityBufferUnderflowQuirk.isEnabled()) {
+            quirks.add(FlashAvailabilityBufferUnderflowQuirk())
+        }
+
         if (ImageCapturePixelHDRPlusQuirk.isEnabled()) {
             quirks.add(ImageCapturePixelHDRPlusQuirk())
         }
