@@ -59,7 +59,6 @@ public class Slide extends Visibility {
     private CalculateSlide mSlideCalculator = sCalculateBottom;
     private int mSlideEdge = Gravity.BOTTOM;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({Gravity.LEFT, Gravity.TOP, Gravity.RIGHT, Gravity.BOTTOM, Gravity.START, Gravity.END})
