@@ -85,7 +85,7 @@ public class FakeUseCase extends UseCase {
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
         return new FakeUseCaseConfig.Builder(config)
-                .setSessionOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> {
+                .setSessionOptionUnpacker((resolution, useCaseConfig, sessionConfigBuilder) -> {
                 });
     }
 

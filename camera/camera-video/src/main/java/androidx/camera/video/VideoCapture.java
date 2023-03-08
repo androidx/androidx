@@ -526,7 +526,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // MediaCodec class instead.
         mDeferrableSurface.setContainerClass(MediaCodec.class);
 
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
+                streamSpec.getResolution());
         sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
         sessionConfigBuilder.addErrorListener(
                 (sessionConfig, error) -> resetPipeline(cameraId, config, streamSpec));

@@ -87,7 +87,7 @@ class ProcessCameraProviderTest {
             mainThreadExecutor(),
             surfaceProcessor
         )
-        val preview = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+        val preview = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
         val useCaseGroup = UseCaseGroup.Builder().addUseCase(preview).addEffect(effect).build()
 
         runBlocking(MainScope().coroutineContext) {
@@ -215,7 +215,7 @@ class ProcessCameraProviderTest {
 
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
-            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             provider.bindToLifecycle(
                 lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA,
@@ -234,8 +234,8 @@ class ProcessCameraProviderTest {
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
 
-            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             provider.bindToLifecycle(
                 lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA,
@@ -263,7 +263,7 @@ class ProcessCameraProviderTest {
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
 
-            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             provider.bindToLifecycle(
                 lifecycleOwner0,
@@ -285,8 +285,8 @@ class ProcessCameraProviderTest {
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
 
-            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             provider.bindToLifecycle(
                 lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA,
@@ -310,7 +310,7 @@ class ProcessCameraProviderTest {
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
 
-            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             provider.bindToLifecycle(
                 lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA, useCase
@@ -331,8 +331,8 @@ class ProcessCameraProviderTest {
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
 
-            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             provider.bindToLifecycle(
                 lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA, useCase0, useCase1
@@ -351,13 +351,13 @@ class ProcessCameraProviderTest {
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
 
-            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
             val camera0 = provider.bindToLifecycle(
                 lifecycleOwner0,
                 CameraSelector.DEFAULT_BACK_CAMERA, useCase0
             )
 
-            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
             val camera1 = provider.bindToLifecycle(
                 lifecycleOwner1,
                 CameraSelector.DEFAULT_BACK_CAMERA, useCase1
@@ -390,8 +390,8 @@ class ProcessCameraProviderTest {
 
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
-            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             val camera0 = provider.bindToLifecycle(
                 lifecycleOwner0,
@@ -418,8 +418,8 @@ class ProcessCameraProviderTest {
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
 
-            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             provider.bindToLifecycle(lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA, useCase0)
 
@@ -441,8 +441,8 @@ class ProcessCameraProviderTest {
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
 
-            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             val camera0 = provider.bindToLifecycle(
                 lifecycleOwner0,
@@ -494,7 +494,7 @@ class ProcessCameraProviderTest {
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
 
-            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             // The front camera is not defined, we should get the IllegalArgumentException when it
             // tries to get the camera.
@@ -542,7 +542,7 @@ class ProcessCameraProviderTest {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
-            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
             val camera: LifecycleCamera =
                 provider.bindToLifecycle(
                     lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA,
@@ -559,7 +559,7 @@ class ProcessCameraProviderTest {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
-            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
             lifecycleOwner0.startAndResume()
             val camera: LifecycleCamera =
                 provider.bindToLifecycle(
@@ -576,7 +576,7 @@ class ProcessCameraProviderTest {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
-            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
             lifecycleOwner0.startAndResume()
             val camera: LifecycleCamera =
                 provider.bindToLifecycle(
@@ -595,7 +595,7 @@ class ProcessCameraProviderTest {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
-            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
             lifecycleOwner0.startAndResume()
             val camera: LifecycleCamera =
                 provider.bindToLifecycle(
@@ -673,8 +673,8 @@ class ProcessCameraProviderTest {
 
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
-            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             val singleCameraConfig0 = SingleCameraConfig.Builder()
                 .setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
@@ -711,9 +711,9 @@ class ProcessCameraProviderTest {
 
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
-            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val useCase2 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+            val useCase2 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             val singleCameraConfig0 = SingleCameraConfig.Builder()
                 .setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
@@ -770,7 +770,7 @@ class ProcessCameraProviderTest {
 
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
-            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             val singleCameraConfig0 = SingleCameraConfig.Builder()
                 .setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
@@ -797,8 +797,8 @@ class ProcessCameraProviderTest {
 
         runBlocking(MainScope().coroutineContext) {
             provider = ProcessCameraProvider.getInstance(context).await()
-            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
+            val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
+            val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
             val singleCameraConfig0 = SingleCameraConfig.Builder()
                 .setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)

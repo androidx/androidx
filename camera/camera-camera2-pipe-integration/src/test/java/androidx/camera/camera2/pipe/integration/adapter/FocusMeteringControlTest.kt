@@ -1528,7 +1528,7 @@ class FocusMeteringControlTest {
     private fun createPreview(suggestedStreamSpecResolution: Size) =
         Preview.Builder()
             .setCaptureOptionUnpacker { _, _ -> }
-            .setSessionOptionUnpacker() { _, _ -> }
+            .setSessionOptionUnpacker() { _, _, _ -> }
             .build().apply {
                 setSurfaceProvider(
                     CameraXExecutors.mainThreadExecutor(),

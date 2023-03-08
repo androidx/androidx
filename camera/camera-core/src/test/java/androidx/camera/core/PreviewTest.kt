@@ -229,7 +229,7 @@ class PreviewTest {
         // Arrange: attach Preview without a SurfaceProvider.
         // Build and bind use case.
         val sessionOptionUnpacker =
-            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+            { _: Size, _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
         val preview = Preview.Builder()
             .setTargetRotation(Surface.ROTATION_0)
             .setSessionOptionUnpacker(sessionOptionUnpacker)
@@ -511,7 +511,7 @@ class PreviewTest {
     fun setTargetRotation_transformationInfoUpdated() {
         // Arrange: set up preview and verify target rotation in TransformationInfo.
         val sessionOptionUnpacker =
-            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+            { _: Size, _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
         val preview = Preview.Builder()
             .setTargetRotation(Surface.ROTATION_0)
             .setSessionOptionUnpacker(sessionOptionUnpacker)
@@ -544,7 +544,7 @@ class PreviewTest {
     fun setSurfaceProviderAfterAttachment_receivesSurfaceProviderCallbacks() {
         // Arrange: attach Preview without a SurfaceProvider.
         val sessionOptionUnpacker =
-            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+            { _: Size, _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
         val preview = Preview.Builder()
             .setTargetRotation(Surface.ROTATION_0)
             .setSessionOptionUnpacker(sessionOptionUnpacker)
@@ -597,7 +597,7 @@ class PreviewTest {
     fun setSurfaceProviderAfterDetach_receivesSurfaceRequestAfterAttach() {
         // Arrange: attach Preview without a SurfaceProvider.
         val sessionOptionUnpacker =
-            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+            { _: Size, _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
         val preview = Preview.Builder()
             .setTargetRotation(Surface.ROTATION_0)
             .setSessionOptionUnpacker(sessionOptionUnpacker)
@@ -668,7 +668,7 @@ class PreviewTest {
         TransformationInfo> {
         // Arrange.
         val sessionOptionUnpacker =
-            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+            { _: Size, _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
         val preview = Preview.Builder()
             .setTargetRotation(Surface.ROTATION_0)
             .setSessionOptionUnpacker(sessionOptionUnpacker)

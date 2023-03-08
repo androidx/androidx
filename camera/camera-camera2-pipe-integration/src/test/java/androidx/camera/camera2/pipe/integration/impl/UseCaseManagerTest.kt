@@ -282,7 +282,7 @@ class UseCaseManagerTest {
     private fun createImageCapture(): ImageCapture =
         ImageCapture.Builder()
             .setCaptureOptionUnpacker { _, _ -> }
-            .setSessionOptionUnpacker() { _, _ -> }
+            .setSessionOptionUnpacker() { _, _, _ -> }
             .build().also {
                 it.simulateActivation()
                 useCaseList.add(it)
@@ -291,7 +291,7 @@ class UseCaseManagerTest {
     private fun createPreview(): Preview =
         Preview.Builder()
             .setCaptureOptionUnpacker { _, _ -> }
-            .setSessionOptionUnpacker() { _, _ -> }
+            .setSessionOptionUnpacker() { _, _, _ -> }
             .build().apply {
                 setSurfaceProvider(
                     CameraXExecutors.mainThreadExecutor(),

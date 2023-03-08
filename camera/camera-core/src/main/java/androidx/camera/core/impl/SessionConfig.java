@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.InputConfiguration;
 import android.util.Range;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -318,10 +319,14 @@ public final class SessionConfig {
         /**
          * Apply the options from the config onto the builder
          *
+         * @param resolution the suggested resolution
          * @param config  the set of options to apply
          * @param builder the builder on which to apply the options
          */
-        void unpack(@NonNull UseCaseConfig<?> config, @NonNull SessionConfig.Builder builder);
+        void unpack(
+                @NonNull Size resolution,
+                @NonNull UseCaseConfig<?> config,
+                @NonNull SessionConfig.Builder builder);
     }
 
     /**
@@ -349,7 +354,9 @@ public final class SessionConfig {
          * <p>Populates the builder with all the properties defined in the base configuration.
          */
         @NonNull
-        public static Builder createFrom(@NonNull UseCaseConfig<?> config) {
+        public static Builder createFrom(
+                @NonNull UseCaseConfig<?> config,
+                @NonNull Size resolution) {
             OptionUnpacker unpacker = config.getSessionOptionUnpacker(null);
             if (unpacker == null) {
                 throw new IllegalStateException(
@@ -360,7 +367,7 @@ public final class SessionConfig {
             Builder builder = new Builder();
 
             // Unpack the configuration into this builder
-            unpacker.unpack(config, builder);
+            unpacker.unpack(resolution, config, builder);
             return builder;
         }
 

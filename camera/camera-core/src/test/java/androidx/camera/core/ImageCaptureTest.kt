@@ -25,6 +25,7 @@ import android.os.HandlerThread
 import android.os.Looper.getMainLooper
 import android.util.Pair
 import android.util.Rational
+import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
@@ -95,6 +96,9 @@ private const val MAX_IMAGES = 3
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ImageCaptureTest {
+
+    private val resolution = Size(640, 480)
+
     private lateinit var callbackHandler: Handler
     private lateinit var callbackThread: HandlerThread
     private lateinit var executor: Executor
@@ -247,8 +251,8 @@ class ImageCaptureTest {
 
     private fun assertTakePictureManagerHasTheSameSurface(imageCapture: ImageCapture) {
         val takePictureManagerSurface =
-            imageCapture.takePictureManager.imagePipeline.createSessionConfigBuilder()
-                .build().surfaces.single().surface.get()
+            imageCapture.takePictureManager.imagePipeline.createSessionConfigBuilder(
+                resolution).build().surfaces.single().surface.get()
         val useCaseSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
         assertThat(takePictureManagerSurface).isEqualTo(useCaseSurface)
     }
@@ -696,7 +700,8 @@ class ImageCaptureTest {
             .setCaptureMode(captureMode)
             .setFlashMode(ImageCapture.FLASH_MODE_OFF)
             .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
-            .setSessionOptionUnpacker { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+            .setSessionOptionUnpacker { _: Size, _: UseCaseConfig<*>?,
+                _: SessionConfig.Builder? -> }
 
         builder.setBufferFormat(bufferFormat)
         if (imageReaderProxyProvider != null) {

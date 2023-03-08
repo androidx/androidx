@@ -492,7 +492,7 @@ public class ImageAnalysisTest {
                                     height, format, queueDepth, usage);
                             return mFakeImageReaderProxy;
                         })
-                .setSessionOptionUnpacker((config, builder) -> {
+                .setSessionOptionUnpacker((resolution, config, builder) -> {
                 })
                 .setOnePixelShiftEnabled(false)
                 .build();

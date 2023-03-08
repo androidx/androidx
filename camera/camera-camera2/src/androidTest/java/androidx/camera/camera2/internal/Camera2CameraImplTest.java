@@ -1130,7 +1130,8 @@ public final class Camera2CameraImplTest {
         @NonNull
         protected StreamSpec onSuggestedStreamSpecUpdated(
                 @NonNull StreamSpec suggestedStreamSpec) {
-            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfig);
+            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfig,
+                    suggestedStreamSpec.getResolution());
 
             builder.setTemplateType(mTemplate);
             builder.addRepeatingCameraCaptureCallback(mRepeatingCaptureCallback);

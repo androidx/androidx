@@ -223,7 +223,8 @@ public class StreamSharing extends UseCase {
         mVirtualCamera.setChildrenEdges(outputEdges);
 
         // Send the camera edge Surface to the camera2.
-        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(config);
+        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(config,
+                streamSpec.getResolution());
         builder.addSurface(mCameraEdge.getDeferrableSurface());
         builder.addRepeatingCameraCaptureCallback(mVirtualCamera.getParentMetadataCallback());
         addCameraErrorListener(builder, cameraId, config, streamSpec);

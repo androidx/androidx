@@ -373,7 +373,8 @@ public final class ImageCapture extends UseCase {
         if (isNodeEnabled()) {
             return createPipelineWithNode(cameraId, config, streamSpec);
         }
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
+                streamSpec.getResolution());
 
         if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
             getCameraControl().addZslConfig(sessionConfigBuilder);
@@ -1660,7 +1661,8 @@ public final class ImageCapture extends UseCase {
         }
         mTakePictureManager.setImagePipeline(mImagePipeline);
 
-        SessionConfig.Builder sessionConfigBuilder = mImagePipeline.createSessionConfigBuilder();
+        SessionConfig.Builder sessionConfigBuilder =
+                mImagePipeline.createSessionConfigBuilder(streamSpec.getResolution());
         if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
             getCameraControl().addZslConfig(sessionConfigBuilder);
         }
