@@ -1147,4 +1147,11 @@ object ProcessorErrors {
         return "The DAO method return type ($typeName) with the nullable type argument " +
         "is meaningless because for now Room will never put a null value in a result."
     }
+
+    val EXPORTING_SCHEMA_TO_RESOURCES = "Schema export is set to be outputted as a resource" +
+        " (i.e. room.exportSchemaResource is set to true), this means Room will write the current" +
+        " schema version file into the produced JAR. Such flag must only be used for generating" +
+        " the schema file and extracting it from the JAR but not for production builds, otherwise" +
+        " the schema file will end up in the final artifact which is typically not desired. This" +
+        " warning serves as a reminder to use room.exportSchemaResource cautiously."
 }
