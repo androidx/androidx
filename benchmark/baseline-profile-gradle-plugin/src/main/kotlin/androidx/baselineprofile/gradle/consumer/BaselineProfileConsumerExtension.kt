@@ -118,6 +118,17 @@ abstract class BaselineProfileConsumerExtension @Inject constructor(
      */
     override fun filter(action: Action<FilterRules>) = main.filter(action)
 
+    /**
+     * Applies global dependencies for baseline profiles. This has the same effect of defining
+     * a baseline profile dependency in the dependency block. For example:
+     * ```
+     * dependencies {
+     *     baselineProfile(project(":baseline-profile"))
+     * }
+     * ```
+     */
+    override fun from(project: Project, variantName: String?) = main.from(project, variantName)
+
     fun variants(
         action: Action<NamedDomainObjectContainer<BaselineProfileVariantConfigurationImpl>>
     ) {
@@ -135,6 +146,7 @@ abstract class BaselineProfileVariantConfigurationImpl(val name: String) :
     BaselineProfileVariantConfiguration {
 
     internal val filters = FilterRules()
+    internal val dependencies = mutableListOf<Pair<Project, String?>>()
 
     /**
      * @inheritDoc
@@ -145,6 +157,13 @@ abstract class BaselineProfileVariantConfigurationImpl(val name: String) :
      * @inheritDoc
      */
     override fun filter(action: Action<FilterRules>) = action.execute(filters)
+
+    /**
+     * @inheritDoc
+     */
+    override fun from(project: Project, variantName: String?) {
+        dependencies.add(Pair(project, variantName))
+    }
 }
 
 interface BaselineProfileVariantConfiguration {
@@ -263,6 +282,38 @@ interface BaselineProfileVariantConfiguration {
      * ```
      */
     fun filter(action: Action<FilterRules>)
+
+    /**
+     * Allows to specify a target `com.android.test` module that has the `androidx.baselineprofile`
+     * plugin, and that can provide a baseline profile for this module. For example
+     * ```
+     * baselineProfile {
+     *     variants {
+     *         freeRelease {
+     *             from(project(":baseline-profile"))
+     *         }
+     *     }
+     * }
+     * ```
+     */
+    fun from(project: Project) = from(project, null)
+
+    /**
+     * Allows to specify a target `com.android.test` module that has the `androidx.baselineprofile`
+     * plugin, and that can provide a baseline profile for this module. The [variantName] can
+     * directly map to a test variant, to fetch a baseline profile for a different variant.
+     * For example it's possible to use a `paidRelease` baseline profile for `freeRelease` variant.
+     * ```
+     * baselineProfile {
+     *     variants {
+     *         freeRelease {
+     *             from(project(":baseline-profile"), "paidRelease")
+     *         }
+     *     }
+     * }
+     * ```
+     */
+    fun from(project: Project, variantName: String?)
 }
 
 class FilterRules {
