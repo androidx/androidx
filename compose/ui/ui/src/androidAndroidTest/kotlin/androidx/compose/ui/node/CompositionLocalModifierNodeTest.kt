@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.Layout
@@ -35,7 +34,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class CompositionLocalModifierNodeTest {
@@ -188,7 +186,6 @@ class CompositionLocalModifierNodeTest {
         }
     }
 
-    @ExperimentalComposeUiApi
     private inline fun <reified T : Modifier.Node> modifierNodeElementOf(
         crossinline create: () -> T
     ): ModifierNodeElement<T> = object : ModifierNodeElement<T>() {
