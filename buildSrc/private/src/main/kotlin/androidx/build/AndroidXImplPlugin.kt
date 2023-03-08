@@ -274,6 +274,9 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         extension: AndroidXExtension,
         plugin: KotlinBasePluginWrapper
     ) {
+        if (plugin is KotlinMultiplatformPluginWrapper) {
+            project.configureMultiplatformConfigurationCacheIncompatibleTasks()
+        }
         project.afterEvaluate {
             project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
                 if (extension.type.compilationTarget == CompilationTarget.HOST &&
@@ -979,8 +982,20 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
     }
 }
 
+private fun Project.configureMultiplatformConfigurationCacheIncompatibleTasks() {
+    tasks.matching {
+        taskTypesIncompatibleWithConfigurationCache.contains(it::class.qualifiedName)
+    }.configureEach {
+        it.notCompatibleWithConfigurationCache("https://youtrack.jetbrains.com/issue/KT-55259")
+    }
+}
+
 private const val PROJECTS_MAP_KEY = "projects"
 private const val ACCESSED_PROJECTS_MAP_KEY = "accessedProjectsMap"
+private val taskTypesIncompatibleWithConfigurationCache = listOf(
+    "org.jetbrains.kotlin.gradle.targets.native.internal." +
+        "CInteropMetadataDependencyTransformationTask_Decorated"
+)
 
 /**
  * Hides a project's Javadoc tasks from the output of `./gradlew tasks` by setting their group to
