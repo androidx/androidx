@@ -242,10 +242,10 @@ internal abstract class NodeCoordinator(
             if (layoutNode.nodes.has(Nodes.ParentData)) {
                 with(layoutNode.density) {
                     layoutNode.nodes.tailToHead {
-                        if (it === thisNode) return@tailToHead
                         if (it.isKind(Nodes.ParentData) && it is ParentDataModifierNode) {
                             data = with(it) { modifyParentData(data) }
                         }
+                        if (it === thisNode) return@tailToHead
                     }
                 }
             }
