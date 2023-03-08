@@ -22,6 +22,9 @@ import androidx.work.Configuration;
 
 import java.util.concurrent.Executor;
 
+import kotlinx.coroutines.CoroutineDispatcher;
+import kotlinx.coroutines.ExecutorsKt;
+
 /**
  * Interface for executing common tasks in WorkManager.
  *
@@ -52,4 +55,9 @@ public interface TaskExecutor {
      */
     @NonNull
     SerialExecutor getSerialTaskExecutor();
+
+    @NonNull
+    default CoroutineDispatcher getTaskCoroutineDispatcher() {
+        return ExecutorsKt.from(getSerialTaskExecutor());
+    }
 }

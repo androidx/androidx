@@ -58,7 +58,7 @@ android {
 dependencies {
     implementation("androidx.core:core:1.9.0")
     ksp("androidx.room:room-compiler:2.5.0")
-    implementation("androidx.room:room-runtime:2.5.0")
+    implementation("androidx.room:room-ktx:2.5.0")
     androidTestImplementation("androidx.room:room-testing:2.5.0")
     implementation("androidx.sqlite:sqlite-framework:2.3.0")
     api("androidx.annotation:annotation-experimental:1.0.0")

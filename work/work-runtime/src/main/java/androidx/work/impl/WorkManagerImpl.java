@@ -23,6 +23,10 @@ import static android.text.TextUtils.isEmpty;
 import static androidx.work.impl.Schedulers.createBestAvailableBackgroundScheduler;
 import static androidx.work.impl.WorkerUpdater.enqueueUniquelyNamedPeriodic;
 import static androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent;
+import static androidx.work.impl.model.RawWorkInfoDaoKt.getWorkInfoPojosFlow;
+import static androidx.work.impl.model.WorkSpecDaoKt.getWorkStatusPojoFlowDataForIds;
+import static androidx.work.impl.model.WorkSpecDaoKt.getWorkStatusPojoFlowForName;
+import static androidx.work.impl.model.WorkSpecDaoKt.getWorkStatusPojoFlowForTag;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -77,6 +81,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+import kotlinx.coroutines.flow.Flow;
 
 /**
  * A concrete implementation of {@link WorkManager}.
@@ -575,11 +581,25 @@ public class WorkManagerImpl extends WorkManager {
                 mWorkTaskExecutor);
     }
 
+    @NonNull
+    @Override
+    public Flow<WorkInfo> getWorkInfoByIdFlow(@NonNull UUID id) {
+        return getWorkStatusPojoFlowDataForIds(getWorkDatabase().workSpecDao(), id);
+    }
+
     @Override
     public @NonNull ListenableFuture<WorkInfo> getWorkInfoById(@NonNull UUID id) {
         StatusRunnable<WorkInfo> runnable = StatusRunnable.forUUID(this, id);
         mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
         return runnable.getFuture();
+    }
+
+    @NonNull
+    @Override
+    public Flow<List<WorkInfo>> getWorkInfosByTagFlow(@NonNull String tag) {
+        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+        return getWorkStatusPojoFlowForTag(workSpecDao,
+                mWorkTaskExecutor.getTaskCoroutineDispatcher(), tag);
     }
 
     @Override
@@ -613,6 +633,14 @@ public class WorkManagerImpl extends WorkManager {
                 mWorkTaskExecutor);
     }
 
+    @NonNull
+    @Override
+    public Flow<List<WorkInfo>> getWorkInfosForUniqueWorkFlow(@NonNull String uniqueWorkName) {
+        WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
+        return getWorkStatusPojoFlowForName(workSpecDao,
+                mWorkTaskExecutor.getTaskCoroutineDispatcher(), uniqueWorkName);
+    }
+
     @Override
     @NonNull
     public ListenableFuture<List<WorkInfo>> getWorkInfosForUniqueWork(
@@ -635,6 +663,14 @@ public class WorkManagerImpl extends WorkManager {
                 inputLiveData,
                 WorkSpec.WORK_INFO_MAPPER,
                 mWorkTaskExecutor);
+    }
+
+    @NonNull
+    @Override
+    public Flow<List<WorkInfo>> getWorkInfosFlow(@NonNull WorkQuery workQuery) {
+        RawWorkInfoDao rawWorkInfoDao = mWorkDatabase.rawWorkInfoDao();
+        return getWorkInfoPojosFlow(rawWorkInfoDao, mWorkTaskExecutor.getTaskCoroutineDispatcher(),
+                RawQueries.toRawQuery(workQuery));
     }
 
     @NonNull
