@@ -59,6 +59,7 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -2493,12 +2494,13 @@ class ConstraintLayoutTest {
                     Modifier
                         .testTag("box0")
                         .constrainAs(box0) {
-                            width = boxSizePx.toDp().asDimension
-                            height = boxSizePx.toDp().asDimension
                             centerTo(parent)
                             visibility = boxVisibility.value
                         }
-                        .background(Color.Red))
+                        .background(Color.Red)
+                ) {
+                    Box(Modifier.size(boxSizePx.toDp()))
+                }
                 Box(
                     Modifier
                         .testTag("box1")
@@ -2534,8 +2536,9 @@ class ConstraintLayoutTest {
         boxVisibility.value = Visibility.Gone
         rule.waitForIdle()
 
-        rule.onNodeWithTag("box0").assertWidthIsEqualTo(0.dp)
-        rule.onNodeWithTag("box0").assertHeightIsEqualTo(0.dp)
+        // Dp.Unspecified since Gone Composables are not placed
+        rule.onNodeWithTag("box0").assertWidthIsEqualTo(Dp.Unspecified)
+        rule.onNodeWithTag("box0").assertHeightIsEqualTo(Dp.Unspecified)
         assertEquals(Offset(rootSizePx / 2f, rootSizePx / 2f).round(), box1Position)
     }
 
