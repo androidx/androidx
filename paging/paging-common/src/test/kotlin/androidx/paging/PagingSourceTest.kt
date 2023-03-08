@@ -26,6 +26,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.random.Random
 import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
@@ -426,8 +427,8 @@ class PagingSourceTest {
             Item(
                 names[it % 10],
                 it,
-                Math.random() * 1000,
-                (Math.random() * 200).toInt().toString() + " fake st."
+                Random.nextDouble(1000.0),
+                Random.nextInt(200).toString() + " fake st."
             )
         }.sortedWith(ITEM_COMPARATOR)
 
