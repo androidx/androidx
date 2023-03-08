@@ -42,6 +42,7 @@ import java.util.function.Consumer
 import org.junit.Assert.assertTrue
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,6 +81,7 @@ class IntegrationTests {
         })
     }
 
+    @Ignore // b/271299184
     @Test
     fun testChangingSandboxedSdkViewLayoutChangesChildLayout() {
         val adapter = TestSandboxedUiAdapter(
