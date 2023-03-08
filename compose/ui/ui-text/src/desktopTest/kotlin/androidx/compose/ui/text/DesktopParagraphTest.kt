@@ -77,6 +77,7 @@ class DesktopParagraphTest {
     }
 
     @Test
+    @Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
     fun getBoundingBox_multicodepoints() {
         assumeTrue(isLinux)
         with(defaultDensity) {
