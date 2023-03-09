@@ -20,7 +20,7 @@ import static android.app.PendingIntent.FLAG_MUTABLE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.text.TextUtils.isEmpty;
 
-import static androidx.work.impl.Schedulers.createBestAvailableBackgroundScheduler;
+import static androidx.work.impl.WorkManagerImplExtKt.createWorkManager;
 import static androidx.work.impl.WorkerUpdater.enqueueUniquelyNamedPeriodic;
 import static androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent;
 import static androidx.work.impl.model.RawWorkInfoDaoKt.getWorkInfoPojosFlow;
@@ -48,13 +48,11 @@ import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.Operation;
 import androidx.work.PeriodicWorkRequest;
-import androidx.work.R;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
-import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.constraints.trackers.Trackers;
@@ -72,12 +70,10 @@ import androidx.work.impl.utils.StatusRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
-import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import androidx.work.multiprocess.RemoteWorkManager;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -105,11 +101,10 @@ public class WorkManagerImpl extends WorkManager {
     private List<Scheduler> mSchedulers;
     private Processor mProcessor;
     private PreferenceUtils mPreferenceUtils;
-    private boolean mForceStopRunnableCompleted;
+    private boolean mForceStopRunnableCompleted = false;
     private BroadcastReceiver.PendingResult mRescheduleReceiverResult;
     private volatile RemoteWorkManager mRemoteWorkManager;
     private final Trackers mTrackers;
-    private final WorkLauncher mWorkLauncher;
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
     private static final Object sLock = new Object();
@@ -208,111 +203,11 @@ public class WorkManagerImpl extends WorkManager {
             if (sDelegatedInstance == null) {
                 context = context.getApplicationContext();
                 if (sDefaultInstance == null) {
-                    sDefaultInstance = new WorkManagerImpl(
-                            context,
-                            configuration,
-                            new WorkManagerTaskExecutor(configuration.getTaskExecutor()));
+                    sDefaultInstance = createWorkManager(context, configuration);
                 }
                 sDelegatedInstance = sDefaultInstance;
             }
         }
-    }
-
-    /**
-     * Create an instance of {@link WorkManagerImpl}.
-     *
-     * @param context The application {@link Context}
-     * @param configuration The {@link Configuration} configuration
-     * @param workTaskExecutor The {@link TaskExecutor} for running "processing" jobs, such as
-     *                         enqueueing, scheduling, cancellation, etc.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public WorkManagerImpl(
-            @NonNull Context context,
-            @NonNull Configuration configuration,
-            @NonNull TaskExecutor workTaskExecutor) {
-        this(context,
-                configuration,
-                workTaskExecutor,
-                context.getResources().getBoolean(R.bool.workmanager_test_configuration));
-    }
-
-    /**
-     * Create an instance of {@link WorkManagerImpl}.
-     *
-     * @param context The application {@link Context}
-     * @param configuration The {@link Configuration} configuration
-     * @param workTaskExecutor The {@link TaskExecutor} for running "processing" jobs, such as
-     *                         enqueueing, scheduling, cancellation, etc.
-     * @param useTestDatabase {@code true} If using an in-memory test database
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public WorkManagerImpl(
-            @NonNull Context context,
-            @NonNull Configuration configuration,
-            @NonNull TaskExecutor workTaskExecutor,
-            boolean useTestDatabase) {
-        this(context,
-                configuration,
-                workTaskExecutor,
-                WorkDatabase.create(
-                        context.getApplicationContext(),
-                        workTaskExecutor.getSerialTaskExecutor(),
-                        useTestDatabase)
-        );
-    }
-
-    /**
-     * Create an instance of {@link WorkManagerImpl}.
-     *
-     * @param context          The application {@link Context}
-     * @param configuration    The {@link Configuration} configuration
-     * @param workTaskExecutor The {@link TaskExecutor} for running "processing" jobs, such as
-     *                         enqueueing, scheduling, cancellation, etc.
-     * @param database         The {@link WorkDatabase}
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public WorkManagerImpl(
-            @NonNull Context context,
-            @NonNull Configuration configuration,
-            @NonNull TaskExecutor workTaskExecutor,
-            @NonNull WorkDatabase database) {
-        Context applicationContext = context.getApplicationContext();
-        Logger.setLogger(new Logger.LogcatLogger(configuration.getMinimumLoggingLevel()));
-        mTrackers = new Trackers(applicationContext, workTaskExecutor);
-        mProcessor = new Processor(
-                context,
-                configuration,
-                workTaskExecutor,
-                database);
-        mWorkLauncher = new WorkLauncherImpl(mProcessor, workTaskExecutor);
-        mWorkTaskExecutor = workTaskExecutor;
-        mWorkDatabase = database;
-        List<Scheduler> schedulers =
-                createSchedulers(applicationContext, configuration, mTrackers);
-        internalInit(context, configuration, workTaskExecutor, schedulers);
-    }
-
-    /**
-     * Create an instance of {@link WorkManagerImpl}.
-     *
-     * @param context The application {@link Context}
-     * @param configuration The {@link Configuration} configuration
-     * @param workTaskExecutor The {@link TaskExecutor} for running "processing" jobs, such as
-     *                         enqueueing, scheduling, cancellation, etc.
-     * @param workDatabase The {@link WorkDatabase} instance
-     * @param processor The {@link Processor} instance
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public WorkManagerImpl(
-            @NonNull Context context,
-            @NonNull Configuration configuration,
-            @NonNull TaskExecutor workTaskExecutor,
-            @NonNull WorkDatabase workDatabase,
-            @NonNull List<Scheduler> schedulers,
-            @NonNull Processor processor) {
-        this(context, configuration, workTaskExecutor, workDatabase, schedulers, processor,
-                new Trackers(context.getApplicationContext(), workTaskExecutor));
     }
 
     /**
@@ -335,12 +230,26 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull List<Scheduler> schedulers,
             @NonNull Processor processor,
             @NonNull Trackers trackers) {
-        mTrackers = trackers;
-        mWorkLauncher = new WorkLauncherImpl(processor, workTaskExecutor);
-        mProcessor = processor;
+        context = context.getApplicationContext();
+        // Check for direct boot mode
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Api24Impl.isDeviceProtectedStorage(
+                context)) {
+            throw new IllegalStateException("Cannot initialize WorkManager in direct boot mode");
+        }
+        Logger.setLogger(new Logger.LogcatLogger(configuration.getMinimumLoggingLevel()));
+        mContext = context;
         mWorkTaskExecutor = workTaskExecutor;
         mWorkDatabase = workDatabase;
-        internalInit(context, configuration, workTaskExecutor, schedulers);
+        mProcessor = processor;
+        mTrackers = trackers;
+        mConfiguration = configuration;
+        mSchedulers = schedulers;
+        mPreferenceUtils = new PreferenceUtils(mWorkDatabase);
+        Schedulers.registerRescheduling(schedulers, mProcessor,
+                workTaskExecutor.getSerialTaskExecutor(), mWorkDatabase, configuration);
+
+        // Checks for app force stops.
+        mWorkTaskExecutor.executeOnTaskThread(new ForceStopRunnable(context, this));
     }
 
     /**
@@ -783,53 +692,6 @@ public class WorkManagerImpl extends WorkManager {
                 mRescheduleReceiverResult = null;
             }
         }
-    }
-
-    /**
-     * Initializes an instance of {@link WorkManagerImpl}.
-     *
-     * @param context The application {@link Context}
-     * @param configuration The {@link Configuration} configuration
-     * @param schedulers The {@link List} of {@link Scheduler}s to use
-     */
-    private void internalInit(@NonNull Context context,
-            @NonNull Configuration configuration,
-            @NonNull TaskExecutor workTaskExecutor,
-            @NonNull List<Scheduler> schedulers) {
-
-        context = context.getApplicationContext();
-        mContext = context;
-        mConfiguration = configuration;
-        mSchedulers = schedulers;
-        mPreferenceUtils = new PreferenceUtils(mWorkDatabase);
-        mForceStopRunnableCompleted = false;
-        Schedulers.registerRescheduling(schedulers, mProcessor,
-                workTaskExecutor.getSerialTaskExecutor(), mWorkDatabase, configuration);
-        // Check for direct boot mode
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Api24Impl.isDeviceProtectedStorage(
-                context)) {
-            throw new IllegalStateException("Cannot initialize WorkManager in direct boot mode");
-        }
-
-        // Checks for app force stops.
-        mWorkTaskExecutor.executeOnTaskThread(new ForceStopRunnable(context, this));
-    }
-
-    /**
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    public List<Scheduler> createSchedulers(
-            @NonNull Context context,
-            @NonNull Configuration configuration,
-            @NonNull Trackers trackers
-    ) {
-
-        return Arrays.asList(
-                createBestAvailableBackgroundScheduler(context, mWorkDatabase, configuration),
-                // Specify the task executor directly here as this happens before internalInit.
-                // GreedyScheduler creates ConstraintTrackers and controllers eagerly.
-                new GreedyScheduler(context, configuration, trackers, mProcessor, mWorkLauncher));
     }
 
     /**

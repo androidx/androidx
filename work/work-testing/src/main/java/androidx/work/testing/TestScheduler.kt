@@ -38,7 +38,7 @@ import java.util.UUID
 class TestScheduler(
     private val workDatabase: WorkDatabase,
     private val launcher: WorkLauncher
-) : Scheduler {
+) : Scheduler, TestDriver {
     @GuardedBy("lock")
     private val pendingWorkStates = mutableMapOf<String, InternalWorkState>()
     private val lock = Any()
@@ -85,7 +85,7 @@ class TestScheduler(
      * @param workSpecId The [Worker]'s id
      * @throws IllegalArgumentException if `workSpecId` is not enqueued
      */
-    fun setAllConstraintsMet(workSpecId: UUID) {
+    override fun setAllConstraintsMet(workSpecId: UUID) {
         val id = workSpecId.toString()
         val spec = loadSpec(id)
         val state: InternalWorkState
@@ -104,7 +104,7 @@ class TestScheduler(
      * @param workSpecId The [Worker]'s id
      * @throws IllegalArgumentException if `workSpecId` is not enqueued
      */
-    fun setInitialDelayMet(workSpecId: UUID) {
+    override fun setInitialDelayMet(workSpecId: UUID) {
         val id = workSpecId.toString()
         val state: InternalWorkState
         val spec = loadSpec(id)
@@ -123,7 +123,7 @@ class TestScheduler(
      * @param workSpecId The [Worker]'s id
      * @throws IllegalArgumentException if `workSpecId` is not enqueued
      */
-    fun setPeriodDelayMet(workSpecId: UUID) {
+    override fun setPeriodDelayMet(workSpecId: UUID) {
         val id = workSpecId.toString()
         val spec = loadSpec(id)
         if (!spec.isPeriodic) throw IllegalArgumentException("Work with id $id isn't periodic!")

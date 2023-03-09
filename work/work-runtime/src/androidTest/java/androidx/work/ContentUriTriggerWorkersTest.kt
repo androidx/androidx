@@ -24,11 +24,11 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.work.Configuration.Companion.MIN_SCHEDULER_LIMIT
 import androidx.work.Constraints.ContentUriTrigger
-import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.schedulers
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
 import androidx.work.worker.TestWorker
 import com.google.common.truth.Truth.assertThat
@@ -49,11 +49,14 @@ class ContentUriTriggerWorkersTest {
         .build()
     val executor = Executors.newSingleThreadExecutor()
     val taskExecutor = WorkManagerTaskExecutor(executor)
-    val db = WorkDatabase.create(context, executor, true)
     internal val testScheduler = TestScheduler()
-    val processor = Processor(context, configuration, taskExecutor, db)
-    val workManager = WorkManagerImpl(context,
-        configuration, taskExecutor, db, listOf<Scheduler>(testScheduler), processor)
+    val workManager = WorkManagerImpl(
+        context = context,
+        configuration = configuration,
+        workTaskExecutor = taskExecutor,
+        workDatabase = WorkDatabase.create(context, executor, true),
+        schedulersCreator = schedulers(testScheduler)
+    )
 
     @Test
     fun maxSchedulerLimitNotApplicable() {

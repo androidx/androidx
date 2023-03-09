@@ -29,6 +29,8 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
+import static androidx.work.impl.WorkManagerImplExtKt.createWorkManager;
+import static androidx.work.impl.WorkManagerImplExtKt.schedulers;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 import static androidx.work.impl.workers.ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME;
 
@@ -96,6 +98,7 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
+import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkName;
@@ -168,8 +171,7 @@ public class WorkManagerImplTest {
                 .setMinimumLoggingLevel(Log.DEBUG)
                 .build();
         InstantWorkTaskExecutor workTaskExecutor = new InstantWorkTaskExecutor();
-        mWorkManagerImpl =
-                spy(new WorkManagerImpl(mContext, mConfiguration, workTaskExecutor));
+        mWorkManagerImpl = spy(createWorkManager(mContext, mConfiguration, workTaskExecutor));
         WorkLauncher workLauncher = new WorkLauncherImpl(mWorkManagerImpl.getProcessor(),
                 workTaskExecutor);
         mScheduler =
@@ -1802,14 +1804,15 @@ public class WorkManagerImplTest {
         Processor processor = new Processor(mContext,  mConfiguration, workTaskExecutor, mDatabase);
         WorkLauncherImpl launcher = new WorkLauncherImpl(processor, workTaskExecutor);
 
+        Trackers trackers = mWorkManagerImpl.getTrackers();
         Scheduler scheduler =
                 new GreedyScheduler(
                         mContext,
                         mWorkManagerImpl.getConfiguration(),
-                        mWorkManagerImpl.getTrackers(),
+                        trackers,
                         processor, launcher);
-        mWorkManagerImpl = new WorkManagerImpl(mContext, mConfiguration, workTaskExecutor,
-                mDatabase, Collections.singletonList(scheduler), processor);
+        mWorkManagerImpl =  createWorkManager(mContext, mConfiguration, workTaskExecutor,
+                mDatabase, trackers, processor, schedulers(scheduler));
 
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
