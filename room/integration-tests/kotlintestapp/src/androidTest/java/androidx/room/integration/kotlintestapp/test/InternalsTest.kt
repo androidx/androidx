@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room.androidx.room.integration.kotlintestapp.test
+package androidx.room.integration.kotlintestapp.test
 
 import androidx.room.Dao
 import androidx.room.Database

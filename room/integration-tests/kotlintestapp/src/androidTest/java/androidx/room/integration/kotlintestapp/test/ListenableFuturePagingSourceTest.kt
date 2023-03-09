@@ -36,9 +36,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingState
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.ItemStore
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingDb
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntity
+import androidx.room.integration.kotlintestapp.testutil.ItemStore
+import androidx.room.integration.kotlintestapp.testutil.PagingDb
+import androidx.room.integration.kotlintestapp.testutil.PagingEntity
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
