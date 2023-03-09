@@ -35,7 +35,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-viewmodel:2.6.0")
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.0")
     implementation("androidx.profileinstaller:profileinstaller:1.2.1")
-    api("androidx.savedstate:savedstate:1.2.0")
+    api("androidx.savedstate:savedstate:1.2.1")
     api("androidx.annotation:annotation-experimental:1.0.0")
     api(libs.kotlinStdlib)
 
