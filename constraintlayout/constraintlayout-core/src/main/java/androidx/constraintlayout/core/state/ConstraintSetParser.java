@@ -1630,6 +1630,7 @@ public class ConstraintSetParser {
                         break;
                     case "invisible":
                         reference.visibility(ConstraintWidget.INVISIBLE);
+                        reference.alpha(0f);
                         break;
                     case "gone":
                         reference.visibility(ConstraintWidget.GONE);
