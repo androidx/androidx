@@ -125,6 +125,7 @@ import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
 import androidx.compose.ui.semantics.EmptySemanticsModifierNodeElement
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
@@ -1607,10 +1608,26 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     private fun isBadMotionEvent(event: MotionEvent): Boolean {
-        return !event.x.isFinite() ||
+        var eventInvalid = !event.x.isFinite() ||
             !event.y.isFinite() ||
             !event.rawX.isFinite() ||
             !event.rawY.isFinite()
+
+        if (!eventInvalid) {
+            // First event x,y is checked above if block, so we can skip index 0.
+            for (index in 1 until event.pointerCount) {
+                eventInvalid = !event.getX(index).isFinite() || !event.getY(index).isFinite() ||
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        !isValidMotionEvent(event, index)
+                    } else {
+                        false
+                    }
+
+                if (eventInvalid) break
+            }
+        }
+
+        return eventInvalid
     }
 
     private fun isPositionChanged(event: MotionEvent): Boolean {
@@ -1938,5 +1955,13 @@ private class CalculateMatrixToWindowApi21 : CalculateMatrixToWindow {
         tmpMatrix.reset()
         tmpMatrix.translate(x, y)
         preTransform(tmpMatrix)
+    }
+}
+
+@RequiresApi(29)
+private object MotionEventVerifierApi29 {
+    @DoNotInline
+    fun isValidMotionEvent(event: MotionEvent, index: Int): Boolean {
+        return event.getRawX(index).isFinite() && event.getRawY(index).isFinite()
     }
 }
