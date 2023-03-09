@@ -104,6 +104,19 @@ private val DEFAULT_SUPPORTED_SIZES = arrayOf(
     Size(800, 450), // 16:9
     Size(640, 480), // 4:3
 )
+private val HIGH_RESOLUTION_MAXIMUM_SIZE = Size(6000, 4500)
+private val HIGH_RESOLUTION_SUPPORTED_SIZES = arrayOf(
+    Size(6000, 4500), // 4:3
+    Size(6000, 3375), // 16:9
+)
+private val ULTRA_HIGH_MAXIMUM_SIZE = Size(8000, 6000)
+private val MAXIMUM_RESOLUTION_SUPPORTED_SIZES = arrayOf(
+    Size(7200, 5400), // 4:3
+    Size(7200, 4050), // 16:9
+)
+private val MAXIMUM_RESOLUTION_HIGH_RESOLUTION_SUPPORTED_SIZES = arrayOf(
+    Size(8000, 6000), // 4:3
+)
 
 /** Robolectric test for [SupportedSurfaceCombination] class */
 @RunWith(RobolectricTestRunner::class)
@@ -647,6 +660,40 @@ class SupportedSurfaceCombinationTest {
         assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
     }
 
+    @Test
+    @Config(minSdk = 31)
+    fun transformSurfaceConfigWithUltraHighResolution() {
+        setupCameraAndInitCameraX(
+            maximumResolutionSupportedSizes = MAXIMUM_RESOLUTION_SUPPORTED_SIZES,
+            maximumResolutionHighResolutionSupportedSizes =
+            MAXIMUM_RESOLUTION_HIGH_RESOLUTION_SUPPORTED_SIZES,
+            capabilities = intArrayOf(
+                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR
+            )
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        assertThat(
+            supportedSurfaceCombination.transformSurfaceConfig(
+                false,
+                ImageFormat.PRIVATE, ULTRA_HIGH_MAXIMUM_SIZE
+            )
+        ).isEqualTo(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.ULTRA_MAXIMUM))
+        assertThat(
+            supportedSurfaceCombination.transformSurfaceConfig(
+                false,
+                ImageFormat.YUV_420_888, ULTRA_HIGH_MAXIMUM_SIZE
+            )
+        ).isEqualTo(SurfaceConfig.create(ConfigType.YUV, ConfigSize.ULTRA_MAXIMUM))
+        assertThat(
+            supportedSurfaceCombination.transformSurfaceConfig(
+                false,
+                ImageFormat.JPEG, ULTRA_HIGH_MAXIMUM_SIZE
+            )
+        ).isEqualTo(SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM))
+    }
+
     // //////////////////////////////////////////////////////////////////////////////////////////
     //
     // Resolution selection tests for LEGACY-level guaranteed configurations
@@ -1074,7 +1121,8 @@ class SupportedSurfaceCombinationTest {
         }
         getSuggestedSpecsAndVerify(
             useCaseExpectedResultMap,
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
+            capabilities = intArrayOf(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW)
         )
     }
 
@@ -1095,7 +1143,8 @@ class SupportedSurfaceCombinationTest {
         }
         getSuggestedSpecsAndVerify(
             useCaseExpectedResultMap,
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
+            capabilities = intArrayOf(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW)
         )
     }
 
@@ -1735,16 +1784,117 @@ class SupportedSurfaceCombinationTest {
     // //////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    fun getMaximumSizeForImageFormat() {
+    fun generateCorrectSurfaceDefinition() {
+        shadowOf(context.packageManager).setSystemFeature(
+            FEATURE_CAMERA_CONCURRENT, true)
         setupCameraAndInitCameraX()
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
-        val maximumYUVSize =
-            supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.YUV_420_888)
-        assertThat(maximumYUVSize).isEqualTo(MAXIMUM_SIZE)
-        val maximumJPEGSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG)
-        assertThat(maximumJPEGSize).isEqualTo(MAXIMUM_SIZE)
+        val imageFormat = ImageFormat.JPEG
+        assertThat(
+            supportedSurfaceCombination.mSurfaceSizeDefinition.s720pSizeMap[imageFormat]
+        ).isEqualTo(
+            RESOLUTION_720P
+        )
+        assertThat(
+            supportedSurfaceCombination.mSurfaceSizeDefinition.previewSize
+        ).isEqualTo(
+            PREVIEW_SIZE
+        )
+        assertThat(
+            supportedSurfaceCombination.mSurfaceSizeDefinition.s1440pSizeMap[imageFormat]
+        ).isEqualTo(
+            RESOLUTION_1440P
+        )
+        assertThat(
+            supportedSurfaceCombination.mSurfaceSizeDefinition.recordSize
+        ).isEqualTo(
+            RECORD_SIZE
+        )
+        assertThat(
+            supportedSurfaceCombination.mSurfaceSizeDefinition.maximumSizeMap[imageFormat]
+        ).isEqualTo(
+            MAXIMUM_SIZE
+        )
+        assertThat(
+            supportedSurfaceCombination.mSurfaceSizeDefinition.ultraMaximumSizeMap
+        ).isEmpty()
+    }
+
+    @Test
+    fun correctS720pSize_withSmallerOutputSizes() {
+        shadowOf(context.packageManager).setSystemFeature(
+            FEATURE_CAMERA_CONCURRENT, true)
+        setupCameraAndInitCameraX(
+            supportedSizes = arrayOf(RESOLUTION_VGA)
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val imageFormat = ImageFormat.JPEG
+        assertThat(
+            supportedSurfaceCombination.mSurfaceSizeDefinition.s720pSizeMap[imageFormat]
+        ).isEqualTo(
+            RESOLUTION_VGA
+        )
+    }
+
+    @Test
+    fun correctS1440pSize_withSmallerOutputSizes() {
+        shadowOf(context.packageManager).setSystemFeature(
+            FEATURE_CAMERA_CONCURRENT, true)
+        setupCameraAndInitCameraX(
+            supportedSizes = arrayOf(RESOLUTION_VGA)
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val imageFormat = ImageFormat.JPEG
+        assertThat(
+            supportedSurfaceCombination.mSurfaceSizeDefinition.s1440pSizeMap[imageFormat]
+        ).isEqualTo(
+            RESOLUTION_VGA
+        )
+    }
+
+    @Test
+    @Config(minSdk = 23)
+    fun correctMaximumSize_withHighResolutionOutputSizes() {
+        setupCameraAndInitCameraX(
+            supportedHighResolutionSizes = HIGH_RESOLUTION_SUPPORTED_SIZES
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val imageFormat = ImageFormat.JPEG
+        assertThat(
+            supportedSurfaceCombination.mSurfaceSizeDefinition.maximumSizeMap[imageFormat]
+        ).isEqualTo(
+            HIGH_RESOLUTION_MAXIMUM_SIZE
+        )
+    }
+
+    @Test
+    @Config(minSdk = 32)
+    fun correctUltraMaximumSize_withMaximumResolutionMap() {
+        setupCameraAndInitCameraX(
+            maximumResolutionSupportedSizes = MAXIMUM_RESOLUTION_SUPPORTED_SIZES,
+            maximumResolutionHighResolutionSupportedSizes =
+            MAXIMUM_RESOLUTION_HIGH_RESOLUTION_SUPPORTED_SIZES,
+            capabilities = intArrayOf(
+                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR
+            )
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        val imageFormat = ImageFormat.JPEG
+        assertThat(
+            supportedSurfaceCombination.mSurfaceSizeDefinition.ultraMaximumSizeMap[imageFormat]
+        ).isEqualTo(
+            ULTRA_HIGH_MAXIMUM_SIZE
+        )
     }
 
     @Test
@@ -1798,6 +1948,12 @@ class SupportedSurfaceCombinationTest {
      * [LANDSCAPE_PIXEL_ARRAY_SIZE].
      * @param supportedSizes the supported sizes of the camera. Default value is
      * [DEFAULT_SUPPORTED_SIZES].
+     * @param supportedHighResolutionSizes the high resolution supported sizes of the camera.
+     * Default value is null.
+     * @param maximumResolutionSupportedSizes the maximum resolution mode supported sizes of the
+     * camera. Default value is null.
+     * @param maximumResolutionHighResolutionSupportedSizes the maximum resolution mode high
+     * resolution supported sizes of the camera. Default value is null.
      * @param capabilities the capabilities of the camera. Default value is null.
      */
     private fun setupCameraAndInitCameraX(
@@ -1807,6 +1963,8 @@ class SupportedSurfaceCombinationTest {
         pixelArraySize: Size = LANDSCAPE_PIXEL_ARRAY_SIZE,
         supportedSizes: Array<Size> = DEFAULT_SUPPORTED_SIZES,
         supportedHighResolutionSizes: Array<Size>? = null,
+        maximumResolutionSupportedSizes: Array<Size>? = null,
+        maximumResolutionHighResolutionSupportedSizes: Array<Size>? = null,
         capabilities: IntArray? = null
     ) {
         setupCamera(
@@ -1816,6 +1974,8 @@ class SupportedSurfaceCombinationTest {
             pixelArraySize,
             supportedSizes,
             supportedHighResolutionSizes,
+            maximumResolutionSupportedSizes,
+            maximumResolutionHighResolutionSupportedSizes,
             capabilities
         )
 
@@ -1857,6 +2017,12 @@ class SupportedSurfaceCombinationTest {
      * [LANDSCAPE_PIXEL_ARRAY_SIZE].
      * @param supportedSizes the supported sizes of the camera. Default value is
      * [DEFAULT_SUPPORTED_SIZES].
+     * @param supportedHighResolutionSizes the high resolution supported sizes of the camera.
+     * Default value is null.
+     * @param maximumResolutionSupportedSizes the maximum resolution mode supported sizes of the
+     * camera. Default value is null.
+     * @param maximumResolutionHighResolutionSupportedSizes the maximum resolution mode high
+     * resolution supported sizes of the camera. Default value is null.
      * @param capabilities the capabilities of the camera. Default value is null.
      */
     fun setupCamera(
@@ -1866,6 +2032,8 @@ class SupportedSurfaceCombinationTest {
         pixelArraySize: Size = LANDSCAPE_PIXEL_ARRAY_SIZE,
         supportedSizes: Array<Size> = DEFAULT_SUPPORTED_SIZES,
         supportedHighResolutionSizes: Array<Size>? = null,
+        maximumResolutionSupportedSizes: Array<Size>? = null,
+        maximumResolutionHighResolutionSupportedSizes: Array<Size>? = null,
         capabilities: IntArray? = null
     ) {
         val mockMap = Mockito.mock(StreamConfigurationMap::class.java).also {
@@ -1943,6 +2111,21 @@ class SupportedSurfaceCombinationTest {
             }
         }
 
+        val maximumResolutionMap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            (maximumResolutionSupportedSizes != null ||
+                maximumResolutionHighResolutionSupportedSizes != null)) {
+            Mockito.mock(StreamConfigurationMap::class.java).also {
+                Mockito.`when`(it.getOutputSizes(ArgumentMatchers.anyInt()))
+                    .thenReturn(maximumResolutionSupportedSizes)
+                Mockito.`when`(it.getOutputSizes(SurfaceTexture::class.java))
+                    .thenReturn(maximumResolutionSupportedSizes)
+                Mockito.`when`(it.getHighResolutionOutputSizes(ArgumentMatchers.anyInt()))
+                    .thenReturn(maximumResolutionHighResolutionSupportedSizes)
+            }
+        } else {
+            null
+        }
+
         val deviceFPSRanges: Array<Range<Int>?> = arrayOf(
             Range(10, 22),
             Range(22, 22),
@@ -1961,6 +2144,15 @@ class SupportedSurfaceCombinationTest {
             set(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE, pixelArraySize)
             set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
             set(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES, deviceFPSRanges)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                maximumResolutionMap?.let {
+                    set(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION,
+                        maximumResolutionMap
+                    )
+                }
+            }
 
             capabilities?.let {
                 set(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES, it)

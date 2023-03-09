@@ -21,6 +21,7 @@ import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.CamcorderProfile.QUALITY_1080P
 import android.media.CamcorderProfile.QUALITY_2160P
@@ -60,6 +61,7 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1440P
+import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_720P
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
@@ -129,6 +131,19 @@ class SupportedSurfaceCombinationTest {
         Size(960, 544), // a mod16 version of resolution with 16:9 aspect ratio.
         Size(800, 450), // 16:9
         Size(640, 480), // 4:3
+    )
+    private val highResolutionMaximumSize = Size(6000, 4500)
+    private val highResolutionSupportedSizes = arrayOf(
+        Size(6000, 4500), // 4:3
+        Size(6000, 3375), // 16:9
+    )
+    private val ultraHighMaximumSize = Size(8000, 6000)
+    private val maximumResolutionSupportedSizes = arrayOf(
+        Size(7200, 5400), // 4:3
+        Size(7200, 4050), // 16:9
+    )
+    private val maximumResolutionHighResolutionSupportedSizes = arrayOf(
+        Size(8000, 6000)
     )
     private val context = InstrumentationRegistry.getInstrumentation().context
     private var cameraFactory: FakeCameraFactory? = null
@@ -367,9 +382,8 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun checkLimitedSurfaceCombinationSupportedInRawDevice() {
         setupCamera(
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, intArrayOf(
-                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW
-            )
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            capabilities = intArrayOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
@@ -388,9 +402,8 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun checkLegacySurfaceCombinationSupportedInRawDevice() {
         setupCamera(
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, intArrayOf(
-                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW
-            )
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            capabilities = intArrayOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
@@ -409,9 +422,8 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun checkFullSurfaceCombinationSupportedInRawDevice() {
         setupCamera(
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, intArrayOf(
-                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW
-            )
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            capabilities = intArrayOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
@@ -430,9 +442,8 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun checkRawSurfaceCombinationSupportedInRawDevice() {
         setupCamera(
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, intArrayOf(
-                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW
-            )
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+            capabilities = intArrayOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
         )
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
@@ -756,6 +767,56 @@ class SupportedSurfaceCombinationTest {
         val expectedSurfaceConfig =
             SurfaceConfig.create(SurfaceConfig.ConfigType.JPEG, SurfaceConfig.ConfigSize.s1440p)
         assertThat(surfaceConfig).isEqualTo(expectedSurfaceConfig)
+    }
+
+    @Test
+    @Config(minSdk = 31)
+    fun transformSurfaceConfigWithUltraHighResolution() {
+        setupCamera(
+            maximumResolutionSupportedSizes = maximumResolutionSupportedSizes,
+            maximumResolutionHighResolutionSupportedSizes =
+            maximumResolutionHighResolutionSupportedSizes,
+            capabilities = intArrayOf(
+                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR
+            )
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        assertThat(
+            supportedSurfaceCombination.transformSurfaceConfig(
+                false,
+                ImageFormat.PRIVATE, ultraHighMaximumSize
+            )
+        ).isEqualTo(
+            SurfaceConfig.create(
+                SurfaceConfig.ConfigType.PRIV,
+                SurfaceConfig.ConfigSize.ULTRA_MAXIMUM
+            )
+        )
+        assertThat(
+            supportedSurfaceCombination.transformSurfaceConfig(
+                false,
+                ImageFormat.YUV_420_888, ultraHighMaximumSize
+            )
+        ).isEqualTo(
+            SurfaceConfig.create(
+                SurfaceConfig.ConfigType.YUV,
+                SurfaceConfig.ConfigSize.ULTRA_MAXIMUM
+            )
+        )
+        assertThat(
+            supportedSurfaceCombination.transformSurfaceConfig(
+                false,
+                ImageFormat.JPEG, ultraHighMaximumSize
+            )
+        ).isEqualTo(
+            SurfaceConfig.create(
+                SurfaceConfig.ConfigType.JPEG,
+                SurfaceConfig.ConfigSize.ULTRA_MAXIMUM
+            )
+        )
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////
@@ -1185,7 +1246,8 @@ class SupportedSurfaceCombinationTest {
         }
         getSuggestedSpecsAndVerify(
             useCaseExpectedResultMap,
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
+            capabilities = intArrayOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
         )
     }
 
@@ -1206,7 +1268,8 @@ class SupportedSurfaceCombinationTest {
         }
         getSuggestedSpecsAndVerify(
             useCaseExpectedResultMap,
-            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3
+            hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
+            capabilities = intArrayOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
         )
     }
 
@@ -1508,18 +1571,91 @@ class SupportedSurfaceCombinationTest {
     // //////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    fun maximumSizeForImageFormat() {
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+    fun generateCorrectSurfaceDefinition() {
+        Shadows.shadowOf(context.packageManager).setSystemFeature(
+            PackageManager.FEATURE_CAMERA_CONCURRENT, true
+        )
+        setupCamera()
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
             mockEncoderProfilesAdapter
         )
-        val maximumYUVSize =
-            supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.YUV_420_888)
-        assertThat(maximumYUVSize).isEqualTo(maximumSize)
-        val maximumJPEGSize =
-            supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG)
-        assertThat(maximumJPEGSize).isEqualTo(maximumSize)
+        val imageFormat = ImageFormat.JPEG
+        val surfaceSizeDefinition = supportedSurfaceCombination.surfaceSizeDefinition
+        assertThat(surfaceSizeDefinition.s720pSizeMap[imageFormat]).isEqualTo(RESOLUTION_720P)
+        assertThat(surfaceSizeDefinition.previewSize).isEqualTo(previewSize)
+        assertThat(surfaceSizeDefinition.s1440pSizeMap[imageFormat]).isEqualTo(RESOLUTION_1440P)
+        assertThat(surfaceSizeDefinition.recordSize).isEqualTo(recordSize)
+        assertThat(surfaceSizeDefinition.maximumSizeMap[imageFormat]).isEqualTo(maximumSize)
+        assertThat(surfaceSizeDefinition.ultraMaximumSizeMap).isEmpty()
+    }
+
+    @Test
+    fun correctS720pSize_withSmallerOutputSizes() {
+        Shadows.shadowOf(context.packageManager).setSystemFeature(
+            PackageManager.FEATURE_CAMERA_CONCURRENT, true
+        )
+        setupCamera(supportedSizes = arrayOf(RESOLUTION_VGA))
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val imageFormat = ImageFormat.JPEG
+        val surfaceSizeDefinition = supportedSurfaceCombination.surfaceSizeDefinition
+        assertThat(surfaceSizeDefinition.s720pSizeMap[imageFormat])
+            .isEqualTo(RESOLUTION_VGA)
+    }
+
+    @Test
+    fun correctS1440pSize_withSmallerOutputSizes() {
+        Shadows.shadowOf(context.packageManager).setSystemFeature(
+            PackageManager.FEATURE_CAMERA_CONCURRENT, true
+        )
+        setupCamera(supportedSizes = arrayOf(RESOLUTION_VGA))
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val imageFormat = ImageFormat.JPEG
+        val surfaceSizeDefinition = supportedSurfaceCombination.surfaceSizeDefinition
+        assertThat(surfaceSizeDefinition.s1440pSizeMap[imageFormat]).isEqualTo(RESOLUTION_VGA)
+    }
+
+    @Test
+    @Config(minSdk = 23)
+    fun correctMaximumSize_withHighResolutionOutputSizes() {
+        setupCamera(highResolutionSupportedSizes = highResolutionSupportedSizes)
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val imageFormat = ImageFormat.JPEG
+        val surfaceSizeDefinition = supportedSurfaceCombination.surfaceSizeDefinition
+        assertThat(surfaceSizeDefinition.maximumSizeMap[imageFormat]).isEqualTo(
+            highResolutionMaximumSize
+        )
+    }
+
+    @Test
+    @Config(minSdk = 32)
+    fun correctUltraMaximumSize_withMaximumResolutionMap() {
+        setupCamera(
+            maximumResolutionSupportedSizes = maximumResolutionSupportedSizes,
+            maximumResolutionHighResolutionSupportedSizes =
+            maximumResolutionHighResolutionSupportedSizes,
+            capabilities = intArrayOf(
+                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR
+            )
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, fakeCameraMetadata,
+            mockEncoderProfilesAdapter
+        )
+        val imageFormat = ImageFormat.JPEG
+        val surfaceSizeDefinition = supportedSurfaceCombination.surfaceSizeDefinition
+        assertThat(surfaceSizeDefinition.ultraMaximumSizeMap[imageFormat]).isEqualTo(
+            ultraHighMaximumSize
+        )
     }
 
     @Test
@@ -1542,26 +1678,14 @@ class SupportedSurfaceCombinationTest {
         )
     }
 
-    private fun setupCamera(hardwareLevel: Int, capabilities: IntArray) {
-        setupCamera(
-            hardwareLevel, sensorOrientation90, landscapePixelArraySize,
-            supportedSizes, capabilities
-        )
-    }
-
-    private fun setupCamera(hardwareLevel: Int, supportedSizes: Array<Size>) {
-        setupCamera(
-            hardwareLevel, sensorOrientation90, landscapePixelArraySize,
-            supportedSizes, null
-        )
-    }
-
     private fun setupCamera(
-        hardwareLevel: Int,
+        hardwareLevel: Int = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
         sensorOrientation: Int = sensorOrientation90,
         pixelArraySize: Size = landscapePixelArraySize,
-        supportedSizes: Array<Size> =
-            this.supportedSizes,
+        supportedSizes: Array<Size> = this.supportedSizes,
+        highResolutionSupportedSizes: Array<Size>? = null,
+        maximumResolutionSupportedSizes: Array<Size>? = null,
+        maximumResolutionHighResolutionSupportedSizes: Array<Size>? = null,
         capabilities: IntArray? = null,
         cameraId: CameraId = CameraId.fromCamera1Id(0)
     ) {
@@ -1586,18 +1710,34 @@ class SupportedSurfaceCombinationTest {
         }
 
         val mockMap: StreamConfigurationMap = mock()
+        val mockMaximumResolutionMap: StreamConfigurationMap? =
+            if (maximumResolutionSupportedSizes != null ||
+                maximumResolutionHighResolutionSupportedSizes != null
+            ) {
+                mock()
+            } else {
+                null
+            }
+
+        val characteristicsMap = mutableMapOf(
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
+            CameraCharacteristics.SENSOR_ORIENTATION to sensorOrientation,
+            CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to pixelArraySize,
+            CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
+            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to capabilities,
+            CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to mockMap,
+        ).also { characteristicsMap ->
+            mockMaximumResolutionMap?.let {
+                characteristicsMap[
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION] =
+                    mockMaximumResolutionMap
+            }
+        }
 
         // set up FakeCafakeCameraMetadatameraMetadata
         fakeCameraMetadata = FakeCameraMetadata(
             cameraId = cameraId,
-            characteristics = mapOf(
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
-                CameraCharacteristics.SENSOR_ORIENTATION to sensorOrientation,
-                CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to pixelArraySize,
-                CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
-                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to capabilities,
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to mockMap
-            )
+            characteristics = characteristicsMap
         )
 
         val cameraManager = ApplicationProvider.getApplicationContext<Context>()
@@ -1619,7 +1759,28 @@ class SupportedSurfaceCombinationTest {
                 MediaRecorder::class.java
             )
         ).thenReturn(supportedSizes)
+        // This is setup for high resolution output sizes
+        highResolutionSupportedSizes?.let {
+            whenever(mockMap.getHighResolutionOutputSizes(ArgumentMatchers.anyInt())).thenReturn(it)
+        }
         shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
+        mockMaximumResolutionMap?.let {
+            whenever(mockMaximumResolutionMap.getOutputSizes(ArgumentMatchers.anyInt()))
+                .thenReturn(maximumResolutionSupportedSizes)
+            whenever(mockMaximumResolutionMap.getOutputSizes(SurfaceTexture::class.java))
+                .thenReturn(maximumResolutionSupportedSizes)
+            whenever(
+                mockMaximumResolutionMap.getHighResolutionOutputSizes(
+                    ArgumentMatchers.anyInt()
+                )
+            ).thenReturn(
+                maximumResolutionHighResolutionSupportedSizes
+            )
+            shadowCharacteristics.set(
+                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION,
+                mockMaximumResolutionMap
+            )
+        }
         @LensFacing val lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
             CameraCharacteristics.LENS_FACING_BACK
         )
