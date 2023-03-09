@@ -22,11 +22,11 @@ import androidx.paging.PagingSource
 import androidx.room.InvalidationTracker
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.ItemStore
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingDb
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntity
-import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntityDao
 import androidx.room.awaitPendingRefresh
+import androidx.room.integration.kotlintestapp.testutil.ItemStore
+import androidx.room.integration.kotlintestapp.testutil.PagingDb
+import androidx.room.integration.kotlintestapp.testutil.PagingEntity
+import androidx.room.integration.kotlintestapp.testutil.PagingEntityDao
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.FlakyTest
