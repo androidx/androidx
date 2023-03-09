@@ -19,7 +19,6 @@
 
 package androidx.health.connect.client.impl.platform.records
 
-import android.annotation.SuppressLint
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
@@ -190,9 +189,9 @@ private fun PlatformBloodGlucoseRecord.toSdkBloodGlucoseRecord() =
         time = time,
         zoneOffset = zoneOffset,
         level = level.toSdkBloodGlucose(),
-        specimenSource = specimenSource,
-        mealType = mealType,
-        relationToMeal = relationToMeal,
+        specimenSource = specimenSource.toSdkBloodGlucoseSpecimenSource(),
+        mealType = mealType.toSdkMealType(),
+        relationToMeal = relationToMeal.toSdkRelationToMeal(),
         metadata = metadata.toSdkMetadata()
     )
 
@@ -202,8 +201,8 @@ private fun PlatformBloodPressureRecord.toSdkBloodPressureRecord() =
         zoneOffset = zoneOffset,
         systolic = systolic.toSdkPressure(),
         diastolic = diastolic.toSdkPressure(),
-        bodyPosition = bodyPosition,
-        measurementLocation = measurementLocation,
+        bodyPosition = bodyPosition.toSdkBloodPressureBodyPosition(),
+        measurementLocation = measurementLocation.toSdkBloodPressureMeasurementLocation(),
         metadata = metadata.toSdkMetadata()
     )
 
@@ -220,7 +219,7 @@ private fun PlatformBodyTemperatureRecord.toSdkBodyTemperatureRecord() =
         time = time,
         zoneOffset = zoneOffset,
         temperature = temperature.toSdkTemperature(),
-        measurementLocation = measurementLocation,
+        measurementLocation = measurementLocation.toSdkBodyTemperatureMeasurementLocation(),
         metadata = metadata.toSdkMetadata()
     )
 
@@ -244,8 +243,8 @@ private fun PlatformCervicalMucusRecord.toSdkCervicalMucusRecord() =
     CervicalMucusRecord(
         time = time,
         zoneOffset = zoneOffset,
-        appearance = appearance,
-        sensation = sensation,
+        appearance = appearance.toSdkCervicalMucusAppearance(),
+        sensation = sensation.toSdkCervicalMucusSensation(),
         metadata = metadata.toSdkMetadata()
     )
 
@@ -285,7 +284,7 @@ private fun PlatformExerciseSessionRecord.toSdkExerciseSessionRecord() =
         startZoneOffset = startZoneOffset,
         endTime = endTime,
         endZoneOffset = endZoneOffset,
-        exerciseType = exerciseType,
+        exerciseType = exerciseType.toSdkExerciseSessionType(),
         title = title?.toString(),
         notes = notes?.toString(),
         metadata = metadata.toSdkMetadata()
@@ -297,7 +296,7 @@ private fun PlatformFloorsClimbedRecord.toSdkFloorsClimbedRecord() =
         startZoneOffset = startZoneOffset,
         endTime = endTime,
         endZoneOffset = endZoneOffset,
-        floors = floors.toDouble(),
+        floors = floors,
         metadata = metadata.toSdkMetadata()
     )
 
@@ -356,7 +355,7 @@ private fun PlatformMenstruationFlowRecord.toSdkMenstruationFlowRecord() =
     MenstruationFlowRecord(
         time = time,
         zoneOffset = zoneOffset,
-        flow = flow,
+        flow = flow.toSdkMenstruationFlow(),
         metadata = metadata.toSdkMetadata()
     )
 
@@ -376,7 +375,7 @@ private fun PlatformNutritionRecord.toSdkNutritionRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         name = mealName,
-        mealType = mealType,
+        mealType = mealType.toSdkMealType(),
         metadata = metadata.toSdkMetadata(),
         biotin = biotin?.toSdkMass(),
         caffeine = caffeine?.toSdkMass(),
@@ -426,7 +425,7 @@ private fun PlatformOvulationTestRecord.toSdkOvulationTestRecord() =
     OvulationTestRecord(
         time = time,
         zoneOffset = zoneOffset,
-        result = result,
+        result = result.toSdkOvulationTestResult(),
         metadata = metadata.toSdkMetadata()
     )
 
@@ -468,7 +467,7 @@ private fun PlatformSexualActivityRecord.toSdkSexualActivityRecord() =
     SexualActivityRecord(
         time = time,
         zoneOffset = zoneOffset,
-        protectionUsed = protectionUsed,
+        protectionUsed = protectionUsed.toSdkProtectionUsed(),
         metadata = metadata.toSdkMetadata()
     )
 
@@ -528,7 +527,7 @@ private fun PlatformVo2MaxRecord.toSdkVo2MaxRecord() =
         time = time,
         zoneOffset = zoneOffset,
         vo2MillilitersPerMinuteKilogram = vo2MillilitersPerMinuteKilogram,
-        measurementMethod = measurementMethod,
+        measurementMethod = measurementMethod.toSdkVo2MaxMeasurementMethod(),
         metadata = metadata.toSdkMetadata()
     )
 
@@ -563,12 +562,11 @@ private fun ActiveCaloriesBurnedRecord.toPlatformActiveCaloriesBurnedRecord() =
         }
         .build()
 
-@SuppressLint("WrongConstant")
 private fun BasalBodyTemperatureRecord.toPlatformBasalBodyTemperatureRecord() =
     PlatformBasalBodyTemperatureRecordBuilder(
             metadata.toPlatformMetadata(),
             time,
-            measurementLocation,
+            measurementLocation.toPlatformBodyTemperatureMeasurementLocation(),
             temperature.toPlatformTemperature()
         )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
@@ -583,28 +581,26 @@ private fun BasalMetabolicRateRecord.toPlatformBasalMetabolicRateRecord() =
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
-@SuppressLint("WrongConstant")
 private fun BloodGlucoseRecord.toPlatformBloodGlucoseRecord() =
     PlatformBloodGlucoseRecordBuilder(
             metadata.toPlatformMetadata(),
             time,
-            specimenSource,
+            specimenSource.toPlatformBloodGlucoseSpecimenSource(),
             level.toPlatformBloodGlucose(),
-            relationToMeal,
-            mealType
+            relationToMeal.toPlatformBloodGlucoseRelationToMeal(),
+            mealType.toPlatformMealType()
         )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
-@SuppressLint("WrongConstant")
 private fun BloodPressureRecord.toPlatformBloodPressureRecord() =
     PlatformBloodPressureRecordBuilder(
             metadata.toPlatformMetadata(),
             time,
-            measurementLocation,
+            measurementLocation.toPlatformBloodPressureMeasurementLocation(),
             systolic.toPlatformPressure(),
             diastolic.toPlatformPressure(),
-            bodyPosition
+            bodyPosition.toPlatformBloodPressureBodyPosition()
         )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
@@ -618,12 +614,11 @@ private fun BodyFatRecord.toPlatformBodyFatRecord() =
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
-@SuppressLint("WrongConstant")
 private fun BodyTemperatureRecord.toPlatformBodyTemperatureRecord() =
     PlatformBodyTemperatureRecordBuilder(
             metadata.toPlatformMetadata(),
             time,
-            measurementLocation,
+            measurementLocation.toPlatformBodyTemperatureMeasurementLocation(),
             temperature.toPlatformTemperature()
         )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
@@ -639,9 +634,13 @@ private fun BoneMassRecord.toPlatformBoneMassRecord() =
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
-@SuppressLint("WrongConstant")
 private fun CervicalMucusRecord.toPlatformCervicalMucusRecord() =
-    PlatformCervicalMucusRecordBuilder(metadata.toPlatformMetadata(), time, appearance, sensation)
+    PlatformCervicalMucusRecordBuilder(
+            metadata.toPlatformMetadata(),
+            time,
+            sensation.toPlatformCervicalMucusSensation(),
+            appearance.toPlatformCervicalMucusAppearance(),
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
@@ -692,7 +691,7 @@ private fun ExerciseSessionRecord.toPlatformExerciseSessionRecord() =
             metadata.toPlatformMetadata(),
             startTime,
             endTime,
-            exerciseType
+            exerciseType.toPlatformExerciseSessionType()
         )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
@@ -763,9 +762,12 @@ private fun LeanBodyMassRecord.toPlatformLeanBodyMassRecord() =
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
-@SuppressLint("WrongConstant")
 private fun MenstruationFlowRecord.toPlatformMenstruationFlowRecord() =
-    PlatformMenstruationFlowRecordBuilder(metadata.toPlatformMetadata(), time, flow)
+    PlatformMenstruationFlowRecordBuilder(
+            metadata.toPlatformMetadata(),
+            time,
+            flow.toPlatformMenstruationFlow()
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
@@ -777,10 +779,9 @@ private fun MenstruationPeriodRecord.toPlatformMenstruationPeriodRecord() =
         }
         .build()
 
-@SuppressLint("WrongConstant")
 private fun NutritionRecord.toPlatformNutritionRecord() =
     PlatformNutritionRecordBuilder(metadata.toPlatformMetadata(), startTime, endTime)
-        .setMealType(mealType)
+        .setMealType(mealType.toPlatformMealType())
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
             endZoneOffset?.let { setEndZoneOffset(it) }
@@ -825,7 +826,11 @@ private fun NutritionRecord.toPlatformNutritionRecord() =
         .build()
 
 private fun OvulationTestRecord.toPlatformOvulationTestRecord() =
-    PlatformOvulationTestRecordBuilder(metadata.toPlatformMetadata(), time, result)
+    PlatformOvulationTestRecordBuilder(
+            metadata.toPlatformMetadata(),
+            time,
+            result.toPlatformOvulationTestResult()
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
@@ -864,9 +869,12 @@ private fun RestingHeartRateRecord.toPlatformRestingHeartRateRecord() =
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
-@SuppressLint("WrongConstant")
 private fun SexualActivityRecord.toPlatformSexualActivityRecord() =
-    PlatformSexualActivityRecordBuilder(metadata.toPlatformMetadata(), time, protectionUsed)
+    PlatformSexualActivityRecordBuilder(
+            metadata.toPlatformMetadata(),
+            time,
+            protectionUsed.toPlatformSexualActivityProtectionUsed()
+        )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
 
@@ -933,12 +941,11 @@ private fun TotalCaloriesBurnedRecord.toPlatformTotalCaloriesBurnedRecord() =
         }
         .build()
 
-@SuppressLint("WrongConstant")
 private fun Vo2MaxRecord.toPlatformVo2MaxRecord() =
     PlatformVo2MaxRecordBuilder(
             metadata.toPlatformMetadata(),
             time,
-            measurementMethod,
+            measurementMethod.toPlatformVo2MaxMeasurementMethod(),
             vo2MillilitersPerMinuteKilogram
         )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
