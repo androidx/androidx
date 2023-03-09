@@ -17,17 +17,20 @@
 package androidx.compose.material3
 
 import android.content.Context
+import android.content.res.Resources
 import android.os.Build
 import android.text.format.DateFormat
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsProperties.SelectableGroup
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue
 import androidx.compose.ui.test.SemanticsMatcher.Companion.keyIsDefined
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertCountEquals
@@ -49,6 +52,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -61,6 +65,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn
 import com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession
 import com.android.dx.mockito.inline.extended.MockedMethod
@@ -85,9 +90,15 @@ class TimePickerTest {
             TimePicker(state)
         }
 
-        rule.onAllNodesWithText("23").assertCountEquals(1)
+       rule.onNodeWithTimeValue(
+           number = 2,
+           selection = Selection.Hour,
+       ).assertIsSelected()
 
-        rule.onNodeWithText("02").assertIsSelected()
+        rule.onNodeWithTimeValue(
+            number = 23,
+            selection = Selection.Minute,
+        ).assertExists()
 
         rule.onNodeWithText("AM").assertExists()
 
@@ -101,9 +112,14 @@ class TimePickerTest {
             TimePicker(state)
         }
 
-        rule.onNodeWithText("23").performClick()
+        rule.onNodeWithTimeValue(
+            number = 23,
+            selection = Selection.Minute,
+        ).performClick()
 
-        rule.onNodeWithText("55").assertExists()
+        rule.runOnIdle {
+            assertThat(state.selection).isEqualTo(Selection.Minute)
+        }
     }
 
     @Test
@@ -113,7 +129,7 @@ class TimePickerTest {
             TimePicker(state)
         }
 
-        rule.onNodeWithText("6").performClick()
+        rule.onNodeWithTimeValue(number = 6, selection = Selection.Hour).performClick()
 
         // shows 06 in display
         rule.onNodeWithText("06").assertExists()
@@ -479,7 +495,7 @@ class TimePickerTest {
         }
 
         repeat(24) { number ->
-            rule.onNodeWithText(number.toString()).performClick()
+            rule.onNodeWithTimeValue(number, Selection.Hour, is24Hour = true).performClick()
             rule.runOnIdle {
                 state.selection = Selection.Hour
                 assertThat(state.hour).isEqualTo(number)
@@ -506,11 +522,78 @@ class TimePickerTest {
                 else -> number
             }
 
-            rule.onNodeWithText("$hour").performClick()
+            rule.onNodeWithTimeValue(hour, Selection.Hour).performClick()
             rule.runOnIdle {
                 state.selection = Selection.Hour
                 assertThat(state.hour).isEqualTo(number)
             }
         }
     }
+
+    @Test
+    fun clockFace_24HourMinutes_everyValue() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
+        state.selection = Selection.Minute
+        rule.setMaterialContent(lightColorScheme()) {
+            ClockFace(state, TimePickerDefaults.colors())
+        }
+
+        repeat(11) { number ->
+            rule.onNodeWithTimeValue(
+                number * 5,
+                Selection.Minute,
+                is24Hour = true
+            ).performClick()
+            rule.runOnIdle {
+                assertThat(state.minute).isEqualTo(number * 5)
+            }
+        }
+    }
+
+    @Test
+    fun clockFace_12HourMinutes_everyValue() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
+        state.selection = Selection.Minute
+        rule.setMaterialContent(lightColorScheme()) {
+            ClockFace(state, TimePickerDefaults.colors())
+        }
+
+        repeat(11) { number ->
+            rule.onNodeWithTimeValue(number * 5, Selection.Minute).performClick()
+            rule.runOnIdle {
+                assertThat(state.minute).isEqualTo(number * 5)
+            }
+        }
+    }
+
+    private fun contentDescriptionForValue(
+        resources: Resources,
+        selection: Selection,
+        is24Hour: Boolean,
+        number: Int
+    ): String {
+
+        val id = if (selection == Selection.Minute) {
+            R.string.time_picker_minute_suffix
+        } else if (is24Hour) {
+            R.string.time_picker_hour_24h_suffix
+        } else {
+            R.string.time_picker_hour_suffix
+        }
+
+        return resources.getString(id, number)
+    }
+
+    private fun SemanticsNodeInteractionsProvider.onNodeWithTimeValue(
+        number: Int,
+        selection: Selection,
+        is24Hour: Boolean = false,
+    ): SemanticsNodeInteraction = onAllNodesWithContentDescription(
+        contentDescriptionForValue(
+            InstrumentationRegistry.getInstrumentation().context.resources,
+            selection,
+            is24Hour,
+            number
+        )
+    ).onFirst()
 }
