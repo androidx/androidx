@@ -57,7 +57,7 @@ interface ValueListener<T> {
      * <p>Returns a ListenableFuture containing the ValidationResult.
      */
     fun onReceivedAsync(value: T): ListenableFuture<ValidationResult> =
-        ListenableFutureHelper.convertToListenableFuture {
+        ListenableFutureHelper.convertToListenableFuture("ValueListener#onReceived") {
             onReceived(value)
         }
 }
