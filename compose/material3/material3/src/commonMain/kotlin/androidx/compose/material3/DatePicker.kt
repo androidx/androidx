@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -153,11 +152,17 @@ fun DatePicker(
     modifier: Modifier = Modifier,
     dateFormatter: DatePickerFormatter = remember { DatePickerFormatter() },
     dateValidator: (Long) -> Boolean = { true },
-    title: (@Composable () -> Unit)? = { DatePickerDefaults.DatePickerTitle(state) },
-    headline: @Composable () -> Unit = {
+    title: (@Composable () -> Unit)? = {
+        DatePickerDefaults.DatePickerTitle(
+            state,
+            modifier = Modifier.padding(DatePickerTitlePadding)
+        )
+    },
+    headline: (@Composable () -> Unit)? = {
         DatePickerDefaults.DatePickerHeadline(
             state,
-            dateFormatter
+            dateFormatter,
+            modifier = Modifier.padding(DatePickerHeadlinePadding)
         )
     },
     showModeToggle: Boolean = true,
@@ -170,6 +175,7 @@ fun DatePicker(
         modeToggleButton = if (showModeToggle) {
             {
                 DisplayModeToggleButton(
+                    modifier = Modifier.padding(DatePickerModeTogglePadding),
                     displayMode = state.displayMode,
                     onDisplayModeChange = { displayMode ->
                         state.stateData.switchDisplayMode(
@@ -185,7 +191,6 @@ fun DatePicker(
             DatePickerModalTokens.HeaderHeadlineFont
         ),
         headerMinHeight = DatePickerModalTokens.HeaderContainerHeight,
-        headerContentPadding = DatePickerHeaderPadding,
         colors = colors
     ) {
         SwitchableDateEntryContent(
@@ -1006,12 +1011,11 @@ internal class StateData constructor(
 internal fun DateEntryContainer(
     modifier: Modifier,
     title: (@Composable () -> Unit)?,
-    headline: @Composable () -> Unit,
+    headline: (@Composable () -> Unit)?,
     modeToggleButton: (@Composable () -> Unit)?,
     colors: DatePickerColors,
     headlineTextStyle: TextStyle,
     headerMinHeight: Dp,
-    headerContentPadding: PaddingValues,
     content: @Composable () -> Unit
 ) {
     Column(
@@ -1020,17 +1024,34 @@ internal fun DateEntryContainer(
             .semantics { isContainer = true }
     ) {
         DatePickerHeader(
-            modifier = Modifier.padding(DatePickerHorizontalPadding),
+            modifier = Modifier,
             title = title,
             titleContentColor = colors.titleContentColor,
             headlineContentColor = colors.headlineContentColor,
-            minHeight = headerMinHeight,
-            contentPadding = headerContentPadding
+            minHeight = headerMinHeight
         ) {
-            ProvideTextStyle(value = headlineTextStyle, content = headline)
-            modeToggleButton?.invoke()
+            Column(modifier = Modifier.fillMaxWidth()) {
+                val horizontalArrangement = when {
+                    headline != null && modeToggleButton != null -> Arrangement.SpaceBetween
+                    headline != null -> Arrangement.Start
+                    else -> Arrangement.End
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = horizontalArrangement,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (headline != null) {
+                        ProvideTextStyle(value = headlineTextStyle, content = headline)
+                    }
+                    modeToggleButton?.invoke()
+                }
+                // Display a divider only when there is a title, headline, or a mode toggle.
+                if (title != null || headline != null || modeToggleButton != null) {
+                    Divider()
+                }
+            }
         }
-        Divider()
         content()
     }
 }
@@ -1038,20 +1059,19 @@ internal fun DateEntryContainer(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DisplayModeToggleButton(
+    modifier: Modifier,
     displayMode: DisplayMode,
     onDisplayModeChange: (DisplayMode) -> Unit
 ) {
     if (displayMode == DisplayMode.Picker) {
-        IconButton(onClick = { onDisplayModeChange(DisplayMode.Input) }) {
+        IconButton(onClick = { onDisplayModeChange(DisplayMode.Input) }, modifier = modifier) {
             Icon(
                 imageVector = Icons.Filled.Edit,
                 contentDescription = getString(Strings.DatePickerSwitchToInputMode)
             )
         }
     } else {
-        IconButton(
-            onClick = { onDisplayModeChange(DisplayMode.Picker) }
-        ) {
+        IconButton(onClick = { onDisplayModeChange(DisplayMode.Picker) }, modifier = modifier) {
             Icon(
                 imageVector = Icons.Filled.DateRange,
                 contentDescription = getString(Strings.DatePickerSwitchToCalendarMode)
@@ -1116,7 +1136,7 @@ private fun DatePickerContent(
     val defaultLocale = defaultLocale()
     Column {
         MonthsNavigation(
-            modifier = Modifier.padding(DatePickerHorizontalPadding),
+            modifier = Modifier.padding(horizontal = DatePickerHorizontalPadding),
             nextAvailable = monthsListState.canScrollForward,
             previousAvailable = monthsListState.canScrollBackward,
             yearPickerVisible = yearPickerVisible,
@@ -1143,7 +1163,7 @@ private fun DatePickerContent(
         )
 
         Box {
-            Column(modifier = Modifier.padding(DatePickerHorizontalPadding)) {
+            Column(modifier = Modifier.padding(horizontal = DatePickerHorizontalPadding)) {
                 WeekDays(colors, stateData.calendarModel)
                 HorizontalMonthsList(
                     onDateSelected = onDateSelected,
@@ -1175,7 +1195,7 @@ private fun DatePickerContent(
                                 RecommendedSizeForAccessibility * (MaxCalendarRows + 1) -
                                     DividerDefaults.Thickness
                             )
-                            .padding(DatePickerHorizontalPadding),
+                            .padding(horizontal = DatePickerHorizontalPadding),
                         onYearSelected = { year ->
                             // Switch back to the monthly calendar and scroll to the selected year.
                             yearPickerVisible = !yearPickerVisible
@@ -1207,8 +1227,7 @@ internal fun DatePickerHeader(
     titleContentColor: Color,
     headlineContentColor: Color,
     minHeight: Dp,
-    contentPadding: PaddingValues,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable () -> Unit
 ) {
     // Apply a defaultMinSize only when the title is not null.
     val heightModifier =
@@ -1220,8 +1239,7 @@ internal fun DatePickerHeader(
     Column(
         modifier
             .fillMaxWidth()
-            .then(heightModifier)
-            .padding(contentPadding),
+            .then(heightModifier),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         if (title != null) {
@@ -1237,14 +1255,9 @@ internal fun DatePickerHeader(
                 }
             }
         }
-        CompositionLocalProvider(LocalContentColor provides headlineContentColor) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                content = content
-            )
-        }
+        CompositionLocalProvider(
+            LocalContentColor provides headlineContentColor, content = content
+        )
     }
 }
 
@@ -1889,12 +1902,11 @@ internal fun Int.toLocalString(): String {
 
 internal val RecommendedSizeForAccessibility = 48.dp
 internal val MonthYearHeight = 56.dp
-internal val DatePickerHorizontalPadding = PaddingValues(horizontal = 12.dp)
-private val DatePickerHeaderPadding = PaddingValues(
-    start = 12.dp,
-    top = 16.dp,
-    bottom = 12.dp
-)
+internal val DatePickerHorizontalPadding = 12.dp
+internal val DatePickerModeTogglePadding = PaddingValues(end = 12.dp, bottom = 12.dp)
+
+private val DatePickerTitlePadding = PaddingValues(start = 24.dp, end = 12.dp, top = 16.dp)
+private val DatePickerHeadlinePadding = PaddingValues(start = 24.dp, end = 12.dp, bottom = 12.dp)
 
 private val YearsVerticalPadding = 16.dp
 
