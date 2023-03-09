@@ -40,6 +40,7 @@ import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
+import androidx.wear.compose.material.Colors
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.dialog.Alert
@@ -139,49 +140,53 @@ fun DialogAccessLocation() {
 
 @Composable
 fun DialogBackground(background: Color) {
-    // By setting the background of the launcher and the dialog,
+    // By setting a bespoke background theme color for the launcher and dialog,
     // it is easier to see animation details such as the vignette.
     var showDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScalingLazyListState()
-    LaunchScreen(onClick = { showDialog = true }, background = background)
-    Dialog(
-        showDialog = showDialog,
-        onDismissRequest = { showDialog = false },
-        scrollState = scrollState,
-    ) {
-        Alert(
-            backgroundColor = background,
+    MaterialTheme(colors = Colors(background = background)) {
+        LaunchScreen(onClick = { showDialog = true })
+        Dialog(
+            showDialog = showDialog,
+            onDismissRequest = { showDialog = false },
             scrollState = scrollState,
-            icon = {
-                DemoIcon(
-                    resourceId = R.drawable.ic_baseline_location_on_24,
-                    contentDescription = "Location"
-                )
-            },
-            title = {
-                Text(
-                    text = "Allow Bikemap to access this device's location?",
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.onBackground
-                )
-            },
-            negativeButton = {
-                Button(
-                    onClick = { showDialog = false },
-                    colors = ButtonDefaults.secondaryButtonColors()
-                ) {
-                    DemoIcon(resourceId = R.drawable.ic_clear_24px, contentDescription = "Cross")
-                }
-            },
-            positiveButton = {
-                Button(
-                    onClick = { showDialog = false },
-                    colors = ButtonDefaults.primaryButtonColors()
-                ) {
-                    DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Tick")
-                }
-            },
-        )
+        ) {
+            Alert(
+                scrollState = scrollState,
+                icon = {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_baseline_location_on_24,
+                        contentDescription = "Location"
+                    )
+                },
+                title = {
+                    Text(
+                        text = "Allow Bikemap to access this device's location?",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colors.onBackground
+                    )
+                },
+                negativeButton = {
+                    Button(
+                        onClick = { showDialog = false },
+                        colors = ButtonDefaults.secondaryButtonColors()
+                    ) {
+                        DemoIcon(
+                            resourceId = R.drawable.ic_clear_24px,
+                            contentDescription = "Cross"
+                        )
+                    }
+                },
+                positiveButton = {
+                    Button(
+                        onClick = { showDialog = false },
+                        colors = ButtonDefaults.primaryButtonColors()
+                    ) {
+                        DemoIcon(resourceId = R.drawable.ic_check_24px, contentDescription = "Tick")
+                    }
+                },
+            )
+        }
     }
 }
 
