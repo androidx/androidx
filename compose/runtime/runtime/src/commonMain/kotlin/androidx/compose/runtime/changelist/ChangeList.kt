@@ -18,7 +18,6 @@ package androidx.compose.runtime.changelist
 
 import androidx.compose.runtime.Anchor
 import androidx.compose.runtime.Applier
-import androidx.compose.runtime.Change
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
@@ -149,12 +148,12 @@ internal class ChangeList : OperationsDebugStringFormattable {
     fun pushInsertSlots(
         anchor: Anchor,
         from: SlotTable,
-        fixups: List<Change>
+        fixups: FixupList
     ) {
         operations.push(InsertSlotsWithFixups) {
             setObject(InsertSlotsWithFixups.Anchor, anchor)
             setObject(InsertSlotsWithFixups.FromSlotTable, from)
-            setObject(InsertSlotsWithFixups.Fixups, fixups.toMutableList())
+            setObject(InsertSlotsWithFixups.Fixups, fixups)
         }
     }
 

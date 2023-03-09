@@ -22,6 +22,7 @@ package androidx.compose.runtime
 import androidx.compose.runtime.Composer.Companion.equals
 import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.changelist.ComposerChangeListWriter
+import androidx.compose.runtime.changelist.FixupList
 import androidx.compose.runtime.changelist.IntRef
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
@@ -34,12 +35,6 @@ import androidx.compose.runtime.snapshots.fastToSet
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.LocalInspectionTables
 import kotlin.coroutines.CoroutineContext
-
-internal typealias Change = (
-    applier: Applier<*>,
-    slots: SlotWriter,
-    rememberManager: RememberManager
-) -> Unit
 
 private class GroupInfo(
     /**
@@ -1293,7 +1288,7 @@ internal class ComposerImpl(
 
     private val changeListWriter = ComposerChangeListWriter(this, changes)
     private var insertAnchor: Anchor = insertTable.read { it.anchor(0) }
-    private val insertFixups = mutableListOf<Change>()
+    private var insertFixups = FixupList()
 
     override val applyCoroutineContext: CoroutineContext
         @TestOnly get() = parentContext.effectCoroutineContext
@@ -1607,21 +1602,7 @@ internal class ComposerImpl(
         val insertIndex = nodeIndexStack.peek()
         val groupAnchor = writer.anchor(writer.parent)
         groupNodeCount++
-        recordFixup { applier, slots, _ ->
-            @Suppress("UNCHECKED_CAST")
-            val node = factory()
-            slots.updateNode(groupAnchor, node)
-            @Suppress("UNCHECKED_CAST") val nodeApplier = applier as Applier<T>
-            nodeApplier.insertTopDown(insertIndex, node)
-            applier.down(node)
-        }
-        recordInsertUpFixup { applier, slots, _ ->
-            @Suppress("UNCHECKED_CAST")
-            val nodeToInsert = slots.node(groupAnchor)
-            applier.up()
-            @Suppress("UNCHECKED_CAST") val nodeApplier = applier as Applier<Any?>
-            nodeApplier.insertBottomUp(insertIndex, nodeToInsert)
-        }
+        insertFixups.createAndInsertNode(factory, insertIndex, groupAnchor)
     }
 
     /**
@@ -1708,10 +1689,7 @@ internal class ComposerImpl(
      */
     override fun <V, T> apply(value: V, block: T.(V) -> Unit) {
         if (inserting) {
-            recordFixup { applier, _, _ ->
-                @Suppress("UNCHECKED_CAST")
-                (applier.current as T).block(value)
-            }
+            insertFixups.updateNode(value, block)
         } else {
             changeListWriter.updateNode(value, block)
         }
@@ -2369,7 +2347,7 @@ internal class ComposerImpl(
         val inserting = inserting
         if (inserting) {
             if (isNode) {
-                registerInsertUpFixup()
+                insertFixups.endNodeInsert()
                 expectedNodeCount = 1
             }
             reader.endEmpty()
@@ -3278,23 +3256,9 @@ internal class ComposerImpl(
         if (insertFixups.isEmpty()) {
             changeListWriter.insertSlots(anchor, insertTable)
         } else {
-            changeListWriter.insertSlots(anchor, insertTable, insertFixups.toMutableList())
-            insertFixups.clear()
+            changeListWriter.insertSlots(anchor, insertTable, insertFixups)
+            insertFixups = FixupList()
         }
-    }
-
-    private fun recordFixup(change: Change) {
-        insertFixups.add(change)
-    }
-
-    private val insertUpFixups = Stack<Change>()
-
-    private fun recordInsertUpFixup(change: Change) {
-        insertUpFixups.push(change)
-    }
-
-    private fun registerInsertUpFixup() {
-        insertFixups.add(insertUpFixups.pop())
     }
 
     private fun recordDelete() {

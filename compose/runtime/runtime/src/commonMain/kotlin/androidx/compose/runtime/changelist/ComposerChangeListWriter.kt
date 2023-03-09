@@ -17,7 +17,6 @@
 package androidx.compose.runtime.changelist
 
 import androidx.compose.runtime.Anchor
-import androidx.compose.runtime.Change
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.ComposerImpl
 import androidx.compose.runtime.Composition
@@ -271,7 +270,7 @@ internal class ComposerChangeListWriter(
     fun insertSlots(
         anchor: Anchor,
         from: SlotTable,
-        fixups: List<Change>
+        fixups: FixupList
     ) {
         pushPendingUpsAndDowns()
         pushSlotEditingOperationPreamble()

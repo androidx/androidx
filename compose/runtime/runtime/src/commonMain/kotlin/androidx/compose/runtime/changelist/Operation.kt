@@ -18,7 +18,6 @@ package androidx.compose.runtime.changelist
 
 import androidx.compose.runtime.Anchor
 import androidx.compose.runtime.Applier
-import androidx.compose.runtime.Change
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.Composition
@@ -41,7 +40,6 @@ import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.movableContentKey
 import androidx.compose.runtime.removeCurrentGroup
 import androidx.compose.runtime.runtimeCheck
-import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastForEachIndexed
 
 internal sealed class Operation(
@@ -469,7 +467,7 @@ internal sealed class Operation(
     object InsertSlotsWithFixups : Operation(objects = 3) {
         inline val Anchor get() = ObjectParameter<Anchor>(0)
         inline val FromSlotTable get() = ObjectParameter<SlotTable>(1)
-        inline val Fixups get() = ObjectParameter<MutableList<Change>>(2)
+        inline val Fixups get() = ObjectParameter<FixupList>(2)
 
         override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
             Anchor -> "anchor"
@@ -488,9 +486,7 @@ internal sealed class Operation(
             val fixups = getObject(Fixups)
 
             insertTable.write { writer ->
-                fixups.fastForEach { fixup ->
-                    fixup(applier, writer, rememberManager)
-                }
+                fixups.executeAndFlushAllPendingFixups(applier, writer, rememberManager)
             }
             slots.beginInsert()
             slots.moveFrom(
@@ -502,6 +498,66 @@ internal sealed class Operation(
         }
     }
 
+    object InsertNodeFixup : Operation(ints = 1, objects = 2) {
+        inline val Factory get() = ObjectParameter<() -> Any?>(0)
+        inline val InsertIndex get() = IntParameter(0)
+        inline val GroupAnchor get() = ObjectParameter<Anchor>(1)
+
+        override fun intParamName(parameter: IntParameter) = when (parameter) {
+            InsertIndex -> "insertIndex"
+            else -> super.intParamName(parameter)
+        }
+
+        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
+            Factory -> "factory"
+            GroupAnchor -> "groupAnchor"
+            else -> super.objectParamName(parameter)
+        }
+
+        override fun OperationArgContainer.execute(
+            applier: Applier<*>,
+            slots: SlotWriter,
+            rememberManager: RememberManager
+        ) {
+            val node = getObject(Factory).invoke()
+            val groupAnchor = getObject(GroupAnchor)
+            val insertIndex = getInt(InsertIndex)
+
+            val nodeApplier = @Suppress("UNCHECKED_CAST") (applier as Applier<Any?>)
+            slots.updateNode(groupAnchor, node)
+            nodeApplier.insertTopDown(insertIndex, node)
+            nodeApplier.down(node)
+        }
+    }
+
+    object PostInsertNodeFixup : Operation(ints = 1, objects = 1) {
+        inline val InsertIndex get() = IntParameter(0)
+        inline val GroupAnchor get() = ObjectParameter<Anchor>(0)
+
+        override fun intParamName(parameter: IntParameter) = when (parameter) {
+            InsertIndex -> "insertIndex"
+            else -> super.intParamName(parameter)
+        }
+
+        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
+            GroupAnchor -> "groupAnchor"
+            else -> super.objectParamName(parameter)
+        }
+
+        override fun OperationArgContainer.execute(
+            applier: Applier<*>,
+            slots: SlotWriter,
+            rememberManager: RememberManager
+        ) {
+            val groupAnchor = getObject(GroupAnchor)
+            val insertIndex = getInt(InsertIndex)
+
+            applier.up()
+            val nodeApplier = @Suppress("UNCHECKED_CAST") (applier as Applier<Any?>)
+            val nodeToInsert = slots.node(groupAnchor)
+            nodeApplier.insertBottomUp(insertIndex, nodeToInsert)
+        }
+    }
     // endregion operations for Nodes and Groups
 
     // region operations for MovableContent
