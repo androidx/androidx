@@ -28,8 +28,8 @@ import androidx.appactions.interaction.capabilities.core.values.GenericErrorStat
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.values.Timer
 import androidx.appactions.interaction.proto.ParamValue
-import com.google.protobuf.Struct
-import com.google.protobuf.Value
+import androidx.appactions.interaction.protobuf.Struct
+import androidx.appactions.interaction.protobuf.Value
 import java.util.Optional
 
 /** ResetTimer.kt in interaction-capabilities-productivity */
