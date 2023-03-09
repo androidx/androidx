@@ -46,6 +46,8 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.math.tan
 
+internal val EmptyArray = FloatArray(0)
+
 class PathParser {
 
     private data class PathPoint(var x: Float = 0.0f, var y: Float = 0.0f) {
@@ -66,6 +68,12 @@ class PathParser {
     private val segmentPoint = PathPoint()
     private val reflectiveCtrlPoint = PathPoint()
 
+    // We need to return the position of the next separator and whether the
+    // next float starts with a '-' or a '.'.
+    private var resultIndexAdvance = 0
+
+    private var results = FloatArray(64)
+
     /**
      * Parses the path string to create a collection of PathNode instances with their corresponding
      * arguments
@@ -78,17 +86,22 @@ class PathParser {
         var end = 1
         while (end < pathData.length) {
             end = nextStart(pathData, end)
-            val s = pathData.substring(start, end).trim { it <= ' ' }
-            if (s.isNotEmpty()) {
-                val args = getFloats(s)
-                addNode(s[0], args)
+
+            // Trim leading and trailing spaces
+            var trimEnd = end
+            while (start < end && pathData[start] <= ' ') start++
+            while (trimEnd > start && pathData[trimEnd - 1] <= ' ') trimEnd--
+
+            if (start != trimEnd) {
+                val count = getFloats(pathData, start, trimEnd)
+                addNodes(pathData[start], results, count)
             }
 
             start = end
             end++
         }
         if (end - start == 1 && start < pathData.length) {
-            addNode(pathData[start], FloatArray(0))
+            addNodes(pathData[start], EmptyArray, 0)
         }
 
         return this
@@ -521,16 +534,15 @@ class PathParser {
         }
     }
 
-    private fun addNode(cmd: Char, args: FloatArray) {
-        nodes.addAll(cmd.toPathNodes(args))
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun addNodes(cmd: Char, args: FloatArray, count: Int) {
+        cmd.addPathNodes(nodes, args, count)
     }
 
     private fun nextStart(s: String, end: Int): Int {
         var index = end
-        var c: Char
-
         while (index < s.length) {
-            c = s[index]
+            val c = s[index]
             // Note that 'e' or 'E' are not valid path commands, but could be
             // used for floating point numbers' scientific notation.
             // Therefore, when searching for next command, we should ignore 'e'
@@ -545,101 +557,73 @@ class PathParser {
         return index
     }
 
-    private fun getFloats(s: String): FloatArray {
-        if (s[0] == 'z' || s[0] == 'Z') {
-            return FloatArray(0)
+    private fun getFloats(s: String, start: Int, end: Int): Int {
+        if (s[start] == 'z' || s[start] == 'Z') {
+            return 0
         }
-        val results = FloatArray(s.length)
-        var count = 0
-        var startPosition = 1
-        var endPosition: Int
 
-        val result = ExtractFloatResult()
-        val totalLength = s.length
+        var count = 0
+        var startPosition = start + 1
 
         // The startPosition should always be the first character of the
         // current number, and endPosition is the character after the current
         // number.
-        while (startPosition < totalLength) {
-            extract(s, startPosition, result)
-            endPosition = result.endPosition
+        while (startPosition < end) {
+            val endPosition = extract(s, startPosition, end)
 
             if (startPosition < endPosition) {
-                results[count++] =
-                    s.substring(startPosition, endPosition).toFloat()
+                results[count++] = s.substring(startPosition, endPosition).toFloat()
+                resizeResultsIfNeeded(count)
             }
 
-            if (result.endWithNegativeOrDot) {
-                // Keep the '-' or '.' sign with next number.
-                startPosition = endPosition
-            } else {
-                startPosition = endPosition + 1
-            }
+            startPosition = endPosition + resultIndexAdvance
         }
-        return copyOfRange(results, 0, count)
+
+        return count
     }
 
-    private fun copyOfRange(original: FloatArray, start: Int, end: Int): FloatArray {
-        if (start > end) {
-            throw IllegalArgumentException()
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun resizeResultsIfNeeded(count: Int) {
+        if (count >= results.size) {
+            val previous = results
+            results = FloatArray(count * 2)
+            previous.copyInto(results, 0, 0, previous.size)
         }
-        val originalLength = original.size
-        if (start < 0 || start > originalLength) {
-            throw IndexOutOfBoundsException()
-        }
-        val resultLength = end - start
-        val copyLength = minOf(resultLength, originalLength - start)
-        val result = FloatArray(resultLength)
-        original.copyInto(result, 0, start, start + copyLength)
-        return result
     }
 
-    private fun extract(s: String, start: Int, result: ExtractFloatResult) {
+    private fun extract(s: String, start: Int, end: Int): Int {
         // Now looking for ' ', ',', '.' or '-' from the start.
         var currentIndex = start
-        var foundSeparator = false
-        result.endWithNegativeOrDot = false
-        var secondDot = false
-        var isExponential = false
-        while (currentIndex < s.length) {
-            val isPrevExponential = isExponential
-            isExponential = false
-            val currentChar = s[currentIndex]
-            when (currentChar) {
-                ' ', ',' -> foundSeparator = true
+
+        resultIndexAdvance = 1
+
+        while (currentIndex < end) {
+            when (s[currentIndex]) {
+                ' ', ',' -> return currentIndex
                 '-' ->
                     // The negative sign following a 'e' or 'E' is not a separator.
-                    if (currentIndex != start && !isPrevExponential) {
-                        foundSeparator = true
-                        result.endWithNegativeOrDot = true
+                    if (currentIndex != start &&
+                        s[currentIndex - 1] != 'e' &&
+                        s[currentIndex - 1] != 'E'
+                    ) {
+                        resultIndexAdvance = 0
+                        return currentIndex
                     }
+
                 '.' ->
-                    if (!secondDot) {
-                        secondDot = true
-                    } else {
+                    if (currentIndex != start && s[currentIndex - 1] == '.') {
                         // This is the second dot, and it is considered as a separator.
-                        foundSeparator = true
-                        result.endWithNegativeOrDot = true
+                        resultIndexAdvance = 0
+                        return currentIndex
                     }
-                'e', 'E' -> isExponential = true
-            }
-            if (foundSeparator) {
-                break
             }
             currentIndex++
         }
+
         // When there is nothing found, then we put the end position to the end
         // of the string.
-        result.endPosition = currentIndex
+        return currentIndex
     }
 
-    private data class ExtractFloatResult(
-        // We need to return the position of the next separator and whether the
-        // next float starts with a '-' or a '.'.
-        var endPosition: Int = 0,
-        var endWithNegativeOrDot: Boolean = false
-    )
-
-    private fun Float.toRadians(): Float = this / 180f * PI.toFloat()
     private fun Double.toRadians(): Double = this / 180 * PI
 }
