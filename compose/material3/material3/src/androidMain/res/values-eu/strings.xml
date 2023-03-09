@@ -51,14 +51,17 @@
     <string name="date_range_picker_end_headline" msgid="4766270708882012148">"Amaiera-data"</string>
     <string name="date_range_picker_scroll_to_next_month" msgid="51495506931835470">"Egin gora/behera hurrengo hilabetea erakusteko"</string>
     <string name="date_range_picker_scroll_to_previous_month" msgid="4371570854614540700">"Egin gora/behera aurreko hilabetea erakusteko"</string>
-    <!-- no translation found for date_range_picker_day_in_range (9048690781645835833) -->
-    <skip />
+    <string name="date_range_picker_day_in_range" msgid="9048690781645835833">"Tartean"</string>
     <string name="date_range_input_title" msgid="2366412111888449406">"Idatzi datak"</string>
     <string name="date_range_input_invalid_range_input" msgid="1891592555781755601">"Idatzitako data tarteak ez du balio"</string>
-    <!-- no translation found for bottom_sheet_drag_handle_description (7772321844937772780) -->
+    <string name="bottom_sheet_drag_handle_description" msgid="7772321844937772780">"Arrastatzeko kontrol-puntua"</string>
+    <!-- no translation found for bottom_sheet_collapse_description (6128938260108474660) -->
     <skip />
-    <!-- no translation found for tooltip_pane_description (8191239805703103845) -->
+    <!-- no translation found for bottom_sheet_dismiss_description (1918297411568599192) -->
     <skip />
+    <!-- no translation found for bottom_sheet_expand_description (4324434199045499117) -->
+    <skip />
+    <string name="tooltip_pane_description" msgid="8191239805703103845">"Aholkua"</string>
     <string name="tooltip_long_press_label" msgid="2732804537909054941">"Erakutsi aholkua"</string>
     <string name="time_picker_pm" msgid="2232702812657998674">"PM"</string>
     <string name="time_picker_am" msgid="5096144640014509074">"AM"</string>
