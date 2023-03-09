@@ -34,7 +34,7 @@ internal class TestCommons {
         val NEIGHBOR_2 = byteArrayOf(0xA5.toByte())
         val UWB_DEVICE = UwbDevice.createForAddress(NEIGHBOR_1)
         val RANGING_PARAMETERS = RangingParameters(
-            RangingParameters.UWB_CONFIG_ID_1,
+            RangingParameters.CONFIG_UNICAST_DS_TWR,
             sessionId = 0,
             sessionKeyInfo = null,
             complexChannel = null,
