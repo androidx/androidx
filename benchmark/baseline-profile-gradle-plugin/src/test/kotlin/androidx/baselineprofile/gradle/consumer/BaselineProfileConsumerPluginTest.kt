@@ -16,19 +16,15 @@
 
 package androidx.baselineprofile.gradle.consumer
 
+import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILES
-import androidx.baselineprofile.gradle.utils.GRADLE_CODE_PRINT_TASK
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.camelCase
-import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
 import java.io.File
-import org.gradle.testkit.runner.GradleRunner
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -46,36 +42,13 @@ class BaselineProfileConsumerPluginTest {
         private const val ANDROID_TEST_PLUGIN = "com.android.test"
     }
 
-    private val rootFolder = TemporaryFolder().also { it.create() }
-
     @get:Rule
-    val consumerProjectSetup = ProjectSetupRule(rootFolder.root)
+    val projectSetupRule = BaselineProfileProjectSetupRule()
 
-    @get:Rule
-    val producerProjectSetup = ProjectSetupRule(rootFolder.root)
-
-    private lateinit var consumerModuleName: String
-    private lateinit var producerModuleName: String
-    private lateinit var gradleRunner: GradleRunner
-
-    @Before
-    fun setUp() {
-        consumerModuleName = consumerProjectSetup.rootDir.relativeTo(rootFolder.root).name
-        producerModuleName = producerProjectSetup.rootDir.relativeTo(rootFolder.root).name
-
-        rootFolder.newFile("settings.gradle").writeText(
-            """
-            include '$consumerModuleName'
-            include '$producerModuleName'
-        """.trimIndent()
-        )
-        gradleRunner = GradleRunner.create()
-            .withProjectDir(consumerProjectSetup.rootDir)
-            .withPluginClasspath()
-    }
+    private val gradleRunner by lazy { projectSetupRule.consumer.gradleRunner }
 
     private fun baselineProfileFile(variantName: String) = File(
-        consumerProjectSetup.rootDir,
+        projectSetupRule.consumer.rootDir,
         "src/$variantName/$EXPECTED_PROFILE_FOLDER/baseline-prof.txt"
     )
 
@@ -235,8 +208,6 @@ class BaselineProfileConsumerPluginTest {
                 enableR8BaselineProfileRewrite = false
             """.trimIndent(),
             additionalGradleCodeBlock = """
-                $GRADLE_CODE_PRINT_TASK
-
                 androidComponents {
                     onVariants(selector()) { variant ->
                         tasks.register(variant.name + "Print", PrintTask) { t ->
@@ -254,7 +225,7 @@ class BaselineProfileConsumerPluginTest {
                 // not exist so we need to create it.
                 val expected =
                     File(
-                        consumerProjectSetup.rootDir,
+                        projectSetupRule.consumer.rootDir,
                         "src/$it/$EXPECTED_PROFILE_FOLDER"
                     )
                         .apply {
@@ -301,8 +272,6 @@ class BaselineProfileConsumerPluginTest {
             flavors = true,
             buildTypeAnotherRelease = true,
             additionalGradleCodeBlock = """
-                $GRADLE_CODE_PRINT_TASK
-
                 androidComponents {
                     onVariants(selector()) { variant ->
                         println(variant.name)
@@ -389,11 +358,13 @@ class BaselineProfileConsumerPluginTest {
 
         // Asserts that assembling release triggers generation of profile
         gradleRunner.buildAndAssertThatOutput("assembleFreeRelease", "--dry-run") {
-            contains(":$consumerModuleName:mergeFreeReleaseBaselineProfile")
-            contains(":$consumerModuleName:copyFreeReleaseBaselineProfileIntoSrc")
-            contains(":$consumerModuleName:mergeFreeReleaseArtProfile")
-            contains(":$consumerModuleName:compileFreeReleaseArtProfile")
-            contains(":$consumerModuleName:assembleFreeRelease")
+            arrayOf(
+                "mergeFreeReleaseBaselineProfile",
+                "copyFreeReleaseBaselineProfileIntoSrc",
+                "mergeFreeReleaseArtProfile",
+                "compileFreeReleaseArtProfile",
+                "assembleFreeRelease"
+            ).forEach { contains(":${projectSetupRule.consumer.name}:$it") }
         }
 
         // Asserts that the profile is generated in the src folder
@@ -423,11 +394,15 @@ class BaselineProfileConsumerPluginTest {
 
         // Asserts that assembling release does not trigger generation of profile
         gradleRunner.buildAndAssertThatOutput("assembleFreeRelease", "--dry-run") {
-            doesNotContain(":$consumerModuleName:mergeFreeReleaseBaselineProfile")
-            doesNotContain(":$consumerModuleName:copyFreeReleaseBaselineProfileIntoSrc")
-            contains(":$consumerModuleName:mergeFreeReleaseArtProfile")
-            contains(":$consumerModuleName:compileFreeReleaseArtProfile")
-            contains(":$consumerModuleName:assembleFreeRelease")
+            arrayOf(
+                "mergeFreeReleaseBaselineProfile",
+                "copyFreeReleaseBaselineProfileIntoSrc"
+            ).forEach { doesNotContain(":${projectSetupRule.consumer.name}:$it") }
+            arrayOf(
+                "mergeFreeReleaseArtProfile",
+                "compileFreeReleaseArtProfile",
+                "assembleFreeRelease"
+            ).forEach { contains(":${projectSetupRule.consumer.name}:$it") }
         }
 
         // Asserts that the profile is generated in the src folder
@@ -457,10 +432,15 @@ class BaselineProfileConsumerPluginTest {
 
         // Asserts that assembling release triggers generation of profile
         gradleRunner.buildAndAssertThatOutput("assembleFreeRelease", "--dry-run") {
-            contains(":$consumerModuleName:mergeFreeReleaseBaselineProfile")
-            contains(":$consumerModuleName:mergeFreeReleaseArtProfile")
-            contains(":$consumerModuleName:compileFreeReleaseArtProfile")
-            contains(":$consumerModuleName:assembleFreeRelease")
+            arrayOf(
+                "mergeFreeReleaseBaselineProfile",
+                "mergeFreeReleaseArtProfile",
+                "compileFreeReleaseArtProfile",
+                "assembleFreeRelease"
+            ).forEach { contains(":${projectSetupRule.consumer.name}:$it") }
+            doesNotContain(
+                ":${projectSetupRule.consumer.name}:copyFreeReleaseBaselineProfileIntoSrc"
+            )
         }
 
         // Asserts that the profile is not generated in the src folder
@@ -698,10 +678,10 @@ class BaselineProfileConsumerPluginTest {
             baselineProfileBlock = """
                 variants {
                     free {
-                        from(project(":$producerModuleName"))
+                        from(project(":${projectSetupRule.producer.name}"))
                     }
                     paid {
-                        from(project(":$producerModuleName"))
+                        from(project(":${projectSetupRule.producer.name}"))
                     }
                 }
 
@@ -739,10 +719,10 @@ class BaselineProfileConsumerPluginTest {
             baselineProfileBlock = """
                 variants {
                     freeRelease {
-                        from(project(":$producerModuleName"))
+                        from(project(":${projectSetupRule.producer.name}"))
                     }
                     paidRelease {
-                        from(project(":$producerModuleName"), "freeRelease")
+                        from(project(":${projectSetupRule.producer.name}"), "freeRelease")
                     }
                 }
 
@@ -793,13 +773,13 @@ class BaselineProfileConsumerPluginTest {
 
         val dependencyOnProducerProjectBlock = """
             dependencies {
-                baselineProfile(project(":$producerModuleName"))
+                baselineProfile(project(":${projectSetupRule.producer.name}"))
             }
 
         """.trimIndent()
 
-        consumerProjectSetup.writeDefaultBuildGradle(
-            prefix = """
+        projectSetupRule.consumer.setBuildGradle(
+            """
                 plugins {
                     id("$androidPlugin")
                     id("androidx.baselineprofile.consumer")
@@ -819,8 +799,7 @@ class BaselineProfileConsumerPluginTest {
 
                 $additionalGradleCodeBlock
 
-            """.trimIndent(),
-            suffix = ""
+            """.trimIndent()
         )
     }
 
@@ -828,8 +807,8 @@ class BaselineProfileConsumerPluginTest {
         freeReleaseProfileLines: List<String>,
         paidReleaseProfileLines: List<String>,
     ) {
-        producerProjectSetup.writeDefaultBuildGradle(
-            prefix = MockProducerBuildGrade()
+        projectSetupRule.producer.setBuildGradle(
+            MockProducerBuildGrade()
                 .withProducedBaselineProfile(
                     lines = freeReleaseProfileLines,
                     flavorName = "free",
@@ -842,8 +821,7 @@ class BaselineProfileConsumerPluginTest {
                     buildType = "release",
                     productFlavors = mapOf("version" to "paid")
                 )
-                .build(),
-            suffix = ""
+                .build()
         )
     }
 
@@ -871,10 +849,7 @@ class BaselineProfileConsumerPluginTest {
                 productFlavors = mapOf()
             )
         }
-        producerProjectSetup.writeDefaultBuildGradle(
-            prefix = mock.build(),
-            suffix = ""
-        )
+        projectSetupRule.producer.setBuildGradle(mock.build())
     }
 }
 
