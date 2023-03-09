@@ -102,8 +102,7 @@ interface UseCaseCameraRequestControl {
      *
      *  This method will:
      *  (1) Stores [config], [tags] and [listeners] by [type] respectively. The new inputs above
-     *  will take place of the existing value of the [type]. If the [type] isn't set, it will
-     *  override the config which is stored as the [Type.DEFAULT].
+     *  will take place of the existing value of the [type].
      *  (2) Update the repeating request by merging all the [config], [tags] and [listeners] from
      *  all the defined types.
      *
