@@ -54,7 +54,12 @@
     <string name="date_range_picker_day_in_range" msgid="9048690781645835833">"Vahemikus"</string>
     <string name="date_range_input_title" msgid="2366412111888449406">"Sisestage kuupäevad"</string>
     <string name="date_range_input_invalid_range_input" msgid="1891592555781755601">"Sisestati sobimatu kuupäevavahemik"</string>
-    <!-- no translation found for bottom_sheet_drag_handle_description (7772321844937772780) -->
+    <string name="bottom_sheet_drag_handle_description" msgid="7772321844937772780">"Lohistamispide"</string>
+    <!-- no translation found for bottom_sheet_collapse_description (6128938260108474660) -->
+    <skip />
+    <!-- no translation found for bottom_sheet_dismiss_description (1918297411568599192) -->
+    <skip />
+    <!-- no translation found for bottom_sheet_expand_description (4324434199045499117) -->
     <skip />
     <string name="tooltip_pane_description" msgid="8191239805703103845">"Kohtspikker"</string>
     <string name="tooltip_long_press_label" msgid="2732804537909054941">"Kuva kohtspikker"</string>
