@@ -16,10 +16,8 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.appactions.interaction.capabilities.core.impl.concurrent.ListenableFutureHelper
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.guava.future
 /**
  * Base interface for Session of all verticals.
  */
@@ -45,9 +43,8 @@ interface BaseSession<ArgumentT, OutputT> {
      * @param argument the Argument instance containing data for fulfillment.
      * @return a ListenableFuture containing an ExecutionResult instance.
      */
-    @kotlin.OptIn(DelicateCoroutinesApi::class)
     fun onFinishAsync(argument: ArgumentT): ListenableFuture<ExecutionResult<OutputT>> {
-        return GlobalScope.future { onFinish(argument) }
+        return ListenableFutureHelper.convertToListenableFuture("onFinish") { onFinish(argument) }
     }
 
     /**

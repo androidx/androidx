@@ -29,7 +29,7 @@ dependencies {
 
     api(libs.autoValueAnnotations)
     implementation(libs.guavaListenableFuture)
-    implementation(libs.kotlinCoroutinesGuava)
+    implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinStdlib)
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
 
