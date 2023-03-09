@@ -18,6 +18,7 @@ package androidx.compose.material
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -117,67 +118,67 @@ class Typography internal constructor(
      */
     constructor(
         defaultFontFamily: FontFamily = FontFamily.Default,
-        h1: TextStyle = TextStyle(
+        h1: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Light,
             fontSize = 96.sp,
             letterSpacing = (-1.5).sp
         ),
-        h2: TextStyle = TextStyle(
+        h2: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Light,
             fontSize = 60.sp,
             letterSpacing = (-0.5).sp
         ),
-        h3: TextStyle = TextStyle(
+        h3: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 48.sp,
             letterSpacing = 0.sp
         ),
-        h4: TextStyle = TextStyle(
+        h4: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 34.sp,
             letterSpacing = 0.25.sp
         ),
-        h5: TextStyle = TextStyle(
+        h5: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 24.sp,
             letterSpacing = 0.sp
         ),
-        h6: TextStyle = TextStyle(
+        h6: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 20.sp,
             letterSpacing = 0.15.sp
         ),
-        subtitle1: TextStyle = TextStyle(
+        subtitle1: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 16.sp,
             letterSpacing = 0.15.sp
         ),
-        subtitle2: TextStyle = TextStyle(
+        subtitle2: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
             letterSpacing = 0.1.sp
         ),
-        body1: TextStyle = TextStyle(
+        body1: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 16.sp,
             letterSpacing = 0.5.sp
         ),
-        body2: TextStyle = TextStyle(
+        body2: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
             letterSpacing = 0.25.sp
         ),
-        button: TextStyle = TextStyle(
+        button: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
             letterSpacing = 1.25.sp
         ),
-        caption: TextStyle = TextStyle(
+        caption: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 12.sp,
             letterSpacing = 0.4.sp
         ),
-        overline: TextStyle = TextStyle(
+        overline: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 10.sp,
             letterSpacing = 1.5.sp
@@ -283,6 +284,15 @@ class Typography internal constructor(
 private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
     return if (fontFamily != null) this else copy(fontFamily = default)
 }
+
+internal val DefaultTextStyle = TextStyle.Default.copy(
+    platformStyle = defaultPlatformTextStyle()
+)
+
+/**
+ * Returns Default [PlatformTextStyle].
+ */
+internal expect fun defaultPlatformTextStyle(): PlatformTextStyle?
 
 /**
  * This CompositionLocal holds on to the current definition of typography for this application as
