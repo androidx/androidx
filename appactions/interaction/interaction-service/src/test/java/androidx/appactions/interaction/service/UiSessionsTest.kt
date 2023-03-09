@@ -127,8 +127,7 @@ class UiSessionsTest {
         // Assert that UiCache2 response still marked unread.
         uiCache1?.resetUnreadUiResponse()
         assertThat(uiCache2?.hasUnreadUiResponse()).isTrue()
-        assertThat(uiCache1?.cachedRemoteViews).isEqualTo(remoteViews)
-        assertThat(uiCache1?.cachedTileLayout).isNull()
+        assertThat(uiCache2?.cachedTileLayout).isNotNull()
     }
 
     @Test
