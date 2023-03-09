@@ -21,6 +21,9 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import javax.inject.Inject
+import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.ExcludedSupportedSizesQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraSupportedOutputSizeQuirk
 
 /**
  * Helper class to provide the StreamConfigurationMap output sizes related correction functions.
@@ -32,8 +35,13 @@ import javax.inject.Inject
 @CameraScope
 @RequiresApi(21)
 class OutputSizesCorrector @Inject constructor(
-    @Suppress("UNUSED_PARAMETER") private val cameraMetadata: CameraMetadata
+    private val cameraMetadata: CameraMetadata
 ) {
+    private val excludedSupportedSizesQuirk: ExcludedSupportedSizesQuirk? =
+        DeviceQuirks[ExcludedSupportedSizesQuirk::class.java]
+    private val extraSupportedOutputSizeQuirk: ExtraSupportedOutputSizeQuirk? =
+        DeviceQuirks[ExtraSupportedOutputSizeQuirk::class.java]
+
     /**
      * Applies the output sizes related quirks onto the input sizes array.
      */
@@ -57,10 +65,14 @@ class OutputSizesCorrector @Inject constructor(
      */
     private fun addExtraSupportedOutputSizesByFormat(
         sizes: Array<Size>?,
-        @Suppress("UNUSED_PARAMETER") format: Int
+        format: Int
     ): Array<Size>? {
-        // TODO(b/271337551): ExtraSupportedOutputSizeQuirk
-        return sizes
+        if (sizes == null || extraSupportedOutputSizeQuirk == null) {
+            return sizes
+        }
+        val extraSizes: Array<Size> =
+            extraSupportedOutputSizeQuirk.getExtraSupportedResolutions(format)
+        return concatNullableSizeLists(sizes.toList(), extraSizes.toList()).toTypedArray()
     }
 
     /**
@@ -68,10 +80,14 @@ class OutputSizesCorrector @Inject constructor(
      */
     private fun <T> addExtraSupportedOutputSizesByClass(
         sizes: Array<Size>?,
-        @Suppress("UNUSED_PARAMETER") klass: Class<T>
+        klass: Class<T>
     ): Array<Size>? {
-        // TODO(b/271337551): ExtraSupportedOutputSizeQuirk
-        return sizes
+        if (sizes == null || extraSupportedOutputSizeQuirk == null) {
+            return sizes
+        }
+        val extraSizes: Array<Size> =
+            extraSupportedOutputSizeQuirk.getExtraSupportedResolutions(klass)
+        return concatNullableSizeLists(sizes.toList(), extraSizes.toList()).toTypedArray()
     }
 
     /**
@@ -80,10 +96,17 @@ class OutputSizesCorrector @Inject constructor(
      */
     private fun excludeProblematicOutputSizesByFormat(
         sizes: Array<Size>?,
-        @Suppress("UNUSED_PARAMETER") format: Int
+        format: Int
     ): Array<Size>? {
-        // TODO(b/244477758): ExcludedSupportedSizeQuirk
-        return sizes
+        if (sizes == null || excludedSupportedSizesQuirk == null) {
+            return sizes
+        }
+        val excludedSizes: List<Size> =
+            excludedSupportedSizesQuirk.getExcludedSizes(cameraMetadata.camera.value, format)
+
+        val resultList: MutableList<Size> = sizes.toMutableList()
+        resultList.removeAll(excludedSizes)
+        return resultList.toTypedArray()
     }
 
     /**
@@ -92,10 +115,17 @@ class OutputSizesCorrector @Inject constructor(
      */
     private fun <T> excludeProblematicOutputSizesByClass(
         sizes: Array<Size>?,
-        @Suppress("UNUSED_PARAMETER") klass: Class<T>
+        klass: Class<T>
     ): Array<Size>? {
-        // TODO(b/244477758): ExcludedSupportedSizeQuirk
-        return sizes
+        if (sizes == null || excludedSupportedSizesQuirk == null) {
+            return sizes
+        }
+        val excludedSizes: List<Size> =
+            excludedSupportedSizesQuirk.getExcludedSizes(cameraMetadata.camera.value, klass)
+
+        val resultList: MutableList<Size> = sizes.toMutableList()
+        resultList.removeAll(excludedSizes)
+        return resultList.toTypedArray()
     }
 
     /**
@@ -104,5 +134,14 @@ class OutputSizesCorrector @Inject constructor(
     private fun excludeOutputSizesByTargetAspectRatioWorkaround(sizes: Array<Size>?): Array<Size>? {
         // TODO(b/245622117): Nexus4AndroidLTargetAspectRatioQuirk and AspectRatioLegacyApi21Quirk
         return sizes
+    }
+
+    private fun concatNullableSizeLists(
+        sizeList1: List<Size>,
+        sizeList2: List<Size>
+    ): List<Size> {
+        val resultList: MutableList<Size> = ArrayList(sizeList1)
+        resultList.addAll(sizeList2)
+        return resultList
     }
 }
