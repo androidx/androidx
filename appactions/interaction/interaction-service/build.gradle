@@ -47,16 +47,22 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.jsr250)
 
+    testImplementation(project(":appactions:interaction:interaction-capabilities-core"))
     testImplementation(project(":appactions:interaction:interaction-service-proto"))
-    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.grpcTesting)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.protobufLite)
     testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
-    testImplementation(libs.protobufLite)
+    testImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 }
 
 android {
