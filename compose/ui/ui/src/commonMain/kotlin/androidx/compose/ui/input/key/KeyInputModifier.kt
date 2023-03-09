@@ -17,6 +17,8 @@
 package androidx.compose.ui.input.key
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 
 /**
  * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
@@ -30,7 +32,7 @@ import androidx.compose.ui.Modifier
  */
 fun Modifier.onKeyEvent(
     onKeyEvent: (KeyEvent) -> Boolean
-): Modifier = this then OnKeyEventElement(onKeyEvent)
+): Modifier = this then KeyInputElement(onKeyEvent = onKeyEvent, onPreKeyEvent = null)
 
 /**
  * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
@@ -46,4 +48,35 @@ fun Modifier.onKeyEvent(
  */
 fun Modifier.onPreviewKeyEvent(
     onPreviewKeyEvent: (KeyEvent) -> Boolean
-): Modifier = this then OnPreviewKeyEvent(onPreviewKeyEvent)
+): Modifier = this then KeyInputElement(onKeyEvent = null, onPreKeyEvent = onPreviewKeyEvent)
+
+private data class KeyInputElement(
+    val onKeyEvent: ((KeyEvent) -> Boolean)?,
+    val onPreKeyEvent: ((KeyEvent) -> Boolean)?
+) : ModifierNodeElement<KeyInputModifierNodeImpl>() {
+    override fun create() = KeyInputModifierNodeImpl(onKeyEvent, onPreKeyEvent)
+
+    override fun update(node: KeyInputModifierNodeImpl) = node.apply {
+        onEvent = onKeyEvent
+        onPreEvent = onPreKeyEvent
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        onKeyEvent?.let {
+            name = "onKeyEvent"
+            properties["onKeyEvent"] = it
+        }
+        onPreKeyEvent?.let {
+            name = "onPreviewKeyEvent"
+            properties["onPreviewKeyEvent"] = it
+        }
+    }
+}
+
+private class KeyInputModifierNodeImpl(
+    var onEvent: ((KeyEvent) -> Boolean)?,
+    var onPreEvent: ((KeyEvent) -> Boolean)?
+) : KeyInputModifierNode, Modifier.Node() {
+    override fun onKeyEvent(event: KeyEvent): Boolean = this.onEvent?.invoke(event) ?: false
+    override fun onPreKeyEvent(event: KeyEvent): Boolean = this.onPreEvent?.invoke(event) ?: false
+}

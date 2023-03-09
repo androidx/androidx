@@ -192,14 +192,25 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
             onPreVisit = { if (it.onPreKeyEvent(keyEvent)) return true },
             onVisit = { if (it.onKeyEvent(keyEvent)) return true }
         )
+        return false
+    }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    override fun dispatchInterceptedSoftKeyboardEvent(keyEvent: KeyEvent): Boolean {
+        val focusedSoftKeyboardInterceptionNode = rootFocusNode.findActiveFocusNode()
+            ?.nearestAncestor(Nodes.SoftKeyboardKeyInput)
+
+        focusedSoftKeyboardInterceptionNode?.traverseAncestors(
+            type = Nodes.SoftKeyboardKeyInput,
+            onPreVisit = { if (it.onPreInterceptKeyBeforeSoftKeyboard(keyEvent)) return true },
+            onVisit = { if (it.onInterceptKeyBeforeSoftKeyboard(keyEvent)) return true }
+        )
         return false
     }
 
     /**
      * Dispatches a rotary scroll event through the compose hierarchy.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun dispatchRotaryEvent(event: RotaryScrollEvent): Boolean {
         val focusedRotaryInputNode = rootFocusNode.findActiveFocusNode()
             ?.nearestAncestor(Nodes.RotaryInput)

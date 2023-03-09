@@ -1573,6 +1573,16 @@ package androidx.compose.ui.input.key {
     method public static int getNativeKeyCode(long);
   }
 
+  @androidx.compose.ui.ExperimentalComposeUiApi public interface SoftKeyboardInterceptionModifierNode extends androidx.compose.ui.node.DelegatableNode {
+    method public boolean onInterceptKeyBeforeSoftKeyboard(android.view.KeyEvent event);
+    method public boolean onPreInterceptKeyBeforeSoftKeyboard(android.view.KeyEvent event);
+  }
+
+  public final class SoftwareKeyboardInterceptionModifierKt {
+    method @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier onInterceptKeyBeforeSoftKeyboard(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.input.key.KeyEvent,java.lang.Boolean> onInterceptKeyBeforeSoftKeyboard);
+    method @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier onPreInterceptKeyBeforeSoftKeyboard(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.input.key.KeyEvent,java.lang.Boolean> onPreInterceptKeyBeforeSoftKeyboard);
+  }
+
 }
 
 package androidx.compose.ui.input.nestedscroll {
@@ -1910,7 +1920,7 @@ package androidx.compose.ui.input.rotary {
     method public static androidx.compose.ui.Modifier onRotaryScrollEvent(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.input.rotary.RotaryScrollEvent,java.lang.Boolean> onRotaryScrollEvent);
   }
 
-  @androidx.compose.ui.ExperimentalComposeUiApi public interface RotaryInputModifierNode extends androidx.compose.ui.node.DelegatableNode {
+  public interface RotaryInputModifierNode extends androidx.compose.ui.node.DelegatableNode {
     method public boolean onPreRotaryScrollEvent(androidx.compose.ui.input.rotary.RotaryScrollEvent event);
     method public boolean onRotaryScrollEvent(androidx.compose.ui.input.rotary.RotaryScrollEvent event);
   }

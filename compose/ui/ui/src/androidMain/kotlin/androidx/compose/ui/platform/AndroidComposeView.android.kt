@@ -624,22 +624,42 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
-    override fun sendKeyEvent(keyEvent: KeyEvent): Boolean {
-        return focusOwner.dispatchKeyEvent(keyEvent)
-    }
+    /**
+     * This function is used by the testing framework to send key events.
+     */
+    override fun sendKeyEvent(keyEvent: KeyEvent): Boolean =
+        // First dispatch the key event to mimic the event being intercepted before it is sent to
+        // the soft keyboard.
+        focusOwner.dispatchInterceptedSoftKeyboardEvent(keyEvent) ||
+            // Next, send the key event to the Soft Keyboard.
+            // TODO(b/272600716): Send the key event to the IME.
 
-    override fun dispatchKeyEvent(event: AndroidKeyEvent) =
+            // Finally, dispatch the key event to onPreKeyEvent/onKeyEvent listeners.
+            focusOwner.dispatchKeyEvent(keyEvent)
+
+    override fun dispatchKeyEvent(event: AndroidKeyEvent): Boolean {
         if (isFocused) {
             // Focus lies within the Compose hierarchy, so we dispatch the key event to the
             // appropriate place.
             _windowInfo.keyboardModifiers = PointerKeyboardModifiers(event.metaState)
-            sendKeyEvent(KeyEvent(event))
+            // If the event is not consumed, use the default implementation.
+            return focusOwner.dispatchKeyEvent(KeyEvent(event)) || super.dispatchKeyEvent(event)
         } else {
-            // This Owner has a focused child view, which is a view interop use case,
+            // This Owner has a focused child view, which is a view interoperability use case,
             // so we use the default ViewGroup behavior which will route tke key event to the
             // focused view.
-            super.dispatchKeyEvent(event)
+            return super.dispatchKeyEvent(event)
         }
+    }
+
+    override fun dispatchKeyEventPreIme(event: AndroidKeyEvent): Boolean {
+        return (isFocused && focusOwner.dispatchInterceptedSoftKeyboardEvent(KeyEvent(event))) ||
+            // If this view is not focused, and it received a key event, it means this is a view
+            // interoperability use case and we need to route the event to the embedded child view.
+            // Also, if this event wasn't consumed by the compose hierarchy, we need to send it back
+            // to the parent view. Both these cases are handles by the default view implementation.
+            super.dispatchKeyEventPreIme(event)
+    }
 
     override fun onAttach(node: LayoutNode) {
     }
@@ -1378,9 +1398,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         eventTime: Long,
         forceHover: Boolean = true
     ) {
-        val oldAction = motionEvent.actionMasked
         // don't send any events for pointers that are "up" unless they support hover
-        val upIndex = when (oldAction) {
+        val upIndex = when (motionEvent.actionMasked) {
             ACTION_UP -> if (action == ACTION_HOVER_ENTER || action == ACTION_HOVER_EXIT) -1 else 0
             ACTION_POINTER_UP -> motionEvent.actionIndex
             else -> -1
