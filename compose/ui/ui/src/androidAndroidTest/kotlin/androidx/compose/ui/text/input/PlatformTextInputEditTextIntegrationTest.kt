@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.performImeAction
+import androidx.compose.ui.semantics.requestFocus
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
@@ -167,6 +168,10 @@ class PlatformTextInputEditTextIntegrationTest {
         AndroidView(
             modifier = modifier.semantics {
                 // Required for the semantics actions to recognize this node as a text editor.
+                requestFocus {
+                    adapter.editText?.requestFocus()
+                    return@requestFocus false
+                }
                 setText { text ->
                     adapter.editText?.also {
                         it.setText(text.text)

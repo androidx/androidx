@@ -392,6 +392,13 @@ fun hasSetTextAction() =
 fun hasPerformImeAction() = hasKey(SemanticsActions.PerformImeAction)
 
 /**
+ * Returns whether the node defines a semantics action to request focus.
+ *
+ * @see SemanticsActions.RequestFocus
+ */
+fun hasRequestFocusAction() = hasKey(SemanticsActions.RequestFocus)
+
+/**
  * Returns whether the node defines the ability to scroll to an item index.
  *
  * Note that not all scrollable containers have item indices. For example, a

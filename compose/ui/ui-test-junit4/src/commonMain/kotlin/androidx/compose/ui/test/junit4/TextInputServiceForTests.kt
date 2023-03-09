@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package androidx.compose.ui.test.junit4
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.EditCommand
+import androidx.compose.ui.text.input.FinishComposingTextCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.PlatformTextInputService
@@ -72,7 +73,9 @@ internal class TextInputServiceForTests(
     }
 
     override fun inputTextForTest(text: String) {
-        performEditCommand(listOf(CommitTextCommand(text, 1)))
+        // Finish composing text first because when the field is focused the IME might set
+        // composition.
+        performEditCommand(listOf(FinishComposingTextCommand(), CommitTextCommand(text, 1)))
     }
 
     private fun performEditCommand(commands: List<EditCommand>) {

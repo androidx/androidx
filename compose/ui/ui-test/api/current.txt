@@ -81,6 +81,7 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsMatcher hasParent(androidx.compose.ui.test.SemanticsMatcher matcher);
     method public static androidx.compose.ui.test.SemanticsMatcher hasPerformImeAction();
     method public static androidx.compose.ui.test.SemanticsMatcher hasProgressBarRangeInfo(androidx.compose.ui.semantics.ProgressBarRangeInfo rangeInfo);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasRequestFocusAction();
     method public static androidx.compose.ui.test.SemanticsMatcher hasScrollAction();
     method public static androidx.compose.ui.test.SemanticsMatcher hasScrollToIndexAction();
     method public static androidx.compose.ui.test.SemanticsMatcher hasScrollToKeyAction();
