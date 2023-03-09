@@ -16,13 +16,10 @@
 
 package androidx.appactions.interaction.capabilities.core.task
 
-import androidx.appactions.interaction.capabilities.core.impl.concurrent.ListenableFutureHelper
-
+import androidx.appactions.interaction.capabilities.core.impl.concurrent.convertToListenableFuture
 import com.google.common.util.concurrent.ListenableFuture
 
-/**
- * Provides a mechanism for the app to listen to argument updates from Assistant.
- */
+/** Provides a mechanism for the app to listen to argument updates from Assistant. */
 interface ValueListener<T> {
     /**
      * Invoked when Assistant reports that an argument value has changed. This method should be
@@ -30,10 +27,9 @@ interface ValueListener<T> {
      * initial value change.
      *
      * <p>This method should:
-     *
      * <ul>
-     *   <li>1. validate the given argument value(s).
-     *   <li>2. If the given values are valid, update app UI state if applicable.
+     * <li>1. validate the given argument value(s).
+     * <li>2. If the given values are valid, update app UI state if applicable.
      * </ul>
      *
      * <p>Returns the ValidationResult.
@@ -48,16 +44,13 @@ interface ValueListener<T> {
      * initial value change.
      *
      * <p>This method should:
-     *
      * <ul>
-     *   <li>1. validate the given argument value(s).
-     *   <li>2. If the given values are valid, update app UI state if applicable.
+     * <li>1. validate the given argument value(s).
+     * <li>2. If the given values are valid, update app UI state if applicable.
      * </ul>
      *
      * <p>Returns a ListenableFuture containing the ValidationResult.
      */
     fun onReceivedAsync(value: T): ListenableFuture<ValidationResult> =
-        ListenableFutureHelper.convertToListenableFuture("ValueListener#onReceived") {
-            onReceived(value)
-        }
+        convertToListenableFuture("ValueListener#onReceived") { onReceived(value) }
 }
