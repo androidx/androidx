@@ -24,6 +24,43 @@ package androidx.tv.material3 {
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.IndicationInstance rememberUpdatedInstance(androidx.compose.foundation.interaction.InteractionSource interactionSource);
   }
 
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonBorder {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonColors {
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method public androidx.compose.foundation.layout.PaddingValues getButtonWithIconContentPadding();
+    method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method public float getIconSize();
+    method public float getIconSpacing();
+    method public androidx.tv.material3.ButtonGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ButtonScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method public androidx.tv.material3.ButtonShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    property public final androidx.compose.foundation.layout.PaddingValues ButtonWithIconContentPadding;
+    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public final float IconSize;
+    property public final float IconSpacing;
+    field public static final androidx.tv.material3.ButtonDefaults INSTANCE;
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonGlow {
+  }
+
+  public final class ButtonKt {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.ButtonScale scale, optional androidx.tv.material3.ButtonGlow glow, optional androidx.tv.material3.ButtonShape shape, optional androidx.tv.material3.ButtonColors colors, optional float tonalElevation, optional androidx.tv.material3.ButtonBorder border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void OutlinedButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.tv.material3.ButtonScale scale, optional androidx.tv.material3.ButtonGlow glow, optional androidx.tv.material3.ButtonShape shape, optional androidx.tv.material3.ButtonColors colors, optional float tonalElevation, optional androidx.tv.material3.ButtonBorder border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonScale {
+  }
+
+  @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ButtonShape {
+  }
+
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CardBorder {
   }
 
@@ -286,6 +323,23 @@ package androidx.tv.material3 {
     method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void ModalNavigationDrawer(kotlin.jvm.functions.Function1<? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, optional long scrimColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void NavigationDrawer(kotlin.jvm.functions.Function1<? super androidx.tv.material3.DrawerValue,kotlin.Unit> drawerContent, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.DrawerState drawerState, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static androidx.tv.material3.DrawerState rememberDrawerState(androidx.tv.material3.DrawerValue initialValue);
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class OutlinedButtonDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ButtonColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method public androidx.compose.foundation.layout.PaddingValues getButtonWithIconContentPadding();
+    method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method public float getIconSize();
+    method public float getIconSpacing();
+    method public androidx.tv.material3.ButtonGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
+    method public androidx.tv.material3.ButtonScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale, optional @FloatRange(from=0.0) float disabledScale, optional @FloatRange(from=0.0) float focusedDisabledScale);
+    method public androidx.tv.material3.ButtonShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape);
+    property public final androidx.compose.foundation.layout.PaddingValues ButtonWithIconContentPadding;
+    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public final float IconSize;
+    property public final float IconSpacing;
+    field public static final androidx.tv.material3.OutlinedButtonDefaults INSTANCE;
   }
 
   @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ScaleIndication implements androidx.compose.foundation.Indication {
