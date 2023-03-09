@@ -30,8 +30,8 @@ import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskU
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.proto.ParamValue
-import com.google.protobuf.Struct
-import com.google.protobuf.Value
+import androidx.appactions.interaction.protobuf.Struct
+import androidx.appactions.interaction.protobuf.Value
 import java.time.Duration
 import java.util.Optional
 
