@@ -27,10 +27,8 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.TextFieldState
-import androidx.compose.foundation.text2.input.CommitTextCommand
 import androidx.compose.foundation.text2.input.EditCommand
 import androidx.compose.foundation.text2.input.EditProcessor
-import androidx.compose.foundation.text2.input.FinishComposingTextCommand
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -39,7 +37,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PlatformTextInput
 import androidx.compose.ui.text.input.PlatformTextInputAdapter
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TextInputForTests
 import androidx.core.view.inputmethod.EditorInfoCompat
 import java.util.concurrent.Executor
 
@@ -56,19 +53,6 @@ internal class AndroidTextInputAdapter constructor(
     private val inputMethodManager = ComposeInputMethodManager(view)
 
     private val textInputCommandExecutor = TextInputCommandExecutor(view, inputMethodManager)
-
-    override val inputForTests: TextInputForTests = object : TextInputForTests {
-        private fun requireSession(): EditableTextInputSession =
-            currentTextInputSession ?: error("There is no active input session. Missing a focus?")
-
-        override fun inputTextForTest(text: String) {
-            requireSession().requestEdits(
-                // Finish composing text first because when the field is focused the IME might set
-                // composition.
-                listOf(FinishComposingTextCommand, CommitTextCommand(text, 1))
-            )
-        }
-    }
 
     override fun createInputConnection(outAttrs: EditorInfo): InputConnection {
         logDebug { "createInputConnection" }

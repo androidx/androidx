@@ -273,6 +273,11 @@ object SemanticsActions {
     val SetText = ActionPropertyKey<(AnnotatedString) -> Boolean>("SetText")
 
     /**
+     * @see SemanticsPropertyReceiver.insertTextAtCursor
+     */
+    val InsertTextAtCursor = ActionPropertyKey<(AnnotatedString) -> Boolean>("InsertTextAtCursor")
+
+    /**
      * @see SemanticsPropertyReceiver.performImeAction
      */
     val PerformImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
@@ -1036,6 +1041,22 @@ fun SemanticsPropertyReceiver.setText(
     action: ((AnnotatedString) -> Boolean)?
 ) {
     this[SemanticsActions.SetText] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to insert text into this node at the current cursor position, or replacing the selection
+ * if text is selected.
+ *
+ * Expected to be used on editable text fields.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.InsertTextAtCursor] is called.
+ */
+fun SemanticsPropertyReceiver.insertTextAtCursor(
+    label: String? = null,
+    action: ((AnnotatedString) -> Boolean)?
+) {
+    this[SemanticsActions.InsertTextAtCursor] = AccessibilityAction(label, action)
 }
 
 /**

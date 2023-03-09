@@ -317,8 +317,6 @@ class PlatformTextInputAdapterRegistryTest {
         var isDisposed: Boolean = false
             private set
 
-        override val inputForTests: TextInputForTests = NoopInputForTests
-
         override fun createInputConnection(outAttrs: EditorInfo): InputConnection? {
             // Not testing android stuff in this test.
             TODO("Not implemented for test")
@@ -328,9 +326,5 @@ class PlatformTextInputAdapterRegistryTest {
             check(!isDisposed) { "TestAdapter already disposed" }
             isDisposed = true
         }
-    }
-
-    private object NoopInputForTests : TextInputForTests {
-        override fun inputTextForTest(text: String) = TODO("Not implemented for test")
     }
 }

@@ -82,11 +82,12 @@ import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.imeAction
-import androidx.compose.ui.semantics.performImeAction
+import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.pasteText
+import androidx.compose.ui.semantics.performImeAction
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
@@ -99,6 +100,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteAllCommand
 import androidx.compose.ui.text.input.EditProcessor
+import androidx.compose.ui.text.input.FinishComposingTextCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.OffsetMapping
@@ -435,6 +437,28 @@ internal fun CoreTextField(
                 )
             } ?: run {
                 state.onValueChange(TextFieldValue(text.text, TextRange(text.text.length)))
+            }
+            true
+        }
+        insertTextAtCursor { text ->
+            // If the action is performed while in an active text editing session, treat this like
+            // an IME command and update the text by going through the buffer. This keeps the buffer
+            // state consistent if other IME commands are performed before the next recomposition,
+            // and is used for the testing code path.
+            state.inputSession?.let { session ->
+                TextFieldDelegate.onEditCommand(
+                    // Finish composing text first because when the field is focused the IME might
+                    // set composition.
+                    ops = listOf(FinishComposingTextCommand(), CommitTextCommand(text, 1)),
+                    editProcessor = state.processor,
+                    state.onValueChange,
+                    session
+                )
+            } ?: run {
+                val newText =
+                    value.text.replaceRange(value.selection.start, value.selection.end, text)
+                val newCursor = TextRange(value.selection.start + text.length)
+                state.onValueChange(TextFieldValue(newText, newCursor))
             }
             true
         }

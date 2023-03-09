@@ -32,6 +32,7 @@ import androidx.compose.foundation.text.selection.SimpleLayout
 import androidx.compose.foundation.text.textFieldMinSize
 import androidx.compose.foundation.text2.input.CommitTextCommand
 import androidx.compose.foundation.text2.input.DeleteAllCommand
+import androidx.compose.foundation.text2.input.FinishComposingTextCommand
 import androidx.compose.foundation.text2.service.AndroidTextInputPlugin
 import androidx.compose.foundation.text2.service.TextInputSession
 import androidx.compose.runtime.Composable
@@ -58,6 +59,7 @@ import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.imeAction
+import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setText
@@ -180,6 +182,17 @@ fun BasicTextField2(
             state.editProcessor.update(
                 listOf(
                     DeleteAllCommand,
+                    CommitTextCommand(text, 1)
+                )
+            )
+            true
+        }
+        insertTextAtCursor { text ->
+            state.editProcessor.update(
+                listOf(
+                    // Finish composing text first because when the field is focused the IME
+                    // might set composition.
+                    FinishComposingTextCommand,
                     CommitTextCommand(text, 1)
                 )
             )

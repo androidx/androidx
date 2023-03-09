@@ -25,7 +25,6 @@ import androidx.compose.ui.semantics.performImeAction
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextInputForTests
 
 /**
  * Clears the text in this node in similar way to IME.
@@ -40,7 +39,10 @@ fun SemanticsNodeInteraction.performTextClearance() {
  * @param text Text to send.
  */
 fun SemanticsNodeInteraction.performTextInput(text: String) {
-    performTextInput { inputTextForTest(text) }
+    getNodeAndFocus()
+    performSemanticsAction(SemanticsActions.InsertTextAtCursor) {
+        it(AnnotatedString(text))
+    }
 }
 
 /**
@@ -100,21 +102,13 @@ fun SemanticsNodeInteraction.performImeAction() {
     }
 }
 
-internal fun SemanticsNodeInteraction.performTextInput(action: TextInputForTests.() -> Unit) {
-    val node = getNodeAndFocus()
-
-    wrapAssertionErrorsWithNodeInfo(selector, node) {
-        @OptIn(InternalTestApi::class)
-        testContext.testOwner.performTextInput(node, action)
-    }
-}
-
 private fun SemanticsNodeInteraction.getNodeAndFocus(
     errorOnFail: String = "Failed to perform text input."
 ): SemanticsNode {
     val node = fetchSemanticsNode(errorOnFail)
     assert(hasSetTextAction()) { errorOnFail }
     assert(hasRequestFocusAction()) { errorOnFail }
+    assert(hasInsertTextAtCursorAction()) { errorOnFail }
 
     if (!isFocused().matches(node)) {
         // Get focus
