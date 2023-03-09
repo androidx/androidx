@@ -547,9 +547,9 @@ class PathParser {
             // used for floating point numbers' scientific notation.
             // Therefore, when searching for next command, we should ignore 'e'
             // and 'E'.
-            if (((c - 'A') * (c - 'Z') <= 0 || (c - 'a') * (c - 'z') <= 0) &&
-                c != 'e' && c != 'E'
-            ) {
+            // Set the high bit to do a case insensitive char comparison
+            val lowerChar = c.code or 0x20
+            if ((lowerChar - 'a'.code) * (lowerChar - 'z'.code) <= 0 && lowerChar != 'e'.code) {
                 return index
             }
             index++
@@ -558,7 +558,8 @@ class PathParser {
     }
 
     private fun getFloats(s: String, start: Int, end: Int): Int {
-        if (s[start] == 'z' || s[start] == 'Z') {
+        // Set the high bit to check if the letter is 'z' or 'Z' in one go
+        if ((s[start].code or 0x20) == 'z'.code) {
             return 0
         }
 
@@ -603,8 +604,8 @@ class PathParser {
                 '-' ->
                     // The negative sign following a 'e' or 'E' is not a separator.
                     if (currentIndex != start &&
-                        s[currentIndex - 1] != 'e' &&
-                        s[currentIndex - 1] != 'E'
+                        // Set the high bit to check if the letter is 'e' or 'E' in one go
+                        (s[currentIndex - 1].code or 0x20) != 'e'.code
                     ) {
                         resultIndexAdvance = 0
                         return currentIndex
