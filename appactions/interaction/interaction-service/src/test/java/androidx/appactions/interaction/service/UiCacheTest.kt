@@ -57,7 +57,7 @@ class UiCacheTest {
 
     @Test
     fun unreadUiResponseFlag_lifecycle() {
-        val uiCache = UiCache(capabilitySession)
+        val uiCache = UiCache()
         assertThat(uiCache.hasUnreadUiResponse()).isFalse()
 
         // Test set unread flag.
@@ -72,7 +72,7 @@ class UiCacheTest {
 
     @Test
     fun remoteViewsUiResponse_noFactoryNoChangedViews() {
-        val uiCache = UiCache(capabilitySession)
+        val uiCache = UiCache()
         assertEmptyCache(uiCache)
 
         uiCache.updateUiInternal(remoteViewsUiResponse)
@@ -85,7 +85,7 @@ class UiCacheTest {
 
     @Test
     fun remoteViewsUiResponse_withFactory() {
-        val uiCache = UiCache(capabilitySession)
+        val uiCache = UiCache()
         assertEmptyCache(uiCache)
 
         uiCache.updateUiInternal(remoteViewsUiResponseWithFactory)
@@ -97,7 +97,7 @@ class UiCacheTest {
 
     @Test
     fun remoteViewsUiResponse_withChangeView() {
-        val uiCache = UiCache(capabilitySession)
+        val uiCache = UiCache()
         assertEmptyCache(uiCache)
 
         uiCache.updateUiInternal(remoteViewsUiResponseWithChangeId)

@@ -18,6 +18,7 @@ package androidx.appactions.interaction.service
 
 import androidx.annotation.GuardedBy
 import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
+import java.util.IdentityHashMap
 import javax.annotation.concurrent.ThreadSafe
 
 /** Global object for managing capability sessions. */
@@ -29,8 +30,20 @@ internal object SessionManager {
     @GuardedBy("lock")
     private val sessions = mutableMapOf<String, ActionCapabilitySession>()
 
+    /**
+     * stores a map of uiHandle reference to sessionId, in order to get/set UiCache entries with
+     * sessionId key.
+     *
+     * if sessionId is the key, we can release the lock as soon as the ActionExecutor finishes.
+     */
+    @GuardedBy("lock")
+    private val uiHandleToSessionId = IdentityHashMap<Any, String>()
+
     fun putSession(sessionId: String, session: ActionCapabilitySession) {
-        synchronized(lock) { sessions[sessionId] = session }
+        synchronized(lock) {
+            sessions[sessionId] = session
+            uiHandleToSessionId[session.uiHandle] = sessionId
+        }
     }
 
     fun getSession(sessionId: String): ActionCapabilitySession? {
@@ -39,7 +52,17 @@ internal object SessionManager {
         }
     }
 
+    fun getLatestSessionIdFromUiHandle(uiHandle: Any): String? {
+        synchronized(lock) {
+            return uiHandleToSessionId[uiHandle]
+        }
+    }
+
     fun removeSession(sessionId: String) {
-        synchronized(lock) { sessions.remove(sessionId) }
+        synchronized(lock) {
+            val session = sessions[sessionId]
+            session?.let { uiHandleToSessionId.remove(it.uiHandle) }
+            sessions.remove(sessionId)
+        }
     }
 }

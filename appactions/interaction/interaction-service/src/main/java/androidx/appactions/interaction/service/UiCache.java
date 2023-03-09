@@ -46,7 +46,6 @@ final class UiCache {
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final Map<Integer, RemoteViewsFactory> mCachedRemoteViewsFactories = new HashMap<>();
-    private final Object mUiHandle;
 
     @GuardedBy("mLock")
     @Nullable
@@ -65,10 +64,6 @@ final class UiCache {
     @GuardedBy("mLock")
     private boolean mUnreadUiResponse;
 
-    UiCache(Object uiHandle) {
-        this.mUiHandle = uiHandle;
-    }
-
     /**
      * Caches a UiResponse for this particular {@link BaseSession}.
      */
@@ -82,11 +77,6 @@ final class UiCache {
                 mCachedTileLayout = uiResponse.getTileLayoutInternal();
             }
         }
-    }
-
-    @NonNull
-    Object getUiHandle() {
-        return mUiHandle;
     }
 
     @Nullable
