@@ -32,10 +32,11 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
+import kotlin.random.Random;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * A registry that stores {@link ActivityResultCallback activity result callbacks} for
@@ -57,14 +58,11 @@ public abstract class ActivityResultRegistry {
             "KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS";
     private static final String KEY_COMPONENT_ACTIVITY_PENDING_RESULTS =
             "KEY_COMPONENT_ACTIVITY_PENDING_RESULT";
-    private static final String KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT =
-            "KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT";
 
     private static final String LOG_TAG = "ActivityResultRegistry";
 
     // Use upper 16 bits for request codes
     private static final int INITIAL_REQUEST_CODE_VALUE = 0x00010000;
-    private Random mRandom = new Random();
 
     private final Map<Integer, String> mRcToKey = new HashMap<>();
     final Map<String, Integer> mKeyToRc = new HashMap<>();
@@ -311,7 +309,6 @@ public abstract class ActivityResultRegistry {
                 new ArrayList<>(mLaunchedKeys));
         outState.putBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS,
                 (Bundle) mPendingResults.clone());
-        outState.putSerializable(KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT, mRandom);
     }
 
     /**
@@ -333,7 +330,6 @@ public abstract class ActivityResultRegistry {
         }
         mLaunchedKeys =
                 savedInstanceState.getStringArrayList(KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS);
-        mRandom = (Random) savedInstanceState.getSerializable(KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT);
         mPendingResults.putAll(
                 savedInstanceState.getBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS));
         for (int i = 0; i < keys.size(); i++) {
@@ -442,10 +438,10 @@ public abstract class ActivityResultRegistry {
      * @return the number
      */
     private int generateRandomNumber() {
-        int number = mRandom.nextInt((Integer.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE) + 1)
+        int number = Random.Default.nextInt((Integer.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE) + 1)
                 + INITIAL_REQUEST_CODE_VALUE;
         while (mRcToKey.containsKey(number)) {
-            number = mRandom.nextInt((Integer.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE) + 1)
+            number = Random.Default.nextInt((Integer.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE) + 1)
                     + INITIAL_REQUEST_CODE_VALUE;
         }
         return number;
