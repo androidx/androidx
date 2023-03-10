@@ -32,13 +32,16 @@ abstract class BaselineProfileConsumerExtension @Inject constructor(
     companion object {
         private const val EXTENSION_NAME = "baselineProfile"
 
-        internal fun registerExtension(project: Project): BaselineProfileConsumerExtension {
-            val ext = project.extensions.findByType(BaselineProfileConsumerExtension::class.java)
+        internal fun register(project: Project): BaselineProfileConsumerExtension {
+            val ext = project
+                .extensions
+                .findByType(BaselineProfileConsumerExtension::class.java)
             if (ext != null) {
                 return ext
             }
             return project
-                .extensions.create(EXTENSION_NAME, BaselineProfileConsumerExtension::class.java)
+                .extensions
+                .create(EXTENSION_NAME, BaselineProfileConsumerExtension::class.java)
         }
     }
 
@@ -166,6 +169,11 @@ abstract class BaselineProfileVariantConfigurationImpl(val name: String) :
     }
 }
 
+/**
+ * Defines the configuration properties that each variant of a consumer module offers. Note that
+ * also [BaselineProfileConsumerExtension] is an implementation of this interface and it's simply
+ * a proxy to the `main` variant.
+ */
 interface BaselineProfileVariantConfiguration {
 
     /**
