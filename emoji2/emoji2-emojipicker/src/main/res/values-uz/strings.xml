@@ -24,9 +24,9 @@
     <string name="emoji_category_food_drink" msgid="1189971856721244395">"TAOM VA ICHIMLIKLAR"</string>
     <string name="emoji_category_travel_places" msgid="8105712773237012672">"SAYOHAT VA JOYLAR"</string>
     <string name="emoji_category_activity" msgid="4381135114947330911">"HODISA VA TADBIRLAR"</string>
-    <string name="emoji_category_objects" msgid="6106115586332708067">"OBYEKTLAR"</string>
+    <string name="emoji_category_objects" msgid="6106115586332708067">"BUYUMLAR"</string>
     <string name="emoji_category_symbols" msgid="5626171724310261787">"BELGILAR"</string>
     <string name="emoji_category_flags" msgid="6185639503532784871">"BAYROQCHALAR"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Hech qanday emoji mavjud emas"</string>
-    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Haligacha birorta emojidan foydalanmagansiz"</string>
+    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Hanuz birorta emoji ishlatmagansiz"</string>
 </resources>
