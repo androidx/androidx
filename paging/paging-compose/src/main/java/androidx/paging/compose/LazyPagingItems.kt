@@ -296,6 +296,9 @@ public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(
  * When you specify the key the scroll position will be maintained based on the key, which
  * means if you add/remove items before the current visible item the item with the given key
  * will be kept as the first visible one.
+ * @param contentType a factory of the content types for the item. The item compositions of the
+ * same type could be reused more efficiently. Note that null is a valid type and items of such
+ * type will be considered compatible.
  * @param itemContent the content displayed by a single item. In case the item is `null`, the
  * [itemContent] method should handle the logic of displaying a placeholder instead of the main
  * content displayed by an item which is not `null`.
@@ -303,6 +306,7 @@ public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(
 public fun <T : Any> LazyListScope.items(
     items: LazyPagingItems<T>,
     key: ((item: T) -> Any)? = null,
+    contentType: ((item: T) -> Any?)? = null,
     itemContent: @Composable LazyItemScope.(value: T?) -> Unit
 ) {
     items(
@@ -313,6 +317,12 @@ public fun <T : Any> LazyListScope.items(
                 PagingPlaceholderKey(index)
             } else {
                 key(item)
+            }
+        },
+        contentType = { index ->
+            if (contentType == null) null else {
+                val item = items.peek(index)
+                if (item == null) null else contentType(item)
             }
         }
     ) { index ->
@@ -335,6 +345,9 @@ public fun <T : Any> LazyListScope.items(
  * When you specify the key the scroll position will be maintained based on the key, which
  * means if you add/remove items before the current visible item the item with the given key
  * will be kept as the first visible one.
+ * @param contentType a factory of the content types for the item. The item compositions of the
+ * same type could be reused more efficiently. Note that null is a valid type and items of such
+ * type will be considered compatible.
  * @param itemContent the content displayed by a single item. In case the item is `null`, the
  * [itemContent] method should handle the logic of displaying a placeholder instead of the main
  * content displayed by an item which is not `null`.
@@ -342,6 +355,7 @@ public fun <T : Any> LazyListScope.items(
 public fun <T : Any> LazyListScope.itemsIndexed(
     items: LazyPagingItems<T>,
     key: ((index: Int, item: T) -> Any)? = null,
+    contentType: ((index: Int, item: T) -> Any?)? = null,
     itemContent: @Composable LazyItemScope.(index: Int, value: T?) -> Unit
 ) {
     items(
@@ -352,6 +366,12 @@ public fun <T : Any> LazyListScope.itemsIndexed(
                 PagingPlaceholderKey(index)
             } else {
                 key(index, item)
+            }
+        },
+        contentType = { index ->
+            if (contentType == null) null else {
+                val item = items.peek(index)
+                if (item == null) null else contentType(index, item)
             }
         }
     ) { index ->
