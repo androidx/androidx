@@ -16,13 +16,10 @@
 
 package androidx.baselineprofile.gradle.producer
 
-import androidx.testutils.gradle.ProjectSetupRule
+import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
 import com.google.common.truth.Truth.assertThat
-import org.gradle.testkit.runner.GradleRunner
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -32,38 +29,13 @@ class BaselineProfileProducerPluginTest {
     // Unit test will be minimal because the producer plugin is applied to an android test module,
     // that requires a working target application. Testing will be covered only by integration tests.
 
-    private val rootFolder = TemporaryFolder().also { it.create() }
-
     @get:Rule
-    val producerProjectSetup = ProjectSetupRule(rootFolder.root)
-
-    @get:Rule
-    val appTargetProjectSetup = ProjectSetupRule(rootFolder.root)
-
-    private lateinit var producerModuleName: String
-    private lateinit var appTargetModuleName: String
-    private lateinit var gradleRunner: GradleRunner
-
-    @Before
-    fun setUp() {
-        producerModuleName = producerProjectSetup.rootDir.relativeTo(rootFolder.root).name
-        appTargetModuleName = appTargetProjectSetup.rootDir.relativeTo(rootFolder.root).name
-
-        rootFolder.newFile("settings.gradle").writeText(
-            """
-            include '$producerModuleName'
-            include '$appTargetModuleName'
-        """.trimIndent()
-        )
-        gradleRunner = GradleRunner.create()
-            .withProjectDir(producerProjectSetup.rootDir)
-            .withPluginClasspath()
-    }
+    val projectSetup = BaselineProfileProjectSetupRule()
 
     @Test
     fun verifyTasksWithAndroidTestPlugin() {
-        appTargetProjectSetup.writeDefaultBuildGradle(
-            prefix = """
+        projectSetup.appTarget.setBuildGradle(
+            """
                 plugins {
                     id("com.android.application")
                     id("androidx.baselineprofile.apptarget")
@@ -71,25 +43,23 @@ class BaselineProfileProducerPluginTest {
                 android {
                     namespace 'com.example.namespace'
                 }
-            """.trimIndent(),
-            suffix = ""
+            """.trimIndent()
         )
-        producerProjectSetup.writeDefaultBuildGradle(
-            prefix = """
+        projectSetup.producer.setBuildGradle(
+            """
                 plugins {
                     id("com.android.test")
                     id("androidx.baselineprofile.producer")
                 }
                 android {
-                    targetProjectPath = ":$appTargetModuleName"
+                    targetProjectPath = ":${projectSetup.appTarget.name}"
                     namespace 'com.example.namespace.test'
                 }
                 tasks.register("mergeNonMinifiedReleaseTestResultProtos") { println("Stub") }
-            """.trimIndent(),
-            suffix = ""
+            """.trimIndent()
         )
 
-        gradleRunner
+        projectSetup.producer.gradleRunner
             .withArguments("tasks", "--stacktrace")
             .build()
             .output
