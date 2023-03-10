@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(ExperimentalAnimationApi::class)
 
 package androidx.compose.animation.demos.layoutanimation
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope.SlideDirection
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.expandHorizontally
@@ -53,7 +51,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Preview
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ScreenTransitionDemo() {
     Column {
@@ -85,7 +82,7 @@ fun ScreenTransitionDemo() {
                 Text("Next screen")
             }
         }
-        val transition = updateTransition(targetScreen)
+        val transition = updateTransition(targetScreen, "screen transition")
         transition.AnimatedContent(
             transitionSpec = {
                 if (TestScreens.Screen1 isTransitioningTo TestScreens.Screen2 ||

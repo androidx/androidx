@@ -354,7 +354,6 @@ fun slideOut(
  *                        [TransformOrigin.Center].
  */
 @Stable
-@ExperimentalAnimationApi
 fun scaleIn(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     initialScale: Float = 0f,
@@ -385,7 +384,6 @@ fun scaleIn(
  *                        [TransformOrigin.Center].
  */
 @Stable
-@ExperimentalAnimationApi
 fun scaleOut(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     targetScale: Float = 0f,
