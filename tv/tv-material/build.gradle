@@ -50,6 +50,7 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(libs.testRunner)
 
     samples(project(":tv:tv-samples"))
@@ -60,6 +61,8 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
+    sourceSets.androidTest.assets.srcDirs +=
+             project.rootDir.absolutePath + "/../../golden/tv/compose/material3"
 }
 
 androidx {
