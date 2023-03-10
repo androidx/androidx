@@ -30,10 +30,10 @@ dependencies {
     def composeVersion = '1.3.0-rc01'
 
     api("androidx.annotation:annotation:1.5.0")
-    api("androidx.compose.animation:animation:$composeVersion")
     api("androidx.compose.runtime:runtime:$composeVersion")
 
     api(project(":compose:ui:ui"))
+    api(project(":compose:animation:animation"))
     api("androidx.compose.foundation:foundation:$composeVersion")
     api("androidx.compose.foundation:foundation-layout:$composeVersion")
     api("androidx.compose.material:material-icons-core:$composeVersion")

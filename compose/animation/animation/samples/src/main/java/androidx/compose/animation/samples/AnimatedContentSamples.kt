@@ -18,10 +18,9 @@ package androidx.compose.animation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.AnimatedContentScope.SlideDirection
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.keyframes
@@ -58,7 +57,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 @Sampled
 fun AnimateIncrementDecrementSample() {
@@ -106,7 +104,6 @@ fun AnimateIncrementDecrementSample() {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 @Sampled
 fun SimpleAnimatedContentSample() {
@@ -139,12 +136,11 @@ fun SimpleAnimatedContentSample() {
 
 private enum class ContentState { Foo, Bar, Baz }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Suppress("UNUSED_VARIABLE")
 @Sampled
 fun AnimatedContentTransitionSpecSample() {
     // enum class CartState { Expanded, Collapsed }
-    val transitionSpec: AnimatedContentScope<CartState>.() -> ContentTransform =
+    val transitionSpec: AnimatedContentTransitionScope<CartState>.() -> ContentTransform =
         {
             // Fade in with a delay so that it starts after fade out
             fadeIn(animationSpec = tween(150, delayMillis = 150))
@@ -177,7 +173,6 @@ fun AnimatedContentTransitionSpecSample() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalAnimationApi::class)
 fun TransitionExtensionAnimatedContentSample() {
     @Composable
     fun CollapsedCart() { /* Some content here */
@@ -264,7 +259,6 @@ fun TransitionExtensionAnimatedContentSample() {
 
 @Suppress("UNUSED_VARIABLE")
 @Sampled
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SlideIntoContainerSample() {
     // enum class NestedMenuState { Level1, Level2, Level3 }
@@ -272,7 +266,7 @@ fun SlideIntoContainerSample() {
     // is to 1) establish a z-order for different levels of the menu, and 2) imply a spatial
     // order between the menus via the different slide direction when navigating to child menu vs
     // parent menu. See the demos directory of the source code for a full demo.
-    val transitionSpec: AnimatedContentScope<NestedMenuState>.() -> ContentTransform = {
+    val transitionSpec: AnimatedContentTransitionScope<NestedMenuState>.() -> ContentTransform = {
         if (initialState < targetState) {
             // Going from parent menu to child menu, slide towards left
             slideIntoContainer(towards = SlideDirection.Left) with
