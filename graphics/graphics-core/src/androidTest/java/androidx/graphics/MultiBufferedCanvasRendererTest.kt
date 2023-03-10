@@ -19,7 +19,6 @@ package androidx.graphics
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ColorSpace
-import android.graphics.Paint
 import android.graphics.RenderNode
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -109,19 +108,15 @@ class MultiBufferedCanvasRendererTest {
         val renderNode = RenderNode("node").apply {
             setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
             val canvas = beginRecording()
-            val paint = Paint()
-            val widthF = TEST_WIDTH.toFloat()
-            val heightF = TEST_HEIGHT.toFloat()
-            val halfWidth = widthF / 2f
-            val halfHeight = heightF / 2f
-            canvas.drawRect(0f, 0f, halfWidth, halfHeight,
-                paint.apply { color = Color.RED })
-            canvas.drawRect(halfWidth, 0f, widthF, halfHeight,
-                paint.apply { color = Color.YELLOW })
-            canvas.drawRect(0f, halfHeight, halfWidth, heightF,
-                paint.apply { color = Color.GREEN })
-            canvas.drawRect(halfWidth, halfHeight, widthF, heightF,
-                paint.apply { color = Color.BLUE })
+            drawSquares(
+                canvas,
+                TEST_WIDTH,
+                TEST_HEIGHT,
+                Color.RED,
+                Color.YELLOW,
+                Color.GREEN,
+                Color.BLUE
+            )
             endRecording()
         }
         val executor = Executors.newSingleThreadExecutor()
