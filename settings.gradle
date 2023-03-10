@@ -367,6 +367,7 @@ includeProject(":annotation:annotation-experimental-lint-integration-tests", "an
 includeProject(":annotation:annotation-sampled")
 includeProject(":appactions:interaction:interaction-capabilities-communication", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-capabilities-core", [BuildType.MAIN])
+includeProject(":appactions:interaction:interaction-capabilities-fitness", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-capabilities-productivity", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-capabilities-safety", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-proto", [BuildType.MAIN])
