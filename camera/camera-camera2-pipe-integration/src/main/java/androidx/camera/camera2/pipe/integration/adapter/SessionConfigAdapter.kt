@@ -33,6 +33,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.streamsharing.StreamSharing
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -156,6 +157,7 @@ class SessionConfigAdapter(
             Preview::class.java -> OutputStream.StreamUseCase.PREVIEW.value
             ImageCapture::class.java -> OutputStream.StreamUseCase.STILL_CAPTURE.value
             MediaCodec::class.java -> OutputStream.StreamUseCase.VIDEO_RECORD.value
+            StreamSharing::class.java -> OutputStream.StreamUseCase.VIDEO_RECORD.value
             else -> OutputStream.StreamUseCase.DEFAULT.value
         }
     }
