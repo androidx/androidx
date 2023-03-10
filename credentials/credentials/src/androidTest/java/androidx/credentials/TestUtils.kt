@@ -17,7 +17,9 @@
 package androidx.credentials
 
 import android.os.Build
+import android.graphics.drawable.Icon
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 
 /** True if the two Bundles contain the same elements, and false otherwise. */
 @Suppress("DEPRECATION")
@@ -71,4 +73,9 @@ fun isPostFrameworkApiLevel(): Boolean {
     return !((Build.VERSION.SDK_INT <= MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL) &&
         !(Build.VERSION.SDK_INT == MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL &&
             Build.VERSION.PREVIEW_SDK_INT > 0))
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
+fun equals(a: Icon, b: Icon): Boolean {
+    return a.type == b.type && a.resId == b.resId
 }
