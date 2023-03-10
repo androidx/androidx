@@ -27,6 +27,7 @@ import android.os.Bundle
 import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.RequiresExtension
+import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.test.core.app.ApplicationProvider
@@ -35,6 +36,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -66,6 +68,11 @@ class SdkSandboxManagerCompatSandboxedTest {
     fun setUp() {
         assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
         mContext = Mockito.spy(ApplicationProvider.getApplicationContext<Context>())
+    }
+
+    @After
+    fun tearDown() {
+        SdkSandboxManagerCompat.reset()
     }
 
     @Test
@@ -130,7 +137,7 @@ class SdkSandboxManagerCompatSandboxedTest {
 
     @Test
     fun getSandboxedSdks_whenLoadedSdkListNotAvailable_dontDelegateToSandbox() {
-        assumeFalse("Requires getSandboxedSdks API not available", isSdkListAvailable())
+        assumeFalse("Requires getSandboxedSdks API not available", isAtLeastV5())
 
         val sdkSandboxManager = mockSandboxManager(mContext)
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
@@ -141,23 +148,27 @@ class SdkSandboxManagerCompatSandboxedTest {
     }
 
     @Test
-    fun getSandboxedSdks_whenLoadedSdkListNotAvailable_returnsEmptyList() {
-        assumeFalse("Requires getSandboxedSdks API not available", isSdkListAvailable())
+    fun getSandboxedSdks_whenLoadedSdkListNotAvailable_returnsLocallyLoadedSdkList() {
+        assumeFalse("Requires getSandboxedSdks API not available", isAtLeastV5())
 
         // SdkSandboxManagerCompat.from require SandboxManager available for AdServices version >= 4
         mockSandboxManager(mContext)
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
+        val localSdk = runBlocking {
+            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+        }
+
         val sandboxedSdks = managerCompat.getSandboxedSdks()
 
-        assertThat(sandboxedSdks).isEmpty()
+        assertThat(sandboxedSdks).containsExactly(localSdk)
     }
 
     @Test
     // TODO(b/265295473) Update version check after AdServices V5 finalisation.
     @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
-    fun getSandboxedSdks_whenLoadedSdkListAvailable_returnResultFromPlatformGetSandboxedSdks() {
-        assumeTrue("Requires getSandboxedSdks API available", isSdkListAvailable())
+    fun getSandboxedSdks_whenLoadedSdkListAvailable_returnCombinedLocalAndPlatformResult() {
+        assumeTrue("Requires getSandboxedSdks API available", isAtLeastV5())
 
         val sdkSandboxManager = mockSandboxManager(mContext)
         val sandboxedSdk = SandboxedSdk(Binder())
@@ -165,12 +176,39 @@ class SdkSandboxManagerCompatSandboxedTest {
             .thenReturn(listOf(sandboxedSdk))
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
-        val sandboxedSdks = managerCompat.getSandboxedSdks()
-        assertThat(sandboxedSdks).hasSize(1)
-        val result = sandboxedSdks[0]
+        val localSdk = runBlocking {
+            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+        }
 
-        assertThat(result.getInterface())
-            .isEqualTo(sandboxedSdk.getInterface())
+        val result = managerCompat.getSandboxedSdks().map { it.getInterface() }
+        assertThat(result).containsExactly(
+            sandboxedSdk.getInterface(), localSdk.getInterface()
+        )
+    }
+
+    @Test
+    // TODO(b/265295473) Update version check after AdServices V5 finalisation.
+    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    fun sdkController_getSandboxedSdks_dontIncludeSandboxedSdk() {
+        assumeTrue("Requires getSandboxedSdks API available", isAtLeastV5())
+
+        val sdkSandboxManager = mockSandboxManager(mContext)
+        val sandboxedSdk = SandboxedSdk(Binder())
+        `when`(sdkSandboxManager.sandboxedSdks)
+            .thenReturn(listOf(sandboxedSdk))
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+
+        val localSdk = runBlocking {
+            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v2", Bundle())
+        }
+
+        val testSdk = localSdk.asTestSdk()
+
+        val sdkList = testSdk.getSandboxedSdks()
+        assertThat(sdkList).hasSize(1)
+        val result = sdkList[0].getInterface()
+
+        assertThat(result).isEqualTo(localSdk.getInterface())
     }
 
     companion object SandboxApi {
@@ -178,7 +216,7 @@ class SdkSandboxManagerCompatSandboxedTest {
         private fun isSandboxApiAvailable() =
             AdServicesInfo.version() >= 4
 
-        private fun isSdkListAvailable() =
+        private fun isAtLeastV5() =
             AdServicesInfo.isAtLeastV5()
 
         private fun mockSandboxManager(spyContext: Context): SdkSandboxManager {

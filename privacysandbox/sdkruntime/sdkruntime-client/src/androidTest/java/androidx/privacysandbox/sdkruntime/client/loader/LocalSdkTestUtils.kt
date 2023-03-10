@@ -17,6 +17,9 @@
 package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.content.Context
+import android.os.Bundle
+import android.os.IBinder
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import kotlin.reflect.cast
@@ -24,19 +27,19 @@ import kotlin.reflect.cast
 /**
  * Extract value of [Versions.API_VERSION] from loaded SDK.
  */
-internal fun LocalSdk.extractApiVersion(): Int =
+internal fun LocalSdkProvider.extractApiVersion(): Int =
     extractVersionValue("API_VERSION")
 
 /**
  * Extract value of [Versions.CLIENT_VERSION] from loaded SDK.
  */
-internal fun LocalSdk.extractClientVersion(): Int =
+internal fun LocalSdkProvider.extractClientVersion(): Int =
     extractVersionValue("CLIENT_VERSION")
 
 /**
  * Extract [SandboxedSdkProviderCompat.context] from loaded SDK.
  */
-internal fun LocalSdk.extractSdkContext(): Context {
+internal fun LocalSdkProvider.extractSdkContext(): Context {
     val getContextMethod = sdkProvider
         .javaClass
         .getMethod("getContext")
@@ -49,7 +52,9 @@ internal fun LocalSdk.extractSdkContext(): Context {
 /**
  * Extract field value from [SandboxedSdkProviderCompat]
  */
-internal inline fun <reified T> LocalSdk.extractSdkProviderFieldValue(fieldName: String): T {
+internal inline fun <reified T> LocalSdkProvider.extractSdkProviderFieldValue(
+    fieldName: String
+): T {
     return sdkProvider
         .javaClass
         .getField(fieldName)
@@ -59,10 +64,88 @@ internal inline fun <reified T> LocalSdk.extractSdkProviderFieldValue(fieldName:
 /**
  * Extract classloader that was used for loading of [SandboxedSdkProviderCompat].
  */
-internal fun LocalSdk.extractSdkProviderClassloader(): ClassLoader =
+internal fun LocalSdkProvider.extractSdkProviderClassloader(): ClassLoader =
     sdkProvider.javaClass.classLoader!!
 
-private fun LocalSdk.extractVersionValue(versionFieldName: String): Int {
+/**
+ * Reflection wrapper for TestSDK object.
+ * Underlying TestSDK should implement and delegate to
+ * [androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat]:
+ *  1) getSandboxedSdks() : List<SandboxedSdkCompat>
+ */
+internal class TestSdkWrapper(
+    private val sdk: Any
+) {
+    fun getSandboxedSdks(): List<SandboxedSdkWrapper> {
+        val sdks = sdk.callMethod(
+            methodName = "getSandboxedSdks"
+        ) as List<*>
+        return sdks.map { SandboxedSdkWrapper(it!!) }
+    }
+}
+
+/**
+ * Reflection wrapper for [SandboxedSdkCompat]
+ */
+internal class SandboxedSdkWrapper(
+    private val sdk: Any
+) {
+    fun getInterface(): IBinder? {
+        return sdk.callMethod(
+            methodName = "getInterface"
+        ) as IBinder?
+    }
+
+    fun getSdkName(): String? {
+        val sdkInfo = getSdkInfo()
+        if (sdkInfo != null) {
+            return sdkInfo.callMethod(
+                methodName = "getName"
+            ) as String
+        }
+        return null
+    }
+
+    fun getSdkVersion(): Long? {
+        val sdkInfo = getSdkInfo()
+        if (sdkInfo != null) {
+            return sdkInfo.callMethod(
+                methodName = "getVersion"
+            ) as Long
+        }
+        return null
+    }
+
+    private fun getSdkInfo(): Any? {
+        return sdk.callMethod(
+            methodName = "getSdkInfo"
+        )
+    }
+}
+
+/**
+ * Load SDK and wrap it as TestSDK.
+ * @see [TestSdkWrapper]
+ */
+internal fun LocalSdkProvider.loadTestSdk(): TestSdkWrapper {
+    return onLoadSdk(Bundle()).asTestSdk()
+}
+
+/**
+ * Wrap SandboxedSdkCompat as TestSDK.
+ * @see [SandboxedSdkWrapper]
+ */
+internal fun SandboxedSdkCompat.asTestSdk(): TestSdkWrapper {
+    return TestSdkWrapper(sdk = getInterface()!!)
+}
+
+private fun Any.callMethod(methodName: String): Any? {
+    return javaClass
+        .getMethod(methodName)
+        .invoke(this)
+}
+
+private fun LocalSdkProvider.extractVersionValue(versionFieldName: String): Int {
     val versionsClass = Class.forName(
         Versions::class.java.name,
         false,

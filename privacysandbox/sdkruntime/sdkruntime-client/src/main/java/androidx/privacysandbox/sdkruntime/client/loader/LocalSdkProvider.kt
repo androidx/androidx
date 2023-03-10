@@ -27,7 +27,7 @@ import org.jetbrains.annotations.TestOnly
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal abstract class LocalSdk protected constructor(
+internal abstract class LocalSdkProvider protected constructor(
     @get:TestOnly val sdkProvider: Any
 ) {
 

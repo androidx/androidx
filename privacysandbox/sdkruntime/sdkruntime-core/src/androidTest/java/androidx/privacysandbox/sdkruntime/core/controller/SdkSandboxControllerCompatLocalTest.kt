@@ -61,7 +61,7 @@ class SdkSandboxControllerCompatLocalTest {
     fun getSandboxedSdks_withLocalImpl_returnsListFromLocalImpl() {
         val expectedResult = listOf(SandboxedSdkCompat(Binder()))
         SdkSandboxControllerCompat.injectLocalImpl(
-            StubImpl(
+            TestStubImpl(
                 sandboxedSdks = expectedResult
             )
         )
@@ -71,7 +71,7 @@ class SdkSandboxControllerCompatLocalTest {
         assertThat(sandboxedSdks).isEqualTo(expectedResult)
     }
 
-    private class StubImpl(
+    private class TestStubImpl(
         private val sandboxedSdks: List<SandboxedSdkCompat> = emptyList()
     ) : SdkSandboxControllerCompat.SandboxControllerImpl {
         override fun getSandboxedSdks() = sandboxedSdks

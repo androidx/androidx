@@ -27,7 +27,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
-import androidx.privacysandbox.sdkruntime.client.loader.LocalSdk
+import androidx.privacysandbox.sdkruntime.client.controller.LocalController
+import androidx.privacysandbox.sdkruntime.client.controller.LocallyLoadedSdks
 import androidx.privacysandbox.sdkruntime.client.loader.SdkLoader
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
@@ -37,6 +38,7 @@ import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import java.util.WeakHashMap
 import kotlinx.coroutines.suspendCancellableCoroutine
+import org.jetbrains.annotations.TestOnly
 
 /**
  * Compat version of [SdkSandboxManager].
@@ -83,11 +85,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 class SdkSandboxManagerCompat private constructor(
     private val platformApi: PlatformApi,
     private val configHolder: LocalSdkConfigsHolder,
+    private val localLocallyLoadedSdks: LocallyLoadedSdks,
     private val sdkLoader: SdkLoader
 ) {
-
-    private val localLoadedSdks = HashMap<String, LocalSdk>()
-
     /**
      * Load SDK in a SDK sandbox java process or locally.
      *
@@ -117,7 +117,7 @@ class SdkSandboxManagerCompat private constructor(
         sdkName: String,
         params: Bundle
     ): SandboxedSdkCompat {
-        if (localLoadedSdks.containsKey(sdkName)) {
+        if (localLocallyLoadedSdks.isLoaded(sdkName)) {
             throw LoadSdkCompatException(LOAD_SDK_ALREADY_LOADED, "$sdkName already loaded")
         }
 
@@ -125,7 +125,7 @@ class SdkSandboxManagerCompat private constructor(
         if (sdkConfig != null) {
             val sdkHolder = sdkLoader.loadSdk(sdkConfig)
             val sandboxedSdkCompat = sdkHolder.onLoadSdk(params)
-            localLoadedSdks.put(sdkName, sdkHolder)
+            localLocallyLoadedSdks.put(sdkName, sandboxedSdkCompat)
             return sandboxedSdkCompat
         }
 
@@ -139,7 +139,11 @@ class SdkSandboxManagerCompat private constructor(
      *
      * @see [SdkSandboxManager.getSandboxedSdks]
      */
-    fun getSandboxedSdks(): List<SandboxedSdkCompat> = platformApi.getSandboxedSdks()
+    fun getSandboxedSdks(): List<SandboxedSdkCompat> {
+        val platformResult = platformApi.getSandboxedSdks()
+        val localResult = localLocallyLoadedSdks.getLoadedSdks()
+        return platformResult + localResult
+    }
 
     private interface PlatformApi {
         @DoNotInline
@@ -226,12 +230,26 @@ class SdkSandboxManagerCompat private constructor(
                 var instance = sInstances[context]
                 if (instance == null) {
                     val configHolder = LocalSdkConfigsHolder.load(context)
-                    val sdkLoader = SdkLoader.create(context)
+                    val localSdks = LocallyLoadedSdks()
+                    val controller = LocalController(localSdks)
+                    val sdkLoader = SdkLoader.create(context, controller)
                     val platformApi = PlatformApiFactory.create(context)
-                    instance = SdkSandboxManagerCompat(platformApi, configHolder, sdkLoader)
+                    instance = SdkSandboxManagerCompat(
+                        platformApi,
+                        configHolder,
+                        localSdks,
+                        sdkLoader
+                    )
                     sInstances[context] = instance
                 }
                 return instance
+            }
+        }
+
+        @TestOnly
+        internal fun reset() {
+            synchronized(sInstances) {
+                sInstances.clear()
             }
         }
     }

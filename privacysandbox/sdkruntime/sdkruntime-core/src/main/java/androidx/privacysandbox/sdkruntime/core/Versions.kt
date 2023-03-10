@@ -31,7 +31,7 @@ import org.jetbrains.annotations.TestOnly
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Versions {
 
-    const val API_VERSION = 1
+    const val API_VERSION = 2
 
     @JvmField
     var CLIENT_VERSION: Int? = null
@@ -43,7 +43,8 @@ object Versions {
     }
 
     @TestOnly
-    internal fun resetClientVersion() {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun resetClientVersion() {
         CLIENT_VERSION = null
     }
 }
