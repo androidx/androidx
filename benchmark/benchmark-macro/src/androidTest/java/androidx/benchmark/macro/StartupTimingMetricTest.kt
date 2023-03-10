@@ -36,7 +36,6 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import java.io.File
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -52,10 +51,10 @@ class StartupTimingMetricTest {
     fun noResults() {
         assumeTrue(isAbiSupported())
         val packageName = "fake.package.fiction.nostartups"
-        val iterationResult = measureStartup(packageName, StartupMode.COLD) {
+        val measurements = measureStartup(packageName, StartupMode.COLD) {
             // Do nothing
         }
-        assertEquals(true, iterationResult.singleMetrics.isEmpty())
+        assertEquals(true, measurements.isEmpty())
     }
 
     @LargeTest
@@ -70,7 +69,7 @@ class StartupTimingMetricTest {
         val intent =
             Intent("androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY")
         val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
-        val iterationResult = measureStartup(packageName, StartupMode.COLD) {
+        val measurements = measureStartup(packageName, StartupMode.COLD) {
             // Simulate a cold start
             scope.killProcess()
             scope.dropKernelPageCache()
@@ -79,10 +78,9 @@ class StartupTimingMetricTest {
         }
 
         assertEquals(
-            setOf("timeToInitialDisplayMs"),
-            iterationResult.singleMetrics.keys
+            listOf("timeToInitialDisplayMs"),
+            measurements.map { it.name }
         )
-        assertNotNull(iterationResult.timelineRangeNs)
     }
 
     /**
@@ -114,7 +112,7 @@ class StartupTimingMetricTest {
         }
 
         // measure the activity launch
-        val iterationResult = measureStartup(Packages.TEST, StartupMode.WARM) {
+        val measurements = measureStartup(Packages.TEST, StartupMode.WARM) {
             // Simulate a warm start, since it's our own process
             if (useInAppNav) {
                 // click the textview, which triggers an activity launch
@@ -148,12 +146,13 @@ class StartupTimingMetricTest {
         // validate
         assertEquals(
             setOf("timeToInitialDisplayMs", "timeToFullDisplayMs"),
-            iterationResult.singleMetrics.keys
+            measurements.map { it.name }.toSet()
         )
-        assertNotNull(iterationResult.timelineRangeNs)
 
-        val timeToInitialDisplayMs = iterationResult.singleMetrics["timeToInitialDisplayMs"]!!
-        val timeToFullDisplayMs = iterationResult.singleMetrics["timeToFullDisplayMs"]!!
+        val timeToInitialDisplayMs = measurements
+            .first { it.name == "timeToInitialDisplayMs" }.data.single()
+        val timeToFullDisplayMs = measurements
+            .first { it.name == "timeToFullDisplayMs" }.data.single()
 
         if (delayMs == 0L) {
             // since reportFullyDrawn is dispatched before startup is complete,
@@ -167,7 +166,6 @@ class StartupTimingMetricTest {
                     "ttid $timeToInitialDisplayMs, ttfd $timeToFullDisplayMs"
             )
         }
-        assertNotNull(iterationResult.timelineRangeNs)
     }
 
     @LargeTest
@@ -198,21 +196,21 @@ class StartupTimingMetricTest {
         validateStartup_fullyDrawn(delayMs = 100, useInAppNav = true)
     }
 
-    private fun getApi32WarmMetrics(metric: Metric): IterationResult {
+    private fun getApi32WarmMeasurements(metric: Metric): List<Metric.Measurement> {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api32_startup_warm", ".perfetto-trace")
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
 
         metric.configure(packageName)
         return PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            metric.getMetrics(
+            metric.getResult(
                 captureInfo = Metric.CaptureInfo(
                     targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
                     testPackageName = "androidx.benchmark.integration.macrobenchmark.test",
                     startupMode = StartupMode.WARM,
                     apiLevel = 32
                 ),
-                session = this
+                traceSession = this
             )
         }
     }
@@ -228,54 +226,57 @@ class StartupTimingMetricTest {
         val metric = StartupTimingMetric()
         metric.configure(Packages.TEST)
 
-        val metrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            metric.getMetrics(
+        val measurements = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            metric.getResult(
                 captureInfo = Metric.CaptureInfo(
                     targetPackageName = Packages.TEST,
                     testPackageName = Packages.TEST,
                     startupMode = StartupMode.WARM,
                     apiLevel = 24
                 ),
-                session = this
+                traceSession = this
             )
         }
 
-        // check known values
-        assertEquals(
-            setOf("timeToInitialDisplayMs", "timeToFullDisplayMs"),
-            metrics.singleMetrics.keys
+        assertEqualMeasurements(
+            expected = listOf(
+                Metric.Measurement("timeToInitialDisplayMs", 178.58525),
+                Metric.Measurement("timeToFullDisplayMs", 178.58525)
+            ),
+            observed = measurements,
+            threshold = 0.0001
         )
-        assertEquals(178.58525, metrics.singleMetrics["timeToInitialDisplayMs"]!!, 0.0001)
-        assertEquals(178.58525, metrics.singleMetrics["timeToFullDisplayMs"]!!, 0.0001)
-        assertEquals(1680207215350..1680385800600, metrics.timelineRangeNs)
     }
 
     @MediumTest
     @Test
     fun fixedStartupTraceMetrics() {
-        val metrics = getApi32WarmMetrics(StartupTimingMetric())
+        val measurements = getApi32WarmMeasurements(StartupTimingMetric())
 
-        // check known values
-        assertEquals(
-            setOf("timeToInitialDisplayMs", "timeToFullDisplayMs"),
-            metrics.singleMetrics.keys
+        assertEqualMeasurements(
+            expected = listOf(
+                Metric.Measurement("timeToInitialDisplayMs", 154.629883),
+                Metric.Measurement("timeToFullDisplayMs", 659.641358)
+            ),
+            observed = measurements,
+            threshold = 0.0001
         )
-        assertEquals(154.629883, metrics.singleMetrics["timeToInitialDisplayMs"]!!, 0.0001)
-        assertEquals(659.641358, metrics.singleMetrics["timeToFullDisplayMs"]!!, 0.0001)
-        assertEquals(157479786572825..157480446214183, metrics.timelineRangeNs)
     }
 
     @SuppressLint("NewApi") // suppressed for StartupTimingLegacyMetric, since data is fixed
     @MediumTest
     @Test
     fun fixedStartupTraceMetrics_legacy() {
-        val metrics = getApi32WarmMetrics(StartupTimingLegacyMetric())
+        val measurements = getApi32WarmMeasurements(StartupTimingLegacyMetric())
 
-        // check known values
-        assertEquals(setOf("startupMs", "fullyDrawnMs"), metrics.singleMetrics.keys)
-        assertEquals(156.515747, metrics.singleMetrics["startupMs"]!!, 0.0001)
-        assertEquals(644.613729, metrics.singleMetrics["fullyDrawnMs"]!!, 0.0001)
-        assertEquals(157479786566030..157479943081777, metrics.timelineRangeNs)
+        assertEqualMeasurements(
+            expected = listOf(
+                Metric.Measurement("startupMs", 156.515747),
+                Metric.Measurement("fullyDrawnMs", 644.613729)
+            ),
+            observed = measurements,
+            threshold = 0.0001
+        )
     }
 }
 
@@ -284,7 +285,7 @@ internal fun measureStartup(
     packageName: String,
     startupMode: StartupMode,
     measureBlock: () -> Unit
-): IterationResult {
+): List<Metric.Measurement> {
     val metric = StartupTimingMetric()
     metric.configure(packageName)
     val tracePath = PerfettoCaptureWrapper().record(
@@ -301,14 +302,14 @@ internal fun measureStartup(
     )!!
 
     return PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
-        metric.getMetrics(
+        metric.getResult(
             captureInfo = Metric.CaptureInfo(
                 targetPackageName = packageName,
                 testPackageName = Packages.TEST,
                 startupMode = startupMode,
                 apiLevel = Build.VERSION.SDK_INT
             ),
-            session = this
+            traceSession = this
         )
     }
 }
