@@ -42,6 +42,10 @@ import androidx.constraintlayout.compose.MotionScene
 import androidx.constraintlayout.compose.layoutId
 import androidx.constraintlayout.compose.rememberMotionLayoutState
 
+/**
+ * Shows how to define swipe-driven transitions with `KeyPositions` and custom colors using the
+ * JSON5 syntax for MotionLayout.
+ */
 @Preview
 @Composable
 fun SimpleOnSwipe() {
