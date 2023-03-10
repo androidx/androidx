@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.activity.ComponentActivity#onBackPressed():
+    Removed method androidx.activity.ComponentActivity.onBackPressed()

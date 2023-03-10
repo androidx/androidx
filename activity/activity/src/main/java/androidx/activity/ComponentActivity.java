@@ -685,10 +685,16 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * {@link android.app.Activity#onBackPressed()} is invoked.
      *
      * @see #getOnBackPressedDispatcher()
+     *
+     * @deprecated This method has been deprecated in favor of using the
+     * {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.
+     * The OnBackPressedDispatcher controls how back button events are dispatched
+     * to one or more {@link OnBackPressedCallback} objects.
      */
-    @SuppressWarnings("deprecation")
     @Override
     @MainThread
+    @CallSuper
+    @Deprecated
     public void onBackPressed() {
         mOnBackPressedDispatcher.onBackPressed();
     }
