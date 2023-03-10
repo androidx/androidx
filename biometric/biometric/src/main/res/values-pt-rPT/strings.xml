@@ -26,17 +26,17 @@
     <string name="fingerprint_error_lockout" msgid="7291787166416782245">"Demasiadas tentativas. Tente mais tarde."</string>
     <string name="default_error_msg" msgid="4776854077120974966">"Erro desconhecido."</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"Autenticação cancelada pelo utilizador."</string>
-    <string name="confirm_device_credential_password" msgid="5912733858573823945">"Utilizar palavra-passe"</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"Usar palavra-passe"</string>
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nenhum PIN, padrão ou palavra-passe definidos."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Este dispositivo não suporta o PIN, o padrão ou a palavra-passe."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ícone de impressão digital"</string>
-    <string name="use_fingerprint_label" msgid="6961788485681412417">"Utilizar a impressão digital"</string>
-    <string name="use_face_label" msgid="6533512708069459542">"Utilizar o rosto"</string>
-    <string name="use_biometric_label" msgid="6524145989441579428">"Utilizar a biometria"</string>
-    <string name="use_screen_lock_label" msgid="5459869335976243512">"Utilizar o bloqueio de ecrã"</string>
-    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Utilizar o bloqueio de ecrã ou a impressão digital"</string>
-    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Utilizar o rosto ou o bloqueio de ecrã"</string>
-    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Utilizar a biometria ou o bloqueio de ecrã"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"Usar a impressão digital"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"Usar o rosto"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"Usar a biometria"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"Usar o bloqueio de ecrã"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"Usar o bloqueio de ecrã ou a impressão digital"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"Usar o rosto ou o bloqueio de ecrã"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"Usar a biometria ou o bloqueio de ecrã"</string>
     <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Utilize a impressão digital para continuar"</string>
     <string name="face_prompt_message" msgid="2282389249605674226">"Utilize o rosto para continuar"</string>
     <string name="biometric_prompt_message" msgid="1160635338192065472">"Utilize a biometria para continuar"</string>
