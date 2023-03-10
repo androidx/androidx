@@ -28,23 +28,23 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
-    api("androidx.compose.foundation:foundation:1.4.0-beta02")
-    api("androidx.compose.ui:ui:1.4.0-beta02")
-    api("androidx.compose.ui:ui-text:1.4.0-beta02")
-    api("androidx.compose.runtime:runtime:1.4.0-beta02")
+    api(project(":compose:foundation:foundation"))
+    api(project(":compose:ui:ui"))
+    api(project(":compose:ui:ui-text"))
+    api(project(":compose:runtime:runtime"))
 
     implementation(libs.kotlinStdlib)
-    implementation("androidx.compose.animation:animation:1.4.0-beta02")
-    implementation("androidx.compose.material:material-icons-core:1.4.0-beta02")
-    implementation("androidx.compose.material:material-ripple:1.4.0-beta02")
-    implementation("androidx.compose.ui:ui-util:1.4.0-beta02")
+    implementation(project(":compose:animation:animation"))
+    implementation(project(":compose:material:material-icons-core"))
+    implementation(project(":compose:material:material-ripple"))
+    implementation(project(":compose:ui:ui-util"))
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-material-core"))
     implementation("androidx.profileinstaller:profileinstaller:1.2.0")
     implementation("androidx.lifecycle:lifecycle-common:2.5.1")
 
-    androidTestImplementation("androidx.compose.ui:ui-test:1.4.0-beta02")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.4.0-beta02")
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
 
     androidTestImplementation(project(":test:screenshot:screenshot"))
