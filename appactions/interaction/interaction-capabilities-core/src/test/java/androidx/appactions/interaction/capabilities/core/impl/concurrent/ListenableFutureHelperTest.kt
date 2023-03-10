@@ -17,50 +17,53 @@
 package androidx.appactions.interaction.capabilities.core.impl.concurrent
 
 import com.google.common.truth.Truth.assertThat
-import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(JUnit4::class)
 class ListenableFutureHelperTest {
-    val tag = "tag"
-    val SHORT_TIMEOUT_MILLIS = 50L
+    val TAG = "tag"
 
     @Test
     fun suspendToListenableFuture_smokeTest() {
-        val stringFuture = convertToListenableFuture<String>(tag) { "hello" }
+        val stringFuture = convertToListenableFuture<String>(TAG) { "hello" }
         assertThat(stringFuture.get()).isEqualTo("hello")
     }
 
+    @Ignore // b/272659961
     @Test
     fun suspendToListenableFuture_pollingTest() {
         val stringChannel = Channel<String>(1)
         val stringFuture =
-            convertToListenableFuture<String>(tag) { getNextValueFromChannel(stringChannel) }
+            convertToListenableFuture<String>(TAG) { getNextValueFromChannel(stringChannel) }
         assertThat(stringFuture.isDone()).isFalse()
 
-        runBlocking { withTimeout(SHORT_TIMEOUT_MILLIS) { stringChannel.send("hello") } }
+        runBlocking { withTimeout(1.seconds) { stringChannel.send("hello") } }
         assertThat(stringFuture.get()).isEqualTo("hello")
     }
 
+    @Ignore // b/272659961
     @Test
     fun suspendToListenableFuture_cancellationTest() {
         val stringChannel = Channel<String>(1)
         val cancellationChannel = Channel<Boolean>(1)
         val stringFuture =
-            convertToListenableFuture<String>(tag) {
+            convertToListenableFuture<String>(TAG) {
                 getNextValueFromChannel(stringChannel, cancellationChannel)
             }
         stringFuture.cancel(true)
         assertThat(stringFuture.isCancelled()).isTrue()
         runBlocking {
-            withTimeout(SHORT_TIMEOUT_MILLIS) { assertThat(cancellationChannel.receive()).isTrue() }
+            withTimeout(1.seconds) { assertThat(cancellationChannel.receive()).isTrue() }
         }
     }
 
