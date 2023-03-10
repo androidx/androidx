@@ -272,7 +272,12 @@ class ActivityEmbeddingTestRuleTest {
 
     @Test
     fun testOverrideSplitInfo() = testScope.runTest {
-        val expected = listOf(TestSplitInfo(mockActivity, mockActivity))
+        val expected = listOf(
+            TestSplitInfo(
+                TestActivityStack(listOf(mockActivity), isEmpty = false),
+                TestActivityStack(listOf(mockActivity), isEmpty = false),
+            )
+        )
 
         testRule.overrideSplitInfo(mockActivity, expected)
 
@@ -283,12 +288,17 @@ class ActivityEmbeddingTestRuleTest {
 
     @Test
     fun testOverrideSplitInfo_updatesExistingListeners() = testScope.runTest {
-        val expected1 = listOf(TestSplitInfo(mockActivity, mockActivity))
+        val expected1 = listOf(
+            TestSplitInfo(
+                TestActivityStack(listOf(mockActivity), isEmpty = false),
+                TestActivityStack(listOf(mockActivity), isEmpty = false),
+            )
+        )
         val expected2 = listOf(
             TestSplitInfo(
-                mockActivity,
-                mockActivity,
-                SplitAttributes(splitType = SPLIT_TYPE_HINGE)
+                TestActivityStack(listOf(mockActivity), isEmpty = false),
+                TestActivityStack(listOf(mockActivity), isEmpty = false),
+                SplitAttributes(splitType = SPLIT_TYPE_HINGE),
             )
         )
 
