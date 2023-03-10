@@ -33,6 +33,13 @@ public class BadgeTest {
         assertThat(b.hasDot()).isEqualTo(true);
     }
 
+    public void build_withDotAndBackgroundColor() {
+        Badge b = new Badge.Builder().setHasDot(true).setBackgroundColor(CarColor.PRIMARY).build();
+
+        assertThat(b.hasDot()).isEqualTo(true);
+        assertThat(b.getBackgroundColor()).isEqualTo(CarColor.PRIMARY);
+    }
+
     @Test
     public void build_emptyThrowsException() {
         assertThrows(IllegalStateException.class, () -> new Badge.Builder().build());
@@ -45,26 +52,39 @@ public class BadgeTest {
     }
 
     @Test
-    public void equals() {
-        Badge b1 = new Badge.Builder().setHasDot(true).build();
-        Badge b2 = new Badge.Builder().setHasDot(true).build();
+    public void build_setBackgroundColorWithoutDot_ThrowsException() {
+        assertThrows(IllegalStateException.class,
+                () -> new Badge.Builder().setBackgroundColor(CarColor.PRIMARY).build());
+    }
 
-        assertThat(b1.equals(b1)).isTrue();
+    @Test
+    public void equals() {
+        Badge b1 = new Badge.Builder().setHasDot(true).setBackgroundColor(CarColor.PRIMARY).build();
+        Badge b2 = new Badge.Builder().setHasDot(true).setBackgroundColor(CarColor.PRIMARY).build();
+
         assertThat(b1.equals(b2)).isTrue();
     }
 
     @Test
     public void notEquals() {
-        Badge b = new Badge.Builder().setHasDot(true).build();
-        Object o = new Object();
+        Badge b1 = new Badge.Builder().setHasDot(true).build();
+        Badge b2 = new Badge.Builder().setHasDot(true).setBackgroundColor(CarColor.PRIMARY).build();
 
-        assertThat(b.equals(o)).isFalse();
+        assertThat(b1.equals(b2)).isFalse();
+    }
+
+    @Test
+    public void notEquals_differentBackgroundColor() {
+        Badge b1 = new Badge.Builder().setHasDot(true).setBackgroundColor(CarColor.BLUE).build();
+        Badge b2 = new Badge.Builder().setHasDot(true).setBackgroundColor(CarColor.RED).build();
+
+        assertThat(b1.equals(b2)).isFalse();
     }
 
     @Test
     public void string() {
         Badge b = new Badge.Builder().setHasDot(true).build();
 
-        assertThat(b.toString()).isEqualTo("[hasDot: true]");
+        assertThat(b.toString()).isEqualTo("[hasDot: true, backgroundColor: null]");
     }
 }

@@ -39,27 +39,35 @@ import java.util.Objects;
 public class Badge {
 
     private final boolean mHasDot;
+    @Nullable
+    private final CarColor mBackgroundColor;
 
     /**
      * Returns whether the badge has a dot.
      *
-     * @see Builder#setHasDot()
+     * @see Builder#setHasDot(boolean)
      */
     public boolean hasDot() {
         return mHasDot;
     }
 
+    /**
+     * Returns the dot background color.
+     */
+    @Nullable
+    public CarColor getBackgroundColor() {
+        return mBackgroundColor;
+    }
+
     @Override
     @NonNull
     public String toString() {
-        return "[hasDot: "
-                + mHasDot
-                + "]";
+        return "[hasDot: " + mHasDot + ", backgroundColor: " + mBackgroundColor + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mHasDot);
+        return Objects.hash(mHasDot, mBackgroundColor);
     }
 
     @Override
@@ -72,21 +80,26 @@ public class Badge {
         }
         Badge otherBadge = (Badge) other;
 
-        return mHasDot == otherBadge.mHasDot;
+        return mHasDot == otherBadge.mHasDot
+                && Objects.equals(mBackgroundColor, otherBadge.mBackgroundColor);
     }
 
     Badge(Builder builder) {
         mHasDot = builder.mHasDot;
+        mBackgroundColor = builder.mBackgroundColor;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Badge() {
         mHasDot = false;
+        mBackgroundColor = null;
     }
 
     /** A builder of {@link Badge}. */
     public static final class Builder {
         boolean mHasDot;
+        @Nullable
+        CarColor mBackgroundColor;
 
         /**
          * Enables a circular dot that denotes some sort of alert, notification, etc.
@@ -94,6 +107,15 @@ public class Badge {
         @NonNull
         public Builder setHasDot(boolean hasDot) {
             mHasDot = hasDot;
+            return this;
+        }
+
+        /**
+         * Sets the color of the dot to the given {@code backgroundColor}.
+         */
+        @NonNull
+        public Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
+            mBackgroundColor = backgroundColor;
             return this;
         }
 
