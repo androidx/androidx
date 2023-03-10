@@ -66,15 +66,15 @@ annotation class CameraScope
 @OptIn(ExperimentalCamera2Interop::class)
 @Module(
     includes = [
-        ZoomCompat.Bindings::class,
-        ZoomControl.Bindings::class,
+        Camera2CameraControlCompat.Bindings::class,
         EvCompCompat.Bindings::class,
         EvCompControl.Bindings::class,
         FlashControl.Bindings::class,
         FocusMeteringControl.Bindings::class,
         State3AControl.Bindings::class,
         TorchControl.Bindings::class,
-        Camera2CameraControlCompat.Bindings::class,
+        ZoomCompat.Bindings::class,
+        ZoomControl.Bindings::class,
     ],
     subcomponents = [UseCaseCameraComponent::class]
 )

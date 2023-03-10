@@ -48,6 +48,9 @@ class CameraQuirks @Inject constructor(
         if (CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)) {
             quirks.add(CamcorderProfileResolutionQuirk(streamConfigurationMapCompat))
         }
+        if (ImageCaptureFailWithAutoFlashQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(ImageCaptureFailWithAutoFlashQuirk())
+        }
         if (JpegHalCorruptImageQuirk.isEnabled()) {
             quirks.add(JpegHalCorruptImageQuirk())
         }

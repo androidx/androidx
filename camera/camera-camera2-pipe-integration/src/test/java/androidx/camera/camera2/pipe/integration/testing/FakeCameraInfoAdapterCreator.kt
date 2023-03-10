@@ -26,10 +26,11 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraControlStateAdapte
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
-import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
+import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
@@ -94,15 +95,16 @@ object FakeCameraInfoAdapterCreator {
         zoomControl: ZoomControl = this.zoomControl,
     ): CameraInfoAdapter {
         val fakeUseCaseCamera = FakeUseCaseCamera()
-        val state3AControl = State3AControl(cameraProperties).apply {
+        val state3AControl = State3AControl(cameraProperties, NoOpAutoFlashAEModeDisabler).apply {
             useCaseCamera = fakeUseCaseCamera
         }
+        val fakeStreamConfigurationMap = StreamConfigurationMapCompat(
+            streamConfigurationMap,
+            OutputSizesCorrector(cameraProperties.metadata)
+        )
         val fakeCameraQuirks = CameraQuirks(
-            FakeCameraMetadata(),
-            StreamConfigurationMapCompat(
-                StreamConfigurationMapBuilder.newBuilder().build(),
-                OutputSizesCorrector(FakeCameraMetadata())
-            )
+            cameraProperties.metadata,
+            fakeStreamConfigurationMap,
         )
         return CameraInfoAdapter(
             cameraProperties,
@@ -117,13 +119,7 @@ object FakeCameraInfoAdapterCreator {
             FocusMeteringControl(
                 cameraProperties,
                 MeteringRegionCorrection.Bindings.provideMeteringRegionCorrection(
-                    CameraQuirks(
-                        cameraProperties.metadata,
-                        StreamConfigurationMapCompat(
-                            StreamConfigurationMapBuilder.newBuilder().build(),
-                            OutputSizesCorrector(cameraProperties.metadata)
-                        )
-                    )
+                    fakeCameraQuirks
                 ),
                 state3AControl,
                 useCaseThreads,
@@ -133,10 +129,7 @@ object FakeCameraInfoAdapterCreator {
             },
             fakeCameraQuirks,
             EncoderProfilesProviderAdapter(cameraId.value),
-            StreamConfigurationMapCompat(
-                streamConfigurationMap,
-                OutputSizesCorrector(cameraProperties.metadata)
-            )
+            fakeStreamConfigurationMap,
         )
     }
 }

@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCom
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpMeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
@@ -1203,9 +1204,9 @@ class FocusMeteringControlTest {
     @Test
     fun startFocusMetering_frameMetadataNullWithOkStatus_futureCompletesWithFocusSuccessful() {
         /**
-         * According to [Controller3A.lock3A] method documentation,
-         * if the operation is not supported by the camera device, then this method returns early
-         * with Result3A made of 'OK' status and 'null' metadata.
+         * According to [androidx.camera.camera2.pipe.graph.Controller3A.lock3A] method
+         * documentation, if the operation is not supported by the camera device, then this method
+         * returns early with Result3A made of 'OK' status and 'null' metadata.
          */
         fakeRequestControl.focusMeteringResult = CompletableDeferred(
             Result3A(
@@ -1555,7 +1556,10 @@ class FocusMeteringControlTest {
         cameraId: String = CAMERA_ID_0,
         properties: CameraProperties = cameraPropertiesMap[cameraId]!!,
         useCaseCamera: UseCaseCamera = fakeUseCaseCamera,
-    ) = State3AControl(properties).apply {
+    ) = State3AControl(
+        properties,
+        NoOpAutoFlashAEModeDisabler,
+    ).apply {
         this.useCaseCamera = useCaseCamera
     }
 }
