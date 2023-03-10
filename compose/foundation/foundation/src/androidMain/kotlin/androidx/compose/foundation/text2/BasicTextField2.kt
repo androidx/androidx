@@ -21,12 +21,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.heightInLines
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.SimpleLayout
 import androidx.compose.foundation.text.textFieldMinSize
 import androidx.compose.foundation.text2.input.CommitTextCommand
 import androidx.compose.foundation.text2.input.DeleteAllCommand
@@ -50,10 +52,12 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.imeAction
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setText
@@ -68,6 +72,7 @@ import kotlin.math.roundToInt
 /**
  * BasicTextField2 is a new text input Composable under heavy development. Please refrain from
  * using it in production since it has a very unstable API and implementation for the time being.
+ * Many core features like selection, cursor, gestures, etc. may fail or simply not exist.
  *
  * @param state State object that holds the internal state of a [BasicTextField2]
  * @param modifier optional [Modifier] for this text field.
@@ -94,6 +99,12 @@ import kotlin.math.roundToInt
  * text, baselines and other details. The callback can be used to add additional decoration or
  * functionality to the text. For example, to draw a cursor or selection around the text. [Density]
  * scope is the one that was used while creating the given text layout.
+ * @param decorationBox Composable lambda that allows to add decorations around text field, such
+ * as icon, placeholder, helper messages or similar, and automatically increase the hit target area
+ * of the text field. To allow you to control the placement of the inner text field relative to your
+ * decorations, the text field implementation will pass in a framework-controlled composable
+ * parameter "innerTextField" to the decorationBox lambda you provide. You must call
+ * innerTextField exactly once.
  */
 @ExperimentalFoundationApi
 @OptIn(InternalFoundationTextApi::class)
@@ -109,7 +120,9 @@ fun BasicTextField2(
     minLines: Int = DefaultMinLines,
     maxLines: Int = Int.MAX_VALUE,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    onTextLayout: Density.(TextLayoutResult) -> Unit = {}
+    onTextLayout: Density.(TextLayoutResult) -> Unit = {},
+    decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
+        @Composable { innerTextField -> innerTextField() }
 ) {
     // only read from local and create an adapter if this text field is enabled and editable
     val textInputAdapter = LocalPlatformTextInputPluginRegistry.takeIf { enabled && !readOnly }
@@ -160,6 +173,7 @@ fun BasicTextField2(
     }
 
     val semanticsModifier = Modifier.semantics {
+        this.imeAction = keyboardOptions.imeAction
         if (!enabled) this.disabled()
 
         setText { text ->
@@ -228,45 +242,60 @@ fun BasicTextField2(
         enabled = enabled && !readOnly
     )
 
-    Layout(
-        content = {},
-        modifier = modifier
-            .then(focusModifier)
-            .heightInLines(
-                textStyle = textStyle,
-                minLines = minLines,
-                maxLines = maxLines
-            )
-            .then(drawModifier)
-            .textFieldMinSize(textStyle)
-            .then(cursorModifier)
-            .clickable {
-                focusRequester.requestFocus()
-            }
-            .then(semanticsModifier)
-            .then(TextFieldContentSemanticsElement(state))
-    ) { _, constraints ->
-        val result = with(textLayoutState) {
-            layout(
-                text = state.value.annotatedString,
-                textStyle = textStyle,
-                softWrap = true,
-                density = density,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = constraints,
-                onTextLayout = onTextLayout
-            )
+    val decorationModifiers = modifier
+        .then(focusModifier)
+        .then(semanticsModifier)
+        .then(TextFieldContentSemanticsElement(state, textLayoutState))
+        .clickable {
+            focusRequester.requestFocus()
+        }
+        .onGloballyPositioned {
+            textLayoutState.proxy?.decorationBoxCoordinates = it
         }
 
-        // TODO: min height
+    Box(decorationModifiers) {
+        decorationBox(innerTextField = {
+            val coreModifiers = Modifier
+                .heightInLines(
+                    textStyle = textStyle,
+                    minLines = minLines,
+                    maxLines = maxLines
+                )
+                .then(drawModifier)
+                .textFieldMinSize(textStyle)
+                .then(cursorModifier)
+                .onGloballyPositioned {
+                    textLayoutState.proxy?.innerTextFieldCoordinates = it
+                }
 
-        layout(
-            width = result.size.width,
-            height = result.size.height,
-            alignmentLines = mapOf(
-                FirstBaseline to result.firstBaseline.roundToInt(),
-                LastBaseline to result.lastBaseline.roundToInt()
-            )
-        ) {}
+            // A custom layout that hosts TextLayout, Selection and Cursor Handles.
+            SimpleLayout(coreModifiers) {
+                // Text Layout
+                Layout { _, constraints ->
+                    val result = with(textLayoutState) {
+                        layout(
+                            text = state.value.annotatedString,
+                            textStyle = textStyle,
+                            softWrap = true,
+                            density = density,
+                            fontFamilyResolver = fontFamilyResolver,
+                            constraints = constraints,
+                            onTextLayout = onTextLayout
+                        )
+                    }
+
+                    // TODO: min height
+
+                    layout(
+                        width = result.size.width,
+                        height = result.size.height,
+                        alignmentLines = mapOf(
+                            FirstBaseline to result.firstBaseline.roundToInt(),
+                            LastBaseline to result.lastBaseline.roundToInt()
+                        )
+                    ) {}
+                }
+            }
+        })
     }
 }

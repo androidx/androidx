@@ -24,7 +24,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.TextFieldState
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -49,7 +48,6 @@ class AndroidTextInputAdapterTest {
     private lateinit var adapter: AndroidTextInputAdapter
 
     @Before
-    @OptIn(ExperimentalTextApi::class)
     fun setup() {
         rule.setContent {
             val adapterProvider = LocalPlatformTextInputPluginRegistry.current

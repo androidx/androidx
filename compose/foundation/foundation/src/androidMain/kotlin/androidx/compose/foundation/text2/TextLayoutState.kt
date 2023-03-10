@@ -18,6 +18,7 @@ package androidx.compose.foundation.text2
 
 import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TextDelegate
+import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.foundation.text.updateTextDelegate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +45,11 @@ internal class TextLayoutState(initialTextDelegate: TextDelegate) {
      */
     var layoutResult: TextLayoutResult? by mutableStateOf(null)
         private set
+
+    /**
+     * A helper class to find positions on text layout relative to wrapping decoration box.
+     */
+    var proxy: TextLayoutResultProxy? = null
 
     fun MeasureScope.layout(
         text: AnnotatedString,
@@ -76,6 +82,7 @@ internal class TextLayoutState(initialTextDelegate: TextDelegate) {
                 onTextLayout(it)
             }
             layoutResult = it
+            proxy = TextLayoutResultProxy(it)
         }
     }
 }
