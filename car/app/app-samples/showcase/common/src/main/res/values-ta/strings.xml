@@ -323,14 +323,10 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"வரிசையையும் தேர்ந்தெடுக்க முடியும்"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"இரண்டாம்நிலைச் செயல் தேர்ந்தெடுக்கப்பட்டது"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"வரிசையின் முதன்மைச் செயல் தேர்ந்தெடுக்கப்பட்டது"</string>
-    <!-- no translation found for sectioned_item_list_demo_title (1236735461225007729) -->
-    <skip />
-    <!-- no translation found for sectioned_item_list_one_title (6594204350307263338) -->
-    <skip />
-    <!-- no translation found for sectioned_item_list_two_title (4941545381743022833) -->
-    <skip />
-    <!-- no translation found for sectioned_item_list_subtext (2963927693547537519) -->
-    <skip />
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"பிரிக்கப்பட்ட உருப்படி பட்டியலின் டெமோ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"பட்டியல் 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"பட்டியல் 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ஒவ்வொரு பட்டியலுக்கும் கீழுள்ள சுருக்க விவரம்"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"மற்ற டெம்ப்ளேட்டுகளின் டெமோக்கள்"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ஷோகேஸின் டெமோக்கள்"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"டெம்ப்ளேட் தளவமைப்பின் டெமோக்கள்"</string>

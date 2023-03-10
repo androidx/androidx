@@ -323,14 +323,10 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ນອກຈາກນັ້ນຍັງເລືອກແຖວໄດ້ນຳ"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ເລືອກຄຳສັ່ງສຳຮອງຂອງແຖວແລ້ວ"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"ເລືອກຄຳສັ່ງຫຼັກຂອງແຖວແລ້ວ"</string>
-    <!-- no translation found for sectioned_item_list_demo_title (1236735461225007729) -->
-    <skip />
-    <!-- no translation found for sectioned_item_list_one_title (6594204350307263338) -->
-    <skip />
-    <!-- no translation found for sectioned_item_list_two_title (4941545381743022833) -->
-    <skip />
-    <!-- no translation found for sectioned_item_list_subtext (2963927693547537519) -->
-    <skip />
+    <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"ເດໂມລາຍຊື່ລາຍການຕາມພາກສ່ວນ"</string>
+    <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ລາຍຊື່ 1"</string>
+    <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ລາຍຊື່ 2"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ຂໍ້ຄວາມຍ່ອຍພາຍໃຕ້ແຕ່ລະລາຍຊື່"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ເດໂມແມ່ແບບອື່ນໆ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ເດໂມ Showcase"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"ເດໂມໂຄງຮ່າງແມ່ແບບ"</string>
