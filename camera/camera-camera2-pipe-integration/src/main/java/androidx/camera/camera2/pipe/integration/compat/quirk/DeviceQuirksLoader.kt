@@ -45,7 +45,6 @@ object DeviceQuirksLoader {
         if (ImageCapturePixelHDRPlusQuirk.isEnabled()) {
             quirks.add(ImageCapturePixelHDRPlusQuirk())
         }
-
         if (InvalidVideoProfilesQuirk.isEnabled()) {
             quirks.add(InvalidVideoProfilesQuirk())
         }
@@ -55,13 +54,14 @@ object DeviceQuirksLoader {
         if (ExtraSupportedOutputSizeQuirk.load()) {
             quirks.add(ExtraSupportedOutputSizeQuirk())
         }
-
         if (PreviewPixelHDRnetQuirk.isEnabled()) {
             quirks.add(PreviewPixelHDRnetQuirk())
         }
-
         if (RepeatingStreamConstraintForVideoRecordingQuirk.isEnabled()) {
             quirks.add(RepeatingStreamConstraintForVideoRecordingQuirk())
+        }
+        if (StillCaptureFlashStopRepeatingQuirk.isEnabled()) {
+            quirks.add(StillCaptureFlashStopRepeatingQuirk())
         }
 
         return quirks

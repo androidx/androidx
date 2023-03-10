@@ -48,6 +48,7 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
+import androidx.camera.camera2.pipe.integration.compat.workaround.shouldStopRepeatingBeforeCapture
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
@@ -63,12 +64,12 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.TorchState
 import dagger.Binds
 import dagger.Module
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 private val CHECK_3A_TIMEOUT_IN_NS = TimeUnit.SECONDS.toNanos(1)
 private val CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS = TimeUnit.SECONDS.toNanos(5)
@@ -94,6 +95,7 @@ class CapturePipelineImpl @Inject constructor(
     private val threads: UseCaseThreads,
     private val requestListener: ComboRequestListener,
     cameraProperties: CameraProperties,
+    private val useCaseCameraState: UseCaseCameraState,
     useCaseGraphConfig: UseCaseGraphConfig,
 ) : CapturePipeline {
     private val graph = useCaseGraphConfig.graph
@@ -272,7 +274,17 @@ class CapturePipelineImpl @Inject constructor(
 
         threads.sequentialScope.launch {
             graph.acquireSession().use {
+                val requiresStopRepeating = requestsToSubmit.shouldStopRepeatingBeforeCapture()
+                if (requiresStopRepeating) {
+                    it.stopRepeating()
+                }
+
                 it.submit(requestsToSubmit)
+
+                if (requiresStopRepeating) {
+                    deferredList.joinAll()
+                    useCaseCameraState.tryStartRepeating()
+                }
             }
         }
 

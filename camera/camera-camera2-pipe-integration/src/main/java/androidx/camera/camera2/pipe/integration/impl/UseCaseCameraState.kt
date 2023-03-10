@@ -27,12 +27,12 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
+import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * This object keeps track of the state of the current [UseCaseCamera].
@@ -190,6 +190,12 @@ class UseCaseCameraState @Inject constructor(
             currentListeners.addAll(listeners)
         }
     }
+
+    /**
+     * Tries to invoke [androidx.camera.camera2.pipe.CameraGraph.Session.startRepeating]
+     * with current (the most recent) set of values.
+     */
+    fun tryStartRepeating() = submitLatest()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun submitLatest() {
