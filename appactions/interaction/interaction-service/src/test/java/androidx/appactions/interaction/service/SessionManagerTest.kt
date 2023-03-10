@@ -39,8 +39,8 @@ class SessionManagerTest {
 
             override fun setTouchEventCallback(callback: TouchEventCallback) {}
 
-            override val state: AppActionsContext.AppAction
-                get() = AppActionsContext.AppAction.getDefaultInstance()
+            override val state: AppActionsContext.AppDialogState
+                get() = AppActionsContext.AppDialogState.getDefaultInstance()
 
             override val status: ActionCapabilitySession.Status
                 get() = ActionCapabilitySession.Status.IN_PROGRESS
@@ -57,8 +57,8 @@ class SessionManagerTest {
 
             override fun setTouchEventCallback(callback: TouchEventCallback) {}
 
-            override val state: AppActionsContext.AppAction
-                get() = AppActionsContext.AppAction.getDefaultInstance()
+            override val state: AppActionsContext.AppDialogState
+                get() = AppActionsContext.AppDialogState.getDefaultInstance()
 
             override val status: ActionCapabilitySession.Status
                 get() = ActionCapabilitySession.Status.IN_PROGRESS

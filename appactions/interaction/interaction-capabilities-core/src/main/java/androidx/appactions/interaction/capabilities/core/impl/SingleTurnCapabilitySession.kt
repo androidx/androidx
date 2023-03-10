@@ -22,7 +22,7 @@ import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.FutureCallback
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
-import androidx.appactions.interaction.proto.AppActionsContext.AppAction
+import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.FulfillmentValue
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
@@ -40,7 +40,7 @@ internal class SingleTurnCapabilitySession<
     val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
     val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
 ) : ActionCapabilitySession {
-    override val state: AppAction
+    override val state: AppDialogState
         get() {
             throw UnsupportedOperationException()
         }

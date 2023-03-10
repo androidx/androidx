@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.proto.AppActionsContext.AppAction
+import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 
 /**
  * Internal interface for a session, contains developer's Session instance
@@ -52,7 +52,7 @@ interface ActionCapabilitySession {
     /**
      * The current state of the multi-turn session including slot values and their statuses.
      */
-    val state: AppAction
+    val state: AppDialogState
 
     /** The current status of the ActionCapabilitySession. */
     val status: Status

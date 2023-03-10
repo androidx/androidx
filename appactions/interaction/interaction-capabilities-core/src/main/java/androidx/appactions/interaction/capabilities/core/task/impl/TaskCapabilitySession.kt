@@ -27,6 +27,7 @@ import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.ParamValue
+import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 
 internal class TaskCapabilitySession<
     ArgumentT,
@@ -38,8 +39,8 @@ internal class TaskCapabilitySession<
     val taskHandler: TaskHandler<ConfirmationT>,
     val externalSession: BaseSession<ArgumentT, OutputT>,
 ) : ActionCapabilitySession, TaskUpdateHandler {
-    override val state: AppAction
-        get() = sessionOrchestrator.getAppAction()
+    override val state: AppDialogState
+        get() = sessionOrchestrator.getAppDialogState()
 
     // single-turn capability does not have status
     override val status: ActionCapabilitySession.Status
