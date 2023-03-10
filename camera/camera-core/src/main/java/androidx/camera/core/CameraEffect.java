@@ -111,9 +111,7 @@ public abstract class CameraEffect {
 
     /**
      * Bitmask option to indicate that CameraX should apply this effect to {@code VideoCapture}.
-     *
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int VIDEO_CAPTURE = 1 << 1;
 
     /**
