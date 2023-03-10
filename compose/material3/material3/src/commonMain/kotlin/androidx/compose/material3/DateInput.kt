@@ -48,8 +48,7 @@ import java.util.Locale
 @Composable
 internal fun DateInputContent(
     stateData: StateData,
-    dateFormatter: DatePickerFormatter,
-    dateValidator: (Long) -> Boolean,
+    dateFormatter: DatePickerFormatter
 ) {
     // Obtain the DateInputFormat for the default Locale.
     val defaultLocale = defaultLocale()
@@ -64,7 +63,6 @@ internal fun DateInputContent(
             stateData = stateData,
             dateInputFormat = dateInputFormat,
             dateFormatter = dateFormatter,
-            dateValidator = dateValidator,
             errorDatePattern = errorDatePattern,
             errorDateOutOfYearRange = errorDateOutOfYearRange,
             errorInvalidNotAllowed = errorInvalidNotAllowed,
@@ -187,8 +185,6 @@ internal fun DateInputTextField(
  * @param stateData the [StateData] that holds the selected dates info
  * @param dateInputFormat a [DateInputFormat] that holds date patterns information
  * @param dateFormatter a [DatePickerFormatter]
- * @param dateValidator a lambda that takes a date timestamp and return true if the date is a valid
- * one for selection.
  * @param errorDatePattern a string for displaying an error message when an input does not match the
  * expected date pattern. The string expects a date pattern string as an argument to be formatted
  * into it.
@@ -208,7 +204,6 @@ internal class DateInputValidator(
     private val stateData: StateData,
     private val dateInputFormat: DateInputFormat,
     private val dateFormatter: DatePickerFormatter,
-    private val dateValidator: (Long) -> Boolean,
     private val errorDatePattern: String,
     private val errorDateOutOfYearRange: String,
     private val errorInvalidNotAllowed: String,
@@ -239,15 +234,19 @@ internal class DateInputValidator(
                 stateData.yearRange.last.toLocalString()
             )
         }
-        // Check that the provided date validator allows this date to be selected.
-        if (!dateValidator.invoke(calendarDate.utcTimeMillis)) {
-            return errorInvalidNotAllowed.format(
-                dateFormatter.formatDate(
-                    date = calendarDate,
-                    calendarModel = stateData.calendarModel,
-                    locale = locale
+        // Check that the provided SelectableDates allows this date to be selected.
+        with(stateData.selectableDates) {
+            if (!isSelectableYear(calendarDate.year) ||
+                !isSelectableDate(calendarDate.utcTimeMillis)
+            ) {
+                return errorInvalidNotAllowed.format(
+                    dateFormatter.formatDate(
+                        date = calendarDate,
+                        calendarModel = stateData.calendarModel,
+                        locale = locale
+                    )
                 )
-            )
+            }
         }
 
         // Additional validation when the InputIdentifier is for start of end dates in a range input

@@ -130,14 +130,13 @@ import kotlinx.coroutines.launch
  * A DatePicker with an initial UI of a date input mode looks like:
  * @sample androidx.compose.material3.samples.DateInputSample
  *
- * A DatePicker with validation that blocks certain days from being selected looks like:
- * @sample androidx.compose.material3.samples.DatePickerWithDateValidatorSample
+ * A DatePicker with a provided [SelectableDates] that blocks certain days from being selected looks
+ * like:
+ * @sample androidx.compose.material3.samples.DatePickerWithDateSelectableDatesSample
  *
  * @param state state of the date picker. See [rememberDatePickerState].
  * @param modifier the [Modifier] to be applied to this date picker
  * @param dateFormatter a [DatePickerFormatter] that provides formatting skeletons for dates display
- * @param dateValidator a lambda that takes a date timestamp and return true if the date is a valid
- * one for selection. Invalid dates will appear disabled in the UI.
  * @param title the title to be displayed in the date picker
  * @param headline the headline to be displayed in the date picker
  * @param showModeToggle indicates if this DatePicker should show a mode toggle action that
@@ -151,7 +150,6 @@ fun DatePicker(
     state: DatePickerState,
     modifier: Modifier = Modifier,
     dateFormatter: DatePickerFormatter = remember { DatePickerFormatter() },
-    dateValidator: (Long) -> Boolean = { true },
     title: (@Composable () -> Unit)? = {
         DatePickerDefaults.DatePickerTitle(
             state,
@@ -196,7 +194,6 @@ fun DatePicker(
         SwitchableDateEntryContent(
             state = state,
             dateFormatter = dateFormatter,
-            dateValidator = dateValidator,
             colors = colors
         )
     }
@@ -214,6 +211,8 @@ fun DatePicker(
  * current one.
  * @param yearRange an [IntRange] that holds the year range that the date picker will be limited to
  * @param initialDisplayMode an initial [DisplayMode] that this state will hold
+ * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed. In
+ * case a date is not allowed to be selected, it will appear disabled in the UI.
  */
 @Composable
 @ExperimentalMaterial3Api
@@ -221,15 +220,17 @@ fun rememberDatePickerState(
     @Suppress("AutoBoxing") initialSelectedDateMillis: Long? = null,
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long? = initialSelectedDateMillis,
     yearRange: IntRange = DatePickerDefaults.YearRange,
-    initialDisplayMode: DisplayMode = DisplayMode.Picker
+    initialDisplayMode: DisplayMode = DisplayMode.Picker,
+    selectableDates: SelectableDates = object : SelectableDates {}
 ): DatePickerState = rememberSaveable(
-    saver = DatePickerState.Saver()
+    saver = DatePickerState.Saver(selectableDates)
 ) {
     DatePickerState(
         initialSelectedDateMillis = initialSelectedDateMillis,
         initialDisplayedMonthMillis = initialDisplayedMonthMillis,
         yearRange = yearRange,
-        initialDisplayMode = initialDisplayMode
+        initialDisplayMode = initialDisplayMode,
+        selectableDates = selectableDates
     )
 }
 
@@ -257,6 +258,8 @@ class DatePickerState private constructor(internal val stateData: StateData) {
      * @param yearRange an [IntRange] that holds the year range that the date picker will be limited
      * to
      * @param initialDisplayMode an initial [DisplayMode] that this state will hold
+     * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed.
+     * In case a date is not allowed to be selected, it will appear disabled in the UI.
      * @see rememberDatePickerState
      * @throws [IllegalArgumentException] if the initial selected date or displayed month represent
      * a year that is out of the year range.
@@ -265,14 +268,16 @@ class DatePickerState private constructor(internal val stateData: StateData) {
         @Suppress("AutoBoxing") initialSelectedDateMillis: Long?,
         @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long?,
         yearRange: IntRange,
-        initialDisplayMode: DisplayMode
+        initialDisplayMode: DisplayMode,
+        selectableDates: SelectableDates
     ) : this(
-        StateData(
+        stateData = StateData(
             initialSelectedStartDateMillis = initialSelectedDateMillis,
             initialSelectedEndDateMillis = null,
             initialDisplayedMonthMillis = initialDisplayedMonthMillis,
             yearRange = yearRange,
             initialDisplayMode = initialDisplayMode,
+            selectableDates = selectableDates
         )
     )
 
@@ -309,12 +314,37 @@ class DatePickerState private constructor(internal val stateData: StateData) {
     companion object {
         /**
          * The default [Saver] implementation for [DatePickerState].
+         *
+         * @param selectableDates a [SelectableDates] instance that is consulted to check if a date
+         * is allowed
          */
-        fun Saver(): Saver<DatePickerState, *> = Saver(
-            save = { with(StateData.Saver()) { save(it.stateData) } },
-            restore = { value -> DatePickerState(with(StateData.Saver()) { restore(value)!! }) }
+        fun Saver(selectableDates: SelectableDates): Saver<DatePickerState, *> = Saver(
+            save = { with(StateData.Saver(selectableDates)) { save(it.stateData) } },
+            restore = { value ->
+                DatePickerState(
+                    stateData = with(StateData.Saver(selectableDates)) { restore(value)!! })
+            }
         )
     }
+}
+
+/**
+ * An interface that controls the selectable dates and years in the date pickers UI.
+ */
+@ExperimentalMaterial3Api
+interface SelectableDates {
+
+    /**
+     * Returns true if the date item representing the [utcTimeMillis] should be enabled for
+     * selection in the UI.
+     */
+    fun isSelectableDate(utcTimeMillis: Long) = true
+
+    /**
+     * Returns true if a given [year] should be enabled for selection in the UI. When a year is
+     * defined as non selectable, all the dates in that year will also be non selectable.
+     */
+    fun isSelectableYear(year: Int) = true
 }
 
 /**
@@ -334,13 +364,16 @@ object DatePickerDefaults {
      * @param weekdayContentColor the color used for the weekday letters
      * @param subheadContentColor the color used for the month and year subhead labels that appear
      * when the date picker is scrolling calendar months vertically
-     * @param yearContentColor the color used for the year item when selecting a year
+     * @param yearContentColor the color used for a year item content
+     * @param disabledYearContentColor the color used for a disabled year item content
      * @param currentYearContentColor the color used for the current year content when selecting a
      * year
-     * @param selectedYearContentColor the color used for the selected year content when selecting a
-     * year
-     * @param selectedYearContainerColor the color used for the selected year container when
-     * selecting a year
+     * @param selectedYearContentColor the color used for a selected year item content
+     * @param disabledSelectedYearContentColor the color used for a disabled selected year item
+     * content
+     * @param selectedYearContainerColor the color used for a selected year item container
+     * @param disabledSelectedYearContainerColor the color used for a disabled selected year item
+     * container
      * @param dayContentColor the color used for days content
      * @param disabledDayContentColor the color used for disabled days content
      * @param selectedDayContentColor the color used for selected days content
@@ -365,21 +398,26 @@ object DatePickerDefaults {
             DatePickerModalTokens.RangeSelectionMonthSubheadColor.toColor(),
         yearContentColor: Color =
             DatePickerModalTokens.SelectionYearUnselectedLabelTextColor.toColor(),
+        // TODO: Using DisabledAlpha as there are no token values for the disabled states.
+        disabledYearContentColor: Color = yearContentColor.copy(alpha = DisabledAlpha),
         currentYearContentColor: Color = DatePickerModalTokens.DateTodayLabelTextColor.toColor(),
         selectedYearContentColor: Color =
             DatePickerModalTokens.SelectionYearSelectedLabelTextColor.toColor(),
+        disabledSelectedYearContentColor: Color =
+            selectedYearContentColor.copy(alpha = DisabledAlpha),
         selectedYearContainerColor: Color =
             DatePickerModalTokens.SelectionYearSelectedContainerColor.toColor(),
+        disabledSelectedYearContainerColor: Color =
+            selectedYearContainerColor.copy(alpha = DisabledAlpha),
         dayContentColor: Color = DatePickerModalTokens.DateUnselectedLabelTextColor.toColor(),
-        // TODO: Missing token values for the disabled colors.
-        disabledDayContentColor: Color = dayContentColor.copy(alpha = 0.38f),
+        disabledDayContentColor: Color = dayContentColor.copy(alpha = DisabledAlpha),
         selectedDayContentColor: Color = DatePickerModalTokens.DateSelectedLabelTextColor.toColor(),
-        // TODO: Missing token values for the disabled colors.
-        disabledSelectedDayContentColor: Color = selectedDayContentColor.copy(alpha = 0.38f),
+        disabledSelectedDayContentColor: Color =
+            selectedDayContentColor.copy(alpha = DisabledAlpha),
         selectedDayContainerColor: Color =
             DatePickerModalTokens.DateSelectedContainerColor.toColor(),
-        // TODO: Missing token values for the disabled colors.
-        disabledSelectedDayContainerColor: Color = selectedDayContainerColor.copy(alpha = 0.38f),
+        disabledSelectedDayContainerColor: Color =
+            selectedDayContainerColor.copy(alpha = DisabledAlpha),
         todayContentColor: Color = DatePickerModalTokens.DateTodayLabelTextColor.toColor(),
         todayDateBorderColor: Color =
             DatePickerModalTokens.DateTodayContainerOutlineColor.toColor(),
@@ -395,9 +433,12 @@ object DatePickerDefaults {
             weekdayContentColor = weekdayContentColor,
             subheadContentColor = subheadContentColor,
             yearContentColor = yearContentColor,
+            disabledYearContentColor = disabledYearContentColor,
             currentYearContentColor = currentYearContentColor,
             selectedYearContentColor = selectedYearContentColor,
+            disabledSelectedYearContentColor = disabledSelectedYearContentColor,
             selectedYearContainerColor = selectedYearContainerColor,
+            disabledSelectedYearContainerColor = disabledSelectedYearContainerColor,
             dayContentColor = dayContentColor,
             disabledDayContentColor = disabledDayContentColor,
             selectedDayContentColor = selectedDayContentColor,
@@ -551,9 +592,12 @@ class DatePickerColors internal constructor(
     internal val weekdayContentColor: Color,
     internal val subheadContentColor: Color,
     private val yearContentColor: Color,
+    private val disabledYearContentColor: Color,
     private val currentYearContentColor: Color,
     private val selectedYearContentColor: Color,
+    private val disabledSelectedYearContentColor: Color,
     private val selectedYearContainerColor: Color,
+    private val disabledSelectedYearContainerColor: Color,
     private val dayContentColor: Color,
     private val disabledDayContentColor: Color,
     private val selectedDayContentColor: Color,
@@ -634,15 +678,20 @@ class DatePickerColors internal constructor(
      *
      * @param currentYear indicates that the color is for a year that represents the current year
      * @param selected indicates that the color is for a selected year
+     * @param enabled indicates that the year is enabled for selection
      */
     @Composable
-    internal fun yearContentColor(currentYear: Boolean, selected: Boolean): State<Color> {
-        val target = if (selected) {
-            selectedYearContentColor
-        } else if (currentYear) {
-            currentYearContentColor
-        } else {
-            yearContentColor
+    internal fun yearContentColor(
+        currentYear: Boolean,
+        selected: Boolean,
+        enabled: Boolean
+    ): State<Color> {
+        val target = when {
+            selected && enabled -> selectedYearContentColor
+            selected && !enabled -> disabledSelectedYearContentColor
+            currentYear -> currentYearContentColor
+            enabled -> yearContentColor
+            else -> disabledYearContentColor
         }
 
         return animateColorAsState(
@@ -655,10 +704,15 @@ class DatePickerColors internal constructor(
      * Represents the container color for a calendar year.
      *
      * @param selected indicates that the color is for a selected day
+     * @param enabled indicates that the year is enabled for selection
      */
     @Composable
-    internal fun yearContainerColor(selected: Boolean): State<Color> {
-        val target = if (selected) selectedYearContainerColor else Color.Transparent
+    internal fun yearContainerColor(selected: Boolean, enabled: Boolean): State<Color> {
+        val target = if (selected) {
+            if (enabled) selectedYearContainerColor else disabledSelectedYearContainerColor
+        } else {
+            Color.Transparent
+        }
         return animateColorAsState(
             target,
             tween(durationMillis = MotionTokens.DurationShort2.toInt())
@@ -673,9 +727,13 @@ class DatePickerColors internal constructor(
         if (weekdayContentColor != other.weekdayContentColor) return false
         if (subheadContentColor != other.subheadContentColor) return false
         if (yearContentColor != other.yearContentColor) return false
+        if (disabledYearContentColor != other.disabledYearContentColor) return false
         if (currentYearContentColor != other.currentYearContentColor) return false
         if (selectedYearContentColor != other.selectedYearContentColor) return false
+        if (disabledSelectedYearContentColor != other.disabledSelectedYearContentColor) return false
         if (selectedYearContainerColor != other.selectedYearContainerColor) return false
+        if (disabledSelectedYearContainerColor != other.disabledSelectedYearContainerColor)
+            return false
         if (dayContentColor != other.dayContentColor) return false
         if (disabledDayContentColor != other.disabledDayContentColor) return false
         if (selectedDayContentColor != other.selectedDayContentColor) return false
@@ -701,9 +759,12 @@ class DatePickerColors internal constructor(
         result = 31 * result + weekdayContentColor.hashCode()
         result = 31 * result + subheadContentColor.hashCode()
         result = 31 * result + yearContentColor.hashCode()
+        result = 31 * result + disabledYearContentColor.hashCode()
         result = 31 * result + currentYearContentColor.hashCode()
         result = 31 * result + selectedYearContentColor.hashCode()
+        result = 31 * result + disabledSelectedYearContentColor.hashCode()
         result = 31 * result + selectedYearContainerColor.hashCode()
+        result = 31 * result + disabledSelectedYearContainerColor.hashCode()
         result = 31 * result + dayContentColor.hashCode()
         result = 31 * result + disabledDayContentColor.hashCode()
         result = 31 * result + selectedDayContentColor.hashCode()
@@ -838,6 +899,7 @@ internal class StateData constructor(
     initialDisplayedMonthMillis: Long?,
     val yearRange: IntRange,
     initialDisplayMode: DisplayMode,
+    val selectableDates: SelectableDates,
 ) {
 
     val calendarModel: CalendarModel = CalendarModel()
@@ -978,8 +1040,11 @@ internal class StateData constructor(
     companion object {
         /**
          * A [Saver] implementation for [StateData].
+         *
+         * @param selectableDates a [SelectableDates] instance that is consulted to check if a date
+         * is allowed
          */
-        fun Saver(): Saver<StateData, Any> = listSaver(
+        fun Saver(selectableDates: SelectableDates): Saver<StateData, Any> = listSaver(
             save = {
                 listOf(
                     it.selectedStartDate.value?.utcTimeMillis,
@@ -996,7 +1061,8 @@ internal class StateData constructor(
                     initialSelectedEndDateMillis = value[1] as Long?,
                     initialDisplayedMonthMillis = value[2] as Long?,
                     yearRange = IntRange(value[3] as Int, value[4] as Int),
-                    initialDisplayMode = DisplayMode(value[5] as Int)
+                    initialDisplayMode = DisplayMode(value[5] as Int),
+                    selectableDates = selectableDates
                 )
             }
         )
@@ -1094,7 +1160,6 @@ internal fun DisplayModeToggleButton(
 private fun SwitchableDateEntryContent(
     state: DatePickerState,
     dateFormatter: DatePickerFormatter,
-    dateValidator: (Long) -> Boolean,
     colors: DatePickerColors
 ) {
     // TODO(b/266480386): Apply the motion spec for this once we have it. Consider replacing this
@@ -1107,14 +1172,12 @@ private fun SwitchableDateEntryContent(
             DisplayMode.Picker -> DatePickerContent(
                 stateData = state.stateData,
                 dateFormatter = dateFormatter,
-                dateValidator = dateValidator,
                 colors = colors
             )
 
             DisplayMode.Input -> DateInputContent(
                 stateData = state.stateData,
-                dateFormatter = dateFormatter,
-                dateValidator = dateValidator,
+                dateFormatter = dateFormatter
             )
         }
     }
@@ -1125,7 +1188,6 @@ private fun SwitchableDateEntryContent(
 private fun DatePickerContent(
     stateData: StateData,
     dateFormatter: DatePickerFormatter,
-    dateValidator: (Long) -> Boolean,
     colors: DatePickerColors
 ) {
     val monthsListState =
@@ -1175,7 +1237,6 @@ private fun DatePickerContent(
                     stateData = stateData,
                     lazyListState = monthsListState,
                     dateFormatter = dateFormatter,
-                    dateValidator = dateValidator,
                     colors = colors
                 )
             }
@@ -1276,7 +1337,6 @@ private fun HorizontalMonthsList(
     stateData: StateData,
     lazyListState: LazyListState,
     dateFormatter: DatePickerFormatter,
-    dateValidator: (Long) -> Boolean,
     colors: DatePickerColors,
 ) {
     val today = stateData.calendarModel.today
@@ -1313,7 +1373,6 @@ private fun HorizontalMonthsList(
                     today = today,
                     stateData = stateData,
                     rangeSelectionEnabled = false,
-                    dateValidator = dateValidator,
                     dateFormatter = dateFormatter,
                     colors = colors
                 )
@@ -1408,7 +1467,6 @@ internal fun Month(
     today: CalendarDate,
     stateData: StateData,
     rangeSelectionEnabled: Boolean,
-    dateValidator: (Long) -> Boolean,
     dateFormatter: DatePickerFormatter,
     colors: DatePickerColors
 ) {
@@ -1508,7 +1566,13 @@ internal fun Month(
                                 // end-date selection.
                                 animateChecked = startDateSelected,
                                 enabled = remember(dateInMillis) {
-                                    dateValidator.invoke(dateInMillis)
+                                    // Disabled a day in case its year is not selectable, or the
+                                    // date itself is specifically not allowed by the state's
+                                    // SelectableDates.
+                                    with(stateData.selectableDates) {
+                                        isSelectableYear(month.year) &&
+                                            isSelectableDate(dateInMillis)
+                                    }
                                 },
                                 today = isToday,
                                 inRange = inRange.value,
@@ -1696,6 +1760,7 @@ private fun YearPicker(
                     selected = selectedYear == displayedYear,
                     currentYear = selectedYear == currentYear,
                     onClick = { onYearSelected(selectedYear) },
+                    enabled = stateData.selectableDates.isSelectableYear(selectedYear),
                     description = getString(Strings.DatePickerNavigateToYearDescription)
                         .format(localizedYear),
                     colors = colors
@@ -1719,6 +1784,7 @@ private fun Year(
     selected: Boolean,
     currentYear: Boolean,
     onClick: () -> Unit,
+    enabled: Boolean,
     description: String,
     colors: DatePickerColors,
     content: @Composable () -> Unit
@@ -1744,11 +1810,13 @@ private fun Year(
             text = AnnotatedString(description)
             role = Role.Button
         },
+        enabled = enabled,
         shape = DatePickerModalTokens.SelectionYearStateLayerShape.toShape(),
-        color = colors.yearContainerColor(selected = selected).value,
+        color = colors.yearContainerColor(selected = selected, enabled = enabled).value,
         contentColor = colors.yearContentColor(
             currentYear = currentYear,
-            selected = selected
+            selected = selected,
+            enabled = enabled
         ).value,
         border = border,
     ) {

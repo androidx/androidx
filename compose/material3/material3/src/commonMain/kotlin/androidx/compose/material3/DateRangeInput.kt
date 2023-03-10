@@ -31,8 +31,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun DateRangeInputContent(
     stateData: StateData,
-    dateFormatter: DatePickerFormatter,
-    dateValidator: (Long) -> Boolean,
+    dateFormatter: DatePickerFormatter
 ) {
     // Obtain the DateInputFormat for the default Locale.
     val defaultLocale = defaultLocale()
@@ -48,7 +47,6 @@ internal fun DateRangeInputContent(
             stateData = stateData,
             dateInputFormat = dateInputFormat,
             dateFormatter = dateFormatter,
-            dateValidator = dateValidator,
             errorDatePattern = errorDatePattern,
             errorDateOutOfYearRange = errorDateOutOfYearRange,
             errorInvalidNotAllowed = errorInvalidNotAllowed,

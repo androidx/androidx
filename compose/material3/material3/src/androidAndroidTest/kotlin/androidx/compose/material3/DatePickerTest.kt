@@ -106,19 +106,20 @@ class DatePickerTest {
     }
 
     @Test
-    fun invalidDateSelection() {
+    fun blockedDateSelection() {
         lateinit var defaultHeadline: String
         lateinit var datePickerState: DatePickerState
         rule.setMaterialContent(lightColorScheme()) {
             defaultHeadline = getString(string = Strings.DatePickerHeadline)
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2019, month = 1, dayOfMonth = 1)
             datePickerState = rememberDatePickerState(
-                initialDisplayedMonthMillis = monthInUtcMillis
+                initialDisplayedMonthMillis = monthInUtcMillis,
+                selectableDates = object : SelectableDates {
+                    // All dates are invalid for the sake of this test.
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+                }
             )
-            DatePicker(state = datePickerState,
-                // All dates are invalid for the sake of this test.
-                dateValidator = { false }
-            )
+            DatePicker(state = datePickerState)
         }
 
         rule.onNodeWithText(defaultHeadline).assertExists()
@@ -131,6 +132,31 @@ class DatePickerTest {
         }
 
         rule.onNodeWithText(defaultHeadline).assertExists()
+    }
+
+    @Test
+    fun blockedYearSelection() {
+        lateinit var datePickerState: DatePickerState
+        lateinit var yearDescriptionFormat: String
+        rule.setMaterialContent(lightColorScheme()) {
+            yearDescriptionFormat = getString(string = Strings.DatePickerNavigateToYearDescription)
+            val monthInUtcMillis = dayInUtcMilliseconds(year = 2019, month = 1, dayOfMonth = 1)
+            datePickerState = rememberDatePickerState(
+                initialDisplayedMonthMillis = monthInUtcMillis,
+                selectableDates = object : SelectableDates {
+                    // All years are invalid for the sake of this test.
+                    override fun isSelectableYear(year: Int): Boolean = false
+                }
+            )
+            DatePicker(state = datePickerState)
+        }
+
+        // Open the years selection and sample a few years to ensure they are disabled.
+        rule.onNodeWithText("January 2019").performClick()
+        rule.waitForIdle()
+        (2019..2031).forEach { year ->
+            rule.onNodeWithText(yearDescriptionFormat.format(year)).assertIsNotEnabled()
+        }
     }
 
     @Test

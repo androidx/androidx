@@ -71,8 +71,6 @@ import kotlinx.coroutines.launch
  * @param state state of the date range picker. See [rememberDateRangePickerState].
  * @param modifier the [Modifier] to be applied to this date range picker
  * @param dateFormatter a [DatePickerFormatter] that provides formatting skeletons for dates display
- * @param dateValidator a lambda that takes a date timestamp and return true if the date is a valid
- * one for selection. Invalid dates will appear disabled in the UI.
  * @param title the title to be displayed in the date range picker
  * @param headline the headline to be displayed in the date range picker
  * @param showModeToggle indicates if this DateRangePicker should show a mode toggle action that
@@ -86,7 +84,6 @@ fun DateRangePicker(
     state: DateRangePickerState,
     modifier: Modifier = Modifier,
     dateFormatter: DatePickerFormatter = remember { DatePickerFormatter() },
-    dateValidator: (Long) -> Boolean = { true },
     title: (@Composable () -> Unit)? = {
         DateRangePickerDefaults.DateRangePickerTitle(
             state = state,
@@ -132,7 +129,6 @@ fun DateRangePicker(
         SwitchableDateEntryContent(
             state = state,
             dateFormatter = dateFormatter,
-            dateValidator = dateValidator,
             colors = colors
         )
     }
@@ -152,6 +148,8 @@ fun DateRangePicker(
  * current one.
  * @param yearRange an [IntRange] that holds the year range that the date picker will be limited to
  * @param initialDisplayMode an initial [DisplayMode] that this state will hold
+ * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed.
+ * In case a date is not allowed to be selected, it will appear disabled in the UI.
  */
 @Composable
 @ExperimentalMaterial3Api
@@ -161,16 +159,18 @@ fun rememberDateRangePickerState(
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long? =
         initialSelectedStartDateMillis,
     yearRange: IntRange = DatePickerDefaults.YearRange,
-    initialDisplayMode: DisplayMode = DisplayMode.Picker
+    initialDisplayMode: DisplayMode = DisplayMode.Picker,
+    selectableDates: SelectableDates = object : SelectableDates {}
 ): DateRangePickerState = rememberSaveable(
-    saver = DateRangePickerState.Saver()
+    saver = DateRangePickerState.Saver(selectableDates)
 ) {
     DateRangePickerState(
         initialSelectedStartDateMillis = initialSelectedStartDateMillis,
         initialSelectedEndDateMillis = initialSelectedEndDateMillis,
         initialDisplayedMonthMillis = initialDisplayedMonthMillis,
         yearRange = yearRange,
-        initialDisplayMode = initialDisplayMode
+        initialDisplayMode = initialDisplayMode,
+        selectableDates = selectableDates
     )
 }
 
@@ -200,6 +200,8 @@ class DateRangePickerState private constructor(internal val stateData: StateData
      * @param yearRange an [IntRange] that holds the year range that the date picker will be limited
      * to
      * @param initialDisplayMode an initial [DisplayMode] that this state will hold
+     * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed.
+     * In case a date is not allowed to be selected, it will appear disabled in the UI.
      * @see rememberDatePickerState
      * @throws IllegalArgumentException if the initial timestamps do not fall within the year range
      * this state is created with, or the end date precedes the start date, or when an end date is
@@ -210,14 +212,16 @@ class DateRangePickerState private constructor(internal val stateData: StateData
         @Suppress("AutoBoxing") initialSelectedEndDateMillis: Long?,
         @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long?,
         yearRange: IntRange,
-        initialDisplayMode: DisplayMode
+        initialDisplayMode: DisplayMode,
+        selectableDates: SelectableDates
     ) : this(
-        StateData(
+        stateData = StateData(
             initialSelectedStartDateMillis = initialSelectedStartDateMillis,
             initialSelectedEndDateMillis = initialSelectedEndDateMillis,
             initialDisplayedMonthMillis = initialDisplayedMonthMillis,
             yearRange = yearRange,
             initialDisplayMode = initialDisplayMode,
+            selectableDates = selectableDates
         )
     )
 
@@ -276,11 +280,18 @@ class DateRangePickerState private constructor(internal val stateData: StateData
     companion object {
         /**
          * The default [Saver] implementation for [DateRangePickerState].
+         *
+         * @param selectableDates a [SelectableDates] instance that is consulted to check if a date
+         * is allowed
          */
-        fun Saver(): Saver<DateRangePickerState, *> = Saver(
-            save = { with(StateData.Saver()) { save(it.stateData) } },
+        fun Saver(selectableDates: SelectableDates): Saver<DateRangePickerState, *> = Saver(
+            save = { with(StateData.Saver(selectableDates)) { save(it.stateData) } },
             restore = { value ->
-                DateRangePickerState(with(StateData.Saver()) { restore(value)!! })
+                DateRangePickerState(stateData = with(StateData.Saver(selectableDates)) {
+                    restore(
+                        value
+                    )!!
+                })
             }
         )
     }
@@ -448,7 +459,6 @@ object DateRangePickerDefaults {
 private fun SwitchableDateEntryContent(
     state: DateRangePickerState,
     dateFormatter: DatePickerFormatter,
-    dateValidator: (Long) -> Boolean,
     colors: DatePickerColors
 ) {
     // TODO(b/266480386): Apply the motion spec for this once we have it. Consider replacing this
@@ -461,14 +471,12 @@ private fun SwitchableDateEntryContent(
             DisplayMode.Picker -> DateRangePickerContent(
                 stateData = state.stateData,
                 dateFormatter = dateFormatter,
-                dateValidator = dateValidator,
                 colors = colors
             )
 
             DisplayMode.Input -> DateRangeInputContent(
                 stateData = state.stateData,
-                dateFormatter = dateFormatter,
-                dateValidator = dateValidator,
+                dateFormatter = dateFormatter
             )
         }
     }
@@ -479,7 +487,6 @@ private fun SwitchableDateEntryContent(
 private fun DateRangePickerContent(
     stateData: StateData,
     dateFormatter: DatePickerFormatter,
-    dateValidator: (Long) -> Boolean,
     colors: DatePickerColors
 ) {
     val monthsListState =
@@ -497,7 +504,6 @@ private fun DateRangePickerContent(
             stateData = stateData,
             lazyListState = monthsListState,
             dateFormatter = dateFormatter,
-            dateValidator = dateValidator,
             colors = colors
         )
     }
@@ -514,7 +520,6 @@ private fun VerticalMonthsList(
     stateData: StateData,
     lazyListState: LazyListState,
     dateFormatter: DatePickerFormatter,
-    dateValidator: (Long) -> Boolean,
     colors: DatePickerColors
 ) {
     val today = stateData.calendarModel.today
@@ -574,7 +579,6 @@ private fun VerticalMonthsList(
                         today = today,
                         stateData = stateData,
                         rangeSelectionEnabled = true,
-                        dateValidator = dateValidator,
                         dateFormatter = dateFormatter,
                         colors = colors
                     )

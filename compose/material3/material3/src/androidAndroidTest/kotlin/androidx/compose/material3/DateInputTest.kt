@@ -104,11 +104,13 @@ class DateInputTest {
         rule.setMaterialContent(lightColorScheme()) {
             dateInputLabel = getString(string = Strings.DateInputLabel)
             errorMessage = getString(string = Strings.DateInputInvalidNotAllowed)
-            state = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
-            DatePicker(state = state,
-                // All dates are invalid for the sake of this test.
-                dateValidator = { false }
-            )
+            state = rememberDatePickerState(
+                initialDisplayMode = DisplayMode.Input,
+                selectableDates = object : SelectableDates {
+                    // All dates are invalid for the sake of this test.
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+                })
+            DatePicker(state = state)
         }
 
         rule.onNodeWithText(dateInputLabel).performClick().performTextInput("02272020")
