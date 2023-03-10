@@ -32,7 +32,7 @@ import kotlinx.coroutines.Deferred
 open class FakeCameraGraphSession : CameraGraph.Session {
 
     val repeatingRequests = mutableListOf<Request>()
-    val repeatingRequestSemaphore = Semaphore(0)
+    var repeatingRequestSemaphore = Semaphore(0)
     val stopRepeatingSemaphore = Semaphore(0)
 
     override fun abort() {
