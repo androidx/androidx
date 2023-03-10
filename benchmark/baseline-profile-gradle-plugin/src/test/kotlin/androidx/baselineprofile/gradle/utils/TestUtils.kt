@@ -20,13 +20,13 @@ import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
 import org.gradle.testkit.runner.GradleRunner
 
-internal const val GRADLE_CODE_PRINT_TASK = """
+internal val GRADLE_CODE_PRINT_TASK = """
     abstract class PrintTask extends DefaultTask {
         @Input abstract Property<String> getText()
         @TaskAction void exec() { println(getText().get()) }
     }
 
-"""
+    """.trimIndent()
 
 internal fun GradleRunner.build(vararg arguments: String, block: (String) -> (Unit)) {
     this
