@@ -67,6 +67,9 @@ internal typealias PlatformBloodPressureRecord =
 internal typealias PlatformBloodPressureRecordBuilder =
     android.health.connect.datatypes.BloodPressureRecord.Builder
 
+internal typealias PlatformBloodGlucoseRelationToMeal =
+    android.health.connect.datatypes.BloodGlucoseRecord.RelationToMealType
+
 internal typealias PlatformBloodPressureBodyPosition =
     android.health.connect.datatypes.BloodPressureRecord.BodyPosition
 
@@ -100,6 +103,9 @@ internal typealias PlatformCervicalMucusRecord =
 
 internal typealias PlatformCervicalMucusRecordBuilder =
     android.health.connect.datatypes.CervicalMucusRecord.Builder
+
+internal typealias PlatformCervicalMucusAppearance =
+    android.health.connect.datatypes.CervicalMucusRecord.CervicalMucusAppearance
 
 internal typealias PlatformCervicalMucusSensation =
     android.health.connect.datatypes.CervicalMucusRecord.CervicalMucusSensation
