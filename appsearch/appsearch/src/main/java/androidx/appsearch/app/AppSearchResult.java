@@ -52,6 +52,7 @@ public final class AppSearchResult<ValueType> {
             RESULT_NOT_FOUND,
             RESULT_INVALID_SCHEMA,
             RESULT_SECURITY_ERROR,
+            RESULT_DENIED,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ResultCode {}
@@ -94,6 +95,14 @@ public final class AppSearchResult<ValueType> {
 
     /** The caller requested an operation it does not have privileges for. */
     public static final int RESULT_SECURITY_ERROR = 8;
+
+    /**
+     * The requested operation is denied for the caller. This error is logged and returned for
+     * denylist rejections.
+     * @exportToFramework:hide
+     */
+    // TODO(b/279047435): unhide this the next time we can make API changes
+    public static final int RESULT_DENIED = 9;
 
     private final @ResultCode int mResultCode;
     @Nullable private final ValueType mResultValue;
