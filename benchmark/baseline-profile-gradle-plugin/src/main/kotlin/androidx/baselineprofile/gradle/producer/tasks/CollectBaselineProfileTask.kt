@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.baselineprofile.gradle.producer
+package androidx.baselineprofile.gradle.producer.tasks
 
+import androidx.baselineprofile.gradle.utils.INTERMEDIATES_BASE_FOLDER
+import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
+import androidx.baselineprofile.gradle.utils.camelCase
+import com.android.build.api.variant.TestVariant
 import com.google.testing.platform.proto.api.core.TestSuiteResultProto
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFiles
@@ -27,6 +32,7 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.work.DisableCachingByDefault
 
 /**
@@ -36,17 +42,55 @@ import org.gradle.work.DisableCachingByDefault
 @DisableCachingByDefault(because = "Not worth caching.")
 abstract class CollectBaselineProfileTask : DefaultTask() {
 
+    companion object {
+        private const val COLLECT_TASK_NAME = "collect"
+
+        internal fun registerForVariant(
+            project: Project,
+            variant: TestVariant,
+            testTaskDependencies: List<InstrumentationTestTaskWrapper>
+        ): TaskProvider<CollectBaselineProfileTask> {
+
+            val flavorName = variant.flavorName
+            val buildType = variant.buildType
+
+            return project.tasks.register(
+                camelCase(COLLECT_TASK_NAME, variant.name, TASK_NAME_SUFFIX),
+                CollectBaselineProfileTask::class.java
+            ) {
+
+                var outputDir = project
+                    .layout
+                    .buildDirectory
+                    .dir("$INTERMEDIATES_BASE_FOLDER/${variant.flavorName}/")
+
+                if (!flavorName.isNullOrBlank()) {
+                    outputDir = outputDir.map { d -> d.dir(flavorName) }
+                }
+                if (!buildType.isNullOrBlank()) {
+                    outputDir = outputDir.map { d -> d.dir(buildType) }
+                }
+
+                // Sets the baseline-prof output path.
+                it.outputFile.set(outputDir.map { d -> d.file("baseline-prof.txt") })
+
+                // Sets the test results inputs
+                it.testResultDirs.setFrom(testTaskDependencies.map { t -> t.resultsDir })
+            }
+        }
+    }
+
+    init {
+        group = "Baseline Profile"
+        description = "Collects a baseline profile previously generated through integration tests."
+    }
+
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val testResultDirs: ConfigurableFileCollection
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
-
-    init {
-        group = "Baseline Profile"
-        description = "Collects a baseline profile previously generated through integration tests."
-    }
 
     @TaskAction
     fun exec() {

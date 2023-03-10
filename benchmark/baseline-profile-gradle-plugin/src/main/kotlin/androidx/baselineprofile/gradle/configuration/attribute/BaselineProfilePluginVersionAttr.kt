@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.baselineprofile.gradle.attributes
+package androidx.baselineprofile.gradle.configuration.attribute
 
-import androidx.baselineprofile.gradle.attributes.BaselineProfilePluginVersionAttr.Companion.ATTRIBUTE
+import androidx.baselineprofile.gradle.configuration.attribute.BaselineProfilePluginVersionAttr.Companion.ATTRIBUTE
+import org.gradle.api.Named
 import org.gradle.api.attributes.Attribute
 
 /**
@@ -25,7 +26,7 @@ import org.gradle.api.attributes.Attribute
  * There should only be one build type attribute associated to each
  * [org.gradle.api.artifacts.Configuration] object. The key should be [ATTRIBUTE].
  */
-interface BaselineProfilePluginVersionAttr : org.gradle.api.Named {
+internal interface BaselineProfilePluginVersionAttr : Named {
     companion object {
         @JvmField
         val ATTRIBUTE: Attribute<BaselineProfilePluginVersionAttr> =

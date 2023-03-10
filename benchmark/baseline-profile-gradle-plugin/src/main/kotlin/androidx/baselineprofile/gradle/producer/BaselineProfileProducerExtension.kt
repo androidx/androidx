@@ -28,14 +28,16 @@ open class BaselineProfileProducerExtension {
 
         private const val EXTENSION_NAME = "baselineProfile"
 
-        internal fun registerExtension(project: Project): BaselineProfileProducerExtension {
+        internal fun register(project: Project): BaselineProfileProducerExtension {
             val ext = project
-                .extensions.findByType(BaselineProfileProducerExtension::class.java)
+                .extensions
+                .findByType(BaselineProfileProducerExtension::class.java)
             if (ext != null) {
                 return ext
             }
             return project
-                .extensions.create(EXTENSION_NAME, BaselineProfileProducerExtension::class.java)
+                .extensions
+                .create(EXTENSION_NAME, BaselineProfileProducerExtension::class.java)
         }
     }
 
@@ -67,10 +69,4 @@ open class BaselineProfileProducerExtension {
      */
     @Incubating
     var enableEmulatorDisplay = false
-
-    internal val devices by lazy {
-        mutableSetOf<String>()
-            .also { it.addAll(this.managedDevices) }
-            .also { if (this.useConnectedDevices) it.add("connected") }
-    }
 }

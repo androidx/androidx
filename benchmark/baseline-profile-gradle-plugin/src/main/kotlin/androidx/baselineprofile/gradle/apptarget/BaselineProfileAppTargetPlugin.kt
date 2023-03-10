@@ -16,11 +16,13 @@
 
 package androidx.baselineprofile.gradle.apptarget
 
+import androidx.baselineprofile.gradle.utils.AgpPlugin
+import androidx.baselineprofile.gradle.utils.AgpPluginId
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
-import androidx.baselineprofile.gradle.utils.checkAgpVersion
+import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
+import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.createExtendedBuildTypes
-import androidx.baselineprofile.gradle.utils.isGradleSyncRunning
-import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.dsl.ApplicationExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -32,92 +34,77 @@ import org.gradle.api.Project
  * test that generate the baseline profile on the device (producer).
  */
 class BaselineProfileAppTargetPlugin : Plugin<Project> {
+    override fun apply(project: Project) = BaselineProfileAppTargetAgpPlugin(project).onApply()
+}
 
-    override fun apply(project: Project) {
-        var foundAppPlugin = false
-        project.pluginManager.withPlugin("com.android.application") {
-            foundAppPlugin = true
-            configureWithAndroidPlugin(project = project)
-        }
-        var foundLibraryPlugin = false
-        project.pluginManager.withPlugin("com.android.library") {
-            foundLibraryPlugin = true
-        }
+private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : AgpPlugin(
+    project = project,
+    supportedAgpPlugins = setOf(
+        AgpPluginId.ID_ANDROID_APPLICATION_PLUGIN,
+        AgpPluginId.ID_ANDROID_LIBRARY_PLUGIN
+    ),
+    minAgpVersion = MIN_AGP_VERSION_REQUIRED,
+    maxAgpVersion = MAX_AGP_VERSION_REQUIRED
+) {
+    override fun onAgpPluginNotFound(pluginIds: Set<AgpPluginId>) {
 
-        // Only used to verify that the android application plugin has been applied.
-        // Note that we don't want to throw any exception if gradle sync is in progress.
-        project.afterEvaluate {
-            if (!project.isGradleSyncRunning()) {
-                if (!foundAppPlugin) {
-
-                    // Check whether the library plugin was applied instead. If that's the case
-                    // it's possible the developer meant to generate a baseline profile for a
-                    // library and we can give further information.
-                    throw IllegalStateException(
-                        if (!foundLibraryPlugin) {
-                            """
-                    The module ${project.name} does not have the `com.android.application` plugin
-                    applied. The `androidx.baselineprofile.apptarget` plugin supports only
-                    android application modules. Please review your build.gradle to ensure this
-                    plugin is applied to the correct module.
-                    """.trimIndent()
-                        } else {
-                            """
-                    The module ${project.name} does not have the `com.android.application` plugin
-                    but has the `com.android.library` plugin. If you're trying to generate a
-                    baseline profile for a library, you'll need to apply the
-                    `androidx.baselineprofile.apptarget` to an android application that
-                    has the `com.android.application` plugin applied. This should be a sample app
-                    running the code of the library for which you want to generate the profile.
-                    Please review your build.gradle to ensure this plugin is applied to the
-                    correct module.
-                    """.trimIndent()
-                        }
-                    )
-                }
-                project.logger.debug(
-                    """
-                    [BaselineProfileAppTargetPlugin] afterEvaluate check: app plugin was applied
-                    """.trimIndent()
-                )
-            }
-        }
+        // If no supported plugin was found throw an exception.
+        throw IllegalStateException(
+            """
+            The module ${project.name} does not have the `com.android.application` plugin
+            applied. The `androidx.baselineprofile.apptarget` plugin supports only
+            android application modules. Please review your build.gradle to ensure this
+            plugin is applied to the correct module.
+            """.trimIndent()
+        )
     }
 
-    private fun configureWithAndroidPlugin(project: Project) {
+    override fun onAgpPluginFound(pluginIds: Set<AgpPluginId>) {
 
-        // Checks that the required AGP version is applied to this project.
-        project.checkAgpVersion()
+        // If the library plugin was found throw an exception. It's possible the developer meant
+        // to generate a baseline profile for a library and we can give further information.
+        if (pluginIds.contains(AgpPluginId.ID_ANDROID_LIBRARY_PLUGIN)) {
+            throw IllegalStateException(
+                """
+            The module ${project.name} does not have the `com.android.application` plugin
+            but has the `com.android.library` plugin. If you're trying to generate a
+            baseline profile for a library, you'll need to apply the
+            `androidx.baselineprofile.apptarget` to an android application that
+            has the `com.android.application` plugin applied. This should be a sample app
+            running the code of the library for which you want to generate the profile.
+            Please review your build.gradle to ensure this plugin is applied to the
+            correct module.
+            """.trimIndent()
+            )
+        }
 
-        // Create the non obfuscated release build types from the existing release ones.
-        // We want to extend all the current release build types based on isDebuggable flag.
+        // Otherwise, just log the plugin was applied.
         project
-            .extensions
-            .getByType(ApplicationAndroidComponentsExtension::class.java)
-            .finalizeDsl { applicationExtension ->
+            .logger
+            .debug("[BaselineProfileAppTargetPlugin] afterEvaluate check: app plugin was applied")
+    }
 
-                val debugBuildType = applicationExtension.buildTypes.getByName("debug")
-
-                // Creates the baseline profile build types
-                createExtendedBuildTypes(
-                    project = project,
-                    extension = applicationExtension,
-                    newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
-                    filterBlock = {
-                        // Create baseline profile build types only for non debuggable builds.
-                        !it.isDebuggable
-                    },
-                    configureBlock = {
-                        isJniDebuggable = false
-                        isDebuggable = false
-                        isMinifyEnabled = false
-                        isShrinkResources = false
-                        isProfileable = true
-                        signingConfig = debugBuildType.signingConfig
-                        enableAndroidTestCoverage = false
-                        enableUnitTestCoverage = false
-                    }
-                )
+    override fun onApplicationFinalizeDsl(extension: ApplicationExtension) {
+        // Creates baseline profile build types extending the currently existing ones.
+        // They're named `<BUILD_TYPE_BASELINE_PROFILE_PREFIX><originalBuildTypeName>`.
+        createExtendedBuildTypes(
+            project = project,
+            extension = extension,
+            newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
+            filterBlock = {
+                // Create baseline profile build types only for non debuggable builds.
+                !it.isDebuggable
+            },
+            configureBlock = {
+                isJniDebuggable = false
+                isDebuggable = false
+                isMinifyEnabled = false
+                isShrinkResources = false
+                isProfileable = true
+                signingConfig = extension.buildTypes.getByName("debug").signingConfig
+                enableAndroidTestCoverage = false
+                enableUnitTestCoverage = false
             }
+        )
     }
 }
