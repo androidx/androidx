@@ -282,6 +282,12 @@ public final class TypeBuilders {
       return mImpl;
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "BoolProp{" + "value=" + getValue() + "}";
+    }
+
     /** Builder for {@link BoolProp} */
     public static final class Builder {
       private final TypesProto.BoolProp.Builder mImpl = TypesProto.BoolProp.newBuilder();

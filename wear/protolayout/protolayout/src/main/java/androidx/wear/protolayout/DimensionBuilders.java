@@ -125,6 +125,12 @@ public final class DimensionBuilders {
       return DimensionProto.SpacerDimension.newBuilder().setLinearDimension(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "DpProp{" + "value=" + getValue() + "}";
+    }
+
     /** Builder for {@link DpProp}. */
     public static final class Builder
         implements ContainerDimension.Builder, ImageDimension.Builder, SpacerDimension.Builder {
