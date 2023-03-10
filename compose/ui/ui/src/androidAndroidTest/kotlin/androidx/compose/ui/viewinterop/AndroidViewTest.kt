@@ -654,6 +654,37 @@ class AndroidViewTest {
     }
 
     @Test
+    fun androidView_callsOnRelease() {
+        var releaseCount = 0
+        var showContent by mutableStateOf(true)
+        rule.setContent {
+            if (showContent) {
+                AndroidView(
+                    factory = { TextView(it) },
+                    update = { it.text = "onRelease test" },
+                    onRelease = { releaseCount++ }
+                )
+            }
+        }
+
+        onView(instanceOf(TextView::class.java))
+            .check(matches(isDisplayed()))
+
+        assertEquals("onRelease() was called unexpectedly", 0, releaseCount)
+
+        showContent = false
+
+        onView(instanceOf(TextView::class.java))
+            .check(doesNotExist())
+
+        assertEquals(
+            "onRelease() should be called exactly once after " +
+                "removing the view from the composition hierarchy",
+            1, releaseCount
+        )
+    }
+
+    @Test
     fun androidView_restoresState() {
         var result = ""
 
