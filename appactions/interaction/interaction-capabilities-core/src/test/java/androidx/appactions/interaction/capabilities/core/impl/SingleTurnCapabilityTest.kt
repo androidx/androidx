@@ -30,6 +30,8 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBui
 import androidx.appactions.interaction.capabilities.core.properties.EntityProperty
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty
 import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils
+import androidx.appactions.interaction.capabilities.core.testing.buildCallbackInternalWithChannel
+import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.CB_TIMEOUT
 import androidx.appactions.interaction.capabilities.core.testing.spec.Argument
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
 import androidx.appactions.interaction.capabilities.core.testing.spec.Property
@@ -38,19 +40,17 @@ import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutpu
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
 import androidx.appactions.interaction.proto.ParamValue
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.verify
-import org.mockito.kotlin.mock
 
 @RunWith(JUnit4::class)
 class SingleTurnCapabilityTest {
     val hostProperties = HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build()
-    val mockCalback: CallbackInternal = mock()
 
-    @Ignore // b/271033076
     @Test
     fun oneShotCapability_successWithOutput() {
         val actionExecutor = object : ActionExecutor<Argument, Output> {
@@ -88,6 +88,7 @@ class SingleTurnCapabilityTest {
             ).build()
 
         val capabilitySession = capability.createSession(hostProperties)
+        val responseChannel = Channel<FulfillmentResponse>(1)
         capabilitySession.execute(
             ArgumentUtils.buildArgs(
                 mapOf(
@@ -96,10 +97,16 @@ class SingleTurnCapabilityTest {
                     ).build(),
                 ),
             ),
-            mockCalback,
+            buildCallbackInternalWithChannel(responseChannel, CB_TIMEOUT),
         )
 
-        verify(mockCalback).onSuccess(expectedFulfillmentResponse)
+        runBlocking {
+            withTimeout(CB_TIMEOUT) {
+                assertThat(
+                    responseChannel.receive(),
+                ).isEqualTo(expectedFulfillmentResponse)
+            }
+        }
     }
 
     @Test
