@@ -77,7 +77,7 @@ class LocalSoftwareKeyboardControllerTest {
     }
 
     @Test
-    fun localSoftwareKeybardController_delegatesTo_textInputService() {
+    fun localSoftwareKeyboardController_delegatesTo_textInputService() {
         val platformTextInputService = mock<PlatformTextInputService>()
         platformTextInputServiceInterceptor = { platformTextInputService }
 

@@ -14,18 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.input.internal
+package androidx.compose.ui
 
-import android.view.View
-import androidx.compose.ui.text.input.PlatformTextInput
-import androidx.compose.ui.text.input.PlatformTextInputPlugin
-
-internal object AndroidTextInputPlugin : PlatformTextInputPlugin<AndroidTextInputAdapter> {
-
-    override fun createAdapter(
-        platformTextInput: PlatformTextInput,
-        view: View
-    ): AndroidTextInputAdapter {
-        return AndroidTextInputAdapter(view, platformTextInput)
-    }
-}
+internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>

@@ -2701,7 +2701,6 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.hapticfeedback.HapticFeedback> getLocalHapticFeedback();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> getLocalInputModeManager();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> getLocalLayoutDirection();
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.PlatformTextInputPluginRegistry> getLocalPlatformTextInputPluginRegistry();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController> getLocalSoftwareKeyboardController();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService> getLocalTextInputService();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> getLocalTextToolbar();
@@ -2718,7 +2717,6 @@ package androidx.compose.ui.platform {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.hapticfeedback.HapticFeedback> LocalHapticFeedback;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> LocalInputModeManager;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> LocalLayoutDirection;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.PlatformTextInputPluginRegistry> LocalPlatformTextInputPluginRegistry;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController> LocalSoftwareKeyboardController;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService> LocalTextInputService;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> LocalTextToolbar;
@@ -2792,6 +2790,22 @@ package androidx.compose.ui.platform {
 
   public final class NestedScrollInteropConnectionKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.input.nestedscroll.NestedScrollConnection rememberNestedScrollInteropConnection(optional android.view.View hostView);
+  }
+
+  public interface PlatformTextInputModifierNode extends androidx.compose.ui.node.DelegatableNode {
+  }
+
+  public final class PlatformTextInputModifierNodeKt {
+    method public static suspend Object? textInputSession(androidx.compose.ui.platform.PlatformTextInputModifierNode, kotlin.jvm.functions.Function2<? super androidx.compose.ui.platform.PlatformTextInputSessionScope,? super kotlin.coroutines.Continuation<?>,?> session, kotlin.coroutines.Continuation<?>);
+  }
+
+  public interface PlatformTextInputSession {
+    method public android.view.View getView();
+    method public suspend Object? startInputMethod(androidx.compose.ui.text.input.PlatformTextInputMethodRequest request, kotlin.coroutines.Continuation<?>);
+    property public abstract android.view.View view;
+  }
+
+  public interface PlatformTextInputSessionScope extends androidx.compose.ui.platform.PlatformTextInputSession kotlinx.coroutines.CoroutineScope {
   }
 
   @androidx.compose.runtime.Stable public interface SoftwareKeyboardController {

@@ -45,13 +45,12 @@ import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -3310,15 +3309,20 @@ private class TestOwner : Owner {
         get() = Density(1f)
     override val textInputService: TextInputService
         get() = TODO("Not yet implemented")
-    @OptIn(ExperimentalTextApi::class)
-    override val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry
-        get() = TODO("Not yet implemented")
+
+    override suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing {
+        TODO("Not yet implemented")
+    }
+
     override val pointerIconService: PointerIconService
         get() = TODO("Not yet implemented")
     override val focusOwner: FocusOwner
         get() = TODO("Not yet implemented")
     override val windowInfo: WindowInfo
         get() = TODO("Not yet implemented")
+
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
         replaceWith = ReplaceWith("fontFamilyResolver")

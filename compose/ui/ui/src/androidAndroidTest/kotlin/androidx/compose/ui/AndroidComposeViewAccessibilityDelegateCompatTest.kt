@@ -66,6 +66,7 @@ import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompa
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.SemanticsNodeCopy
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.SemanticsNodeWithAdjustedBounds
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
@@ -121,11 +122,9 @@ import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -1973,9 +1972,13 @@ internal class MockOwner(
         get() = Density(1f)
     override val textInputService: TextInputService
         get() = TODO("Not yet implemented")
-    @OptIn(ExperimentalTextApi::class)
-    override val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry
-        get() = TODO("Not yet implemented")
+
+    override suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing {
+        TODO("Not yet implemented")
+    }
+
     override val pointerIconService: PointerIconService
         get() = TODO("Not yet implemented")
     override val focusOwner: FocusOwner

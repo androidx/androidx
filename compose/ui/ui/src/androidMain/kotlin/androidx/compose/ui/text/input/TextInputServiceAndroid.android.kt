@@ -54,7 +54,6 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
 internal class TextInputServiceAndroid(
     val view: View,
     private val inputMethodManager: InputMethodManager,
-    private val platformTextInput: PlatformTextInput? = null,
     private val inputCommandProcessorExecutor: Executor = Choreographer.getInstance().asExecutor(),
 ) : PlatformTextInputService {
 
@@ -68,6 +67,12 @@ internal class TextInputServiceAndroid(
         ShowKeyboard,
         HideKeyboard;
     }
+
+    /**
+     * True if the currently editable composable has connected. This is used to tell the platform
+     * when it asks if the compose view is a text editor.
+     */
+    private var editorHasFocus = false
 
     /**
      *  The following three observers are set when the editable composable has initiated the input
@@ -105,10 +110,9 @@ internal class TextInputServiceAndroid(
     private val textInputCommandQueue = mutableVectorOf<TextInputCommand>()
     private var frameCallback: Runnable? = null
 
-    constructor(view: View, context: PlatformTextInput? = null) : this(
+    constructor(view: View) : this(
         view,
         InputMethodManagerImpl(view),
-        context
     )
 
     init {
@@ -120,7 +124,11 @@ internal class TextInputServiceAndroid(
     /**
      * Creates new input connection.
      */
-    fun createInputConnection(outAttrs: EditorInfo): InputConnection {
+    fun createInputConnection(outAttrs: EditorInfo): InputConnection? {
+        if (!editorHasFocus) {
+            return null
+        }
+
         outAttrs.update(imeOptions, state)
         outAttrs.updateWithEmojiCompat()
 
@@ -175,6 +183,11 @@ internal class TextInputServiceAndroid(
         }
     }
 
+    /**
+     * Returns true if some editable component is focused.
+     */
+    fun isEditorFocused(): Boolean = editorHasFocus
+
     override fun startInput(
         value: TextFieldValue,
         imeOptions: ImeOptions,
@@ -185,7 +198,7 @@ internal class TextInputServiceAndroid(
             Log.d(TAG, "$DEBUG_CLASS.startInput")
         }
 
-        platformTextInput?.requestInputFocus()
+        editorHasFocus = true
         state = value
         this.imeOptions = imeOptions
         this.onEditCommand = onEditCommand
@@ -196,10 +209,23 @@ internal class TextInputServiceAndroid(
         sendInputCommand(StartInput)
     }
 
+    override fun startInput() {
+        if (DEBUG) {
+            Log.d(TAG, "$DEBUG_CLASS.startInput")
+        }
+
+        // Don't set editorHasFocus or any of the other properties used to support the legacy text
+        // input system.
+
+        // Don't actually send the command to the IME yet, it may be overruled by a subsequent call
+        // to stopInput.
+        sendInputCommand(StartInput)
+    }
+
     override fun stopInput() {
         if (DEBUG) Log.d(TAG, "$DEBUG_CLASS.stopInput")
 
-        platformTextInput?.releaseInputFocus()
+        editorHasFocus = false
         onEditCommand = {}
         onImeActionPerformed = {}
         focusedRect = null
