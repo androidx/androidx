@@ -25,8 +25,8 @@ plugins {
 
 dependencies {
 
-    api("androidx.compose.ui:ui:1.4.0-beta02")
-    api("androidx.compose.runtime:runtime:1.4.0-beta02")
+    api(project(":compose:ui:ui"))
+    api(project(":compose:runtime:runtime"))
     api("androidx.navigation:navigation-runtime:2.5.3")
     api(project(":wear:compose:compose-material"))
     api(project(":activity:activity-compose"))
@@ -38,13 +38,13 @@ dependencies {
     implementation("androidx.profileinstaller:profileinstaller:1.2.0")
 
     androidTestImplementation(project(":compose:test-utils"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.4.0-beta02")
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":navigation:navigation-common"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(project(":wear:compose:compose-material"))
     androidTestImplementation(project(":wear:compose:compose-navigation-samples"))
     androidTestImplementation(libs.truth)
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.5.1")
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.0")
     androidTestImplementation("androidx.navigation:navigation-testing:2.5.3")
 
     samples(project(":wear:compose:compose-navigation-samples"))
