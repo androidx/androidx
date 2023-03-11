@@ -627,6 +627,7 @@ public final class AppSearchSchema {
          * referenced by this field is deleted.
          *
          * @see JoinSpec
+         * @<!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()hide-->
          */
         public boolean getDeletionPropagation() {
             return mBundle.getBoolean(DELETION_PROPAGATION_FIELD, false);
@@ -722,6 +723,7 @@ public final class AppSearchSchema {
              * referred to by this property is deleted.
              *
              * <p> Requires that a joinable value type is set.
+             * @<!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()hide-->
              */
             @SuppressWarnings("MissingGetterMatchingBuilder")  // getDeletionPropagation
             @NonNull
