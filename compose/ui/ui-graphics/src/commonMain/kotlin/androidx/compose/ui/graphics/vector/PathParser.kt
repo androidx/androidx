@@ -49,7 +49,6 @@ import kotlin.math.tan
 internal val EmptyArray = FloatArray(0)
 
 class PathParser {
-
     private data class PathPoint(var x: Float = 0.0f, var y: Float = 0.0f) {
         fun reset() {
             x = 0.0f
@@ -68,43 +67,83 @@ class PathParser {
     private val segmentPoint = PathPoint()
     private val reflectiveCtrlPoint = PathPoint()
 
-    // We need to return the position of the next separator and whether the
-    // next float starts with a '-' or a '.'.
-    private var resultIndexAdvance = 0
-
-    private var results = FloatArray(64)
+    private val floatResult = FloatResult()
+    private var nodeData = FloatArray(64)
 
     /**
      * Parses the path string to create a collection of PathNode instances with their corresponding
      * arguments
-     * throws an IllegalArgumentException or NumberFormatException if the parameters are invalid
      */
     fun parsePathString(pathData: String): PathParser {
         nodes.clear()
 
         var start = 0
-        var end = 1
-        while (end < pathData.length) {
-            end = nextStart(pathData, end)
+        var end = pathData.length
 
-            // Trim leading and trailing spaces
-            var trimEnd = end
-            while (start < end && pathData[start] <= ' ') start++
-            while (trimEnd > start && pathData[trimEnd - 1] <= ' ') trimEnd--
+        // Holds the floats that describe the points for each command
+        var dataCount = 0
 
-            if (start != trimEnd) {
-                val count = getFloats(pathData, start, trimEnd)
-                addNodes(pathData[start], results, count)
+        // Trim leading and trailing tabs and spaces
+        while (start < end && pathData[start] <= ' ') start++
+        while (end > start && pathData[end - 1] <= ' ') end--
+
+        var index = start
+        while (index < end) {
+            var c: Char
+            var command = '\u0000'
+
+            // Look for the next command:
+            //     A character that's a lower or upper case letter, but not e or E as those can be
+            //      part of a float literal (e.g. 1.23e-3).
+            do {
+                c = pathData[index++]
+                val lowerChar = c.code or 0x20
+                if ((lowerChar - 'a'.code) * (lowerChar - 'z'.code) <= 0 && lowerChar != 'e'.code) {
+                    command = c
+                    break
+                }
+            } while (index < end)
+
+            // We found a command
+            if (command != '\u0000') {
+                // If the command is a close command (z or Z), we don't need to extract floats,
+                // and can proceed to the next command instead
+                if ((command.code or 0x20) != 'z'.code) {
+                    dataCount = 0
+
+                    do {
+                        // Skip any whitespace
+                        while (index < end && pathData[index] <= ' ') index++
+
+                        // Find the next float and add it to the data array if we got a valid result
+                        // An invalid result could be a malformed float, or simply that we reached
+                        // the end of the list of floats
+                        index = FastFloatParser.nextFloat(pathData, index, end, floatResult)
+
+                        if (floatResult.isValid) {
+                            nodeData[dataCount++] = floatResult.value
+                            resizeNodeData(dataCount)
+                        }
+
+                        // Skip any commas
+                        while (index < end && pathData[index] == ',') index++
+                    } while (index < end && floatResult.isValid)
+                }
+
+                addNodes(command, nodeData, dataCount)
             }
-
-            start = end
-            end++
-        }
-        if (end - start == 1 && start < pathData.length) {
-            addNodes(pathData[start], EmptyArray, 0)
         }
 
         return this
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun resizeNodeData(dataCount: Int) {
+        if (dataCount >= nodeData.size) {
+            val src = nodeData
+            nodeData = FloatArray(dataCount * 2)
+            src.copyInto(nodeData, 0, 0, src.size)
+        }
     }
 
     fun addPathNodes(nodes: List<PathNode>): PathParser {
@@ -537,93 +576,6 @@ class PathParser {
     @Suppress("NOTHING_TO_INLINE")
     private inline fun addNodes(cmd: Char, args: FloatArray, count: Int) {
         cmd.addPathNodes(nodes, args, count)
-    }
-
-    private fun nextStart(s: String, end: Int): Int {
-        var index = end
-        while (index < s.length) {
-            val c = s[index]
-            // Note that 'e' or 'E' are not valid path commands, but could be
-            // used for floating point numbers' scientific notation.
-            // Therefore, when searching for next command, we should ignore 'e'
-            // and 'E'.
-            // Set the high bit to do a case insensitive char comparison
-            val lowerChar = c.code or 0x20
-            if ((lowerChar - 'a'.code) * (lowerChar - 'z'.code) <= 0 && lowerChar != 'e'.code) {
-                return index
-            }
-            index++
-        }
-        return index
-    }
-
-    private fun getFloats(s: String, start: Int, end: Int): Int {
-        // Set the high bit to check if the letter is 'z' or 'Z' in one go
-        if ((s[start].code or 0x20) == 'z'.code) {
-            return 0
-        }
-
-        var count = 0
-        var startPosition = start + 1
-
-        // The startPosition should always be the first character of the
-        // current number, and endPosition is the character after the current
-        // number.
-        while (startPosition < end) {
-            val endPosition = extract(s, startPosition, end)
-
-            if (startPosition < endPosition) {
-                results[count++] = s.substring(startPosition, endPosition).toFloat()
-                resizeResultsIfNeeded(count)
-            }
-
-            startPosition = endPosition + resultIndexAdvance
-        }
-
-        return count
-    }
-
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun resizeResultsIfNeeded(count: Int) {
-        if (count >= results.size) {
-            val previous = results
-            results = FloatArray(count * 2)
-            previous.copyInto(results, 0, 0, previous.size)
-        }
-    }
-
-    private fun extract(s: String, start: Int, end: Int): Int {
-        // Now looking for ' ', ',', '.' or '-' from the start.
-        var currentIndex = start
-
-        resultIndexAdvance = 1
-
-        while (currentIndex < end) {
-            when (s[currentIndex]) {
-                ' ', ',' -> return currentIndex
-                '-' ->
-                    // The negative sign following a 'e' or 'E' is not a separator.
-                    if (currentIndex != start &&
-                        // Set the high bit to check if the letter is 'e' or 'E' in one go
-                        (s[currentIndex - 1].code or 0x20) != 'e'.code
-                    ) {
-                        resultIndexAdvance = 0
-                        return currentIndex
-                    }
-
-                '.' ->
-                    if (currentIndex != start && s[currentIndex - 1] == '.') {
-                        // This is the second dot, and it is considered as a separator.
-                        resultIndexAdvance = 0
-                        return currentIndex
-                    }
-            }
-            currentIndex++
-        }
-
-        // When there is nothing found, then we put the end position to the end
-        // of the string.
-        return currentIndex
     }
 
     private fun Double.toRadians(): Double = this / 180 * PI
