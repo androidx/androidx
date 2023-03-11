@@ -90,8 +90,8 @@ abstract class MeasurementManager {
     abstract suspend fun getMeasurementApiStatus(): Int
 
     @SuppressLint("NewApi", "ClassVerificationFailure")
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-    private class Api33Ext4Impl(
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
+    private class Api33Ext5Impl(
         private val mMeasurementManager: android.adservices.measurement.MeasurementManager
     ) : MeasurementManager() {
         constructor(context: Context) : this(
@@ -250,8 +250,8 @@ abstract class MeasurementManager {
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): MeasurementManager? {
-            return if (AdServicesInfo.version() >= 4) {
-                Api33Ext4Impl(context)
+            return if (AdServicesInfo.version() >= 5) {
+                Api33Ext5Impl(context)
             } else {
                 null
             }
