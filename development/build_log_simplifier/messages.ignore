@@ -877,7 +877,7 @@ xcframework successfully .*
 WARNING:.*The option setting 'android\.r8\.maxWorkers=[0-9]+' is experimental\.
 # Building XCFrameworks (b/260140834) and iOS benchmark invocation
 .*xcodebuild.*
-Observed package id 'platforms;android-33-ext4' in inconsistent location.*
+Observed package id 'platforms;android-33-ext5' in inconsistent location.*
 .*xcodebuild.*
 # > Task :core:core:compileDebugAndroidTestKotlin
 w: file://\$SUPPORT/core/core/src/androidTest/java/androidx/core/util/TypedValueCompatTest\.kt:[0-9]+:[0-9]+ 'scaledDensity: Float' is deprecated\. Deprecated in Java
