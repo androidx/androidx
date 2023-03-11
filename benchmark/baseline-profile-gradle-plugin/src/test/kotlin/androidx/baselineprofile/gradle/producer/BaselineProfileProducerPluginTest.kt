@@ -17,7 +17,7 @@
 package androidx.baselineprofile.gradle.producer
 
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
-import com.google.common.truth.Truth.assertThat
+import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,13 +59,9 @@ class BaselineProfileProducerPluginTest {
             """.trimIndent()
         )
 
-        projectSetup.producer.gradleRunner
-            .withArguments("tasks", "--stacktrace")
-            .build()
-            .output
-            .let {
-                assertThat(it).contains("connectedNonMinifiedReleaseAndroidTest - ")
-                assertThat(it).contains("collectNonMinifiedReleaseBaselineProfile - ")
-            }
+        projectSetup.producer.gradleRunner.buildAndAssertThatOutput("tasks") {
+            contains("connectedNonMinifiedReleaseAndroidTest - ")
+            contains("collectNonMinifiedReleaseBaselineProfile - ")
+        }
     }
 }

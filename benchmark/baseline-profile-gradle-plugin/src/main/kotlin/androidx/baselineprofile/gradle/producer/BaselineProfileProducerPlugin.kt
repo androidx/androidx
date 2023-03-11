@@ -107,6 +107,24 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
             enableAndroidTestCoverage = false
             enableUnitTestCoverage = false
             signingConfig = extension.buildTypes.getByName("debug").signingConfig
+
+            // TODO: The matching fallback is causing a circular dependency when app target plugin
+            //  is not applied. Normally this is not used, but if an app defines only the consumer
+            //  plugin the `nonMinified` build won't exist. If the provider points to it, the
+            //  matching fallback will kick in and will use the `release` build instead of the
+            //  `nonMinifiedRelease`. When this happens, since  we depend on
+            //  `mergeArtReleaseProfile` to ensure that a profile is copied is the baseline profile
+            //  src sets before the build is complete, it will trigger a circular task dependency:
+            //      collectNonMinifiedReleaseBaselineProfile ->
+            //          connectedNonMinifiedReleaseAndroidTest ->
+            //              packageRelease ->
+            //                  compileReleaseArtProfile ->
+            //                      mergeReleaseArtProfile ->
+            //                          copyReleaseBaselineProfileIntoSrc ->
+            //                              mergeReleaseBaselineProfile ->
+            //                                  collectNonMinifiedReleaseBaselineProfile
+            //  Note that the error is expected but we should handle it gracefully with proper
+            //  explanation. (b/272851616)
             matchingFallbacks += listOf(RELEASE)
         }
 
