@@ -35,6 +35,8 @@ import androidx.tv.material3.Text
 import kotlinx.coroutines.delay
 
 enum class Navigation(val displayName: String, val action: @Composable () -> Unit) {
+  Drawer("Drawer", { SampleDrawer() }),
+  ModalDrawer("Modal Drawer", { SampleModalDrawer() }),
   LazyRowsAndColumns("Lazy Rows and Columns", { LazyRowsAndColumns() }),
   FeaturedCarousel("Featured Carousel", { FeaturedCarouselContent() }),
   ImmersiveList("Immersive List", { ImmersiveListContent() }),
