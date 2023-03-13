@@ -23,7 +23,6 @@ import android.os.Build
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 
@@ -37,7 +36,6 @@ import kotlinx.coroutines.flow.callbackFlow
  *
  * @param view the view to use as the reference for the source rect hint
  */
-@ExperimentalCoroutinesApi
 @RequiresApi(Build.VERSION_CODES.O)
 public suspend fun Activity.trackPipAnimationHintView(view: View) {
     // Returns a rect of the window coordinates of a view.
