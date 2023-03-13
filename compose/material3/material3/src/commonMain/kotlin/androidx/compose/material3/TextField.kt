@@ -24,7 +24,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -59,6 +61,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.offset
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -558,6 +561,8 @@ internal fun TextFieldLayout(
                 Box(
                     Modifier
                         .layoutId(PrefixId)
+                        .heightIn(min = MinTextLineHeight)
+                        .wrapContentHeight()
                         .padding(start = startPadding, end = PrefixSuffixTextPadding)
                 ) {
                     prefix()
@@ -567,6 +572,8 @@ internal fun TextFieldLayout(
                 Box(
                     Modifier
                         .layoutId(SuffixId)
+                        .heightIn(min = MinTextLineHeight)
+                        .wrapContentHeight()
                         .padding(start = PrefixSuffixTextPadding, end = endPadding)
                 ) {
                     suffix()
@@ -577,19 +584,29 @@ internal fun TextFieldLayout(
                 Box(
                     Modifier
                         .layoutId(LabelId)
+                        .heightIn(min = lerp(
+                            MinTextLineHeight, MinFocusedLabelLineHeight, animationProgress))
+                        .wrapContentHeight()
                         .padding(start = startPadding, end = endPadding)) { label() }
             }
 
-            val textPadding = Modifier.padding(
-                start = if (prefix == null) startPadding else 0.dp,
-                end = if (suffix == null) endPadding else 0.dp,
-            )
+            val textPadding = Modifier
+                .heightIn(min = MinTextLineHeight)
+                .wrapContentHeight()
+                .padding(
+                    start = if (prefix == null) startPadding else 0.dp,
+                    end = if (suffix == null) endPadding else 0.dp,
+                )
 
             if (placeholder != null) {
-                placeholder(Modifier.layoutId(PlaceholderId).then(textPadding))
+                placeholder(Modifier
+                    .layoutId(PlaceholderId)
+                    .then(textPadding))
             }
             Box(
-                modifier = Modifier.layoutId(TextFieldId).then(textPadding),
+                modifier = Modifier
+                    .layoutId(TextFieldId)
+                    .then(textPadding),
                 propagateMinConstraints = true,
             ) {
                 textField()
@@ -599,6 +616,8 @@ internal fun TextFieldLayout(
                 @OptIn(ExperimentalMaterial3Api::class)
                 Box(Modifier
                     .layoutId(SupportingId)
+                    .heightIn(min = MinSupportingTextLineHeight)
+                    .wrapContentHeight()
                     .padding(TextFieldDefaults.supportingTextPadding())
                 ) { supporting() }
             }
