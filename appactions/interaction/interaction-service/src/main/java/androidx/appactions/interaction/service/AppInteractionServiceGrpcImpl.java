@@ -246,7 +246,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
                                 convertFulfillmentResponse(fulfillmentResponse, capability.get())
                                         .toBuilder();
                         UiCache uiCache = UiSessions.INSTANCE.getUiCacheOrNull(
-                                currentSession.getUiHandle());
+                                sessionId);
                         if (uiCache != null && uiCache.hasUnreadUiResponse()) {
                             responseBuilder.setUiUpdate(UiUpdate.getDefaultInstance());
                             if (!uiCache.getCachedChangedViewIds().isEmpty()) {
@@ -286,8 +286,9 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
     public void requestUi(
             AppInteractionServiceProto.UiRequest req,
             StreamObserver<AppInteractionServiceProto.UiResponse> responseObserver) {
+        String sessionId = req.getSessionIdentifier();
         ActionCapabilitySession currentSession = SessionManager.INSTANCE
-                .getSession(req.getSessionIdentifier());
+                .getSession(sessionId);
         if (currentSession == null) {
             responseObserver.onError(
                     new StatusRuntimeException(
@@ -301,7 +302,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
                             Status.FAILED_PRECONDITION.withDescription(ERROR_SESSION_ENDED)));
             return;
         }
-        UiCache uiCache = UiSessions.INSTANCE.getUiCacheOrNull(currentSession.getUiHandle());
+        UiCache uiCache = UiSessions.INSTANCE.getUiCacheOrNull(sessionId);
         if (uiCache == null) {
             destroySession(req.getSessionIdentifier());
             responseObserver.onError(
@@ -349,8 +350,9 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
     @Override
     public void requestCollection(
             CollectionRequest req, StreamObserver<CollectionResponse> responseObserver) {
+        String sessionId = req.getSessionIdentifier();
         ActionCapabilitySession currentSession = SessionManager.INSTANCE
-                .getSession(req.getSessionIdentifier());
+                .getSession(sessionId);
         if (currentSession == null) {
             responseObserver.onError(
                     new StatusRuntimeException(
@@ -364,7 +366,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
                             Status.FAILED_PRECONDITION.withDescription(ERROR_SESSION_ENDED)));
             return;
         }
-        UiCache uiCache = UiSessions.INSTANCE.getUiCacheOrNull(currentSession.getUiHandle());
+        UiCache uiCache = UiSessions.INSTANCE.getUiCacheOrNull(sessionId);
         if (uiCache == null) {
             destroySession(req.getSessionIdentifier());
             responseObserver.onError(
