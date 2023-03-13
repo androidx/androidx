@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.DaggerCameraAppComponent
 import androidx.camera.camera2.pipe.integration.internal.CameraCompatibilityFilter
 import androidx.camera.camera2.pipe.integration.internal.CameraSelectionOptimizer
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.concurrent.CameraCoordinator.ConcurrentCameraModeListener
@@ -97,13 +98,11 @@ class CameraFactoryAdapter(
                 return mutableListOf()
             }
 
-            override fun getActiveConcurrentCameraSelectors(): MutableList<CameraSelector> {
+            override fun getActiveConcurrentCameraInfos(): MutableList<CameraInfo> {
                 return mutableListOf()
             }
 
-            override fun setActiveConcurrentCameraSelectors(
-                cameraSelectors: MutableList<CameraSelector>
-            ) {
+            override fun setActiveConcurrentCameraInfos(cameraInfos: MutableList<CameraInfo>) {
             }
 
             override fun getPairedConcurrentCameraId(cameraId: String): String? {
