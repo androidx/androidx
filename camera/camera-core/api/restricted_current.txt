@@ -169,6 +169,30 @@ package androidx.camera.core {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraInfo, float, float);
   }
 
+  @RequiresApi(21) public final class DynamicRange {
+    ctor public DynamicRange(int, int);
+    method public int getBitDepth();
+    method public int getEncoding();
+    field public static final int BIT_DEPTH_10_BIT = 10; // 0xa
+    field public static final int BIT_DEPTH_8_BIT = 8; // 0x8
+    field public static final int BIT_DEPTH_UNSPECIFIED = 0; // 0x0
+    field public static final androidx.camera.core.DynamicRange DOLBY_VISION_10_BIT;
+    field public static final androidx.camera.core.DynamicRange DOLBY_VISION_8_BIT;
+    field public static final int ENCODING_DOLBY_VISION = 6; // 0x6
+    field public static final int ENCODING_HDR10 = 4; // 0x4
+    field public static final int ENCODING_HDR10_PLUS = 5; // 0x5
+    field public static final int ENCODING_HDR_UNSPECIFIED = 2; // 0x2
+    field public static final int ENCODING_HLG = 3; // 0x3
+    field public static final int ENCODING_SDR = 1; // 0x1
+    field public static final int ENCODING_UNSPECIFIED = 0; // 0x0
+    field public static final androidx.camera.core.DynamicRange HDR10_10_BIT;
+    field public static final androidx.camera.core.DynamicRange HDR10_PLUS_10_BIT;
+    field public static final androidx.camera.core.DynamicRange HDR_UNSPECIFIED_10_BIT;
+    field public static final androidx.camera.core.DynamicRange HLG_10_BIT;
+    field public static final androidx.camera.core.DynamicRange SDR;
+    field public static final androidx.camera.core.DynamicRange UNSPECIFIED;
+  }
+
   @RequiresApi(21) @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
   }
 
@@ -463,6 +487,7 @@ package androidx.camera.core {
   @RequiresApi(21) public final class SurfaceRequest {
     method public void addRequestCancellationListener(java.util.concurrent.Executor, Runnable);
     method public void clearTransformationInfoListener();
+    method public androidx.camera.core.DynamicRange getDynamicRange();
     method public android.util.Size getResolution();
     method public boolean invalidate();
     method public void provideSurface(android.view.Surface, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.core.SurfaceRequest.Result!>);
