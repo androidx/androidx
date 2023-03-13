@@ -32,6 +32,7 @@ import android.view.ActionMode;
 import android.view.DragEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputMethodManager;
 import android.view.textclassifier.TextClassifier;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -299,6 +300,20 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     public ActionMode.Callback getCustomSelectionActionModeCallback() {
         return TextViewCompat.unwrapCustomSelectionActionModeCallback(
                 super.getCustomSelectionActionModeCallback());
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (Build.VERSION.SDK_INT >= 30 && Build.VERSION.SDK_INT < 33) {
+            final InputMethodManager imm = (InputMethodManager) getContext().getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            // Calling isActive() here implied a checkFocus() call to update the active served
+            // view for input method. This is a backport for mServedView was detached, but the
+            // next served view gets mistakenly cleared as well.
+            // https://android.googlesource.com/platform/frameworks/base/+/734613a500fb
+            imm.isActive(this);
+        }
     }
 
     @UiThread
