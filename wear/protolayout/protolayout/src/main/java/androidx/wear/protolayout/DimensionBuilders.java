@@ -18,8 +18,7 @@ package androidx.wear.protolayout;
 
 import static androidx.annotation.Dimension.DP;
 import static androidx.annotation.Dimension.SP;
-
-import android.annotation.SuppressLint;
+import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.IntRange;
@@ -27,9 +26,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.TypeBuilders.FloatProp;
+import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.DimensionProto;
-import androidx.wear.protolayout.proto.TypesProto;
 
 /** Builders for dimensions for layout elements. */
 public final class DimensionBuilders {
@@ -41,7 +42,7 @@ public final class DimensionBuilders {
     /** Shortcut for building a {@link DpProp} using a measurement in DP. */
     @NonNull
     public static DpProp dp(@Dimension(unit = DP) float valueDp) {
-        return new DpProp.Builder().setValue(valueDp).build();
+        return new DpProp.Builder(valueDp).build();
     }
 
     /** Shortcut for building a {@link SpProp} using a measurement in SP. */
@@ -50,22 +51,34 @@ public final class DimensionBuilders {
         return new SpProp.Builder().setValue(valueSp).build();
     }
 
-    /** Shortcut for building a {@link EmProp} using a measurement in EM. */
+    /**
+     * Shortcut for building a {@link EmProp} using a measurement in EM.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static EmProp em(int valueEm) {
         return new EmProp.Builder().setValue(valueEm).build();
     }
 
-    /** Shortcut for building a {@link EmProp} using a measurement in EM. */
+    /**
+     * Shortcut for building a {@link EmProp} using a measurement in EM.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static EmProp em(float valueEm) {
         return new EmProp.Builder().setValue(valueEm).build();
     }
 
-    /** Shortcut for building an {@link DegreesProp} using a measurement in degrees. */
+    /**
+     * Shortcut for building an {@link DegreesProp} using a measurement in degrees.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static DegreesProp degrees(float valueDegrees) {
-        return new DegreesProp.Builder().setValue(valueDegrees).build();
+        return new DegreesProp.Builder(valueDegrees).build();
     }
 
     /**
@@ -106,13 +119,27 @@ public final class DimensionBuilders {
         }
 
         /**
-         * Gets the value, in dp.
+         * Gets the static value, in dp.
          *
          * @since 1.0
          */
         @Dimension(unit = DP)
         public float getValue() {
             return mImpl.getValue();
+        }
+
+        /**
+         * Gets the dynamic value, in dp.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicFloat getDynamicValue() {
+            if (mImpl.hasDynamicValue()) {
+                return DynamicBuilders.dynamicFloatFromProto(mImpl.getDynamicValue());
+            } else {
+                return null;
+            }
         }
 
         @Override
@@ -122,11 +149,21 @@ public final class DimensionBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static DpProp fromProto(@NonNull DimensionProto.DpProp proto) {
-            return new DpProp(proto, null);
+        public static DpProp fromProto(
+                @NonNull DimensionProto.DpProp proto, @Nullable Fingerprint fingerprint) {
+            return new DpProp(proto, fingerprint);
         }
 
+        @NonNull
+        static DpProp fromProto(@NonNull DimensionProto.DpProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.DpProp toProto() {
             return mImpl;
@@ -156,7 +193,7 @@ public final class DimensionBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "DpProp{" + "value=" + getValue() + "}";
+            return "DpProp{" + "value=" + getValue() + ", dynamicValue=" + getDynamicValue() + "}";
         }
 
         /** Builder for {@link DpProp}. */
@@ -167,23 +204,55 @@ public final class DimensionBuilders {
             private final DimensionProto.DpProp.Builder mImpl = DimensionProto.DpProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(756413087);
 
+            /**
+             * @deprecated Use {@link #Builder(float)} instead.
+             */
+            @Deprecated
             public Builder() {}
 
             /**
-             * Sets the value, in dp.
+             * Creates a instance of {@link Builder}.
+             *
+             * @param staticValue the static value, in dp.
+             */
+            public Builder(@Dimension(unit = DP) float staticValue) {
+                setValue(staticValue);
+            }
+
+            /**
+             * Sets the static value, in dp. If a dynamic value is also set and the renderer
+             * supports dynamic values for the corresponding field, this static value will be
+             * ignored.
              *
              * @since 1.0
              */
             @NonNull
-            public Builder setValue(@Dimension(unit = DP) float value) {
-                mImpl.setValue(value);
-                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(value));
+            public Builder setValue(@Dimension(unit = DP) float staticValue) {
+                mImpl.setValue(staticValue);
+                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(staticValue));
+                return this;
+            }
+
+            /**
+             * Sets the dynamic value, in dp. Note that when setting this value, the static value is
+             * still required to be set to support older renderers that only read the static value.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setDynamicValue(@NonNull DynamicFloat dynamicValue) {
+                mImpl.setDynamicValue(dynamicValue.toDynamicFloatProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(dynamicValue.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             @Override
             @NonNull
             public DpProp build() {
+                if (mImpl.hasDynamicValue() && !mImpl.hasValue()) {
+                    throw new IllegalStateException("Static value is missing.");
+                }
                 return new DpProp(mImpl.build(), mFingerprint);
             }
         }
@@ -220,14 +289,30 @@ public final class DimensionBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static SpProp fromProto(@NonNull DimensionProto.SpProp proto) {
-            return new SpProp(proto, null);
+        public static SpProp fromProto(
+                @NonNull DimensionProto.SpProp proto, @Nullable Fingerprint fingerprint) {
+            return new SpProp(proto, fingerprint);
         }
 
         @NonNull
-        DimensionProto.SpProp toProto() {
+        static SpProp fromProto(@NonNull DimensionProto.SpProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DimensionProto.SpProp toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "SpProp{" + "value=" + getValue() + "}";
         }
 
         /** Builder for {@link SpProp} */
@@ -238,7 +323,8 @@ public final class DimensionBuilders {
             public Builder() {}
 
             /**
-             * Sets the value, in sp.
+             * Sets the value, in sp. If a dynamic value is also set and the renderer supports
+             * dynamic values for the corresponding field, this static value will be ignored.
              *
              * @since 1.0
              */
@@ -287,14 +373,30 @@ public final class DimensionBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static EmProp fromProto(@NonNull DimensionProto.EmProp proto) {
-            return new EmProp(proto, null);
+        public static EmProp fromProto(
+                @NonNull DimensionProto.EmProp proto, @Nullable Fingerprint fingerprint) {
+            return new EmProp(proto, fingerprint);
         }
 
         @NonNull
-        DimensionProto.EmProp toProto() {
+        static EmProp fromProto(@NonNull DimensionProto.EmProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DimensionProto.EmProp toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "EmProp{" + "value=" + getValue() + "}";
         }
 
         /** Builder for {@link EmProp} */
@@ -339,12 +441,26 @@ public final class DimensionBuilders {
         }
 
         /**
-         * Gets the value, in degrees.
+         * Gets the static value, in degrees.
          *
          * @since 1.0
          */
         public float getValue() {
             return mImpl.getValue();
+        }
+
+        /**
+         * Gets the dynamic value, in degrees.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicFloat getDynamicValue() {
+            if (mImpl.hasDynamicValue()) {
+                return DynamicBuilders.dynamicFloatFromProto(mImpl.getDynamicValue());
+            } else {
+                return null;
+            }
         }
 
         /** Get the fingerprint for this object, or null if unknown. */
@@ -354,14 +470,35 @@ public final class DimensionBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static DegreesProp fromProto(@NonNull DimensionProto.DegreesProp proto) {
-            return new DegreesProp(proto, null);
+        public static DegreesProp fromProto(
+                @NonNull DimensionProto.DegreesProp proto, @Nullable Fingerprint fingerprint) {
+            return new DegreesProp(proto, fingerprint);
         }
 
         @NonNull
-        DimensionProto.DegreesProp toProto() {
+        static DegreesProp fromProto(@NonNull DimensionProto.DegreesProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DimensionProto.DegreesProp toProto() {
             return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "DegreesProp{"
+                    + "value="
+                    + getValue()
+                    + ", dynamicValue="
+                    + getDynamicValue()
+                    + "}";
         }
 
         /** Builder for {@link DegreesProp} */
@@ -370,23 +507,56 @@ public final class DimensionBuilders {
                     DimensionProto.DegreesProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1927567665);
 
+            /**
+             * @deprecated Use {@link #Builder(float)} instead.
+             */
+            @Deprecated
             public Builder() {}
 
             /**
-             * Sets the value, in degrees.
+             * Creates a instance of {@link Builder}.
+             *
+             * @param staticValue the static value, in degrees.
+             */
+            public Builder(float staticValue) {
+                setValue(staticValue);
+            }
+
+            /**
+             * Sets the static value, in degrees. If a dynamic value is also set and the renderer
+             * supports dynamic values for the corresponding field, this static value will be
+             * ignored.
              *
              * @since 1.0
              */
             @NonNull
-            public Builder setValue(float value) {
-                mImpl.setValue(value);
-                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(value));
+            public Builder setValue(float staticValue) {
+                mImpl.setValue(staticValue);
+                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(staticValue));
+                return this;
+            }
+
+            /**
+             * Sets the dynamic value, in degrees. Note that when setting this value, the static
+             * value is still required to be set to support older renderers that only read the
+             * static value.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setDynamicValue(@NonNull DynamicFloat dynamicValue) {
+                mImpl.setDynamicValue(dynamicValue.toDynamicFloatProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(dynamicValue.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
             /** Builds an instance from accumulated values. */
             @NonNull
             public DegreesProp build() {
+                if (mImpl.hasDynamicValue() && !mImpl.hasValue()) {
+                    throw new IllegalStateException("Static value is missing.");
+                }
                 return new DegreesProp(mImpl.build(), mFingerprint);
             }
         }
@@ -418,8 +588,13 @@ public final class DimensionBuilders {
          *
          * @since 1.2
          */
-        public float getLayoutWeight() {
-            return mImpl.getLayoutWeight().getValue();
+        @Nullable
+        public FloatProp getLayoutWeight() {
+            if (mImpl.hasLayoutWeight()) {
+                return FloatProp.fromProto(mImpl.getLayoutWeight());
+            } else {
+                return null;
+            }
         }
 
         @Override
@@ -429,12 +604,23 @@ public final class DimensionBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ExpandedDimensionProp fromProto(
+                @NonNull DimensionProto.ExpandedDimensionProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new ExpandedDimensionProp(proto, fingerprint);
+        }
+
         @NonNull
         static ExpandedDimensionProp fromProto(
                 @NonNull DimensionProto.ExpandedDimensionProp proto) {
-            return new ExpandedDimensionProp(proto, null);
+            return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.ExpandedDimensionProp toProto() {
             return mImpl;
@@ -449,6 +635,7 @@ public final class DimensionBuilders {
                     .build();
         }
 
+        /* */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -476,9 +663,10 @@ public final class DimensionBuilders {
              * @since 1.2
              */
             @NonNull
-            public Builder setLayoutWeight(float layoutWeight) {
-                mImpl.setLayoutWeight(TypesProto.FloatProp.newBuilder().setValue(layoutWeight));
-                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(layoutWeight));
+            public Builder setLayoutWeight(@NonNull FloatProp layoutWeight) {
+                mImpl.setLayoutWeight(layoutWeight.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(layoutWeight.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -511,9 +699,13 @@ public final class DimensionBuilders {
          *
          * @since 1.2
          */
-        @Dimension(unit = DP)
-        public float getMinimumSizeDp() {
-            return mImpl.getMinimumSize().getValue();
+        @Nullable
+        public DpProp getMinimumSize() {
+            if (mImpl.hasMinimumSize()) {
+                return DpProp.fromProto(mImpl.getMinimumSize());
+            } else {
+                return null;
+            }
         }
 
         @Override
@@ -523,11 +715,22 @@ public final class DimensionBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        static WrappedDimensionProp fromProto(@NonNull DimensionProto.WrappedDimensionProp proto) {
-            return new WrappedDimensionProp(proto, null);
+        public static WrappedDimensionProp fromProto(
+                @NonNull DimensionProto.WrappedDimensionProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new WrappedDimensionProp(proto, fingerprint);
         }
 
+        @NonNull
+        static WrappedDimensionProp fromProto(@NonNull DimensionProto.WrappedDimensionProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.WrappedDimensionProp toProto() {
             return mImpl;
@@ -542,6 +745,12 @@ public final class DimensionBuilders {
                     .build();
         }
 
+        @Override
+        @NonNull
+        public String toString() {
+            return "WrappedDimensionProp{" + "minimumSize=" + getMinimumSize() + "}";
+        }
+
         /** Builder for {@link WrappedDimensionProp}. */
         public static final class Builder implements ContainerDimension.Builder {
             private final DimensionProto.WrappedDimensionProp.Builder mImpl =
@@ -553,12 +762,20 @@ public final class DimensionBuilders {
             /**
              * Sets the minimum size of this dimension. If not set, then there is no minimum size.
              *
+             * <p>Note that this field only supports static values.
+             *
              * @since 1.2
              */
             @NonNull
-            public Builder setMinimumSizeDp(@Dimension(unit = DP) float minimumSize) {
-                mImpl.setMinimumSize(DimensionProto.DpProp.newBuilder().setValue(minimumSize));
-                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(minimumSize));
+            public Builder setMinimumSize(@NonNull DpProp minimumSize) {
+                if (minimumSize.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "setMinimumSize doesn't support dynamic values.");
+                }
+
+                mImpl.setMinimumSize(minimumSize.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1, checkNotNull(minimumSize.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -618,12 +835,23 @@ public final class DimensionBuilders {
             return mFingerprint;
         }
 
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ProportionalDimensionProp fromProto(
+                @NonNull DimensionProto.ProportionalDimensionProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new ProportionalDimensionProp(proto, fingerprint);
+        }
+
         @NonNull
         static ProportionalDimensionProp fromProto(
                 @NonNull DimensionProto.ProportionalDimensionProp proto) {
-            return new ProportionalDimensionProp(proto, null);
+            return fromProto(proto, null);
         }
 
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         DimensionProto.ProportionalDimensionProp toProto() {
             return mImpl;
@@ -636,6 +864,17 @@ public final class DimensionBuilders {
             return DimensionProto.ImageDimension.newBuilder()
                     .setProportionalDimension(mImpl)
                     .build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ProportionalDimensionProp{"
+                    + "aspectRatioWidth="
+                    + getAspectRatioWidth()
+                    + ", aspectRatioHeight="
+                    + getAspectRatioHeight()
+                    + "}";
         }
 
         /** Builder for {@link ProportionalDimensionProp}. */
@@ -695,7 +934,7 @@ public final class DimensionBuilders {
         Fingerprint getFingerprint();
 
         /** Builder to create {@link ContainerDimension} objects. */
-        @SuppressLint("StaticFinalBuilder")
+        @RestrictTo(Scope.LIBRARY_GROUP)
         interface Builder {
 
             /** Builds an instance with values accumulated in this Builder. */
@@ -704,20 +943,28 @@ public final class DimensionBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static ContainerDimension containerDimensionFromProto(
-            @NonNull DimensionProto.ContainerDimension proto) {
+    public static ContainerDimension containerDimensionFromProto(
+            @NonNull DimensionProto.ContainerDimension proto, @Nullable Fingerprint fingerprint) {
         if (proto.hasLinearDimension()) {
-            return DpProp.fromProto(proto.getLinearDimension());
+            return DpProp.fromProto(proto.getLinearDimension(), fingerprint);
         }
         if (proto.hasExpandedDimension()) {
-            return ExpandedDimensionProp.fromProto(proto.getExpandedDimension());
+            return ExpandedDimensionProp.fromProto(proto.getExpandedDimension(), fingerprint);
         }
         if (proto.hasWrappedDimension()) {
-            return WrappedDimensionProp.fromProto(proto.getWrappedDimension());
+            return WrappedDimensionProp.fromProto(proto.getWrappedDimension(), fingerprint);
         }
         throw new IllegalStateException(
                 "Proto was not a recognised instance of ContainerDimension");
+    }
+
+    @NonNull
+    static ContainerDimension containerDimensionFromProto(
+            @NonNull DimensionProto.ContainerDimension proto) {
+        return containerDimensionFromProto(proto, null);
     }
 
     /**
@@ -737,7 +984,7 @@ public final class DimensionBuilders {
         Fingerprint getFingerprint();
 
         /** Builder to create {@link ImageDimension} objects. */
-        @SuppressLint("StaticFinalBuilder")
+        @RestrictTo(Scope.LIBRARY_GROUP)
         interface Builder {
 
             /** Builds an instance with values accumulated in this Builder. */
@@ -746,18 +993,27 @@ public final class DimensionBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static ImageDimension imageDimensionFromProto(@NonNull DimensionProto.ImageDimension proto) {
+    public static ImageDimension imageDimensionFromProto(
+            @NonNull DimensionProto.ImageDimension proto, @Nullable Fingerprint fingerprint) {
         if (proto.hasLinearDimension()) {
-            return DpProp.fromProto(proto.getLinearDimension());
+            return DpProp.fromProto(proto.getLinearDimension(), fingerprint);
         }
         if (proto.hasExpandedDimension()) {
-            return ExpandedDimensionProp.fromProto(proto.getExpandedDimension());
+            return ExpandedDimensionProp.fromProto(proto.getExpandedDimension(), fingerprint);
         }
         if (proto.hasProportionalDimension()) {
-            return ProportionalDimensionProp.fromProto(proto.getProportionalDimension());
+            return ProportionalDimensionProp.fromProto(
+                    proto.getProportionalDimension(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of ImageDimension");
+    }
+
+    @NonNull
+    static ImageDimension imageDimensionFromProto(@NonNull DimensionProto.ImageDimension proto) {
+        return imageDimensionFromProto(proto, null);
     }
 
     /**
@@ -777,7 +1033,7 @@ public final class DimensionBuilders {
         Fingerprint getFingerprint();
 
         /** Builder to create {@link SpacerDimension} objects. */
-        @SuppressLint("StaticFinalBuilder")
+        @RestrictTo(Scope.LIBRARY_GROUP)
         interface Builder {
 
             /** Builds an instance with values accumulated in this Builder. */
@@ -786,11 +1042,19 @@ public final class DimensionBuilders {
         }
     }
 
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    static SpacerDimension spacerDimensionFromProto(@NonNull DimensionProto.SpacerDimension proto) {
+    public static SpacerDimension spacerDimensionFromProto(
+            @NonNull DimensionProto.SpacerDimension proto, @Nullable Fingerprint fingerprint) {
         if (proto.hasLinearDimension()) {
-            return DpProp.fromProto(proto.getLinearDimension());
+            return DpProp.fromProto(proto.getLinearDimension(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of SpacerDimension");
+    }
+
+    @NonNull
+    static SpacerDimension spacerDimensionFromProto(@NonNull DimensionProto.SpacerDimension proto) {
+        return spacerDimensionFromProto(proto, null);
     }
 }

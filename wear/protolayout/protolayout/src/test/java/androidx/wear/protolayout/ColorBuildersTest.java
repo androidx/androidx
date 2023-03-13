@@ -52,7 +52,7 @@ public class ColorBuildersTest {
     }
 
     @Test
-    public void borderSetColor_withoutStaticValue_throws() {
+    public void colorProp_withoutStaticValue_throws() {
         assertThrows(IllegalStateException.class, COLOR_BUILDER_WITHOUT_STATIC_VALUE::build);
     }
 }
