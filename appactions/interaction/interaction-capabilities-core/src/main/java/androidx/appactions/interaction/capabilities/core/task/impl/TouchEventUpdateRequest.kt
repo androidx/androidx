@@ -26,20 +26,13 @@ import androidx.appactions.interaction.proto.ParamValue
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 data class TouchEventUpdateRequest(val paramValuesMap: Map<String, List<ParamValue>>) {
-
-    companion object {
-        /**
-         * merge two TouchEventUpdateRequest instances. Map entries in newRequest will take priority
-         * in case of conflict.
-         */
-        @JvmStatic
-        fun merge(
-            oldRequest: TouchEventUpdateRequest,
-            newRequest: TouchEventUpdateRequest,
-        ): TouchEventUpdateRequest {
-            val mergedParamValuesMap = oldRequest.paramValuesMap.toMutableMap()
-            mergedParamValuesMap.putAll(newRequest.paramValuesMap)
-            return TouchEventUpdateRequest(mergedParamValuesMap.toMap())
-        }
+    /**
+     * merge two TouchEventUpdateRequest instances. Map entries in newRequest will take priority in
+     * case of conflict.
+     */
+    fun mergeWith(newRequest: TouchEventUpdateRequest): TouchEventUpdateRequest {
+        val mergedParamValuesMap = this.paramValuesMap.toMutableMap()
+        mergedParamValuesMap.putAll(newRequest.paramValuesMap)
+        return TouchEventUpdateRequest(mergedParamValuesMap.toMap())
     }
 }
