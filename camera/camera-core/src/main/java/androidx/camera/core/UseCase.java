@@ -275,6 +275,24 @@ public abstract class UseCase {
     }
 
     /**
+     * Converts orientation degrees to {@link Surface} rotation.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ImageOutputConfig.RotationValue
+    protected static int orientationDegreesToSurfaceRotation(int degrees) {
+        int degreesWithin360 = within360(degrees);
+        if (degreesWithin360 >= 315 || degreesWithin360 < 45) {
+            return Surface.ROTATION_0;
+        } else if (degreesWithin360 >= 225) {
+            return Surface.ROTATION_90;
+        } else if (degreesWithin360 >= 135) {
+            return Surface.ROTATION_180;
+        } else {
+            return Surface.ROTATION_270;
+        }
+    }
+
+    /**
      * Updates the target rotation of the use case config.
      *
      * @param targetRotation Target rotation of the output image, expressed as one of
