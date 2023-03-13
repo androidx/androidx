@@ -845,7 +845,7 @@ Warning\: No libraries found for target (macos|ios|ios_simulator)_(arm|x)[0-9]+\
 void androidx.tv.foundation.lazy.list.LazyListKt.LazyList(androidx.compose.ui.Modifier, androidx.tv.foundation.lazy.list.TvLazyListState, androidx.compose.foundation.layout.PaddingValues, boolean, boolean, boolean, androidx.tv.foundation.PivotOffsets, androidx.compose.ui.Alignment$Horizontal, androidx.compose.foundation.layout.Arrangement$Vertical, androidx.compose.ui.Alignment$Vertical, androidx.compose.foundation.layout.Arrangement$Horizontal, kotlin.jvm.functions.Function1, androidx.compose.runtime.Composer, int, int, int)
 void androidx.tv.foundation.lazy.grid.LazyGridKt.LazyGrid(androidx.compose.ui.Modifier, androidx.tv.foundation.lazy.grid.TvLazyGridState, kotlin.jvm.functions.Function2, androidx.compose.foundation.layout.PaddingValues, boolean, boolean, boolean, androidx.compose.foundation.layout.Arrangement$Vertical, androidx.compose.foundation.layout.Arrangement$Horizontal, androidx.tv.foundation.PivotOffsets, kotlin.jvm.functions.Function1, androidx.compose.runtime.Composer, int, int, int)
 # > Task :room:integration-tests:room-testapp:mergeDexWithExpandProjectionDebugAndroidTest
-WARNING: D8: Application does not contain `androidx\.tracing\.Trace` as referenced in main\-dex\-list\.
+WARNING:D[0-9]+: Application does not contain `androidx\.tracing\.Trace` as referenced in main\-dex\-list\.
 # > Task :hilt:hilt-compiler:kaptTestKotlin
 Annotation processors discovery from compile classpath is deprecated\.
 Set 'kapt\.include\.compile\.classpath=false' to disable discovery\.
