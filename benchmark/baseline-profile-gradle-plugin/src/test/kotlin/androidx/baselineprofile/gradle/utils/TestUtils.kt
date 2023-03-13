@@ -36,9 +36,24 @@ internal fun GradleRunner.build(vararg arguments: String, block: (String) -> (Un
         .let(block)
 }
 
+internal fun GradleRunner.buildAndFail(vararg arguments: String, block: (String) -> (Unit)) {
+    this
+        .withArguments(*arguments, "--stacktrace")
+        .buildAndFail()
+        .output
+        .let(block)
+}
+
 internal fun GradleRunner.buildAndAssertThatOutput(
     vararg arguments: String,
     assertBlock: StringSubject.() -> (Unit)
 ) {
     this.build(*arguments) { assertBlock(assertThat(it)) }
+}
+
+internal fun GradleRunner.buildAndFailAndAssertThatOutput(
+    vararg arguments: String,
+    assertBlock: StringSubject.() -> (Unit)
+) {
+    this.buildAndFail(*arguments) { assertBlock(assertThat(it)) }
 }
