@@ -133,7 +133,16 @@ package androidx.camera.video {
 
   @RequiresApi(21) public final class VideoCapture<T extends androidx.camera.video.VideoOutput> extends androidx.camera.core.UseCase {
     method public T getOutput();
+    method public int getTargetRotation();
+    method public void setTargetRotation(int);
+    method public void setTargetRotationDegrees(int);
     method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T!> withOutput(T);
+  }
+
+  @RequiresApi(21) public static final class VideoCapture.Builder<T extends androidx.camera.video.VideoOutput> implements androidx.camera.core.ExtendableBuilder<androidx.camera.video.VideoCapture> {
+    ctor public VideoCapture.Builder(T);
+    method public androidx.camera.video.VideoCapture<T!> build();
+    method public androidx.camera.video.VideoCapture.Builder<T!> setTargetRotation(int);
   }
 
   @RequiresApi(21) public interface VideoOutput {

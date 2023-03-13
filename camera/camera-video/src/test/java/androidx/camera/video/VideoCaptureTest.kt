@@ -736,6 +736,23 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun setTargetRotationDegrees() {
+        val videoCapture = createVideoCapture()
+        videoCapture.setTargetRotationDegrees(45)
+        assertThat(videoCapture.targetRotation).isEqualTo(Surface.ROTATION_270)
+        videoCapture.setTargetRotationDegrees(135)
+        assertThat(videoCapture.targetRotation).isEqualTo(Surface.ROTATION_180)
+        videoCapture.setTargetRotationDegrees(225)
+        assertThat(videoCapture.targetRotation).isEqualTo(Surface.ROTATION_90)
+        videoCapture.setTargetRotationDegrees(315)
+        assertThat(videoCapture.targetRotation).isEqualTo(Surface.ROTATION_0)
+        videoCapture.setTargetRotationDegrees(405)
+        assertThat(videoCapture.targetRotation).isEqualTo(Surface.ROTATION_270)
+        videoCapture.setTargetRotationDegrees(-45)
+        assertThat(videoCapture.targetRotation).isEqualTo(Surface.ROTATION_0)
+    }
+
+    @Test
     fun defaultMirrorModeIsOff() {
         val videoCapture = createVideoCapture()
         assertThat(videoCapture.mirrorMode).isEqualTo(MIRROR_MODE_OFF)
