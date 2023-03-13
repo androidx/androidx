@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.concurrent.CameraCoordinator;
 
@@ -40,7 +41,7 @@ public class FakeCameraCoordinator implements CameraCoordinator {
     @NonNull private Map<String, String> mConcurrentCameraIdMap;
     @NonNull private List<List<String>> mConcurrentCameraIds;
     @NonNull private List<List<CameraSelector>> mConcurrentCameraSelectors;
-    @NonNull private List<CameraSelector> mActiveConcurrentCameraSelectors;
+    @NonNull private List<CameraInfo> mActiveConcurrentCameraInfos;
     @NonNull private final List<ConcurrentCameraModeListener> mConcurrentCameraModeListeners;
 
     @CameraOperatingMode private int mCameraOperatingMode;
@@ -49,7 +50,7 @@ public class FakeCameraCoordinator implements CameraCoordinator {
         mConcurrentCameraIdMap = new HashMap<>();
         mConcurrentCameraIds = new ArrayList<>();
         mConcurrentCameraSelectors = new ArrayList<>();
-        mActiveConcurrentCameraSelectors = new ArrayList<>();
+        mActiveConcurrentCameraInfos = new ArrayList<>();
         mConcurrentCameraModeListeners = new ArrayList<>();
     }
 
@@ -76,15 +77,15 @@ public class FakeCameraCoordinator implements CameraCoordinator {
         return mConcurrentCameraSelectors;
     }
 
-    @Override
-    public void setActiveConcurrentCameraSelectors(@NonNull List<CameraSelector> cameraSelectors) {
-        mActiveConcurrentCameraSelectors = cameraSelectors;
-    }
-
     @NonNull
     @Override
-    public List<CameraSelector> getActiveConcurrentCameraSelectors() {
-        return mActiveConcurrentCameraSelectors;
+    public List<CameraInfo> getActiveConcurrentCameraInfos() {
+        return mActiveConcurrentCameraInfos;
+    }
+
+    @Override
+    public void setActiveConcurrentCameraInfos(@NonNull List<CameraInfo> cameraInfos) {
+        mActiveConcurrentCameraInfos = cameraInfos;
     }
 
     @Nullable
