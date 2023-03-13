@@ -29,10 +29,12 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.protobufLite)
     api(libs.kotlinPoet)
+    implementation(libs.guavaAndroid)
     implementation project(path: ':privacysandbox:tools:tools')
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(project(":internal-testutils-truth"))
     testImplementation(project(":privacysandbox:tools:tools-testing"))
     testImplementation(project(":room:room-compiler-processing-testing"))
     // Include android jar for compilation of generated sources.
