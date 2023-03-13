@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinStdlib)
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 
     testAnnotationProcessor(libs.autoValue)
     testImplementation(libs.junit)
