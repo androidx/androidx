@@ -16,7 +16,7 @@
 
 package androidx.room
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import java.util.Locale
 import org.junit.Test
 import org.junit.Ignore
