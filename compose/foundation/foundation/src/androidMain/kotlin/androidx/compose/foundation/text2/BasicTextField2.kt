@@ -59,11 +59,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import kotlin.math.roundToInt
 
@@ -165,20 +163,12 @@ fun BasicTextField2(
         if (!enabled) this.disabled()
 
         setText { text ->
-            // If the action is performed while in an active text editing session, treat this like
-            // an IME command and update the text by going through the buffer. This keeps the buffer
-            // state consistent if other IME commands are performed before the next recomposition,
-            // and is used for the testing code path.
-            textInputSessionState.value?.let {
-                state.editProcessor.update(
-                    listOf(
-                        DeleteAllCommand,
-                        CommitTextCommand(text, 1)
-                    )
+            state.editProcessor.update(
+                listOf(
+                    DeleteAllCommand,
+                    CommitTextCommand(text, 1)
                 )
-            } ?: run {
-                state.editProcessor.reset(TextFieldValue(text.text, TextRange(text.text.length)))
-            }
+            )
             true
         }
         onClick {
