@@ -54,6 +54,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -502,11 +503,13 @@ internal class MotionLayoutTest {
 @Composable
 private fun CustomTextSize(modifier: Modifier, progress: Float) {
     val context = LocalContext.current
+    @Suppress("DEPRECATION")
     CompositionLocalProvider(
         LocalDensity provides Density(1f, 1f),
         LocalTextStyle provides TextStyle(
             fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Normal
+            fontWeight = FontWeight.Normal,
+            platformStyle = PlatformTextStyle(includeFontPadding = true)
         )
     ) {
         MotionLayout(
