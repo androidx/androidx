@@ -185,6 +185,17 @@ package androidx.wear.protolayout {
     method public static androidx.wear.protolayout.DimensionBuilders.WrappedDimensionProp wrap();
   }
 
+  public static final class DimensionBuilders.AngularLayoutConstraint {
+    method public int getAngularAlignment();
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public float getValue();
+  }
+
+  public static final class DimensionBuilders.AngularLayoutConstraint.Builder {
+    ctor public DimensionBuilders.AngularLayoutConstraint.Builder(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+    method public androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint build();
+    method public androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint.Builder setAngularAlignment(int);
+  }
+
   public static interface DimensionBuilders.ContainerDimension {
   }
 
@@ -234,6 +245,17 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.DimensionBuilders.ExpandedDimensionProp.Builder setLayoutWeight(androidx.wear.protolayout.TypeBuilders.FloatProp);
   }
 
+  public static final class DimensionBuilders.HorizontalLayoutConstraint {
+    method public int getHorizontalAlignment();
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public float getValue();
+  }
+
+  public static final class DimensionBuilders.HorizontalLayoutConstraint.Builder {
+    ctor public DimensionBuilders.HorizontalLayoutConstraint.Builder(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+    method public androidx.wear.protolayout.DimensionBuilders.HorizontalLayoutConstraint build();
+    method public androidx.wear.protolayout.DimensionBuilders.HorizontalLayoutConstraint.Builder setHorizontalAlignment(int);
+  }
+
   public static interface DimensionBuilders.ImageDimension {
   }
 
@@ -262,6 +284,17 @@ package androidx.wear.protolayout {
   public static interface DimensionBuilders.SpacerDimension {
   }
 
+  public static final class DimensionBuilders.VerticalLayoutConstraint {
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public float getValue();
+    method public int getVerticalAlignment();
+  }
+
+  public static final class DimensionBuilders.VerticalLayoutConstraint.Builder {
+    ctor public DimensionBuilders.VerticalLayoutConstraint.Builder(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+    method public androidx.wear.protolayout.DimensionBuilders.VerticalLayoutConstraint build();
+    method public androidx.wear.protolayout.DimensionBuilders.VerticalLayoutConstraint.Builder setVerticalAlignment(int);
+  }
+
   public static final class DimensionBuilders.WrappedDimensionProp implements androidx.wear.protolayout.DimensionBuilders.ContainerDimension {
     method public androidx.wear.protolayout.DimensionBuilders.DpProp? getMinimumSize();
   }
@@ -273,6 +306,10 @@ package androidx.wear.protolayout {
   }
 
   public final class LayoutElementBuilders {
+    field public static final int ANGULAR_ALIGNMENT_CENTER = 2; // 0x2
+    field public static final int ANGULAR_ALIGNMENT_END = 3; // 0x3
+    field public static final int ANGULAR_ALIGNMENT_START = 1; // 0x1
+    field public static final int ANGULAR_ALIGNMENT_UNDEFINED = 0; // 0x0
     field public static final int ARC_ANCHOR_CENTER = 2; // 0x2
     field public static final int ARC_ANCHOR_END = 3; // 0x3
     field public static final int ARC_ANCHOR_START = 1; // 0x1

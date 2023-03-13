@@ -258,6 +258,177 @@ public final class DimensionBuilders {
         }
     }
 
+    private static class DpPropLayoutConstraint {
+        protected final DimensionProto.DpProp mImpl;
+        @Nullable protected final Fingerprint mFingerprint;
+
+        protected DpPropLayoutConstraint(
+                DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the fixed value to reserve the space when used on a layout-changing data bind.
+         *
+         * @since 1.2
+         */
+        @SuppressWarnings("Unused")
+        @Dimension(unit = DP)
+        public float getValue() {
+            return mImpl.getValueForLayout();
+        }
+
+        @SuppressWarnings("Unused")
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Builder for {@link DpPropLayoutConstraint}. */
+        protected static class Builder {
+            protected final DimensionProto.DpProp.Builder mImpl =
+                    DimensionProto.DpProp.newBuilder();
+            protected final Fingerprint mFingerprint = new Fingerprint(756413088);
+
+            /**
+             * Creates a new builder for {@link DpPropLayoutConstraint}.
+             *
+             * @param value Sets the fixed value to reserve the space when used on a layout-changing
+             *     data bind.
+             * @since 1.2
+             */
+            protected Builder(@Dimension(unit = DP) float value) {
+                setValue(value);
+            }
+
+            /**
+             * Sets the fixed value to reserve the space when used on a layout-changing data bind.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            private Builder setValue(@Dimension(unit = DP) float value) {
+                mImpl.setValueForLayout(value);
+                mFingerprint.recordPropertyUpdate(3, Float.floatToIntBits(value));
+                return this;
+            }
+        }
+    }
+
+    /**
+     * A type for specifying horizontal layout constraints when using {@link DpProp} on a data
+     * bindable layout element.
+     *
+     * @since 1.2
+     */
+    public static final class HorizontalLayoutConstraint extends DpPropLayoutConstraint {
+        HorizontalLayoutConstraint(DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
+            super(impl, fingerprint);
+        }
+
+        /**
+         * Gets the horizontal alignment of the actual content within the space reserved by value.
+         *
+         * @since 1.2
+         */
+        @LayoutElementBuilders.HorizontalAlignment
+        public int getHorizontalAlignment() {
+            return mImpl.getHorizontalAlignmentForLayoutValue();
+        }
+
+        /** Builder for {@link HorizontalLayoutConstraint}. */
+        public static final class Builder extends DpPropLayoutConstraint.Builder {
+            /**
+             * Creates a new builder for {@link HorizontalLayoutConstraint}.
+             *
+             * @param value Sets the fixed value to reserve the space when used on a layout-changing
+             *     data bind.
+             * @since 1.2
+             */
+            public Builder(@Dimension(unit = DP) float value) {
+                super(value);
+            }
+
+            /**
+             * Sets the horizontal alignment of the actual content within the space reserved by
+             * value. If not specified, defaults to center alignment.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setHorizontalAlignment(
+                    @LayoutElementBuilders.HorizontalAlignment int horizontalAlignment) {
+                mImpl.setHorizontalAlignmentForLayoutValue(horizontalAlignment);
+                mFingerprint.recordPropertyUpdate(5, horizontalAlignment);
+                return this;
+            }
+
+            /** Builds an instance of {@link HorizontalLayoutConstraint}. */
+            @NonNull
+            public HorizontalLayoutConstraint build() {
+                return new HorizontalLayoutConstraint(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * A type for specifying vertical layout constraints when using {@link DpProp} on a data
+     * bindable layout element.
+     *
+     * @since 1.2
+     */
+    public static final class VerticalLayoutConstraint extends DpPropLayoutConstraint {
+        VerticalLayoutConstraint(DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
+            super(impl, fingerprint);
+        }
+
+        /**
+         * Gets the vertical alignment of the actual content within the space reserved by value.
+         *
+         * @since 1.2
+         */
+        @LayoutElementBuilders.VerticalAlignment
+        public int getVerticalAlignment() {
+            return mImpl.getVerticalAlignmentForLayoutValue();
+        }
+
+        /** Builder for {@link VerticalLayoutConstraint}. */
+        public static final class Builder extends DpPropLayoutConstraint.Builder {
+            /**
+             * Creates a new builder for {@link VerticalLayoutConstraint}.
+             *
+             * @param value Sets the fixed value to reserve the space when used on a layout-changing
+             *     data bind.
+             * @since 1.2
+             */
+            public Builder(@Dimension(unit = DP) float value) {
+                super(value);
+            }
+
+            /**
+             * Sets the vertical alignment of the actual content within the space reserved by value.
+             * If not specified, defaults to center alignment.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setVerticalAlignment(
+                    @LayoutElementBuilders.VerticalAlignment int verticalAlignment) {
+                mImpl.setVerticalAlignmentForLayoutValue(verticalAlignment);
+                mFingerprint.recordPropertyUpdate(4, verticalAlignment);
+                return this;
+            }
+
+            /** Builds an instance of {@link VerticalLayoutConstraint}. */
+            @NonNull
+            public VerticalLayoutConstraint build() {
+                return new VerticalLayoutConstraint(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
     /**
      * A type for font sizes, measured in sp.
      *
@@ -558,6 +729,99 @@ public final class DimensionBuilders {
                     throw new IllegalStateException("Static value is missing.");
                 }
                 return new DegreesProp(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * A type for specifying layout constraints when using {@link DegreesProp} on a data bindable
+     * layout element.
+     *
+     * @since 1.2
+     */
+    public static final class AngularLayoutConstraint {
+        private final DimensionProto.DegreesProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        AngularLayoutConstraint(
+                DimensionProto.DegreesProp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the fixed value to reserve the space when used on a layout-changing data bind.
+         *
+         * @since 1.2
+         */
+        @Dimension(unit = DP)
+        public float getValue() {
+            return mImpl.getValueForLayout();
+        }
+
+        /**
+         * Gets angular alignment of the actual content within the space reserved by value.
+         *
+         * @since 1.2
+         */
+        @LayoutElementBuilders.AngularAlignment
+        public int getAngularAlignment() {
+            return mImpl.getAngularAlignmentForLayoutValue();
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Builder for {@link AngularLayoutConstraint}. */
+        public static final class Builder {
+            private final DimensionProto.DegreesProp.Builder mImpl =
+                    DimensionProto.DegreesProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1927567664);
+
+            /**
+             * Creates a new builder for {@link AngularLayoutConstraint}.
+             *
+             * @param value Sets the fixed value to reserve the space when used on a layout-changing
+             *     data bind.
+             * @since 1.2
+             */
+            public Builder(@Dimension(unit = DP) float value) {
+                setValue(value);
+            }
+
+            /**
+             * Sets the fixed value to reserve the space when used on a layout-changing data bind.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            private Builder setValue(@Dimension(unit = DP) float value) {
+                mImpl.setValueForLayout(value);
+                mFingerprint.recordPropertyUpdate(3, Float.floatToIntBits(value));
+                return this;
+            }
+
+            /**
+             * Sets angular alignment of the actual content within the space reserved by value. If
+             * not specified, defaults to center alignment.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setAngularAlignment(
+                    @LayoutElementBuilders.AngularAlignment int angularAlignment) {
+                mImpl.setAngularAlignmentForLayoutValue(angularAlignment);
+                mFingerprint.recordPropertyUpdate(4, angularAlignment);
+                return this;
+            }
+
+            /** Builds an instance of {@link AngularLayoutConstraint}. */
+            @NonNull
+            public AngularLayoutConstraint build() {
+                return new AngularLayoutConstraint(mImpl.build(), mFingerprint);
             }
         }
     }
