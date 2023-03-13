@@ -281,6 +281,8 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                                 .variant(variant)
                                 .automaticGenerationDuringBuild
 
+                            // TODO: this causes a circular task dependency when the producer points
+                            //  to a consumer that does not have the appTarget plugin. (b/272851616)
                             if (automaticGeneration) {
                                 it.dependsOn(copyTaskProvider)
                             } else {
