@@ -218,6 +218,7 @@ multidex = { module = "androidx.multidex:multidex", version = "2.0.1" }
 nullaway = { module = "com.uber.nullaway:nullaway", version = "0.3.7" }
 okhttpMockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version = "3.14.7" }
 okio = { module = "com.squareup.okio:okio", version = "3.1.0" }
+opentest4j = { module = "org.opentest4j:opentest4j", version = "1.2.0" }
 playFeatureDelivery = { module = "com.google.android.play:feature-delivery", version = "2.0.1" }
 playCore = { module = "com.google.android.play:core", version = "1.10.3" }
 playServicesAuth = {module = "com.google.android.gms:play-services-auth", version = "20.4.0"}

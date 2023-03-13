@@ -118,6 +118,11 @@ public class Fade extends Visibility {
                 ViewUtils.getTransitionAlpha(transitionValues.view));
     }
 
+    @Override
+    public boolean isSeekingSupported() {
+        return true;
+    }
+
     /**
      * Utility method to handle creating and running the Animator.
      */
@@ -133,14 +138,6 @@ public class Fade extends Visibility {
         }
         FadeAnimatorListener listener = new FadeAnimatorListener(view);
         anim.addListener(listener);
-        addListener(new TransitionListenerAdapter() {
-            @Override
-            public void onTransitionEnd(@NonNull Transition transition) {
-                ViewUtils.setTransitionAlpha(view, 1);
-                ViewUtils.clearNonTransitionAlpha(view);
-                transition.removeListener(this);
-            }
-        });
         return anim;
     }
 
@@ -204,8 +201,19 @@ public class Fade extends Visibility {
             if (mLayerTypeChanged) {
                 mView.setLayerType(View.LAYER_TYPE_NONE, null);
             }
+            ViewUtils.clearNonTransitionAlpha(mView);
         }
 
+        @Override
+        public void onAnimationEnd(Animator animation, boolean isReverse) {
+            if (!isReverse) {
+                ViewUtils.setTransitionAlpha(mView, 1);
+                ViewUtils.clearNonTransitionAlpha(mView);
+            }
+            if (mLayerTypeChanged) {
+                mView.setLayerType(View.LAYER_TYPE_NONE, null);
+            }
+        }
     }
 
 }

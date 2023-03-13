@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -40,6 +41,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.BuildCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -260,6 +262,146 @@ public class FadeTest extends BaseTest {
         });
         verify(listener, timeout(1000)).onTransitionStart(any(Transition.class));
         assertNotNull(activity.findViewById(R.id.redSquare));
+    }
+
+    @Test
+    public void seekingFadeIn() throws Throwable {
+        if (!BuildCompat.isAtLeastU()) {
+            return; // only supported on U+
+        }
+        final TransitionActivity activity = rule.getActivity();
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+
+        TransitionSet transition = new TransitionSet();
+        transition.addTransition(new AlwaysTransition("before"));
+        transition.addTransition(new Fade());
+        transition.addTransition(new AlwaysTransition("after"));
+        transition.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+
+        View[] viewArr = new View[1];
+
+        rule.runOnUiThread(() -> {
+            viewArr[0] = new View(activity);
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            mRoot.addView(viewArr[0], new ViewGroup.LayoutParams(100, 100));
+        });
+
+        final View view = viewArr[0];
+        final TransitionSeekController seekController = seekControllerArr[0];
+
+        rule.runOnUiThread(() -> {
+            assertEquals(0f, ViewUtils.getTransitionAlpha(view), 0f);
+            assertEquals(View.VISIBLE, view.getVisibility());
+            assertEquals(View.LAYER_TYPE_NONE, view.getLayerType());
+
+            // Seek past the always there transition before the fade
+            seekController.setCurrentPlayTimeMillis(300);
+            assertEquals(0f, ViewUtils.getTransitionAlpha(view), 0f);
+            assertEquals(View.LAYER_TYPE_HARDWARE, view.getLayerType());
+
+            // Seek to half through the fade
+            seekController.setCurrentPlayTimeMillis(450);
+            assertEquals(0.5f, ViewUtils.getTransitionAlpha(view), 0.01f);
+
+            // Seek past the fade
+            seekController.setCurrentPlayTimeMillis(800);
+            assertEquals(View.LAYER_TYPE_NONE, view.getLayerType());
+            assertEquals(1f, ViewUtils.getTransitionAlpha(view), 0f);
+
+            // Seek back to half through the fade
+            seekController.setCurrentPlayTimeMillis(450);
+            assertEquals(View.LAYER_TYPE_HARDWARE, view.getLayerType());
+            assertEquals(0.5f, ViewUtils.getTransitionAlpha(view), 0f);
+
+            // Seek before the fade:
+            seekController.setCurrentPlayTimeMillis(250);
+            assertEquals(0f, ViewUtils.getTransitionAlpha(view), 0f);
+            assertEquals(View.VISIBLE, view.getVisibility());
+            assertEquals(View.LAYER_TYPE_NONE, view.getLayerType());
+
+            seekController.setCurrentPlayTimeMillis(450);
+            TransitionManager.beginDelayedTransition(mRoot, new Fade());
+            view.setVisibility(View.INVISIBLE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It should start from 0.5 and then fade out
+            assertTrue(ViewUtils.getTransitionAlpha(view) <= 0.5f);
+        });
+    }
+
+    @Test
+    public void seekingFadeOut() throws Throwable {
+        if (!BuildCompat.isAtLeastU()) {
+            return; // only supported on U+
+        }
+        final TransitionActivity activity = rule.getActivity();
+        TransitionSeekController[] seekControllerArr = new TransitionSeekController[1];
+
+        TransitionSet transition = new TransitionSet();
+        transition.addTransition(new AlwaysTransition("before"));
+        transition.addTransition(new Fade());
+        transition.addTransition(new AlwaysTransition("after"));
+        transition.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+
+        View[] viewArr = new View[1];
+
+        rule.runOnUiThread(() -> {
+            viewArr[0] = new View(activity);
+            mRoot.addView(viewArr[0], new ViewGroup.LayoutParams(100, 100));
+        });
+
+        final View view = viewArr[0];
+
+        rule.runOnUiThread(() -> {
+            seekControllerArr[0] = TransitionManager.controlDelayedTransition(mRoot, transition);
+            view.setVisibility(View.GONE);
+        });
+
+        final TransitionSeekController seekController = seekControllerArr[0];
+
+        rule.runOnUiThread(() -> {
+            assertEquals(1f, ViewUtils.getTransitionAlpha(view), 0f);
+            assertEquals(View.VISIBLE, view.getVisibility());
+            assertEquals(View.LAYER_TYPE_NONE, view.getLayerType());
+
+            // Seek past the always there transition before the fade
+            seekController.setCurrentPlayTimeMillis(300);
+            assertEquals(View.VISIBLE, view.getVisibility());
+            assertEquals(1f, ViewUtils.getTransitionAlpha(view), 0f);
+            assertEquals(View.LAYER_TYPE_HARDWARE, view.getLayerType());
+
+            // Seek to half through the fade
+            seekController.setCurrentPlayTimeMillis(450);
+            assertEquals(0.5f, ViewUtils.getTransitionAlpha(view), 0.01f);
+
+            // Seek past the fade
+            seekController.setCurrentPlayTimeMillis(800);
+            assertEquals(View.LAYER_TYPE_NONE, view.getLayerType());
+            assertEquals(1f, ViewUtils.getTransitionAlpha(view), 0f);
+            assertEquals(View.GONE, view.getVisibility());
+
+            // Seek back to half through the fade
+            seekController.setCurrentPlayTimeMillis(450);
+            assertEquals(View.VISIBLE, view.getVisibility());
+            assertEquals(View.LAYER_TYPE_HARDWARE, view.getLayerType());
+            assertEquals(0.5f, ViewUtils.getTransitionAlpha(view), 0f);
+
+            // Seek before the fade:
+            seekController.setCurrentPlayTimeMillis(250);
+            assertEquals(1f, ViewUtils.getTransitionAlpha(view), 0f);
+            assertEquals(View.VISIBLE, view.getVisibility());
+            assertEquals(View.LAYER_TYPE_NONE, view.getLayerType());
+
+            seekController.setCurrentPlayTimeMillis(450);
+            TransitionManager.beginDelayedTransition(mRoot, transition);
+            view.setVisibility(View.VISIBLE);
+        });
+
+        rule.runOnUiThread(() -> {
+            // It should start from 0.5 and then fade in
+            assertTrue(ViewUtils.getTransitionAlpha(view) >= 0.5f);
+        });
     }
 
     private void changeVisibility(final Fade fade, final ViewGroup container, final View target,
