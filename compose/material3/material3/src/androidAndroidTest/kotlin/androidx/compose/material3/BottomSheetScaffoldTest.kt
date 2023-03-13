@@ -21,6 +21,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,29 +29,38 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performSemanticsAction
@@ -166,7 +176,10 @@ class BottomSheetScaffoldTest {
                             .requiredHeight(sheetHeight)
                             .testTag(sheetTag))
                 },
-                sheetDragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) },
+                sheetDragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) },
                 sheetPeekHeight = peekHeight
             ) {
                 Text("Content")
@@ -200,7 +213,10 @@ class BottomSheetScaffoldTest {
                             .requiredHeight(sheetHeight)
                             .testTag(sheetTag))
                 },
-                sheetDragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) },
+                sheetDragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) },
                 sheetPeekHeight = peekHeight
             ) {
                 Text("Content")
@@ -565,5 +581,96 @@ class BottomSheetScaffoldTest {
         } finally {
             rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun bottomSheetScaffold_slotsPositionedAppropriately() {
+        val topBarHeight = 56.dp
+        val expectedDragHandleVerticalPadding = 22.dp
+        val hostState = SnackbarHostState()
+        var snackbarSize: IntSize? = null
+        var snackbarPosition: Offset? = null
+        var density: Density? = null
+        var dragHandleContentDescription = ""
+        var dragHandleColor: Color = Color.Unspecified
+        var surface: Color = Color.Unspecified
+        val dragHandleShape: Shape = RectangleShape
+
+        rule.setContent {
+            dragHandleContentDescription = getString(Strings.BottomSheetDragHandleDescription)
+            dragHandleColor = SheetBottomTokens.DockedDragHandleColor.toColor()
+                .copy(SheetBottomTokens.DockedDragHandleOpacity)
+            surface = MaterialTheme.colorScheme.surface
+            density = LocalDensity.current
+            BottomSheetScaffold(
+                sheetContent = {
+                    Box(
+                        Modifier
+                            .height(sheetHeight)
+                            .fillMaxWidth()
+                            .testTag(sheetTag)
+                        )
+                    },
+                sheetPeekHeight = peekHeight,
+                sheetDragHandle = {
+                    BottomSheetDefaults.DragHandle(
+                        shape = dragHandleShape,
+                    )
+                },
+                topBar = {
+                    Box(modifier = Modifier
+                        .height(topBarHeight)
+                        .fillMaxWidth()
+                        .testTag("TopBar")
+                    )
+                },
+                snackbarHost = {
+                    SnackbarHost(
+                        hostState = hostState,
+                        modifier = Modifier
+                            .onGloballyPositioned {
+                                snackbarSize = it.size
+                                snackbarPosition = it.positionInRoot()
+                            },
+                    )
+                },
+            ) {
+                Box(Modifier.padding(it)) {
+                    Text("Scaffold Content", Modifier.testTag("ScaffoldContent"))
+                }
+            }
+        }
+        // Assert that the drag handle has vertical padding of 22.dp
+        rule
+            .onNodeWithContentDescription(dragHandleContentDescription)
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                horizontalPadding = 0.dp,
+                verticalPadding = 22.dp,
+                backgroundColor = dragHandleColor.compositeOver(surface),
+                shapeColor = dragHandleColor.compositeOver(surface),
+                shape = dragHandleShape
+            )
+        // Assert sheet content is positioned at the sheet peek height + drag handle height + 22.dp
+        // top and bottom padding.
+        rule.onNodeWithTag(sheetTag).assertTopPositionInRootIsEqualTo(
+            rule.rootHeight() - peekHeight +
+                (expectedDragHandleVerticalPadding * 2) + SheetBottomTokens.DockedDragHandleHeight
+        )
+        // Assert TopBar is placed at the top of the app.
+        rule.onNodeWithTag("TopBar").assertTopPositionInRootIsEqualTo(0.dp)
+        // Assert TopBar is sized appropriately.
+        rule.onNodeWithTag("TopBar").assertHeightIsEqualTo(topBarHeight)
+        rule.onNodeWithTag("TopBar").assertWidthIsEqualTo(rule.rootWidth())
+        // Assert scaffold content consumes TopBar height for padding.
+        rule.onNodeWithTag("ScaffoldContent").assertTopPositionInRootIsEqualTo(topBarHeight)
+
+        // Assert snackbar is placed above bottom sheet when partially expanded.
+        val snackbarBottomOffset = snackbarPosition!!.y + snackbarSize!!.height.toFloat()
+        val expectedSnackbarBottomOffset =
+            with(density!!) { rule.rootHeight().toPx() - peekHeight.toPx() - snackbarSize!!.height }
+        assertThat(snackbarBottomOffset).isWithin(1f).of(expectedSnackbarBottomOffset)
     }
 }
