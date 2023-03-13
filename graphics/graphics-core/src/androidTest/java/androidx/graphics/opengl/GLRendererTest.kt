@@ -46,6 +46,7 @@ import androidx.hardware.SyncFenceCompat
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
+import androidx.graphics.verifyQuadrants
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -1351,33 +1352,6 @@ class GLRendererTest {
             }
         }
         return true
-    }
-
-    private fun Bitmap.verifyQuadrants(
-        topLeft: Int,
-        topRight: Int,
-        bottomLeft: Int,
-        bottomRight: Int
-    ) {
-        assertEquals(topLeft, getPixel(0, 0))
-        assertEquals(topLeft, getPixel(width / 2 - 1, 0))
-        assertEquals(topLeft, getPixel(width / 2 - 1, height / 2 - 1))
-        assertEquals(topLeft, getPixel(0, height / 2 - 1))
-
-        assertEquals(topRight, getPixel(width / 2 + 1, 0))
-        assertEquals(topRight, getPixel(width - 1, 0))
-        assertEquals(topRight, getPixel(width - 1, height / 2 - 1))
-        assertEquals(topRight, getPixel(width / 2 + 1, height / 2 - 1))
-
-        assertEquals(bottomLeft, getPixel(0, height / 2 + 1))
-        assertEquals(bottomLeft, getPixel(width / 2 - 1, height / 2 + 1))
-        assertEquals(bottomLeft, getPixel(width / 2 - 1, height - 1))
-        assertEquals(bottomLeft, getPixel(0, height - 1))
-
-        assertEquals(bottomRight, getPixel(width / 2 + 1, height / 2 + 1))
-        assertEquals(bottomRight, getPixel(width - 1, height / 2 + 1))
-        assertEquals(bottomRight, getPixel(width - 1, height - 1))
-        assertEquals(bottomRight, getPixel(width / 2 + 1, height - 1))
     }
 
     private fun genTexture(): Int {
