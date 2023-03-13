@@ -72,7 +72,7 @@ class BaselineProfileProjectSetupRule : ExternalResource() {
             rule = producerSetupRule,
             name = producerName,
             tempFolder = tempFolder,
-            consumerName = consumerName
+            consumer = consumer
         )
     }
 
@@ -161,13 +161,28 @@ interface Module {
 class AppTargetModule(
     override val rule: ProjectSetupRule,
     override val name: String,
-) : Module
+) : Module {
+
+    fun setup() {
+        setBuildGradle(
+            """
+                plugins {
+                    id("com.android.application")
+                    id("androidx.baselineprofile.apptarget")
+                }
+                android {
+                    namespace 'com.example.namespace'
+                }
+            """.trimIndent()
+        )
+    }
+}
 
 class ProducerModule(
     override val rule: ProjectSetupRule,
     override val name: String,
     private val tempFolder: File,
-    private val consumerName: String
+    private val consumer: Module
 ) : Module {
 
     fun setupWithFreeAndPaidFlavors(
@@ -205,7 +220,26 @@ class ProducerModule(
         ),
         baselineProfileBlock: String = "",
         additionalGradleCodeBlock: String = "",
+        targetProject: Module = consumer,
+        managedDevices: List<String> = listOf()
     ) {
+        val managedDevicesBlock = """
+            testOptions.managedDevices.devices {
+            ${
+            managedDevices.joinToString("\n") {
+                """
+                $it(ManagedVirtualDevice) {
+                    device = "Pixel 6"
+                    apiLevel = 31
+                    systemImageSource = "aosp"
+                }
+
+            """.trimIndent()
+            }
+        }
+            }
+        """.trimIndent()
+
         val flavorsBlock = """
             productFlavors {
                 flavorDimensions = ["version"]
@@ -253,6 +287,8 @@ class ProducerModule(
 
         setBuildGradle(
             """
+                import com.android.build.api.dsl.ManagedVirtualDevice
+
                 plugins {
                     id("com.android.test")
                     id("androidx.baselineprofile.producer")
@@ -263,8 +299,10 @@ class ProducerModule(
 
                     $buildTypesBlock
 
+                    $managedDevicesBlock
+
                     namespace 'com.example.namespace.test'
-                    targetProjectPath = ":$consumerName"
+                    targetProjectPath = ":${targetProject.name}"
                 }
 
                 dependencies {

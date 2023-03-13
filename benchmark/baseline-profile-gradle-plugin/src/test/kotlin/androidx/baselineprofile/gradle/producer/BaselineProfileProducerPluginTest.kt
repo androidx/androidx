@@ -17,7 +17,9 @@
 package androidx.baselineprofile.gradle.producer
 
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
+import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
+import androidx.baselineprofile.gradle.utils.buildAndFailAndAssertThatOutput
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,42 +28,73 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class BaselineProfileProducerPluginTest {
 
-    // Unit test will be minimal because the producer plugin is applied to an android test module,
-    // that requires a working target application. Testing will be covered only by integration tests.
-
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule()
 
+    private val emptyReleaseVariantProfile = VariantProfile(
+        flavor = null,
+        buildType = "release",
+        profileLines = listOf()
+    )
+
     @Test
     fun verifyTasksWithAndroidTestPlugin() {
-        projectSetup.appTarget.setBuildGradle(
-            """
-                plugins {
-                    id("com.android.application")
-                    id("androidx.baselineprofile.apptarget")
-                }
-                android {
-                    namespace 'com.example.namespace'
-                }
-            """.trimIndent()
-        )
-        projectSetup.producer.setBuildGradle(
-            """
-                plugins {
-                    id("com.android.test")
-                    id("androidx.baselineprofile.producer")
-                }
-                android {
-                    targetProjectPath = ":${projectSetup.appTarget.name}"
-                    namespace 'com.example.namespace.test'
-                }
-                tasks.register("mergeNonMinifiedReleaseTestResultProtos") { println("Stub") }
-            """.trimIndent()
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget
         )
 
         projectSetup.producer.gradleRunner.buildAndAssertThatOutput("tasks") {
             contains("connectedNonMinifiedReleaseAndroidTest - ")
             contains("collectNonMinifiedReleaseBaselineProfile - ")
         }
+    }
+
+    @Test
+    fun nonExistingManagedDeviceShouldThrowError() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget,
+            managedDevices = listOf(),
+            baselineProfileBlock = """
+                managedDevices = ["nonExisting"]
+            """.trimIndent()
+        )
+
+        projectSetup.producer.gradleRunner.buildAndFailAndAssertThatOutput("tasks") {
+            contains("It wasn't possible to determine the test task for managed device")
+        }
+    }
+
+    @Test
+    fun existingManagedDeviceShouldCreateCollectTaskDependingOnManagedDeviceTask() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget,
+            managedDevices = listOf("somePixelDevice"),
+            baselineProfileBlock = """
+                managedDevices = ["somePixelDevice"]
+            """.trimIndent()
+        )
+
+        projectSetup
+            .producer
+            .gradleRunner
+            .buildAndAssertThatOutput(
+                "collectNonMinifiedReleaseBaselineProfile",
+                "--dry-run"
+            ) {
+                contains(
+                    ":${projectSetup.appTarget.name}:packageNonMinifiedRelease")
+                contains(
+                    ":${projectSetup.producer.name}:somePixelDeviceNonMinifiedReleaseAndroidTest")
+                contains(
+                    ":${projectSetup.producer.name}:connectedNonMinifiedReleaseAndroidTest")
+                contains(
+                    ":${projectSetup.producer.name}:collectNonMinifiedReleaseBaselineProfile")
+            }
     }
 }
