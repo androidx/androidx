@@ -26,7 +26,6 @@ class Gestures {
     // Constants used by pinch gestures
     private static final int INNER = 0;
     private static final int OUTER = 1;
-    private static final int INNER_MARGIN = 5;
 
     private Gestures() {
     }
@@ -185,12 +184,12 @@ class Gestures {
     private static void calcPinchCoordinates(Rect area, float percent,
             Point[] bottomLeft, Point[] topRight) {
 
-        int offsetX = (int)((area.width() - 2 * INNER_MARGIN) / 2 * percent);
-        int offsetY = (int)((area.height() - 2 * INNER_MARGIN) / 2 * percent);
+        int offsetX = (int) (area.width() / 2 * percent);
+        int offsetY = (int) (area.height() / 2 * percent);
 
         // Outer set of pinch coordinates
-        bottomLeft[OUTER] = new Point(area.left + INNER_MARGIN, area.bottom - INNER_MARGIN);
-        topRight[OUTER]   = new Point(area.right - INNER_MARGIN, area.top + INNER_MARGIN);
+        bottomLeft[OUTER] = new Point(area.left, area.bottom);
+        topRight[OUTER]   = new Point(area.right, area.top);
 
         // Inner set of pinch coordinates
         bottomLeft[INNER] = new Point(bottomLeft[OUTER]);
