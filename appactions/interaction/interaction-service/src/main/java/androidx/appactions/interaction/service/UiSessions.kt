@@ -33,37 +33,44 @@ import javax.annotation.concurrent.ThreadSafe
 @ThreadSafe
 internal object UiSessions {
     private val lock = Any()
-    @GuardedBy("lock") private val uiCacheList = mutableListOf<UiCache>()
+    @GuardedBy("lock")
+    private val sessionIdToUiCache = mutableMapOf<String, UiCache>()
 
-    fun removeUiCache(uiHandle: Any): Boolean {
+    fun removeUiCache(sessionId: String): Boolean {
         synchronized(lock) {
-            return uiCacheList.remove(getUiCacheOrNull(uiHandle))
+            return sessionIdToUiCache.remove(sessionId) != null
         }
     }
 
-    fun getOrCreateUiCache(uiHandle: Any): UiCache {
+    fun getOrCreateUiCache(sessionId: String): UiCache {
         synchronized(lock) {
-            return uiCacheList.find { it.uiHandle === uiHandle } ?: createUiCache(uiHandle)
+            return sessionIdToUiCache[sessionId] ?: createUiCache(sessionId)
         }
     }
 
-    fun getUiCacheOrNull(uiHandle: Any): UiCache? {
+    fun getUiCacheOrNull(sessionId: String): UiCache? {
         synchronized(lock) {
-            return uiCacheList.find { it.uiHandle === uiHandle }
+            return sessionIdToUiCache[sessionId]
         }
     }
 
-    private fun createUiCache(uiHandle: Any): UiCache {
-        val uiSession = UiCache(uiHandle)
-        uiCacheList.add(uiSession)
-        return uiSession
+    private fun createUiCache(sessionId: String): UiCache {
+        val uiCache = UiCache()
+        synchronized(lock) {
+            sessionIdToUiCache[sessionId] = uiCache
+        }
+        return uiCache
     }
 }
 
 /** Return a UI associated with this [BaseSession]. */
 fun BaseSession<*, *>.updateUi(uiResponse: UiResponse) =
-    UiSessions.getOrCreateUiCache(this).updateUiInternal(uiResponse)
+    UiSessions.getOrCreateUiCache(
+        SessionManager.getLatestSessionIdFromUiHandle(this)!!
+    ).updateUiInternal(uiResponse)
 
 /** Return a UI associated with this [ActionExecutor]. */
 fun ActionExecutor<*, *>.updateUi(uiResponse: UiResponse) =
-    UiSessions.getOrCreateUiCache(this).updateUiInternal(uiResponse)
+    UiSessions.getOrCreateUiCache(
+        SessionManager.getLatestSessionIdFromUiHandle(this)!!
+    ).updateUiInternal(uiResponse)
