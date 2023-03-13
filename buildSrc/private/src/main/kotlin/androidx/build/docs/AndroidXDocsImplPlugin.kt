@@ -25,6 +25,7 @@ import androidx.build.dependencies.KOTLIN_VERSION
 import androidx.build.enforceKtlintVersion
 import androidx.build.getAndroidJar
 import androidx.build.getBuildId
+import androidx.build.getCheckoutRoot
 import androidx.build.getDistributionDirectory
 import androidx.build.getKeystore
 import androidx.build.getLibraryByName
@@ -465,7 +466,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 jvmSourcesDir = unzippedJvmSourcesDirectory
                 multiplatformSourcesDir = unzippedMultiplatformSourcesDirectory
                 docsProjectDir = File(project.rootDir, "docs-public")
-                dependenciesClasspath = project.getAndroidJar() + dependencyClasspath
+                dependenciesClasspath = dependencyClasspath +
+                    project.getAndroidJar() +
+                    project.getExtraCommonDependencies()
                 excludedPackages = hiddenPackages.toSet()
                 excludedPackagesForJava = hiddenPackagesJava
                 excludedPackagesForKotlin = emptySet()
@@ -745,3 +748,23 @@ abstract class MergeMultiplatformMetadataTask() : DefaultTask() {
         }
     }
 }
+
+private fun Project.getPrebuiltsExternalPath() =
+    File(project.getCheckoutRoot(), "prebuilts/androidx/external/")
+
+private fun Project.getExtraCommonDependencies(): FileCollection = files(
+    arrayOf(
+        File(
+            getPrebuiltsExternalPath(),
+            "org/jetbrains/kotlinx/kotlinx-coroutines-core/1.6.4/kotlinx-coroutines-core-1.6.4.jar"
+        ),
+        File(
+            getPrebuiltsExternalPath(),
+            "org/jetbrains/kotlinx/atomicfu/0.17.0/atomicfu-0.17.0.jar"
+        ),
+        File(
+           getPrebuiltsExternalPath(),
+            "com/squareup/okio/okio-jvm/3.1.0/okio-jvm-3.1.0.jar"
+        )
+    )
+)
