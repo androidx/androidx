@@ -27,10 +27,9 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.ConcurrentCamera.SingleCameraConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
-import androidx.camera.core.concurrent.ConcurrentCameraConfig
-import androidx.camera.core.concurrent.SingleCameraConfig
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.testing.fakes.FakeAppConfig
@@ -677,27 +676,22 @@ class ProcessCameraProviderTest {
             val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
             val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
-            val singleCameraConfig0 = SingleCameraConfig.Builder()
-                .setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
-                .setUseCaseGroup(UseCaseGroup.Builder()
+            val singleCameraConfig0 = SingleCameraConfig(
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                UseCaseGroup.Builder()
                     .addUseCase(useCase0)
-                    .build())
-                .setLifecycleOwner(lifecycleOwner0)
-                .build()
-            val singleCameraConfig1 = SingleCameraConfig.Builder()
-                .setCameraSelector(CameraSelector.DEFAULT_FRONT_CAMERA)
-                .setUseCaseGroup(UseCaseGroup.Builder()
+                    .build(),
+                lifecycleOwner0)
+            val singleCameraConfig1 = SingleCameraConfig(
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                UseCaseGroup.Builder()
                     .addUseCase(useCase1)
-                    .build())
-                .setLifecycleOwner(lifecycleOwner1)
-                .build()
-
-            val concurrentCameraConfig = ConcurrentCameraConfig.Builder()
-                .setCameraConfigs(listOf(singleCameraConfig0, singleCameraConfig1))
-                .build()
+                    .build(),
+                lifecycleOwner1)
 
             if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
-                val concurrentCamera = provider.bindToLifecycle(concurrentCameraConfig)
+                val concurrentCamera = provider.bindToLifecycle(
+                    listOf(singleCameraConfig0, singleCameraConfig1))
 
                 assertThat(concurrentCamera).isNotNull()
                 assertThat(concurrentCamera.cameras.size).isEqualTo(2)
@@ -706,7 +700,8 @@ class ProcessCameraProviderTest {
                 assertThat(provider.isConcurrentCameraModeOn).isTrue()
             } else {
                 assertThrows<UnsupportedOperationException> {
-                    provider.bindToLifecycle(concurrentCameraConfig)
+                    provider.bindToLifecycle(
+                        listOf(singleCameraConfig0, singleCameraConfig1))
                 }
             }
         }
@@ -722,35 +717,28 @@ class ProcessCameraProviderTest {
             val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
             val useCase2 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
-            val singleCameraConfig0 = SingleCameraConfig.Builder()
-                .setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
-                .setUseCaseGroup(UseCaseGroup.Builder()
+            val singleCameraConfig0 = SingleCameraConfig(
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                UseCaseGroup.Builder()
                     .addUseCase(useCase0)
-                    .build())
-                .setLifecycleOwner(lifecycleOwner0)
-                .build()
-            val singleCameraConfig1 = SingleCameraConfig.Builder()
-                .setCameraSelector(CameraSelector.DEFAULT_FRONT_CAMERA)
-                .setUseCaseGroup(UseCaseGroup.Builder()
+                    .build(),
+                lifecycleOwner0)
+            val singleCameraConfig1 = SingleCameraConfig(
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                UseCaseGroup.Builder()
                     .addUseCase(useCase1)
-                    .build())
-                .setLifecycleOwner(lifecycleOwner1)
-                .build()
-
-            val singleCameraConfig2 = SingleCameraConfig.Builder()
-                .setCameraSelector(CameraSelector.DEFAULT_FRONT_CAMERA)
-                .setUseCaseGroup(UseCaseGroup.Builder()
+                    .build(),
+                lifecycleOwner1)
+            val singleCameraConfig2 = SingleCameraConfig(
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                UseCaseGroup.Builder()
                     .addUseCase(useCase2)
-                    .build())
-                .setLifecycleOwner(lifecycleOwner1)
-                .build()
-
-            val concurrentCameraConfig0 = ConcurrentCameraConfig.Builder()
-                .setCameraConfigs(listOf(singleCameraConfig0, singleCameraConfig1))
-                .build()
+                    .build(),
+                lifecycleOwner1)
 
             if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
-                val concurrentCamera0 = provider.bindToLifecycle(concurrentCameraConfig0)
+                val concurrentCamera0 = provider.bindToLifecycle(
+                    listOf(singleCameraConfig0, singleCameraConfig1))
 
                 assertThat(concurrentCamera0).isNotNull()
                 assertThat(concurrentCamera0.cameras.size).isEqualTo(2)
@@ -759,16 +747,14 @@ class ProcessCameraProviderTest {
                 assertThat(provider.isConcurrentCameraModeOn).isTrue()
             } else {
                 assertThrows<UnsupportedOperationException> {
-                    provider.bindToLifecycle(concurrentCameraConfig0)
+                    provider.bindToLifecycle(
+                        listOf(singleCameraConfig0, singleCameraConfig1))
                 }
             }
 
-            val concurrentCameraConfig1 = ConcurrentCameraConfig.Builder()
-                .setCameraConfigs(listOf(singleCameraConfig0, singleCameraConfig2))
-                .build()
-
             if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
-                val concurrentCamera1 = provider.bindToLifecycle(concurrentCameraConfig1)
+                val concurrentCamera1 = provider.bindToLifecycle(
+                    listOf(singleCameraConfig0, singleCameraConfig2))
 
                 assertThat(concurrentCamera1).isNotNull()
                 assertThat(concurrentCamera1.cameras.size).isEqualTo(2)
@@ -777,7 +763,7 @@ class ProcessCameraProviderTest {
                 assertThat(provider.isConcurrentCameraModeOn).isTrue()
             } else {
                 assertThrows<UnsupportedOperationException> {
-                    provider.bindToLifecycle(concurrentCameraConfig0)
+                    provider.bindToLifecycle(listOf(singleCameraConfig0, singleCameraConfig2))
                 }
             }
         }
@@ -791,26 +777,21 @@ class ProcessCameraProviderTest {
             provider = ProcessCameraProvider.getInstance(context).await()
             val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
-            val singleCameraConfig0 = SingleCameraConfig.Builder()
-                .setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
-                .setUseCaseGroup(UseCaseGroup.Builder()
+            val singleCameraConfig0 = SingleCameraConfig(
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                UseCaseGroup.Builder()
                     .addUseCase(useCase0)
-                    .build())
-                .setLifecycleOwner(lifecycleOwner0)
-                .build()
-
-            val concurrentCameraConfig = ConcurrentCameraConfig.Builder()
-                .setCameraConfigs(listOf(singleCameraConfig0))
-                .build()
+                    .build(),
+                lifecycleOwner0)
 
             if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
                 assertThrows<IllegalArgumentException> {
-                    provider.bindToLifecycle(concurrentCameraConfig)
+                    provider.bindToLifecycle(listOf(singleCameraConfig0))
                 }
                 assertThat(provider.isConcurrentCameraModeOn).isFalse()
             } else {
                 assertThrows<UnsupportedOperationException> {
-                    provider.bindToLifecycle(concurrentCameraConfig)
+                    provider.bindToLifecycle(listOf(singleCameraConfig0))
                 }
             }
         }
@@ -825,44 +806,35 @@ class ProcessCameraProviderTest {
             val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
             val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _, _ -> }.build()
 
-            val singleCameraConfig0 = SingleCameraConfig.Builder()
-                .setCameraSelector(CameraSelector.DEFAULT_BACK_CAMERA)
-                .setUseCaseGroup(UseCaseGroup.Builder()
+            val singleCameraConfig0 = SingleCameraConfig(
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                UseCaseGroup.Builder()
                     .addUseCase(useCase0)
-                    .build())
-                .setLifecycleOwner(lifecycleOwner0)
-                .build()
-
-            val singleCameraConfig1 = SingleCameraConfig.Builder()
-                .setCameraSelector(CameraSelector.DEFAULT_FRONT_CAMERA)
-                .setUseCaseGroup(UseCaseGroup.Builder()
+                    .build(),
+                lifecycleOwner0)
+            val singleCameraConfig1 = SingleCameraConfig(
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                UseCaseGroup.Builder()
                     .addUseCase(useCase1)
-                    .build())
-                .setLifecycleOwner(lifecycleOwner1)
-                .build()
-
-            val singleCameraConfig2 = SingleCameraConfig.Builder()
-                .setCameraSelector(CameraSelector.DEFAULT_FRONT_CAMERA)
-                .setUseCaseGroup(UseCaseGroup.Builder()
+                    .build(),
+                lifecycleOwner1)
+            val singleCameraConfig2 = SingleCameraConfig(
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                UseCaseGroup.Builder()
                     .addUseCase(useCase0)
-                    .build())
-                .setLifecycleOwner(lifecycleOwner1)
-                .build()
-
-            val concurrentCameraConfig = ConcurrentCameraConfig.Builder()
-                .setCameraConfigs(listOf(singleCameraConfig0,
-                    singleCameraConfig1,
-                    singleCameraConfig2))
-                .build()
+                    .build(),
+                lifecycleOwner1)
 
             if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
                 assertThrows<IllegalArgumentException> {
-                    provider.bindToLifecycle(concurrentCameraConfig)
+                    provider.bindToLifecycle(
+                        listOf(singleCameraConfig0, singleCameraConfig1, singleCameraConfig2))
                 }
                 assertThat(provider.isConcurrentCameraModeOn).isFalse()
             } else {
                 assertThrows<java.lang.UnsupportedOperationException> {
-                    provider.bindToLifecycle(concurrentCameraConfig)
+                    provider.bindToLifecycle(
+                        listOf(singleCameraConfig0, singleCameraConfig1, singleCameraConfig2))
                 }
             }
         }
