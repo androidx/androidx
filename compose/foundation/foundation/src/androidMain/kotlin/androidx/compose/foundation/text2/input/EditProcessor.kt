@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text2.input
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.TextEditFilter
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
@@ -35,6 +36,7 @@ import androidx.compose.ui.util.fastForEach
  * When [TextInputService] provides [EditCommand]s, they should be applied to the internal
  * buffer using [apply].
  */
+@OptIn(ExperimentalFoundationApi::class)
 internal class EditProcessor(
     initialValue: TextFieldValue = TextFieldValue(
         EmptyAnnotatedString,
