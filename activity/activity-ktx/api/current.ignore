@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-RemovedClass: androidx.activity.OnBackPressedDispatcherKt:
-    Removed class androidx.activity.OnBackPressedDispatcherKt
-
-
-RemovedPackage: androidx.activity.contextaware:
-    Removed package androidx.activity.contextaware
