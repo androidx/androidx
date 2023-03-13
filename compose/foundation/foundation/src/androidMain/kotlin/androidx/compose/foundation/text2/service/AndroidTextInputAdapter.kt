@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package androidx.compose.foundation.text2.service
 
 import android.os.Looper
@@ -23,11 +25,16 @@ import android.view.Choreographer
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text2.TextFieldState
+import androidx.compose.foundation.text2.input.CommitTextCommand
 import androidx.compose.foundation.text2.input.EditCommand
 import androidx.compose.foundation.text2.input.EditProcessor
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.ImeOptions
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PlatformTextInput
 import androidx.compose.ui.text.input.PlatformTextInputAdapter
 import androidx.compose.ui.text.input.TextFieldValue
@@ -38,7 +45,6 @@ import java.util.concurrent.Executor
 private const val DEBUG = true
 private const val TAG = "BasicTextInputAdapter"
 
-@OptIn(ExperimentalTextApi::class)
 internal class AndroidTextInputAdapter constructor(
     view: View,
     private val platformTextInput: PlatformTextInput
@@ -50,20 +56,25 @@ internal class AndroidTextInputAdapter constructor(
 
     private val textInputCommandExecutor = TextInputCommandExecutor(view, inputMethodManager)
 
-    override val inputForTests: TextInputForTests
-        get() = error("Not implemented")
+    override val inputForTests: TextInputForTests = object : TextInputForTests {
+        private fun requireSession(): EditableTextInputSession =
+            currentTextInputSession ?: error("There is no active input session. Missing a focus?")
+
+        override fun inputTextForTest(text: String) {
+            requireSession().requestEdits(
+                listOf(CommitTextCommand(text, 1))
+            )
+        }
+    }
 
     override fun createInputConnection(outAttrs: EditorInfo): InputConnection {
         logDebug { "createInputConnection" }
         val value = currentTextInputSession?.value ?: TextFieldValue()
+        val imeOptions = currentTextInputSession?.imeOptions ?: ImeOptions.Default
 
         logDebug { "createInputConnection.value = $value" }
 
-        outAttrs.initialSelStart = value.selection.min
-        outAttrs.initialSelEnd = value.selection.max
-        outAttrs.inputType = InputType.TYPE_CLASS_TEXT
-        EditorInfoCompat.setInitialSurroundingText(outAttrs, value.text)
-        outAttrs.imeOptions = EditorInfo.IME_ACTION_DONE or EditorInfo.IME_FLAG_NO_FULLSCREEN
+        outAttrs.update(value, imeOptions)
 
         return StatelessInputConnection(
             activeSessionProvider = { currentTextInputSession }
@@ -88,7 +99,8 @@ internal class AndroidTextInputAdapter constructor(
     }
 
     fun startInputSession(
-        state: TextFieldState
+        state: TextFieldState,
+        imeOptions: ImeOptions
     ): TextInputSession {
         if (!isMainThread()) {
             throw IllegalStateException("Input sessions can only be started from the main thread.")
@@ -104,6 +116,8 @@ internal class AndroidTextInputAdapter constructor(
 
             override val value: TextFieldValue
                 get() = state.value
+
+            override val imeOptions: ImeOptions = imeOptions
 
             override fun requestEdits(editCommands: List<EditCommand>) {
                 state.editProcessor.update(editCommands)
@@ -282,6 +296,99 @@ internal class TextInputCommandExecutor(
 private fun Choreographer.asExecutor(): Executor = Executor { runnable ->
     postFrameCallback { runnable.run() }
 }
+
+/**
+ * Fills necessary info of EditorInfo.
+ */
+internal fun EditorInfo.update(textFieldValue: TextFieldValue, imeOptions: ImeOptions) {
+    this.imeOptions = when (imeOptions.imeAction) {
+        ImeAction.Default -> {
+            if (imeOptions.singleLine) {
+                // this is the last resort to enable single line
+                // Android IME still shows return key even if multi line is not send
+                // TextView.java#onCreateInputConnection
+                EditorInfo.IME_ACTION_DONE
+            } else {
+                EditorInfo.IME_ACTION_UNSPECIFIED
+            }
+        }
+        ImeAction.None -> EditorInfo.IME_ACTION_NONE
+        ImeAction.Go -> EditorInfo.IME_ACTION_GO
+        ImeAction.Next -> EditorInfo.IME_ACTION_NEXT
+        ImeAction.Previous -> EditorInfo.IME_ACTION_PREVIOUS
+        ImeAction.Search -> EditorInfo.IME_ACTION_SEARCH
+        ImeAction.Send -> EditorInfo.IME_ACTION_SEND
+        ImeAction.Done -> EditorInfo.IME_ACTION_DONE
+        else -> error("invalid ImeAction")
+    }
+
+    this.inputType = when (imeOptions.keyboardType) {
+        KeyboardType.Text -> InputType.TYPE_CLASS_TEXT
+        KeyboardType.Ascii -> {
+            this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_FORCE_ASCII
+            InputType.TYPE_CLASS_TEXT
+        }
+        KeyboardType.Number ->
+            InputType.TYPE_CLASS_NUMBER
+        KeyboardType.Phone ->
+            InputType.TYPE_CLASS_PHONE
+        KeyboardType.Uri ->
+            InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_URI
+        KeyboardType.Email ->
+            InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        KeyboardType.Password ->
+            InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+        KeyboardType.NumberPassword ->
+            InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD
+        KeyboardType.Decimal ->
+            InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_FLAG_DECIMAL
+        else -> error("Invalid Keyboard Type")
+    }
+
+    if (!imeOptions.singleLine) {
+        if (hasFlag(this.inputType, InputType.TYPE_CLASS_TEXT)) {
+            // TextView.java#setInputTypeSingleLine
+            this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+
+            if (imeOptions.imeAction == ImeAction.Default) {
+                this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_ENTER_ACTION
+            }
+        }
+    }
+
+    if (hasFlag(this.inputType, InputType.TYPE_CLASS_TEXT)) {
+        when (imeOptions.capitalization) {
+            KeyboardCapitalization.Characters -> {
+                this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+            }
+
+            KeyboardCapitalization.Words -> {
+                this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+            }
+
+            KeyboardCapitalization.Sentences -> {
+                this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            }
+
+            else -> {
+                /* do nothing */
+            }
+        }
+
+        if (imeOptions.autoCorrect) {
+            this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+        }
+    }
+
+    this.initialSelStart = textFieldValue.selection.start
+    this.initialSelEnd = textFieldValue.selection.end
+
+    EditorInfoCompat.setInitialSurroundingText(this, textFieldValue.text)
+
+    this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
+}
+
+private fun hasFlag(bits: Int, flag: Int): Boolean = (bits and flag) == flag
 
 private fun logDebug(tag: String = TAG, content: () -> String) {
     if (DEBUG) {

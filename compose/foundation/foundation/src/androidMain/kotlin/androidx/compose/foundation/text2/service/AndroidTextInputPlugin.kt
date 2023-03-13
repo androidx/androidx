@@ -17,11 +17,9 @@
 package androidx.compose.foundation.text2.service
 
 import android.view.View
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.input.PlatformTextInput
 import androidx.compose.ui.text.input.PlatformTextInputPlugin
 
-@OptIn(ExperimentalTextApi::class)
 internal object AndroidTextInputPlugin : PlatformTextInputPlugin<AndroidTextInputAdapter> {
 
     override fun createAdapter(
