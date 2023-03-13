@@ -62,7 +62,7 @@ gradlePlugin {
 
 androidx {
     name = "Android Baseline Profile Gradle Plugin"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "Android Baseline Profile Gradle Plugin"
