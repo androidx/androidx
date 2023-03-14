@@ -429,7 +429,7 @@ fun Text(
  * @see ProvideTextStyle
  */
 public val LocalTextStyle: ProvidableCompositionLocal<TextStyle> =
-    compositionLocalOf(structuralEqualityPolicy()) { TextStyle.Default }
+    compositionLocalOf(structuralEqualityPolicy()) { DefaultTextStyle }
 
 // TODO: b/156598010 remove this and replace with fold definition on the backing CompositionLocal
 /**

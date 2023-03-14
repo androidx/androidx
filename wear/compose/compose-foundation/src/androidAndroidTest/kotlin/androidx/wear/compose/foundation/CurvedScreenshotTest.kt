@@ -34,6 +34,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -125,7 +127,13 @@ class CurvedScreenshotTest {
             curvedComposable {
                 Column {
                     Box(Modifier.size(15.dp).background(Color.Red))
-                    BasicText("Text")
+                    @Suppress("DEPRECATION")
+                    BasicText(
+                        text = "Text",
+                        style = TextStyle(
+                            platformStyle = PlatformTextStyle(includeFontPadding = true)
+                        )
+                    )
                     Box(Modifier.size(15.dp).background(Color.Red))
                 }
             }
