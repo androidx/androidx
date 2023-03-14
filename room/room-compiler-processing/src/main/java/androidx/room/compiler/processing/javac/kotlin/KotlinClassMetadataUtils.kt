@@ -16,7 +16,12 @@
 
 package androidx.room.compiler.processing.javac.kotlin
 
+import androidx.room.compiler.processing.XArrayType
+import androidx.room.compiler.processing.XEnumTypeElement
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.javac.JavacKmAnnotation
+import androidx.room.compiler.processing.javac.JavacKmAnnotationValue
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import javax.lang.model.element.Element
@@ -25,7 +30,10 @@ import javax.lang.model.element.ExecutableElement
 import javax.tools.Diagnostic
 import kotlinx.metadata.Flag
 import kotlinx.metadata.Flags
+import kotlinx.metadata.KmAnnotation
+import kotlinx.metadata.KmAnnotationArgument
 import kotlinx.metadata.KmClass
+import kotlinx.metadata.KmClassifier
 import kotlinx.metadata.KmConstructor
 import kotlinx.metadata.KmFunction
 import kotlinx.metadata.KmProperty
@@ -50,10 +58,14 @@ internal class KmClassContainer(
 
     val type: KmTypeContainer by lazy {
         KmTypeContainer(
-            kmType = KmType(flags),
+            kmType = KmType(flags).apply {
+                classifier = KmClassifier.Class(kmClass.name)
+            },
             typeArguments = kmClass.typeParameters.map { kmTypeParameter ->
                 KmTypeContainer(
-                    kmType = KmType(kmTypeParameter.flags),
+                    kmType = KmType(kmTypeParameter.flags).apply {
+                        classifier = KmClassifier.Class(kmTypeParameter.name)
+                    },
                     typeArguments = emptyList(),
                     upperBounds = kmTypeParameter.upperBounds.map { it.asContainer() }
                 )
@@ -63,6 +75,10 @@ internal class KmClassContainer(
 
     val superType: KmTypeContainer? by lazy {
         kmClass.supertypes.firstOrNull()?.asContainer()
+    }
+
+    val superTypes: List<KmTypeContainer> by lazy {
+        kmClass.supertypes.map { it.asContainer() }
     }
 
     val typeParameters: List<KmTypeParameterContainer> by lazy {
@@ -265,6 +281,16 @@ internal class KmTypeContainer(
 ) : KmFlags {
     override val flags: Flags
         get() = kmType.flags
+
+    val className: String? = kmType.classifier.let {
+        when (it) {
+            is KmClassifier.Class -> it.name.replace('/', '.')
+            else -> null
+        }
+    }
+
+    val annotations = kmType.annotations.map { it.asContainer() }
+
     fun isExtensionType() =
         kmType.annotations.any { it.className == "kotlin/ExtensionFunctionType" }
     fun isNullable() = Flag.Type.IS_NULLABLE(flags)
@@ -276,6 +302,49 @@ internal class KmTypeContainer(
         // The erasure of a type variable is equal to the erasure of the first upper bound.
         upperBounds = upperBounds?.firstOrNull()?.erasure()?.let { listOf(it) },
     )
+}
+
+internal class KmAnnotationContainer(private val kmAnnotation: KmAnnotation) {
+    val className = kmAnnotation.className.replace('/', '.')
+    fun getArguments(env: JavacProcessingEnv): Map<String, KmAnnotationArgumentContainer> {
+        return kmAnnotation.arguments.mapValues { (_, arg) ->
+            arg.asContainer(env)
+        }
+    }
+}
+
+internal class KmAnnotationArgumentContainer(
+    private val env: JavacProcessingEnv,
+    private val kmAnnotationArgument: KmAnnotationArgument
+) {
+    fun getValue(method: XMethodElement): Any? {
+        return kmAnnotationArgument.let {
+            when (it) {
+                is KmAnnotationArgument.LiteralValue<*> -> it.value
+                is KmAnnotationArgument.ArrayValue -> {
+                    it.elements.map {
+                        val valueType = (method.returnType as XArrayType).componentType
+                        JavacKmAnnotationValue(method, valueType, it.asContainer(env))
+                    }
+                }
+                is KmAnnotationArgument.EnumValue -> {
+                    val enumTypeElement = env.findTypeElement(
+                        it.enumClassName.replace('/', '.')) as XEnumTypeElement
+                    enumTypeElement.entries.associateBy { it.name }[it.enumEntryName]
+                }
+                is KmAnnotationArgument.AnnotationValue -> {
+                    val kmAnnotation = KmAnnotation(
+                        it.annotation.className,
+                        it.annotation.arguments
+                    ).asContainer()
+                    JavacKmAnnotation(env, kmAnnotation)
+                }
+                is KmAnnotationArgument.KClassValue -> {
+                    env.requireType(it.className.replace('/', '.'))
+                }
+            }
+        }
+    }
 }
 
 internal val KmTypeContainer.nullability: XNullability
@@ -346,13 +415,14 @@ private fun KmProperty.asContainer(): KmPropertyContainer =
                 // it here since it is not valid name
                 name = "set-?".sanitizeAsJavaParameterName(0)
             ).apply { type = this@asContainer.returnType }
+            val returnType = KmType(0).apply { classifier = KmClassifier.Class("Unit") }
             KmPropertyFunctionContainerImpl(
                 flags = this.setterFlags,
                 name = JvmAbi.computeSetterName(this.name),
                 jvmName = it.name,
                 descriptor = it.asString(),
                 parameters = listOf(param.asContainer()),
-                returnType = KmType(0).asContainer(),
+                returnType = returnType.asContainer(),
             )
         },
     )
@@ -374,3 +444,8 @@ private fun KmValueParameter.asContainer(): KmValueParameterContainer =
         kmValueParameter = this,
         type = this.type.asContainer()
     )
+
+private fun KmAnnotation.asContainer() = KmAnnotationContainer(this)
+
+private fun KmAnnotationArgument.asContainer(env: JavacProcessingEnv) =
+    KmAnnotationArgumentContainer(env, this)

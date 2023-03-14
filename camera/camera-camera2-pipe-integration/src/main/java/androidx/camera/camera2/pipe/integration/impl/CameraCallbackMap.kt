@@ -254,4 +254,15 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
             )
         }
     }
+
+    companion object {
+        fun createFor(
+            callbacks: Collection<CameraCaptureCallback>,
+            executor: Executor
+        ): CameraCallbackMap {
+            return CameraCallbackMap().apply {
+                callbacks.forEach { callback -> addCaptureCallback(callback, executor) }
+            }
+        }
+    }
 }

@@ -15,13 +15,20 @@
  */
 package androidx.camera.core;
 
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.core.util.Preconditions.checkArgument;
+
+import static java.util.Objects.requireNonNull;
+
+import android.graphics.ImageFormat;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.processing.SurfaceProcessorInternal;
+import androidx.camera.core.processing.SurfaceProcessorWithExecutor;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -81,8 +88,19 @@ public abstract class CameraEffect {
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(flag = true, value = {PREVIEW, IMAGE_CAPTURE})
+    @IntDef(flag = true, value = {PREVIEW, VIDEO_CAPTURE, IMAGE_CAPTURE})
     public @interface Targets {
+    }
+
+    /**
+     * Bitmask options for the effect targets.
+     *
+     * @hide
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(flag = true, value = {INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, ImageFormat.JPEG})
+    public @interface Formats {
     }
 
     /**
@@ -151,8 +169,8 @@ public abstract class CameraEffect {
             @Targets int targets,
             @NonNull Executor executor,
             @NonNull SurfaceProcessor surfaceProcessor) {
-        checkArgument(targets == PREVIEW,
-                "Currently SurfaceProcessor can only target PREVIEW.");
+        checkArgument(targets == PREVIEW || targets == VIDEO_CAPTURE,
+                "Currently SurfaceProcessor can only target PREVIEW and VIDEO_CAPTURE.");
         mTargets = targets;
         mExecutor = executor;
         mSurfaceProcessor = surfaceProcessor;
@@ -194,5 +212,22 @@ public abstract class CameraEffect {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public ImageProcessor getImageProcessor() {
         return mImageProcessor;
+    }
+
+    // --- Internal methods ---
+
+    /**
+     * Creates a {@link SurfaceProcessorInternal} instance.
+     *
+     * <p>Throws {@link IllegalArgumentException} if the effect does not contain a
+     * {@link SurfaceProcessor}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public SurfaceProcessorInternal createSurfaceProcessorInternal() {
+        return new SurfaceProcessorWithExecutor(requireNonNull(getSurfaceProcessor()),
+                getExecutor());
     }
 }

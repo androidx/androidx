@@ -2,6 +2,7 @@ import androidx.room.RoomDatabase
 import androidx.room.withTransaction
 import java.lang.Class
 import javax.`annotation`.processing.Generated
+import kotlin.Long
 import kotlin.Suppress
 import kotlin.Unit
 import kotlin.collections.List
@@ -43,7 +44,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun concreteInternal(): Unit {
+    internal override fun concreteInternal(): Unit {
         __db.beginTransaction()
         try {
             super@MyDao_Impl.concreteInternal()
@@ -56,6 +57,22 @@ public class MyDao_Impl(
     public override suspend fun suspendConcrete(): Unit {
         __db.withTransaction {
             super@MyDao_Impl.suspendConcrete()
+        }
+    }
+
+    public override fun concreteWithVararg(vararg arr: Long): Unit {
+        __db.beginTransaction()
+        try {
+            super@MyDao_Impl.concreteWithVararg(*arr)
+            __db.setTransactionSuccessful()
+        } finally {
+            __db.endTransaction()
+        }
+    }
+
+    public override suspend fun suspendConcreteWithVararg(vararg arr: Long): Unit {
+        __db.withTransaction {
+            super@MyDao_Impl.suspendConcreteWithVararg(*arr)
         }
     }
 

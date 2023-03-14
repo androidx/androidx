@@ -24,11 +24,10 @@ import android.view.AttachedSurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.lowlatency.BufferTransformHintResolver.Companion.UNKNOWN_TRANSFORM
-import androidx.graphics.lowlatency.SyncFenceImpl
-import androidx.graphics.lowlatency.SyncFenceV19
+import androidx.hardware.SyncFenceImpl
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_270
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BUFFER_TRANSFORM_ROTATE_90
-import androidx.hardware.SyncFence
+import androidx.hardware.SyncFenceV19
 import java.util.concurrent.Executor
 
 /**
@@ -64,6 +63,14 @@ internal class SurfaceControlV29 internal constructor(
          */
         override fun setParent(surfaceView: SurfaceView): SurfaceControlImpl.Builder {
             builder.setParent(surfaceView.holder.surface)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlWrapper.Builder.setParent]
+         */
+        override fun setParent(surfaceControl: SurfaceControlCompat): SurfaceControlImpl.Builder {
+            builder.setParent(surfaceControl.scImpl.asWrapperSurfaceControl())
             return this
         }
 
@@ -371,21 +378,24 @@ internal class SurfaceControlV29 internal constructor(
             )
         }
 
-        private fun SurfaceControlImpl.asWrapperSurfaceControl(): SurfaceControlWrapper =
-            if (this is SurfaceControlV29) {
-                surfaceControl
-            } else {
-                throw IllegalArgumentException("Parent implementation is only for Android T+.")
-            }
-
-        private fun SyncFenceImpl.asSyncFenceCompat(): SyncFence =
+        private fun SyncFenceImpl.asSyncFenceCompat(): SyncFenceV19 =
             if (this is SyncFenceV19) {
-                mSyncFence
+                this
             } else {
                 throw IllegalArgumentException(
                     "Expected SyncFenceCompat implementation " +
                         "for API level 19"
                 )
+            }
+    }
+
+    private companion object {
+
+        fun SurfaceControlImpl.asWrapperSurfaceControl(): SurfaceControlWrapper =
+            if (this is SurfaceControlV29) {
+                surfaceControl
+            } else {
+                throw IllegalArgumentException("Parent implementation is only for Android T+.")
             }
     }
 }

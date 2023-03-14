@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
@@ -51,7 +52,7 @@ interface Camera2CameraControlCompat : Request.Listener {
     fun clearRequestOption()
     fun cancelCurrentTask()
 
-    fun applyAsync(camera: UseCaseCamera?): Deferred<Void?>
+    fun applyAsync(camera: UseCaseCamera?, cancelPreviousTask: Boolean = true): Deferred<Void?>
 
     @Module
     abstract class Bindings {
@@ -114,15 +115,23 @@ class Camera2CameraControlCompatImpl @Inject constructor(
         }
     }
 
-    override fun applyAsync(camera: UseCaseCamera?): Deferred<Void?> {
+    override fun applyAsync(camera: UseCaseCamera?, cancelPreviousTask: Boolean): Deferred<Void?> {
         val signal: CompletableDeferred<Void?> = CompletableDeferred()
         val config = synchronized(lock) {
             configBuilder.build()
         }
         threads.sequentialScope.launch {
             if (camera != null) {
-                // Cancel the previous request signal if exist.
-                updateSignal?.cancelSignal()
+                if (cancelPreviousTask) {
+                    // Cancel the previous request signal if exist.
+                    updateSignal?.cancelSignal()
+                } else {
+                    // propagate the result to the previous updateSignal
+                    updateSignal?.let { previousUpdateSignal ->
+                        signal.propagateTo(previousUpdateSignal)
+                    }
+                }
+
                 updateSignal = signal
                 camera.requestControl.setConfigAsync(
                     type = UseCaseCameraRequestControl.Type.CAMERA2_CAMERA_CONTROL,

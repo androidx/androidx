@@ -25,9 +25,6 @@ package androidx.datastore.migrations {
     method public suspend Object? shouldMigrate(T? currentData, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
   }
 
-  public final class SharedPreferencesMigrationKt {
-  }
-
   public final class SharedPreferencesView {
     method public operator boolean contains(String key);
     method public java.util.Map<java.lang.String,java.lang.Object> getAll();

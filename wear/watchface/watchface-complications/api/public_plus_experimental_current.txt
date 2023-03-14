@@ -35,9 +35,6 @@ package androidx.wear.watchface.complications {
     ctor public ComplicationDataSourceInfoRetriever.ServiceDisconnectedException();
   }
 
-  public final class ComplicationDataSourceInfoRetrieverKt {
-  }
-
   public final class ComplicationSlotBounds {
     ctor public ComplicationSlotBounds(java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds, java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeMargins);
     ctor @Deprecated public ComplicationSlotBounds(java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);

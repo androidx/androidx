@@ -22,6 +22,12 @@ package androidx.room.compiler.processing
  * @see [javax.lang.model.element.ExecutableElement]
  */
 interface XExecutableElement : XHasModifiers, XParameterizable, XElement {
+
+    /**
+     * The descriptor of the method in JVM.
+     */
+    val jvmDescriptor: String
+
     /**
      * The element that declared this executable.
      *

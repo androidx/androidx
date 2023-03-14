@@ -429,6 +429,10 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void navigateBetweenRowsAndVideoUsingDPAD1() throws Throwable {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo1.class);
     }
 
@@ -436,6 +440,10 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void navigateBetweenRowsAndVideoUsingDPAD2() throws Throwable {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         navigateBetweenRowsAndVideoUsingDPADInternal(DetailsSupportFragmentWithVideo2.class);
     }
 

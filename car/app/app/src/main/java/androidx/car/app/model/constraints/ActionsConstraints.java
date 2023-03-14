@@ -138,6 +138,7 @@ public final class ActionsConstraints {
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_ROW =
             new ActionsConstraints.Builder()
                     .setMaxActions(1)
+                    .setMaxCustomTitles(1)
                     .addAllowedActionType(Action.TYPE_CUSTOM)
                     .setRequireActionIcons(true)
                     .setOnClickListenerAllowed(true)

@@ -1519,7 +1519,7 @@ internal open class Measurer(
                 Pair(result.width, result.height)
             }
             else -> {
-                Log.e("CCL", "Can't measure widget: $widgetId")
+                Log.w("CCL", "Nothing to measure for widget: $widgetId")
                 Pair(0, 0)
             }
         }

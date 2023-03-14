@@ -1,5 +1,6 @@
 package com.mysdk
 
+import android.content.Context
 import com.myotherpackage.MyOtherPackageInterfaceStubDelegate
 import com.mysdk.PrivacySandboxThrowableParcelConverter
 import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
@@ -12,6 +13,7 @@ import kotlinx.coroutines.launch
 
 public class MySdkStubDelegate internal constructor(
   public val `delegate`: MySdk,
+  public val context: Context,
 ) : IMySdk.Stub() {
   public override fun doStuff(
     x: Int,
@@ -38,7 +40,7 @@ public class MySdkStubDelegate internal constructor(
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
         val result = delegate.getMyInterface()
-        transactionCallback.onSuccess(MyMainPackageInterfaceStubDelegate(result))
+        transactionCallback.onSuccess(MyMainPackageInterfaceStubDelegate(result, context))
       }
       catch (t: Throwable) {
         transactionCallback.onFailure(toThrowableParcel(t))
@@ -55,7 +57,7 @@ public class MySdkStubDelegate internal constructor(
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
         val result = delegate.getMyOtherPackageInterface()
-        transactionCallback.onSuccess(MyOtherPackageInterfaceStubDelegate(result))
+        transactionCallback.onSuccess(MyOtherPackageInterfaceStubDelegate(result, context))
       }
       catch (t: Throwable) {
         transactionCallback.onFailure(toThrowableParcel(t))

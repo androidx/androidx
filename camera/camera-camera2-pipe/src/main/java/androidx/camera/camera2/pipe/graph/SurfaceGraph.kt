@@ -35,7 +35,9 @@ import javax.inject.Inject
  */
 @RequiresApi(21)
 @CameraGraphScope
-internal class SurfaceGraph @Inject constructor(
+internal class SurfaceGraph
+@Inject
+constructor(
     private val streamGraph: StreamGraphImpl,
     private val cameraController: CameraController,
     private val surfaceManager: CameraSurfaceManager
@@ -52,58 +54,61 @@ internal class SurfaceGraph @Inject constructor(
     private val closed: Boolean = false
 
     operator fun set(streamId: StreamId, surface: Surface?) {
-        val closeable = synchronized(lock) {
-            if (closed) {
-                Log.warn { "Attempted to set $streamId to $surface after close!" }
-                return
-            }
-
-            Log.info {
-                if (surface != null) {
-                    "Configured $streamId to use $surface"
-                } else {
-                    "Removed surface for $streamId"
+        val closeable =
+            synchronized(lock) {
+                if (closed) {
+                    Log.warn { "Attempted to set $streamId to $surface after close!" }
+                    return
                 }
-            }
-            var oldSurfaceToken: AutoCloseable? = null
 
-            if (surface == null) {
-                // TODO: Tell the graph processor that it should resubmit the repeating request or
-                //  reconfigure the camera2 captureSession
-                val oldSurface = surfaceMap.remove(streamId)
-                if (oldSurface != null) {
-                    oldSurfaceToken = surfaceUsageMap.remove(oldSurface)
-                }
-            } else {
-                val oldSurface = surfaceMap[streamId]
-                surfaceMap[streamId] = surface
-
-                if (oldSurface != surface) {
-                    check(!surfaceUsageMap.containsKey(surface)) {
-                        "Surface ($surface) is already in use!"
+                Log.info {
+                    if (surface != null) {
+                        "Configured $streamId to use $surface"
+                    } else {
+                        "Removed surface for $streamId"
                     }
-                    oldSurfaceToken = surfaceUsageMap.remove(oldSurface)
-                    val newToken = surfaceManager.registerSurface(surface)
-                    surfaceUsageMap[surface] = newToken
                 }
-            }
+                var oldSurfaceToken: AutoCloseable? = null
 
-            return@synchronized oldSurfaceToken
-        }
+                if (surface == null) {
+                    // TODO: Tell the graph processor that it should resubmit the repeating request
+                    // or
+                    //  reconfigure the camera2 captureSession
+                    val oldSurface = surfaceMap.remove(streamId)
+                    if (oldSurface != null) {
+                        oldSurfaceToken = surfaceUsageMap.remove(oldSurface)
+                    }
+                } else {
+                    val oldSurface = surfaceMap[streamId]
+                    surfaceMap[streamId] = surface
+
+                    if (oldSurface != surface) {
+                        check(!surfaceUsageMap.containsKey(surface)) {
+                            "Surface ($surface) is already in use!"
+                        }
+                        oldSurfaceToken = surfaceUsageMap.remove(oldSurface)
+                        val newToken = surfaceManager.registerSurface(surface)
+                        surfaceUsageMap[surface] = newToken
+                    }
+                }
+
+                return@synchronized oldSurfaceToken
+            }
         maybeUpdateSurfaces()
         closeable?.close()
     }
 
     fun close() {
-        val closeables = synchronized(lock) {
-            if (closed) {
-                return
+        val closeables =
+            synchronized(lock) {
+                if (closed) {
+                    return
+                }
+                surfaceMap.clear()
+                val tokensToClose = surfaceUsageMap.values.toList()
+                surfaceUsageMap.clear()
+                tokensToClose
             }
-            surfaceMap.clear()
-            val tokensToClose = surfaceUsageMap.values.toList()
-            surfaceUsageMap.clear()
-            tokensToClose
-        }
 
         for (closeable in closeables) {
             closeable.close()
@@ -122,22 +127,24 @@ internal class SurfaceGraph @Inject constructor(
         cameraController.updateSurfaceMap(surfaces)
     }
 
-    private fun buildSurfaceMap(): Map<StreamId, Surface> = synchronized(lock) {
-        val surfaces = mutableMapOf<StreamId, Surface>()
-        for (outputConfig in streamGraph.outputConfigs) {
-            for (stream in outputConfig.streamBuilder) {
-                val surface = surfaceMap[stream.id]
-                if (surface == null) {
-                    if (!outputConfig.deferrable) {
-                        // If output is non-deferrable, a surface must be available or the config
-                        // is not yet valid. Exit now with an empty map.
-                        return emptyMap()
+    private fun buildSurfaceMap(): Map<StreamId, Surface> =
+        synchronized(lock) {
+            val surfaces = mutableMapOf<StreamId, Surface>()
+            for (outputConfig in streamGraph.outputConfigs) {
+                for (stream in outputConfig.streamBuilder) {
+                    val surface = surfaceMap[stream.id]
+                    if (surface == null) {
+                        if (!outputConfig.deferrable) {
+                            // If output is non-deferrable, a surface must be available or the
+                            // config
+                            // is not yet valid. Exit now with an empty map.
+                            return emptyMap()
+                        }
+                    } else {
+                        surfaces[stream.id] = surface
                     }
-                } else {
-                    surfaces[stream.id] = surface
                 }
             }
+            return surfaces
         }
-        return surfaces
-    }
 }

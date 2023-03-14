@@ -49,7 +49,9 @@ internal interface Camera2CaptureSequenceProcessorFactory {
     ): CaptureSequenceProcessor<*, *>
 }
 
-internal class StandardCamera2CaptureSequenceProcessorFactory @Inject constructor(
+internal class StandardCamera2CaptureSequenceProcessorFactory
+@Inject
+constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
     private val streamGraph: StreamGraphImpl
@@ -61,18 +63,16 @@ internal class StandardCamera2CaptureSequenceProcessorFactory @Inject constructo
     ): CaptureSequenceProcessor<*, CaptureSequence<Any>> {
         @Suppress("SyntheticAccessor")
         return Camera2CaptureSequenceProcessor(
-            session,
-            threads,
-            graphConfig.defaultTemplate,
-            surfaceMap,
-            streamGraph
-        ) as CaptureSequenceProcessor<Any, CaptureSequence<Any>>
+            session, threads, graphConfig.defaultTemplate, surfaceMap, streamGraph
+        )
+            as CaptureSequenceProcessor<Any, CaptureSequence<Any>>
     }
 }
 
 internal val captureSequenceProcessorDebugIds = atomic(0)
 internal val captureSequenceDebugIds = atomic(0L)
 internal val requestTags = atomic(0L)
+
 internal fun nextRequestTag(): RequestNumber = RequestNumber(requestTags.incrementAndGet())
 
 private const val REQUIRE_SURFACE_FOR_ALL_STREAMS = false
@@ -120,7 +120,8 @@ internal class Camera2CaptureSequenceProcessor(
 
             val requestTemplate = request.template ?: template
 
-            // Create the request builder. There is a risk this will throw an exception or return null
+            // Create the request builder. There is a risk this will throw an exception or return
+            // null
             // if the CameraDevice has been closed or disconnected. If this fails, indicate that the
             // request was not submitted.
             val requestBuilder: CaptureRequest.Builder
@@ -178,8 +179,9 @@ internal class Camera2CaptureSequenceProcessor(
                 // Check if video stream use case is present
                 val containsVideoStream =
                     request.streams.any {
-                        streamGraph.outputs
-                            .any { it.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD }
+                        streamGraph.outputs.any {
+                            it.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD
+                        }
                     }
 
                 // If preview stream is present with no recording stream, then only submit the first
@@ -189,40 +191,43 @@ internal class Camera2CaptureSequenceProcessor(
                 // the same value instead of smoothly changing across each frame.
                 if (!containsVideoStream) {
                     captureRequests.add(highSpeedRequestList[0])
-                    // If recording video with or without preview stream, then add all requests to list
+                    // If recording video with or without preview stream, then add all requests to
+                    // list
                 } else {
                     captureRequests.addAll(highSpeedRequestList)
                 }
 
                 @Suppress("SyntheticAccessor")
-                val metadata = Camera2RequestMetadata(
-                    session,
-                    highSpeedRequestList[0],
-                    defaultParameters,
-                    requiredParameters,
-                    streamToSurfaceMap,
-                    requestTemplate,
-                    isRepeating,
-                    request,
-                    requestTag
-                )
+                val metadata =
+                    Camera2RequestMetadata(
+                        session,
+                        highSpeedRequestList[0],
+                        defaultParameters,
+                        requiredParameters,
+                        streamToSurfaceMap,
+                        requestTemplate,
+                        isRepeating,
+                        request,
+                        requestTag
+                    )
                 requestMap[requestTag] = metadata
                 requestList.add(metadata)
             } else {
                 captureRequests.add(captureRequest)
 
                 @Suppress("SyntheticAccessor")
-                val metadata = Camera2RequestMetadata(
-                    session,
-                    captureRequest,
-                    defaultParameters,
-                    requiredParameters,
-                    streamToSurfaceMap,
-                    requestTemplate,
-                    isRepeating,
-                    request,
-                    requestTag
-                )
+                val metadata =
+                    Camera2RequestMetadata(
+                        session,
+                        captureRequest,
+                        defaultParameters,
+                        requiredParameters,
+                        streamToSurfaceMap,
+                        requestTemplate,
+                        isRepeating,
+                        request,
+                        requestTag
+                    )
                 requestMap[requestTag] = metadata
                 requestList.add(metadata)
             }
@@ -250,29 +255,21 @@ internal class Camera2CaptureSequenceProcessor(
         ) {
             if (captureSequence.repeating) {
                 session.setRepeatingRequest(
-                    captureSequence.captureRequestList[0],
-                    captureCallback,
-                    threads.camera2Handler
+                    captureSequence.captureRequestList[0], captureCallback, threads.camera2Handler
                 )
             } else {
                 session.capture(
-                    captureSequence.captureRequestList[0],
-                    captureSequence,
-                    threads.camera2Handler
+                    captureSequence.captureRequestList[0], captureSequence, threads.camera2Handler
                 )
             }
         } else {
             if (captureSequence.repeating) {
                 session.setRepeatingBurst(
-                    captureSequence.captureRequestList,
-                    captureSequence,
-                    threads.camera2Handler
+                    captureSequence.captureRequestList, captureSequence, threads.camera2Handler
                 )
             } else {
                 session.captureBurst(
-                    captureSequence.captureRequestList,
-                    captureSequence,
-                    threads.camera2Handler
+                    captureSequence.captureRequestList, captureSequence, threads.camera2Handler
                 )
             }
         }
@@ -316,8 +313,9 @@ internal class Camera2CaptureSequenceProcessor(
                 // Check if preview stream use case is present
                 containsPreviewStream =
                     request.streams.any {
-                        streamGraph.outputs
-                            .any { it.streamUseCase == OutputStream.StreamUseCase.PREVIEW }
+                        streamGraph.outputs.any {
+                            it.streamUseCase == OutputStream.StreamUseCase.PREVIEW
+                        }
                     }
 
                 // Check if all high speed requests have the same preview use case
@@ -336,8 +334,9 @@ internal class Camera2CaptureSequenceProcessor(
                 // Check if video stream use case is present
                 containsVideoStream =
                     request.streams.any {
-                        streamGraph.outputs
-                            .any { it.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD }
+                        streamGraph.outputs.any {
+                            it.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD
+                        }
                     }
 
                 // Check if all high speed requests have the same video use case
@@ -420,9 +419,7 @@ internal class Camera2CaptureSequenceProcessor(
     }
 }
 
-/**
- * This class packages together information about a request that was submitted to the camera.
- */
+/** This class packages together information about a request that was submitted to the camera. */
 @RequiresApi(21)
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 internal class Camera2RequestMetadata(
@@ -437,32 +434,33 @@ internal class Camera2RequestMetadata(
     override val requestNumber: RequestNumber
 ) : RequestMetadata {
     override fun <T> get(key: CaptureRequest.Key<T>): T? = captureRequest[key]
-    override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T =
-        get(key) ?: default
+    override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: Metadata.Key<T>): T? = when {
-        requiredParameters.containsKey(key) -> {
-            requiredParameters[key] as T?
-        }
+    override fun <T> get(key: Metadata.Key<T>): T? =
+        when {
+            requiredParameters.containsKey(key) -> {
+                requiredParameters[key] as T?
+            }
 
-        request.extras.containsKey(key) -> {
-            request.extras[key] as T?
-        }
+            request.extras.containsKey(key) -> {
+                request.extras[key] as T?
+            }
 
-        else -> {
-            defaultParameters[key] as T?
+            else -> {
+                defaultParameters[key] as T?
+            }
         }
-    }
 
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
-        CaptureRequest::class -> captureRequest as T
-        CameraCaptureSession::class ->
-            cameraCaptureSessionWrapper.unwrapAs(CameraCaptureSession::class) as? T
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            CaptureRequest::class -> captureRequest as T
+            CameraCaptureSession::class ->
+                cameraCaptureSessionWrapper.unwrapAs(CameraCaptureSession::class) as? T
 
-        else -> null
-    }
+            else -> null
+        }
 }

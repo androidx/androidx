@@ -21,14 +21,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
-import android.util.LayoutDirection
 import androidx.annotation.XmlRes
-
 import androidx.window.R
 import androidx.window.embedding.EmbeddingAspectRatio.Companion.buildAspectRatioFromValue
-import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
-import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
-
+import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
+import androidx.window.embedding.SplitRule.FinishBehavior.Companion.getFinishBehaviorFromValue
 import org.xmlpull.v1.XmlPullParser
 
 /**
@@ -67,14 +66,14 @@ internal object RuleParser {
                 "SplitPairRule" -> {
                     val splitConfig = parseSplitPairRule(context, parser)
                     lastSplitPairRule = splitConfig
-                    rules.add(lastSplitPairRule)
+                    rules.addRuleWithDuplicatedTagCheck(lastSplitPairRule)
                     lastSplitPlaceholderRule = null
                     lastActivityRule = null
                 }
                 "SplitPlaceholderRule" -> {
                     val placeholderConfig = parseSplitPlaceholderRule(context, parser)
                     lastSplitPlaceholderRule = placeholderConfig
-                    rules.add(lastSplitPlaceholderRule)
+                    rules.addRuleWithDuplicatedTagCheck(lastSplitPlaceholderRule)
                     lastActivityRule = null
                     lastSplitPairRule = null
                 }
@@ -87,11 +86,11 @@ internal object RuleParser {
                     val splitFilter = parseSplitPairFilter(context, parser)
                     rules.remove(lastSplitPairRule)
                     lastSplitPairRule += splitFilter
-                    rules.add(lastSplitPairRule)
+                    rules.addRuleWithDuplicatedTagCheck(lastSplitPairRule)
                 }
                 "ActivityRule" -> {
                     val activityConfig = parseActivityRule(context, parser)
-                    rules.add(activityConfig)
+                    rules.addRuleWithDuplicatedTagCheck(activityConfig)
                     lastSplitPairRule = null
                     lastSplitPlaceholderRule = null
                     lastActivityRule = activityConfig
@@ -106,154 +105,197 @@ internal object RuleParser {
                     if (lastActivityRule != null) {
                         rules.remove(lastActivityRule)
                         lastActivityRule += activityFilter
-                        rules.add(lastActivityRule)
+                        rules.addRuleWithDuplicatedTagCheck(lastActivityRule)
                     } else if (lastSplitPlaceholderRule != null) {
                         rules.remove(lastSplitPlaceholderRule)
                         lastSplitPlaceholderRule += activityFilter
-                        rules.add(lastSplitPlaceholderRule)
+                        rules.addRuleWithDuplicatedTagCheck(lastSplitPlaceholderRule)
                     }
                 }
             }
             type = parser.next()
         }
-
         return rules
+    }
+
+    private fun HashSet<EmbeddingRule>.addRuleWithDuplicatedTagCheck(rule: EmbeddingRule) {
+        val tag = rule.tag
+        forEach { addedRule ->
+            if (tag != null && tag == addedRule.tag) {
+                throw IllegalArgumentException("Duplicated tag: $tag for $rule. " +
+                    "The tag must be unique in XML rule definition.")
+            }
+        }
+        add(rule)
     }
 
     private fun parseSplitPairRule(
         context: Context,
         parser: XmlResourceParser
-    ): SplitPairRule {
-        val ratio: Float
-        val minWidthDp: Int
-        val minSmallestWidthDp: Int
-        val maxAspectRatioInPortrait: Float
-        val maxAspectRatioInLandscape: Float
-        val layoutDir: Int
-        val finishPrimaryWithSecondary: Int
-        val finishSecondaryWithPrimary: Int
-        val clearTop: Boolean
+    ): SplitPairRule =
         context.theme.obtainStyledAttributes(
             parser,
             R.styleable.SplitPairRule,
             0,
             0
-        ).apply {
-            ratio = getFloat(R.styleable.SplitPairRule_splitRatio, 0.5f)
-            minWidthDp = getInteger(
+        ).let { typedArray ->
+            val tag = typedArray.getString(R.styleable.SplitPairRule_tag)
+            val ratio = typedArray.getFloat(R.styleable.SplitPairRule_splitRatio, 0.5f)
+            val minWidthDp = typedArray.getInteger(
                 R.styleable.SplitPairRule_splitMinWidthDp,
                 SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
             )
-            minSmallestWidthDp = getInteger(
+            val minHeightDp = typedArray.getInteger(
+                R.styleable.SplitPairRule_splitMinHeightDp,
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
+            )
+            val minSmallestWidthDp = typedArray.getInteger(
                 R.styleable.SplitPairRule_splitMinSmallestWidthDp,
                 SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
             )
-            maxAspectRatioInPortrait = getFloat(
+            val maxAspectRatioInPortrait = typedArray.getFloat(
                 R.styleable.SplitPairRule_splitMaxAspectRatioInPortrait,
                 SplitRule.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT.value
             )
-            maxAspectRatioInLandscape = getFloat(
+            val maxAspectRatioInLandscape = typedArray.getFloat(
                 R.styleable.SplitPairRule_splitMaxAspectRatioInLandscape,
                 SplitRule.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT.value
             )
-            layoutDir = getInt(
+            val layoutDir = typedArray.getInt(
                 R.styleable.SplitPairRule_splitLayoutDirection,
-                LayoutDirection.LOCALE
+                LOCALE.value
             )
-            finishPrimaryWithSecondary =
-                getInt(R.styleable.SplitPairRule_finishPrimaryWithSecondary, FINISH_NEVER)
-            finishSecondaryWithPrimary =
-                getInt(R.styleable.SplitPairRule_finishSecondaryWithPrimary, FINISH_ALWAYS)
-            clearTop =
-                getBoolean(R.styleable.SplitPairRule_clearTop, false)
+            val finishPrimaryWithSecondary = typedArray.getInt(
+                R.styleable.SplitPairRule_finishPrimaryWithSecondary,
+                NEVER.value
+            )
+            val finishSecondaryWithPrimary = typedArray.getInt(
+                R.styleable.SplitPairRule_finishSecondaryWithPrimary,
+                ALWAYS.value
+            )
+            val clearTop = typedArray.getBoolean(R.styleable.SplitPairRule_clearTop, false)
+            val animationBackgroundColor = typedArray.getColor(
+                R.styleable.SplitPairRule_animationBackgroundColor,
+                SplitAttributes.BackgroundColor.DEFAULT.value
+            )
+            typedArray.recycle()
+
+            val defaultAttrs = SplitAttributes.Builder()
+                .setSplitType(SplitAttributes.SplitType.buildSplitTypeFromValue(ratio))
+                .setLayoutDirection(
+                    SplitAttributes.LayoutDirection.getLayoutDirectionFromValue(layoutDir)
+                )
+                .setAnimationBackgroundColor(
+                    SplitAttributes.BackgroundColor.buildFromValue(animationBackgroundColor)
+                )
+                .build()
+
+            SplitPairRule.Builder(emptySet())
+                .setTag(tag)
+                .setMinWidthDp(minWidthDp)
+                .setMinHeightDp(minHeightDp)
+                .setMinSmallestWidthDp(minSmallestWidthDp)
+                .setMaxAspectRatioInPortrait(buildAspectRatioFromValue(maxAspectRatioInPortrait))
+                .setMaxAspectRatioInLandscape(buildAspectRatioFromValue(maxAspectRatioInLandscape))
+                .setFinishPrimaryWithSecondary(
+                    getFinishBehaviorFromValue(finishPrimaryWithSecondary))
+                .setFinishSecondaryWithPrimary(
+                    getFinishBehaviorFromValue(finishSecondaryWithPrimary))
+                .setClearTop(clearTop)
+                .setDefaultSplitAttributes(defaultAttrs)
+                .build()
         }
-        return SplitPairRule.Builder(emptySet())
-            .setMinWidthDp(minWidthDp)
-            .setMinSmallestWidthDp(minSmallestWidthDp)
-            .setMaxAspectRatioInPortrait(buildAspectRatioFromValue(maxAspectRatioInPortrait))
-            .setMaxAspectRatioInLandscape(buildAspectRatioFromValue(maxAspectRatioInLandscape))
-            .setFinishPrimaryWithSecondary(finishPrimaryWithSecondary)
-            .setFinishSecondaryWithPrimary(finishSecondaryWithPrimary)
-            .setClearTop(clearTop)
-            .setSplitRatio(ratio)
-            .setLayoutDirection(layoutDir)
-            .build()
-    }
 
     private fun parseSplitPlaceholderRule(
         context: Context,
         parser: XmlResourceParser
-    ): SplitPlaceholderRule {
-        val placeholderActivityIntentName: String?
-        val stickyPlaceholder: Boolean
-        val finishPrimaryWithPlaceholder: Int
-        val ratio: Float
-        val minWidthDp: Int
-        val minSmallestWidthDp: Int
-        val maxAspectRatioInPortrait: Float
-        val maxAspectRatioInLandscape: Float
-        val layoutDir: Int
+    ): SplitPlaceholderRule =
         context.theme.obtainStyledAttributes(
             parser,
             R.styleable.SplitPlaceholderRule,
             0,
             0
-        ).apply {
-            placeholderActivityIntentName = getString(
+        ).let { typedArray ->
+            val tag = typedArray.getString(R.styleable.SplitPlaceholderRule_tag)
+            val placeholderActivityIntentName = typedArray.getString(
                 R.styleable.SplitPlaceholderRule_placeholderActivityName
             )
-            stickyPlaceholder = getBoolean(R.styleable.SplitPlaceholderRule_stickyPlaceholder,
-                false)
-            finishPrimaryWithPlaceholder =
-                getInt(R.styleable.SplitPlaceholderRule_finishPrimaryWithPlaceholder, FINISH_ALWAYS)
-            ratio = getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.5f)
-            minWidthDp = getInteger(
+            val stickyPlaceholder = typedArray.getBoolean(
+                R.styleable.SplitPlaceholderRule_stickyPlaceholder,
+                false
+            )
+            val finishPrimaryWithPlaceholder = typedArray.getInt(
+                R.styleable.SplitPlaceholderRule_finishPrimaryWithPlaceholder,
+                ALWAYS.value
+            )
+            if (finishPrimaryWithPlaceholder == NEVER.value) {
+                throw IllegalArgumentException(
+                    "Never is not a valid configuration for Placeholder activities. " +
+                        "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the " +
+                        "current API")
+            }
+            val ratio = typedArray.getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.5f)
+            val minWidthDp = typedArray.getInteger(
                 R.styleable.SplitPlaceholderRule_splitMinWidthDp,
                 SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
             )
-            minSmallestWidthDp = getInteger(
+            val minHeightDp = typedArray.getInteger(
+                R.styleable.SplitPlaceholderRule_splitMinHeightDp,
+                SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
+            )
+            val minSmallestWidthDp = typedArray.getInteger(
                 R.styleable.SplitPlaceholderRule_splitMinSmallestWidthDp,
                 SplitRule.SPLIT_MIN_DIMENSION_DP_DEFAULT
             )
-            maxAspectRatioInPortrait = getFloat(
+            val maxAspectRatioInPortrait = typedArray.getFloat(
                 R.styleable.SplitPlaceholderRule_splitMaxAspectRatioInPortrait,
                 SplitRule.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT.value
             )
-            maxAspectRatioInLandscape = getFloat(
+            val maxAspectRatioInLandscape = typedArray.getFloat(
                 R.styleable.SplitPlaceholderRule_splitMaxAspectRatioInLandscape,
                 SplitRule.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT.value
             )
-            layoutDir = getInt(
+            val layoutDir = typedArray.getInt(
                 R.styleable.SplitPlaceholderRule_splitLayoutDirection,
-                LayoutDirection.LOCALE
+                LOCALE.value
             )
-        }
-        if (finishPrimaryWithPlaceholder == FINISH_NEVER) {
-                throw IllegalArgumentException(
-                    "FINISH_NEVER is not a valid configuration for Placeholder activities. " +
-                        "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the " +
-                        "current API")
-        }
-        val packageName = context.applicationContext.packageName
-        val placeholderActivityClassName = buildClassName(
-            packageName,
-            placeholderActivityIntentName
-        )
+            val animationBackgroundColor = typedArray.getColor(
+                R.styleable.SplitPlaceholderRule_animationBackgroundColor,
+                SplitAttributes.BackgroundColor.DEFAULT.value
+            )
+            typedArray.recycle()
 
-        return SplitPlaceholderRule.Builder(
-            emptySet(),
-            Intent().setComponent(placeholderActivityClassName)
-        )
-            .setMinWidthDp(minWidthDp)
-            .setMinSmallestWidthDp(minSmallestWidthDp)
-            .setMaxAspectRatioInPortrait(buildAspectRatioFromValue(maxAspectRatioInPortrait))
-            .setMaxAspectRatioInLandscape(buildAspectRatioFromValue(maxAspectRatioInLandscape))
-            .setSticky(stickyPlaceholder)
-            .setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder)
-            .setSplitRatio(ratio)
-            .setLayoutDirection(layoutDir)
-            .build()
-    }
+            val defaultAttrs = SplitAttributes.Builder()
+                .setSplitType(SplitAttributes.SplitType.buildSplitTypeFromValue(ratio))
+                .setLayoutDirection(
+                    SplitAttributes.LayoutDirection.getLayoutDirectionFromValue(layoutDir)
+                )
+                .setAnimationBackgroundColor(
+                    SplitAttributes.BackgroundColor.buildFromValue(animationBackgroundColor)
+                )
+                .build()
+            val packageName = context.applicationContext.packageName
+            val placeholderActivityClassName = buildClassName(
+                packageName,
+                placeholderActivityIntentName
+            )
+
+            SplitPlaceholderRule.Builder(
+                emptySet(),
+                Intent().setComponent(placeholderActivityClassName)
+            )
+                .setTag(tag)
+                .setMinWidthDp(minWidthDp)
+                .setMinHeightDp(minHeightDp)
+                .setMinSmallestWidthDp(minSmallestWidthDp)
+                .setMaxAspectRatioInPortrait(buildAspectRatioFromValue(maxAspectRatioInPortrait))
+                .setMaxAspectRatioInLandscape(buildAspectRatioFromValue(maxAspectRatioInLandscape))
+                .setSticky(stickyPlaceholder)
+                .setFinishPrimaryWithPlaceholder(
+                    getFinishBehaviorFromValue(finishPrimaryWithPlaceholder))
+                .setDefaultSplitAttributes(defaultAttrs)
+                .build()
+        }
 
     private fun parseSplitPairFilter(
         context: Context,
@@ -289,18 +331,23 @@ internal object RuleParser {
     private fun parseActivityRule(
         context: Context,
         parser: XmlResourceParser
-    ): ActivityRule {
-        val alwaysExpand: Boolean
+    ): ActivityRule =
         context.theme.obtainStyledAttributes(
             parser,
             R.styleable.ActivityRule,
             0,
             0
-        ).apply {
-            alwaysExpand = getBoolean(R.styleable.ActivityRule_alwaysExpand, false)
+        ).let { typedArray ->
+            val tag = typedArray.getString(R.styleable.ActivityRule_tag)
+            val alwaysExpand = typedArray.getBoolean(R.styleable.ActivityRule_alwaysExpand, false)
+            typedArray.recycle()
+
+            val builder = ActivityRule.Builder(emptySet()).setAlwaysExpand(alwaysExpand)
+            if (tag != null) {
+                builder.setTag(tag)
+            }
+            builder.build()
         }
-        return ActivityRule.Builder(emptySet()).setAlwaysExpand(alwaysExpand).build()
-    }
 
     private fun parseActivityFilter(
         context: Context,

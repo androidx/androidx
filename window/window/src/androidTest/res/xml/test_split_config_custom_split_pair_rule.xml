@@ -17,9 +17,11 @@
 <resources
     xmlns:window="http://schemas.android.com/apk/res-auto">
     <SplitPairRule
+        window:tag="rule2"
         window:splitRatio="0.1"
         window:splitMinWidthDp="123"
-        window:splitMinSmallestWidthDp="456"
+        window:splitMinHeightDp="456"
+        window:splitMinSmallestWidthDp="789"
         window:splitMaxAspectRatioInPortrait="1.23"
         window:splitMaxAspectRatioInLandscape="alwaysDisallow"
         window:splitLayoutDirection="rtl"

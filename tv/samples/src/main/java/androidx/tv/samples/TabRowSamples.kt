@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,11 +34,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabDefaults
 import androidx.tv.material3.TabRow
 import androidx.tv.material3.TabRowDefaults
+import androidx.tv.material3.Text
 import kotlin.time.Duration.Companion.microseconds
 import kotlinx.coroutines.delay
 
@@ -65,7 +64,6 @@ fun PillIndicatorTabRow() {
         Text(
           text = tab,
           fontSize = 12.sp,
-          color = LocalContentColor.current,
           modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
         )
       }
@@ -101,7 +99,6 @@ fun UnderlinedIndicatorTabRow() {
         Text(
           text = tab,
           fontSize = 12.sp,
-          color = LocalContentColor.current,
           modifier = Modifier.padding(bottom = 4.dp)
         )
       }
@@ -140,7 +137,6 @@ fun TabRowWithDebounce() {
         Text(
           text = tab,
           fontSize = 12.sp,
-          color = LocalContentColor.current,
           modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
         )
       }
@@ -198,7 +194,6 @@ fun OnClickNavigation() {
           Text(
             text = "Tab ${it + 1}",
             fontSize = 12.sp,
-            color = LocalContentColor.current,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
           )
         }

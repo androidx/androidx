@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asJClassName
 import androidx.room.compiler.processing.util.asKClassName
+import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.dumpToString
 import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
@@ -1524,5 +1525,116 @@ class XTypeTest {
             }
             it.assertCompilationResult { hasErrorContaining("Unresolved reference: MissingType") }
         }
+    }
+
+    @Test
+    fun hasAnnotationWithPackage() {
+        val kotlinSrc = Source.kotlin(
+            "KotlinClass.kt",
+            """
+            package foo.bar
+            interface KotlinInterface
+            open class KotlinBase
+            @Target(AnnotationTarget.TYPE)
+            annotation class KotlinAnnotation {
+                @Target(AnnotationTarget.TYPE)
+                annotation class KotlinNestedAnnotation
+            }
+            class KotlinClass : @KotlinAnnotation.KotlinNestedAnnotation KotlinBase(),
+                    @KotlinAnnotation KotlinInterface {
+                inner class KotlinInner : @KotlinAnnotation KotlinInterface
+                class KotlinNested : @KotlinAnnotation KotlinInterface
+            }
+            """.trimIndent()
+        )
+        // KSP can't read nested annotations in Java sources if the filename does not match
+        // the outer class.
+        val javaAnnotationSource = Source.java(
+            "foo.bar.JavaAnnotation",
+            """
+            package foo.bar;
+            import java.lang.annotation.ElementType;
+            import java.lang.annotation.Target;
+            @Target(ElementType.TYPE_USE)
+            @interface JavaAnnotation {
+                @Target(ElementType.TYPE_USE)
+                @interface JavaNestedAnnotation {}
+            }
+            """.trimIndent()
+        )
+        val javaSrc = Source.java(
+            "foo.bar.JavaClass",
+            """
+            package foo.bar;
+            interface JavaInterface {}
+            class JavaBase {}
+            class JavaClass extends @JavaAnnotation.JavaNestedAnnotation JavaBase
+                implements @JavaAnnotation JavaInterface {}
+            """.trimIndent()
+        )
+        fun checkKotlin(invocation: XTestInvocation) {
+            val kotlinTypeElement = invocation.processingEnv.requireTypeElement(
+                "foo.bar.KotlinClass")
+            kotlinTypeElement.superInterfaces.single().let {
+                assertThat(it.getAllAnnotations().single().typeElement.packageName)
+                        .isEqualTo("foo.bar")
+                assertThat(it.getAllAnnotations().single().typeElement.qualifiedName)
+                    .isEqualTo("foo.bar.KotlinAnnotation")
+
+                assertThat(it.hasAnnotationWithPackage("foo.bar.KotlinAnnotation")).isFalse()
+                assertThat(it.hasAnnotationWithPackage("foo.bar")).isTrue()
+                assertThat(it.hasAnnotationWithPackage("foo")).isFalse()
+            }
+            kotlinTypeElement.superClass!!.let {
+                assertThat(it.getAllAnnotations().single().typeElement.packageName)
+                    .isEqualTo("foo.bar")
+                assertThat(it.getAllAnnotations().single().typeElement.qualifiedName)
+                    .isEqualTo("foo.bar.KotlinAnnotation.KotlinNestedAnnotation")
+
+                assertThat(it.getAllAnnotations().single().typeElement.packageName)
+                    .isEqualTo("foo.bar")
+                assertThat(it.getAllAnnotations().single().typeElement.qualifiedName)
+                    .isEqualTo("foo.bar.KotlinAnnotation.KotlinNestedAnnotation")
+            }
+        }
+        fun checkJava(invocation: XTestInvocation) {
+            val javaTypeElement = invocation.processingEnv.requireTypeElement(
+                "foo.bar.JavaClass")
+            javaTypeElement.superInterfaces.first().let {
+                assertThat(it.getAllAnnotations().single().typeElement.packageName)
+                    .isEqualTo("foo.bar")
+                assertThat(it.getAllAnnotations().single().typeElement.qualifiedName)
+                    .isEqualTo("foo.bar.JavaAnnotation")
+
+                assertThat(it.hasAnnotationWithPackage("foo.bar.JavaClass")).isFalse()
+                assertThat(it.hasAnnotationWithPackage("foo.bar")).isTrue()
+                assertThat(it.hasAnnotationWithPackage("foo")).isFalse()
+            }
+            javaTypeElement.superClass!!.let {
+                assertThat(it.getAllAnnotations().single().typeElement.packageName)
+                    .isEqualTo("foo.bar")
+                assertThat(it.getAllAnnotations().single().typeElement.qualifiedName)
+                    .isEqualTo("foo.bar.JavaAnnotation.JavaNestedAnnotation")
+
+                assertThat(it.hasAnnotationWithPackage("foo.bar.JavaClass")).isFalse()
+                assertThat(it.hasAnnotationWithPackage("foo.bar")).isTrue()
+                assertThat(it.hasAnnotationWithPackage("foo")).isFalse()
+            }
+        }
+        runProcessorTest(
+            sources = listOf(kotlinSrc, javaAnnotationSource, javaSrc),
+            handler = {
+                checkKotlin(it)
+                checkJava(it)
+            }
+        )
+        runProcessorTest(
+            classpath = compileFiles(listOf(kotlinSrc)),
+            handler = {
+                // We can't see type annotations from precompiled Java classes. Skipping it
+                // for now: https://github.com/google/ksp/issues/1296
+                checkKotlin(it)
+            }
+        )
     }
 }

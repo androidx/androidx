@@ -27,8 +27,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
-import androidx.wear.watchface.utility.AsyncTraceEvent
-import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.CrashInfoParcel
@@ -44,6 +42,8 @@ import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.runBlockingWithTracing
 import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
+import androidx.wear.watchface.utility.AsyncTraceEvent
+import androidx.wear.watchface.utility.TraceEvent
 import java.io.FileDescriptor
 import java.io.PrintWriter
 import kotlinx.coroutines.CoroutineScope
@@ -138,18 +138,17 @@ public open class IWatchFaceInstanceServiceStub(
 
     override fun createHeadlessWatchFaceInstance(
         params: HeadlessWatchFaceInstanceParams
-    ): IHeadlessWatchFace? = TraceEvent(
-        "IWatchFaceInstanceServiceStub.createHeadlessWatchFaceInstance"
-    ).use {
-        createServiceAndHeadlessEngine(params.watchFaceName)?.let { serviceAndEngine ->
-            // This is serviced on a background thread so it should be fine to block.
-            uiThreadCoroutineScope.runBlockingWithTracing("createHeadlessInstance") {
-                // However the WatchFaceService.createWatchFace method needs to be run on the UI
-                // thread.
-                serviceAndEngine.engine.createHeadlessInstance(params)
+    ): IHeadlessWatchFace? =
+        TraceEvent("IWatchFaceInstanceServiceStub.createHeadlessWatchFaceInstance").use {
+            createServiceAndHeadlessEngine(params.watchFaceName)?.let { serviceAndEngine ->
+                // This is serviced on a background thread so it should be fine to block.
+                uiThreadCoroutineScope.runBlockingWithTracing("createHeadlessInstance") {
+                    // However the WatchFaceService.createWatchFace method needs to be run on the UI
+                    // thread.
+                    serviceAndEngine.engine.createHeadlessInstance(params)
+                }
             }
         }
-    }
 
     private class ServiceAndEngine(
         val service: WatchFaceService,
@@ -160,55 +159,50 @@ public open class IWatchFaceInstanceServiceStub(
                 engine.onDestroy()
                 service.onDestroy()
             } catch (e: Exception) {
-                Log.e(
-                    TAG,
-                    "ServiceAndEngine.destroy failed due to exception",
-                    e
-                )
+                Log.e(TAG, "ServiceAndEngine.destroy failed due to exception", e)
                 throw e
             }
         }
     }
 
     @SuppressLint("BanUncheckedReflection")
-    private fun createServiceAndHeadlessEngine(
-        watchFaceName: ComponentName
-    ) = TraceEvent("IWatchFaceInstanceServiceStub.createEngine").use {
-        // Attempt to construct the class for the specified watchFaceName, failing if it either
-        // doesn't exist or isn't a [WatchFaceService].
-        val watchFaceService = service?.createWatchFaceService(watchFaceName)
+    private fun createServiceAndHeadlessEngine(watchFaceName: ComponentName) =
+        TraceEvent("IWatchFaceInstanceServiceStub.createEngine").use {
+            // Attempt to construct the class for the specified watchFaceName, failing if it either
+            // doesn't exist or isn't a [WatchFaceService].
+            val watchFaceService = service?.createWatchFaceService(watchFaceName)
 
-        if (watchFaceService != null) {
-            // Set the context and if possible the application for watchFaceService.
-            try {
-                val method = Service::class.java.declaredMethods.find { it.name == "attach" }
-                method!!.isAccessible = true
-                method.invoke(
-                    watchFaceService,
-                    service as Context,
-                    null,
-                    watchFaceService::class.qualifiedName,
-                    null,
-                    service!!.application,
-                    null
-                )
-            } catch (e: Exception) {
-                Log.w(
-                    TAG,
-                    "createServiceAndHeadlessEngine can't call attach by reflection, " +
-                        "falling back to setContext",
-                    e
-                )
-                watchFaceService.setContext(watchFaceService)
+            if (watchFaceService != null) {
+                // Set the context and if possible the application for watchFaceService.
+                try {
+                    val method = Service::class.java.declaredMethods.find { it.name == "attach" }
+                    method!!.isAccessible = true
+                    method.invoke(
+                        watchFaceService,
+                        service as Context,
+                        null,
+                        watchFaceService::class.qualifiedName,
+                        null,
+                        service!!.application,
+                        null
+                    )
+                } catch (e: Exception) {
+                    Log.w(
+                        TAG,
+                        "createServiceAndHeadlessEngine can't call attach by reflection, " +
+                            "falling back to setContext",
+                        e
+                    )
+                    watchFaceService.setContext(watchFaceService)
+                }
+                watchFaceService.onCreate()
+                val engine =
+                    watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+                ServiceAndEngine(watchFaceService, engine)
+            } else {
+                null
             }
-            watchFaceService.onCreate()
-            val engine =
-                watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
-            ServiceAndEngine(watchFaceService, engine)
-        } else {
-            null
         }
-    }
 
     override fun getOrCreateInteractiveWatchFace(
         params: WallpaperInteractiveWatchFaceInstanceParams,
@@ -249,52 +243,63 @@ public open class IWatchFaceInstanceServiceStub(
 
     override fun getDefaultProviderPolicies(
         params: DefaultProviderPoliciesParams
-    ): Array<IdTypeAndDefaultProviderPolicyWireFormat>? = createServiceAndHeadlessEngineAndEvaluate(
-        params.watchFaceName,
-        "IWatchFaceInstanceServiceStub.getDefaultProviderPolicies"
-    ) { it.engine.getDefaultProviderPolicies() }
+    ): Array<IdTypeAndDefaultProviderPolicyWireFormat>? =
+        createServiceAndHeadlessEngineAndEvaluate(
+            params.watchFaceName,
+            "IWatchFaceInstanceServiceStub.getDefaultProviderPolicies"
+        ) {
+            it.engine.getDefaultProviderPolicies()
+        }
 
-    override fun getUserStyleSchema(
-        params: GetUserStyleSchemaParams
-    ): UserStyleSchemaWireFormat? = createServiceAndHeadlessEngineAndEvaluate(
-        params.watchFaceName,
-        "IWatchFaceInstanceServiceStub.getUserStyleSchema"
-    ) { it.engine.getUserStyleSchemaWireFormat() }
+    override fun getUserStyleSchema(params: GetUserStyleSchemaParams): UserStyleSchemaWireFormat? =
+        createServiceAndHeadlessEngineAndEvaluate(
+            params.watchFaceName,
+            "IWatchFaceInstanceServiceStub.getUserStyleSchema"
+        ) {
+            it.engine.getUserStyleSchemaWireFormat()
+        }
 
     override fun getComplicationSlotMetadata(
         params: GetComplicationSlotMetadataParams
-    ): Array<ComplicationSlotMetadataWireFormat>? = createServiceAndHeadlessEngineAndEvaluate(
-        params.watchFaceName,
-        "IWatchFaceInstanceServiceStub.getComplicationSlotMetadata"
-    ) { it.engine.getComplicationSlotMetadataWireFormats() }
+    ): Array<ComplicationSlotMetadataWireFormat>? =
+        createServiceAndHeadlessEngineAndEvaluate(
+            params.watchFaceName,
+            "IWatchFaceInstanceServiceStub.getComplicationSlotMetadata"
+        ) {
+            it.engine.getComplicationSlotMetadataWireFormats()
+        }
 
     override fun hasComplicationCache() = true
 
     override fun getUserStyleFlavors(
         params: GetUserStyleFlavorsParams
-    ): UserStyleFlavorsWireFormat? = createServiceAndHeadlessEngineAndEvaluate(
-        params.watchFaceName,
-        "IWatchFaceInstanceServiceStub.getUserStyleFlavors"
-    ) { it.engine.getUserStyleFlavorsWireFormat() }
+    ): UserStyleFlavorsWireFormat? =
+        createServiceAndHeadlessEngineAndEvaluate(
+            params.watchFaceName,
+            "IWatchFaceInstanceServiceStub.getUserStyleFlavors"
+        ) {
+            it.engine.getUserStyleFlavorsWireFormat()
+        }
 
     private fun <T> createServiceAndHeadlessEngineAndEvaluate(
         watchFaceName: ComponentName,
         functionName: String,
         function: (serviceAndEngine: ServiceAndEngine) -> T
-    ): T? = TraceEvent(functionName).use {
-        return try {
-            createServiceAndHeadlessEngine(watchFaceName)?.let { serviceAndEngine ->
-                try {
-                    function(serviceAndEngine)
-                } finally {
-                    serviceAndEngine.destroy()
+    ): T? =
+        TraceEvent(functionName).use {
+            return try {
+                createServiceAndHeadlessEngine(watchFaceName)?.let { serviceAndEngine ->
+                    try {
+                        function(serviceAndEngine)
+                    } finally {
+                        serviceAndEngine.destroy()
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "$functionName failed due to exception", e)
+                throw e
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "$functionName failed due to exception", e)
-            throw e
         }
-    }
 
     fun onDestroy() {
         service = null

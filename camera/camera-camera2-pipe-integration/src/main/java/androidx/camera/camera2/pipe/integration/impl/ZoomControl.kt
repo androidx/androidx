@@ -21,6 +21,8 @@ import androidx.camera.camera2.pipe.integration.adapter.ZoomValue
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.camera2.pipe.integration.internal.ZoomMath.getLinearZoomFromZoomRatio
+import androidx.camera.camera2.pipe.integration.internal.ZoomMath.getZoomRatioFromLinearZoom
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.utils.futures.Futures
@@ -31,7 +33,6 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
 import javax.inject.Inject
-import kotlin.math.abs
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,11 +48,11 @@ class ZoomControl @Inject constructor(
 ) : UseCaseCameraControl {
     // NOTE: minZoom may be lower than 1.0
     // NOTE: Default zoom ratio is 1.0 (DEFAULT_ZOOM_RATIO)
-    val minZoom: Float = zoomCompat.minZoom
-    val maxZoom: Float = zoomCompat.maxZoom
+    val minZoomRatio: Float = zoomCompat.minZoomRatio
+    val maxZoomRatio: Float = zoomCompat.maxZoomRatio
 
     val defaultZoomState by lazy {
-        ZoomValue(DEFAULT_ZOOM_RATIO, minZoom, maxZoom)
+        ZoomValue(DEFAULT_ZOOM_RATIO, minZoomRatio, maxZoomRatio)
     }
 
     private val _zoomState by lazy {
@@ -62,28 +63,18 @@ class ZoomControl @Inject constructor(
         get() = _zoomState
 
     /** Linear zoom is between 0.0f and 1.0f */
-    fun toLinearZoom(zoomRatio: Float): Float {
-        val range = zoomCompat.maxZoom - zoomCompat.minZoom
-        if (range > 0) {
-            return (zoomRatio - zoomCompat.minZoom) / range
-        }
-        return 0.0f
-    }
+    fun toLinearZoom(zoomRatio: Float) = getLinearZoomFromZoomRatio(
+        zoomRatio = zoomRatio,
+        minZoomRatio = minZoomRatio,
+        maxZoomRatio = maxZoomRatio
+    )
 
     /** Zoom ratio is commonly used as the "1x, 2x, 5x" zoom ratio. Zoom ratio may be less than 1 */
-    fun toZoomRatio(linearZoom: Float): Float {
-        val range = zoomCompat.maxZoom - zoomCompat.minZoom
-        if (range > 0) {
-            return linearZoom * range + zoomCompat.minZoom
-        }
-
-        // if minZoom = maxZoom = 2.0f, 2.0f should be returned instead of default 1.0f
-        if (nearZero(range)) {
-            return zoomCompat.minZoom
-        }
-
-        return DEFAULT_ZOOM_RATIO
-    }
+    private fun toZoomRatio(linearZoom: Float) = getZoomRatioFromLinearZoom(
+        linearZoom = linearZoom,
+        minZoomRatio = minZoomRatio,
+        maxZoomRatio = maxZoomRatio
+    )
 
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera: UseCaseCamera?
@@ -117,16 +108,46 @@ class ZoomControl @Inject constructor(
         }
     }
 
-    fun setZoomRatioAsync(ratio: Float): ListenableFuture<Void> {
+    fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> {
+        if (linearZoom > 1.0f || linearZoom < 0f) {
+            val outOfRangeDesc =
+                "Requested linearZoom $linearZoom is not within valid range [0, 1]"
+            return Futures.immediateFailedFuture(
+                IllegalArgumentException(outOfRangeDesc)
+            )
+        }
+
+        val zoomValue = ZoomValue(
+            ZoomValue.LinearZoom(linearZoom),
+            minZoomRatio,
+            maxZoomRatio,
+        )
+        return setZoomValue(zoomValue)
+    }
+
+    fun setZoomRatio(zoomRatio: Float): ListenableFuture<Void> {
+        if (zoomRatio > maxZoomRatio || zoomRatio < minZoomRatio) {
+            val outOfRangeDesc =
+                "Requested zoomRatio $zoomRatio is not within valid range" +
+                    " [$minZoomRatio, $maxZoomRatio]"
+            return Futures.immediateFailedFuture(
+                IllegalArgumentException(outOfRangeDesc)
+            )
+        }
+
+        val zoomValue = ZoomValue(
+            zoomRatio,
+            minZoomRatio,
+            maxZoomRatio,
+        )
+        return setZoomValue(zoomValue)
+    }
+
+    fun setZoomValue(zoomValue: ZoomValue): ListenableFuture<Void> {
         // TODO: report IllegalArgumentException if ratio not in range
         return Futures.nonCancellationPropagating(
             useCaseCamera?.let {
                 threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
-                    val zoomValue = ZoomValue(
-                        ratio,
-                        minZoom,
-                        maxZoom
-                    )
                     setZoomState(zoomValue)
                     update()
                 }.asListenableFuture()
@@ -134,10 +155,6 @@ class ZoomControl @Inject constructor(
                 CameraControl.OperationCanceledException("Camera is not active.")
             )
         )
-    }
-
-    private fun nearZero(num: Float): Boolean {
-        return abs(num) < 2.0 * Math.ulp(abs(num))
     }
 
     @Module

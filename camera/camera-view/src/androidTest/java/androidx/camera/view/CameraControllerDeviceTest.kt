@@ -35,7 +35,7 @@ import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.fakes.FakeActivity
 import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.fakes.FakePreviewEffect
+import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -126,11 +126,11 @@ class CameraControllerDeviceTest(
         waitUtilPreviewViewIsReady(previewView!!)
 
         // Act: set the same effect twice, which is invalid.
-        val previewEffect1 = FakePreviewEffect(
+        val previewEffect1 = FakeSurfaceEffect(
             mainThreadExecutor(),
             FakeSurfaceProcessor(mainThreadExecutor())
         )
-        val previewEffect2 = FakePreviewEffect(
+        val previewEffect2 = FakeSurfaceEffect(
             mainThreadExecutor(),
             FakeSurfaceProcessor(mainThreadExecutor())
         )
@@ -159,19 +159,19 @@ class CameraControllerDeviceTest(
         waitUtilPreviewViewIsReady(previewView!!)
 
         // Act: set an effect
-        val effect = FakePreviewEffect(
+        val effect = FakeSurfaceEffect(
             mainThreadExecutor(), FakeSurfaceProcessor(mainThreadExecutor())
         )
         instrumentation.runOnMainSync { controller!!.setEffects(setOf(effect)) }
 
         // Assert: preview has effect
-        assertThat(controller!!.mPreview.processor).isNotNull()
+        assertThat(controller!!.mPreview.effect).isNotNull()
 
         // Act: clear the effects
         instrumentation.runOnMainSync { controller!!.setEffects(null) }
 
         // Assert: preview no longer has the effect.
-        assertThat(controller!!.mPreview.processor).isNull()
+        assertThat(controller!!.mPreview.effect).isNull()
     }
 
     @Test

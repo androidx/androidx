@@ -198,6 +198,8 @@ public class TestSchedulerTest {
         assertThat(CountingTestWorker.COUNT.get(), is(0));
         mTestDriver.setInitialDelayMet(request.getId());
         assertThat(CountingTestWorker.COUNT.get(), is(1));
+        mTestDriver.setPeriodDelayMet(request.getId());
+        assertThat(CountingTestWorker.COUNT.get(), is(2));
     }
 
     @Test

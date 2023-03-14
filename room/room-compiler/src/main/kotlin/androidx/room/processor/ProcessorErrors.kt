@@ -206,6 +206,9 @@ object ProcessorErrors {
         "private, final, or abstract. It can be abstract only if the method is also" +
         " annotated with @Query."
 
+    fun nullableParamInShortcutMethod(param: String) = "Methods annotated with [@Insert, " +
+        "@Upsert, @Update, @Delete] shouldn't declare nullable parameters ($param)."
+
     fun transactionMethodAsync(returnTypeName: String) = "Method annotated with @Transaction must" +
         " not return deferred/async return type $returnTypeName. Since transactions are" +
         " thread confined and Room cannot guarantee that all queries in the method" +
@@ -1130,4 +1133,18 @@ object ProcessorErrors {
 
     val NONNULL_VOID = "Invalid non-null declaration of 'Void', should be nullable. The 'Void' " +
         "class represents a placeholder type that is uninstantiable and 'null' is always returned."
+
+    fun nullableCollectionOrArrayReturnTypeInDaoMethod(
+        typeName: String,
+        returnType: String
+    ): String {
+        return "The nullable `$returnType` ($typeName) return type in a DAO method is " +
+        "meaningless because Room will instead return an empty `$returnType` if no rows are " +
+        "returned from the query."
+    }
+
+    fun nullableComponentInDaoMethodReturnType(typeName: String): String {
+        return "The DAO method return type ($typeName) with the nullable type argument " +
+        "is meaningless because for now Room will never put a null value in a result."
+    }
 }

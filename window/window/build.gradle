@@ -45,12 +45,13 @@ android {
 dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
-    implementation("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.annotation:annotation:1.3.0")
     implementation("androidx.collection:collection:1.1.0")
     implementation("androidx.core:core:1.8.0")
+    implementation("androidx.window.extensions.core:core:1.0.0-alpha01")
 
     compileOnly(project(":window:sidecar:sidecar"))
-    compileOnly("androidx.window.extensions:extensions:1.1.0-alpha02")
+    compileOnly(project(":window:extensions:extensions"))
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -61,7 +62,8 @@ dependencies {
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(compileOnly(project(":window:sidecar:sidecar")))
-    testImplementation(compileOnly("androidx.window.extensions:extensions:1.1.0-alpha02"))
+    testImplementation(compileOnly(project(":window:extensions:extensions")))
+    testImplementation(implementation("androidx.window.extensions.core:core:1.0.0-alpha01"))
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.kotlinTestJunit)
@@ -75,8 +77,9 @@ dependencies {
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit) // Needed for Assert.assertThrows
+    androidTestImplementation(compileOnly(project(":window:extensions:extensions")))
     androidTestImplementation(compileOnly(project(":window:sidecar:sidecar")))
-    androidTestImplementation(compileOnly("androidx.window.extensions:extensions:1.1.0-alpha02"))
+    androidTestImplementation(implementation("androidx.window.extensions.core:core:1.0.0-alpha01"))
     samples(project(":window:window-samples"))
 }
 

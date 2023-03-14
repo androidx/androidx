@@ -29,24 +29,26 @@ import javax.inject.Singleton
 /**
  * This tracks internal permission requests to avoid querying multiple times.
  *
- * This class assumes that permissions are one way - They can be granted, but not un-granted
- * without restarting the application process.
+ * This class assumes that permissions are one way - They can be granted, but not un-granted without
+ * restarting the application process.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
-internal class Permissions @Inject constructor(
-    @CameraPipeContext private val cameraPipeContext: Context
-) {
+internal class Permissions
+@Inject
+constructor(@CameraPipeContext private val cameraPipeContext: Context) {
     @Volatile
     private var _hasCameraPermission = false
     val hasCameraPermission: Boolean
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkCameraPermission()
-        } else {
-            // On older versions of Android, permissions are required in order to install a package
-            // and so the permission check is redundant.
-            true
-        }
+        get() =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                checkCameraPermission()
+            } else {
+                // On older versions of Android, permissions are required in order to install a
+                // package
+                // and so the permission check is redundant.
+                true
+            }
 
     @RequiresApi(23)
     private fun checkCameraPermission(): Boolean {
@@ -56,8 +58,8 @@ internal class Permissions @Inject constructor(
         // allowing the code to avoid re-querying after checkSelfPermission returns true.
         if (!_hasCameraPermission) {
             Debug.traceStart { "CXCP#checkCameraPermission" }
-            if (Api23Compat.checkSelfPermission(cameraPipeContext, Manifest.permission.CAMERA)
-                == PERMISSION_GRANTED
+            if (Api23Compat.checkSelfPermission(cameraPipeContext, Manifest.permission.CAMERA) ==
+                PERMISSION_GRANTED
             ) {
                 _hasCameraPermission = true
             }

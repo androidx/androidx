@@ -20,6 +20,7 @@ import static androidx.work.ExistingWorkPolicy.APPEND;
 import static androidx.work.ExistingWorkPolicy.APPEND_OR_REPLACE;
 import static androidx.work.ExistingWorkPolicy.KEEP;
 import static androidx.work.ExistingWorkPolicy.REPLACE;
+import static androidx.work.NetworkType.CONNECTED;
 import static androidx.work.NetworkType.METERED;
 import static androidx.work.NetworkType.NOT_REQUIRED;
 import static androidx.work.WorkInfo.State.BLOCKED;
@@ -40,6 +41,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyCollectionOf;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isIn;
@@ -1172,6 +1174,24 @@ public class WorkManagerImplTest {
 
     @Test
     @MediumTest
+    public void testGetWorkInfoByIdSyncConstraints() throws Exception {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresCharging(true)
+                .setRequiredNetworkType(CONNECTED)
+                .build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(SUCCEEDED)
+                .setConstraints(constraints)
+                .build();
+        insertWorkSpecAndTags(work);
+
+        WorkInfo workInfo = mWorkManagerImpl.getWorkInfoById(work.getId()).get();
+        assertThat(workInfo.getId().toString(), is(work.getStringId()));
+        assertThat(workInfo.getConstraints(), equalTo(constraints));
+    }
+
+    @Test
+    @MediumTest
     public void testGetWorkInfoByIdSync_returnsNullIfNotInDatabase()
             throws ExecutionException, InterruptedException {
 
@@ -1600,6 +1620,10 @@ public class WorkManagerImplTest {
     @SuppressWarnings("unchecked")
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testCancelAllWork_updatesLastCancelAllTimeLiveData() throws InterruptedException {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         PreferenceUtils preferenceUtils = new PreferenceUtils(mWorkManagerImpl.getWorkDatabase());
         preferenceUtils.setLastCancelAllTimeMillis(0L);
 

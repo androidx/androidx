@@ -19,7 +19,7 @@ package androidx.window.embedding
 import androidx.annotation.FloatRange
 
 /**
- * The aspect ratio of the parent window bounds to allow embedding with the rule.
+ * The aspect ratio of the parent window bound to allow embedding with the rule.
  *
  * @see SplitRule.maxAspectRatioInPortrait
  * @see SplitRule.maxAspectRatioInLandscape
@@ -60,8 +60,8 @@ class EmbeddingAspectRatio private constructor(
          * @param ratio the aspect ratio.
          * @return the [EmbeddingAspectRatio] representing the [ratio].
          *
-         * @see alwaysAllow for always allow embedding.
-         * @see alwaysDisallow for always disallow embedding.
+         * @see ALWAYS_ALLOW for always allow embedding.
+         * @see ALWAYS_DISALLOW for always disallow embedding.
          */
         @JvmStatic
         fun ratio(@FloatRange(from = 1.0, fromInclusive = false) ratio: Float):
@@ -70,18 +70,14 @@ class EmbeddingAspectRatio private constructor(
             return EmbeddingAspectRatio("ratio:$ratio", ratio)
         }
 
-        private val ALWAYS_ALLOW = EmbeddingAspectRatio("ALWAYS_ALLOW", 0f)
-
         /**
          * Gets the special [EmbeddingAspectRatio] to represent it always allows embedding.
          *
          * An example use case is to set it on [SplitRule.maxAspectRatioInLandscape] if the app
          * wants to always allow embedding as split when the parent window is in landscape.
          */
-        @JvmStatic
-        fun alwaysAllow() = ALWAYS_ALLOW
-
-        private val ALWAYS_DISALLOW = EmbeddingAspectRatio("ALWAYS_DISALLOW", -1f)
+        @JvmField
+        val ALWAYS_ALLOW = EmbeddingAspectRatio("ALWAYS_ALLOW", 0f)
 
         /**
          * Gets the special [EmbeddingAspectRatio] to represent it always disallows embedding.
@@ -89,8 +85,8 @@ class EmbeddingAspectRatio private constructor(
          * An example use case is to set it on [SplitRule.maxAspectRatioInPortrait] if the app
          * wants to disallow embedding as split when the parent window is in portrait.
          */
-        @JvmStatic
-        fun alwaysDisallow() = ALWAYS_DISALLOW
+        @JvmField
+        val ALWAYS_DISALLOW = EmbeddingAspectRatio("ALWAYS_DISALLOW", -1f)
 
         /**
          * Returns a [EmbeddingAspectRatio] with the given [value].
@@ -98,10 +94,10 @@ class EmbeddingAspectRatio private constructor(
         internal fun buildAspectRatioFromValue(value: Float): EmbeddingAspectRatio {
             return when (value) {
                 ALWAYS_ALLOW.value -> {
-                    alwaysAllow()
+                    ALWAYS_ALLOW
                 }
                 ALWAYS_DISALLOW.value -> {
-                    alwaysDisallow()
+                    ALWAYS_DISALLOW
                 }
                 else -> {
                     ratio(value)

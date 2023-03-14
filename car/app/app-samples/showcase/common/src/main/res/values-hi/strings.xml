@@ -257,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"आपने साइन इन कर लिया है!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"साइन इन पूरा हुआ"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"साइन इन के टेंप्लेट का डेमो"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"टैब टेंप्लेट के डेमो"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"टैब टेंप्लेट का डेमो"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"मैसेज टैब"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"पैनल टैब"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"सूची टैब"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"लंबे टैब टाइटल वाले ग्रिड टैब"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"खोज टैब"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"टैब टेंप्लेट लोड करने का डेमो"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"बिना किसी टैब वाले टैब टेंप्लेट का डेमो"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"अनजान होस्ट के लिए इमेज नहीं दिखाई जा सकतीं"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"आइकॉन"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"कॉन्टेंट देने वालों के आइकॉन का डेमो"</string>

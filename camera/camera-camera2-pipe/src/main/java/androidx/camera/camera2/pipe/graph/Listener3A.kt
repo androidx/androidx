@@ -30,8 +30,8 @@ import javax.inject.Inject
 /**
  * A [Request.Listener] to receive partial and final metadata for each request sent to the camera
  * device. It maintains a list of [Result3AStateListener] to which it broadcasts the updates and
- * removes them as they are completed. This listener is useful for implementing 3A methods to
- * look for desired 3A state changes.
+ * removes them as they are completed. This listener is useful for implementing 3A methods to look
+ * for desired 3A state changes.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraGraphScope

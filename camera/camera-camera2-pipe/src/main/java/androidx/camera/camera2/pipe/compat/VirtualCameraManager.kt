@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe.compat
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.WakeLock
@@ -37,15 +38,15 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 internal sealed class CameraRequest
+
 internal data class RequestOpen(
     val virtualCamera: VirtualCameraState,
     val share: Boolean = false,
     val graphListener: GraphListener
 ) : CameraRequest()
 
-internal data class RequestClose(
-    val activeCamera: VirtualCameraManager.ActiveCamera
-) : CameraRequest()
+internal data class RequestClose(val activeCamera: VirtualCameraManager.ActiveCamera) :
+    CameraRequest()
 
 internal object RequestCloseAll : CameraRequest()
 
@@ -54,7 +55,9 @@ private const val requestQueueDepth = 8
 @Suppress("EXPERIMENTAL_API_USAGE")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
-internal class VirtualCameraManager @Inject constructor(
+internal class VirtualCameraManager
+@Inject
+constructor(
     private val permissions: Permissions,
     private val retryingCameraStateOpener: RetryingCameraStateOpener,
     private val threads: Threads
@@ -103,9 +106,7 @@ internal class VirtualCameraManager @Inject constructor(
                     activeCameras.remove(closeRequest.activeCamera)
                 }
 
-                launch {
-                    closeRequest.activeCamera.close()
-                }
+                launch { closeRequest.activeCamera.close() }
                 closeRequest.activeCamera.awaitClosed()
                 continue
             }
@@ -123,9 +124,7 @@ internal class VirtualCameraManager @Inject constructor(
 
                 // Close all active cameras.
                 for (activeCamera in activeCameras) {
-                    launch {
-                        activeCamera.close()
-                    }
+                    launch { activeCamera.close() }
                 }
                 for (camera in activeCameras) {
                     camera.awaitClosed()
@@ -152,11 +151,12 @@ internal class VirtualCameraManager @Inject constructor(
             //   needed. Since close may block, we will re-evaluate the next request after the
             //   desired cameras are closed since new requests may have arrived.
             val cameraIdToOpen = request.virtualCamera.cameraId
-            val camerasToClose = if (request.share) {
-                emptyList()
-            } else {
-                activeCameras.filter { it.cameraId != cameraIdToOpen }
-            }
+            val camerasToClose =
+                if (request.share) {
+                    emptyList()
+                } else {
+                    activeCameras.filter { it.cameraId != cameraIdToOpen }
+                }
 
             if (camerasToClose.isNotEmpty()) {
                 // Shutdown of cameras should always happen first (and suspend until complete)
@@ -165,7 +165,8 @@ internal class VirtualCameraManager @Inject constructor(
                     // TODO: This should be a dispatcher instead of scope.launch
 
                     launch {
-                        // TODO: Figure out if this should be blocking or not. If we are directly invoking
+                        // TODO: Figure out if this should be blocking or not. If we are directly
+                        // invoking
                         //   close this method could block for 0-1000ms
                         camera.close()
                     }
@@ -206,15 +207,15 @@ internal class VirtualCameraManager @Inject constructor(
         //   causing the application process to restart.
         check(permissions.hasCameraPermission) { "Missing camera permissions!" }
 
+        Log.debug { "Opening $cameraId with retries..." }
         val result = retryingCameraStateOpener.openCameraWithRetry(cameraId, graphListener)
         if (result.cameraState == null) {
             return OpenVirtualCameraResult(lastCameraError = result.errorCode)
         }
         return OpenVirtualCameraResult(
-            activeCamera = ActiveCamera(
-                androidCameraState = result.cameraState,
-                scope = scope,
-                channel = requestQueue
+            activeCamera =
+            ActiveCamera(
+                androidCameraState = result.cameraState, scope = scope, channel = requestQueue
             )
         )
     }
@@ -243,30 +244,30 @@ internal class VirtualCameraManager @Inject constructor(
         private val listenerJob: Job
         private var current: VirtualCameraState? = null
 
-        private val wakelock = WakeLock(
-            scope,
-            timeout = 1000,
-            callback = {
-                channel.trySend(RequestClose(this)).isSuccess
-            },
-            // Every ActiveCamera is associated with an opened camera. We should ensure that we
-            // issue a RequestClose eventually for every ActiveCamera created.
-            //
-            // A notable bug is b/264396089 where, because camera opens took too long, we didn't
-            // acquire a WakeLockToken, and thereby not issuing the request to close camera
-            // eventually.
-            startTimeoutOnCreation = true
-        )
+        private val wakelock =
+            WakeLock(
+                scope,
+                timeout = 1000,
+                callback = { channel.trySend(RequestClose(this)).isSuccess },
+                // Every ActiveCamera is associated with an opened camera. We should ensure that we
+                // issue a RequestClose eventually for every ActiveCamera created.
+                //
+                // A notable bug is b/264396089 where, because camera opens took too long, we didn't
+                // acquire a WakeLockToken, and thereby not issuing the request to close camera
+                // eventually.
+                startTimeoutOnCreation = true
+            )
 
         init {
-            listenerJob = scope.launch {
-                androidCameraState.state.collect {
-                    if (it is CameraStateClosing || it is CameraStateClosed) {
-                        wakelock.release()
-                        this.cancel()
+            listenerJob =
+                scope.launch {
+                    androidCameraState.state.collect {
+                        if (it is CameraStateClosing || it is CameraStateClosed) {
+                            wakelock.release()
+                            this.cancel()
+                        }
                     }
                 }
-            }
         }
 
         suspend fun connectTo(virtualCameraState: VirtualCameraState) {
@@ -291,7 +292,6 @@ internal class VirtualCameraManager @Inject constructor(
     /**
      * There are 3 possible scenarios with [OpenVirtualCameraResult]. Suppose we denote the values
      * in pairs of ([activeCamera], [lastCameraError]):
-     *
      * - ([activeCamera], null): Camera opened without an issue.
      * - (null, [lastCameraError]): Camera opened failed and the last error was [lastCameraError].
      * - (null, null): Camera open didn't complete, likely due to CameraGraph being stopped or

@@ -481,7 +481,8 @@ public object ButtonDefaults {
     ): ButtonColors {
         return buttonColors(
             backgroundColor = backgroundColor,
-            contentColor = contentColor
+            contentColor = contentColor,
+            disabledContentColor = MaterialTheme.colors.background
         )
     }
 

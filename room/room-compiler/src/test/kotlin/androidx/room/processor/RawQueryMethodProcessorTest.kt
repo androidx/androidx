@@ -21,11 +21,11 @@ import androidx.room.Dao
 import androidx.room.RawQuery
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -153,7 +153,7 @@ class RawQueryMethodProcessorTest {
         singleQueryMethod(
             """
                 @RawQuery
-                abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE}<User> getOne();
+                abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE.canonicalName}<User> getOne();
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
@@ -169,7 +169,7 @@ class RawQueryMethodProcessorTest {
         singleQueryMethod(
             """
                 @RawQuery(observedEntities = {User.class})
-                abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE}<User> getOne(
+                abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE.canonicalName}<User> getOne(
                         SupportSQLiteQuery query);
                 """
         ) { _, _ ->
@@ -424,7 +424,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        String::class.asClassName().canonicalName
+                        CommonTypeNames.STRING.canonicalName
                     )
                 )
             }
@@ -442,7 +442,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        String::class.asClassName().canonicalName
+                        CommonTypeNames.STRING.canonicalName
                     )
                 )
             }
@@ -460,7 +460,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        String::class.asClassName().canonicalName
+                        CommonTypeNames.STRING.canonicalName
                     )
                 )
             }
@@ -561,7 +561,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.valueMayNeedMapInfo(
-                        String::class.asClassName().canonicalName
+                        CommonTypeNames.STRING.canonicalName
                     )
                 )
             }

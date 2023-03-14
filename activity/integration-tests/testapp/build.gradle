@@ -30,6 +30,7 @@ android {
 dependencies {
     implementation(project(":activity:activity-ktx"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

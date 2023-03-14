@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.junit.Test
@@ -49,7 +50,9 @@ class InteractiveFrameClockTest {
         // awaiter1 will be sent immediately, awaiter2 & awaiter3 will be sent together at least
         // 1/5th of a second later.
         val awaiter1 = async { clock.withFrameNanos { it } }
+        runCurrent()
         val awaiter2 = async { clock.withFrameNanos { it } }
+        runCurrent()
         val awaiter3 = async { clock.withFrameNanos { it } }
         advanceUntilIdle()
         val frame1 = awaiter1.await()
@@ -69,7 +72,9 @@ class InteractiveFrameClockTest {
         // awaiter1 will be sent immediately, awaiter2 & awaiter3 will be sent together at least
         // 1/20th of a second later.
         val awaiter1 = async { clock.withFrameNanos { it } }
+        runCurrent()
         val awaiter2 = async { clock.withFrameNanos { it } }
+        runCurrent()
         val awaiter3 = async { clock.withFrameNanos { it } }
         advanceUntilIdle()
         val frame1 = awaiter1.await()

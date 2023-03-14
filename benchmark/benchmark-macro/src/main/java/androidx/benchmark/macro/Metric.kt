@@ -238,7 +238,10 @@ public class StartupTimingLegacyMetric : Metric() {
         val androidStartup = traceMetrics.android_startup
             ?: throw IllegalStateException("No android_startup metric found.")
         val appStartup =
-            androidStartup.startup.first { it.package_name == captureInfo.targetPackageName }
+            androidStartup.startup.firstOrNull { it.package_name == captureInfo.targetPackageName }
+                ?: throw IllegalStateException("Didn't find startup for pkg " +
+                    "${captureInfo.targetPackageName}, found startups for pkgs: " +
+                    "${androidStartup.startup.map {it.package_name}}")
 
         // Extract app startup
         val metricMap = mutableMapOf<String, Double>()

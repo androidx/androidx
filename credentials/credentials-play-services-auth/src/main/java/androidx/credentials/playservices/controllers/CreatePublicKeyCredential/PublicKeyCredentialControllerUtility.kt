@@ -23,6 +23,7 @@ import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.exceptions.domerrors.AbortError
 import androidx.credentials.exceptions.domerrors.ConstraintError
 import androidx.credentials.exceptions.domerrors.DataError
+import androidx.credentials.exceptions.domerrors.EncodingError
 import androidx.credentials.exceptions.domerrors.InvalidStateError
 import androidx.credentials.exceptions.domerrors.NetworkError
 import androidx.credentials.exceptions.domerrors.NotAllowedError
@@ -114,7 +115,9 @@ class PublicKeyCredentialControllerUtility {
                 responseJson.put(
                     "attestationObject",
                     b64Encode(authenticatorResponse.attestationObject))
-                val transports = JSONArray(listOf(authenticatorResponse.transports))
+                val transportArray = convertToProperNamingScheme(authenticatorResponse)
+                val transports = JSONArray(transportArray)
+
                 responseJson.put("transports", transports)
                 json.put("response", responseJson)
             } else {
@@ -128,6 +131,20 @@ class PublicKeyCredentialControllerUtility {
             json.put("rawId", b64Encode(cred.rawId))
             json.put("type", cred.type)
             return json.toString()
+        }
+
+        private fun convertToProperNamingScheme(
+            authenticatorResponse: AuthenticatorAttestationResponse
+        ): Array<out String> {
+            val transportArray = authenticatorResponse.transports
+            var ix = 0
+            for (transport in transportArray) {
+                if (transport == "cable") {
+                    transportArray[ix] = "hybrid"
+                }
+                ix += 1
+            }
+            return transportArray
         }
 
         private fun addOptionalAuthenticatorAttachmentAndExtensions(
@@ -357,7 +374,13 @@ class PublicKeyCredentialControllerUtility {
                             "transports"
                         )
                         for (j in 0 until descriptorTransports.length()) {
-                            transports.add(Transport.fromString(descriptorTransports.getString(j)))
+                            try {
+                                transports.add(Transport.fromString(
+                                    descriptorTransports.getString(j)))
+                            } catch (e: Transport.UnsupportedTransportException) {
+                                throw CreatePublicKeyCredentialDomException(EncodingError(),
+                                    e.message)
+                            }
                         }
                     }
                     excludeCredentialsList.add(

@@ -25,6 +25,10 @@ configurations {
     shadowed
     compileOnly.extendsFrom(shadowed)
     testCompile.extendsFrom(shadowed)
+    // for downstream tests, provide a configuration that includes the shadow output + other
+    // dependencies that are not shadowed
+    shadowAndImplementation.extendsFrom(shadow)
+    shadowAndImplementation.extendsFrom(implementation)
 }
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")

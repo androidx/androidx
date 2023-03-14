@@ -59,37 +59,6 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun queryOfNullableEntityArray(): Array<MyEntity?> {
-        val _sql: String = "SELECT * FROM MyEntity"
-        val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-        __db.assertNotSuspendingTransaction()
-        val _cursor: Cursor = query(__db, _statement, false, null)
-        try {
-            val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-            val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-            val _cursorIndexOfOther2: Int = getColumnIndexOrThrow(_cursor, "other2")
-            val _tmpResult: Array<MyEntity?> = arrayOfNulls<MyEntity?>(_cursor.getCount())
-            var _index: Int = 0
-            while (_cursor.moveToNext()) {
-                val _item: MyEntity?
-                val _tmpPk: Int
-                _tmpPk = _cursor.getInt(_cursorIndexOfPk)
-                val _tmpOther: String
-                _tmpOther = _cursor.getString(_cursorIndexOfOther)
-                val _tmpOther2: Long
-                _tmpOther2 = _cursor.getLong(_cursorIndexOfOther2)
-                _item = MyEntity(_tmpPk,_tmpOther,_tmpOther2)
-                _tmpResult[_index] = _item
-                _index++
-            }
-            val _result: Array<MyEntity?> = _tmpResult
-            return _result
-        } finally {
-            _cursor.close()
-            _statement.release()
-        }
-    }
-
     public override fun queryOfArrayWithLong(): Array<Long> {
         val _sql: String = "SELECT pk FROM MyEntity"
         val _statement: RoomSQLiteQuery = acquire(_sql, 0)
@@ -105,32 +74,6 @@ public class MyDao_Impl(
                 _index++
             }
             val _result: Array<Long> = (_tmpResult) as Array<Long>
-            return _result
-        } finally {
-            _cursor.close()
-            _statement.release()
-        }
-    }
-
-    public override fun queryOfArrayWithNullLong(): Array<Long?> {
-        val _sql: String = "SELECT pk FROM MyEntity"
-        val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-        __db.assertNotSuspendingTransaction()
-        val _cursor: Cursor = query(__db, _statement, false, null)
-        try {
-            val _tmpResult: Array<Long?> = arrayOfNulls<Long?>(_cursor.getCount())
-            var _index: Int = 0
-            while (_cursor.moveToNext()) {
-                val _item: Long?
-                if (_cursor.isNull(0)) {
-                    _item = null
-                } else {
-                    _item = _cursor.getLong(0)
-                }
-                _tmpResult[_index] = _item
-                _index++
-            }
-            val _result: Array<Long?> = _tmpResult
             return _result
         } finally {
             _cursor.close()

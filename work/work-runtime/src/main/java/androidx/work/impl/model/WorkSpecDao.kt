@@ -23,6 +23,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.work.CONSTRAINTS_COLUMNS
 import androidx.work.Data
 import androidx.work.WorkInfo
 import androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES
@@ -148,7 +149,7 @@ interface WorkSpecDao {
      * @return A list of [WorkSpec.WorkInfoPojo]
      */
     @Transaction
-    @Query("SELECT id, state, output, run_attempt_count, generation FROM workspec WHERE id=:id")
+    @Query("SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id=:id")
     fun getWorkStatusPojoForId(id: String): WorkSpec.WorkInfoPojo?
 
     /**
@@ -159,8 +160,7 @@ interface WorkSpecDao {
      * @return A [List] of [WorkSpec.WorkInfoPojo]
      */
     @Transaction
-    @Query("SELECT id, state, output, run_attempt_count, generation " +
-        "FROM workspec WHERE id IN (:ids)")
+    @Query("SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN (:ids)")
     fun getWorkStatusPojoForIds(ids: List<String>): List<WorkSpec.WorkInfoPojo>
 
     /**
@@ -171,8 +171,7 @@ interface WorkSpecDao {
      * @return A [LiveData] list of [WorkSpec.WorkInfoPojo]
      */
     @Transaction
-    @Query("SELECT id, state, output, run_attempt_count, generation " +
-        "FROM workspec WHERE id IN (:ids)")
+    @Query("SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN (:ids)")
     fun getWorkStatusPojoLiveDataForIds(ids: List<String>): LiveData<List<WorkSpec.WorkInfoPojo>>
 
     /**
@@ -183,7 +182,7 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query(
-        """SELECT id, state, output, run_attempt_count, generation FROM workspec WHERE id IN
+        """SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN
             (SELECT work_spec_id FROM worktag WHERE tag=:tag)"""
     )
     fun getWorkStatusPojoForTag(tag: String): List<WorkSpec.WorkInfoPojo>
@@ -197,7 +196,7 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query(
-        """SELECT id, state, output, run_attempt_count, generation FROM workspec WHERE id IN
+        """SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN
             (SELECT work_spec_id FROM worktag WHERE tag=:tag)"""
     )
     fun getWorkStatusPojoLiveDataForTag(tag: String): LiveData<List<WorkSpec.WorkInfoPojo>>
@@ -210,7 +209,7 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query(
-        "SELECT id, state, output, run_attempt_count, generation FROM workspec WHERE id IN " +
+        "SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN " +
             "(SELECT work_spec_id FROM workname WHERE name=:name)"
     )
     fun getWorkStatusPojoForName(name: String): List<WorkSpec.WorkInfoPojo>
@@ -224,7 +223,7 @@ interface WorkSpecDao {
      */
     @Transaction
     @Query(
-        "SELECT id, state, output, run_attempt_count, generation FROM workspec WHERE id IN " +
+        "SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN " +
             "(SELECT work_spec_id FROM workname WHERE name=:name)"
     )
     fun getWorkStatusPojoLiveDataForName(name: String): LiveData<List<WorkSpec.WorkInfoPojo>>
@@ -388,3 +387,6 @@ interface WorkSpecDao {
     @Update
     fun updateWorkSpec(workSpec: WorkSpec)
 }
+
+private const val WORK_INFO_COLUMNS = "id, state, output, run_attempt_count, generation" +
+    ", $CONSTRAINTS_COLUMNS"

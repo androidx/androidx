@@ -270,6 +270,6 @@ private class FakeViewModelStoreOwner : ViewModelStoreOwner, HasDefaultViewModel
     val store = ViewModelStore()
     val factory = FakeViewModelProviderFactory()
 
-    override fun getViewModelStore(): ViewModelStore = store
+    override val viewModelStore: ViewModelStore = store
     override val defaultViewModelProviderFactory = factory
 }

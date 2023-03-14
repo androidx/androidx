@@ -55,70 +55,66 @@ import org.robolectric.annotation.Config
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class RetryingCameraStateOpenerTest {
     private val cameraId0 = CameraId("0")
-    private val cameraMetadataProvider = object : CameraMetadataProvider {
-        override suspend fun getMetadata(cameraId: CameraId): CameraMetadata =
-            FakeCameraMetadata(cameraId = cameraId)
+    private val camera2MetadataProvider =
+        object : Camera2MetadataProvider {
+            override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata =
+                FakeCameraMetadata(cameraId = cameraId)
 
-        override fun awaitMetadata(cameraId: CameraId): CameraMetadata =
-            FakeCameraMetadata(cameraId = cameraId)
-    }
+            override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata =
+                FakeCameraMetadata(cameraId = cameraId)
+        }
 
     // TODO(lnishan): Consider mocking this object when Mockito works well with value classes.
-    private val cameraOpener = object : CameraOpener {
-        var toThrow: Throwable? = null
-        var numberOfOpens = 0
+    private val cameraOpener =
+        object : CameraOpener {
+            var toThrow: Throwable? = null
+            var numberOfOpens = 0
 
-        override fun openCamera(cameraId: CameraId, stateCallback: CameraDevice.StateCallback) {
-            numberOfOpens++
-            toThrow?.let {
-                throw it
+            override fun openCamera(cameraId: CameraId, stateCallback: CameraDevice.StateCallback) {
+                numberOfOpens++
+                toThrow?.let { throw it }
             }
         }
-    }
 
     private val fakeTimeSource = FakeTimeSource()
 
     private val cameraStateOpener =
-        CameraStateOpener(cameraOpener, cameraMetadataProvider, fakeTimeSource, null)
+        CameraStateOpener(cameraOpener, camera2MetadataProvider, fakeTimeSource, null)
 
-    private val cameraAvailabilityMonitor = object : CameraAvailabilityMonitor {
-        override suspend fun awaitAvailableCamera(
-            cameraId: CameraId,
-            timeoutMillis: Long
-        ): Boolean {
-            delay(timeoutMillis)
-            fakeTimeSource.currentTimestamp += DurationNs.fromMs(timeoutMillis)
-            return true
+    private val cameraAvailabilityMonitor =
+        object : CameraAvailabilityMonitor {
+            override suspend fun awaitAvailableCamera(
+                cameraId: CameraId,
+                timeoutMillis: Long
+            ): Boolean {
+                delay(timeoutMillis)
+                fakeTimeSource.currentTimestamp += DurationNs.fromMs(timeoutMillis)
+                return true
+            }
         }
-    }
 
     private val fakeDevicePolicyManager: DevicePolicyManagerWrapper = mock()
 
     private val retryingCameraStateOpener =
         RetryingCameraStateOpener(
-            cameraStateOpener,
-            cameraAvailabilityMonitor,
-            fakeTimeSource,
-            fakeDevicePolicyManager
+            cameraStateOpener, cameraAvailabilityMonitor, fakeTimeSource, fakeDevicePolicyManager
         )
 
     // TODO(lnishan): Consider mocking this object when Mockito works well with value classes.
-    private val fakeGraphListener = object : GraphListener {
-        var numberOfErrorCalls = 0
+    private val fakeGraphListener =
+        object : GraphListener {
+            var numberOfErrorCalls = 0
 
-        override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {
-        }
+            override fun onGraphStarted(requestProcessor: GraphRequestProcessor) {}
 
-        override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {
-        }
+            override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {}
 
-        override fun onGraphModified(requestProcessor: GraphRequestProcessor) {
-        }
+            override fun onGraphModified(requestProcessor: GraphRequestProcessor) {}
 
-        override fun onGraphError(graphStateError: GraphStateError) {
-            numberOfErrorCalls++
+            override fun onGraphError(graphStateError: GraphStateError) {
+                numberOfErrorCalls++
+            }
         }
-    }
 
     @Test
     fun testShouldRetryReturnsTrueWithinTimeout() {
@@ -133,7 +129,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
     }
 
     @Test
@@ -149,7 +146,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isFalse()
+        )
+            .isFalse()
     }
 
     @Test
@@ -165,7 +163,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isFalse()
+        )
+            .isFalse()
     }
 
     @Test
@@ -181,16 +180,14 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
 
         // The second retry attempt should fail if SDK version < S, and succeed otherwise.
-        val secondRetry = RetryingCameraStateOpener.shouldRetry(
-            CameraError.ERROR_CAMERA_IN_USE,
-            2,
-            firstAttemptTimestamp,
-            fakeTimeSource,
-            false
-        )
+        val secondRetry =
+            RetryingCameraStateOpener.shouldRetry(
+                CameraError.ERROR_CAMERA_IN_USE, 2, firstAttemptTimestamp, fakeTimeSource, false
+            )
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             assertThat(secondRetry).isFalse()
         } else {
@@ -211,7 +208,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
@@ -222,7 +220,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
     }
 
     @Test
@@ -238,7 +237,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 camerasDisabledByDevicePolicy = true
             )
-        ).isTrue()
+        )
+            .isTrue()
 
         // Second attempt should fail if camera is disabled.
         assertThat(
@@ -249,7 +249,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 camerasDisabledByDevicePolicy = true
             )
-        ).isFalse()
+        )
+            .isFalse()
     }
 
     @Test
@@ -265,7 +266,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 camerasDisabledByDevicePolicy = false
             )
-        ).isTrue()
+        )
+            .isTrue()
 
         // Second attempt should success if camera is not disabled.
         assertThat(
@@ -276,7 +278,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 camerasDisabledByDevicePolicy = false
             )
-        ).isTrue()
+        )
+            .isTrue()
     }
 
     @Test
@@ -292,7 +295,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
@@ -303,7 +307,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
     }
 
     @Test
@@ -319,7 +324,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
@@ -330,7 +336,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
     }
 
     @Test
@@ -346,7 +353,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
@@ -357,7 +365,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
     }
 
     @Test
@@ -373,7 +382,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
 
         // Second attempt should succeed as well.
         assertThat(
@@ -384,7 +394,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
     }
 
     @Test
@@ -400,7 +411,8 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isTrue()
+        )
+            .isTrue()
 
         // Second attempt should fail.
         assertThat(
@@ -411,14 +423,14 @@ class RetryingCameraStateOpenerTest {
                 fakeTimeSource,
                 false
             )
-        ).isFalse()
+        )
+            .isFalse()
     }
 
     @Test
     fun cameraStateOpenerReturnsCorrectError() = runTest {
         cameraOpener.toThrow = CameraAccessException(CameraAccessException.CAMERA_IN_USE)
-        val result =
-            cameraStateOpener.tryOpenCamera(cameraId0, 1, Timestamps.now(fakeTimeSource))
+        val result = cameraStateOpener.tryOpenCamera(cameraId0, 1, Timestamps.now(fakeTimeSource))
 
         assertThat(result.errorCode).isEqualTo(ERROR_CAMERA_IN_USE)
     }

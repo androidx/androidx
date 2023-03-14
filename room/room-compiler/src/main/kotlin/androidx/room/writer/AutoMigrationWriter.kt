@@ -108,11 +108,11 @@ class AutoMigrationWriter(
         ).apply {
             addParameter(
                 typeName = SupportDbTypeNames.DB,
-                name = "database",
+                name = "db",
             )
             addMigrationStatements(this)
             if (autoMigration.specClassName != null) {
-                addStatement("callback.onPostMigrate(database)")
+                addStatement("callback.onPostMigrate(db)")
             }
         }
         return migrateFunctionBuilder.build()
@@ -375,7 +375,7 @@ class AutoMigrationWriter(
         migrateBuilder: XFunSpec.Builder
     ) {
         migrateBuilder.addStatement(
-            "%T.foreignKeyCheck(database, %S)",
+            "%T.foreignKeyCheck(db, %S)",
             RoomTypeNames.DB_UTIL,
             tableName
         )
@@ -477,7 +477,7 @@ class AutoMigrationWriter(
         sql: String
     ) {
         migrateBuilder.addStatement(
-            "database.execSQL(%S)",
+            "db.execSQL(%S)",
             sql
         )
     }

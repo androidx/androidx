@@ -257,7 +257,7 @@ public class NavDeepLink internal constructor(
                 // If the deep link contains a single query param with no value,
                 // we will treat everything after the '?' as the input parameter
                 val argValue = deepLink.query
-                if (argValue != deepLink.toString()) {
+                if (argValue != null && argValue != deepLink.toString()) {
                     inputParams = listOf(argValue)
                 }
             }

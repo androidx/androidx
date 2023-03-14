@@ -15,7 +15,6 @@
  */
 package androidx.wear.watchface.control.data
 
-import android.content.ComponentName
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.WatchUiState
@@ -26,22 +25,19 @@ import org.junit.Test
 class WallpaperInteractiveWatchFaceInstanceParamsTest {
     @Test
     fun canBeWrittenToOutputStream() {
-        val params = WallpaperInteractiveWatchFaceInstanceParams(
-            "instanceId",
-            DeviceConfig(
-                false,
-                false,
-                10,
-                10
-            ),
-            WatchUiState(
-                false,
-                0,
-            ),
-            UserStyle(emptyMap()).toWireFormat(),
-            null,
-            ComponentName("some.package", "SomeClass")
-        )
+        val params =
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "instanceId",
+                DeviceConfig(false, false, 10, 10),
+                WatchUiState(
+                    false,
+                    0,
+                ),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
 
         val dummyOutputStream = ByteArrayOutputStream()
 

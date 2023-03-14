@@ -1,18 +1,6 @@
 // Signature format: 4.0
 package androidx.benchmark {
 
-  @RequiresApi(21) public final class Api21Kt {
-  }
-
-  @RequiresApi(24) public final class Api24Kt {
-  }
-
-  @RequiresApi(27) public final class Api27Kt {
-  }
-
-  @RequiresApi(29) public final class Api29Kt {
-  }
-
   public final class ArgumentsKt {
   }
 
@@ -33,22 +21,7 @@ package androidx.benchmark {
   @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
   }
 
-  public final class ConfigurationErrorKt {
-  }
-
   @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalBenchmarkStateApi {
-  }
-
-  public final class MetricNameUtilsKt {
-  }
-
-  public final class ProfilerKt {
-  }
-
-  public final class ShellKt {
-  }
-
-  public final class UserspaceTracingKt {
   }
 
 }
@@ -56,9 +29,6 @@ package androidx.benchmark {
 package androidx.benchmark.perfetto {
 
   @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalPerfettoCaptureApi {
-  }
-
-  public final class PerfettoConfigKt {
   }
 
   @RequiresApi(21) @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public final class PerfettoTrace {
@@ -77,9 +47,6 @@ package androidx.benchmark.perfetto {
     method public void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void record(String fileLabel, optional java.util.List<java.lang.String> appTagPackages, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void record(String fileLabel, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-  }
-
-  public final class UiStateKt {
   }
 
 }

@@ -16,16 +16,20 @@
 
 package androidx.camera.camera2.pipe.integration.testing
 
+import android.graphics.Rect
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 
 class FakeZoomCompat constructor(
-    override val minZoom: Float = 0f,
-    override val maxZoom: Float = 0f,
+    override val minZoomRatio: Float = 0f,
+    override val maxZoomRatio: Float = 0f,
+    var croppedSensorArea: Rect = Rect(0, 0, 640, 480),
 ) : ZoomCompat {
     var zoomRatio = 0f
 
     override fun apply(zoomRatio: Float, camera: UseCaseCamera) {
         this.zoomRatio = zoomRatio
     }
+
+    override fun getCropSensorRegion() = croppedSensorArea
 }

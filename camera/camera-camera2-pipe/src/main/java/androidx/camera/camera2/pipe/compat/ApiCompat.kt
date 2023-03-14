@@ -35,6 +35,7 @@ import android.view.Surface
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import androidx.camera.camera2.pipe.CameraMetadata
 import java.util.concurrent.Executor
 
 @RequiresApi(Build.VERSION_CODES.M)
@@ -63,11 +64,7 @@ internal object Api23Compat {
         stateCallback: CameraCaptureSession.StateCallback,
         handler: Handler?
     ) {
-        cameraDevice.createConstrainedHighSpeedCaptureSession(
-            outputs,
-            stateCallback,
-            handler
-        )
+        cameraDevice.createConstrainedHighSpeedCaptureSession(outputs, stateCallback, handler)
     }
 
     @JvmStatic
@@ -118,9 +115,7 @@ internal object Api24Compat {
         handler: Handler?
     ) {
         cameraDevice.createCaptureSessionByOutputConfigurations(
-            outputConfig,
-            stateCallback,
-            handler
+            outputConfig, stateCallback, handler
         )
     }
 
@@ -136,10 +131,7 @@ internal object Api24Compat {
         handler: Handler?
     ) {
         cameraDevice.createReprocessableCaptureSessionByConfigurations(
-            inputConfig,
-            outputs,
-            stateCallback,
-            handler
+            inputConfig, outputs, stateCallback, handler
         )
     }
 
@@ -218,9 +210,7 @@ internal object Api28Compat {
 
     @JvmStatic
     @DoNotInline
-    fun getPhysicalCameraIds(
-        cameraCharacteristics: CameraCharacteristics
-    ): Set<String> {
+    fun getPhysicalCameraIds(cameraCharacteristics: CameraCharacteristics): Set<String> {
         return cameraCharacteristics.physicalCameraIds
     }
 
@@ -254,10 +244,7 @@ internal object Api28Compat {
 
     @JvmStatic
     @DoNotInline
-    fun setSessionParameters(
-        sessionConfig: SessionConfiguration,
-        params: CaptureRequest
-    ) {
+    fun setSessionParameters(sessionConfig: SessionConfiguration, params: CaptureRequest) {
         sessionConfig.sessionParameters = params
     }
 
@@ -304,7 +291,6 @@ internal object Api28Compat {
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@Suppress("DEPRECATION")
 internal object Api33Compat {
     @JvmStatic
     @DoNotInline
@@ -334,6 +320,12 @@ internal object Api33Compat {
     @DoNotInline
     fun setStreamUseCase(outputConfig: OutputConfiguration, streamUseCase: Long) {
         outputConfig.streamUseCase = streamUseCase
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getAvailableStreamUseCases(cameraMetadata: CameraMetadata): LongArray? {
+        return cameraMetadata[CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES]
     }
 
     @JvmStatic

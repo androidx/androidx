@@ -44,20 +44,20 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     public static int ELEMENT_TYPE_NONE = 0;
 
     /**
-     * Used when {@link androidx.wear.watchface.RenderParameters#getHighlightLayer} is
-     * {@link androidx.wear.watchface.HighlightedElement.AllComplications}.
+     * Used when {@link androidx.wear.watchface.RenderParameters#getHighlightLayer} is {@link
+     * androidx.wear.watchface.HighlightedElement.AllComplications}.
      */
     public static int ELEMENT_TYPE_ALL_COMPLICATIONS = 1;
 
     /**
-     * Used when {@link androidx.wear.watchface.RenderParameters#getHighlightLayer} is
-     * {@link androidx.wear.watchface.HighlightedElement.Complication}.
+     * Used when {@link androidx.wear.watchface.RenderParameters#getHighlightLayer} is {@link
+     * androidx.wear.watchface.HighlightedElement.Complication}.
      */
     public static int ELEMENT_TYPE_COMPLICATION = 2;
 
     /**
-     * Used when {@link androidx.wear.watchface.RenderParameters#getHighlightLayer} is
-     * {@link androidx.wear.watchface.HighlightedElement.UserStyle}.
+     * Used when {@link androidx.wear.watchface.RenderParameters#getHighlightLayer} is {@link
+     * androidx.wear.watchface.HighlightedElement.UserStyle}.
      */
     public static int ELEMENT_TYPE_USER_STYLE = 3;
 
@@ -66,29 +66,29 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     int mDrawMode;
 
     /**
-     * A bitfield where each bit represents one layer in the set of
-     * {@link androidx.wear.watchface.style.WatchFaceLayer}s.
+     * A bitfield where each bit represents one layer in the set of {@link
+     * androidx.wear.watchface.style.WatchFaceLayer}s.
      */
     @ParcelField(2)
     int mWatchFaceLayerSetBitfield;
 
     /**
-     * One of {@link #ELEMENT_TYPE_NONE}, {@link #ELEMENT_TYPE_ALL_COMPLICATIONS},
-     * {@link #ELEMENT_TYPE_COMPLICATION} or {@link #ELEMENT_TYPE_USER_STYLE}.
+     * One of {@link #ELEMENT_TYPE_NONE}, {@link #ELEMENT_TYPE_ALL_COMPLICATIONS}, {@link
+     * #ELEMENT_TYPE_COMPLICATION} or {@link #ELEMENT_TYPE_USER_STYLE}.
      */
     @ParcelField(3)
     int mElementType;
 
     /**
-     * Optional ID of a single complication slot to render highlighted, only used with
-     * {@link #ELEMENT_TYPE_COMPLICATION}.
+     * Optional ID of a single complication slot to render highlighted, only used with {@link
+     * #ELEMENT_TYPE_COMPLICATION}.
      */
     @ParcelField(4)
     int mElementComplicationSlotId;
 
     /**
-     * Optional UserStyleSetting to render highlighted, only non-null with
-     * {@link #ELEMENT_TYPE_USER_STYLE}.
+     * Optional UserStyleSetting to render highlighted, only non-null with {@link
+     * #ELEMENT_TYPE_USER_STYLE}.
      */
     @ParcelField(5)
     @Nullable
@@ -103,8 +103,8 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     int mHighlightTint;
 
     /**
-     * Specifies the tint for everything else. Only used when {@link #mElementType} isn't
-     * {@link #ELEMENT_TYPE_NONE}.
+     * Specifies the tint for everything else. Only used when {@link #mElementType} isn't {@link
+     * #ELEMENT_TYPE_NONE}.
      */
     @ParcelField(7)
     @ColorInt
@@ -117,8 +117,7 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     @Nullable
     List<IdAndTapEventWireFormat> mIdAndTapEventWireFormats;
 
-    RenderParametersWireFormat() {
-    }
+    RenderParametersWireFormat() {}
 
     public RenderParametersWireFormat(
             int drawMode,
@@ -213,5 +212,4 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
                     return new RenderParametersWireFormat[size];
                 }
             };
-
 }

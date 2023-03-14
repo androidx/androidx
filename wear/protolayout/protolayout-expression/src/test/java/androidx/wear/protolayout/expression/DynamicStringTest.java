@@ -17,76 +17,118 @@
 package androidx.wear.protolayout.expression;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public final class DynamicStringTest {
-    private static final String STATE_KEY = "state-key";
-    private static final String CONSTANT_VALUE = "constant-value";
+  private static final String STATE_KEY = "state-key";
+  private static final String CONSTANT_VALUE = "constant-value";
 
-    @Test
-    public void constantString() {
-        DynamicString constantString = DynamicString.constant(CONSTANT_VALUE);
+  @Test
+  public void constantString() {
+    DynamicString constantString = DynamicString.constant(CONSTANT_VALUE);
 
-        assertThat(constantString.toDynamicStringProto().getFixed().getValue())
-                .isEqualTo(CONSTANT_VALUE);
-    }
+    assertThat(constantString.toDynamicStringProto().getFixed().getValue())
+        .isEqualTo(CONSTANT_VALUE);
+  }
 
-    @Test
-    public void stateEntryValueString() {
-        DynamicString stateString = DynamicString.fromState(STATE_KEY);
+  @Test
+  public void constantToString() {
+    assertThat(DynamicString.constant("a").toString()).isEqualTo("FixedString{value=a}");
+  }
 
-        assertThat(stateString.toDynamicStringProto().getStateSource().getSourceKey()).isEqualTo(
-                STATE_KEY);
-    }
+  @Test
+  public void stateEntryValueString() {
+    DynamicString stateString = DynamicString.fromState(STATE_KEY);
 
-    @Test
-    public void constantString_concat() {
-        DynamicString firstString = DynamicString.constant(CONSTANT_VALUE);
-        DynamicString secondString = DynamicString.constant(CONSTANT_VALUE);
+    assertThat(stateString.toDynamicStringProto().getStateSource().getSourceKey())
+        .isEqualTo(STATE_KEY);
+  }
 
-        DynamicString resultString = firstString.concat(secondString);
+  @Test
+  public void stateToString() {
+    assertThat(DynamicString.fromState("key").toString())
+        .isEqualTo("StateStringSource{sourceKey=key}");
+  }
 
-        DynamicProto.ConcatStringOp concatOp = resultString.toDynamicStringProto().getConcatOp();
-        assertThat(concatOp.getInputLhs()).isEqualTo(firstString.toDynamicStringProto());
-        assertThat(concatOp.getInputRhs()).isEqualTo(secondString.toDynamicStringProto());
-    }
+  @Test
+  public void constantString_concat() {
+    DynamicString firstString = DynamicString.constant(CONSTANT_VALUE);
+    DynamicString secondString = DynamicString.constant(CONSTANT_VALUE);
 
-    @Test
-    public void constantString_conditional() {
-        DynamicBuilders.DynamicBool condition = DynamicBuilders.DynamicBool.constant(true);
-        DynamicString firstString = DynamicString.constant(CONSTANT_VALUE);
-        DynamicString secondString = DynamicString.constant(CONSTANT_VALUE);
+    DynamicString resultString = firstString.concat(secondString);
 
-        DynamicString resultString =
-                DynamicString.onCondition(condition).use(firstString).elseUse(secondString);
+    DynamicProto.ConcatStringOp concatOp = resultString.toDynamicStringProto().getConcatOp();
+    assertThat(concatOp.getInputLhs()).isEqualTo(firstString.toDynamicStringProto());
+    assertThat(concatOp.getInputRhs()).isEqualTo(secondString.toDynamicStringProto());
+  }
 
-        DynamicProto.ConditionalStringOp conditionalOp = resultString.toDynamicStringProto()
-                .getConditionalOp();
-        assertThat(conditionalOp.getCondition()).isEqualTo(condition.toDynamicBoolProto());
-        assertThat(conditionalOp.getValueIfTrue()).isEqualTo(firstString.toDynamicStringProto());
-        assertThat(conditionalOp.getValueIfFalse()).isEqualTo(secondString.toDynamicStringProto());
-    }
+  @Test
+  public void concatToString() {
+    assertThat(DynamicString.constant("a").concat(DynamicString.constant("b")).toString())
+        .isEqualTo("ConcatStringOp{inputLhs=FixedString{value=a}, inputRhs=FixedString{value=b}}");
+  }
 
-    @Test
-    public void rawString_conditional() {
-        DynamicBuilders.DynamicBool condition = DynamicBuilders.DynamicBool.constant(true);
-        String firstString = "raw-string";
-        DynamicString secondString = DynamicString.constant(CONSTANT_VALUE);
+  @Test
+  public void constantString_conditional() {
+    DynamicBool condition = DynamicBool.constant(true);
+    DynamicString firstString = DynamicString.constant(CONSTANT_VALUE);
+    DynamicString secondString = DynamicString.constant(CONSTANT_VALUE);
 
-        DynamicString resultString =
-                DynamicString.onCondition(condition).use(firstString).elseUse(secondString);
+    DynamicString resultString =
+        DynamicString.onCondition(condition).use(firstString).elseUse(secondString);
 
-        DynamicProto.ConditionalStringOp conditionalOp = resultString.toDynamicStringProto()
-                .getConditionalOp();
-        assertThat(conditionalOp.getCondition()).isEqualTo(condition.toDynamicBoolProto());
-        assertThat(conditionalOp.getValueIfTrue().getFixed().getValue()).isEqualTo(firstString);
-        assertThat(conditionalOp.getValueIfFalse()).isEqualTo(secondString.toDynamicStringProto());
-    }
+    DynamicProto.ConditionalStringOp conditionalOp =
+        resultString.toDynamicStringProto().getConditionalOp();
+    assertThat(conditionalOp.getCondition()).isEqualTo(condition.toDynamicBoolProto());
+    assertThat(conditionalOp.getValueIfTrue()).isEqualTo(firstString.toDynamicStringProto());
+    assertThat(conditionalOp.getValueIfFalse()).isEqualTo(secondString.toDynamicStringProto());
+  }
+
+  @Test
+  public void rawString_conditional() {
+    DynamicBool condition = DynamicBool.constant(true);
+    String firstString = "raw-string";
+    DynamicString secondString = DynamicString.constant(CONSTANT_VALUE);
+
+    DynamicString resultString =
+        DynamicString.onCondition(condition).use(firstString).elseUse(secondString);
+
+    DynamicProto.ConditionalStringOp conditionalOp =
+        resultString.toDynamicStringProto().getConditionalOp();
+    assertThat(conditionalOp.getCondition()).isEqualTo(condition.toDynamicBoolProto());
+    assertThat(conditionalOp.getValueIfTrue().getFixed().getValue()).isEqualTo(firstString);
+    assertThat(conditionalOp.getValueIfFalse()).isEqualTo(secondString.toDynamicStringProto());
+  }
+
+  @Test
+  public void conditionalToString() {
+    assertThat(
+            DynamicString.onCondition(DynamicBool.constant(true)).use("a").elseUse("b").toString())
+        .isEqualTo(
+            "ConditionalStringOp{"
+                + "condition=FixedBool{value=true}, "
+                + "valueIfTrue=FixedString{value=a}, "
+                + "valueIfFalse=FixedString{value=b}}");
+  }
+
+  @Test
+  public void validProto() {
+    DynamicString from = DynamicString.constant(CONSTANT_VALUE);
+    DynamicString to = DynamicString.fromByteArray(from.toDynamicStringByteArray());
+
+    assertThat(to.toDynamicStringProto().getFixed().getValue()).isEqualTo(CONSTANT_VALUE);
+  }
+
+  @Test
+  public void invalidProto() {
+    assertThrows(IllegalArgumentException.class, () -> DynamicString.fromByteArray(new byte[] {1}));
+  }
 }

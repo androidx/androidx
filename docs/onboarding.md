@@ -768,10 +768,13 @@ for more information.
 
 Because AndroidX must compile against both the current framework and the latest
 SDK prebuilt, and because compiling the SDK prebuilt depends on AndroidX, you
-will need to refactor in stages: Remove references to the target APIs from
-AndroidX Perform the refactoring in the framework Update the framework prebuilt
-SDK to incorporate changes in (2) Add references to the refactored APIs in
-AndroidX Update AndroidX prebuilts to incorporate changes in (4)
+will need to refactor in stages:
+
+1.  Remove references to the target APIs from AndroidX
+2.  Perform the refactoring in the framework
+3.  Update the framework prebuilt SDK to incorporate changes in (2)
+4.  Add references to the refactored APIs in AndroidX
+5.  Update AndroidX prebuilts to incorporate changes in (4)
 
 ## Testing {#testing}
 

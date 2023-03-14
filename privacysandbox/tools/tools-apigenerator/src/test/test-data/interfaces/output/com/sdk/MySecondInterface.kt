@@ -1,5 +1,7 @@
 package com.sdk
 
-public interface MySecondInterface {
+import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+
+public interface MySecondInterface : SandboxedUiAdapter {
     public fun doStuff(): Unit
 }

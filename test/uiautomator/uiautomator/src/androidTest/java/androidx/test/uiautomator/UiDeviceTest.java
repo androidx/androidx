@@ -206,8 +206,8 @@ public class UiDeviceTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testExecuteShellCommand() throws IOException {
-        String output = mDevice.executeShellCommand("echo hello world");
-        assertEquals("hello world\n", output);
+        String output = mDevice.executeShellCommand("pm list packages");
+        assertTrue(output.contains("package:androidx.test.uiautomator.test"));
     }
 
     @Test

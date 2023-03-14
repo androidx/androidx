@@ -17,6 +17,7 @@
 package androidx.credentials.playservices.createkeycredential
 
 import androidx.credentials.playservices.TestUtils
+import com.google.android.gms.fido.common.Transport
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions
 import org.json.JSONArray
 import org.json.JSONException
@@ -42,6 +43,12 @@ class CreatePublicKeyCredentialControllerTestUtils {
              "\"excludeCredentials\": [{\"id\":\"AA\",\"type\":\"public-key\"}]," +
              "\"attestation\": \"none\"}")
 
+        // This signature indicates what the json above, after parsing, must contain
+        const val OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD_SIGNATURE = "{\"rp\":{\"name\":true," +
+            "\"id\":true},\"user\":{\"name\":true,\"id\":true,\"displayName\":true," +
+            "\"icon\":true}, \"challenge\":true,\"pubKeyCredParams\":true," +
+            "\"excludeCredentials\":true," + "\"attestation\":true}"
+
         // optional, but if it exists, required key 'type' exists but is empty in the JSONObject
         // that composes up the JSONArray found at key 'excludeCredentials'
          const val OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD = ("{\"rp\": {\"name\": " +
@@ -57,7 +64,7 @@ class CreatePublicKeyCredentialControllerTestUtils {
              "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
              "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
              "\"excludeCredentials\": [{\"type\":\"\",\"id\":\"public-key\"," +
-             "\"transports\"=[\"usb\"]}]," +
+             "\"transports\"=[\"ble\"]}]," +
              "\"attestation\": \"none\"}")
 
         // optional, but if it exists, required key 'type' is missing in the JSONObject that
@@ -74,7 +81,7 @@ class CreatePublicKeyCredentialControllerTestUtils {
              "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
              "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
              "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
-             "\"excludeCredentials\": [{\"id\":\"AA\",\"transports\"=[\"usb\"]}]," +
+             "\"excludeCredentials\": [{\"id\":\"AA\",\"transports\"=[\"ble\"]}]," +
              "\"attestation\": \"none\"}")
 
          // user id is non existent
@@ -119,12 +126,22 @@ class CreatePublicKeyCredentialControllerTestUtils {
             "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
             "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
             "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}], \"timeout\": 60000, " +
-            "\"excludeCredentials\": [{\"id\":\"AA\",\"type\":\"A\",\"transports\"=[\"A\"]}], " +
-            "\"authenticatorSelection\": " +
+            "\"excludeCredentials\": [{\"id\":\"AA\",\"type\":\"public-key\"," +
+            "\"transports\"=[\"ble\"]}], " + "\"authenticatorSelection\": " +
             "{\"authenticatorAttachment\": \"platform\", \"residentKey\": \"required\", " +
             "\"requireResidentKey\": true, \"userVerification\": \"preferred\"}, " +
             "\"attestation\": \"none\"}")
 
+        // This signature indicates what [MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL], after
+        // parsing, must contain. It is a 'brace' to ensure required values are tested.
+        const val ALL_REQUIRED_AND_OPTIONAL_SIGNATURE = "{\"rp\":{\"name\":true,\"id\":true}," +
+            "\"user\":{\"id\":true,\"name\":true,\"displayName\":true,\"icon\":true}," +
+            "\"challenge\":true,\"pubKeyCredParams\":true,\"timeout\":true," +
+            "\"excludeCredentials\":true,\"authenticatorSelection\":{" +
+            "\"authenticatorAttachment\":true,\"residentKey\":true,\"requireResidentKey\":true," +
+            "\"userVerification\":true},\"attestation\":true}"
+
+        // Contains all required keys for the JSON, but not any of the other cases
         const val MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT = ("{\"rp\": {\"name\": " +
             "\"Address " + "Book\", " + "\"id\": " + "\"addressbook-c7876.uc.r.appspot.com\"}, " +
             "\"user\": {\"id\": " +
@@ -138,6 +155,13 @@ class CreatePublicKeyCredentialControllerTestUtils {
             "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
             "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
             "\"excludeCredentials\": []," + "\"attestation\": \"none\"}")
+
+        // This signature indicates what [MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT], after
+        // parsing, must contain. It is a 'brace' to ensure required values are tested.
+        const val ALL_REQUIRED_FIELDS_SIGNATURE = "{\"rp\":{\"name\":true,\"id\":true}," +
+            "\"user\":{\"id\":true,\"name\":true,\"displayName\":true,\"icon\":true}," +
+            "\"challenge\":true,\"pubKeyCredParams\":true,\"excludeCredentials\":true," +
+            "\"attestation\":true}"
 
         /**
          * Generates a JSON for the **create request** flow that is maximally filled given the inputs,
@@ -183,8 +207,10 @@ class CreatePublicKeyCredentialControllerTestUtils {
                     val requireResidentKey = selectionCriteria.requireResidentKey!!
                     authSelect.put("requireResidentKey", requireResidentKey)
                 }
+                authSelect.put("userVerification", "preferred")
+                // TODO("Since fido impl accepts this input, but does not return it, adding)
+                // TODO(it directly for test comparison. When available, pull from impl object.")
                 json.put("authenticatorSelection", authSelect)
-                // TODO("Missing userVerification in fido impl")
             }
             val attestation = options.attestationConveyancePreferenceAsString
             if (attestation != null) {
@@ -203,11 +229,22 @@ class CreatePublicKeyCredentialControllerTestUtils {
                     val descriptorI = JSONObject()
                     descriptorI.put("id", TestUtils.b64Encode(descriptorJSON.id))
                     descriptorI.put("type", descriptorJSON.type)
-                    descriptorI.put("transports", descriptorJSON.transports)
+                    descriptorJSON.transports?.let {
+                        descriptorI.put("transports",
+                            createJSONArrayFromTransports(descriptorJSON.transports!!))
+                    }
                     descriptor.put(descriptorI)
                 }
             }
             json.put("excludeCredentials", descriptor)
+        }
+
+        private fun createJSONArrayFromTransports(transports: List<Transport>): JSONArray {
+            val jsonArr = JSONArray()
+            for (transport in transports) {
+                jsonArr.put(transport.toString())
+            }
+            return jsonArr
         }
 
         private fun configureChallengeParamsAndTimeout(
@@ -226,8 +263,8 @@ class CreatePublicKeyCredentialControllerTestUtils {
             }
             json.put("pubKeyCredParams", parameters)
             if (options.timeoutSeconds != null) {
-                val optionalTimeout = options.timeoutSeconds!!
-                json.put("timeout", optionalTimeout)
+                val optionalTimeout: Int = options.timeoutSeconds!!.toInt()
+                json.put("timeout", optionalTimeout * 1000)
             }
         }
 
@@ -259,6 +296,35 @@ class CreatePublicKeyCredentialControllerTestUtils {
                 userJson.put("icon", optionalUserIcon)
             }
             json.put("user", userJson)
+        }
+
+        /**
+         * This converts all JSON Leaves to a 'true' boolean value. Note this is lax on
+         * lists/JSONArrays. In short, it creates a 'signature' for a JSONObject. It can be used
+         * to generate constants which can be used to test with.
+         *
+         * For example, given this json object
+         * ```
+         * {"rp":{"name":true,"id":true},"user":{
+         * "id":true,"name":true,"displayName":true,"icon":true
+         * },"challenge":true,"pubKeyCredParams":true,"excludeCredentials":true,"attestation":true}
+         * ```
+         * notice that all the 'leaves' have become true outside of the array exception. This can
+         * be used to make fixed required keys.
+         *
+         * @param json the json object with which to modify in place
+         */
+        @JvmStatic
+        fun convertJsonLeavesToBooleanSignature(json: JSONObject) {
+            val keys = json.keys()
+            for (key in keys) {
+                val value = json.get(key)
+                if (value is JSONObject) {
+                    convertJsonLeavesToBooleanSignature(value)
+                } else {
+                    json.put(key, true)
+                }
+            }
         }
     }
 }

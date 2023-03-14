@@ -30,7 +30,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationChannelGroup;
 import android.app.NotificationManager;
@@ -1120,6 +1124,37 @@ public class NotificationManagerCompatTest {
             // list should be empty on SDKs which don't support Notification Channels
             assertTrue(compatGroups.isEmpty());
         }
+    }
+
+    @Test
+    public void testPostBatchNotifications() {
+        String channelId = genUniqueId(TYPE_CHANNEL);
+
+        NotificationManager fakeManager = mock(NotificationManager.class);
+        NotificationManagerCompat notificationManager =
+                new NotificationManagerCompat(fakeManager, mContext);
+
+        final Notification notification =
+                new NotificationCompat.Builder(mContext, channelId)
+                        .setSmallIcon(1)
+                        .build();
+        final Notification notification2 =
+                new NotificationCompat.Builder(mContext, channelId)
+                        .setSmallIcon(1)
+                        .build();
+        NotificationManagerCompat.NotificationWithIdAndTag n1 =
+                new NotificationManagerCompat.NotificationWithIdAndTag("tag1", 1,
+                notification);
+        NotificationManagerCompat.NotificationWithIdAndTag n2 =
+                new NotificationManagerCompat.NotificationWithIdAndTag(2,
+                notification2);
+        List<NotificationManagerCompat.NotificationWithIdAndTag> notifications =
+                Arrays.asList(n1, n2);
+
+        notificationManager.notify(notifications);
+        // Verifies that mNotificationManager has notify called on it twice, for each notification.
+        verify(fakeManager, times(1)).notify("tag1", 1, notification);
+        verify(fakeManager, times(1)).notify(null, 2, notification2);
     }
 
 }

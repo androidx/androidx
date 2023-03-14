@@ -46,10 +46,12 @@ class ExternalCameraController(
     private val requestProcessor: RequestProcessor
 ) : CameraController {
     private val sequenceProcessor = ExternalCaptureSequenceProcessor(graphConfig, requestProcessor)
-    private val graphProcessor: GraphRequestProcessor = GraphRequestProcessor.from(
-        sequenceProcessor
-    )
+    private val graphProcessor: GraphRequestProcessor =
+        GraphRequestProcessor.from(sequenceProcessor)
     private var started = atomic(false)
+
+    override val cameraId: CameraId
+        get() = graphConfig.camera
 
     override fun start() {
         if (started.compareAndSet(expect = false, update = true)) {
@@ -61,6 +63,11 @@ class ExternalCameraController(
         if (started.compareAndSet(expect = true, update = false)) {
             graphListener.onGraphStopped(graphProcessor)
         }
+    }
+
+    override fun tryRestart() {
+        // This is intentionally made a no-op for now as CameraPipe external doesn't support
+        // camera status monitoring and camera controller restart.
     }
 
     override fun close() {
@@ -103,18 +110,19 @@ internal class ExternalCaptureSequenceProcessor(
             Log.warn { "Cannot create an ExternalCaptureSequence until Surfaces are available!" }
             return null
         }
-        val metadata = requests.map { request ->
-            val parameters = defaultParameters + request.parameters + requiredParameters
+        val metadata =
+            requests.map { request ->
+                val parameters = defaultParameters + request.parameters + requiredParameters
 
-            ExternalRequestMetadata(
-                graphConfig.defaultTemplate,
-                streamToSurfaceMap,
-                parameters,
-                isRepeating,
-                request,
-                RequestNumber(internalRequestNumbers.incrementAndGet())
-            )
-        }
+                ExternalRequestMetadata(
+                    graphConfig.defaultTemplate,
+                    streamToSurfaceMap,
+                    parameters,
+                    isRepeating,
+                    request,
+                    RequestNumber(internalRequestNumbers.incrementAndGet())
+                )
+            }
 
         return ExternalCaptureSequence(
             graphConfig.camera,

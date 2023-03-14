@@ -280,7 +280,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
 
         void setSurface(@NonNull Surface surface) {
             checkState(mSurface == null, "The surface is already set.");
-            mSurface = new ImmediateSurface(surface);
+            mSurface = new ImmediateSurface(surface, getSize(), getFormat());
         }
 
         /**

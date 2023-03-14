@@ -156,7 +156,7 @@ public final class Camera2DeviceSurfaceManagerTest {
                         Context.CAMERA_SERVICE);
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-                cameraManager.getCameraCharacteristics(cameraId));
+                cameraManager.getCameraCharacteristics(cameraId), cameraId);
     }
 
     @Test
@@ -173,7 +173,9 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
-                            LEGACY_CAMERA_ID, combination.getSurfaceConfigList());
+                            /* isConcurrentCameraModeOn = */false,
+                            LEGACY_CAMERA_ID,
+                            combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
     }
@@ -192,6 +194,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
+                            /* isConcurrentCameraModeOn = */false,
                             LEGACY_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
@@ -211,6 +214,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
+                            /* isConcurrentCameraModeOn = */false,
                             LEGACY_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
@@ -230,6 +234,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
+                            /* isConcurrentCameraModeOn = */false,
                             LEGACY_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
@@ -249,6 +254,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
+                            /* isConcurrentCameraModeOn = */false,
                             LIMITED_CAMERA_ID, combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
@@ -268,6 +274,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
+                            /* isConcurrentCameraModeOn = */false,
                             LIMITED_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
@@ -287,6 +294,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
+                            /* isConcurrentCameraModeOn = */false,
                             LIMITED_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
@@ -306,6 +314,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
+                            /* isConcurrentCameraModeOn = */false,
                             FULL_CAMERA_ID, combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
@@ -325,6 +334,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
+                            /* isConcurrentCameraModeOn = */false,
                             FULL_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
@@ -344,6 +354,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
+                            /* isConcurrentCameraModeOn = */false,
                             LEVEL3_CAMERA_ID, combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
@@ -352,6 +363,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVAnalysisSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
+                /* isConcurrentCameraModeOn = */false,
                 LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mAnalysisSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.VGA);
@@ -361,6 +373,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVPreviewSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
+                /* isConcurrentCameraModeOn = */false,
                 LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mPreviewSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW);
@@ -370,6 +383,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVRecordSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
+                /* isConcurrentCameraModeOn = */false,
                 LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mRecordSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.YUV, SurfaceConfig.ConfigSize.RECORD);
@@ -379,6 +393,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void transformSurfaceConfigWithYUVMaximumSize() {
         SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
+                /* isConcurrentCameraModeOn = */false,
                 LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mMaximumSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, ConfigSize.MAXIMUM);
@@ -389,6 +404,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     public void transformSurfaceConfigWithJPEGAnalysisSize() {
         SurfaceConfig surfaceConfig =
                 mSurfaceManager.transformSurfaceConfig(
+                        /* isConcurrentCameraModeOn = */false,
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mAnalysisSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(SurfaceConfig.ConfigType.JPEG, ConfigSize.VGA);
@@ -399,6 +415,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     public void transformSurfaceConfigWithJPEGPreviewSize() {
         SurfaceConfig surfaceConfig =
                 mSurfaceManager.transformSurfaceConfig(
+                        /* isConcurrentCameraModeOn = */false,
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mPreviewSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.PREVIEW);
@@ -409,6 +426,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     public void transformSurfaceConfigWithJPEGRecordSize() {
         SurfaceConfig surfaceConfig =
                 mSurfaceManager.transformSurfaceConfig(
+                        /* isConcurrentCameraModeOn = */false,
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mRecordSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD);
@@ -419,6 +437,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     public void transformSurfaceConfigWithJPEGMaximumSize() {
         SurfaceConfig surfaceConfig =
                 mSurfaceManager.transformSurfaceConfig(
+                        /* isConcurrentCameraModeOn = */false,
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mMaximumSize);
         SurfaceConfig expectedSurfaceConfig =
                 SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM);

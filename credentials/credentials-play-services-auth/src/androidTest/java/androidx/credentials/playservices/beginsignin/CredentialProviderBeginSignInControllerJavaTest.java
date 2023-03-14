@@ -40,8 +40,7 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class CredentialProviderBeginSignInControllerJavaTest {
     @Test
-    public void
-            convertRequestToPlayServices_setPasswordOptionRequestAndFalseAutoSelect_success() {
+    public void convertRequestToPlayServices_setPasswordOptionRequestAndFalseAutoSelect_success() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
         activityScenario.onActivity(activity -> {
@@ -66,10 +65,10 @@ public class CredentialProviderBeginSignInControllerJavaTest {
 
             BeginSignInRequest actualResponse =
                     CredentialProviderBeginSignInController
-                        .getInstance(activity)
-                        .convertRequestToPlayServices(new GetCredentialRequest(List.of(
-                                new GetPasswordOption()
-                        ), true));
+                            .getInstance(activity)
+                            .convertRequestToPlayServices(new GetCredentialRequest(List.of(
+                                    new GetPasswordOption(true)
+                            )));
 
             assertThat(actualResponse.getPasswordRequestOptions().isSupported()).isTrue();
             assertThat(actualResponse.isAutoSelectEnabled()).isTrue();
@@ -106,5 +105,48 @@ public class CredentialProviderBeginSignInControllerJavaTest {
                             .convertResponseToCredentialManager(null)
             );
         });
+    }
+
+    @Test
+    public void convertRequestToPlayServices_setGoogleIdOptionRequestAndTrueAutoSelect_success() {
+        // TODO(b/270239625) fix pre u test cases for new GoogleIdOption signature
+        /*
+        ActivityScenario<TestCredentialsActivity> activityScenario =
+                ActivityScenario.launch(TestCredentialsActivity.class);
+
+        GetGoogleIdOption option = new GetGoogleIdOption.Builder()
+                .setServerClientId("server_client_id")
+                .setNonce("nonce")
+                .setFilterByAuthorizedAccounts(true)
+                .setRequestVerifiedPhoneNumber(false)
+                .associatedLinkedAccounts("link_service_id", List.of("a", "b", "c"))
+                .build();
+
+        activityScenario.onActivity(activity -> {
+
+            BeginSignInRequest actualRequest =
+                    CredentialProviderBeginSignInController
+                            .getInstance(activity)
+                            .convertRequestToPlayServices(new GetCredentialRequest(List.of(
+                                    option
+                            )));
+
+            assertThat(actualRequest.getGoogleIdTokenRequestOptions().isSupported()).isTrue();
+            assertThat(actualRequest.isAutoSelectEnabled()).isTrue();
+
+            BeginSignInRequest.GoogleIdTokenRequestOptions actualOption =
+                    actualRequest.getGoogleIdTokenRequestOptions();
+            assertThat(actualOption.getServerClientId()).isEqualTo(option.getServerClientId());
+            assertThat(actualOption.getNonce()).isEqualTo(option.getNonce());
+            assertThat(actualOption.filterByAuthorizedAccounts()).isEqualTo(
+                    option.getFilterByAuthorizedAccounts());
+            assertThat(actualOption.requestVerifiedPhoneNumber()).isEqualTo(
+                    option.getRequestVerifiedPhoneNumber());
+            assertThat(actualOption.getLinkedServiceId()).isEqualTo(option.getLinkedServiceId());
+            assertThat(actualOption.getIdTokenDepositionScopes()).isEqualTo(
+                    option.getIdTokenDepositionScopes());
+
+        });
+        */
     }
 }

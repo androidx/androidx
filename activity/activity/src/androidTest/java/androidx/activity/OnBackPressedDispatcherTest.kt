@@ -82,6 +82,34 @@ class OnBackPressedHandlerTest {
 
     @UiThreadTest
     @Test
+    fun testIsEnabledWithinCallback() {
+        var count = 0
+        val callback = dispatcher.addCallback {
+            count++
+            isEnabled = false
+        }
+        assertWithMessage("Callback should be enabled by default")
+            .that(callback.isEnabled)
+            .isTrue()
+        assertWithMessage("Dispatcher should have an enabled callback")
+            .that(dispatcher.hasEnabledCallbacks())
+            .isTrue()
+
+        dispatcher.onBackPressed()
+
+        assertWithMessage("Count should be incremented after onBackPressed")
+            .that(count)
+            .isEqualTo(1)
+        assertWithMessage("Callback should be disabled after onBackPressed()")
+            .that(callback.isEnabled)
+            .isFalse()
+        assertWithMessage("Dispatcher should have no enabled callbacks")
+            .that(dispatcher.hasEnabledCallbacks())
+            .isFalse()
+    }
+
+    @UiThreadTest
+    @Test
     fun testRemove() {
         val onBackPressedCallback = CountingOnBackPressedCallback()
 
@@ -144,6 +172,25 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Count shouldn't be incremented after removal")
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testRemoveWithinCallback() {
+        var count = 0
+        dispatcher.addCallback {
+            count++
+            remove()
+        }
+
+        dispatcher.onBackPressed()
+
+        assertWithMessage("Count should be incremented after onBackPressed")
+            .that(count)
+            .isEqualTo(1)
+        assertWithMessage("Dispatcher should have no enabled callbacks after remove")
+            .that(dispatcher.hasEnabledCallbacks())
+            .isFalse()
     }
 
     @UiThreadTest

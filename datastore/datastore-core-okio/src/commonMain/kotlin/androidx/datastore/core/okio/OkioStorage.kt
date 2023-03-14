@@ -20,6 +20,7 @@ import androidx.datastore.core.ReadScope
 import androidx.datastore.core.Storage
 import androidx.datastore.core.StorageConnection
 import androidx.datastore.core.WriteScope
+import androidx.datastore.core.createSingleProcessCoordinator
 import androidx.datastore.core.use
 import kotlinx.atomicfu.locks.synchronized
 import kotlinx.atomicfu.locks.SynchronizedObject
@@ -87,6 +88,7 @@ internal class OkioStorageConnection<T>(
     private val closed = AtomicBoolean(false)
     // TODO:(b/233402915) support multiple readers
     private val transactionMutex = Mutex()
+    override val coordinator = createSingleProcessCoordinator()
 
     override suspend fun <R> readScope(
         block: suspend ReadScope<T>.(locked: Boolean) -> R

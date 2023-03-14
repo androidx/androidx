@@ -19,7 +19,7 @@ package androidx.camera.video.internal.config;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.impl.CamcorderProfileProxy;
+import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.encoder.EncoderConfig;
 
 import com.google.auto.value.AutoValue;
@@ -29,8 +29,9 @@ import com.google.auto.value.AutoValue;
  *
  * <p>The information included in this class can include the mime type, profile and any
  * compatible configuration types that can be used to resolve settings, such as
- * {@link androidx.camera.core.impl.CamcorderProfileProxy}.
+ * {@link VideoValidatedEncoderProfilesProxy}.
  */
+@SuppressWarnings("NullableProblems") // Problem from AutoValue generated class.
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class MimeInfo {
@@ -49,12 +50,13 @@ public abstract class MimeInfo {
     public abstract int getProfile();
 
     /**
-     * Returns compatible {@link CamcorderProfileProxy} that can be used to resolve settings.
+     * Returns compatible {@link VideoValidatedEncoderProfilesProxy} that can be used to resolve
+     * settings.
      *
-     * <p>If no camcorder profile is provided, returns {@code null}
+     * <p>If no EncoderProfiles is provided, returns {@code null}
      */
     @Nullable
-    public abstract CamcorderProfileProxy getCompatibleCamcorderProfile();
+    public abstract VideoValidatedEncoderProfilesProxy getCompatibleEncoderProfiles();
 
     /** Creates a builder for the given mime type */
     @NonNull
@@ -76,10 +78,10 @@ public abstract class MimeInfo {
         @NonNull
         public abstract Builder setProfile(int profile);
 
-        /** Sets a compatible camcorder profile */
+        /** Sets a compatible EncoderProfiles */
         @NonNull
-        public abstract Builder setCompatibleCamcorderProfile(
-                @Nullable CamcorderProfileProxy camcorderProfile);
+        public abstract Builder setCompatibleEncoderProfiles(
+                @Nullable VideoValidatedEncoderProfilesProxy encoderProfiles);
 
         /** Builds the {@link androidx.camera.video.internal.config.MimeInfo}. */
         @NonNull

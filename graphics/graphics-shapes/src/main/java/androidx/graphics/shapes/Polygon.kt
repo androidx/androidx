@@ -181,11 +181,12 @@ open class Polygon {
         val tempFeatures = mutableListOf<Feature>()
         for (feature in source.features) {
             if (feature is Edge) {
-                tempFeatures.add(Edge(feature))
+                tempFeatures.add(Edge(this, feature))
             } else {
-                tempFeatures.add(Corner(feature as Corner))
+                tempFeatures.add(Corner(this, feature as Corner))
             }
         }
+        features = tempFeatures
         center = PointF(source.center.x, source.center.y)
         cubicShape.updateCubics(newCubics)
     }
@@ -257,11 +258,15 @@ open class Polygon {
         // from above, along with new cubics representing the edges between those corners.
         val tempFeatures = mutableListOf<Feature>()
         for (i in 0 until n) {
-            cubics.addAll(corners[i])
+            val cornerIndices = mutableListOf<Int>()
+            for (cubic in corners[i]) {
+                cornerIndices.add(cubics.size)
+                cubics.add(cubic)
+            }
             // TODO: determine and pass convexity flag
-            tempFeatures.add(Corner(corners[i], roundedCorners[i].center, vertices[i]))
+            tempFeatures.add(Corner(this, cornerIndices, roundedCorners[i].center, vertices[i]))
+            tempFeatures.add(Edge(this, listOf(cubics.size)))
             cubics.add(Cubic.straightLine(corners[i].last().p3, corners[(i + 1) % n].first().p0))
-            tempFeatures.add(Edge(listOf(cubics[cubics.size - 1])))
         }
         features = tempFeatures
         cubicShape.updateCubics(cubics)
@@ -276,6 +281,9 @@ open class Polygon {
         matrix.mapPoints(point)
         center.x = point[0]
         center.y = point[1]
+        for (feature in features) {
+            feature.transform(matrix)
+        }
     }
 
     /**
@@ -415,15 +423,27 @@ class RoundedPolygon : Polygon {
  * of what the shape actually is, rather than simply manipulating the raw curves and lines
  * which describe it.
  */
-internal sealed class Feature(val cubics: List<Cubic>)
+internal sealed class Feature(private val polygon: Polygon, protected val cubicIndices: List<Int>) {
+    val cubics: MutableList<Cubic>
+        get() {
+            val featureCubics = mutableListOf<Cubic>()
+            val cubics = polygon.toCubicShape().cubics
+            for (index in cubicIndices) {
+                featureCubics.add(cubics[index])
+            }
+            return featureCubics
+        }
+
+    open fun transform(matrix: Matrix) {}
+}
 
 /**
  * Edges have only a list of the cubic curves which make up the edge. Edges lie between
  * corners and have no vertex or concavity; the curves are simply straight lines (represented
  * by Cubic curves).
  */
-internal class Edge(cubics: List<Cubic>) : Feature(cubics) {
-    constructor(source: Edge) : this(source.cubics)
+internal class Edge(polygon: Polygon, indices: List<Int>) : Feature(polygon, indices) {
+    constructor(polygon: Polygon, source: Edge) : this(polygon, source.cubicIndices)
 }
 
 /**
@@ -434,18 +454,27 @@ internal class Edge(cubics: List<Cubic>) : Feature(cubics) {
  * convex (outer) and concave (inner) corners.
  */
 internal class Corner(
-    cubics: List<Cubic>,
+    polygon: Polygon,
+    cubicIndices: List<Int>,
     // TODO: parameters here should be immutable
     val vertex: PointF,
     val roundedCenter: PointF,
     val convex: Boolean = true
-) : Feature(cubics) {
-    constructor(source: Corner) : this(
-        source.cubics,
+) : Feature(polygon, cubicIndices) {
+    constructor(polygon: Polygon, source: Corner) : this(
+        polygon,
+        source.cubicIndices,
         source.vertex,
         source.roundedCenter,
         source.convex
     )
+
+    override fun transform(matrix: Matrix) {
+        val tempPoints = floatArrayOf(vertex.x, vertex.y, roundedCenter.x, roundedCenter.y)
+        matrix.mapPoints(tempPoints)
+        vertex.set(tempPoints[0], tempPoints[1])
+        roundedCenter.set(tempPoints[2], tempPoints[3])
+    }
 }
 
 /**

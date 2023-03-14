@@ -16,12 +16,22 @@
 
 package androidx.room.processor
 
-import androidx.room.TypeConverter
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XAnnotationSpec
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.apply
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.ext.typeName
+import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.CommonTypeNames.MUTABLE_LIST
+import androidx.room.ext.CommonTypeNames.STRING
+import androidx.room.ext.RoomAnnotationTypeNames
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
@@ -29,26 +39,17 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.testing.context
 import androidx.room.vo.CustomTypeConverter
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.TypeVariableName
-import java.util.Date
-import javax.lang.model.element.Modifier
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class CustomConverterProcessorTest {
+
     companion object {
-        val CONVERTER = ClassName.get("foo.bar", "MyConverter")!!
-        val CONVERTER_QNAME = CONVERTER.packageName() + "." + CONVERTER.simpleName()
+        val CONVERTER = XClassName.get("foo.bar", "MyConverter")
+        val CONVERTER_NAME = CONVERTER.canonicalName
         val CONTAINER = Source.java(
             "foo.bar.Container",
             """
@@ -62,53 +63,76 @@ class CustomConverterProcessorTest {
 
     @Test
     fun validCase() {
-        singleClass(createConverter(TypeName.SHORT.box(), TypeName.CHAR.box())) { converter, _ ->
-            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.SHORT.box()))
-            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.CHAR.box()))
+        singleClass(
+            createConverter(
+                XTypeName.BOXED_SHORT.copy(nullable = true),
+                XTypeName.BOXED_CHAR.copy(nullable = true)
+            )
+        ) {
+                converter, _ ->
+            assertThat(converter?.fromTypeName).isEqualTo(
+                XTypeName.BOXED_SHORT.copy(nullable = true)
+            )
+            assertThat(converter?.toTypeName).isEqualTo(XTypeName.BOXED_CHAR.copy(nullable = true))
         }
     }
 
     @Test
     fun primitiveFrom() {
-        singleClass(createConverter(TypeName.SHORT, TypeName.CHAR.box())) { converter, _ ->
-            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.SHORT))
-            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.CHAR.box()))
+        singleClass(
+            createConverter(
+                XTypeName.PRIMITIVE_SHORT,
+                XTypeName.BOXED_CHAR.copy(nullable = true)
+            )
+        ) {
+                converter, _ ->
+            assertThat(converter?.fromTypeName).isEqualTo(XTypeName.PRIMITIVE_SHORT)
+            assertThat(converter?.toTypeName).isEqualTo(XTypeName.BOXED_CHAR.copy(nullable = true))
         }
     }
 
     @Test
     fun primitiveTo() {
-        singleClass(createConverter(TypeName.INT.box(), TypeName.DOUBLE)) { converter, _ ->
-            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.INT.box()))
-            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.DOUBLE))
+        singleClass(
+            createConverter(
+                XTypeName.BOXED_INT.copy(nullable = true),
+                XTypeName.PRIMITIVE_DOUBLE)
+        ) {
+                converter, _ ->
+            assertThat(converter?.fromTypeName).isEqualTo(XTypeName.BOXED_INT.copy(nullable = true))
+            assertThat(converter?.toTypeName).isEqualTo(XTypeName.PRIMITIVE_DOUBLE)
         }
     }
 
     @Test
     fun primitiveBoth() {
-        singleClass(createConverter(TypeName.INT, TypeName.DOUBLE)) { converter, _ ->
-            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.INT))
-            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.DOUBLE))
+        singleClass(createConverter(XTypeName.PRIMITIVE_INT, XTypeName.PRIMITIVE_DOUBLE)) {
+                converter, _ ->
+            assertThat(converter?.fromTypeName).isEqualTo(XTypeName.PRIMITIVE_INT)
+            assertThat(converter?.toTypeName).isEqualTo(XTypeName.PRIMITIVE_DOUBLE)
         }
     }
 
     @Test
     fun nonNullButNotBoxed() {
-        val string = String::class.typeName
-        val date = Date::class.typeName
-        singleClass(createConverter(string, date)) { converter, _ ->
-            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(string as TypeName))
-            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(date as TypeName))
+        val date = CommonTypeNames.DATE
+        singleClass(createConverter(STRING, date)) { converter, _ ->
+            assertThat(converter?.fromTypeName).isEqualTo(STRING)
+            assertThat(converter?.toTypeName).isEqualTo(date)
         }
     }
 
     @Test
     fun parametrizedTypeUnbound() {
         val typeVarT = TypeVariableName.get("T")
-        val list = ParameterizedTypeName.get(List::class.typeName, typeVarT)
+        val list = CommonTypeNames.MUTABLE_LIST.parametrizedBy(XClassName.get("", "T"))
         val typeVarK = TypeVariableName.get("K")
-        val map = ParameterizedTypeName.get(Map::class.typeName, typeVarK, typeVarT)
-        singleClass(createConverter(list, map, listOf(typeVarK, typeVarT))) { _, invocation ->
+        val map = CommonTypeNames.MUTABLE_MAP.parametrizedBy(
+            XClassName.get("", "K"),
+            XClassName.get("", "T")
+        )
+        singleClass(createConverter(list, map, listOf(typeVarK, typeVarT))) {
+                _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(TYPE_CONVERTER_UNBOUND_GENERIC)
             }
@@ -117,13 +141,12 @@ class CustomConverterProcessorTest {
 
     @Test
     fun parametrizedTypeSpecific() {
-        val string = String::class.typeName
-        val date = Date::class.typeName
-        val list = ParameterizedTypeName.get(List::class.typeName, string)
-        val map = ParameterizedTypeName.get(Map::class.typeName, string, date)
+        val date = CommonTypeNames.DATE
+        val list = CommonTypeNames.MUTABLE_LIST.parametrizedBy(STRING)
+        val map = CommonTypeNames.MUTABLE_MAP.parametrizedBy(STRING, date)
         singleClass(createConverter(list, map)) { converter, _ ->
-            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(list as TypeName))
-            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(map as TypeName))
+            assertThat(converter?.fromTypeName).isEqualTo(list)
+            assertThat(converter?.toTypeName).isEqualTo(map)
         }
     }
 
@@ -131,10 +154,10 @@ class CustomConverterProcessorTest {
     fun testNoConverters() {
         singleClass(
             Source.java(
-                CONVERTER_QNAME,
+                CONVERTER_NAME,
                 """
-                package ${CONVERTER.packageName()};
-                public class ${CONVERTER.simpleName()} {
+                package ${CONVERTER.packageName};
+                public class ${CONVERTER.simpleNames.first()} {
                 }
                 """
             )
@@ -149,13 +172,13 @@ class CustomConverterProcessorTest {
     fun checkNoArgConstructor() {
         singleClass(
             Source.java(
-                CONVERTER_QNAME,
+                CONVERTER_NAME,
                 """
-                package ${CONVERTER.packageName()};
+                package ${CONVERTER.packageName};
                 import androidx.room.TypeConverter;
 
-                public class ${CONVERTER.simpleName()} {
-                    public ${CONVERTER.simpleName()}(int x) {}
+                public class ${CONVERTER.simpleNames.first()} {
+                    public ${CONVERTER.simpleNames.first()}(int x) {}
                     @TypeConverter
                     public int x(short y) {return 0;}
                 }
@@ -172,22 +195,22 @@ class CustomConverterProcessorTest {
     fun checkNoArgConstructor_withStatic() {
         singleClass(
             Source.java(
-                CONVERTER_QNAME,
+                CONVERTER_NAME,
                 """
-                package ${CONVERTER.packageName()};
+                package ${CONVERTER.packageName};
                 import androidx.room.TypeConverter;
 
-                public class ${CONVERTER.simpleName()} {
-                    public ${CONVERTER.simpleName()}(int x) {}
+                public class ${CONVERTER.simpleNames.first()} {
+                    public ${CONVERTER.simpleNames.first()}(int x) {}
                     @TypeConverter
                     public static int x(short y) {return 0;}
                 }
                 """
             )
         ) { converter, _ ->
-            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.SHORT))
-            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.INT))
-            assertThat(converter?.isStatic, `is`(true))
+            assertThat(converter?.fromTypeName).isEqualTo(XTypeName.PRIMITIVE_SHORT)
+            assertThat(converter?.toTypeName).isEqualTo(XTypeName.PRIMITIVE_INT)
+            assertThat(converter?.isStatic).isTrue()
         }
     }
 
@@ -195,21 +218,21 @@ class CustomConverterProcessorTest {
     fun checkPublic() {
         singleClass(
             Source.java(
-                CONVERTER_QNAME,
+                CONVERTER_NAME,
                 """
-                package ${CONVERTER.packageName()};
+                package ${CONVERTER.packageName};
                 import androidx.room.TypeConverter;
 
-                public class ${CONVERTER.simpleName()} {
+                public class ${CONVERTER.simpleNames.first()} {
                     @TypeConverter static int x(short y) {return 0;}
                     @TypeConverter private static int y(boolean y) {return 0;}
                 }
                 """
             )
         ) { converter, invocation ->
-            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.SHORT))
-            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.INT))
-            assertThat(converter?.isStatic, `is`(true))
+            assertThat(converter?.fromTypeName).isEqualTo(XTypeName.PRIMITIVE_SHORT)
+            assertThat(converter?.toTypeName).isEqualTo(XTypeName.PRIMITIVE_INT)
+            assertThat(converter?.isStatic).isTrue()
             invocation.assertCompilationResult {
                 hasErrorContaining(TYPE_CONVERTER_MUST_BE_PUBLIC)
                 hasErrorCount(2)
@@ -217,51 +240,47 @@ class CustomConverterProcessorTest {
         }
     }
 
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     @Test
     fun parametrizedTypeBoundViaParent() {
         val typeVarT = TypeVariableName.get("T")
-        val list = ParameterizedTypeName.get(List::class.typeName, typeVarT)
+        val list = CommonTypeNames.MUTABLE_LIST.parametrizedBy(XClassName.get("", "T"))
         val typeVarK = TypeVariableName.get("K")
-        val map = ParameterizedTypeName.get(Map::class.typeName, typeVarK, typeVarT)
-
-        val baseConverter = createConverter(list, map, listOf(typeVarT, typeVarK))
-        val extendingQName = "foo.bar.Extending"
+        val map = CommonTypeNames.MUTABLE_MAP.parametrizedBy(
+            XClassName.get("", "K"),
+            XClassName.get("", "T")
+        )
+        val baseConverter = createConverter(
+            list,
+            map,
+            typeVariables = listOf(typeVarT, typeVarK)
+        )
+        val extendingClassName = XClassName.get("foo.bar", "Extending")
         val extendingClass = Source.java(
-            extendingQName,
+            extendingClassName.canonicalName,
             "package foo.bar;\n" +
-                TypeSpec.classBuilder(ClassName.bestGuess(extendingQName)).apply {
+                XTypeSpec.classBuilder(
+                    CodeLanguage.JAVA,
+                    extendingClassName
+                ).apply {
                     superclass(
-                        ParameterizedTypeName.get(
-                            CONVERTER, String::class.typeName,
-                            Integer::class.typeName
+                        CONVERTER.parametrizedBy(
+                            STRING,
+                            XTypeName.BOXED_INT
                         )
                     )
                 }.build().toString()
         )
-
         runProcessorTest(
             sources = listOf(baseConverter, extendingClass)
         ) { invocation ->
-            val element = invocation.processingEnv.requireTypeElement(extendingQName)
+            val element = invocation.processingEnv.requireTypeElement(
+                extendingClassName.canonicalName
+            )
             val converter = CustomConverterProcessor(invocation.context, element)
                 .process().firstOrNull()
-            assertThat(
-                converter?.fromTypeName?.toJavaPoet(),
-                `is`(
-                    ParameterizedTypeName.get(
-                        List::class.typeName, String::class.typeName
-                    ) as TypeName
-                )
-            )
-            assertThat(
-                converter?.toTypeName?.toJavaPoet(),
-                `is`(
-                    ParameterizedTypeName.get(
-                        Map::class.typeName,
-                        Integer::class.typeName, String::class.typeName
-                    ) as TypeName
-                )
+            assertThat(converter?.fromTypeName).isEqualTo(MUTABLE_LIST.parametrizedBy(STRING))
+            assertThat(converter?.toTypeName).isEqualTo(
+                CommonTypeNames.MUTABLE_MAP.parametrizedBy(XTypeName.BOXED_INT, STRING)
             )
         }
     }
@@ -269,10 +288,16 @@ class CustomConverterProcessorTest {
     @Test
     fun checkDuplicates() {
         singleClass(
-            createConverter(TypeName.SHORT.box(), TypeName.CHAR.box(), duplicate = true)
+            createConverter(
+                XTypeName.BOXED_SHORT.copy(nullable = true),
+                XTypeName.BOXED_CHAR.copy(nullable = true),
+                duplicate = true
+            )
         ) { converter, invocation ->
-            assertThat(converter?.fromTypeName?.toJavaPoet(), `is`(TypeName.SHORT.box()))
-            assertThat(converter?.toTypeName?.toJavaPoet(), `is`(TypeName.CHAR.box()))
+            assertThat(converter?.fromTypeName).isEqualTo(
+                XTypeName.BOXED_SHORT.copy(nullable = true)
+            )
+            assertThat(converter?.toTypeName).isEqualTo(XTypeName.BOXED_CHAR.copy(nullable = true))
             invocation.assertCompilationResult {
                 hasErrorContaining("Multiple methods define the same conversion")
             }
@@ -284,9 +309,9 @@ class CustomConverterProcessorTest {
         val source = Source.kotlin(
             "MyConverter.kt",
             """
-        package ${CONVERTER.packageName()}
+        package ${CONVERTER.packageName}
         import androidx.room.*
-        class ${CONVERTER.simpleName()} {
+        class ${CONVERTER.simpleNames.first()} {
             @TypeConverter
             fun nonNulls(input: Int): String {
                 TODO()
@@ -345,33 +370,45 @@ class CustomConverterProcessorTest {
     }
 
     private fun createConverter(
-        from: TypeName,
-        to: TypeName,
+        from: XTypeName,
+        to: XTypeName,
         typeVariables: List<TypeVariableName> = emptyList(),
         duplicate: Boolean = false
     ): Source {
-        val code = TypeSpec.classBuilder(CONVERTER).apply {
-            addTypeVariables(typeVariables)
-            addModifiers(Modifier.PUBLIC)
-            fun buildMethod(name: String) = MethodSpec.methodBuilder(name).apply {
-                addAnnotation(TypeConverter::class.java)
-                addModifiers(Modifier.PUBLIC)
+        val code = XTypeSpec.classBuilder(CodeLanguage.JAVA, CONVERTER, isOpen = true).apply {
+            setVisibility(VisibilityModifier.PUBLIC)
+            fun buildMethod(name: String) = XFunSpec.builder(
+                CodeLanguage.JAVA,
+                name,
+                VisibilityModifier.PUBLIC
+            ).apply {
+                addAnnotation(
+                    XAnnotationSpec.builder(
+                        CodeLanguage.JAVA,
+                        RoomAnnotationTypeNames.TYPE_CONVERTER
+                    ).build()
+                )
                 returns(to)
-                addParameter(ParameterSpec.builder(from, "input").build())
+                addParameter(from, "input")
                 if (to.isPrimitive) {
                     addStatement("return 0")
                 } else {
                     addStatement("return null")
                 }
             }.build()
-            addMethod(buildMethod("convertF"))
+            addFunction(buildMethod("convertF"))
             if (duplicate) {
-                addMethod(buildMethod("convertF2"))
+                addFunction(buildMethod("convertF2"))
             }
-        }.build().toString()
+        }.apply(
+            javaTypeBuilder = {
+                addTypeVariables(typeVariables)
+            },
+            kotlinTypeBuilder = { error("Test converter shouldn't be generated in Kotlin") }
+        ).build().toString()
         return Source.java(
-            CONVERTER.toString(),
-            "package ${CONVERTER.packageName()};\n$code"
+            CONVERTER.canonicalName,
+        "package ${CONVERTER.packageName};\n$code"
         )
     }
 

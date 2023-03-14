@@ -17,10 +17,8 @@ mount@google.com
 natnaelbelay@google.com
 owengray@google.com
 romainguy@android.com
-saff@google.com
 sergeyv@google.com
 siyamed@google.com
-sjgilbert@google.com
 sumir@google.com
 tiem@google.com
 yboyar@google.com
@@ -30,4 +28,4 @@ per-file *settings.gradle = alanv@google.com, aurimas@google.com
 per-file *libraryversions.toml = jnichol@google.com
 
 # Copybara can self-approve CLs within synced docs.
-per-file docs/... = copybara-worker-blackhole@google.com
+per-file docs/** = copybara-worker-blackhole@google.com

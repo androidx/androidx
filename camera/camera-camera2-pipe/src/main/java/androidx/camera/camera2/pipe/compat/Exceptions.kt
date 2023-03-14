@@ -23,14 +23,12 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log
 
 /**
- * Thrown when an operation cannot be executed because underlying object is closed or in an
- * unusable state.
+ * Thrown when an operation cannot be executed because underlying object is closed or in an unusable
+ * state.
  */
 internal class ObjectUnavailableException(e: Throwable) : Exception(e)
 
-/**
- * Catch specific exceptions that are not normally thrown, log them, then rethrow.
- */
+/** Catch specific exceptions that are not normally thrown, log them, then rethrow. */
 @Throws(ObjectUnavailableException::class)
 internal inline fun <T> rethrowCamera2Exceptions(crossinline block: () -> T): T {
     // Camera2 has, at different points in time, thrown a large number of checked and/or
@@ -60,6 +58,7 @@ internal inline fun <T> rethrowCamera2Exceptions(crossinline block: () -> T): T 
                 Log.debug(e) { "Rethrowing ${e::class.java.simpleName} from Camera2" }
                 ObjectUnavailableException(e)
             }
+
             else -> e
         }
     }

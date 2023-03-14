@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.lazy
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.glance.Emittable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
@@ -99,14 +100,18 @@ private fun LazyListItem(
     alignment: Alignment,
     content: @Composable () -> Unit
 ) {
-    GlanceNode(
-        factory = ::EmittableLazyListItem,
-        update = {
-            this.set(itemId) { this.itemId = it }
-            this.set(alignment) { this.alignment = it }
-        },
-        content = content
-    )
+    // We wrap LazyListItem in the key composable to ensure that lambda actions declared within each
+    // item's scope will get a unique ID based on the currentCompositeKeyHash.
+    key(itemId) {
+        GlanceNode(
+            factory = ::EmittableLazyListItem,
+            update = {
+                this.set(itemId) { this.itemId = it }
+                this.set(alignment) { this.alignment = it }
+            },
+            content = content
+        )
+    }
 }
 
 /**

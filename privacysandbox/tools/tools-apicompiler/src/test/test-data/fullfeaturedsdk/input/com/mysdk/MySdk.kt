@@ -4,6 +4,7 @@ import androidx.privacysandbox.tools.PrivacySandboxCallback
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
+import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 
 @PrivacySandboxService
 interface MySdk {
@@ -26,6 +27,10 @@ interface MySdk {
     suspend fun handleNullableValues(maybeRequest: Request?): Response?
 
     suspend fun handleNullableInterfaces(maybeCallback: MyCallback?): MyInterface?
+
+    suspend fun returnUiInterface(): MyUiInterface
+
+    fun acceptUiInterfaceParam(input: MyUiInterface)
 }
 
 @PrivacySandboxInterface
@@ -37,6 +42,11 @@ interface MyInterface {
     suspend fun getMySecondInterface(input: MySecondInterface): MySecondInterface
 
     fun doMoreStuff(x: Int)
+}
+
+@PrivacySandboxInterface
+interface MyUiInterface : SandboxedUiAdapter {
+    fun doSomethingForUi(x: Int, y: Int)
 }
 
 @PrivacySandboxInterface

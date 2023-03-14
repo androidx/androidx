@@ -50,7 +50,7 @@ class XcResultParserTest {
         // Metrics typically correspond to the number of tests
         assertThat(record.metrics.size()).isEqualTo(2)
         assertThat(summaries.isNotEmpty()).isTrue()
-        val metrics = Metrics.buildMetrics(record, summaries)
+        val metrics = Metrics.buildMetrics(record, summaries, referenceSha = null)
         val json = GsonHelpers.gsonBuilder()
             .setPrettyPrinting()
             .create()

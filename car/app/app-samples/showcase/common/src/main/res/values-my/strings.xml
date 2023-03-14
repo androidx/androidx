@@ -257,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"လက်မှတ်ထိုးဝင်လိုက်ပါပြီ။"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"လက်မှတ်ထိုးဝင်မှု ပြီးပြီ"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"လက်မှတ်ထိုးဝင်မှု ပုံစံသရုပ်ပြချက်"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"တဘ်ပုံစံ သရုပ်ပြချက်များ"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"တဘ်ပုံစံ သရုပ်ပြချက်"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"မက်ဆေ့ဂျ်တဘ်"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"အကန့်တဘ်"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"စာရင်းတဘ်"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"တဘ်ခေါင်းစဉ်အရှည် ပါဝင်သော ဇယားကွက်တဘ်"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"ရှာဖွေရေးတဘ်"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"တဘ်ပုံစံဖွင့်နေသည့် သရုပ်ပြချက်"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"တဘ်ပုံစံတွင် တဘ်မရှိသည့် သရုပ်ပြချက်"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"မသိသောဆာဗာပင်ရင်းအတွက် ပုံများကို ပြ၍မရပါ"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"သင်္ကေတ"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"အကြောင်းအရာ ဝန်ဆောင်မှုပေးသူ သင်္ကေတများ သရုပ်ပြချက်"</string>

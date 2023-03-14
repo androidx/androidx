@@ -18,6 +18,8 @@ package androidx.tv.material3
 
 import android.os.SystemClock
 import android.view.KeyEvent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -65,12 +67,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.delay
 import org.junit.Rule
 import org.junit.Test
 
 private const val delayBetweenSlides = 2500L
 private const val animationTime = 900L
-private const val overlayRenderWaitTime = 1500L
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 class CarouselTest {
@@ -273,6 +275,7 @@ class CarouselTest {
         rule.onNodeWithText("Text 2").assertIsDisplayed()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_pagerIndicatorDisplayed() {
         rule.setContent {
@@ -284,6 +287,7 @@ class CarouselTest {
         rule.onNodeWithTag("indicator").assertIsDisplayed()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_withAnimatedContent_successfulTransition() {
         rule.setContent {
@@ -297,15 +301,14 @@ class CarouselTest {
             }
         }
 
-        rule.onNodeWithText("Text 1").assertDoesNotExist()
-
-        rule.mainClock.advanceTimeBy(overlayRenderWaitTime + animationTime, true)
+        rule.mainClock.advanceTimeBy(animationTime, true)
         rule.mainClock.advanceTimeByFrame()
 
         rule.onNodeWithText("Text 1").assertIsDisplayed()
         rule.onNodeWithText("PLAY").assertIsDisplayed()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_withAnimatedContent_successfulFocusIn() {
         rule.setContent {
@@ -319,7 +322,7 @@ class CarouselTest {
             .performSemanticsAction(SemanticsActions.RequestFocus)
 
         // current slide overlay render delay
-        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime, false)
+        rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
@@ -362,6 +365,7 @@ class CarouselTest {
         rule.onNodeWithTag("box-container").assertIsFocused()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_withCarouselItem_parentContainerGainsFocus_onBackPress() {
         rule.setContent {
@@ -383,7 +387,7 @@ class CarouselTest {
         // Trigger recomposition after requesting focus and advance time to finish animations
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle()
-        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime, false)
+        rule.mainClock.advanceTimeBy(animationTime, false)
         rule.waitForIdle()
 
         // Check if the overlay button is focused
@@ -399,6 +403,7 @@ class CarouselTest {
         rule.onNodeWithTag("box-container").assertIsFocused()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_scrollToRegainFocus_checkBringIntoView() {
         val focusRequester = FocusRequester()
@@ -428,12 +433,9 @@ class CarouselTest {
                             .border(2.dp, Color.Black),
                         carouselState = remember { CarouselState() },
                         slideCount = 3,
-                        timeToDisplaySlideMillis = delayBetweenSlides
+                        autoScrollDurationMillis = delayBetweenSlides
                     ) {
-                        SampleCarouselSlide(
-                            index = it,
-                            overlayRenderWaitTime = overlayRenderWaitTime,
-                        ) {
+                        SampleCarouselSlide(index = it) {
                             Box {
                                 Column(modifier = Modifier.align(Alignment.BottomStart)) {
                                     BasicText(text = "carousel-frame")
@@ -489,6 +491,7 @@ class CarouselTest {
         assertThat(checkNodeCompletelyVisible(rule, "featured-carousel")).isTrue()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_zeroSlideCount_shouldNotCrash() {
         val testTag = "emptyCarousel"
@@ -499,6 +502,7 @@ class CarouselTest {
         rule.onNodeWithTag(testTag).assertExists()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_oneSlideCount_shouldNotCrash() {
         val testTag = "emptyCarousel"
@@ -567,6 +571,7 @@ class CarouselTest {
         rule.onNodeWithText("Button-1").assertIsFocused()
     }
 
+    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun carousel_manualScrolling_fastMultipleKeyPresses() {
         val carouselState = CarouselState()
@@ -607,18 +612,19 @@ class CarouselTest {
             }
         }
 
-        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime)
+        rule.mainClock.advanceTimeBy(animationTime)
 
         val finalSlide = slideProgression.sum()
         rule.onNodeWithText("Play $finalSlide").assertIsFocused()
 
         performKeyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT, 3)
 
-        rule.mainClock.advanceTimeBy((animationTime + overlayRenderWaitTime) * 3)
+        rule.mainClock.advanceTimeBy((animationTime) * 3)
 
         rule.onNodeWithText("Play ${finalSlide + 3}").assertIsFocused()
     }
 
+    @Test
     fun carousel_manualScrolling_onDpadLongPress() {
         rule.setContent {
             SampleCarousel(slideCount = 6) { index ->
@@ -676,7 +682,7 @@ class CarouselTest {
             .performSemanticsAction(SemanticsActions.RequestFocus)
 
         // current slide overlay render delay
-        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime, false)
+        rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
@@ -726,7 +732,7 @@ class CarouselTest {
             .performSemanticsAction(SemanticsActions.RequestFocus)
 
         // current slide overlay render delay
-        rule.mainClock.advanceTimeBy(animationTime + overlayRenderWaitTime, false)
+        rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeBy(animationTime, false)
         rule.mainClock.advanceTimeByFrame()
 
@@ -757,15 +763,48 @@ class CarouselTest {
         // Assert that slide 1 is in view
         rule.onNodeWithText("Button 1").assertIsDisplayed()
     }
+
+    @Test
+    fun carousel_slideCountChangesDuringAnimation_shouldNotCrash() {
+        val slideDisplayDurationMs: Long = 100
+        var slideChanges = 0
+        // number of slides will fall from 4 to 2, but 4 slide transitions should happen without a
+        // crash
+        val minSuccessfulSlideChanges = 4
+        rule.setContent {
+            var slideCount by remember { mutableStateOf(4) }
+            LaunchedEffect(Unit) {
+                while (slideCount >= 2) {
+                    delay(slideDisplayDurationMs)
+                    slideCount--
+                }
+            }
+            SampleCarousel(
+                slideCount = slideCount,
+                timeToDisplaySlideMillis = slideDisplayDurationMs
+            ) { index ->
+                if (index >= slideCount) {
+                    // slideIndex requested should not be greater than slideCount. User could be
+                    // using a data-structure that could throw an IndexOutOfBoundsException.
+                    // This can happen when the slideCount changes during the transition between
+                    // slides.
+                    throw Exception("Index is larger, index=$index, slideCount=$slideCount")
+                }
+                slideChanges++
+            }
+        }
+
+        rule.waitUntil(timeoutMillis = 5000) { slideChanges > minSuccessfulSlideChanges }
+    }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 private fun SampleCarousel(
     carouselState: CarouselState = remember { CarouselState() },
     slideCount: Int = 3,
     timeToDisplaySlideMillis: Long = delayBetweenSlides,
-    content: @Composable (index: Int) -> Unit
+    content: @Composable CarouselScope.(index: Int) -> Unit
 ) {
     Carousel(
         modifier = Modifier
@@ -775,7 +814,7 @@ private fun SampleCarousel(
             .testTag("pager"),
         carouselState = carouselState,
         slideCount = slideCount,
-        timeToDisplaySlideMillis = timeToDisplaySlideMillis,
+        autoScrollDurationMillis = timeToDisplaySlideMillis,
         carouselIndicator = {
             CarouselDefaults.IndicatorRow(
                 modifier = Modifier
@@ -786,22 +825,22 @@ private fun SampleCarousel(
                 slideCount = slideCount
             )
         },
-        content = content,
+        content = { content(it) },
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-private fun SampleCarouselSlide(
+private fun CarouselScope.SampleCarouselSlide(
     index: Int,
     modifier: Modifier = Modifier,
-    overlayRenderWaitTime: Long = CarouselItemDefaults.OverlayEnterTransitionStartDelayMillis,
+    contentTransformForward: ContentTransform =
+        CarouselItemDefaults.contentTransformForward,
     content: (@Composable () -> Unit) = { SampleButton("Play $index") },
 ) {
-
     CarouselItem(
         modifier = modifier,
-        overlayEnterTransitionStartDelayMillis = overlayRenderWaitTime,
+        contentTransformForward = contentTransformForward,
         background = {
             Box(
                 modifier = Modifier
@@ -809,9 +848,10 @@ private fun SampleCarouselSlide(
                     .background(Color.Red)
                     .border(2.dp, Color.Blue)
             )
-        },
-        overlay = content
-    )
+        }
+    ) {
+        content()
+    }
 }
 
 @Composable

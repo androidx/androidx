@@ -92,19 +92,19 @@ class DependencyDaoTest : TestDatabaseTest() {
         )
         dao.insert(foo1, foo2, bar)
         val fooList = dao.relation("foo")
-        assertThat(fooList.sharedName, `is`("foo"))
         assertThat(fooList, `is`(notNullValue()))
-        assertThat(fooList.dataItems, `is`(listOf(foo1, foo2)))
+        assertThat(fooList?.sharedName, `is`("foo"))
+        assertThat(fooList?.dataItems, `is`(listOf(foo1, foo2)))
 
         val barList = dao.relation("bar")
-        assertThat(barList.sharedName, `is`("bar"))
         assertThat(barList, `is`(notNullValue()))
-        assertThat(barList.dataItems, `is`(listOf(bar)))
+        assertThat(barList?.sharedName, `is`("bar"))
+        assertThat(barList?.dataItems, `is`(listOf(bar)))
 
         val bazList = dao.relation("baz")
-        assertThat(bazList.sharedName, `is`("baz"))
         assertThat(bazList, `is`(notNullValue()))
-        assertThat(bazList.dataItems, `is`(emptyList()))
+        assertThat(bazList?.sharedName, `is`("baz"))
+        assertThat(bazList?.dataItems, `is`(emptyList()))
     }
 
     private fun insertSample(id: Int): DataClassFromDependency {

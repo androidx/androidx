@@ -81,14 +81,10 @@ value class CameraError private constructor(val value: Int) {
          */
         val ERROR_CAMERA_DISCONNECTED = CameraError(6)
 
-        /**
-         * This indicates that we received IllegalArgumentException while opening the camera.
-         */
+        /** This indicates that we received IllegalArgumentException while opening the camera. */
         val ERROR_ILLEGAL_ARGUMENT_EXCEPTION = CameraError(7)
 
-        /**
-         * This indicates that we received SecurityException while opening the camera.
-         */
+        /** This indicates that we received SecurityException while opening the camera. */
         val ERROR_SECURITY_EXCEPTION = CameraError(8)
 
         internal fun from(throwable: Throwable) =
@@ -110,8 +106,7 @@ value class CameraError private constructor(val value: Int) {
                 MAX_CAMERAS_IN_USE -> ERROR_CAMERA_LIMIT_EXCEEDED
                 else -> {
                     throw IllegalArgumentException(
-                        "Unexpected CameraAccessException reason:" +
-                            "${exception.reason}"
+                        "Unexpected CameraAccessException reason:" + "${exception.reason}"
                     )
                 }
             }
@@ -125,8 +120,7 @@ value class CameraError private constructor(val value: Int) {
                 StateCallback.ERROR_CAMERA_SERVICE -> ERROR_CAMERA_SERVICE
                 else -> {
                     throw IllegalArgumentException(
-                        "Unexpected StateCallback error code:" +
-                            "$stateCallbackError"
+                        "Unexpected StateCallback error code:" + "$stateCallbackError"
                     )
                 }
             }

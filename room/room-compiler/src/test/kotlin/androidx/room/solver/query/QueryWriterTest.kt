@@ -18,7 +18,7 @@ package androidx.room.solver.query
 
 import androidx.room.Dao
 import androidx.room.Query
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -45,7 +45,7 @@ class QueryWriterTest {
                 abstract class MyClass {
                 """
         const val DAO_SUFFIX = "}"
-        val QUERY = ROOM_SQL_QUERY.toJavaPoet().toString()
+        val QUERY = ROOM_SQL_QUERY.toString(CodeLanguage.JAVA)
     }
 
     @Test
@@ -58,7 +58,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 final java.lang.String _sql = "SELECT id FROM users";
                 final $QUERY _stmt = $QUERY.acquire(_sql, 0);
@@ -90,7 +90,7 @@ class QueryWriterTest {
                 }
                 """.trimIndent()
             }
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 |final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
                 |final $QUERY _stmt = $QUERY.acquire(_sql, 1);
@@ -111,7 +111,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 final java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
                 final $QUERY _stmt = $QUERY.acquire(_sql, 2);
@@ -134,12 +134,12 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
-                final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
+                final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.canonicalName}.newStringBuilder();
                 _stringBuilder.append("SELECT id FROM users WHERE id IN(");
                 final int _inputSize = ids == null ? 1 : ids.length;
-                ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
+                ${STRING_UTIL.canonicalName}.appendPlaceholders(_stringBuilder, _inputSize);
                 _stringBuilder.append(") AND age > ");
                 _stringBuilder.append("?");
                 final java.lang.String _sql = _stringBuilder.toString();
@@ -162,10 +162,10 @@ class QueryWriterTest {
     }
 
     val collectionOut = """
-        final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
+        final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.canonicalName}.newStringBuilder();
         _stringBuilder.append("SELECT id FROM users WHERE id IN(");
         final int _inputSize = ids == null ? 1 : ids.size();
-        ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
+        ${STRING_UTIL.canonicalName}.appendPlaceholders(_stringBuilder, _inputSize);
         _stringBuilder.append(") AND age > ");
         _stringBuilder.append("?");
         final java.lang.String _sql = _stringBuilder.toString();
@@ -198,7 +198,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(collectionOut)
+            assertThat(scope.generate().toString().trim()).isEqualTo(collectionOut)
         }
     }
 
@@ -212,7 +212,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(collectionOut)
+            assertThat(scope.generate().toString().trim()).isEqualTo(collectionOut)
         }
     }
 
@@ -226,7 +226,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(collectionOut)
+            assertThat(scope.generate().toString().trim()).isEqualTo(collectionOut)
         }
     }
 
@@ -240,7 +240,7 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 final java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
                 final $QUERY _stmt = $QUERY.acquire(_sql, 2);
@@ -263,16 +263,16 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
-                final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
+                final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.canonicalName}.newStringBuilder();
                 _stringBuilder.append("SELECT id FROM users WHERE age > ");
                 _stringBuilder.append("?");
                 _stringBuilder.append(" OR bage > ");
                 _stringBuilder.append("?");
                 _stringBuilder.append(" OR fage IN(");
                 final int _inputSize = ages == null ? 1 : ages.length;
-                ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
+                ${STRING_UTIL.canonicalName}.appendPlaceholders(_stringBuilder, _inputSize);
                 _stringBuilder.append(")");
                 final java.lang.String _sql = _stringBuilder.toString();
                 final int _argCount = 2 + _inputSize;
@@ -305,17 +305,17 @@ class QueryWriterTest {
         ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.builder().build().toString().trim()).isEqualTo(
+            assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
-                final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.toJavaPoet()}.newStringBuilder();
+                final java.lang.StringBuilder _stringBuilder = ${STRING_UTIL.canonicalName}.newStringBuilder();
                 _stringBuilder.append("SELECT id FROM users WHERE age IN (");
                 final int _inputSize = ages == null ? 1 : ages.length;
-                ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize);
+                ${STRING_UTIL.canonicalName}.appendPlaceholders(_stringBuilder, _inputSize);
                 _stringBuilder.append(") OR bage > ");
                 _stringBuilder.append("?");
                 _stringBuilder.append(" OR fage IN(");
                 final int _inputSize_1 = ages == null ? 1 : ages.length;
-                ${STRING_UTIL.toJavaPoet()}.appendPlaceholders(_stringBuilder, _inputSize_1);
+                ${STRING_UTIL.canonicalName}.appendPlaceholders(_stringBuilder, _inputSize_1);
                 _stringBuilder.append(")");
                 final java.lang.String _sql = _stringBuilder.toString();
                 final int _argCount = 1 + _inputSize + _inputSize_1;

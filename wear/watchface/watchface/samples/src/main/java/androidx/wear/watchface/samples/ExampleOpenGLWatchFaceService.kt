@@ -57,17 +57,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Sample watch face using OpenGL. The watch face is rendered using
- * [Gles2ColoredTriangleList]s. The camera moves around in interactive mode and stops moving
- * when the watch enters ambient mode.
+ * Sample watch face using OpenGL. The watch face is rendered using [Gles2ColoredTriangleList]s. The
+ * camera moves around in interactive mode and stops moving when the watch enters ambient mode.
  *
  * NB this is open for testing.
  */
 open class ExampleOpenGLWatchFaceService : WatchFaceService() {
     // Lazy because the context isn't initialized till later.
-    private val watchFaceStyle by lazy {
-        WatchFaceColorStyle.create(this, "white_style")
-    }
+    private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, "white_style") }
 
     private val colorStyleSetting by lazy {
         ListUserStyleSetting(
@@ -76,50 +73,53 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             R.string.colors_style_setting,
             R.string.colors_style_setting_description,
             icon = null,
-            options = listOf(
-                ListUserStyleSetting.ListOption(
-                    Option.Id("red_style"),
-                    resources,
-                    R.string.colors_style_red,
-                    R.string.colors_style_red_screen_reader,
-                    Icon.createWithResource(this, R.drawable.red_style)
+            options =
+                listOf(
+                    ListUserStyleSetting.ListOption(
+                        Option.Id("red_style"),
+                        resources,
+                        R.string.colors_style_red,
+                        R.string.colors_style_red_screen_reader,
+                        Icon.createWithResource(this, R.drawable.red_style)
+                    ),
+                    ListUserStyleSetting.ListOption(
+                        Option.Id("green_style"),
+                        resources,
+                        R.string.colors_style_green,
+                        R.string.colors_style_green_screen_reader,
+                        Icon.createWithResource(this, R.drawable.green_style)
+                    )
                 ),
-                ListUserStyleSetting.ListOption(
-                    Option.Id("green_style"),
-                    resources,
-                    R.string.colors_style_green,
-                    R.string.colors_style_green_screen_reader,
-                    Icon.createWithResource(this, R.drawable.green_style)
-                )
-            ),
             listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
         )
     }
 
-    private val complication = ComplicationSlot.createRoundRectComplicationSlotBuilder(
-        EXAMPLE_OPENGL_COMPLICATION_ID,
-        { watchState, listener ->
-            CanvasComplicationDrawable(
-                watchFaceStyle.getDrawable(this@ExampleOpenGLWatchFaceService)!!,
-                watchState,
-                listener
+    private val complication =
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                EXAMPLE_OPENGL_COMPLICATION_ID,
+                { watchState, listener ->
+                    CanvasComplicationDrawable(
+                        watchFaceStyle.getDrawable(this@ExampleOpenGLWatchFaceService)!!,
+                        watchState,
+                        listener
+                    )
+                },
+                listOf(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.GOAL_PROGRESS,
+                    ComplicationType.WEIGHTED_ELEMENTS,
+                    ComplicationType.LONG_TEXT,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.MONOCHROMATIC_IMAGE,
+                    ComplicationType.SMALL_IMAGE
+                ),
+                DefaultComplicationDataSourcePolicy(
+                    SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+                    ComplicationType.SHORT_TEXT
+                ),
+                ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
             )
-        },
-        listOf(
-            ComplicationType.RANGED_VALUE,
-            ComplicationType.GOAL_PROGRESS,
-            ComplicationType.WEIGHTED_ELEMENTS,
-            ComplicationType.LONG_TEXT,
-            ComplicationType.SHORT_TEXT,
-            ComplicationType.MONOCHROMATIC_IMAGE,
-            ComplicationType.SMALL_IMAGE
-        ),
-        DefaultComplicationDataSourcePolicy(
-            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
-            ComplicationType.SHORT_TEXT
-        ),
-        ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-    ).build()
+            .build()
 
     public override fun createUserStyleSchema() = UserStyleSchema(listOf(colorStyleSetting))
 
@@ -132,29 +132,24 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.ANALOG,
-        ExampleOpenGLRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            colorStyleSetting,
-            complication
-        )
-    )
-        .setLegacyWatchFaceStyle(
-            WatchFace.LegacyWatchFaceOverlayStyle(
-                0,
-                Gravity.RIGHT or Gravity.TOP,
-                true
+    ) =
+        WatchFace(
+                WatchFaceType.ANALOG,
+                ExampleOpenGLRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    colorStyleSetting,
+                    complication
+                )
             )
-        )
-        .setComplicationDeniedDialogIntent(
-            Intent(this, ComplicationDeniedActivity::class.java)
-        )
-        .setComplicationRationaleDialogIntent(
-            Intent(this, ComplicationRationalActivity::class.java)
-        )
+            .setLegacyWatchFaceStyle(
+                WatchFace.LegacyWatchFaceOverlayStyle(0, Gravity.RIGHT or Gravity.TOP, true)
+            )
+            .setComplicationDeniedDialogIntent(Intent(this, ComplicationDeniedActivity::class.java))
+            .setComplicationRationaleDialogIntent(
+                Intent(this, ComplicationRationalActivity::class.java)
+            )
 
     @OptIn(WatchFaceExperimental::class)
     @Suppress("Deprecation")
@@ -165,14 +160,15 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
         watchState: WatchState,
         private val colorStyleSetting: ListUserStyleSetting,
         private val complicationSlot: ComplicationSlot
-    ) : Renderer.GlesRenderer(
-        surfaceHolder,
-        currentUserStyleRepository,
-        watchState,
-        FRAME_PERIOD_MS
-    ) {
+    ) :
+        Renderer.GlesRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            FRAME_PERIOD_MS
+        ) {
 
-        /** Projection transformation matrix. Converts from 3D to 2D.  */
+        /** Projection transformation matrix. Converts from 3D to 2D. */
         private val projectionMatrix = FloatArray(16)
 
         /**
@@ -181,7 +177,7 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
          */
         private val viewMatrices = Array(numCameraAngles) { FloatArray(16) }
 
-        /** The view transformation matrix to use in ambient mode  */
+        /** The view transformation matrix to use in ambient mode */
         private val ambientViewMatrix = FloatArray(16)
 
         /**
@@ -190,34 +186,28 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
          */
         private val modelMatrices = Array(360) { FloatArray(16) }
 
-        /**
-         * Products of [viewMatrices] and [projectionMatrix]. One matrix per camera
-         * position.
-         */
+        /** Products of [viewMatrices] and [projectionMatrix]. One matrix per camera position. */
         private val vpMatrices = Array(numCameraAngles) { FloatArray(16) }
 
-        /** The product of [ambientViewMatrix] and [projectionMatrix]  */
+        /** The product of [ambientViewMatrix] and [projectionMatrix] */
         private val ambientVpMatrix = FloatArray(16)
 
-        /**
-         * Product of [modelMatrices], [viewMatrices], and
-         * [projectionMatrix].
-         */
+        /** Product of [modelMatrices], [viewMatrices], and [projectionMatrix]. */
         private val mvpMatrix = FloatArray(16)
 
-        /** Triangles for the 4 major ticks. These are grouped together to speed up rendering.  */
+        /** Triangles for the 4 major ticks. These are grouped together to speed up rendering. */
         private lateinit var majorTickTriangles: Gles2ColoredTriangleList
 
-        /** Triangles for the 8 minor ticks. These are grouped together to speed up rendering.  */
+        /** Triangles for the 8 minor ticks. These are grouped together to speed up rendering. */
         private lateinit var minorTickTriangles: Gles2ColoredTriangleList
 
-        /** Triangle for the second hand.  */
+        /** Triangle for the second hand. */
         private lateinit var secondHandTriangleMap: Map<String, Gles2ColoredTriangleList>
 
-        /** Triangle for the minute hand.  */
+        /** Triangle for the minute hand. */
         private lateinit var minuteHandTriangle: Gles2ColoredTriangleList
 
-        /** Triangle for the hour hand.  */
+        /** Triangle for the hour hand. */
         private lateinit var hourHandTriangle: Gles2ColoredTriangleList
 
         private lateinit var complicationTexture: GlesTextureComplication
@@ -231,21 +221,22 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
         init {
             CoroutineScope(Dispatchers.Main.immediate).launch {
                 currentUserStyleRepository.userStyle.collect { userStyle ->
-                    watchfaceColors = when (userStyle[colorStyleSetting]!!.toString()) {
-                        "red_style" -> WatchFaceColors(
-                            Color.valueOf(0.5f, 0.2f, 0.2f, 1f),
-                            Color.valueOf(0.4f, 0.15f, 0.15f, 1f),
-                            Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
-                        )
-
-                        "green_style" -> WatchFaceColors(
-                            Color.valueOf(0.2f, 0.5f, 0.2f, 1f),
-                            Color.valueOf(0.15f, 0.4f, 0.15f, 1f),
-                            Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
-                        )
-
-                        else -> null
-                    }
+                    watchfaceColors =
+                        when (userStyle[colorStyleSetting]!!.toString()) {
+                            "red_style" ->
+                                WatchFaceColors(
+                                    Color.valueOf(0.5f, 0.2f, 0.2f, 1f),
+                                    Color.valueOf(0.4f, 0.15f, 0.15f, 1f),
+                                    Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
+                                )
+                            "green_style" ->
+                                WatchFaceColors(
+                                    Color.valueOf(0.2f, 0.5f, 0.2f, 1f),
+                                    Color.valueOf(0.15f, 0.4f, 0.15f, 1f),
+                                    Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
+                                )
+                            else -> null
+                        }
                 }
             }
         }
@@ -260,71 +251,64 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
 
             // Create program for drawing triangles.
             textureTriangleProgram = Gles2TexturedTriangleList.Program()
-            complicationTriangles = createComplicationQuad(
-                textureTriangleProgram,
-                -0.9f,
-                -0.1f,
-                0.6f,
-                0.6f
-            )
+            complicationTriangles =
+                createComplicationQuad(textureTriangleProgram, -0.9f, -0.1f, 0.6f, 0.6f)
 
-            complicationHighlightTriangles = createComplicationHighlightQuad(
-                coloredTriangleProgram,
-                -0.9f,
-                -0.1f,
-                0.6f,
-                0.6f
-            )
+            complicationHighlightTriangles =
+                createComplicationHighlightQuad(coloredTriangleProgram, -0.9f, -0.1f, 0.6f, 0.6f)
 
             // Create triangles for the hands.
-            secondHandTriangleMap = mapOf(
-                "red_style" to
-                    createHand(
-                        coloredTriangleProgram,
-                        0.02f /* width */,
-                        1.0f /* height */,
-                        floatArrayOf(
-                            1.0f /* red */,
-                            0.0f /* green */,
-                            0.0f /* blue */,
-                            1.0f /* alpha */
+            secondHandTriangleMap =
+                mapOf(
+                    "red_style" to
+                        createHand(
+                            coloredTriangleProgram,
+                            0.02f /* width */,
+                            1.0f /* height */,
+                            floatArrayOf(
+                                1.0f /* red */,
+                                0.0f /* green */,
+                                0.0f /* blue */,
+                                1.0f /* alpha */
+                            )
+                        ),
+                    "greenstyle" to
+                        createHand(
+                            coloredTriangleProgram,
+                            0.02f /* width */,
+                            1.0f /* height */,
+                            floatArrayOf(
+                                0.0f /* red */,
+                                1.0f /* green */,
+                                0.0f /* blue */,
+                                1.0f /* alpha */
+                            )
                         )
-                    ),
-                "greenstyle" to
-                    createHand(
-                        coloredTriangleProgram,
-                        0.02f /* width */,
-                        1.0f /* height */,
-                        floatArrayOf(
-                            0.0f /* red */,
-                            1.0f /* green */,
-                            0.0f /* blue */,
-                            1.0f /* alpha */
-                        )
+                )
+            minuteHandTriangle =
+                createHand(
+                    coloredTriangleProgram,
+                    0.06f /* width */,
+                    1f /* height */,
+                    floatArrayOf(
+                        0.7f /* red */,
+                        0.7f /* green */,
+                        0.7f /* blue */,
+                        1.0f /* alpha */
                     )
-            )
-            minuteHandTriangle = createHand(
-                coloredTriangleProgram,
-                0.06f /* width */,
-                1f /* height */,
-                floatArrayOf(
-                    0.7f /* red */,
-                    0.7f /* green */,
-                    0.7f /* blue */,
-                    1.0f /* alpha */
                 )
-            )
-            hourHandTriangle = createHand(
-                coloredTriangleProgram,
-                0.1f /* width */,
-                0.6f /* height */,
-                floatArrayOf(
-                    0.9f /* red */,
-                    0.9f /* green */,
-                    0.9f /* blue */,
-                    1.0f /* alpha */
+            hourHandTriangle =
+                createHand(
+                    coloredTriangleProgram,
+                    0.1f /* width */,
+                    0.6f /* height */,
+                    floatArrayOf(
+                        0.9f /* red */,
+                        0.9f /* green */,
+                        0.9f /* blue */,
+                        1.0f /* alpha */
+                    )
                 )
-            )
 
             // Precompute the clock angles.
             for (i in modelMatrices.indices) {
@@ -335,8 +319,7 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             for (i in 0 until numCameraAngles) {
                 // Set the camera position (View matrix). When active, move the eye around to show
                 // off that this is 3D.
-                val cameraAngle =
-                    (i.toFloat() / numCameraAngles * 2 * Math.PI).toFloat()
+                val cameraAngle = (i.toFloat() / numCameraAngles * 2 * Math.PI).toFloat()
                 val eyeX = Math.cos(cameraAngle.toDouble()).toFloat()
                 val eyeY = Math.sin(cameraAngle.toDouble()).toFloat()
                 Matrix.setLookAtM(
@@ -367,12 +350,8 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
                 0f
             ) // up vector
 
-            complicationTexture = GlesTextureComplication(
-                complicationSlot,
-                128,
-                128,
-                GLES20.GL_TEXTURE_2D
-            )
+            complicationTexture =
+                GlesTextureComplication(complicationSlot, 128, 128, GLES20.GL_TEXTURE_2D)
         }
 
         override suspend fun onUiThreadGlSurfaceCreated(width: Int, height: Int) {
@@ -409,21 +388,12 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             width: Float,
             length: Float,
             color: FloatArray
-        ) = Gles2ColoredTriangleList(
-            program,
-            floatArrayOf(
-                0f,
-                length,
-                0f,
-                -width / 2,
-                0f,
-                0f,
-                width / 2,
-                0f,
-                0f
-            ),
-            color
-        )
+        ) =
+            Gles2ColoredTriangleList(
+                program,
+                floatArrayOf(0f, length, 0f, -width / 2, 0f, 0f, width / 2, 0f, 0f),
+                color
+            )
 
         /**
          * Creates a triangle list for the major ticks on the watch face.
@@ -437,22 +407,12 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             val trianglesCoords = FloatArray(9 * 4)
             for (i in 0..3) {
                 val triangleCoords = getMajorTickTriangleCoords(i)
-                System.arraycopy(
-                    triangleCoords,
-                    0,
-                    trianglesCoords,
-                    i * 9,
-                    triangleCoords.size
-                )
+                System.arraycopy(triangleCoords, 0, trianglesCoords, i * 9, triangleCoords.size)
             }
             return Gles2ColoredTriangleList(
-                program, trianglesCoords,
-                floatArrayOf(
-                    1.0f /* red */,
-                    1.0f /* green */,
-                    1.0f /* blue */,
-                    1.0f /* alpha */
-                )
+                program,
+                trianglesCoords,
+                floatArrayOf(1.0f /* red */, 1.0f /* green */, 1.0f /* blue */, 1.0f /* alpha */)
             )
         }
 
@@ -473,137 +433,94 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
                     continue
                 }
                 val triangleCoords = getMinorTickTriangleCoords(i)
-                System.arraycopy(
-                    triangleCoords,
-                    0,
-                    trianglesCoords,
-                    index,
-                    triangleCoords.size
-                )
+                System.arraycopy(triangleCoords, 0, trianglesCoords, index, triangleCoords.size)
                 index += 9
             }
             return Gles2ColoredTriangleList(
-                program, trianglesCoords,
-                floatArrayOf(
-                    0.5f /* red */,
-                    0.5f /* green */,
-                    0.5f /* blue */,
-                    1.0f /* alpha */
-                )
+                program,
+                trianglesCoords,
+                floatArrayOf(0.5f /* red */, 0.5f /* green */, 0.5f /* blue */, 1.0f /* alpha */)
             )
         }
 
-        /**
-         * Creates a triangle list for the complication.
-         */
+        /** Creates a triangle list for the complication. */
         private fun createComplicationQuad(
             program: Gles2TexturedTriangleList.Program,
             left: Float,
             top: Float,
             width: Float,
             height: Float
-        ) = Gles2TexturedTriangleList(
-            program,
-            floatArrayOf(
-                top + 0.0f,
-                left + 0.0f,
-                0.0f,
-
-                top + 0.0f,
-                left + width,
-                0.0f,
-
-                top + height,
-                left + 0.0f,
-                0.0f,
-
-                top + 0.0f,
-                left + width,
-                0.0f,
-
-                top + height,
-                left + 0.0f,
-                0.0f,
-
-                top + height,
-                left + width,
-                0.0f
-            ),
-            floatArrayOf(
-                1.0f,
-                1.0f,
-
-                1.0f,
-                0.0f,
-
-                0.0f,
-                1.0f,
-
-                1.0f,
-                0.0f,
-
-                0.0f,
-                1.0f,
-
-                0.0f,
-                0.0f
+        ) =
+            Gles2TexturedTriangleList(
+                program,
+                floatArrayOf(
+                    top + 0.0f,
+                    left + 0.0f,
+                    0.0f,
+                    top + 0.0f,
+                    left + width,
+                    0.0f,
+                    top + height,
+                    left + 0.0f,
+                    0.0f,
+                    top + 0.0f,
+                    left + width,
+                    0.0f,
+                    top + height,
+                    left + 0.0f,
+                    0.0f,
+                    top + height,
+                    left + width,
+                    0.0f
+                ),
+                floatArrayOf(1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f)
             )
-        )
 
-        /**
-         * Creates a triangle list for the complication highlight quad.
-         */
+        /** Creates a triangle list for the complication highlight quad. */
         private fun createComplicationHighlightQuad(
             program: Gles2ColoredTriangleList.Program,
             left: Float,
             top: Float,
             width: Float,
             height: Float
-        ) = Gles2ColoredTriangleList(
-            program,
-            floatArrayOf(
-                top + 0.0f,
-                left + 0.0f,
-                0.0f,
-
-                top + 0.0f,
-                left + width,
-                0.0f,
-
-                top + height,
-                left + 0.0f,
-                0.0f,
-
-                top + 0.0f,
-                left + width,
-                0.0f,
-
-                top + height,
-                left + 0.0f,
-                0.0f,
-
-                top + height,
-                left + width,
-                0.0f
-            ),
-            floatArrayOf(
-                1.0f /* red */,
-                1.0f /* green */,
-                1.0f /* blue */,
-                0.0f /* alpha */
+        ) =
+            Gles2ColoredTriangleList(
+                program,
+                floatArrayOf(
+                    top + 0.0f,
+                    left + 0.0f,
+                    0.0f,
+                    top + 0.0f,
+                    left + width,
+                    0.0f,
+                    top + height,
+                    left + 0.0f,
+                    0.0f,
+                    top + 0.0f,
+                    left + width,
+                    0.0f,
+                    top + height,
+                    left + 0.0f,
+                    0.0f,
+                    top + height,
+                    left + width,
+                    0.0f
+                ),
+                floatArrayOf(1.0f /* red */, 1.0f /* green */, 1.0f /* blue */, 0.0f /* alpha */)
             )
-        )
 
         private fun getMajorTickTriangleCoords(index: Int): FloatArray {
             return getTickTriangleCoords(
-                0.03f /* width */, 0.09f /* length */,
+                0.03f /* width */,
+                0.09f /* length */,
                 index * 360 / 4 /* angleDegrees */
             )
         }
 
         private fun getMinorTickTriangleCoords(index: Int): FloatArray {
             return getTickTriangleCoords(
-                0.02f /* width */, 0.06f /* length */,
+                0.02f /* width */,
+                0.06f /* length */,
                 index * 360 / 12 /* angleDegrees */
             )
         }
@@ -614,17 +531,8 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
             angleDegrees: Int
         ): FloatArray {
             // Create the data for the VBO.
-            val coords = floatArrayOf(
-                0f,
-                1f,
-                0f,
-                width / 2,
-                length + 1,
-                0f,
-                -width / 2,
-                length + 1,
-                0f
-            )
+            val coords =
+                floatArrayOf(0f, 1f, 0f, width / 2, length + 1, 0f, -width / 2, length + 1, 0f)
             rotateCoords(coords, angleDegrees)
             return coords
         }
@@ -635,12 +543,9 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
          *
          * @param coords flattened 3D coordinates
          * @param angleDegrees angle in degrees clockwise when viewed from negative infinity on the
-         * Z axis
+         *   Z axis
          */
-        private fun rotateCoords(
-            coords: FloatArray,
-            angleDegrees: Int
-        ) {
+        private fun rotateCoords(coords: FloatArray, angleDegrees: Int) {
             val angleRadians = Math.toRadians(angleDegrees.toDouble())
             val cos = cos(angleRadians)
             val sin = sin(angleRadians)
@@ -655,22 +560,28 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
         }
 
         override fun render(zonedDateTime: ZonedDateTime) {
-            // Draw background color and select the appropriate view projection matrix. The background
-            // should always be black in ambient mode. The view projection matrix used is overhead in
+            // Draw background color and select the appropriate view projection matrix. The
+            // background
+            // should always be black in ambient mode. The view projection matrix used is overhead
+            // in
             // ambient. In interactive mode, it's tilted depending on the current time.
-            val vpMatrix = if (renderParameters.drawMode == DrawMode.AMBIENT) {
-                GLES20.glClearColor(0f, 0f, 0f, 1f)
-                ambientVpMatrix
-            } else {
-                when (currentUserStyleRepository.userStyle.value[colorStyleSetting]!!.toString()) {
-                    "red_style" -> GLES20.glClearColor(0.5f, 0.2f, 0.2f, 1f)
-                    "green_style" -> GLES20.glClearColor(0.2f, 0.5f, 0.2f, 1f)
+            val vpMatrix =
+                if (renderParameters.drawMode == DrawMode.AMBIENT) {
+                    GLES20.glClearColor(0f, 0f, 0f, 1f)
+                    ambientVpMatrix
+                } else {
+                    when (
+                        currentUserStyleRepository.userStyle.value[colorStyleSetting]!!.toString()
+                    ) {
+                        "red_style" -> GLES20.glClearColor(0.5f, 0.2f, 0.2f, 1f)
+                        "green_style" -> GLES20.glClearColor(0.2f, 0.5f, 0.2f, 1f)
+                    }
+                    val cameraIndex =
+                        (zonedDateTime.toInstant().toEpochMilli() / FRAME_PERIOD_MS %
+                                numCameraAngles)
+                            .toInt()
+                    vpMatrices[cameraIndex]
                 }
-                val cameraIndex =
-                    (zonedDateTime.toInstant().toEpochMilli() / FRAME_PERIOD_MS % numCameraAngles)
-                        .toInt()
-                vpMatrices[cameraIndex]
-            }
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
             // Draw the complication first.
@@ -700,38 +611,18 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
 
             // Render hands.
             if (renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS_OVERLAY)) {
-                Matrix.multiplyMM(
-                    mvpMatrix,
-                    0,
-                    vpMatrix,
-                    0,
-                    modelMatrices[hoursIndex],
-                    0
-                )
+                Matrix.multiplyMM(mvpMatrix, 0, vpMatrix, 0, modelMatrices[hoursIndex], 0)
                 hourHandTriangle.draw(mvpMatrix)
 
-                Matrix.multiplyMM(
-                    mvpMatrix,
-                    0,
-                    vpMatrix,
-                    0,
-                    modelMatrices[minIndex],
-                    0
-                )
+                Matrix.multiplyMM(mvpMatrix, 0, vpMatrix, 0, modelMatrices[minIndex], 0)
                 minuteHandTriangle.draw(mvpMatrix)
 
                 if (renderParameters.drawMode != DrawMode.AMBIENT) {
-                    Matrix.multiplyMM(
-                        mvpMatrix,
-                        0,
-                        vpMatrix,
-                        0,
-                        modelMatrices[secIndex],
-                        0
-                    )
+                    Matrix.multiplyMM(mvpMatrix, 0, vpMatrix, 0, modelMatrices[secIndex], 0)
                     secondHandTriangleMap[
-                        currentUserStyleRepository.userStyle.value[colorStyleSetting]!!.toString()
-                    ]?.draw(mvpMatrix)
+                            currentUserStyleRepository.userStyle.value[colorStyleSetting]!!
+                                .toString()]
+                        ?.draw(mvpMatrix)
                 }
             }
 
@@ -744,8 +635,8 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
 
         override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {
             val cameraIndex =
-                (zonedDateTime.toInstant()
-                    .toEpochMilli() / FRAME_PERIOD_MS % numCameraAngles).toInt()
+                (zonedDateTime.toInstant().toEpochMilli() / FRAME_PERIOD_MS % numCameraAngles)
+                    .toInt()
             val vpMatrix = vpMatrices[cameraIndex]
 
             val highlightLayer = renderParameters.highlightLayer!!
@@ -767,16 +658,16 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
     }
 
     companion object {
-        /** Expected frame rate in interactive mode.  */
+        /** Expected frame rate in interactive mode. */
         private const val FPS: Long = 60
 
-        /** Z distance from the camera to the watchface.  */
+        /** Z distance from the camera to the watchface. */
         private const val EYE_Z = -2.3f
 
-        /** How long each frame is displayed at expected frame rate.  */
+        /** How long each frame is displayed at expected frame rate. */
         private const val FRAME_PERIOD_MS: Long = 1000 / FPS
 
-        /** Cycle time before the camera motion repeats.  */
+        /** Cycle time before the camera motion repeats. */
         private const val CYCLE_PERIOD_SECONDS: Long = 5
 
         /** Number of camera angles to precompute. */

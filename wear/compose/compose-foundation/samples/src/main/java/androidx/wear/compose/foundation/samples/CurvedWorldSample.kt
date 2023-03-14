@@ -21,11 +21,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -41,6 +45,7 @@ import androidx.wear.compose.foundation.angularGradientBackground
 import androidx.wear.compose.foundation.angularSize
 import androidx.wear.compose.foundation.background
 import androidx.wear.compose.foundation.basicCurvedText
+import androidx.wear.compose.foundation.curvedBox
 import androidx.wear.compose.foundation.curvedColumn
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
@@ -276,6 +281,35 @@ fun CurvedBottomLayout() {
                 )
             }
         )
+    }
+}
+
+@Sampled
+@Composable
+fun CurvedBoxSample() {
+    CurvedLayout(modifier = Modifier.fillMaxSize()) {
+        curvedBox(
+            modifier = CurvedModifier.background(Color.Red),
+            radialAlignment = CurvedAlignment.Radial.Inner,
+            angularAlignment = CurvedAlignment.Angular.End
+        ) {
+            curvedComposable {
+                Box(
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(80.dp)
+                        .background(Color.Green)
+                )
+            }
+            curvedComposable {
+                Box(
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                )
+            }
+        }
     }
 }
 

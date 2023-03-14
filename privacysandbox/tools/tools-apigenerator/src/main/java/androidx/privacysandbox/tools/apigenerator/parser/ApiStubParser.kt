@@ -22,6 +22,7 @@ import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
+import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import androidx.privacysandbox.tools.core.validator.ModelValidator
 import java.nio.file.Path
@@ -55,6 +56,7 @@ internal object ApiStubParser {
 
     private fun parseInterface(service: KmClass, annotationName: String): AnnotatedInterface {
         val type = parseClassName(service.name)
+        val superTypes = service.supertypes.map(this::parseType).filterNot { it == Types.any }
 
         if (!Flag.Class.IS_INTERFACE(service.flags)) {
             throw PrivacySandboxParsingException(
@@ -65,7 +67,8 @@ internal object ApiStubParser {
 
         return AnnotatedInterface(
             type = type,
-            service.functions.map(this::parseMethod),
+            superTypes = superTypes,
+            methods = service.functions.map(this::parseMethod),
         )
     }
 

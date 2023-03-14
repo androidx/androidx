@@ -31,7 +31,9 @@ import kotlinx.coroutines.withContext
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
-internal class Camera2DeviceCache @Inject constructor(
+internal class Camera2DeviceCache
+@Inject
+constructor(
     private val cameraManager: Provider<CameraManager>,
     private val threads: Threads,
 ) {
@@ -40,21 +42,19 @@ internal class Camera2DeviceCache @Inject constructor(
     @GuardedBy("lock")
     private var openableCameras: List<CameraId>? = null
 
-    suspend fun getCameras(): List<CameraId> {
+    suspend fun getCameraIds(): List<CameraId> {
         val cameras = synchronized(lock) { openableCameras }
-        if (cameras?.isNotEmpty() == true) {
+        if (!cameras.isNullOrEmpty()) {
             return cameras
         }
 
         // Suspend and query the list of Cameras on the ioDispatcher
         return withContext(threads.backgroundDispatcher) {
             Debug.trace("readCameraIds") {
-                val cameraIds = readCameraIdList()
+                val cameraIds = awaitCameraIds()
 
-                if (cameraIds.isNotEmpty()) {
-                    synchronized(lock) {
-                        openableCameras = cameraIds
-                    }
+                if (!cameraIds.isNullOrEmpty()) {
+                    synchronized(lock) { openableCameras = cameraIds }
                     return@trace cameraIds
                 }
 
@@ -69,25 +69,28 @@ internal class Camera2DeviceCache @Inject constructor(
         }
     }
 
-    private fun readCameraIdList(): List<CameraId> {
+    fun awaitCameraIds(): List<CameraId>? {
         val cameras = synchronized(lock) { openableCameras }
-        if (cameras?.isNotEmpty() == true) {
+        if (!cameras.isNullOrEmpty()) {
             return cameras
         }
 
         val cameraManager = cameraManager.get()
-        val cameraIdArray = try {
-            // WARNING: This method can, at times, return an empty list of cameras on devices that
-            //  will normally return a valid list of cameras (b/159052778)
-            cameraManager.cameraIdList
-        } catch (e: CameraAccessException) {
-            Log.warn(e) { "Failed to query CameraManager#getCameraIdList!" }
-            null
-        }
-        if (cameraIdArray?.isEmpty() == true) {
+        val cameraIdArray =
+            try {
+                // WARNING: This method can, at times, return an empty list of cameras on devices
+                // that will normally return a valid list of cameras (b/159052778)
+                val ids = cameraManager.cameraIdList
+                Log.info { "Loaded CameraIdList $ids" }
+                ids
+            } catch (e: CameraAccessException) {
+                Log.warn(e) { "Failed to query CameraManager#getCameraIdList!" }
+                return null
+            }
+        if (cameraIdArray.isEmpty()) {
             Log.warn { "Failed to query CameraManager#getCameraIdList: No values returned." }
+            return emptyList()
         }
-
-        return cameraIdArray?.map { CameraId(it) } ?: listOf()
+        return cameraIdArray.map { CameraId(it) }
     }
 }

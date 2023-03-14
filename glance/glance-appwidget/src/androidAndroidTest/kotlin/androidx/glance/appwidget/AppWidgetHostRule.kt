@@ -22,13 +22,13 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.core.view.children
-import androidx.glance.session.GlanceSessionManager
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -53,7 +53,6 @@ import org.junit.runners.model.Statement
 class AppWidgetHostRule(
     private var mPortraitSize: DpSize = DpSize(200.dp, 300.dp),
     private var mLandscapeSize: DpSize = DpSize(300.dp, 200.dp),
-    private var useSessionManager: Boolean = false,
 ) : TestRule {
 
     val portraitSize: DpSize
@@ -101,8 +100,6 @@ class AppWidgetHostRule(
 
         override fun evaluate() {
             WorkManagerTestInitHelper.initializeTestWorkManager(mContext)
-            TestGlanceAppWidget.sessionManager =
-                if (useSessionManager) GlanceSessionManager else null
             mInnerRules.apply(base, description).evaluate()
             stopHost()
         }
@@ -142,6 +139,12 @@ class AppWidgetHostRule(
         val hostView = checkNotNull(mMaybeHostView) { "Host view wasn't successfully started" }
         hostView.resetRemoteViewsLatch()
         withContext(Dispatchers.Main) { block() }
+
+        // b/267494219 these tests are currently flaking due to possible changes to the views after
+        // the initial update. Sleeping here is not the final fix, we need a better way to decide
+        // the UI has settled. In the short term this does reduce the flakiness.
+        Thread.sleep(5000)
+
         // Do not wait on the main thread so that the UI handlers can run.
         runAndWaitForChildren {
             hostView.waitForRemoteViews()
@@ -183,10 +186,32 @@ class AppWidgetHostRule(
      * possibly the one to get the exact size.
      */
     inline fun <reified T : View> onUnboxedHostView(crossinline block: (T) -> Unit) {
-        onHostActivity {
-            val boxingView = assertIs<ViewGroup>(mHostView.getChildAt(0))
-            block(boxingView.children.single().getTargetView())
+
+        // b/267494219 these tests are currently flaking due to possible changes to the views after
+        // the initial update. Sleeping here is not the final fix, we need a better way to decide
+        // the UI has settled. In the short term this does reduce the flakiness.
+        var found = false
+        for (i in 1..20) {
+            if (!found) {
+                onHostActivity {
+                    val boxingView = assertIs<ViewGroup>(mHostView.getChildAt(0))
+                    val childCount = boxingView.childCount
+
+                    if (childCount != 0) {
+                        if (i > 1) Log.i(RECEIVER_TEST_TAG, "...now we have children")
+                        block(boxingView.children.single().getTargetView())
+                        found = true
+                    } else {
+                        Log.i(RECEIVER_TEST_TAG, "$i Boxing view is empty, waiting...")
+                        Log.i(RECEIVER_TEST_TAG, "Boxing view: $boxingView")
+                        Thread.sleep(500)
+                    }
+                }
+            } else {
+                return
+            }
         }
+        fail("Waited for boxing view not to be empty, but it never got children")
     }
 
     /** Change the orientation to landscape.*/

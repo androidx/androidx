@@ -38,6 +38,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -238,7 +239,7 @@ class LazyListPinnableContainerTest {
         }
 
         rule.runOnIdle {
-            handle.unpin()
+            handle.release()
         }
 
         rule.waitUntil {
@@ -250,6 +251,7 @@ class LazyListPinnableContainerTest {
             .assertIsNotPlaced()
     }
 
+    @Ignore // b/268720713
     @Test
     fun pinnedItemIsStillPinnedWhenReorderedAndNotVisibleAnymore() {
         val state = TvLazyListState()
@@ -529,7 +531,7 @@ class LazyListPinnableContainerTest {
         while (handles.isNotEmpty()) {
             rule.runOnIdle {
                 assertThat(composed).contains(1)
-                handles.removeFirst().unpin()
+                handles.removeFirst().release()
             }
         }
 
@@ -566,7 +568,7 @@ class LazyListPinnableContainerTest {
 
         rule.runOnIdle {
             assertThat(parentPinned).isTrue()
-            handle.unpin()
+            handle.release()
         }
 
         rule.runOnIdle {

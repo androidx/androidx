@@ -18,11 +18,10 @@ package androidx.window.embedding
 
 import android.content.Context
 import androidx.annotation.XmlRes
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import androidx.window.embedding.RuleController.Companion.parseRules
 
 /**
- * The singleton controller to manage [EmbeddingRule]s. It supports:
+ * The controller to manage [EmbeddingRule]s. It supports:
  * - [addRule]
  * - [removeRule]
  * - [setRules]
@@ -34,11 +33,10 @@ import kotlin.concurrent.withLock
  * startup before any activities complete initialization. The rule updates only apply to future
  * [android.app.Activity] launches and do not apply to already running activities.
  */
-class RuleController private constructor(private val applicationContext: Context) {
-    private val embeddingBackend: EmbeddingBackend = ExtensionEmbeddingBackend
-        .getInstance(applicationContext)
+class RuleController private constructor(private val embeddingBackend: EmbeddingBackend) {
 
-    // TODO(b/258356512): Make this a coroutine API that returns Flow<Set<EmbeddingRule>>.
+    // TODO(b/258356512): Make this API a make this a coroutine API that returns
+    //  Flow<Set<EmbeddingRule>>.
     /**
      * Returns a copy of the currently registered rules.
      */
@@ -47,11 +45,17 @@ class RuleController private constructor(private val applicationContext: Context
     }
 
     /**
-     * Registers a new rule. Will be cleared automatically when the process is stopped.
+     * Registers a new rule, or updates an existing rule if the [tag][EmbeddingRule.tag] has been
+     * registered with [RuleController]. Will be cleared automatically when the process is stopped.
      *
-     * Note that added rules will **not** be applied to any existing split activity
-     * container, and will only be used for new split containers created with future activity
-     * launches.
+     * Registering a `SplitRule` may fail if the [SplitController.isSplitSupported]
+     * returns `false`. If not supported, it could be either because
+     * [androidx.window.WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED] not enabled
+     * in AndroidManifest or the feature not available on the device.
+     *
+     * Note that registering a new rule or updating the existing rule will **not** be applied to any
+     * existing split activity container, and will only be used for new split containers created
+     * with future activity launches.
      *
      * @param rule new [EmbeddingRule] to register.
      */
@@ -81,11 +85,18 @@ class RuleController private constructor(private val applicationContext: Context
      * - [SplitPlaceholderRule.Builder]
      * - [ActivityRule.Builder]
      *
+     * Registering `SplitRule`s may fail if the [SplitController.isSplitSupported]
+     * returns `false`. If not supported, it could be either because
+     * [androidx.window.WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED] not enabled
+     * in AndroidManifest or the feature not available on the device.
+     *
      * Note that updating the existing rules will **not** be applied to any existing split activity
      * container, and will only be used for new split containers created with future activity
      * launches.
      *
      * @param rules The [EmbeddingRule]s to set
+     * @throws IllegalArgumentException if [rules] contains two [EmbeddingRule]s with the same
+     * [EmbeddingRule.tag].
      */
     fun setRules(rules: Set<EmbeddingRule>) {
         embeddingBackend.setRules(rules)
@@ -97,23 +108,16 @@ class RuleController private constructor(private val applicationContext: Context
     }
 
     companion object {
-        @Volatile
-        private var globalInstance: RuleController? = null
-        private val globalLock = ReentrantLock()
-
         /**
-         * Obtains the singleton instance of [RuleController].
+         * Obtains an instance of [RuleController].
          *
          * @param context the [Context] to initialize the controller with
          */
         @JvmStatic
         fun getInstance(context: Context): RuleController {
-            globalLock.withLock {
-                if (globalInstance == null) {
-                    globalInstance = RuleController(context.applicationContext)
-                }
-                return globalInstance!!
-            }
+            val applicationContext = context.applicationContext
+            val backend = EmbeddingBackend.getInstance(applicationContext)
+            return RuleController(backend)
         }
 
         /**

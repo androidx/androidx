@@ -91,6 +91,7 @@ public final class UseCaseGroup {
         // Allow-list effect targets supported by CameraX.
         private static final List<Integer> SUPPORTED_TARGETS = Arrays.asList(
                 PREVIEW,
+                VIDEO_CAPTURE,
                 IMAGE_CAPTURE);
 
         private ViewPort mViewPort;

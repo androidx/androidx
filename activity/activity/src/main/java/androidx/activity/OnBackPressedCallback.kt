@@ -16,9 +16,6 @@
 package androidx.activity
 
 import androidx.annotation.MainThread
-import androidx.annotation.OptIn
-import androidx.core.os.BuildCompat
-import androidx.core.util.Consumer
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -39,7 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  *
  * @param enabled The default enabled state for this callback.
  *
- * @see ComponentActivity.getOnBackPressedDispatcher
+ * @see OnBackPressedDispatcher
  */
 abstract class OnBackPressedCallback(enabled: Boolean) {
     /**
@@ -53,17 +50,14 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
      */
     @get:MainThread
     @set:MainThread
-    @set:OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     var isEnabled: Boolean = enabled
         set(value) {
             field = value
-            if (enabledConsumer != null) {
-                enabledConsumer!!.accept(field)
-            }
+            enabledChangedCallback?.invoke()
         }
 
     private val cancellables = CopyOnWriteArrayList<Cancellable>()
-    private var enabledConsumer: Consumer<Boolean>? = null
+    internal var enabledChangedCallback: (() -> Unit)? = null
 
     /**
      * Removes this callback from any [OnBackPressedDispatcher] it is currently
@@ -86,10 +80,5 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
     @JvmName("removeCancellable")
     internal fun removeCancellable(cancellable: Cancellable) {
         cancellables.remove(cancellable)
-    }
-
-    @JvmName("setIsEnabledConsumer")
-    internal fun setIsEnabledConsumer(isEnabled: Consumer<Boolean>?) {
-        enabledConsumer = isEnabled
     }
 }

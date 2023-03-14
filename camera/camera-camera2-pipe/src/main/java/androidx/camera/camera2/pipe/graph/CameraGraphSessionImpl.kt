@@ -148,10 +148,7 @@ internal class CameraGraphSessionImpl(
         return controller3A.unlock3A(ae, af, awb)
     }
 
-    override suspend fun lock3AForCapture(
-        frameLimit: Int,
-        timeLimitNs: Long
-    ): Deferred<Result3A> {
+    override suspend fun lock3AForCapture(frameLimit: Int, timeLimitNs: Long): Deferred<Result3A> {
         check(!closed.value) { "Cannot call lock3AForCapture on $this after close." }
         return controller3A.lock3AForCapture(frameLimit, timeLimitNs)
     }

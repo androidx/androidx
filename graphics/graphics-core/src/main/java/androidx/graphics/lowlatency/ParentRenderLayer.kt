@@ -16,6 +16,7 @@
 
 package androidx.graphics.lowlatency
 
+import androidx.graphics.opengl.FrameBufferPool
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.surface.SurfaceControlCompat
 

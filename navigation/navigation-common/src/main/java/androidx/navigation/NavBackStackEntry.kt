@@ -107,7 +107,7 @@ public class NavBackStackEntry private constructor(
         )
     }
 
-    private var lifecycle = LifecycleRegistry(this)
+    private var _lifecycle = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private var savedStateRegistryAttached = false
     private val defaultFactory by lazy {
@@ -154,9 +154,8 @@ public class NavBackStackEntry private constructor(
      * [androidx.navigation.NavHostController.setLifecycleOwner], the
      * Lifecycle will be capped at [Lifecycle.State.CREATED].
      */
-    public override fun getLifecycle(): Lifecycle {
-        return lifecycle
-    }
+    override val lifecycle: Lifecycle
+        get() = _lifecycle
 
     /** @suppress */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -191,35 +190,36 @@ public class NavBackStackEntry private constructor(
             savedStateRegistryController.performRestore(savedState)
         }
         if (hostLifecycleState.ordinal < maxLifecycle.ordinal) {
-            lifecycle.currentState = hostLifecycleState
+            _lifecycle.currentState = hostLifecycleState
         } else {
-            lifecycle.currentState = maxLifecycle
+            _lifecycle.currentState = maxLifecycle
         }
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalStateException if called before the [lifecycle] has moved to
-     * [Lifecycle.State.CREATED] or before the [androidx.navigation.NavHost] has called
-     * [androidx.navigation.NavHostController.setViewModelStore].
-     */
-    public override fun getViewModelStore(): ViewModelStore {
-        check(savedStateRegistryAttached) {
-            "You cannot access the NavBackStackEntry's ViewModels until it is added to " +
-                "the NavController's back stack (i.e., the Lifecycle of the NavBackStackEntry " +
-                "reaches the CREATED state)."
+    public override val viewModelStore: ViewModelStore
+        /**
+         * {@inheritDoc}
+         *
+         * @throws IllegalStateException if called before the [lifecycle] has moved to
+         * [Lifecycle.State.CREATED] or before the [androidx.navigation.NavHost] has called
+         * [androidx.navigation.NavHostController.setViewModelStore].
+         */
+        get() {
+            check(savedStateRegistryAttached) {
+                "You cannot access the NavBackStackEntry's ViewModels until it is added to " +
+                    "the NavController's back stack (i.e., the Lifecycle of the " +
+                    "NavBackStackEntry reaches the CREATED state)."
+            }
+            check(lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                "You cannot access the NavBackStackEntry's ViewModels after the " +
+                    "NavBackStackEntry is destroyed."
+            }
+            checkNotNull(viewModelStoreProvider) {
+                "You must call setViewModelStore() on your NavHostController before " +
+                    "accessing the ViewModelStore of a navigation graph."
+            }
+            return viewModelStoreProvider.getViewModelStore(id)
         }
-        check(lifecycle.currentState != Lifecycle.State.DESTROYED) {
-            "You cannot access the NavBackStackEntry's ViewModels after the " +
-                "NavBackStackEntry is destroyed."
-        }
-        checkNotNull(viewModelStoreProvider) {
-            "You must call setViewModelStore() on your NavHostController before accessing the " +
-                "ViewModelStore of a navigation graph."
-        }
-        return viewModelStoreProvider.getViewModelStore(id)
-    }
 
     override val defaultViewModelProviderFactory: ViewModelProvider.Factory = defaultFactory
 
@@ -250,7 +250,8 @@ public class NavBackStackEntry private constructor(
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is NavBackStackEntry) return false
         return id == other.id && destination == other.destination &&
-            lifecycle == other.lifecycle && savedStateRegistry == other.savedStateRegistry &&
+            lifecycle == other.lifecycle &&
+            savedStateRegistry == other.savedStateRegistry &&
             (
                 immutableArgs == other.immutableArgs ||
                     immutableArgs?.keySet()

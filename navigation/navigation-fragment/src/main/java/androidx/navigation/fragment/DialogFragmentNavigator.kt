@@ -24,6 +24,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -45,34 +46,57 @@ public class DialogFragmentNavigator(
     private val fragmentManager: FragmentManager
 ) : Navigator<Destination>() {
     private val restoredTagsAwaitingAttach = mutableSetOf<String>()
-    private val observer = LifecycleEventObserver { source, event ->
-        if (event == Lifecycle.Event.ON_CREATE) {
-            val dialogFragment = source as DialogFragment
-            val dialogOnBackStack = state.backStack.value.any { it.id == dialogFragment.tag }
-            if (!dialogOnBackStack) {
-                // If the Fragment is no longer on the back stack, it must have been
-                // been popped before it was actually attached to the FragmentManager
-                // (i.e., popped in the same frame as the navigate() call that added it). For
-                // that case, we need to dismiss the dialog to ensure the states stay in sync
-                dialogFragment.dismiss()
-            }
-        } else if (event == Lifecycle.Event.ON_STOP) {
-            val dialogFragment = source as DialogFragment
-            if (!dialogFragment.requireDialog().isShowing) {
-                val beforePopList = state.backStack.value
-                val poppedEntry = checkNotNull(beforePopList.lastOrNull {
-                    it.id == dialogFragment.tag
-                }) {
-                    "Dialog $dialogFragment has already been popped off of the Navigation " +
-                        "back stack"
+    private val observer = object : LifecycleEventObserver {
+        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> {
+                    val dialogFragment = source as DialogFragment
+                    val dialogOnBackStack = state.backStack.value.any {
+                        it.id == dialogFragment.tag
+                    }
+                    if (!dialogOnBackStack) {
+                        // If the Fragment is no longer on the back stack, it must have been
+                        // been popped before it was actually attached to the FragmentManager
+                        // (i.e., popped in the same frame as the navigate() call that added it).
+                        // For that case, we need to dismiss the dialog to ensure the states stay
+                        // in sync
+                        dialogFragment.dismiss()
+                    }
                 }
-                if (beforePopList.lastOrNull() != poppedEntry) {
-                    Log.i(
-                        TAG, "Dialog $dialogFragment was dismissed while it was not the top " +
-                            "of the back stack, popping all dialogs above this dismissed dialog"
-                    )
+                Lifecycle.Event.ON_RESUME -> {
+                    val dialogFragment = source as DialogFragment
+                    val entry = state.transitionsInProgress.value.lastOrNull { entry ->
+                        entry.id == dialogFragment.tag
+                    }
+                    entry?.let { state.markTransitionComplete(it) }
                 }
-                popBackStack(poppedEntry, false)
+                Lifecycle.Event.ON_STOP -> {
+                    val dialogFragment = source as DialogFragment
+                    if (!dialogFragment.requireDialog().isShowing) {
+                        val beforePopList = state.backStack.value
+                        val poppedEntry = beforePopList.lastOrNull {
+                            it.id == dialogFragment.tag
+                        }
+                        if (beforePopList.lastOrNull() != poppedEntry) {
+                            Log.i(
+                                TAG,
+                                "Dialog $dialogFragment was dismissed while it was not the " +
+                                    "top of the back stack, popping all dialogs above this " +
+                                    "dismissed dialog"
+                            )
+                        }
+                        poppedEntry?.let { state.popWithTransition(it, false) }
+                    }
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    val dialogFragment = source as DialogFragment
+                    val entry = state.transitionsInProgress.value.lastOrNull { entry ->
+                        entry.id == dialogFragment.tag
+                    }
+                    entry?.let { state.markTransitionComplete(it) }
+                    dialogFragment.lifecycle.removeObserver(this)
+                }
+                else -> { /* added to exhaust when */ }
             }
         }
     }
@@ -106,11 +130,10 @@ public class DialogFragmentNavigator(
         for (entry in poppedList.reversed()) {
             val existingFragment = fragmentManager.findFragmentByTag(entry.id)
             if (existingFragment != null) {
-                existingFragment.lifecycle.removeObserver(observer)
                 (existingFragment as DialogFragment).dismiss()
             }
         }
-        state.pop(popUpTo, savedState)
+        state.popWithTransition(popUpTo, savedState)
     }
 
     public override fun createDestination(): Destination {
@@ -136,7 +159,7 @@ public class DialogFragmentNavigator(
     ) {
         val dialogFragment = createDialogFragment(entry)
         dialogFragment.show(fragmentManager, entry.id)
-        state.push(entry)
+        state.pushWithTransition(entry)
     }
 
     override fun onLaunchSingleTop(backStackEntry: NavBackStackEntry) {
@@ -159,7 +182,7 @@ public class DialogFragmentNavigator(
 
         val newFragment = createDialogFragment(backStackEntry)
         newFragment.show(fragmentManager, backStackEntry.id)
-        state.onLaunchSingleTop(backStackEntry)
+        state.onLaunchSingleTopWithTransition(backStackEntry)
     }
 
     private fun createDialogFragment(entry: NavBackStackEntry): DialogFragment {

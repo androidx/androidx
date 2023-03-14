@@ -1,3 +1,7 @@
 // Baseline format: 1.0
+ChangedType: androidx.work.Configuration#getInitializationExceptionHandler():
+    Method androidx.work.Configuration.getInitializationExceptionHandler has changed return type from androidx.core.util.Consumer<java.lang.Throwable!> to androidx.core.util.Consumer<java.lang.Throwable>
+ChangedType: androidx.work.Configuration#getSchedulingExceptionHandler():
+    Method androidx.work.Configuration.getSchedulingExceptionHandler has changed return type from androidx.core.util.Consumer<java.lang.Throwable!> to androidx.core.util.Consumer<java.lang.Throwable>
 ChangedType: androidx.work.WorkInfo#getTags():
     Method androidx.work.WorkInfo.getTags has changed return type from java.util.Set<java.lang.String!> to java.util.Set<java.lang.String>

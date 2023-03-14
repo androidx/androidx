@@ -26,9 +26,7 @@ import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.config.CameraPipeContext
 import androidx.camera.camera2.pipe.core.Threads
 
-/**
- * Provides an implementation for interacting with CameraBackends.
- */
+/** Provides an implementation for interacting with CameraBackends. */
 internal class CameraBackendsImpl(
     private val defaultBackendId: CameraBackendId,
     private val cameraBackends: Map<CameraBackendId, CameraBackendFactory>,
@@ -40,10 +38,11 @@ internal class CameraBackendsImpl(
     @GuardedBy("lock")
     private val activeCameraBackends = mutableMapOf<CameraBackendId, CameraBackend>()
 
-    override val default: CameraBackend = checkNotNull(get(defaultBackendId)) {
-        "Failed to load the default backend for $defaultBackendId! Available backends are " +
-            "${cameraBackends.keys}"
-    }
+    override val default: CameraBackend =
+        checkNotNull(get(defaultBackendId)) {
+            "Failed to load the default backend for $defaultBackendId! Available backends are " +
+                "${cameraBackends.keys}"
+        }
 
     override val allIds: Set<CameraBackendId>
         get() = cameraBackends.keys
@@ -55,9 +54,10 @@ internal class CameraBackendsImpl(
             val existing = activeCameraBackends[backendId]
             if (existing != null) return existing
 
-            val backend = cameraBackends[backendId]?.create(
-                CameraBackendContext(cameraPipeContext, threads, this)
-            )
+            val backend =
+                cameraBackends[backendId]?.create(
+                    CameraBackendContext(cameraPipeContext, threads, this)
+                )
             if (backend != null) {
                 check(backendId == backend.id) {
                     "Unexpected backend id! Expected $backendId but it was actually ${backend.id}"

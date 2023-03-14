@@ -30,9 +30,9 @@ import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
-import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.Quirks;
@@ -70,7 +70,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     // Leave uninitialized to support camera-core:1.0.0 dependencies.
     // Can be initialized during class init once there are no more pinned dependencies on
     // camera-core:1.0.0
-    private CamcorderProfileProvider mCamcorderProfileProvider;
+    private EncoderProfilesProvider mEncoderProfilesProvider;
 
     private boolean mIsPrivateReprocessingSupported = false;
     private float mIntrinsicZoomRatio = 1.0F;
@@ -173,9 +173,9 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public CamcorderProfileProvider getCamcorderProfileProvider() {
-        return mCamcorderProfileProvider == null ? CamcorderProfileProvider.EMPTY :
-                mCamcorderProfileProvider;
+    public EncoderProfilesProvider getEncoderProfilesProvider() {
+        return mEncoderProfilesProvider == null ? EncoderProfilesProvider.EMPTY :
+                mEncoderProfilesProvider;
     }
 
     @NonNull
@@ -242,10 +242,10 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         mImplementationType = implementationType;
     }
 
-    /** Set the CamcorderProfileProvider for testing */
-    public void setCamcorderProfileProvider(
-            @NonNull CamcorderProfileProvider camcorderProfileProvider) {
-        mCamcorderProfileProvider = Preconditions.checkNotNull(camcorderProfileProvider);
+    /** Set the EncoderProfilesProvider for testing */
+    public void setEncoderProfilesProvider(
+            @NonNull EncoderProfilesProvider encoderProfilesProvider) {
+        mEncoderProfilesProvider = Preconditions.checkNotNull(encoderProfilesProvider);
     }
 
     /** Set the timebase for testing */

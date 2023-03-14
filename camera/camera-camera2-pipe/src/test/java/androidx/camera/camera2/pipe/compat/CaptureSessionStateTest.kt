@@ -49,17 +49,16 @@ import org.robolectric.annotation.Config
 class CaptureSessionStateTest {
     private val fakeGraphListener: GraphListener = mock()
     private val fakeSurfaceListener: CameraSurfaceManager.SurfaceListener = mock()
-    private val cameraSurfaceManager = CameraSurfaceManager().also {
-        it.addListener(fakeSurfaceListener)
-    }
+    private val cameraSurfaceManager =
+        CameraSurfaceManager().also { it.addListener(fakeSurfaceListener) }
     private val fakeCaptureSequenceProcessor = FakeCaptureSequenceProcessor()
-    private val captureSequenceProcessorFactory = object : Camera2CaptureSequenceProcessorFactory {
-        override fun create(
-            session: CameraCaptureSessionWrapper,
-            surfaceMap: Map<StreamId, Surface>
-        ): CaptureSequenceProcessor<Request, FakeCaptureSequence> =
-            fakeCaptureSequenceProcessor
-    }
+    private val captureSequenceProcessorFactory =
+        object : Camera2CaptureSequenceProcessorFactory {
+            override fun create(
+                session: CameraCaptureSessionWrapper,
+                surfaceMap: Map<StreamId, Surface>
+            ): CaptureSequenceProcessor<Request, FakeCaptureSequence> = fakeCaptureSequenceProcessor
+        }
     private val timeSource = SystemTimeSource()
 
     private val surface1: Surface = Surface(SurfaceTexture(1))
@@ -68,10 +67,10 @@ class CaptureSessionStateTest {
     private val stream2: StreamId = StreamId(2)
     private val stream3Deferred: StreamId = StreamId(3)
 
-    private val captureSessionFactory = FakeCaptureSessionFactory(
-        requiredStreams = setOf(stream1, stream2),
-        deferrableStreams = setOf(stream3Deferred)
-    )
+    private val captureSessionFactory =
+        FakeCaptureSessionFactory(
+            requiredStreams = setOf(stream1, stream2), deferrableStreams = setOf(stream3Deferred)
+        )
 
     private val fakeCameraDevice: CameraDeviceWrapper = mock()
     private val fakeCaptureSession: CameraCaptureSessionWrapper = mock()
@@ -84,14 +83,15 @@ class CaptureSessionStateTest {
 
     @Test
     fun disconnectBeforeCameraDoesNotAcceptCamera() = runTest {
-        val state = CaptureSessionState(
-            fakeGraphListener,
-            captureSessionFactory,
-            captureSequenceProcessorFactory,
-            cameraSurfaceManager,
-            timeSource,
-            this
-        )
+        val state =
+            CaptureSessionState(
+                fakeGraphListener,
+                captureSessionFactory,
+                captureSequenceProcessorFactory,
+                cameraSurfaceManager,
+                timeSource,
+                this
+            )
         // When disconnect is called first
         state.disconnect()
 
@@ -105,22 +105,18 @@ class CaptureSessionStateTest {
 
     @Test
     fun disconnectBeforeCameraCallsSurfaceListener() = runTest {
-        val state = CaptureSessionState(
-            fakeGraphListener,
-            captureSessionFactory,
-            captureSequenceProcessorFactory,
-            cameraSurfaceManager,
-            timeSource,
-            this
-        )
+        val state =
+            CaptureSessionState(
+                fakeGraphListener,
+                captureSessionFactory,
+                captureSequenceProcessorFactory,
+                cameraSurfaceManager,
+                timeSource,
+                this
+            )
 
         // When surfaces are configured
-        state.configureSurfaceMap(
-            mapOf(
-                stream1 to surface1,
-                stream2 to surface2
-            )
-        )
+        state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
         verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(surface1))
         verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(surface2))
 
@@ -136,22 +132,18 @@ class CaptureSessionStateTest {
 
     @Test
     fun disconnectAfterCameraSetDoesNotCallOnSurfaceInactive() = runTest {
-        val state = CaptureSessionState(
-            fakeGraphListener,
-            captureSessionFactory,
-            captureSequenceProcessorFactory,
-            cameraSurfaceManager,
-            timeSource,
-            this
-        )
+        val state =
+            CaptureSessionState(
+                fakeGraphListener,
+                captureSessionFactory,
+                captureSequenceProcessorFactory,
+                cameraSurfaceManager,
+                timeSource,
+                this
+            )
 
         // When surfaces are configured
-        state.configureSurfaceMap(
-            mapOf(
-                stream1 to surface1,
-                stream2 to surface2
-            )
-        )
+        state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
         verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(surface1))
         verify(fakeSurfaceListener, times(1)).onSurfaceActive(eq(surface2))
 
@@ -169,21 +161,17 @@ class CaptureSessionStateTest {
 
     @Test
     fun onSessionFinalizeCallsSurfaceListener() = runTest {
-        val state = CaptureSessionState(
-            fakeGraphListener,
-            captureSessionFactory,
-            captureSequenceProcessorFactory,
-            cameraSurfaceManager,
-            timeSource,
-            this
-        )
-        // When surfaces are configured
-        state.configureSurfaceMap(
-            mapOf(
-                stream1 to surface1,
-                stream2 to surface2
+        val state =
+            CaptureSessionState(
+                fakeGraphListener,
+                captureSessionFactory,
+                captureSequenceProcessorFactory,
+                cameraSurfaceManager,
+                timeSource,
+                this
             )
-        )
+        // When surfaces are configured
+        state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
         // And session is finalized
         state.onSessionFinalized()
 
@@ -196,21 +184,17 @@ class CaptureSessionStateTest {
 
     @Test
     fun onConfigureFailedCallsSurfaceListener() = runTest {
-        val state = CaptureSessionState(
-            fakeGraphListener,
-            captureSessionFactory,
-            captureSequenceProcessorFactory,
-            cameraSurfaceManager,
-            timeSource,
-            this
-        )
-        // When surfaces are configured
-        state.configureSurfaceMap(
-            mapOf(
-                stream1 to surface1,
-                stream2 to surface2
+        val state =
+            CaptureSessionState(
+                fakeGraphListener,
+                captureSessionFactory,
+                captureSequenceProcessorFactory,
+                cameraSurfaceManager,
+                timeSource,
+                this
             )
-        )
+        // When surfaces are configured
+        state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
         // And configuration fails
         state.onConfigureFailed(fakeCaptureSession)
 
@@ -223,21 +207,17 @@ class CaptureSessionStateTest {
 
     @Test
     fun onClosedCallsSurfaceListener() = runTest {
-        val state = CaptureSessionState(
-            fakeGraphListener,
-            captureSessionFactory,
-            captureSequenceProcessorFactory,
-            cameraSurfaceManager,
-            timeSource,
-            this
-        )
-        // When surfaces are configured
-        state.configureSurfaceMap(
-            mapOf(
-                stream1 to surface1,
-                stream2 to surface2
+        val state =
+            CaptureSessionState(
+                fakeGraphListener,
+                captureSessionFactory,
+                captureSequenceProcessorFactory,
+                cameraSurfaceManager,
+                timeSource,
+                this
             )
-        )
+        // When surfaces are configured
+        state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
         // And the capture session is closed
         state.onClosed(fakeCaptureSession)
 

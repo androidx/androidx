@@ -18,93 +18,84 @@
 
 package androidx.room.solver
 
-import androidx.room.Dao
-import androidx.room.Database
 import androidx.room.DatabaseProcessingStep
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.Query
 import androidx.room.TypeConverter
-import androidx.room.TypeConverters
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.VisibilityModifier
+import androidx.room.compiler.codegen.XAnnotationSpec
+import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.RoomAnnotationTypeNames
 import androidx.room.ext.RoomTypeNames.ROOM_DB
-import androidx.room.ext.S
-import androidx.room.ext.T
 import androidx.room.processor.ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT
-import com.squareup.javapoet.AnnotationSpec
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class CustomTypeConverterResolutionTest {
-    fun TypeSpec.toSource(): Source {
+    fun XTypeSpec.toSource(): Source {
         return Source.java(
-            "foo.bar.${this.name}",
+            this.className.canonicalName,
             "package foo.bar;\n" + toString()
         )
     }
 
     companion object {
-        val ENTITY = ClassName.get("foo.bar", "MyEntity")
-        val DB = ClassName.get("foo.bar", "MyDb")
-        val DAO = ClassName.get("foo.bar", "MyDao")
+        val ENTITY = XClassName.get("foo.bar", "MyEntity")
+        val DB = XClassName.get("foo.bar", "MyDb")
+        val DAO = XClassName.get("foo.bar", "MyDao")
 
-        val CUSTOM_TYPE = ClassName.get("foo.bar", "CustomType")
+        val CUSTOM_TYPE = XClassName.get("foo.bar", "CustomType")
         val CUSTOM_TYPE_JFO = Source.java(
-            CUSTOM_TYPE.toString(),
+            CUSTOM_TYPE.canonicalName,
             """
-                package ${CUSTOM_TYPE.packageName()};
-                public class ${CUSTOM_TYPE.simpleName()} {
+                package ${CUSTOM_TYPE.packageName};
+                public class ${CUSTOM_TYPE.simpleNames.first()} {
                     public int value;
                 }
                 """
         )
-        val CUSTOM_TYPE_CONVERTER = ClassName.get("foo.bar", "MyConverter")
+        val CUSTOM_TYPE_CONVERTER = XClassName.get("foo.bar", "MyConverter")
         val CUSTOM_TYPE_CONVERTER_JFO = Source.java(
-            CUSTOM_TYPE_CONVERTER.toString(),
+            CUSTOM_TYPE_CONVERTER.canonicalName,
             """
-                package ${CUSTOM_TYPE_CONVERTER.packageName()};
-                public class ${CUSTOM_TYPE_CONVERTER.simpleName()} {
+                package ${CUSTOM_TYPE_CONVERTER.packageName};
+                public class ${CUSTOM_TYPE_CONVERTER.simpleNames.first()} {
                     @${TypeConverter::class.java.canonicalName}
-                    public static $CUSTOM_TYPE toCustom(int value) {
+                    public static ${CUSTOM_TYPE.canonicalName} toCustom(int value) {
                         return null;
                     }
                     @${TypeConverter::class.java.canonicalName}
-                    public static int fromCustom($CUSTOM_TYPE input) {
+                    public static int fromCustom(${CUSTOM_TYPE.canonicalName} input) {
                         return 0;
                     }
                 }
                 """
         )
-        val CUSTOM_TYPE_SET = ParameterizedTypeName.get(
-            ClassName.get(Set::class.java), CUSTOM_TYPE
-        )
-        val CUSTOM_TYPE_SET_CONVERTER = ClassName.get("foo.bar", "MySetConverter")
+        val CUSTOM_TYPE_SET = CommonTypeNames.SET.parametrizedBy(CUSTOM_TYPE)
+        val CUSTOM_TYPE_SET_CONVERTER = XClassName.get("foo.bar", "MySetConverter")
         val CUSTOM_TYPE_SET_CONVERTER_JFO = Source.java(
-            CUSTOM_TYPE_SET_CONVERTER.toString(),
+            CUSTOM_TYPE_SET_CONVERTER.canonicalName,
             """
-                package ${CUSTOM_TYPE_SET_CONVERTER.packageName()};
+                package ${CUSTOM_TYPE_SET_CONVERTER.packageName};
                 import java.util.HashSet;
                 import java.util.Set;
-                public class ${CUSTOM_TYPE_SET_CONVERTER.simpleName()} {
+                public class ${CUSTOM_TYPE_SET_CONVERTER.simpleNames.first()} {
                     @${TypeConverter::class.java.canonicalName}
-                    public static $CUSTOM_TYPE_SET toCustom(int value) {
+                    public static ${CUSTOM_TYPE_SET.toString(CodeLanguage.JAVA)} toCustom(int value) {
                         return null;
                     }
                     @${TypeConverter::class.java.canonicalName}
-                    public static int fromCustom($CUSTOM_TYPE_SET input) {
+                    public static int fromCustom(${CUSTOM_TYPE_SET.toString(CodeLanguage.JAVA)} input) {
                         return 0;
                     }
                 }
@@ -280,7 +271,7 @@ class CustomTypeConverterResolutionTest {
         hasConverters: Boolean = false,
         hasConverterOnField: Boolean = false,
         useCollection: Boolean = false
-    ): TypeSpec {
+    ): XTypeSpec {
         if (hasConverterOnField && hasConverters) {
             throw IllegalArgumentException("cannot have both converters")
         }
@@ -289,12 +280,20 @@ class CustomTypeConverterResolutionTest {
         } else {
             CUSTOM_TYPE
         }
-        return TypeSpec.classBuilder(ENTITY).apply {
-            addAnnotation(Entity::class.java)
-            addModifiers(Modifier.PUBLIC)
+        return XTypeSpec.classBuilder(CodeLanguage.JAVA, ENTITY).apply {
+            addAnnotation(
+                XAnnotationSpec.builder(CodeLanguage.JAVA, RoomAnnotationTypeNames.ENTITY).build()
+            )
+            setVisibility(VisibilityModifier.PUBLIC)
             if (hasCustomField) {
-                addField(
-                    FieldSpec.builder(type, "myCustomField", Modifier.PUBLIC).apply {
+                addProperty(
+                    XPropertySpec.builder(
+                        CodeLanguage.JAVA,
+                        "myCustomField",
+                        type,
+                        VisibilityModifier.PUBLIC,
+                        isMutable = true
+                    ).apply {
                         if (hasConverterOnField) {
                             addAnnotation(createConvertersAnnotation())
                         }
@@ -304,10 +303,19 @@ class CustomTypeConverterResolutionTest {
             if (hasConverters) {
                 addAnnotation(createConvertersAnnotation())
             }
-            addField(
-                FieldSpec.builder(TypeName.INT, "id", Modifier.PUBLIC).apply {
-                    addAnnotation(PrimaryKey::class.java)
-                }.build()
+            addProperty(
+                XPropertySpec.builder(
+                    language = CodeLanguage.JAVA,
+                    name = "id",
+                    typeName = XTypeName.PRIMITIVE_INT,
+                    visibility = VisibilityModifier.PUBLIC,
+                    isMutable = true
+                ).addAnnotation(
+                    XAnnotationSpec.builder(
+                        CodeLanguage.JAVA,
+                        RoomAnnotationTypeNames.PRIMARY_KEY
+                    ).build()
+                ).build()
             )
         }.build()
     }
@@ -316,30 +324,67 @@ class CustomTypeConverterResolutionTest {
         hasConverters: Boolean = false,
         hasDao: Boolean = false,
         useCollection: Boolean = false
-    ): TypeSpec {
-        return TypeSpec.classBuilder(DB).apply {
-            addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
-            superclass(ROOM_DB.toJavaPoet())
+    ): XTypeSpec {
+        return XTypeSpec.classBuilder(CodeLanguage.JAVA, DB, isOpen = true).apply {
+            addAbstractModifier()
+            setVisibility(VisibilityModifier.PUBLIC)
+            superclass(ROOM_DB)
             if (hasConverters) {
                 addAnnotation(createConvertersAnnotation(useCollection = useCollection))
             }
-            addField(
-                FieldSpec.builder(TypeName.INT, "id", Modifier.PUBLIC).apply {
-                    addAnnotation(PrimaryKey::class.java)
-                }.build()
+            addProperty(
+                XPropertySpec.builder(
+                    language = CodeLanguage.JAVA,
+                    name = "id",
+                    typeName = XTypeName.PRIMITIVE_INT,
+                    visibility = VisibilityModifier.PUBLIC,
+                    isMutable = true
+                ).addAnnotation(
+                    XAnnotationSpec.builder(
+                        CodeLanguage.JAVA,
+                        RoomAnnotationTypeNames.PRIMARY_KEY
+                    ).build()
+                ).build()
             )
             if (hasDao) {
-                addMethod(
-                    MethodSpec.methodBuilder("getDao").apply {
-                        addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                addFunction(
+                    XFunSpec.builder(
+                        language = CodeLanguage.JAVA,
+                        "getDao",
+                        VisibilityModifier.PUBLIC
+                    ).apply {
+                        addAbstractModifier()
                         returns(DAO)
                     }.build()
                 )
             }
             addAnnotation(
-                AnnotationSpec.builder(Database::class.java).apply {
-                    addMember("entities", "{$T.class}", ENTITY)
-                    addMember("version", "42")
+                XAnnotationSpec.builder(
+                    CodeLanguage.JAVA,
+                    RoomAnnotationTypeNames.DATABASE
+                ).apply {
+                    addMember(
+                        "entities",
+                        XCodeBlock.of(
+                            language,
+                            "{%T.class}",
+                            ENTITY
+                        )
+                    )
+                    addMember(
+                        "version",
+                        XCodeBlock.of(
+                            language,
+                            "42"
+                        )
+                    )
+                    addMember(
+                        "exportSchema",
+                        XCodeBlock.of(
+                            language,
+                            "false"
+                        )
+                    )
                 }.build()
             )
         }.build()
@@ -352,7 +397,7 @@ class CustomTypeConverterResolutionTest {
         hasMethodConverters: Boolean = false,
         hasParameterConverters: Boolean = false,
         useCollection: Boolean = false
-    ): TypeSpec {
+    ): XTypeSpec {
         val annotationCount = listOf(hasMethodConverters, hasConverters, hasParameterConverters)
             .map { if (it) 1 else 0 }.sum()
         if (annotationCount > 1) {
@@ -361,25 +406,39 @@ class CustomTypeConverterResolutionTest {
         if (hasParameterConverters && !hasQueryWithCustomParam) {
             throw IllegalArgumentException("inconsistent")
         }
-        return TypeSpec.classBuilder(DAO).apply {
-            addAnnotation(Dao::class.java)
-            addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
+        return XTypeSpec.classBuilder(
+            CodeLanguage.JAVA,
+            DAO,
+            isOpen = true
+        ).apply {
+            addAbstractModifier()
+            addAnnotation(XAnnotationSpec.builder(
+                CodeLanguage.JAVA,
+                RoomAnnotationTypeNames.DAO
+            ).build())
+            setVisibility(VisibilityModifier.PUBLIC)
             if (hasConverters) {
                 addAnnotation(createConvertersAnnotation(useCollection = useCollection))
             }
             if (hasQueryReturningEntity) {
-                addMethod(
-                    MethodSpec.methodBuilder("loadAll").apply {
-                        addAnnotation(
-                            AnnotationSpec.builder(Query::class.java).apply {
-                                addMember(
-                                    "value",
-                                    S,
-                                    "SELECT * FROM ${ENTITY.simpleName()} LIMIT 1"
-                                )
-                            }.build()
-                        )
-                        addModifiers(Modifier.ABSTRACT)
+                addFunction(
+                    XFunSpec.builder(
+                        CodeLanguage.JAVA,
+                        "loadAll",
+                        VisibilityModifier.PUBLIC
+                    ).apply {
+                        addAbstractModifier()
+                        addAnnotation(XAnnotationSpec.builder(
+                            CodeLanguage.JAVA,
+                            RoomAnnotationTypeNames.QUERY
+                        ).addMember(
+                            "value",
+                            XCodeBlock.of(
+                                CodeLanguage.JAVA,
+                                "%S",
+                                "SELECT * FROM ${ENTITY.simpleNames.first()} LIMIT 1"
+                            )
+                        ).build())
                         returns(ENTITY)
                     }.build()
                 )
@@ -390,44 +449,52 @@ class CustomTypeConverterResolutionTest {
                 CUSTOM_TYPE
             }
             if (hasQueryWithCustomParam) {
-                addMethod(
-                    MethodSpec.methodBuilder("queryWithCustom").apply {
-                        addAnnotation(
-                            AnnotationSpec.builder(Query::class.java).apply {
-                                addMember(
-                                    "value", S,
-                                    "SELECT COUNT(*) FROM ${ENTITY.simpleName()} where" +
-                                        " id = :custom"
-                                )
-                            }.build()
-                        )
+                addFunction(
+                    XFunSpec.builder(
+                        CodeLanguage.JAVA,
+                        "queryWithCustom",
+                        VisibilityModifier.PUBLIC
+                    ).apply {
+                        addAbstractModifier()
+                        addAnnotation(XAnnotationSpec.builder(
+                            CodeLanguage.JAVA,
+                            RoomAnnotationTypeNames.QUERY
+                        ).addMember(
+                            "value",
+                            XCodeBlock.of(
+                                CodeLanguage.JAVA,
+                                "%S",
+                                "SELECT COUNT(*) FROM ${ENTITY.simpleNames.first()} where" +
+                                    " id = :custom"
+                            )
+                        ).build())
                         if (hasMethodConverters) {
                             addAnnotation(createConvertersAnnotation(useCollection = useCollection))
                         }
                         addParameter(
-                            ParameterSpec.builder(customType, "custom").apply {
-                                if (hasParameterConverters) {
-                                    addAnnotation(
-                                        createConvertersAnnotation(useCollection = useCollection)
-                                    )
-                                }
-                            }.build()
-                        )
-                        addModifiers(Modifier.ABSTRACT)
-                        returns(TypeName.INT)
+                            customType,
+                            "custom"
+                        ).apply {
+                            if (hasParameterConverters) {
+                                addAnnotation(
+                                    createConvertersAnnotation(useCollection = useCollection)
+                                )
+                            }
+                        }.build()
+                        returns(XTypeName.PRIMITIVE_INT)
                     }.build()
                 )
             }
         }.build()
     }
 
-    private fun createConvertersAnnotation(useCollection: Boolean = false): AnnotationSpec {
+    private fun createConvertersAnnotation(useCollection: Boolean = false): XAnnotationSpec {
         val converter = if (useCollection) {
             CUSTOM_TYPE_SET_CONVERTER
         } else {
             CUSTOM_TYPE_CONVERTER
         }
-        return AnnotationSpec.builder(TypeConverters::class.java)
-            .addMember("value", "$T.class", converter).build()
+        return XAnnotationSpec.builder(CodeLanguage.JAVA, RoomAnnotationTypeNames.TYPE_CONVERTERS)
+            .addMember("value", XCodeBlock.of(CodeLanguage.JAVA, "%T.class", converter)).build()
     }
 }

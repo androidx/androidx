@@ -33,9 +33,9 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 internal class EmojiPickerBodyAdapter(
     private val context: Context,
     private val emojiGridColumns: Int,
-    private val emojiGridRows: Float,
+    private val emojiGridRows: Float?,
     private val stickyVariantProvider: StickyVariantProvider,
-    private val emojiPickerItems: EmojiPickerItems,
+    private val emojiPickerItemsProvider: () -> EmojiPickerItems,
     private val onEmojiPickedListener: EmojiPickerBodyAdapter.(EmojiViewItem) -> Unit,
 ) : Adapter<ViewHolder>() {
     private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
@@ -43,48 +43,49 @@ internal class EmojiPickerBodyAdapter(
     private var emojiCellHeight: Int? = null
 
     @UiThread
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        when (viewType.toItemType()) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        emojiCellWidth = emojiCellWidth ?: (getParentWidth(parent) / emojiGridColumns)
+        emojiCellHeight =
+            emojiCellHeight ?: emojiGridRows?.let { getEmojiCellTotalHeight(parent) / it }
+                ?.toInt() ?: emojiCellWidth
+
+        return when (viewType.toItemType()) {
             ItemType.CATEGORY_TITLE -> createSimpleHolder(R.layout.category_text_view, parent)
             ItemType.PLACEHOLDER_TEXT -> createSimpleHolder(
                 R.layout.empty_category_text_view, parent
             ) {
-                minimumHeight =
-                    emojiCellHeight ?: (getEmojiCellTotalHeight(parent) / (emojiGridRows)).toInt()
-                        .also { emojiCellHeight = it }
+                minimumHeight = emojiCellHeight!!
             }
 
             ItemType.EMOJI -> {
                 EmojiViewHolder(context,
                     parent,
-                    emojiCellWidth ?: (getParentWidth(parent) / emojiGridColumns).also {
-                        emojiCellWidth = it
-                    },
-                    emojiCellHeight ?: (getEmojiCellTotalHeight(parent) / (emojiGridRows)).toInt()
-                        .also { emojiCellHeight = it },
+                    emojiCellWidth!!,
+                    emojiCellHeight!!,
                     layoutInflater,
                     stickyVariantProvider,
                     onEmojiPickedListener = { emojiViewItem ->
                         onEmojiPickedListener(emojiViewItem)
                     },
                     onEmojiPickedFromPopupListener = { emoji ->
-                        with(
-                            emojiPickerItems.getBodyItem(bindingAdapterPosition)
-                                as EmojiViewData
-                        ) {
-                            if (updateToSticky) {
-                                this.emoji = emoji
-                                notifyItemChanged(bindingAdapterPosition)
+                        val baseEmoji = BundledEmojiListLoader.getEmojiVariantsLookup()[emoji]!![0]
+                        emojiPickerItemsProvider().forEachIndexed { index, itemViewData ->
+                            if (itemViewData is EmojiViewData &&
+                                BundledEmojiListLoader.getEmojiVariantsLookup()
+                                    [itemViewData.emoji]?.get(0) == baseEmoji &&
+                                itemViewData.updateToSticky
+                            ) {
+                                itemViewData.emoji = emoji
+                                notifyItemChanged(index)
                             }
                         }
                     })
             }
-
-            ItemType.PLACEHOLDER_EMOJI -> object : ViewHolder(View(context)) {}
         }
+    }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        val item = emojiPickerItems.getBodyItem(position)
+        val item = emojiPickerItemsProvider().getBodyItem(position)
         when (getItemViewType(position).toItemType()) {
             ItemType.CATEGORY_TITLE -> ViewCompat.requireViewById<TextView>(
                 viewHolder.itemView, R.id.category_name
@@ -97,17 +98,18 @@ internal class EmojiPickerBodyAdapter(
             ItemType.EMOJI -> {
                 (viewHolder as EmojiViewHolder).bindEmoji((item as EmojiViewData).emoji)
             }
-
-            ItemType.PLACEHOLDER_EMOJI -> {}
         }
     }
 
+    override fun getItemId(position: Int): Long =
+        emojiPickerItemsProvider().getBodyItem(position).hashCode().toLong()
+
     override fun getItemCount(): Int {
-        return emojiPickerItems.size
+        return emojiPickerItemsProvider().size
     }
 
     override fun getItemViewType(position: Int): Int {
-        return emojiPickerItems.getBodyItem(position).viewType
+        return emojiPickerItemsProvider().getBodyItem(position).viewType
     }
 
     private fun getParentWidth(parent: ViewGroup): Int {

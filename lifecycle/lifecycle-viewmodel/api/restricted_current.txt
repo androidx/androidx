@@ -80,6 +80,7 @@ package androidx.lifecycle {
 
   public interface ViewModelStoreOwner {
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    property public abstract androidx.lifecycle.ViewModelStore viewModelStore;
   }
 
   public final class ViewTreeViewModelKt {

@@ -40,8 +40,7 @@ public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWir
     @ParcelField(104)
     public List<CharSequence> mPerOptionScreenReaderNames;
 
-    ComplicationsUserStyleSettingWireFormat() {
-    }
+    ComplicationsUserStyleSettingWireFormat() {}
 
     public ComplicationsUserStyleSettingWireFormat(
             @NonNull String id,
@@ -54,8 +53,16 @@ public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWir
             @Nullable Bundle onWatchFaceEditorBundle,
             @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles,
             @Nullable List<CharSequence> perOptionScreenReaderNames) {
-        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers,
-                onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
+        super(
+                id,
+                displayName,
+                description,
+                icon,
+                options,
+                defaultOptionIndex,
+                affectsLayers,
+                onWatchFaceEditorBundle,
+                perOptionOnWatchFaceEditorBundles);
         mPerOptionScreenReaderNames = perOptionScreenReaderNames;
     }
 }

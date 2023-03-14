@@ -23,9 +23,7 @@ import androidx.camera.camera2.pipe.compat.CaptureSessionFactory
 import androidx.camera.camera2.pipe.compat.CaptureSessionState
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
 
-/**
- * Fake [CaptureSessionFactory] for use in tests. This fake does NOT invoke callbacks.
- */
+/** Fake [CaptureSessionFactory] for use in tests. This fake does NOT invoke callbacks. */
 internal class FakeCaptureSessionFactory(
     private val requiredStreams: Set<StreamId>,
     private val deferrableStreams: Set<StreamId>

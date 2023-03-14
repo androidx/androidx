@@ -31,8 +31,6 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.SessionConfig
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
@@ -51,7 +49,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
 }
 
 class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraComponent {
-    private val fakeUseCaseCamera = FakeUseCaseCamera(MutableLiveData(useCases.toSet()))
+    private val fakeUseCaseCamera = FakeUseCaseCamera(useCases.toSet())
 
     override fun getUseCaseCamera(): UseCaseCamera {
         return fakeUseCaseCamera
@@ -60,16 +58,22 @@ class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraCompone
 
 // TODO: Further implement the methods in this class as needed
 open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
+
+    val addParameterCalls = mutableListOf<Map<CaptureRequest.Key<*>, Any>>()
+    var addParameterResult = CompletableDeferred(Unit)
+    var setConfigCalls = mutableListOf<RequestParameters>()
+    var setConfigResult = CompletableDeferred(Unit)
+    var setTorchResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
+
     override fun addParametersAsync(
         type: UseCaseCameraRequestControl.Type,
         values: Map<CaptureRequest.Key<*>, Any>,
         optionPriority: Config.OptionPriority,
         tags: Map<String, Any>,
-        streams: Set<StreamId>?,
-        template: RequestTemplate?,
         listeners: Set<Request.Listener>
     ): Deferred<Unit> {
-        return CompletableDeferred(Unit)
+        addParameterCalls.add(values)
+        return addParameterResult
     }
 
     override fun setConfigAsync(
@@ -80,15 +84,12 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         template: RequestTemplate?,
         listeners: Set<Request.Listener>
     ): Deferred<Unit> {
-        return CompletableDeferred(Unit)
-    }
-
-    override fun setSessionConfigAsync(sessionConfig: SessionConfig): Deferred<Unit> {
+        setConfigCalls.add(RequestParameters(type, config, tags))
         return CompletableDeferred(Unit)
     }
 
     override suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A> {
-        return CompletableDeferred(Result3A(status = Result3A.Status.OK))
+        return setTorchResult
     }
 
     val focusMeteringCalls = mutableListOf<FocusMeteringParams>()
@@ -128,12 +129,17 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
         val awbRegions: List<MeteringRectangle> = emptyList(),
         val afTriggerStartAeMode: AeMode? = null
     )
+
+    data class RequestParameters(
+        val type: UseCaseCameraRequestControl.Type,
+        val config: Config?,
+        val tags: Map<String, Any> = emptyMap(),
+    )
 }
 
 // TODO: Further implement the methods in this class as needed
 class FakeUseCaseCamera(
-    override val runningUseCasesLiveData: MutableLiveData<Set<UseCase>> =
-        MutableLiveData(emptySet()),
+    override var runningUseCases: Set<UseCase> = emptySet(),
     override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
 ) : UseCaseCamera {
 

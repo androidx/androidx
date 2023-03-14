@@ -411,9 +411,6 @@ package androidx.paging {
   public static final class PagingSource.LoadResult.Page.Companion {
   }
 
-  public final class PagingSourceKt {
-  }
-
   public final class PagingState<Key, Value> {
     ctor public PagingState(java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>> pages, Integer? anchorPosition, androidx.paging.PagingConfig config, @IntRange(from=0L) int leadingPlaceholderCount);
     method public Value? closestItemToPosition(int anchorPosition);
@@ -464,12 +461,6 @@ package androidx.paging {
     ctor @Deprecated public PositionalDataSource.LoadRangeParams(int startPosition, int loadSize);
     field @Deprecated public final int loadSize;
     field @Deprecated public final int startPosition;
-  }
-
-  public final class RemoteMediatorAccessorKt {
-  }
-
-  public final class SeparatorsKt {
   }
 
   public enum TerminalSeparatorType {

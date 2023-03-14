@@ -17,15 +17,20 @@
 package androidx.privacysandbox.tools.core.generator
 
 import androidx.privacysandbox.tools.core.generator.AidlGenerator.Companion.throwableParcelName
+import androidx.privacysandbox.tools.core.generator.GenerationTarget.SERVER
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
 import androidx.privacysandbox.tools.core.generator.SpecNames.resumeWithExceptionMethod
 import androidx.privacysandbox.tools.core.generator.SpecNames.suspendCancellableCoroutineMethod
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
+import androidx.privacysandbox.tools.core.model.Types
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.joinToCode
@@ -34,24 +39,48 @@ class ClientProxyTypeGenerator(
     private val basePackageName: String,
     private val binderCodeConverter: BinderCodeConverter
 ) {
-    private val cancellationSignalClassName =
-        ClassName(basePackageName, "ICancellationSignal")
+    private val cancellationSignalClassName = ClassName(basePackageName, "ICancellationSignal")
+    private val sandboxedUiAdapterPropertyName = "sandboxedUiAdapter"
 
-    fun generate(annotatedInterface: AnnotatedInterface): FileSpec {
+    /**
+     * Generates a ClientProxy for this interface.
+     *
+     * This allows a client to call remote methods on a server using a binder named 'remote'.
+     *
+     * If  [target] is [GenerationTarget.SERVER] (ie. this will run on the SDK-side) includes a
+     * Context that will be the SDK context.
+     */
+    fun generate(annotatedInterface: AnnotatedInterface, target: GenerationTarget): FileSpec {
         val className = annotatedInterface.clientProxyNameSpec().simpleName
         val remoteBinderClassName = annotatedInterface.aidlType().innerType.poetTypeName()
+        val inheritsUiAdapter = annotatedInterface.superTypes.contains(Types.sandboxedUiAdapter)
 
         val classSpec = TypeSpec.classBuilder(className).build {
             addSuperinterface(annotatedInterface.type.poetTypeName())
 
-            primaryConstructor(
-                listOf(
+            primaryConstructor(buildList {
+                add(
                     PropertySpec.builder("remote", remoteBinderClassName)
                         .addModifiers(KModifier.PUBLIC).build()
                 )
-            )
+                if (target == SERVER) {
+                    add(
+                        PropertySpec.builder(contextPropertyName, contextClass)
+                            .addModifiers(KModifier.PUBLIC).build()
+                    )
+                }
+                if (inheritsUiAdapter) add(
+                    PropertySpec.builder(
+                        sandboxedUiAdapterPropertyName, Types.sandboxedUiAdapter.poetTypeName()
+                    ).addModifiers(KModifier.PUBLIC).build()
+                )
+            })
 
             addFunctions(annotatedInterface.methods.map(::toFunSpec))
+
+            if (inheritsUiAdapter) {
+                addFunction(generateOpenSession())
+            }
         }
 
         return FileSpec.builder(annotatedInterface.type.packageName, className).build {
@@ -93,6 +122,29 @@ class ClientProxyTypeGenerator(
 
             addCode(generateRemoteCall(method))
         }
+
+    private fun generateOpenSession() = FunSpec.builder("openSession").build {
+        addModifiers(KModifier.OVERRIDE)
+        addParameters(
+            listOf(
+                ParameterSpec(contextPropertyName, contextClass),
+                ParameterSpec("initialWidth", Types.int.poetClassName()),
+                ParameterSpec("initialHeight", Types.int.poetClassName()),
+                ParameterSpec("isZOrderOnTop", Types.boolean.poetClassName()),
+                ParameterSpec("clientExecutor", ClassName("java.util.concurrent", "Executor")),
+                ParameterSpec(
+                    "client", ClassName(
+                        "androidx.privacysandbox.ui.core", "SandboxedUiAdapter.SessionClient"
+                    )
+                ),
+            )
+        )
+        addStatement(
+            "$sandboxedUiAdapterPropertyName.openSession(%N, initialWidth, initialHeight, " +
+                "isZOrderOnTop, clientExecutor, client)",
+            contextPropertyName,
+        )
+    }
 
     private fun generateTransactionCallbackObject(method: Method) = CodeBlock.builder().build {
         val transactionCallbackClassName = ClassName(

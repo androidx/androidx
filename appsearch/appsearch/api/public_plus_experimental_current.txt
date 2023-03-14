@@ -216,6 +216,7 @@ package androidx.appsearch.app {
     field public static final String GLOBAL_SEARCH_SESSION_GET_SCHEMA = "GLOBAL_SEARCH_SESSION_GET_SCHEMA";
     field public static final String GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK = "GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK";
     field public static final String JOIN_SPEC_AND_QUALIFIED_ID = "JOIN_SPEC_AND_QUALIFIED_ID";
+    field public static final String LIST_FILTER_QUERY_LANGUAGE = "LIST_FILTER_QUERY_LANGUAGE";
     field public static final String NUMERIC_SEARCH = "NUMERIC_SEARCH";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
     field public static final String SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION = "SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION";
@@ -489,6 +490,9 @@ package androidx.appsearch.app {
     method public int getSnippetCount();
     method public int getSnippetCountPerProperty();
     method public int getTermMatch();
+    method public boolean isListFilterQueryLanguageEnabled();
+    method public boolean isNumericSearchEnabled();
+    method public boolean isVerbatimSearchEnabled();
     field public static final int GROUPING_TYPE_PER_NAMESPACE = 2; // 0x2
     field public static final int GROUPING_TYPE_PER_PACKAGE = 1; // 0x1
     field public static final int ORDER_ASCENDING = 1; // 0x1
@@ -524,7 +528,9 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder addProjectionsForDocumentClass(Class<?>, java.util.Collection<java.lang.String!>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec build();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) public androidx.appsearch.app.SearchSpec.Builder setJoinSpec(androidx.appsearch.app.JoinSpec);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.LIST_FILTER_QUERY_LANGUAGE) public androidx.appsearch.app.SearchSpec.Builder setListFilterQueryLanguageEnabled(boolean);
     method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(@IntRange(from=0, to=0x2710) int);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.NUMERIC_SEARCH) public androidx.appsearch.app.SearchSpec.Builder setNumericSearchEnabled(boolean);
     method public androidx.appsearch.app.SearchSpec.Builder setOrder(int);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_PROPERTY_WEIGHTS) public androidx.appsearch.app.SearchSpec.Builder setPropertyWeightPaths(String, java.util.Map<androidx.appsearch.app.PropertyPath!,java.lang.Double!>);
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_PROPERTY_WEIGHTS) public androidx.appsearch.app.SearchSpec.Builder setPropertyWeightPathsForDocumentClass(Class<?>, java.util.Map<androidx.appsearch.app.PropertyPath!,java.lang.Double!>) throws androidx.appsearch.exceptions.AppSearchException;
@@ -537,6 +543,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder setSnippetCount(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setSnippetCountPerProperty(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setTermMatch(int);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.VERBATIM_SEARCH) public androidx.appsearch.app.SearchSpec.Builder setVerbatimSearchEnabled(boolean);
   }
 
   public class SearchSuggestionResult {

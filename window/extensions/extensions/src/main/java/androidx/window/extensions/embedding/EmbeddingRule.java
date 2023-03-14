@@ -16,10 +16,48 @@
 
 package androidx.window.extensions.embedding;
 
+import androidx.annotation.Nullable;
+import androidx.window.extensions.core.util.function.Function;
+
+import java.util.Objects;
+
 /**
  * Base interface for activity embedding rules. Used to group different types of rules together when
  * updating from the core library.
  */
 public abstract class EmbeddingRule {
-    EmbeddingRule() {}
+    @Nullable
+    private final String mTag;
+
+    EmbeddingRule(@Nullable String tag) {
+        mTag = tag;
+    }
+
+    /**
+     * A unique string to identify this {@link EmbeddingRule}.
+     * The suggested usage is to set the tag in the corresponding rule builder to be able to
+     * differentiate between different rules in {@link SplitAttributes} calculator function. For
+     * example, it can be used to compute the {@link SplitAttributes} for the specific
+     * {@link SplitRule} in the {@link Function} set with
+     * {@link ActivityEmbeddingComponent#setSplitAttributesCalculator(Function)}.
+     *
+     * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
+     */
+    @Nullable
+    public String getTag() {
+        return mTag;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof EmbeddingRule)) return false;
+        final EmbeddingRule otherRule = (EmbeddingRule) other;
+        return Objects.equals(mTag, otherRule.mTag);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mTag);
+    }
 }

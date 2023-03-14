@@ -387,12 +387,13 @@ class ToggleButtonColorTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun gives_checked_disabled_alpha() =
+    fun gives_disabled_primary_checked_contrasting_content_color() =
         verifyColors(
             Status.Disabled,
             checked = true,
             { MaterialTheme.colors.primary },
-            { MaterialTheme.colors.onPrimary }
+            { MaterialTheme.colors.background },
+            applyAlphaForDisabledContent = false,
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -606,7 +607,8 @@ class ToggleButtonColorTest {
         status: Status,
         checked: Boolean,
         backgroundColor: @Composable () -> Color,
-        contentColor: @Composable () -> Color
+        contentColor: @Composable () -> Color,
+        applyAlphaForDisabledContent: Boolean = true,
     ) {
         val testBackgroundColor = Color.Magenta
         var expectedBackground = Color.Transparent
@@ -643,7 +645,10 @@ class ToggleButtonColorTest {
                     .assertContainsColor(expectedBackground, 50.0f)
             }
         } else {
-            assertEquals(expectedContent.copy(alpha = actualDisabledAlpha), actualContent)
+            if (applyAlphaForDisabledContent) {
+                expectedContent = expectedContent.copy(alpha = actualDisabledAlpha)
+            }
+            assertEquals(expectedContent, actualContent)
             if (expectedBackground != Color.Transparent) {
                 rule.onNodeWithTag(TEST_TAG)
                     .captureToImage()

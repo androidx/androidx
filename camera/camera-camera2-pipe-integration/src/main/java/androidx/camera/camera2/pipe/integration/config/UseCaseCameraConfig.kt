@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter.Companion.toCamera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
+import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
@@ -85,6 +86,7 @@ class UseCaseCameraConfig(
         cameraPipe: CameraPipe,
         requestListener: ComboRequestListener,
         useCaseSurfaceManager: UseCaseSurfaceManager,
+        cameraInteropStateCallbackRepository: CameraInteropStateCallbackRepository
     ): UseCaseGraphConfig {
         val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
 
@@ -92,6 +94,7 @@ class UseCaseCameraConfig(
         //  imageReader or surface.
         val sessionConfigAdapter = SessionConfigAdapter(useCases)
         sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
+            cameraInteropStateCallbackRepository.updateCallbacks(sessionConfig)
             sessionConfig.surfaces.forEach { deferrableSurface ->
                 val outputConfig = CameraStream.Config.create(
                     streamUseCase = getStreamUseCase(
@@ -170,7 +173,19 @@ data class UseCaseGraphConfig(
     val graph: CameraGraph,
     val surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
     val cameraStateAdapter: CameraStateAdapter,
-)
+) {
+    fun getStreamIdsFromSurfaces(
+        deferrableSurfaces: Collection<DeferrableSurface>
+    ): Set<StreamId> {
+        val streamIds = mutableSetOf<StreamId>()
+        deferrableSurfaces.forEach {
+            surfaceToStreamMap[it]?.let { streamId ->
+                streamIds.add(streamId)
+            }
+        }
+        return streamIds
+    }
+}
 
 /** Dagger subcomponent for a single [UseCaseCamera] instance. */
 @UseCaseCameraScope

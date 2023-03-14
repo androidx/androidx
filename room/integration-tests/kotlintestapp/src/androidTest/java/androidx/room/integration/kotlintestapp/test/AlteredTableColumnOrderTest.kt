@@ -116,7 +116,7 @@ class AlteredTableColumnOrderTest {
     @Dao
     internal interface FooDao {
         @Insert
-        fun insertFoo(f: Foo?)
+        fun insertFoo(f: Foo)
 
         @Query("SELECT * FROM Foo LIMIT 1")
         fun getOneFoo(): Foo

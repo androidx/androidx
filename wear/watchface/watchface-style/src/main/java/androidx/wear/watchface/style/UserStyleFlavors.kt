@@ -34,20 +34,18 @@ import org.xmlpull.v1.XmlPullParserException
  * Represents user specified preset of watch face.
  *
  * @param id An arbitrary string that uniquely identifies a flavor within the set of flavors
- * supported by the watch face.
+ *   supported by the watch face.
  * @param style Style info of the flavor represented by [UserStyleData].
  * @param complications Specifies complication data source policy represented by
- * [DefaultComplicationDataSourcePolicy] for each [ComplicationSlot.id] presented in map. For
- * absent complication slots default policies are used.
+ *   [DefaultComplicationDataSourcePolicy] for each [ComplicationSlot.id] presented in map. For
+ *   absent complication slots default policies are used.
  */
 public class UserStyleFlavor(
     public val id: String,
     public val style: UserStyleData,
     public val complications: Map<Int, DefaultComplicationDataSourcePolicy>
 ) {
-    /**
-     * Constructs UserStyleFlavor based on [UserStyle] specified.
-     */
+    /** Constructs UserStyleFlavor based on [UserStyle] specified. */
     constructor(
         id: String,
         style: UserStyle,
@@ -57,12 +55,13 @@ public class UserStyleFlavor(
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(wireFormat: UserStyleFlavorWireFormat) : this(
+    constructor(
+        wireFormat: UserStyleFlavorWireFormat
+    ) : this(
         wireFormat.mId,
         UserStyleData(wireFormat.mStyle),
         wireFormat.mComplications.mapValues { DefaultComplicationDataSourcePolicy(it.value) }
-    ) {
-    }
+    ) {}
 
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
@@ -74,8 +73,7 @@ public class UserStyleFlavor(
             complications.mapValues { it.value.toWireFormat() }
         )
 
-    override fun toString(): String =
-        "UserStyleFlavor[$id: $style, $complications]"
+    override fun toString(): String = "UserStyleFlavor[$id: $style, $complications]"
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -106,9 +104,7 @@ public class UserStyleFlavor(
             parser: XmlResourceParser,
             schema: UserStyleSchema
         ): UserStyleFlavor {
-            require(parser.name == "UserStyleFlavor") {
-                "Expected a UserStyleFlavor node"
-            }
+            require(parser.name == "UserStyleFlavor") { "Expected a UserStyleFlavor node" }
 
             val flavorId = getStringRefAttribute(resources, parser, "id")
             require(flavorId != null) { "UserStyleFlavor must have an id" }
@@ -121,9 +117,7 @@ public class UserStyleFlavor(
                         val id = getStringRefAttribute(resources, parser, "id")
                         require(id != null) { "StyleOption must have an id" }
 
-                        require(parser.hasValue("value")) {
-                            "value is required for BooleanOption"
-                        }
+                        require(parser.hasValue("value")) { "value is required for BooleanOption" }
                         val value = getStringRefAttribute(resources, parser, "value")
 
                         val setting = schema[UserStyleSetting.Id(id)]
@@ -131,40 +125,41 @@ public class UserStyleFlavor(
                         when (setting) {
                             is UserStyleSetting.BooleanUserStyleSetting -> {
                                 userStyle[setting] =
-                                    UserStyleSetting.BooleanUserStyleSetting
-                                        .BooleanOption.from(value!!.toBoolean())
+                                    UserStyleSetting.BooleanUserStyleSetting.BooleanOption.from(
+                                        value!!.toBoolean()
+                                    )
                             }
                             is UserStyleSetting.DoubleRangeUserStyleSetting -> {
                                 userStyle[setting] =
-                                    UserStyleSetting.DoubleRangeUserStyleSetting
-                                        .DoubleRangeOption(value!!.toDouble())
+                                    UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption(
+                                        value!!.toDouble()
+                                    )
                             }
                             is UserStyleSetting.LongRangeUserStyleSetting -> {
                                 userStyle[setting] =
-                                    UserStyleSetting.LongRangeUserStyleSetting
-                                        .LongRangeOption(value!!.toLong())
+                                    UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption(
+                                        value!!.toLong()
+                                    )
                             }
                             else -> {
-                                userStyle[setting] = setting.getOptionForId(
-                                    UserStyleSetting.Option.Id(value!!)
-                                )
+                                userStyle[setting] =
+                                    setting.getOptionForId(UserStyleSetting.Option.Id(value!!))
                             }
                         }
                     }
                     "ComplicationPolicy" -> {
                         val id = getIntRefAttribute(resources, parser, "slotId")
-                        require(id != null) {
-                            "slotId is required for ComplicationPolicy"
-                        }
+                        require(id != null) { "slotId is required for ComplicationPolicy" }
 
-                        val policy = DefaultComplicationDataSourcePolicy.inflate(
-                            resources,
-                            parser,
-                            "ComplicationPolicy")
+                        val policy =
+                            DefaultComplicationDataSourcePolicy.inflate(
+                                resources,
+                                parser,
+                                "ComplicationPolicy"
+                            )
 
                         complications[id] = policy
                     }
-
                     else -> throw IllegalNodeException(parser)
                 }
             }
@@ -172,7 +167,8 @@ public class UserStyleFlavor(
             return UserStyleFlavor(
                 flavorId,
                 userStyle.toUserStyle().toUserStyleData(),
-                complications.toMap())
+                complications.toMap()
+            )
         }
     }
 }
@@ -183,24 +179,20 @@ public class UserStyleFlavor(
  * @param flavors List of flavors.
  */
 public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
-    /**
-     * Constructs empty flavors collection.
-     */
+    /** Constructs empty flavors collection. */
     constructor() : this(emptyList()) {}
 
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(wireFormat: UserStyleFlavorsWireFormat) : this(
-        wireFormat.mFlavors.map { UserStyleFlavor(it) }
-    ) {
-    }
+    constructor(
+        wireFormat: UserStyleFlavorsWireFormat
+    ) : this(wireFormat.mFlavors.map { UserStyleFlavor(it) }) {}
 
     /** @hide */
     @Suppress("ShowingMemberInHiddenClass")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun toWireFormat() =
-        UserStyleFlavorsWireFormat(flavors.map { it.toWireFormat() })
+    fun toWireFormat() = UserStyleFlavorsWireFormat(flavors.map { it.toWireFormat() })
 
     override fun toString(): String = "$flavors"
 
@@ -228,17 +220,13 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
             parser: XmlResourceParser,
             schema: UserStyleSchema
         ): UserStyleFlavors {
-            require(parser.name == "UserStyleFlavors") {
-                "Expected a UserStyleFlavors node"
-            }
+            require(parser.name == "UserStyleFlavors") { "Expected a UserStyleFlavors node" }
 
             val flavors = ArrayList<UserStyleFlavor>()
             parser.iterate {
                 when (parser.name) {
-                    "UserStyleFlavor" -> flavors.add(
-                        UserStyleFlavor.inflate(resources, parser, schema)
-                    )
-
+                    "UserStyleFlavor" ->
+                        flavors.add(UserStyleFlavor.inflate(resources, parser, schema))
                     else -> throw IllegalNodeException(parser)
                 }
             }

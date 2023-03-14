@@ -178,11 +178,11 @@ message Modifiers {
 // underneath it.
 message AnimatedVisibility {
   // The content transition that is triggered when element enters the layout.
-  EnterTransition enter = 1;
+  EnterTransition enter_transition = 1;
 
   // The content transition that is triggered when element exits the layout.
   // Note that indefinite exit animations are ignored.
-  ExitTransition exit = 2;
+  ExitTransition exit_transition = 2;
 }
 
 // The content transition that is triggered when element enters the layout.

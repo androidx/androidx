@@ -83,7 +83,8 @@ class SimpleCamera(
 
             Log.i("CXCP-App", "Selected $cameraId to open.")
 
-            val cameraMetadata = cameraPipe.cameras().awaitMetadata(cameraId)
+            val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)
+            checkNotNull(cameraMetadata) { "Failed to load CameraMetadata for $cameraId" }
 
             var yuvSizes =
                 cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
@@ -213,7 +214,9 @@ class SimpleCamera(
 
             Log.i("CXCP-App", "Selected $cameraId to open.")
 
-            val cameraMetadata = cameraPipe.cameras().awaitMetadata(cameraId)
+            val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(cameraId)
+            checkNotNull(cameraMetadata) { "Failed to load CameraMetadata for $cameraId" }
+
             var yuvSizes =
                 cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
                     .getOutputSizes(ImageFormat.YUV_420_888).toList()

@@ -67,7 +67,7 @@
     <string name="parked_toast_msg" msgid="2532422265890824446">"\"Aparkatutakoak\" ekintza"</string>
     <string name="more_toast_msg" msgid="5938288138225509885">"\"Gehiago\" sakatuta dago"</string>
     <string name="commute_toast_msg" msgid="4112684360647638688">"Eguneroko joan-etorrien botoia sakatuta dago"</string>
-    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Eman kokapena atzitzeko baimena oraingo kokapena ikusteko"</string>
+    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Eman kokapena erabiltzeko baimena oraingo kokapena ikusteko"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Hemen hasten da Google-ko kontuarekin saioa hasteko prozesua"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"Hautapena indizera aldatu da"</string>
     <string name="yes_action_toast_msg" msgid="6216215197177241247">"\"Bai\" botoia sakatu da"</string>
@@ -257,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Saioa hasi duzu"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Hasi duzu saioa"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Saioa hasteko txantiloien demo-bertsioa"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Fitxen txantiloien demo-bertsioak"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Fitxen txantiloi baten demo-bertsioa"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Mezuaren fitxa"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Panelaren fitxa"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"Zerrendaren fitxa"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Saretaren fitxa izenburu luzearekin"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Bilaketen fitxa"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Fitxen txantiloi bat kargatzearen demo-bertsioa"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Fitxen txantiloien fitxarik gabeko demo-bertsioa"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Ostalari ezezagunei ezin zaizkie bistaratu irudiak"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Ikonoa"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Eduki-hornitzailearen ikonoen demo-bertsioa"</string>
@@ -327,9 +336,9 @@
     <string name="perm_group" msgid="3834918337351876270">"Baimenen taldea"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Showcase aplikazioaren baimenen taldea"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Kokapen zehatzerako sarbidea"</string>
-    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Kokapen zehatza atzitzeko baimena"</string>
+    <string name="perm_fine_location_desc" msgid="3549183883787912516">"Kokapen zehatza erabiltzeko baimena"</string>
     <string name="perm_coarse_location" msgid="6140337431619481015">"Gutxi gorabeherako kokapenerako sarbidea"</string>
-    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"Gutxi gorabeherako kokapena atzitzeko baimena"</string>
+    <string name="perm_coarse_location_desc" msgid="6074759942301565943">"Gutxi gorabeherako kokapena erabiltzeko baimena"</string>
     <string name="perm_record_audio" msgid="2758340693260523493">"Audioa grabatzeko sarbidea"</string>
     <string name="perm_record_audio_desc" msgid="8038648467605928912">"Audioa grabatzeko baimena"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Baliabide-bektore tonuduna"</string>

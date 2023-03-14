@@ -30,6 +30,7 @@ import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
+import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
@@ -53,14 +54,8 @@ public class MapTemplateWithListDemoScreen extends Screen {
     @Override
     public Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
-        listBuilder.addItem(
-                new Row.Builder()
-                        .setOnClickListener(
-                                ParkedOnlyOnClickListener.create(() -> onClick(
-                                        getCarContext().getString(R.string.parked_toast_msg))))
-                        .setTitle(getCarContext().getString(R.string.parked_only_title))
-                        .addText(getCarContext().getString(R.string.parked_only_text))
-                        .build());
+        listBuilder.addItem(createRowWithParkedOnlyContent());
+        listBuilder.addItem(createRowWithSecondaryAction(2));
         // Some hosts may allow more items in the list than others, so create more.
         if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
             int listLimit =
@@ -68,26 +63,8 @@ public class MapTemplateWithListDemoScreen extends Screen {
                             getCarContext().getCarService(ConstraintManager.class).getContentLimit(
                                     ConstraintManager.CONTENT_LIMIT_TYPE_LIST));
 
-            for (int i = 2; i <= listLimit; ++i) {
-                // For row text, set text variants that fit best in different screen sizes.
-                String secondTextStr = getCarContext().getString(R.string.second_line_text);
-                CarText secondText =
-                        new CarText.Builder(
-                                "================= " + secondTextStr + " ================")
-                                .addVariant("--------------------- " + secondTextStr
-                                        + " ----------------------")
-                                .addVariant(secondTextStr)
-                                .build();
-                final String onClickText = getCarContext().getString(R.string.clicked_row_prefix)
-                        + ": " + i;
-                listBuilder.addItem(
-                        new Row.Builder()
-                                .setOnClickListener(() -> onClick(onClickText))
-                                .setTitle(
-                                        getCarContext().getString(R.string.title_prefix) + " " + i)
-                                .addText(getCarContext().getString(R.string.first_line_text))
-                                .addText(secondText)
-                                .build());
+            for (int i = 3; i <= listLimit; ++i) {
+                listBuilder.addItem(createRow(i));
             }
         }
 
@@ -160,6 +137,68 @@ public class MapTemplateWithListDemoScreen extends Screen {
                 .setMapController(mapController);
 
         return builder.build();
+    }
+
+    private Row createRowWithParkedOnlyContent() {
+        return new Row.Builder()
+                .setOnClickListener(
+                        ParkedOnlyOnClickListener.create(() -> onClick(
+                                getCarContext().getString(R.string.parked_toast_msg))))
+                .setTitle(getCarContext().getString(R.string.parked_only_title))
+                .addText(getCarContext().getString(R.string.parked_only_text))
+                .build();
+    }
+
+    private Row createRowWithSecondaryAction(int index) {
+        Action action = new Action.Builder()
+                .setIcon(buildCarIconWithResources(R.drawable.baseline_question_mark_24))
+                .setOnClickListener(createRowOnClickListener(index))
+                .build();
+
+        Row.Builder rowBuilder = new Row.Builder()
+                .setTitle(createRowTitle(index))
+                .addText(getCarContext().getString(R.string.other_row_text));
+
+        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_6) {
+            rowBuilder.addAction(action);
+        }
+
+        return rowBuilder.build();
+    }
+
+    private Row createRow(int index) {
+        // For row text, set text variants that fit best in different screen sizes.
+        String secondTextStr = getCarContext().getString(R.string.second_line_text);
+        CarText secondText =
+                new CarText.Builder(
+                        "================= " + secondTextStr + " ================")
+                        .addVariant("--------------------- " + secondTextStr
+                                + " ----------------------")
+                        .addVariant(secondTextStr)
+                        .build();
+
+        return new Row.Builder()
+                .setOnClickListener(createRowOnClickListener(index))
+                .setTitle(createRowTitle(index))
+                .addText(getCarContext().getString(R.string.first_line_text))
+                .addText(secondText)
+                .build();
+    }
+
+    private String createRowTitle(int index) {
+        return getCarContext().getString(R.string.title_prefix) + " " + index;
+    }
+
+    private OnClickListener createRowOnClickListener(int index) {
+        return () -> onClick(getCarContext().getString(R.string.clicked_row_prefix) + ": " + index);
+    }
+
+    private CarIcon buildCarIconWithResources(int imageId) {
+        return new CarIcon.Builder(
+                IconCompat.createWithResource(
+                        getCarContext(),
+                        imageId))
+                .build();
     }
 
     private void onClick(String text) {

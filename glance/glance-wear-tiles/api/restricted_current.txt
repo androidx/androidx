@@ -15,9 +15,6 @@ package androidx.glance.wear.tiles {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.wear.tiles.TimeInterval> LocalTimeInterval;
   }
 
-  public final class ErrorUiLayoutKt {
-  }
-
   public abstract class GlanceTileService extends androidx.wear.tiles.TileService {
     ctor public GlanceTileService(optional androidx.wear.tiles.LayoutElementBuilders.LayoutElement? errorUiLayout);
     method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void Content();
@@ -30,12 +27,6 @@ package androidx.glance.wear.tiles {
     method public final suspend <T> Object? updateTileState(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> updateState, kotlin.coroutines.Continuation<? super T>);
     property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
     property public androidx.glance.wear.tiles.TimelineMode timelineMode;
-  }
-
-  public final class GlanceWearTilesKt {
-  }
-
-  public final class NormalizeCompositionTreeKt {
   }
 
   public final class TimeInterval {
@@ -60,9 +51,6 @@ package androidx.glance.wear.tiles {
     ctor public TimelineMode.TimeBoundEntries(java.util.Set<androidx.glance.wear.tiles.TimeInterval> timeIntervals);
     method public java.util.Set<androidx.glance.wear.tiles.TimeInterval> getTimeIntervals();
     property public final java.util.Set<androidx.glance.wear.tiles.TimeInterval> timeIntervals;
-  }
-
-  public final class WearCompositionTranslatorKt {
   }
 
 }

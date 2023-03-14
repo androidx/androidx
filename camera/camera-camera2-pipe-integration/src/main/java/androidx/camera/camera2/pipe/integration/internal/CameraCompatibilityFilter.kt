@@ -63,10 +63,11 @@ object CameraCompatibilityFilter {
             return true
         }
         try {
+            val cameraMetadata = checkNotNull(
+                cameraDevices.awaitCameraMetadata(CameraId(cameraId))
+            )
             val availableCapabilities =
-                cameraDevices.awaitMetadata(CameraId(cameraId))[
-                    CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES
-                ]
+                cameraMetadata[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES]
             if (availableCapabilities != null) {
                 return availableCapabilities.contains(
                     CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE

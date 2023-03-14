@@ -20,6 +20,8 @@ import androidx.privacysandbox.tools.core.Metadata
 import androidx.privacysandbox.tools.core.generator.AidlCompiler
 import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
+import androidx.privacysandbox.tools.core.generator.CoreLibInfoAndBinderWrapperConverterGenerator
+import androidx.privacysandbox.tools.core.generator.GenerationTarget
 import androidx.privacysandbox.tools.core.generator.ServerBinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ServiceFactoryFileGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
@@ -97,18 +99,25 @@ internal class SdkCodeGenerator(
 
     private fun generateStubDelegates() {
         val stubDelegateGenerator = StubDelegatesGenerator(basePackageName(), binderCodeConverter)
-        api.services.map(stubDelegateGenerator::generate).forEach(::write)
-        api.interfaces.map(stubDelegateGenerator::generate).forEach(::write)
+        api.services.map { stubDelegateGenerator.generate(it, GenerationTarget.SERVER) }
+            .forEach(::write)
+        api.interfaces.map { stubDelegateGenerator.generate(it, GenerationTarget.SERVER) }
+            .forEach(::write)
     }
 
     private fun generateValueConverters() {
-        val valueConverterFileGenerator = ValueConverterFileGenerator(binderCodeConverter)
+        val valueConverterFileGenerator =
+            ValueConverterFileGenerator(binderCodeConverter, GenerationTarget.SERVER)
         api.values.map(valueConverterFileGenerator::generate).forEach(::write)
+        api.interfaces.filter { it.inheritsSandboxedUiAdapter }.map {
+            CoreLibInfoAndBinderWrapperConverterGenerator.generate(it).also(::write)
+        }
     }
 
     private fun generateCallbackProxies() {
         val clientProxyGenerator = ClientProxyTypeGenerator(basePackageName(), binderCodeConverter)
-        api.callbacks.map(clientProxyGenerator::generate).forEach(::write)
+        api.callbacks.map { clientProxyGenerator.generate(it, GenerationTarget.SERVER) }
+            .forEach(::write)
     }
 
     private fun generateToolMetadata() {

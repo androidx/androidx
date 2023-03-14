@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.SystemClock;
 
 import androidx.test.filters.LargeTest;
@@ -89,6 +90,10 @@ public class MultiWindowTest extends BaseTest {
     @Test
     @SdkSuppress(minSdkVersion = 32)
     public void testMultiWindow_splitScreen() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         // Launch two split-screen activities with different IDs.
         launchTestActivity(SplitScreenTestActivity.class);
         SystemClock.sleep(TRANSITION_DELAY_MS); // Wait for the windows to settle.

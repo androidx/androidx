@@ -22,10 +22,13 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.graphics.opengl.FrameBuffer
+import androidx.graphics.opengl.FrameBufferRenderer
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.hardware.SyncFenceCompat
 import java.util.Collections
 
 /**
@@ -64,8 +67,8 @@ internal class SurfaceViewRenderLayer<T>(
                 inverse = mBufferTransform.invertBufferTransform(transformHint)
                 mBufferTransform.computeTransform(width, height, inverse)
                 mParentSurfaceControl?.release()
-                mLayerCallback?.onSizeChanged(width, height)
                 mParentSurfaceControl = createDoubleBufferedSurfaceControl()
+                mLayerCallback?.onSizeChanged(width, height)
             }
 
             override fun surfaceDestroyed(p0: SurfaceHolder) {
@@ -90,7 +93,9 @@ internal class SurfaceViewRenderLayer<T>(
     }
 
     override fun setParent(builder: SurfaceControlCompat.Builder) {
-        builder.setParent(surfaceView)
+        mParentSurfaceControl?.let { parentSurfaceControl ->
+            builder.setParent(parentSurfaceControl)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -99,18 +104,25 @@ internal class SurfaceViewRenderLayer<T>(
         renderLayerCallback: GLFrontBufferedRenderer.Callback<T>
     ): GLRenderer.RenderTarget {
         var params: Collection<T>? = null
+        val bufferInfo = BufferInfo()
         val frameBufferRenderer = FrameBufferRenderer(
             object : FrameBufferRenderer.RenderCallback {
 
-                override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer =
-                    mLayerCallback?.getFrameBufferPool()?.obtain(egl)
+                override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer {
+                    val frameBuffer = mLayerCallback?.getFrameBufferPool()?.obtain(egl)
                         ?: throw IllegalArgumentException("No FrameBufferPool available")
+                    bufferInfo.frameBufferId = frameBuffer.frameBuffer
+                    return frameBuffer
+                }
 
                 override fun onDraw(eglManager: EGLManager) {
+                    bufferInfo.apply {
+                        this.width = mBufferTransform.glWidth
+                        this.height = mBufferTransform.glHeight
+                    }
                     renderLayerCallback.onDrawDoubleBufferedLayer(
                         eglManager,
-                        mBufferTransform.glWidth,
-                        mBufferTransform.glHeight,
+                        bufferInfo,
                         mBufferTransform.transform,
                         params ?: Collections.emptyList()
                     )

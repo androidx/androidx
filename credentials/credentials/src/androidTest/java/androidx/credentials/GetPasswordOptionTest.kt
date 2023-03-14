@@ -17,7 +17,7 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.credentials.GetCredentialOption.Companion.createFrom
+import androidx.credentials.CredentialOption.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -30,11 +30,16 @@ class GetPasswordOptionTest {
     @Test
     fun getter_frameworkProperties() {
         val option = GetPasswordOption()
+        val expectedRequestDataBundle = Bundle()
+        expectedRequestDataBundle.putBoolean(
+            CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
+            false
+        )
 
         assertThat(option.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
-        assertThat(equals(option.requestData, Bundle.EMPTY)).isTrue()
-        assertThat(equals(option.requestData, Bundle.EMPTY)).isTrue()
-        assertThat(option.requireSystemProvider).isFalse()
+        assertThat(equals(option.requestData, expectedRequestDataBundle)).isTrue()
+        assertThat(equals(option.candidateQueryData, Bundle.EMPTY)).isTrue()
+        assertThat(option.isSystemProviderRequired).isFalse()
     }
 
     @Test
@@ -42,7 +47,10 @@ class GetPasswordOptionTest {
         val option = GetPasswordOption()
 
         val convertedOption = createFrom(
-            option.type, option.requestData, option.candidateQueryData, option.requireSystemProvider
+            option.type,
+            option.requestData,
+            option.candidateQueryData,
+            option.isSystemProviderRequired
         )
 
         assertThat(convertedOption).isInstanceOf(GetPasswordOption::class.java)

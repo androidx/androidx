@@ -40,8 +40,8 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage")
-public final class IdTypeAndDefaultProviderPolicyWireFormat implements VersionedParcelable,
-        Parcelable {
+public final class IdTypeAndDefaultProviderPolicyWireFormat
+        implements VersionedParcelable, Parcelable {
     /** The watch's ID for the complication. */
     @ParcelField(1)
     int mId;
@@ -58,8 +58,7 @@ public final class IdTypeAndDefaultProviderPolicyWireFormat implements Versioned
     int mDefaultProviderType;
 
     /** Used by VersionedParcelable. */
-    IdTypeAndDefaultProviderPolicyWireFormat() {
-    }
+    IdTypeAndDefaultProviderPolicyWireFormat() {}
 
     public IdTypeAndDefaultProviderPolicyWireFormat(
             int id,

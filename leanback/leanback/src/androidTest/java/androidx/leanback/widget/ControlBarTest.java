@@ -21,6 +21,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -44,6 +45,10 @@ public class ControlBarTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void defaultFocus() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         Context context = ApplicationProvider.getApplicationContext();
         final ControlBar bar = new ControlBar(context, null);
         final TextView v1 = new Button(context);
@@ -66,6 +71,10 @@ public class ControlBarTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void persistFocus() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         Context context = ApplicationProvider.getApplicationContext();
         final LinearLayout rootView = new LinearLayout(context);
         final ControlBar bar = new ControlBar(context, null);
@@ -109,6 +118,10 @@ public class ControlBarTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void getFocusables() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         Context context = ApplicationProvider.getApplicationContext();
         final LinearLayout rootView = new LinearLayout(context);
         final ControlBar bar = new ControlBar(context, null);

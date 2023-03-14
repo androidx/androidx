@@ -18,6 +18,7 @@ package androidx.benchmark.darwin.gradle
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Optional
 
 /**
  * The [DarwinBenchmarkPlugin] extension.
@@ -43,4 +44,11 @@ abstract class DarwinBenchmarkPluginExtension {
      * This is typically discovered by using `xcrun xctrace list devices`.
      */
     abstract val destination: Property<String>
+
+    /**
+     * The reference sha for the source code being benchmarked. This can be useful
+     * when tracking regressions.
+     */
+    @get:Optional
+    abstract val referenceSha: Property<String>
 }

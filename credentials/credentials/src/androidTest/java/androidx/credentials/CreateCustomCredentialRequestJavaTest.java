@@ -29,15 +29,29 @@ public class CreateCustomCredentialRequestJavaTest {
     public void constructor_nullType_throws() {
         assertThrows("Expected null type to throw NPE",
                 NullPointerException.class,
-                () -> new CreateCustomCredentialRequest(null, new Bundle(), new Bundle(), false)
+                () -> new CreateCustomCredentialRequest(null, new Bundle(), new Bundle(),
+                        false,
+                        new CreateCredentialRequest.DisplayInfo("userId"),
+                        false)
         );
     }
 
     @Test
-    public void constructor_nullBundle_throws() {
-        assertThrows("Expected null bundle to throw NPE",
+    public void constructor_nullCredentialData_throws() {
+        assertThrows(
                 NullPointerException.class,
-                () -> new CreateCustomCredentialRequest("T", null, new Bundle(), true)
+                () -> new CreateCustomCredentialRequest("T", null, new Bundle(), false,
+                        new CreateCredentialRequest.DisplayInfo("userId"), true)
+        );
+    }
+
+    @Test
+    public void constructor_nullCandidateQueryData_throws() {
+        assertThrows(
+                NullPointerException.class,
+                () -> new CreateCustomCredentialRequest("T", new Bundle(), null, false,
+                        new CreateCredentialRequest.DisplayInfo("userId"),
+                        true)
         );
     }
 
@@ -45,34 +59,52 @@ public class CreateCustomCredentialRequestJavaTest {
     public void constructor_emptyType_throws() {
         assertThrows("Expected empty type to throw IAE",
                 IllegalArgumentException.class,
-                () -> new CreateCustomCredentialRequest("", new Bundle(), new Bundle(), false)
+                () -> new CreateCustomCredentialRequest("", new Bundle(), new Bundle(), false,
+                        new CreateCredentialRequest.DisplayInfo("userId"),
+                        false)
         );
     }
 
     @Test
     public void constructor_nonEmptyTypeNonNullBundle_success() {
-        new CreateCustomCredentialRequest("T", new Bundle(), new Bundle(), true);
+        new CreateCustomCredentialRequest("T", new Bundle(), new Bundle(), false,
+                new CreateCredentialRequest.DisplayInfo("userId"), true);
     }
 
     @Test
-    public void getter_frameworkProperties() {
+    public void getter() {
         String expectedType = "TYPE";
         Bundle expectedCredentialDataBundle = new Bundle();
         expectedCredentialDataBundle.putString("Test", "Test");
         Bundle expectedCandidateQueryDataBundle = new Bundle();
         expectedCandidateQueryDataBundle.putBoolean("key", true);
-
+        CreateCredentialRequest.DisplayInfo expectedDisplayInfo =
+                new CreateCredentialRequest.DisplayInfo("userId");
         boolean expectedSystemProvider = true;
-        CreateCustomCredentialRequest option = new CreateCustomCredentialRequest(expectedType,
+        boolean expectedAutoSelectAllowed = false;
+
+        CreateCustomCredentialRequest request = new CreateCustomCredentialRequest(expectedType,
                 expectedCredentialDataBundle,
                 expectedCandidateQueryDataBundle,
-                expectedSystemProvider);
+                expectedSystemProvider,
+                expectedDisplayInfo,
+                expectedAutoSelectAllowed);
 
-        assertThat(option.getType()).isEqualTo(expectedType);
-        assertThat(TestUtilsKt.equals(option.getCredentialData(), expectedCredentialDataBundle))
+        assertThat(request.getType()).isEqualTo(expectedType);
+        assertThat(TestUtilsKt.equals(request.getCredentialData(), expectedCredentialDataBundle))
                 .isTrue();
-        assertThat(TestUtilsKt.equals(option.getCandidateQueryData(),
+        assertThat(TestUtilsKt.equals(request.getCandidateQueryData(),
                 expectedCandidateQueryDataBundle)).isTrue();
-        assertThat(option.requireSystemProvider()).isEqualTo(expectedSystemProvider);
+        assertThat(request.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
+        assertThat(request.isAutoSelectAllowed()).isEqualTo(expectedAutoSelectAllowed);
+        assertThat(request.getDisplayInfo()).isEqualTo(expectedDisplayInfo);
+    }
+
+    @Test
+    public void constructionWithNullRequestDisplayInfo_throws() {
+        assertThrows(
+                NullPointerException.class, () -> new CreateCustomCredentialRequest("type",
+                        new Bundle(), new Bundle(), false,
+                        /* requestDisplayInfo= */null, false));
     }
 }

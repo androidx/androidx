@@ -377,6 +377,7 @@ package androidx.room {
     field public static final String PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED = "ROOM_EMBEDDED_PRIMARY_KEY_IS_DROPPED";
     field public static final String RELATION_QUERY_WITHOUT_TRANSACTION = "ROOM_RELATION_QUERY_WITHOUT_TRANSACTION";
     field public static final String RELATION_TYPE_MISMATCH = "ROOM_RELATION_TYPE_MISMATCH";
+    field public static final String ROOM_UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE = "UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE";
   }
 
   public static final class RoomWarnings.Companion {

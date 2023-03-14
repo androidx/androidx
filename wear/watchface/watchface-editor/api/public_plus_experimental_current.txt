@@ -71,9 +71,6 @@ package androidx.wear.watchface.editor {
     method @UiThread @kotlin.jvm.Throws(exceptionClasses=TimeoutCancellationException::class) public suspend Object? createOnWatchEditorSession(androidx.activity.ComponentActivity activity, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.EditorSession>) throws kotlinx.coroutines.TimeoutCancellationException;
   }
 
-  public final class EditorSessionKt {
-  }
-
   public final class PreviewScreenshotParams {
     ctor public PreviewScreenshotParams(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant);
     method public java.time.Instant getInstant();
@@ -91,9 +88,6 @@ package androidx.wear.watchface.editor {
   }
 
   public static final class WatchFaceEditorContract.Companion {
-  }
-
-  public final class WatchFaceEditorContractKt {
   }
 
 }

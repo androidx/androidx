@@ -297,16 +297,11 @@ public class BuildCompat {
     public static final int AD_SERVICES_EXTENSION_INT =
             VERSION.SDK_INT >= 30 ? Extensions30Impl.AD_SERVICES : 0;
 
-    @SuppressLint("ClassVerificationFailure") // Remove when SDK including b/206996004 is imported
     @RequiresApi(30)
     private static final class Extensions30Impl {
-        @SuppressLint("NewApi") // Remove when SDK including b/206996004 is imported
         static final int R = getExtensionVersion(Build.VERSION_CODES.R);
-        @SuppressLint("NewApi") // Remove when SDK including b/206996004 is imported
         static final int S = getExtensionVersion(Build.VERSION_CODES.S);
-        @SuppressLint("NewApi") // Remove when SDK including b/206996004 is imported
         static final int TIRAMISU = getExtensionVersion(Build.VERSION_CODES.TIRAMISU);
-        @SuppressLint("NewApi") // Remove when SDK including b/206996004 is imported
         static final int AD_SERVICES = getExtensionVersion(SdkExtensions.AD_SERVICES);
     }
 

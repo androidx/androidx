@@ -158,7 +158,7 @@ public class State {
             wrapMap.put("aligned", ALIGNED);
 
             valueMap.put("none", 0);
-            valueMap.put("chain", 1);
+            valueMap.put("chain", 3); // Corresponds to CHAIN_NEW
             valueMap.put("aligned", 2);
         }
 

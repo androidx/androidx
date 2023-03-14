@@ -51,6 +51,9 @@ internal class KspFieldElement(
         asMemberOf(enclosingElement.type?.ksType)
     }
 
+    override val jvmDescriptor: String
+        get() = this.jvmDescriptor()
+
     val syntheticAccessors: List<KspSyntheticPropertyMethodElement> by lazy {
         when {
             declaration.hasJvmFieldAnnotation() -> {

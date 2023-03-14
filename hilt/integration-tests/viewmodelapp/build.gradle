@@ -36,12 +36,14 @@ android {
 }
 
 dependencies {
-    implementation(project(":activity:activity"))
+    implementation(project(":activity:activity-ktx"))
     implementation(project(":fragment:fragment-ktx"))
     implementation(libs.kotlinStdlib)
     implementation(libs.hiltAndroid)
     kapt(libs.hiltCompiler)
 
+    androidTestImplementation(project(":activity:activity"))
+    androidTestImplementation(project(":fragment:fragment"))
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)

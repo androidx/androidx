@@ -60,10 +60,10 @@ internal interface DevicePolicyManagerWrapper {
 }
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class Camera2CameraOpener @Inject constructor(
-    private val cameraManager: Provider<CameraManager>,
-    private val threads: Threads
-) : CameraOpener {
+internal class Camera2CameraOpener
+@Inject
+constructor(private val cameraManager: Provider<CameraManager>, private val threads: Threads) :
+    CameraOpener {
 
     @SuppressLint(
         "MissingPermission", // Permissions are checked by calling methods.
@@ -73,67 +73,54 @@ internal class Camera2CameraOpener @Inject constructor(
         Debug.trace("CameraDevice-${cameraId.value}#openCamera") {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 Api28Compat.openCamera(
-                    instance,
-                    cameraId.value,
-                    threads.camera2Executor,
-                    stateCallback
+                    instance, cameraId.value, threads.camera2Executor, stateCallback
                 )
             } else {
-                instance.openCamera(
-                    cameraId.value,
-                    stateCallback,
-                    threads.camera2Handler
-                )
+                instance.openCamera(cameraId.value, stateCallback, threads.camera2Handler)
             }
         }
     }
 }
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class Camera2CameraAvailabilityMonitor @Inject constructor(
-    private val cameraManager: Provider<CameraManager>,
-    private val threads: Threads
-) : CameraAvailabilityMonitor {
+internal class Camera2CameraAvailabilityMonitor
+@Inject
+constructor(private val cameraManager: Provider<CameraManager>, private val threads: Threads) :
+    CameraAvailabilityMonitor {
 
     override suspend fun awaitAvailableCamera(cameraId: CameraId, timeoutMillis: Long): Boolean =
-        withTimeoutOrNull(timeoutMillis) {
-            awaitAvailableCamera(cameraId)
-        } ?: false
+        withTimeoutOrNull(timeoutMillis) { awaitAvailableCamera(cameraId) } ?: false
 
     private suspend fun awaitAvailableCamera(cameraId: CameraId) =
         suspendCancellableCoroutine { continuation ->
-            val availabilityCallback = object : CameraManager.AvailabilityCallback() {
-                private val awaitComplete = atomic(false)
+            val availabilityCallback =
+                object : CameraManager.AvailabilityCallback() {
+                    private val awaitComplete = atomic(false)
 
-                override fun onCameraAvailable(cameraIdString: String) {
-                    if (cameraIdString == cameraId.value) {
-                        Log.debug { "$cameraId is now available." }
+                    override fun onCameraAvailable(cameraIdString: String) {
+                        if (cameraIdString == cameraId.value) {
+                            Log.debug { "$cameraId is now available." }
+                            if (awaitComplete.compareAndSet(expect = false, update = true)) {
+                                continuation.resume(true)
+                            }
+                        }
+                    }
+
+                    override fun onCameraAccessPrioritiesChanged() {
+                        Log.debug { "Access priorities changed." }
                         if (awaitComplete.compareAndSet(expect = false, update = true)) {
                             continuation.resume(true)
                         }
                     }
                 }
 
-                override fun onCameraAccessPrioritiesChanged() {
-                    Log.debug { "Access priorities changed." }
-                    if (awaitComplete.compareAndSet(expect = false, update = true)) {
-                        continuation.resume(true)
-                    }
-                }
-            }
-
             val manager = cameraManager.get()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 Api28Compat.registerAvailabilityCallback(
-                    manager,
-                    threads.camera2Executor,
-                    availabilityCallback
+                    manager, threads.camera2Executor, availabilityCallback
                 )
             } else {
-                manager.registerAvailabilityCallback(
-                    availabilityCallback,
-                    threads.camera2Handler
-                )
+                manager.registerAvailabilityCallback(availabilityCallback, threads.camera2Handler)
             }
 
             continuation.invokeOnCancellation {
@@ -143,13 +130,14 @@ internal class Camera2CameraAvailabilityMonitor @Inject constructor(
 }
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class AndroidDevicePolicyManagerWrapper @Inject constructor(
-    private val devicePolicyManager: DevicePolicyManager
-) : DevicePolicyManagerWrapper {
+internal class AndroidDevicePolicyManagerWrapper
+@Inject
+constructor(private val devicePolicyManager: DevicePolicyManager) : DevicePolicyManagerWrapper {
     override val camerasDisabled: Boolean
-        get() = Debug.trace("DevicePolicyManager#getCameraDisabled") {
-            devicePolicyManager.getCameraDisabled(null)
-        }
+        get() =
+            Debug.trace("DevicePolicyManager#getCameraDisabled") {
+                devicePolicyManager.getCameraDisabled(null)
+            }
 }
 
 internal data class OpenCameraResult(
@@ -158,9 +146,11 @@ internal data class OpenCameraResult(
 )
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class CameraStateOpener @Inject constructor(
+internal class CameraStateOpener
+@Inject
+constructor(
     private val cameraOpener: CameraOpener,
-    private val cameraMetadataProvider: CameraMetadataProvider,
+    private val camera2MetadataProvider: Camera2MetadataProvider,
     private val timeSource: TimeSource,
     private val cameraInteropConfig: CameraPipe.CameraInteropConfig?
 ) {
@@ -169,28 +159,25 @@ internal class CameraStateOpener @Inject constructor(
         attempts: Int,
         requestTimestamp: TimestampNs,
     ): OpenCameraResult {
-        val metadata = cameraMetadataProvider.getMetadata(cameraId)
-        val cameraState = AndroidCameraState(
-            cameraId,
-            metadata,
-            attempts,
-            requestTimestamp,
-            timeSource,
-            cameraInteropConfig?.cameraDeviceStateCallback,
-            cameraInteropConfig?.cameraSessionStateCallback
-        )
+        val metadata = camera2MetadataProvider.getCameraMetadata(cameraId)
+        val cameraState =
+            AndroidCameraState(
+                cameraId,
+                metadata,
+                attempts,
+                requestTimestamp,
+                timeSource,
+                cameraInteropConfig?.cameraDeviceStateCallback,
+                cameraInteropConfig?.cameraSessionStateCallback
+            )
 
         try {
             cameraOpener.openCamera(cameraId, cameraState)
 
             // Suspend until we are no longer in a "starting" state.
-            val result = cameraState.state.first {
-                it !is CameraStateUnopened
-            }
+            val result = cameraState.state.first { it !is CameraStateUnopened }
             when (result) {
-                is CameraStateOpen ->
-                    return OpenCameraResult(cameraState = cameraState)
-
+                is CameraStateOpen -> return OpenCameraResult(cameraState = cameraState)
                 is CameraStateClosing -> {
                     cameraState.close()
                     return OpenCameraResult(errorCode = result.cameraErrorCode)
@@ -215,7 +202,9 @@ internal class CameraStateOpener @Inject constructor(
 }
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class RetryingCameraStateOpener @Inject constructor(
+internal class RetryingCameraStateOpener
+@Inject
+constructor(
     private val cameraStateOpener: CameraStateOpener,
     private val cameraAvailabilityMonitor: CameraAvailabilityMonitor,
     private val timeSource: TimeSource,
@@ -249,13 +238,14 @@ internal class RetryingCameraStateOpener @Inject constructor(
                     return result
                 }
 
-                val willRetry = shouldRetry(
-                    errorCode,
-                    attempts,
-                    requestTimestamp,
-                    timeSource,
-                    devicePolicyManager.camerasDisabled
-                )
+                val willRetry =
+                    shouldRetry(
+                        errorCode,
+                        attempts,
+                        requestTimestamp,
+                        timeSource,
+                        devicePolicyManager.camerasDisabled
+                    )
                 // Always notify if the decision is to not retry the camera open, otherwise allow
                 // 1 open call to happen silently without generating an error, and notify about each
                 // error after that point.
