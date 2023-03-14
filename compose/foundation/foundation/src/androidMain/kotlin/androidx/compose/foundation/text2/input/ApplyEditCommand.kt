@@ -174,15 +174,17 @@ private fun EditingBuffer.applyDeleteSurroundingTextInCodePointsCommand(
 private fun EditingBuffer.applyDeleteSurroundingTextCommand(
     deleteSurroundingTextCommand: DeleteSurroundingTextCommand
 ) {
-    delete(
-        selectionEnd,
-        minOf(selectionEnd + deleteSurroundingTextCommand.lengthAfterCursor, length)
-    )
+    // calculate the end with safe addition since lengthAfterCursor can be set to e.g. Int.MAX
+    // by the input
+    val end = selectionEnd.addExactOrElse(deleteSurroundingTextCommand.lengthAfterCursor) { length }
+    delete(selectionEnd, minOf(end, length))
 
-    delete(
-        maxOf(0, selectionStart - deleteSurroundingTextCommand.lengthBeforeCursor),
-        selectionStart
-    )
+    // calculate the start with safe subtraction since lengthBeforeCursor can be set to e.g.
+    // Int.MAX by the input
+    val start = selectionStart.subtractExactOrElse(
+        deleteSurroundingTextCommand.lengthBeforeCursor
+    ) { 0 }
+    delete(maxOf(0, start), selectionStart)
 }
 
 private fun EditingBuffer.applyBackspaceCommand() {
