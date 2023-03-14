@@ -445,6 +445,7 @@ class XExecutableElementTest {
                     assertThat(method.parameters.first().type.asTypeName()).isEqualTo(
                         String::class.asClassName()
                     )
+                    assertThat(method.parameters.first().isKotlinPropertyParam()).isTrue()
                     assertThat(method.isPublic()).isTrue()
                     assertThat(method.parameters.first().type.nullability).isEqualTo(
                         XNullability.NONNULL
@@ -986,6 +987,7 @@ class XExecutableElementTest {
                 element.getDeclaredMethodByJvmName("ext1").let { method ->
                     assertThat(method.isExtensionFunction()).isTrue()
                     assertThat(method.parameters.size).isEqualTo(1)
+                    assertThat(method.parameters[0].isReceiverParam()).isTrue()
                     assertThat(method.parameters[0].name).isEqualTo("\$this\$ext1")
                     assertThat(method.parameters[0].type.asTypeName())
                         .isEqualTo(String::class.asClassName())
@@ -1028,6 +1030,7 @@ class XExecutableElementTest {
                     assertThat(method.parameters.size).isEqualTo(2)
                     assertThat(method.parameters[0].type.asTypeName())
                         .isEqualTo(String::class.asClassName())
+                    assertThat(method.parameters[1].isContinuationParam()).isTrue()
                     assertThat(method.parameters[1].type.typeName).isEqualTo(
                         ParameterizedTypeName.get(
                             ClassName.get("kotlin.coroutines", "Continuation"),

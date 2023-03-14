@@ -232,6 +232,11 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 delegate = enclosingElement.field.declaration.setter?.parameter,
                 filter = NO_USE_SITE_OR_SET_PARAM
             ) {
+            override fun isContinuationParam() = false
+
+            override fun isReceiverParam() = false
+
+            override fun isKotlinPropertyParam() = true
 
             private val jvmTypeResolutionScope = KspJvmTypeResolutionScope.PropertySetterParameter(
                 declaration = enclosingElement
