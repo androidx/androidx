@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.text.style
 
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.PlatformParagraphStyle
 
 /**
@@ -195,7 +194,7 @@ class LineHeightStyle(
      * between 0f (inclusive) and 1f (inclusive).
      */
     @kotlin.jvm.JvmInline
-    value class Alignment @ExperimentalTextApi constructor(internal val topRatio: Float) {
+    value class Alignment constructor(internal val topRatio: Float) {
 
         init {
             check(topRatio in 0f..1f || topRatio == -1f) {
@@ -235,7 +234,6 @@ class LineHeightStyle(
              * +--------+
              * </pre>
              */
-            @OptIn(ExperimentalTextApi::class)
             val Top = Alignment(topRatio = 0f)
 
             /**
@@ -256,7 +254,6 @@ class LineHeightStyle(
              * +--------+
              * </pre>
              */
-            @OptIn(ExperimentalTextApi::class)
             val Center = Alignment(topRatio = 0.5f)
 
             /**
@@ -265,7 +262,6 @@ class LineHeightStyle(
              * will be distributed as 8 units to top, and 2 units to the bottom of the line. This is
              * the default behavior.
              */
-            @OptIn(ExperimentalTextApi::class)
             val Proportional = Alignment(topRatio = -1f)
 
             /**
@@ -289,7 +285,6 @@ class LineHeightStyle(
              * +--------+
              * </pre>
              */
-            @OptIn(ExperimentalTextApi::class)
             val Bottom = Alignment(topRatio = 1f)
         }
     }

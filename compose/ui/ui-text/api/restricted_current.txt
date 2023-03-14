@@ -1295,6 +1295,7 @@ package androidx.compose.ui.text.style {
   }
 
   @kotlin.jvm.JvmInline public static final value class LineHeightStyle.Alignment {
+    ctor public LineHeightStyle.Alignment(float topRatio);
     field public static final androidx.compose.ui.text.style.LineHeightStyle.Alignment.Companion Companion;
   }
 
