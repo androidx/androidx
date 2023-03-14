@@ -72,11 +72,6 @@ public open class FragmentNavigator(
      */
     internal val backStack get() = state.backStack
 
-    /**
-     * Temporarily stores entries that need to attach observer on its fragment
-     */
-    private val toAttachObserver = mutableListOf<String>()
-
     private val fragmentObserver = object : LifecycleEventObserver {
         override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
             if (event == Lifecycle.Event.ON_DESTROY) {
@@ -98,9 +93,8 @@ public open class FragmentNavigator(
 
         fragmentManager.addFragmentOnAttachListener { _, fragment ->
             fragment.viewLifecycleOwnerLiveData.observe(fragment) {
-                val needToAttach = toAttachObserver.remove(fragment.tag)
                 // attach observer unless it was already popped at this point
-                if (needToAttach && !entriesToPop.contains(fragment.tag)) {
+                if (!entriesToPop.contains(fragment.tag)) {
                     val entry = state.backStack.value.last { it.id == fragment.tag }
                     attachObserver(entry, fragment)
                 }
@@ -138,8 +132,6 @@ public open class FragmentNavigator(
                 }
                 if (entry != null && fragmentWasPopped(fragment, entry)) {
                     entriesToPop.remove(entry.id)
-                } else if (entry != null && fragmentWasAdded(fragment)) {
-                    attachObserver(entry, fragment)
                 } else if (fragmentShouldBePopped(fragment, pop)) {
                     // This is the case of system back where we will need to make the call to
                     // popBackStack. Otherwise, popBackStack was called directly and this should
@@ -155,17 +147,13 @@ public open class FragmentNavigator(
                 return fragment.view != null && entriesToPop.contains(entry.id)
             }
 
-            fun fragmentWasAdded(fragment: Fragment): Boolean {
-                return fragment.view != null && fragment.isAdded
-            }
-
             fun fragmentShouldBePopped(fragment: Fragment, pop: Boolean): Boolean {
                 return pop && entriesToPop.isEmpty() && !fragment.isAdded
             }
         })
     }
 
-    internal fun attachObserver(entry: NavBackStackEntry, fragment: Fragment) {
+    private fun attachObserver(entry: NavBackStackEntry, fragment: Fragment) {
         val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
         val currentState = viewLifecycle.currentState
         // We only need to add observers while the viewLifecycle has not reached a final
@@ -328,9 +316,6 @@ public open class FragmentNavigator(
 
         if (!initialNavigation) {
             ft.addToBackStack(entry.id)
-        } else {
-            // not added to backstack so we need to make sure we attach fragment observer later
-            toAttachObserver.add(entry.id)
         }
 
         if (navigatorExtras is Extras) {
