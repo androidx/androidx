@@ -23,7 +23,14 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 
-/** Contains the default values used by chip Tiles components. */
+/**
+ * Contains the default values used by chip Tiles components.
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.ChipDefaults} which
+ *     provides the same API and functionality.
+ */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class ChipDefaults {
     private ChipDefaults() {}
 

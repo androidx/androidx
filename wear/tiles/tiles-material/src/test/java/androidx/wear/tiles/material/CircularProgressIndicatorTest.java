@@ -41,6 +41,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class CircularProgressIndicatorTest {
     @Test
     public void testOpenRingIndicatorDefault() {

@@ -46,6 +46,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.DimensionBuilders.SpacerDimension;
@@ -58,7 +59,6 @@ import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.material.CompactChip;
-import androidx.wear.protolayout.proto.LayoutElementProto;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -96,7 +96,13 @@ import java.util.List;
  * <pre>{@code
  * PrimaryLayout myPl = PrimaryLayout.fromLayoutElement(box.getContents().get(0));
  * }</pre>
+ *
+ * @deprecated Use the new class
+ *     {@link androidx.wear.protolayout.material.layouts.PrimaryLayout} which provides the same
+ *     API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class PrimaryLayout implements LayoutElement {
     /**
      * Prefix tool tag for Metadata in Modifiers, so we know that Box is actually a PrimaryLayout.

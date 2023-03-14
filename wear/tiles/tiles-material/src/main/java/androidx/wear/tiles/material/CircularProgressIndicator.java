@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.tiles.DimensionBuilders.DegreesProp;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.LayoutElementBuilders;
@@ -47,7 +48,6 @@ import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.ModifiersBuilders.Semantics;
-import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
  * Tiles component {@link CircularProgressIndicator} that represents circular progress indicator
@@ -83,7 +83,13 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
  * CircularProgressIndicator myCpi =
  *   CircularProgressIndicator.fromLayoutElement(box.getContents().get(0));
  * }</pre>
+ *
+ * @deprecated Use the new class
+ *     {@link androidx.wear.protolayout.material.CircularProgressIndicator} which provides the
+ *     same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class CircularProgressIndicator implements LayoutElement {
     /**
      * Tool tag for Metadata in Modifiers, so we know that Arc is actually a

@@ -18,6 +18,7 @@ package androidx.wear.tiles.material;
 
 import androidx.annotation.Dimension;
 
+@SuppressWarnings("deprecation")
 public final class Utils {
     /** Returns true if the given ChipColors have the same colored content. */
     static boolean areChipColorsEqual(ChipColors colors1, ChipColors colors2) {

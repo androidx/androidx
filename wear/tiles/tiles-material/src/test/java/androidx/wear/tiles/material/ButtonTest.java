@@ -48,6 +48,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class ButtonTest {
     private static final String RESOURCE_ID = "icon";
     private static final String TEXT = "ABC";

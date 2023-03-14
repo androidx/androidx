@@ -51,6 +51,7 @@ import androidx.wear.tiles.material.Typography;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("deprecation")
 public class TestCasesGenerator {
     private TestCasesGenerator() {}
 
