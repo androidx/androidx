@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.sdkruntime.core.controller
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.Keep
 import androidx.annotation.RestrictTo
@@ -73,6 +74,8 @@ class SdkSandboxControllerCompat internal constructor(
          *
          *  @return SdkSandboxControllerCompat object.
          */
+        // TODO(b/265295473): Remove @SuppressLint after V5 finalisation
+        @SuppressLint("NewApi")
         @JvmStatic
         fun from(context: Context): SdkSandboxControllerCompat {
             val loadedLocally = Versions.CLIENT_VERSION != null
@@ -107,7 +110,8 @@ class SdkSandboxControllerCompat internal constructor(
         }
 
         @TestOnly
-        internal fun resetLocalImpl() {
+        @RestrictTo(LIBRARY_GROUP)
+        fun resetLocalImpl() {
             localImpl = null
         }
     }

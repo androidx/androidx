@@ -94,6 +94,15 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
+    fun getSdkInfo_whenCreatedFromBinderAndSdkInfo_returnsSdkInfo() {
+        val binder = Binder()
+        val sdkInfo = SandboxedSdkInfo(name = "sdkname", version = 42)
+        val sandboxedSdkCompat = SandboxedSdkCompat(binder, sdkInfo)
+
+        assertThat(sandboxedSdkCompat.getSdkInfo()).isEqualTo(sdkInfo)
+    }
+
+    @Test
     // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
     @SuppressLint("NewApi")
     // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress

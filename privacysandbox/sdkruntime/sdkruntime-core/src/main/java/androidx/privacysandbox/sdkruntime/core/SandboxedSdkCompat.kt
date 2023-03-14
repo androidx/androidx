@@ -20,6 +20,7 @@ import android.app.sdksandbox.SandboxedSdk
 import android.os.IBinder
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
+import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
@@ -53,7 +54,21 @@ class SandboxedSdkCompat private constructor(
      *
      * @see [SandboxedSdk]
      */
-    constructor(sdkInterface: IBinder) : this(CompatImpl(sdkInterface))
+    constructor(sdkInterface: IBinder) : this(sdkInterface, sdkInfo = null)
+
+    /**
+     * Creates SandboxedSdkCompat from SDK [IBinder] object and [SandboxedSdkInfo].
+     *
+     * @param sdkInterface The SDK's interface.
+     * @param sdkInfo Information about SDK's name and version.
+     * @suppress
+     */
+    @Keep // Reflection call from client part
+    @RestrictTo(LIBRARY_GROUP)
+    constructor(
+        sdkInterface: IBinder,
+        sdkInfo: SandboxedSdkInfo?
+    ) : this(CompatImpl(sdkInterface, sdkInfo))
 
     /**
      * Creates SandboxedSdkCompat wrapper around existing [SandboxedSdk] object.
@@ -159,7 +174,10 @@ class SandboxedSdkCompat private constructor(
         }
     }
 
-    private class CompatImpl(private val sdkInterface: IBinder) : SandboxedSdkImpl {
+    private class CompatImpl(
+        private val sdkInterface: IBinder,
+        private val sdkInfo: SandboxedSdkInfo?
+    ) : SandboxedSdkImpl {
 
         override fun getInterface(): IBinder {
             // This will be null if the SDK has been unloaded and the IBinder originally provided
@@ -167,7 +185,7 @@ class SandboxedSdkCompat private constructor(
             return sdkInterface
         }
 
-        override fun getSdkInfo(): SandboxedSdkInfo? = null
+        override fun getSdkInfo(): SandboxedSdkInfo? = sdkInfo
 
         @RequiresExtension(extension = AD_SERVICES, version = 4)
         override fun toSandboxedSdk(): SandboxedSdk {

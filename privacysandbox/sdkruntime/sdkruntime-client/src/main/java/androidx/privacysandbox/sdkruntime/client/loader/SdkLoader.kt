@@ -17,16 +17,19 @@ package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.content.Context
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
-import androidx.privacysandbox.sdkruntime.client.loader.impl.SdkV1
+import androidx.privacysandbox.sdkruntime.client.loader.impl.SandboxControllerInjector
+import androidx.privacysandbox.sdkruntime.client.loader.impl.SdkProviderV1
 import androidx.privacysandbox.sdkruntime.client.loader.storage.CachedLocalSdkStorage
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
  * Load SDK bundled with App.
  */
 internal class SdkLoader internal constructor(
     private val classLoaderFactory: ClassLoaderFactory,
-    private val appContext: Context
+    private val appContext: Context,
+    private val controller: SdkSandboxControllerCompat.SandboxControllerImpl
 ) {
 
     internal interface ClassLoaderFactory {
@@ -38,12 +41,12 @@ internal class SdkLoader internal constructor(
      *  1. Create classloader for sdk;
      *  2. Performing handshake to determine api version;
      *  3. (optional) Update RPackage.packageId to support Android Resource remapping for SDK
-     *  4. Select [LocalSdk] implementation that could work with that api version.
+     *  4. Select [LocalSdkProvider] implementation that could work with that api version.
      *
      * @param sdkConfig sdk to load
      * @return LocalSdk implementation for loaded SDK
      */
-    fun loadSdk(sdkConfig: LocalSdkConfig): LocalSdk {
+    fun loadSdk(sdkConfig: LocalSdkConfig): LocalSdkProvider {
         val classLoader = classLoaderFactory.createClassLoaderFor(
             sdkConfig,
             getParentClassLoader()
@@ -53,12 +56,17 @@ internal class SdkLoader internal constructor(
 
     private fun getParentClassLoader(): ClassLoader = appContext.classLoader.parent!!
 
-    private fun createLocalSdk(classLoader: ClassLoader, sdkConfig: LocalSdkConfig): LocalSdk {
+    private fun createLocalSdk(
+        classLoader: ClassLoader,
+        sdkConfig: LocalSdkConfig
+    ): LocalSdkProvider {
         try {
             val apiVersion = VersionHandshake.perform(classLoader)
             ResourceRemapping.apply(classLoader, sdkConfig.resourceRemapping)
-            if (apiVersion >= 1) {
-                return SdkV1.create(classLoader, sdkConfig.entryPoint, appContext)
+            if (apiVersion >= 2) {
+                return createSdkProviderV2(classLoader, sdkConfig)
+            } else if (apiVersion >= 1) {
+                return createSdkProviderV1(classLoader, sdkConfig)
             }
         } catch (ex: Exception) {
             throw LoadSdkCompatException(
@@ -72,6 +80,21 @@ internal class SdkLoader internal constructor(
             LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
             "Incorrect Api version"
         )
+    }
+
+    private fun createSdkProviderV1(
+        sdkClassLoader: ClassLoader,
+        sdkConfig: LocalSdkConfig
+    ): LocalSdkProvider {
+        return SdkProviderV1.create(sdkClassLoader, sdkConfig.entryPoint, appContext)
+    }
+
+    private fun createSdkProviderV2(
+        sdkClassLoader: ClassLoader,
+        sdkConfig: LocalSdkConfig
+    ): LocalSdkProvider {
+        SandboxControllerInjector.inject(sdkClassLoader, controller)
+        return SdkProviderV1.create(sdkClassLoader, sdkConfig.entryPoint, appContext)
     }
 
     companion object {
@@ -96,6 +119,7 @@ internal class SdkLoader internal constructor(
          */
         fun create(
             context: Context,
+            controller: SdkSandboxControllerCompat.SandboxControllerImpl,
             lowSpaceThreshold: Long = 100 * 1024 * 1024
         ): SdkLoader {
             val cachedLocalSdkStorage = CachedLocalSdkStorage.create(
@@ -109,7 +133,7 @@ internal class SdkLoader internal constructor(
                     fallback = InMemorySdkClassLoaderFactory.create(context)
                 )
             )
-            return SdkLoader(classLoaderFactory, context)
+            return SdkLoader(classLoaderFactory, context, controller)
         }
     }
 }

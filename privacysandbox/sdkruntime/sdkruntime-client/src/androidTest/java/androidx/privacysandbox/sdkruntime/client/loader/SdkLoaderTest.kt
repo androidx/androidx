@@ -20,7 +20,9 @@ import android.os.Build
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.config.ResourceRemappingConfig
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
+import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -44,7 +46,8 @@ class SdkLoaderTest {
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         sdkLoader = SdkLoader.create(
-            context
+            context = context,
+            controller = NoOpImpl(),
         )
         testSdkConfig = LocalSdkConfig(
             packageName = "androidx.privacysandbox.sdkruntime.test.v1",
@@ -116,7 +119,8 @@ class SdkLoaderTest {
     fun testLowSpace_failPreApi27() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val sdkLoaderWithLowSpaceMode = SdkLoader.create(
-            context,
+            context = context,
+            controller = NoOpImpl(),
             lowSpaceThreshold = Long.MAX_VALUE
         )
 
@@ -129,7 +133,8 @@ class SdkLoaderTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
     fun testLowSpace_notFailApi27() {
         val sdkLoaderWithLowSpaceMode = SdkLoader.create(
-            ApplicationProvider.getApplicationContext(),
+            context = ApplicationProvider.getApplicationContext(),
+            controller = NoOpImpl(),
             lowSpaceThreshold = Long.MAX_VALUE
         )
 
@@ -138,5 +143,11 @@ class SdkLoaderTest {
 
         val entryPointClass = classLoader.loadClass(testSdkConfig.entryPoint)
         assertThat(entryPointClass).isNotNull()
+    }
+
+    private class NoOpImpl : SdkSandboxControllerCompat.SandboxControllerImpl {
+        override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
+            throw UnsupportedOperationException("NoOp")
+        }
     }
 }

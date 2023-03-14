@@ -14,35 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.sdkruntime.core.controller.impl
+package androidx.privacysandbox.sdkruntime.client.controller
 
-import android.app.sdksandbox.sdkprovider.SdkSandboxController
-import android.content.Context
-import android.os.ext.SdkExtensions.AD_SERVICES
-import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
- * Implementation that delegates to platform [SdkSandboxController].
+ * Local implementation that will be injected to locally loaded SDKs.
  */
-@RequiresApi(33)
-@RequiresExtension(extension = AD_SERVICES, version = 5)
-internal class PlatformImpl(
-    private val controller: SdkSandboxController
+internal class LocalController(
+    private val locallyLoadedSdks: LocallyLoadedSdks
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
-        return controller
-            .sandboxedSdks
-            .map { platformSdk -> SandboxedSdkCompat(platformSdk) }
-    }
-
-    companion object {
-        fun from(context: Context): PlatformImpl {
-            val sdkSandboxController = context.getSystemService(SdkSandboxController::class.java)
-            return PlatformImpl(sdkSandboxController)
-        }
+        return locallyLoadedSdks.getLoadedSdks()
     }
 }

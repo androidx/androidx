@@ -19,6 +19,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
 import android.os.Bundle
+import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_INTERNAL_ERROR
@@ -29,6 +30,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -41,6 +43,11 @@ import org.mockito.Mockito.verify
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class SdkSandboxManagerCompatTest {
+
+    @After
+    fun tearDown() {
+        SdkSandboxManagerCompat.reset()
+    }
 
     @Test
     fun from_whenCalledOnSameContext_returnSameManager() {
@@ -165,16 +172,44 @@ class SdkSandboxManagerCompatTest {
     }
 
     @Test
-    fun getSandboxedSdks_whenSandboxNotAvailable_returnsEmptyList() {
+    fun sdkController_getSandboxedSdks_returnsLocallyLoadedSdks() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val localSdk = runBlocking {
+            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v2", Bundle())
+        }
+
+        val anotherLocalSdk = runBlocking {
+            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+        }
+
+        val testSdk = localSdk.asTestSdk()
+
+        val interfaces = testSdk.getSandboxedSdks()
+            .map { it.getInterface() }
+
+        assertThat(interfaces).containsExactly(
+            localSdk.getInterface(),
+            anotherLocalSdk.getInterface(),
+        )
+    }
+
+    @Test
+    fun getSandboxedSdks_whenSandboxNotAvailable_returnsLocallyLoadedSdkList() {
         // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
         assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
+        val localSdk = runBlocking {
+            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+        }
+
         val sandboxedSdks = managerCompat.getSandboxedSdks()
 
-        assertThat(sandboxedSdks).isEmpty()
+        assertThat(sandboxedSdks).containsExactly(localSdk)
     }
 
     private fun isSandboxApiNotAvailable() =

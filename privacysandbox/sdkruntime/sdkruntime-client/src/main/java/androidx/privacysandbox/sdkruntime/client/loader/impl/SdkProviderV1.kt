@@ -20,7 +20,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
 import androidx.annotation.RestrictTo
-import androidx.privacysandbox.sdkruntime.client.loader.LocalSdk
+import androidx.privacysandbox.sdkruntime.client.loader.LocalSdkProvider
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import java.lang.reflect.InvocationTargetException
@@ -32,7 +32,7 @@ import java.lang.reflect.Method
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class SdkV1 private constructor(
+internal class SdkProviderV1 private constructor(
     sdkProvider: Any,
 
     private val onLoadSdkMethod: Method,
@@ -40,7 +40,7 @@ internal class SdkV1 private constructor(
 
     private val sandboxedSdkCompatBuilder: SandboxedSdkCompatBuilderV1,
     private val loadSdkCompatExceptionBuilder: LoadSdkCompatExceptionBuilderV1
-) : LocalSdk(sdkProvider) {
+) : LocalSdkProvider(sdkProvider) {
 
     @SuppressLint("BanUncheckedReflection") // using reflection on library classes
     override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
@@ -144,7 +144,7 @@ internal class SdkV1 private constructor(
             classLoader: ClassLoader?,
             sdkProviderClassName: String,
             appContext: Context
-        ): SdkV1 {
+        ): SdkProviderV1 {
             val sdkProviderClass = Class.forName(
                 sdkProviderClassName,
                 /* initialize = */ false,
@@ -162,7 +162,7 @@ internal class SdkV1 private constructor(
             val sandboxedSdkContextCompat = SandboxedSdkContextCompat(appContext, classLoader)
             attachContextMethod.invoke(sdkProvider, sandboxedSdkContextCompat)
 
-            return SdkV1(
+            return SdkProviderV1(
                 sdkProvider,
                 onLoadSdkMethod,
                 beforeUnloadSdkMethod,
