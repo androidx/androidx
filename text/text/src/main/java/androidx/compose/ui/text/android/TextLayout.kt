@@ -114,7 +114,7 @@ private val SharedTextAndroidCanvas: TextAndroidCanvas = TextAndroidCanvas()
 @InternalPlatformTextApi
 class TextLayout constructor(
     charSequence: CharSequence,
-    width: Float = 0.0f,
+    width: Float,
     textPaint: TextPaint,
     @TextLayoutAlignment alignment: Int = DEFAULT_ALIGNMENT,
     ellipsize: TextUtils.TruncateAt? = null,
