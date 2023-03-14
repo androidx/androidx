@@ -17,6 +17,7 @@ package androidx.wear.compose.material
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -87,79 +88,78 @@ public class Typography internal constructor(
 ) {
     public constructor (
         defaultFontFamily: FontFamily = FontFamily.Default,
-        display1: TextStyle = TextStyle(
+        display1: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 40.sp,
             lineHeight = 46.sp,
             letterSpacing = 0.5.sp
         ),
-        display2: TextStyle = TextStyle(
+        display2: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 34.sp,
             lineHeight = 40.sp,
             letterSpacing = 1.sp
         ),
-        display3: TextStyle = TextStyle(
+        display3: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 30.sp,
             lineHeight = 36.sp,
             letterSpacing = 0.8.sp,
         ),
-        title1: TextStyle = TextStyle(
+        title1: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 24.sp,
             lineHeight = 28.sp,
             letterSpacing = 0.2.sp
         ),
-        title2: TextStyle = TextStyle(
+        title2: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 20.sp,
             lineHeight = 24.sp,
             letterSpacing = 0.2.sp
         ),
-        title3: TextStyle = TextStyle(
+        title3: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 16.sp,
             lineHeight = 20.sp,
             letterSpacing = 0.2.sp
         ),
-        body1: TextStyle = TextStyle(
+        body1: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 16.sp,
             lineHeight = 20.sp,
             letterSpacing = 0.18.sp
         ),
-        body2: TextStyle = TextStyle(
+        body2: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
             lineHeight = 18.sp,
             letterSpacing = 0.2.sp
         ),
-        button: TextStyle = TextStyle(
+        button: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Bold,
             fontSize = 15.sp,
             lineHeight = 19.sp,
             letterSpacing = 0.38.sp
         ),
-        caption1: TextStyle = TextStyle(
+        caption1: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
             lineHeight = 18.sp,
             letterSpacing = 0.1.sp
         ),
-        caption2: TextStyle = TextStyle(
+        caption2: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 12.sp,
             lineHeight = 16.sp,
             letterSpacing = 0.1.sp
         ),
-        caption3: TextStyle = TextStyle(
+        caption3: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 10.sp,
             lineHeight = 14.sp,
             letterSpacing = 0.1.sp
         )
-
     ) : this(
         display1 = display1.withDefaultFontFamily(defaultFontFamily),
         display2 = display2.withDefaultFontFamily(defaultFontFamily),
@@ -256,6 +256,15 @@ public class Typography internal constructor(
 private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
     return if (fontFamily != null) this else copy(fontFamily = default)
 }
+
+internal val DefaultTextStyle = TextStyle.Default.copy(
+    platformStyle = defaultPlatformTextStyle()
+)
+
+/**
+ * Returns Default [PlatformTextStyle].
+ */
+internal expect fun defaultPlatformTextStyle(): PlatformTextStyle?
 
 /**
  * This Ambient holds on to the current definition of typography for this application as described
