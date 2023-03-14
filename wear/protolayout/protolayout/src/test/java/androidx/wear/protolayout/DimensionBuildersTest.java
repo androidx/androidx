@@ -16,8 +16,13 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.wear.protolayout.DimensionBuilders.dp;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.DimensionProto;
 
 import org.junit.Test;
@@ -26,10 +31,35 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class DimensionBuildersTest {
+    private static final String STATE_KEY = "state-key";
+    private static final DimensionBuilders.DpProp DP_PROP =
+            new DimensionBuilders.DpProp.Builder(3.14f)
+                    .setDynamicValue(DynamicBuilders.DynamicFloat.fromState(STATE_KEY))
+                    .build();
+
+    @SuppressWarnings("deprecation")
+    private static final DimensionBuilders.DpProp.Builder DP_PROP_WITHOUT_STATIC_VALUE =
+            new DimensionBuilders.DpProp.Builder()
+                    .setDynamicValue(DynamicBuilders.DynamicFloat.fromState(STATE_KEY));
+
+    @Test
+    public void dpPropSupportsDynamicValue() {
+        DimensionProto.DpProp dpPropProto = DP_PROP.toProto();
+
+        assertThat(dpPropProto.getValue()).isEqualTo(DP_PROP.getValue());
+        assertThat(dpPropProto.getDynamicValue().getStateSource().getSourceKey())
+                .isEqualTo(STATE_KEY);
+    }
+
+    @Test
+    public void dpProp_withoutStaticValue_throws() {
+        assertThrows(IllegalStateException.class, DP_PROP_WITHOUT_STATIC_VALUE::build);
+    }
 
     @Test
     public void expandedLayoutWeight() {
-        float layoutWeight = 3.14f;
+        TypeBuilders.FloatProp layoutWeight =
+                new TypeBuilders.FloatProp.Builder().setValue(3.14f).build();
         DimensionBuilders.ContainerDimension dimensionProp =
                 new DimensionBuilders.ExpandedDimensionProp.Builder().setLayoutWeight(layoutWeight)
                         .build();
@@ -37,20 +67,30 @@ public class DimensionBuildersTest {
         DimensionProto.ContainerDimension dimensionProto =
                 dimensionProp.toContainerDimensionProto();
         assertThat(dimensionProto.getExpandedDimension().getLayoutWeight().getValue())
-                .isWithin(.001f).of(layoutWeight);
+                .isWithin(.001f).of(layoutWeight.getValue());
     }
 
 
     @Test
     public void wrappedMinSize() {
-        int minSizeDp = 42;
+        DimensionBuilders.DpProp minSize = dp(42);
         DimensionBuilders.ContainerDimension dimensionProp =
-                new DimensionBuilders.WrappedDimensionProp.Builder().setMinimumSizeDp(minSizeDp)
+                new DimensionBuilders.WrappedDimensionProp.Builder().setMinimumSize(minSize)
                         .build();
 
         DimensionProto.ContainerDimension dimensionProto =
                 dimensionProp.toContainerDimensionProto();
         assertThat(dimensionProto.getWrappedDimension().getMinimumSize().getValue())
-                .isEqualTo(minSizeDp);
+                .isEqualTo(minSize.getValue());
+    }
+
+    @Test
+    public void wrappedMinSize_throwsWhenSetToDynamicValue() {
+        DimensionBuilders.DpProp minSizeDynamic =
+                new DimensionBuilders.DpProp.Builder(42).setDynamicValue(
+                        DynamicBuilders.DynamicFloat.fromState("some-state")).build();
+        assertThrows(IllegalArgumentException.class, () ->
+                new DimensionBuilders.WrappedDimensionProp.Builder().setMinimumSize(
+                        minSizeDynamic));
     }
 }
