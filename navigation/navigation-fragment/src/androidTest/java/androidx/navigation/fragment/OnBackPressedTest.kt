@@ -23,6 +23,7 @@ import androidx.navigation.fragment.test.NavigationActivity
 import androidx.navigation.fragment.test.NavigationActivityWithFragmentTag
 import androidx.navigation.fragment.test.NavigationBaseActivity
 import androidx.navigation.fragment.test.R
+import androidx.navigation.navOptions
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
@@ -69,6 +70,27 @@ class OnBackPressedTest(
             withActivity {
                 navController.setGraph(R.navigation.nav_simple)
                 navController.navigate(R.id.empty_fragment)
+                onBackPressed()
+                assertWithMessage("onBackPressed() should trigger NavController.popBackStack()")
+                    .that(navController.currentDestination?.id)
+                    .isEqualTo(R.id.start_fragment)
+            }
+        }
+    }
+
+    @Test
+    fun testOnBackPressedAfterNavigateWithAnimators() {
+        with(ActivityScenario.launch(activityClass)) {
+            withActivity {
+                navController.setGraph(R.navigation.nav_simple)
+                navController.navigate(R.id.empty_fragment, null, navOptions {
+                    anim {
+                        enter = R.animator.fade_enter
+                        exit = R.animator.fade_exit
+                        popEnter = R.animator.fade_enter
+                        popExit = R.animator.fade_exit
+                    }
+                })
                 onBackPressed()
                 assertWithMessage("onBackPressed() should trigger NavController.popBackStack()")
                     .that(navController.currentDestination?.id)
