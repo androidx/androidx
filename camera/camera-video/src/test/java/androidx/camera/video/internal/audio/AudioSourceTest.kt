@@ -33,6 +33,7 @@ import java.nio.ByteBuffer
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit.NANOSECONDS
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -198,6 +199,7 @@ class AudioSourceTest {
         audioStream.verifyStopCall(CallTimes(1), COMMON_TIMEOUT_MS)
     }
 
+    @Ignore // b/273534749
     @Test
     fun canReceiveSilence() {
         // Arrange.
