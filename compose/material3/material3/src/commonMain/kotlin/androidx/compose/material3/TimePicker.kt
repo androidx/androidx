@@ -116,14 +116,19 @@ import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.isContainer
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selectableGroup
 import androidx.compose.ui.semantics.selected
@@ -563,9 +568,8 @@ class TimePickerState(
         DpOffset(offsetX, offsetY)
     }
 
-    internal val values by derivedStateOf {
-        if (selection == Selection.Minute) Minutes else Hours
-    }
+    internal var center by mutableStateOf(IntOffset.Zero)
+    internal val values get() = if (selection == Selection.Minute) Minutes else Hours
 
     internal var selection by mutableStateOf(Selection.Hour)
     internal var isAfternoonToggle by mutableStateOf(initialHour > 12 && !is24Hour)
@@ -586,6 +590,12 @@ class TimePickerState(
     internal fun setHour(hour: Int) {
         isInnerCircle = hour > 12 || hour == 0
         hourAngle = RadiansPerHour * hour % 12 - FullCircle / 4
+    }
+
+    internal fun moveSelector(x: Float, y: Float, maxDist: Float) {
+        if (selection == Selection.Hour && is24hour) {
+            isInnerCircle = dist(x, y, center.x, center.y) < maxDist
+        }
     }
 
     internal fun isSelected(value: Int): Boolean =
@@ -653,6 +663,17 @@ class TimePickerState(
         val targetValue = valuesForAnimation(currentAngle.value, minuteAngle)
         currentAngle.snapTo(targetValue.first)
         currentAngle.animateTo(targetValue.second, tween(200))
+    }
+
+    internal suspend fun onTap(x: Float, y: Float, maxDist: Float) {
+        update(atan(y - center.y, x - center.x), true)
+        moveSelector(x, y, maxDist)
+
+        if (selection == Selection.Hour) {
+            selection = Selection.Minute
+        } else {
+            settle()
+        }
     }
 
     companion object {
@@ -811,7 +832,7 @@ private fun DisplaySeparator(modifier: Modifier) {
     )
 
     Box(
-        modifier = modifier,
+        modifier = modifier.clearAndSetSemantics { },
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -861,13 +882,13 @@ private fun TimeSelector(
         shape = TimeSelectorContainerShape.toShape(),
         color = containerColor,
     ) {
-        val valueContentDescription = getString(
+        val valueContentDescription =
             numberContentDescription(
                 selection = selection,
-                is24Hour = state.is24hour
-            ),
-            value
-        )
+                is24Hour = state.is24hour,
+                number = value
+            )
+
         Box(contentAlignment = Alignment.Center) {
             Text(
                 modifier = Modifier.semantics { contentDescription = valueContentDescription },
@@ -886,6 +907,7 @@ internal fun ClockFace(state: TimePickerState, colors: TimePickerColors) {
             .background(shape = CircleShape, color = colors.clockDialColor)
             .size(ClockDialContainerSize)
             .semantics {
+                isContainer = false
                 selectableGroup()
             },
         targetState = state.values,
@@ -902,13 +924,12 @@ internal fun ClockFace(state: TimePickerState, colors: TimePickerColors) {
                 LocalContentColor provides colors.clockDialContentColor(false)
             ) {
                 repeat(screen.size) {
-                    val outerValue = if (!state.is24hour) screen[it] else screen[it] % 12
-                    ClockText(
-                        is24Hour = state.is24hour,
-                        selection = state.selection,
-                        value = outerValue,
-                        selected = state.isSelected(it)
-                    )
+                    val outerValue = if (!state.is24hour || state.selection == Selection.Minute) {
+                        screen[it]
+                    } else {
+                        screen[it] % 12
+                    }
+                    ClockText(state = state, value = outerValue)
                 }
 
                 if (state.selection == Selection.Hour && state.is24hour) {
@@ -921,12 +942,7 @@ internal fun ClockFace(state: TimePickerState, colors: TimePickerColors) {
                     ) {
                         repeat(ExtraHours.size) {
                             val innerValue = ExtraHours[it]
-                            ClockText(
-                                is24Hour = true,
-                                selection = state.selection,
-                                value = innerValue,
-                                selected = state.isSelected(it % 11)
-                            )
+                            ClockText(state = state, value = innerValue)
                         }
                     }
                 }
@@ -1003,37 +1019,24 @@ private fun Modifier.clockDial(state: TimePickerState): Modifier = composed(debu
 }) {
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
-    var center by remember { mutableStateOf(IntOffset.Zero) }
+    val center by remember { mutableStateOf(IntOffset.Zero) }
     val scope = rememberCoroutineScope()
     val maxDist = with(LocalDensity.current) { MaxDistance.toPx() }
-    fun moveSelector(x: Float, y: Float) {
-        if (state.selection == Selection.Hour && state.is24hour) {
-            state.isInnerCircle = dist(x, y, center.x, center.y) < maxDist
-        }
-    }
+
     Modifier
-        .onSizeChanged { center = it.center }
-        .pointerInput(state, maxDist, center) {
+        .onSizeChanged { state.center = it.center }
+        .pointerInput(state, center, maxDist) {
             detectTapGestures(
                 onPress = {
                     offsetX = it.x
                     offsetY = it.y
                 },
                 onTap = {
-                    scope.launch {
-                        state.update(atan(it.y - center.y, it.x - center.x), true)
-                        moveSelector(it.x, it.y)
-
-                        if (state.selection == Selection.Hour) {
-                            state.selection = Selection.Minute
-                        } else {
-                            state.settle()
-                        }
-                    }
+                    scope.launch { state.onTap(it.x, it.y, maxDist) }
                 },
             )
         }
-        .pointerInput(state, maxDist, center) {
+        .pointerInput(state, center, maxDist) {
             detectDragGestures(onDragEnd = {
                 scope.launch {
                     if (state.selection == Selection.Hour) {
@@ -1047,47 +1050,56 @@ private fun Modifier.clockDial(state: TimePickerState): Modifier = composed(debu
                 scope.launch {
                     offsetX += dragAmount.x
                     offsetY += dragAmount.y
-                    state.update(atan(offsetY - center.y, offsetX - center.x))
+                    state.update(atan(offsetY - state.center.y, offsetX - state.center.x))
                 }
-                moveSelector(offsetX, offsetY)
+                state.moveSelector(offsetX, offsetY, maxDist)
             }
         }
 }
 
 @Composable
-private fun ClockText(
-    is24Hour: Boolean,
-    selected: Boolean,
-    selection: Selection,
-    value: Int
-) {
+private fun ClockText(state: TimePickerState, value: Int) {
     val style = MaterialTheme.typography.fromToken(ClockDialLabelTextFont).let {
-        remember(it) {
-            copyAndSetFontPadding(style = it, false)
-        }
+        copyAndSetFontPadding(style = it, false)
     }
 
-    val contentDescription = getString(
+    val maxDist = with(LocalDensity.current) { MaxDistance.toPx() }
+    var center by remember { mutableStateOf(Offset.Zero) }
+    val scope = rememberCoroutineScope()
+    val contentDescription =
         numberContentDescription(
-            selection = selection,
-            is24Hour = is24Hour
-        ),
-        value
-    )
+            selection = state.selection,
+            is24Hour = state.is24hour,
+            number = value
+        )
+
+    val text = value.toLocalString(minDigits = 1)
+    val selected = if (state.selection == Selection.Minute) {
+        state.minute.toLocalString(minDigits = 1) == text
+    } else {
+        state.hour.toLocalString(minDigits = 1) == text
+    }
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .minimumInteractiveComponentSize()
             .size(MinimumInteractiveSize)
+            .onGloballyPositioned { center = it.boundsInParent().center }
             .focusable()
-            .semantics {
+            .semantics(mergeDescendants = true) {
+                onClick {
+                    scope.launch { state.onTap(center.x, center.y, maxDist) }
+                    true
+                }
                 this.selected = selected
-                this.contentDescription = contentDescription
             }
     ) {
         Text(
-            text = value.toLocalString(minDigits = 1),
+            modifier = Modifier.clearAndSetSemantics {
+                this.contentDescription = contentDescription
+            },
+            text = text,
             style = style,
         )
     }
@@ -1288,16 +1300,20 @@ private fun CircularLayout(
 
 @Composable
 @ReadOnlyComposable
-private fun numberContentDescription(selection: Selection, is24Hour: Boolean): Strings {
-    if (selection == Selection.Minute) {
-        return Strings.TimePickerMinuteSuffix
+internal fun numberContentDescription(
+    selection: Selection,
+    is24Hour: Boolean,
+    number: Int
+): String {
+    val id = if (selection == Selection.Minute) {
+        Strings.TimePickerMinuteSuffix
+    } else if (is24Hour) {
+        Strings.TimePicker24HourSuffix
+    } else {
+        Strings.TimePickerHourSuffix
     }
 
-    if (is24Hour) {
-        return Strings.TimePicker24HourSuffix
-    }
-
-    return Strings.TimePickerHourSuffix
+    return getString(id, number)
 }
 
 private fun valuesForAnimation(current: Float, new: Float): Pair<Float, Float> {
