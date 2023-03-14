@@ -202,8 +202,10 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                 )
             }
         }
-        // TODO(b/262573513): pass page token
-        return ReadRecordsResponse(response.records.map { it.toSdkRecord() as T }, null)
+        return ReadRecordsResponse(
+            response.records.map { it.toSdkRecord() as T },
+            pageToken = response.nextPageToken.takeUnless { it == -1L }?.toString()
+        )
     }
 
     override suspend fun aggregate(request: AggregateRequest): AggregationResult {
@@ -276,25 +278,35 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     }
 
     override suspend fun getChanges(changesToken: String): ChangesResponse {
-        val response = wrapPlatformException {
-            suspendCancellableCoroutine { continuation ->
+        try {
+            val response = suspendCancellableCoroutine { continuation ->
                 healthConnectManager.getChangeLogs(
                     ChangeLogsRequest.Builder(changesToken).build(),
                     executor,
                     continuation.asOutcomeReceiver()
                 )
             }
+            return ChangesResponse(
+                buildList {
+                    response.upsertedRecords.forEach { add(UpsertionChange(it.toSdkRecord())) }
+                    response.deletedLogs.forEach { add(DeletionChange(it.deletedRecordId)) }
+                },
+                response.nextChangesToken,
+                response.hasMorePages(),
+                changesTokenExpired = false
+            )
+        } catch (e: HealthConnectException) {
+            // Handle invalid token
+            if (e.errorCode == HealthConnectException.ERROR_INVALID_ARGUMENT) {
+                return ChangesResponse(
+                    changes = listOf(),
+                    nextChangesToken = "",
+                    hasMore = false,
+                    changesTokenExpired = true
+                )
+            }
+            throw e.toKtException()
         }
-        // TODO(b/263472286) revisit changesTokenExpired field in the constructor
-        return ChangesResponse(
-            buildList {
-                response.upsertedRecords.forEach { add(UpsertionChange(it.toSdkRecord())) }
-                response.deletedLogs.forEach { add(DeletionChange(it.deletedRecordId)) }
-            },
-            response.nextChangesToken,
-            response.hasMorePages(),
-            changesTokenExpired = true
-        )
     }
 
     override suspend fun getGrantedPermissions(): Set<String> {
