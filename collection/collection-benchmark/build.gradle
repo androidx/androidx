@@ -118,6 +118,7 @@ darwinBenchmark {
     scheme = "testapp-ios"
     // ios 13, 15.2
     destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
+    referenceSha.set(androidx.getReferenceSha())
 }
 
 android {

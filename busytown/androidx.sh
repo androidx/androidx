@@ -18,9 +18,10 @@ if ! impl/check_translations.sh; then
   EXIT_VALUE=1
 else
   # Run Gradle
-  if ! impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs \
+  if ! impl/build.sh buildOnServer createAllArchives checkExternalLicenses listTaskOutputs \
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
+      -Pandroidx.constraints=true \
       --no-daemon \
       --profile "$@"; then
     EXIT_VALUE=1

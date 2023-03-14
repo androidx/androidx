@@ -35,11 +35,12 @@ internal class AndroidCaptureSessionStateCallbackTest {
     private val stateCallback: CameraCaptureSessionWrapper.StateCallback = mock()
     private val previousStateCallback: CameraCaptureSessionWrapper.StateCallback = mock()
     private val captureSession: CameraCaptureSession = mock()
-    private val androidStateCallback = AndroidCaptureSessionStateCallback(
-        device = camera,
-        stateCallback = stateCallback,
-        lastStateCallback = previousStateCallback,
-    )
+    private val androidStateCallback =
+        AndroidCaptureSessionStateCallback(
+            device = camera,
+            stateCallback = stateCallback,
+            lastStateCallback = previousStateCallback,
+        )
 
     @Test
     fun normalMethodsAreForwardedToStateCallback() {

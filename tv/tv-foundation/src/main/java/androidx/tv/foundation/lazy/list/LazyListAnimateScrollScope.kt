@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastSumBy
 import androidx.tv.foundation.lazy.layout.LazyAnimateScrollScope
+import kotlin.math.abs
 
 internal class LazyListAnimateScrollScope(
     private val state: TvLazyListState
@@ -52,8 +53,10 @@ internal class LazyListAnimateScrollScope(
         val visibleItems = state.layoutInfo.visibleItemsInfo
         val averageSize = visibleItems.fastSumBy { it.size } / visibleItems.size
         val indexesDiff = index - firstVisibleItemIndex
+        var coercedOffset = minOf(abs(targetScrollOffset), averageSize)
+        if (targetScrollOffset < 0) coercedOffset *= -1
         return (averageSize * indexesDiff).toFloat() +
-            targetScrollOffset - firstVisibleItemScrollOffset
+            coercedOffset - firstVisibleItemScrollOffset
     }
 
     override suspend fun scroll(block: suspend ScrollScope.() -> Unit) {

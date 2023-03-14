@@ -25,8 +25,8 @@ import android.view.AttachedSurfaceControl
 import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
-import androidx.graphics.lowlatency.SyncFenceImpl
-import androidx.graphics.lowlatency.SyncFenceV33
+import androidx.hardware.SyncFenceImpl
+import androidx.hardware.SyncFenceV33
 import java.util.concurrent.Executor
 
 /**
@@ -61,6 +61,14 @@ internal class SurfaceControlV33 internal constructor(
          */
         override fun setParent(surfaceView: SurfaceView): SurfaceControlImpl.Builder {
             builder.setParent(surfaceView.surfaceControl)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlImpl.Builder.setParent]
+         */
+        override fun setParent(surfaceControl: SurfaceControlCompat): SurfaceControlImpl.Builder {
+            builder.setParent(surfaceControl.scImpl.asFrameworkSurfaceControl())
             return this
         }
 
@@ -271,19 +279,21 @@ internal class SurfaceControlV33 internal constructor(
             attachedSurfaceControl.applyTransactionOnDraw(mTransaction)
         }
 
-        private fun SurfaceControlImpl.asFrameworkSurfaceControl(): SurfaceControl =
-            if (this is SurfaceControlV33) {
-                surfaceControl
-            } else {
-                throw IllegalArgumentException("Parent implementation is not for Android T")
-            }
-
         private fun SyncFenceImpl.asSyncFence(): SyncFence =
             if (this is SyncFenceV33) {
                 mSyncFence
             } else {
                 throw
                 IllegalArgumentException("Expected SyncFenceCompat implementation for API level 33")
+            }
+    }
+
+    private companion object {
+        fun SurfaceControlImpl.asFrameworkSurfaceControl(): SurfaceControl =
+            if (this is SurfaceControlV33) {
+                surfaceControl
+            } else {
+                throw IllegalArgumentException("Parent implementation is not for Android T")
             }
     }
 }

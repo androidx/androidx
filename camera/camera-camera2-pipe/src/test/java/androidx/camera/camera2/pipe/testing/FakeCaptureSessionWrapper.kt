@@ -100,9 +100,7 @@ internal class FakeCaptureSessionWrapper(
     }
 
     override fun finalizeOutputConfigurations(outputConfigs: List<OutputConfigurationWrapper>) {
-        throw UnsupportedOperationException(
-            "finalizeOutputConfigurations is not supported"
-        )
+        throw UnsupportedOperationException("finalizeOutputConfigurations is not supported")
     }
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? {

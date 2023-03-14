@@ -16,13 +16,24 @@
 
 package androidx.camera.core.internal.utils
 
+import android.graphics.ImageFormat
+import android.graphics.Matrix
+import android.graphics.PixelFormat
+import androidx.camera.core.ImageProcessingUtil
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.ImageReaderProxys
+import androidx.camera.core.ImmutableImageInfo
+import androidx.camera.core.SafeCloseImageReaderProxy
+import androidx.camera.core.impl.TagBundle
 import androidx.camera.testing.TestImageUtil
+import androidx.camera.testing.fakes.FakeImageProxy
 import androidx.camera.testing.fakes.FakePlaneProxy
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import java.nio.ByteBuffer
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -120,5 +131,58 @@ class ImageUtilDeviceTest {
             WIDTH,
             HEIGHT
         )
+    }
+
+    @Test
+    fun createBitmapFromImageProxy_yuv420() {
+        val fakeImageProxy = TestImageUtil.createYuvFakeImageProxy(
+            ImmutableImageInfo.create(
+            TagBundle.emptyBundle(), 0, 0, Matrix()
+        ), WIDTH, HEIGHT)
+
+        val bitmap = ImageUtil.createBitmapFromImageProxy(fakeImageProxy)
+
+        assertThat(bitmap.width).isEqualTo(WIDTH)
+        assertThat(bitmap.height).isEqualTo(HEIGHT)
+        assertThat(bitmap.byteCount).isEqualTo(76800)
+    }
+
+    @Test
+    fun createBitmapFromImageProxy_rgba() {
+        val fakeYuvImageProxy = TestImageUtil.createYuvFakeImageProxy(
+            ImmutableImageInfo.create(
+                TagBundle.emptyBundle(), 0, 0, Matrix()
+            ), WIDTH, HEIGHT)
+
+        val fakeRgbaImageProxy = ImageProcessingUtil.convertYUVToRGB(
+            fakeYuvImageProxy,
+            SafeCloseImageReaderProxy(
+                ImageReaderProxys.createIsolatedReader(
+                    WIDTH,
+                    HEIGHT,
+                    PixelFormat.RGBA_8888,
+                    2)),
+            ByteBuffer.allocateDirect(WIDTH * HEIGHT * 4),
+            0,
+            false)
+        assertThat(fakeRgbaImageProxy).isNotNull()
+
+        val bitmap = ImageUtil.createBitmapFromImageProxy(fakeRgbaImageProxy!!)
+
+        assertThat(bitmap.width).isEqualTo(WIDTH)
+        assertThat(bitmap.height).isEqualTo(HEIGHT)
+        assertThat(bitmap.byteCount).isEqualTo(76800)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun createBitmapFromImageProxy_invalidFormat() {
+        val image = FakeImageProxy(ImmutableImageInfo.create(
+            TagBundle.emptyBundle(), 0, 0, Matrix()
+        ))
+        image.format = ImageFormat.JPEG
+        image.width = WIDTH
+        image.height = HEIGHT
+
+        ImageUtil.createBitmapFromImageProxy(image)
     }
 }

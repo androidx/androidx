@@ -44,6 +44,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
@@ -404,10 +405,15 @@ class VideoCaptureDeviceTest(
                 attachToGLContext(GLUtil.getTexIdFromGLContext())
                 setOnFrameAvailableListener {
                     frameCountFlow.getAndUpdate { frameCount -> frameCount + 1 }
-                    executor.execute {
-                        if (!isReleased) {
-                            updateTexImage()
+                    try {
+                        executor.execute {
+                            if (!isReleased) {
+                                updateTexImage()
+                            }
                         }
+                    } catch (_: RejectedExecutionException) {
+                        // Ignored since frame updating is no longer needed after surface
+                        // and executor are released.
                     }
                 }
             }

@@ -18,6 +18,9 @@
 package androidx.window.rxjava3.layout
 
 import android.app.Activity
+import android.content.Context
+import androidx.annotation.UiContext
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import io.reactivex.rxjava3.core.Flowable
@@ -29,7 +32,7 @@ import kotlinx.coroutines.rx3.asObservable
  * Return an [Observable] stream of [WindowLayoutInfo].
  * @see WindowInfoTracker.windowLayoutInfo
  */
-public fun WindowInfoTracker.windowLayoutInfoObservable(
+fun WindowInfoTracker.windowLayoutInfoObservable(
     activity: Activity
 ): Observable<WindowLayoutInfo> {
     return windowLayoutInfo(activity).asObservable()
@@ -39,8 +42,30 @@ public fun WindowInfoTracker.windowLayoutInfoObservable(
  * Return a [Flowable] stream of [WindowLayoutInfo].
  * @see WindowInfoTracker.windowLayoutInfo
  */
-public fun WindowInfoTracker.windowLayoutInfoFlowable(
+fun WindowInfoTracker.windowLayoutInfoFlowable(
     activity: Activity
 ): Flowable<WindowLayoutInfo> {
     return windowLayoutInfo(activity).asFlowable()
+}
+
+/**
+ * Return an [Observable] stream of [WindowLayoutInfo].
+ * @see WindowInfoTracker.windowLayoutInfo
+ */
+@OptIn(ExperimentalWindowApi::class)
+fun WindowInfoTracker.windowLayoutInfoObservable(
+    @UiContext context: Context
+): Observable<WindowLayoutInfo> {
+    return windowLayoutInfo(context).asObservable()
+}
+
+/**
+ * Return a [Flowable] stream of [WindowLayoutInfo].
+ * @see WindowInfoTracker.windowLayoutInfo
+ */
+@OptIn(ExperimentalWindowApi::class)
+fun WindowInfoTracker.windowLayoutInfoFlowable(
+    @UiContext context: Context
+): Flowable<WindowLayoutInfo> {
+    return windowLayoutInfo(context).asFlowable()
 }

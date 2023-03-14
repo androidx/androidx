@@ -43,24 +43,30 @@ import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 
 private val streamIds = atomic(0)
+
 internal fun nextStreamId(): StreamId = StreamId(streamIds.incrementAndGet())
 
 private val outputIds = atomic(0)
+
 internal fun nextOutputId(): OutputId = OutputId(outputIds.incrementAndGet())
 
 private val configIds = atomic(0)
+
 internal fun nextConfigId(): OutputConfigId = OutputConfigId(configIds.incrementAndGet())
 
 private val groupIds = atomic(0)
+
 internal fun nextGroupId(): Int = groupIds.incrementAndGet()
 
 /**
- * This object keeps track of which surfaces have been configured for each stream. In addition,
- * it will keep track of which surfaces have changed or replaced so that the CaptureSession can be
+ * This object keeps track of which surfaces have been configured for each stream. In addition, it
+ * will keep track of which surfaces have changed or replaced so that the CaptureSession can be
  * reconfigured if the configured surfaces change.
  */
 @CameraGraphScope
-internal class StreamGraphImpl @Inject constructor(
+internal class StreamGraphImpl
+@Inject
+constructor(
     cameraMetadata: CameraMetadata,
     graphConfig: CameraGraph.Config,
 ) : StreamGraph {
@@ -83,10 +89,8 @@ internal class StreamGraphImpl @Inject constructor(
         val streamListBuilder = mutableListOf<CameraStream>()
         val streamMapBuilder = mutableMapOf<CameraStream.Config, CameraStream>()
 
-        val deferredOutputsAllowed = computeIfDeferredStreamsAreSupported(
-            cameraMetadata,
-            graphConfig
-        )
+        val deferredOutputsAllowed =
+            computeIfDeferredStreamsAreSupported(cameraMetadata, graphConfig)
 
         // Compute groupNumbers for buffer sharing.
         val groupNumbers = mutableMapOf<CameraStream.Config, Int>()
@@ -108,24 +112,26 @@ internal class StreamGraphImpl @Inject constructor(
                 }
 
                 @SuppressWarnings("SyntheticAccessor")
-                val outputConfig = OutputConfig(
-                    nextConfigId(),
-                    output.size,
-                    output.format,
-                    output.camera ?: graphConfig.camera,
-                    groupNumber = groupNumbers[streamConfig],
-                    deferredOutputType = if (deferredOutputsAllowed) {
-                        (output as? OutputStream.Config.LazyOutputConfig)?.outputType
-                    } else {
-                        null
-                    },
-                    mirrorMode = output.mirrorMode,
-                    timestampBase = output.timestampBase,
-                    dynamicRangeProfile = output.dynamicRangeProfile,
-                    streamUseCase = output.streamUseCase,
-                    externalOutputConfig =
-                    (output as? OutputStream.Config.ExternalOutputConfig)?.output
-                )
+                val outputConfig =
+                    OutputConfig(
+                        nextConfigId(),
+                        output.size,
+                        output.format,
+                        output.camera ?: graphConfig.camera,
+                        groupNumber = groupNumbers[streamConfig],
+                        deferredOutputType =
+                        if (deferredOutputsAllowed) {
+                            (output as? OutputStream.Config.LazyOutputConfig)?.outputType
+                        } else {
+                            null
+                        },
+                        mirrorMode = output.mirrorMode,
+                        timestampBase = output.timestampBase,
+                        dynamicRangeProfile = output.dynamicRangeProfile,
+                        streamUseCase = output.streamUseCase,
+                        externalOutputConfig =
+                        (output as? OutputStream.Config.ExternalOutputConfig)?.output
+                    )
                 outputConfigMap[output] = outputConfig
                 outputConfigListBuilder.add(outputConfig)
             }
@@ -135,22 +141,24 @@ internal class StreamGraphImpl @Inject constructor(
         for (streamConfigIdx in graphConfig.streams.indices) {
             val streamConfig = graphConfig.streams[streamConfigIdx]
 
-            val outputs = streamConfig.outputs.map {
-                val outputConfig = outputConfigMap[it]!!
+            val outputs =
+                streamConfig.outputs.map {
+                    val outputConfig = outputConfigMap[it]!!
 
-                @SuppressWarnings("SyntheticAccessor")
-                val outputStream = OutputStreamImpl(
-                    nextOutputId(),
-                    outputConfig.size,
-                    outputConfig.format,
-                    outputConfig.camera,
-                    outputConfig.mirrorMode,
-                    outputConfig.timestampBase,
-                    outputConfig.dynamicRangeProfile,
-                    outputConfig.streamUseCase,
-                )
-                outputStream
-            }
+                    @SuppressWarnings("SyntheticAccessor")
+                    val outputStream =
+                        OutputStreamImpl(
+                            nextOutputId(),
+                            outputConfig.size,
+                            outputConfig.format,
+                            outputConfig.camera,
+                            outputConfig.mirrorMode,
+                            outputConfig.timestampBase,
+                            outputConfig.dynamicRangeProfile,
+                            outputConfig.streamUseCase,
+                        )
+                    outputStream
+                }
 
             val stream = CameraStream(nextStreamId(), outputs)
             streamMapBuilder[streamConfig] = stream
@@ -255,10 +263,8 @@ internal class StreamGraphImpl @Inject constructor(
             graphConfig.sessionMode == CameraGraph.OperatingMode.NORMAL &&
             hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY &&
             hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED &&
-            (
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
-                    hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
-                )
+            (Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
+                hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL)
     }
 
     override fun toString(): String {

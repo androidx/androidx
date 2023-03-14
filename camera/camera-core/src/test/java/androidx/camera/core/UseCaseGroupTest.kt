@@ -22,7 +22,7 @@ import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.UseCaseGroup.Builder.getHumanReadableTargets
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.fakes.FakePreviewEffect
+import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessor
 import androidx.camera.testing.fakes.FakeUseCase
 import com.google.common.truth.Truth.assertThat
@@ -43,7 +43,7 @@ class UseCaseGroupTest {
     @Test
     fun duplicateTargets_throwsException() {
         // Arrange.
-        val previewEffect = FakePreviewEffect(
+        val previewEffect = FakeSurfaceEffect(
             CameraXExecutors.mainThreadExecutor(),
             FakeSurfaceProcessor(CameraXExecutors.mainThreadExecutor())
         )
@@ -61,8 +61,8 @@ class UseCaseGroupTest {
 
         // Assert.
         assertThat(message).isEqualTo(
-            "Effects androidx.camera.testing.fakes.FakePreviewEffect " +
-                "and androidx.camera.testing.fakes.FakePreviewEffect " +
+            "Effects androidx.camera.testing.fakes.FakeSurfaceEffect " +
+                "and androidx.camera.testing.fakes.FakeSurfaceEffect " +
                 "contain duplicate targets PREVIEW."
         )
     }

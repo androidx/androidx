@@ -63,6 +63,10 @@ public final class SystemOutputSwitcherDialogController {
     /**
      * Shows the system output switcher dialog.
      *
+     * <p>The appearance and precise behaviour of the system output switcher dialog
+     * may vary across different devices, OS versions, and form factors,
+     * but the basic functionality stays the same.
+     *
      * <p>See
      * <a href="https://developer.android.com/guide/topics/media/media-routing#output-switcher">
      * Output Switcher documentation</a> for more details.

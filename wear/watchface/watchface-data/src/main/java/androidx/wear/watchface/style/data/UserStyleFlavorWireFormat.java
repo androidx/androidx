@@ -31,9 +31,7 @@ import androidx.wear.watchface.complications.data.DefaultComplicationDataSourceP
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @hide
- */
+/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable

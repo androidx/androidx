@@ -93,12 +93,37 @@ fun MacrobenchmarkRule.measureStartup(
     startActivityAndWait(intent)
 }
 
+/**
+ * Baseline Profile compilation mode is considered primary, and always worth measuring
+ */
+private fun CompilationMode.isPrimary(): Boolean {
+    return if (Build.VERSION.SDK_INT < 24) {
+        true
+    } else {
+        this is CompilationMode.Partial &&
+            this.warmupIterations == 0 &&
+            (this.baselineProfileMode == BaselineProfileMode.UseIfAvailable ||
+                this.baselineProfileMode == BaselineProfileMode.Require)
+    }
+}
+
 fun createStartupCompilationParams(
     startupModes: List<StartupMode> = STARTUP_MODES,
     compilationModes: List<CompilationMode> = COMPILATION_MODES
 ): List<Array<Any>> = mutableListOf<Array<Any>>().apply {
+    // To save CI resources, avoid measuring startup combinations which have non-primary
+    // compilation or startup mode (BP, cold respectively) in the default case
+    val minimalIntersection = startupModes == STARTUP_MODES && compilationModes == COMPILATION_MODES
+
     for (startupMode in startupModes) {
         for (compilationMode in compilationModes) {
+            if (minimalIntersection &&
+                startupMode != StartupMode.COLD &&
+                !compilationMode.isPrimary()
+            ) {
+                continue
+            }
+
             // Skip configs that can't run, so they don't clutter Studio benchmark
             // output with AssumptionViolatedException dumps
             if (compilationMode.isSupportedWithVmSettings()) {

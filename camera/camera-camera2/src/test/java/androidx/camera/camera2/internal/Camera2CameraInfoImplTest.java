@@ -57,6 +57,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -73,6 +75,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 @RunWith(RobolectricTestRunner.class)
@@ -605,11 +608,19 @@ public class Camera2CameraInfoImplTest {
         List<Size> resolutions = cameraInfo.getSupportedResolutions(
                 ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
 
-        assertThat(resolutions).containsExactly(
-                new Size(1920, 1080),
-                new Size(1280, 720),
-                new Size(640, 480)
-        );
+        if (Build.VERSION.SDK_INT == 21) {
+            // TargetAspectRatio workaround should be applied to the StreamConfigurationMapCompat
+            assertThat(resolutions).containsExactly(
+                    new Size(1920, 1080),
+                    new Size(1280, 720)
+            );
+        } else {
+            assertThat(resolutions).containsExactly(
+                    new Size(1920, 1080),
+                    new Size(1280, 720),
+                    new Size(640, 480)
+            );
+        }
     }
 
     @Test
@@ -815,6 +826,12 @@ public class Camera2CameraInfoImplTest {
         @Override
         public String[] getCameraIdList() throws CameraAccessExceptionCompat {
             return mCameraIdCharacteristics.keySet().toArray(new String[0]);
+        }
+
+        @NonNull
+        @Override
+        public Set<Set<String>> getConcurrentCameraIds() throws CameraAccessExceptionCompat {
+            return ImmutableSet.of(mCameraIdCharacteristics.keySet());
         }
 
         @Override

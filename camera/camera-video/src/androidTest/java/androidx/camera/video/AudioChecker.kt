@@ -20,14 +20,9 @@ import android.content.Context
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Logger
-import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
-import androidx.camera.video.internal.AudioSource
-import androidx.camera.video.internal.FakeBufferProvider
-import androidx.camera.video.internal.config.AudioSourceSettingsCamcorderProfileResolver
-import androidx.camera.video.internal.encoder.FakeInputBuffer
-import androidx.concurrent.futures.await
-import kotlinx.coroutines.CompletableDeferred
+import androidx.camera.video.internal.audio.AudioStreamImpl
+import androidx.camera.video.internal.config.AudioSettingsAudioProfileResolver
 import kotlinx.coroutines.runBlocking
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -36,61 +31,43 @@ class AudioChecker {
     companion object {
         private const val TAG = "AudioChecker"
 
-        fun canAudioSourceBeStarted(
+        fun canAudioStreamBeStarted(
             context: Context,
             cameraSelector: CameraSelector,
             qualitySelector: QualitySelector
         ): Boolean {
             return try {
-                checkAudioSourceCanBeStarted(context, cameraSelector, qualitySelector)
-                Logger.i(TAG, "Audio source can be started.")
+                checkAudioStreamCanBeStarted(context, cameraSelector, qualitySelector)
+                Logger.i(TAG, "Audio stream can be started.")
                 true
             } catch (t: Throwable) {
-                Logger.i(TAG, "Audio source failed to start.", t)
+                Logger.i(TAG, "Audio stream failed to start.", t)
                 false
             }
         }
 
-        private fun checkAudioSourceCanBeStarted(
+        private fun checkAudioStreamCanBeStarted(
             context: Context,
             cameraSelector: CameraSelector,
             qualitySelector: QualitySelector
         ) = runBlocking {
-            // Get audio source settings from CamcorderProfile
+            // Get audio source settings from EncoderProfiles
             val cameraInfo =
                 CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
             val videoCapabilities = VideoCapabilities.from(cameraInfo)
             val quality = qualitySelector.getPrioritizedQualities(cameraInfo).first()
             // Get a config using the default audio spec.
-            val audioSourceSettings =
-                AudioSourceSettingsCamcorderProfileResolver(
+            val audioSettings =
+                AudioSettingsAudioProfileResolver(
                     AudioSpec.builder().build(),
-                    videoCapabilities.getProfile(quality)!!
+                    videoCapabilities.getProfiles(quality)!!.defaultAudioProfile!!
                 ).get()
-            val audioSource = AudioSource(audioSourceSettings, CameraXExecutors.ioExecutor(), null)
-            try {
-                val completable = CompletableDeferred<Any?>()
-                audioSource.setAudioSourceCallback(CameraXExecutors.directExecutor(),
-                    object : AudioSource.AudioSourceCallback {
-                        override fun onSilenced(silenced: Boolean) {
-                            // Ignore
-                        }
-
-                        override fun onError(t: Throwable) {
-                            completable.completeExceptionally(t)
-                        }
-                    })
-
-                val fakeBufferProvider = FakeBufferProvider {
-                    completable.complete(null)
-                    FakeInputBuffer()
+            with(AudioStreamImpl(audioSettings, null)) {
+                try {
+                    start()
+                } finally {
+                    release()
                 }
-                audioSource.setBufferProvider(fakeBufferProvider)
-                fakeBufferProvider.setActive(true)
-                audioSource.start()
-                completable.await()
-            } finally {
-                audioSource.release().await()
             }
         }
     }

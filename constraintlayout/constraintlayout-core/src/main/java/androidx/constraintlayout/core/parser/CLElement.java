@@ -118,6 +118,10 @@ public class CLElement implements Cloneable {
     // @TODO: add description
     public String content() {
         String content = new String(mContent);
+        // Handle empty string
+        if (content.length() < 1) {
+            return "";
+        }
         if (mEnd == Long.MAX_VALUE || mEnd < mStart) {
             return content.substring((int) mStart, (int) mStart + 1);
         }

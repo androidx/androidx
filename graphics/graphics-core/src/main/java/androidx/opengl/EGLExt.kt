@@ -21,7 +21,8 @@ import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EGLConfigAttributes
-import androidx.hardware.SyncFence
+import androidx.hardware.SyncFenceCompat
+import androidx.hardware.SyncFenceV19
 import androidx.opengl.EGLExt.Companion.eglCreateSyncKHR
 
 /**
@@ -561,12 +562,12 @@ class EGLExt private constructor() {
          * https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_native_fence_sync.txt
          *
          * @param display The EGLDisplay connection
-         * @param sync The EGLSyncKHR to fetch the [SyncFence] from
-         * @return A [SyncFence] representing the native fence.
-         *  If [sync] is not a valid sync object for [display], an invalid [SyncFence]
+         * @param sync The EGLSyncKHR to fetch the [SyncFenceCompat] from
+         * @return A [SyncFenceCompat] representing the native fence.
+         *  If [sync] is not a valid sync object for [display], an invalid [SyncFenceCompat]
          *  instance is returned and an EGL_BAD_PARAMETER error is generated.
          *  If the EGL_SYNC_NATIVE_FENCE_FD_ANDROID attribute of [sync] is
-         *  EGL_NO_NATIVE_FENCE_FD_ANDROID, an invalid [SyncFence] is
+         *  EGL_NO_NATIVE_FENCE_FD_ANDROID, an invalid [SyncFenceCompat] is
          *  returned and an EGL_BAD_PARAMETER error is generated.
          *  If [display] does not match the display passed to [eglCreateSyncKHR]
          *  when [sync] was created, the behavior is undefined.
@@ -574,15 +575,18 @@ class EGLExt private constructor() {
         @JvmStatic
         @Suppress("AcronymName")
         @RequiresApi(Build.VERSION_CODES.KITKAT)
-        fun eglDupNativeFenceFDANDROID(display: EGLDisplay, sync: EGLSyncKHR): SyncFence {
+        internal fun eglDupNativeFenceFDANDROID(
+            display: EGLDisplay,
+            sync: EGLSyncKHR
+        ): SyncFenceCompat {
             val fd = EGLBindings.nDupNativeFenceFDANDROID(
                 display.obtainNativeHandle(),
                 sync.nativeHandle
             )
             return if (fd >= 0) {
-                SyncFence(fd)
+                SyncFenceCompat(SyncFenceV19(fd))
             } else {
-                SyncFence(-1)
+                SyncFenceCompat(SyncFenceV19(-1))
             }
         }
 

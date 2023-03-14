@@ -40,9 +40,9 @@ import androidx.camera.core.CameraState
 import androidx.camera.core.ExposureState
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
-import androidx.camera.core.impl.CamcorderProfileProvider
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
@@ -68,7 +68,7 @@ class CameraInfoAdapter @Inject constructor(
     private val cameraCallbackMap: CameraCallbackMap,
     private val focusMeteringControl: FocusMeteringControl
 ) : CameraInfoInternal {
-    private lateinit var camcorderProfileProviderAdapter: CamcorderProfileProviderAdapter
+    private lateinit var encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter
     @OptIn(ExperimentalCamera2Interop::class)
     internal val camera2CameraInfo: Camera2CameraInfo by lazy {
         Camera2CameraInfo.create(cameraProperties)
@@ -127,11 +127,11 @@ class CameraInfoAdapter @Inject constructor(
 
     override fun getImplementationType(): String = "CameraPipe"
 
-    override fun getCamcorderProfileProvider(): CamcorderProfileProvider {
-        if (!::camcorderProfileProviderAdapter.isInitialized) {
-            camcorderProfileProviderAdapter = CamcorderProfileProviderAdapter(cameraId)
+    override fun getEncoderProfilesProvider(): EncoderProfilesProvider {
+        if (!::encoderProfilesProviderAdapter.isInitialized) {
+            encoderProfilesProviderAdapter = EncoderProfilesProviderAdapter(cameraId)
         }
-        return camcorderProfileProviderAdapter
+        return encoderProfilesProviderAdapter
     }
 
     override fun getTimebase(): Timebase {

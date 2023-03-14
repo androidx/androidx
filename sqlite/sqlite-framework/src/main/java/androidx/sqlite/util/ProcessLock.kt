@@ -52,12 +52,12 @@ import java.util.concurrent.locks.ReentrantLock
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ProcessLock(
     name: String,
-    lockDir: File,
+    lockDir: File?,
     private val processLock: Boolean
 ) {
-    private val lockFile: File = File(lockDir, "$name.lck")
+    private val lockFile: File? = lockDir?.let { File(it, "$name.lck") }
     @SuppressLint("SyntheticAccessor")
-    private val threadLock: Lock = getThreadLock(lockFile.absolutePath)
+    private val threadLock: Lock = getThreadLock(name)
     private var lockChannel: FileChannel? = null
 
     /**
@@ -69,6 +69,9 @@ class ProcessLock(
         threadLock.lock()
         if (processLock) {
             try {
+                if (lockFile == null) {
+                    throw IOException("No lock directory was provided.")
+                }
                 // Verify parent dir
                 val parentDir = lockFile.parentFile
                 parentDir?.mkdirs()

@@ -25,6 +25,8 @@ import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
 import static androidx.core.util.Preconditions.checkArgument;
 
+import static java.util.UUID.randomUUID;
+
 import android.graphics.Rect;
 import android.util.Size;
 
@@ -32,6 +34,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ProcessingException;
@@ -40,6 +43,7 @@ import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -52,6 +56,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * A {@link Node} implementation that wraps around the public {@link SurfaceProcessor} interface.
@@ -121,9 +126,7 @@ public class SurfaceProcessorNode implements
     @NonNull
     private SurfaceEdge transformSingleOutput(@NonNull SurfaceEdge input,
             @NonNull OutConfig outConfig) {
-
         SurfaceEdge outputSurface;
-        Size inputSize = input.getSize();
         Rect cropRect = outConfig.getCropRect();
         int rotationDegrees = input.getRotationDegrees();
         boolean mirroring = outConfig.getMirroring();
@@ -131,7 +134,8 @@ public class SurfaceProcessorNode implements
         // Calculate sensorToBufferTransform
         android.graphics.Matrix sensorToBufferTransform =
                 new android.graphics.Matrix(input.getSensorToBufferTransform());
-        android.graphics.Matrix imageTransform = getRectToRect(sizeToRectF(inputSize),
+        android.graphics.Matrix imageTransform = getRectToRect(
+                sizeToRectF(input.getStreamSpec().getResolution()),
                 sizeToRectF(outConfig.getSize()), rotationDegrees, mirroring);
         sensorToBufferTransform.postConcat(imageTransform);
 
@@ -140,9 +144,14 @@ public class SurfaceProcessorNode implements
         Size rotatedCropSize = getRotatedSize(outConfig.getCropRect(), rotationDegrees);
         checkArgument(isAspectRatioMatchingWithRoundingError(rotatedCropSize, outConfig.getSize()));
 
+        StreamSpec streamSpec = StreamSpec.builder(outConfig.getSize())
+                .setExpectedFrameRateRange(input.getStreamSpec().getExpectedFrameRateRange())
+                .build();
+
         outputSurface = new SurfaceEdge(
                 outConfig.getTargets(),
-                outConfig.getSize(),
+                outConfig.getFormat(),
+                streamSpec,
                 sensorToBufferTransform,
                 // The Surface transform cannot be carried over during buffer copy.
                 /*hasCameraTransform=*/false,
@@ -163,7 +172,6 @@ public class SurfaceProcessorNode implements
         setUpRotationUpdates(
                 surfaceRequest,
                 outputs,
-                input.getMirroring(),
                 input.getRotationDegrees());
         try {
             mSurfaceProcessor.onInputSurface(surfaceRequest);
@@ -191,7 +199,8 @@ public class SurfaceProcessorNode implements
     private void createAndSendSurfaceOutput(@NonNull SurfaceEdge input,
             Map.Entry<OutConfig, SurfaceEdge> output) {
         ListenableFuture<SurfaceOutput> future = output.getValue().createSurfaceOutputFuture(
-                input.getSize(),
+                input.getStreamSpec().getResolution(),
+                output.getKey().getFormat(),
                 output.getKey().getCropRect(),
                 input.getRotationDegrees(),
                 output.getKey().getMirroring());
@@ -226,23 +235,23 @@ public class SurfaceProcessorNode implements
      *
      * @param inputSurfaceRequest {@link SurfaceRequest} of the input edge.
      * @param outputs             the output edges.
-     * @param mirrored            whether the node mirrors the buffer.
      * @param rotatedDegrees      how much the node rotates the buffer.
      */
     void setUpRotationUpdates(
             @NonNull SurfaceRequest inputSurfaceRequest,
             @NonNull Collection<SurfaceEdge> outputs,
-            boolean mirrored,
             int rotatedDegrees) {
         inputSurfaceRequest.setTransformationInfoListener(mainThreadExecutor(), info -> {
-            // To obtain the rotation degrees delta, the rotation performed by the node must be
-            // eliminated.
-            int rotationDegrees = info.getRotationDegrees() - rotatedDegrees;
-            if (mirrored) {
-                rotationDegrees = -rotationDegrees;
-            }
-            rotationDegrees = within360(rotationDegrees);
             for (SurfaceEdge output : outputs) {
+                // To obtain the rotation degrees delta, the rotation performed by the node must be
+                // eliminated.
+                int rotationDegrees = info.getRotationDegrees() - rotatedDegrees;
+                if (output.getMirroring()) {
+                    // The order of transformation is cropping -> rotation -> mirroring. To
+                    // change the rotation, one must consider the mirroring.
+                    rotationDegrees = -rotationDegrees;
+                }
+                rotationDegrees = within360(rotationDegrees);
                 output.setRotationDegrees(rotationDegrees);
             }
         });
@@ -264,6 +273,11 @@ public class SurfaceProcessorNode implements
         });
     }
 
+    @VisibleForTesting
+    @NonNull
+    public SurfaceProcessorInternal getSurfaceProcessor() {
+        return mSurfaceProcessor;
+    }
 
     /**
      * The input of a {@link SurfaceProcessorNode}.
@@ -319,10 +333,25 @@ public class SurfaceProcessorNode implements
     public abstract static class OutConfig {
 
         /**
+         * Unique ID of the config.
+         *
+         * <p> This is for making sure two {@link OutConfig} with the same value can be stored as
+         * different keys in a {@link HashMap}.
+         */
+        @NonNull
+        abstract UUID getUuid();
+
+        /**
          * The target {@link UseCase} of the output stream.
          */
         @CameraEffect.Targets
         abstract int getTargets();
+
+        /**
+         * The format of the output stream.
+         */
+        @CameraEffect.Formats
+        abstract int getFormat();
 
         /**
          * How the input should be cropped.
@@ -349,20 +378,24 @@ public class SurfaceProcessorNode implements
          * <p>The result is an output edge with the input's transformation applied.
          */
         @NonNull
-        public static OutConfig of(@NonNull SurfaceEdge surface) {
-            return of(surface.getTargets(),
-                    surface.getCropRect(),
-                    getRotatedSize(surface.getCropRect(), surface.getRotationDegrees()),
-                    surface.getMirroring());
+        public static OutConfig of(@NonNull SurfaceEdge inputEdge) {
+            return of(inputEdge.getTargets(),
+                    inputEdge.getFormat(),
+                    inputEdge.getCropRect(),
+                    getRotatedSize(inputEdge.getCropRect(), inputEdge.getRotationDegrees()),
+                    inputEdge.getMirroring());
         }
 
         /**
          * Creates an {@link OutConfig} instance with custom transformations.
          */
         @NonNull
-        public static OutConfig of(int targets, @NonNull Rect cropRect, @NonNull Size size,
-                boolean mirroring) {
-            return new AutoValue_SurfaceProcessorNode_OutConfig(targets, cropRect, size, mirroring);
+        public static OutConfig of(@CameraEffect.Targets int targets,
+                @CameraEffect.Formats int format,
+                @NonNull Rect cropRect,
+                @NonNull Size size, boolean mirroring) {
+            return new AutoValue_SurfaceProcessorNode_OutConfig(randomUUID(), targets, format,
+                    cropRect, size, mirroring);
         }
     }
 }

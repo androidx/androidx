@@ -22,5 +22,9 @@ data class TestingSerializerConfig(
     @Volatile var failReadWithCorruptionException: Boolean = false,
     @Volatile var failingRead: Boolean = false,
     @Volatile var failingWrite: Boolean = false,
-    @Volatile var defaultValue: Byte = 0
+    @Volatile var defaultValue: Byte = 0,
+    // This field enables more granular control and flexibility on failReadWithCorruptionException.
+    // TestSerializer uses the values from this list in sequence first before it always uses the
+    // value of failReadWithCorruptionException.
+    @Volatile var listOfFailReadWithCorruptionException: List<Boolean> = listOf(),
 )

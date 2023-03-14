@@ -29,9 +29,6 @@ package androidx.wear.watchface.complications.data {
     property public final androidx.wear.watchface.complications.data.TimeRange validTimeRange;
   }
 
-  public final class ComplicationDataExpressionEvaluatorKt {
-  }
-
   public final class ComplicationDisplayPolicies {
     field public static final int ALWAYS_DISPLAY = 0; // 0x0
     field public static final int DO_NOT_SHOW_WHEN_DEVICE_LOCKED = 1; // 0x1
@@ -89,15 +86,9 @@ package androidx.wear.watchface.complications.data {
     property public final java.time.Instant instant;
   }
 
-  public final class DataKt {
-  }
-
   public final class EmptyComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     ctor public EmptyComplicationData();
     field public static final androidx.wear.watchface.complications.data.ComplicationType TYPE;
-  }
-
-  public final class FloatExpressionKt {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class GoalProgressComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
@@ -134,9 +125,6 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setText(androidx.wear.watchface.complications.data.ComplicationText? text);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setTitle(androidx.wear.watchface.complications.data.ComplicationText? title);
     method public androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder setValidTimeRange(androidx.wear.watchface.complications.data.TimeRange? validTimeRange);
-  }
-
-  public final class ImageKt {
   }
 
   public final class LongTextComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
@@ -381,9 +369,6 @@ package androidx.wear.watchface.complications.data {
     enum_constant public static final androidx.wear.watchface.complications.data.SmallImageType PHOTO;
   }
 
-  public final class TextKt {
-  }
-
   public final class TimeDifferenceComplicationText implements androidx.wear.watchface.complications.data.ComplicationText {
     method public java.util.concurrent.TimeUnit? getMinimumTimeUnit();
     method public java.time.Instant getNextChangeTime(java.time.Instant afterInstant);
@@ -453,9 +438,6 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.TimeRange between(java.time.Instant startInstant, java.time.Instant endInstant);
   }
 
-  public final class TypeKt {
-  }
-
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class WeightedElementsComplicationData extends androidx.wear.watchface.complications.data.ComplicationData {
     method public androidx.wear.watchface.complications.data.ComplicationText? getContentDescription();
     method public int getElementBackgroundColor();
@@ -502,13 +484,6 @@ package androidx.wear.watchface.complications.data {
     method public float getWeight();
     property public final int color;
     property public final float weight;
-  }
-
-}
-
-package androidx.wear.watchface.utility {
-
-  public final class TraceEventKt {
   }
 
 }

@@ -61,8 +61,8 @@ internal interface GraphProcessor {
     fun stopRepeating()
 
     /**
-     * Indicates that internal parameters may have changed, and that the repeating request should
-     * be updated as soon as possible.
+     * Indicates that internal parameters may have changed, and that the repeating request should be
+     * updated as soon as possible.
      */
     fun invalidate()
 
@@ -79,11 +79,11 @@ internal interface GraphProcessor {
     fun close()
 }
 
-/**
- * The graph processor handles *cross-session* state, such as the most recent repeating request.
- */
+/** The graph processor handles *cross-session* state, such as the most recent repeating request. */
 @CameraGraphScope
-internal class GraphProcessorImpl @Inject constructor(
+internal class GraphProcessorImpl
+@Inject
+constructor(
     private val threads: Threads,
     private val cameraGraphConfig: CameraGraph.Config,
     private val graphState3A: GraphState3A,
@@ -141,9 +141,7 @@ internal class GraphProcessorImpl @Inject constructor(
 
         val processorToClose = old
         if (processorToClose != null) {
-            synchronized(processorToClose) {
-                processorToClose.close()
-            }
+            synchronized(processorToClose) { processorToClose.close() }
         }
         resubmit()
     }
@@ -175,9 +173,7 @@ internal class GraphProcessorImpl @Inject constructor(
 
         val processorToClose = old
         if (processorToClose != null) {
-            synchronized(processorToClose) {
-                processorToClose.close()
-            }
+            synchronized(processorToClose) { processorToClose.close() }
         }
     }
 
@@ -210,9 +206,7 @@ internal class GraphProcessorImpl @Inject constructor(
             debug { "startRepeating with ${request.formatForLogs()}" }
         }
 
-        graphScope.launch {
-            tryStartRepeating()
-        }
+        graphScope.launch { tryStartRepeating() }
     }
 
     override fun stopRepeating() {
@@ -228,9 +222,7 @@ internal class GraphProcessorImpl @Inject constructor(
             Debug.traceStart { "$this#stopRepeating" }
             // Start with requests that have already been submitted
             if (processor != null) {
-                synchronized(processor) {
-                    processor.stopRepeating()
-                }
+                synchronized(processor) { processor.stopRepeating() }
             }
             Debug.traceStop()
         }
@@ -243,22 +235,16 @@ internal class GraphProcessorImpl @Inject constructor(
     override fun submit(requests: List<Request>) {
         synchronized(lock) {
             if (closed) {
-                graphScope.launch(threads.lightweightDispatcher) {
-                    abortBurst(requests)
-                }
+                graphScope.launch(threads.lightweightDispatcher) { abortBurst(requests) }
                 return
             }
             submitQueue.add(requests)
         }
 
-        graphScope.launch(threads.lightweightDispatcher) {
-            submitLoop()
-        }
+        graphScope.launch(threads.lightweightDispatcher) { submitLoop() }
     }
 
-    /**
-     * Submit a request to the camera using only the current repeating request.
-     */
+    /** Submit a request to the camera using only the current repeating request. */
     override suspend fun submit(parameters: Map<*, Any?>): Boolean =
         withContext(threads.lightweightDispatcher) {
             val processor: GraphRequestProcessor?
@@ -277,22 +263,21 @@ internal class GraphProcessorImpl @Inject constructor(
 
             return@withContext when {
                 processor == null || request == null -> false
-                else -> processor.submit(
-                    isRepeating = false,
-                    requests = listOf(request),
-                    defaultParameters = cameraGraphConfig.defaultParameters,
-                    requiredParameters = requiredParameters,
-                    listeners = graphListeners
-                )
+                else ->
+                    processor.submit(
+                        isRepeating = false,
+                        requests = listOf(request),
+                        defaultParameters = cameraGraphConfig.defaultParameters,
+                        requiredParameters = requiredParameters,
+                        listeners = graphListeners
+                    )
             }
         }
 
     override fun invalidate() {
         // Invalidate is only used for updates to internal state (listeners, parameters, etc) and
         // should not (currently) attempt to resubmit the normal request queue.
-        graphScope.launch(threads.lightweightDispatcher) {
-            tryStartRepeating()
-        }
+        graphScope.launch(threads.lightweightDispatcher) { tryStartRepeating() }
     }
 
     override fun abort() {
@@ -309,9 +294,7 @@ internal class GraphProcessorImpl @Inject constructor(
             Debug.traceStart { "$this#abort" }
             // Start with requests that have already been submitted
             if (processor != null) {
-                synchronized(processor) {
-                    processor.abortCaptures()
-                }
+                synchronized(processor) { processor.abortCaptures() }
             }
 
             // Then abort requests that have not been submitted
@@ -409,8 +392,10 @@ internal class GraphProcessorImpl @Inject constructor(
                         if (processor === _requestProcessor) {
                             currentRepeatingRequest = request
 
-                            // There is a race condition where the nextRepeating request might be changed
-                            // while trying to update the current repeating request. If this happens, do no
+                            // There is a race condition where the nextRepeating request might be
+                            // changed
+                            // while trying to update the current repeating request. If this
+                            // happens, do no
                             // overwrite the pending request.
                             if (nextRepeatingRequest == request) {
                                 nextRepeatingRequest = null
@@ -451,19 +436,20 @@ internal class GraphProcessorImpl @Inject constructor(
             var submitted = false
             Debug.traceStart { "$this#submit" }
             try {
-                submitted = synchronized(processor) {
-                    val requiredParameters = mutableMapOf<Any, Any?>()
-                    graphState3A.writeTo(requiredParameters)
-                    requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
+                submitted =
+                    synchronized(processor) {
+                        val requiredParameters = mutableMapOf<Any, Any?>()
+                        graphState3A.writeTo(requiredParameters)
+                        requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
 
-                    processor.submit(
-                        isRepeating = false,
-                        requests = burst,
-                        defaultParameters = cameraGraphConfig.defaultParameters,
-                        requiredParameters = requiredParameters,
-                        listeners = graphListeners
-                    )
-                }
+                        processor.submit(
+                            isRepeating = false,
+                            requests = burst,
+                            defaultParameters = cameraGraphConfig.defaultParameters,
+                            requiredParameters = requiredParameters,
+                            listeners = graphListeners
+                        )
+                    }
             } finally {
                 Debug.traceStop()
                 synchronized(lock) {

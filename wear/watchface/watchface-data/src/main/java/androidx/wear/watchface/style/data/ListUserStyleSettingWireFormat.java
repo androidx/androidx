@@ -53,8 +53,16 @@ public class ListUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
             @Nullable Bundle onWatchFaceEditorBundle,
             @Nullable List<Bundle> perOptionOnWatchFaceEditorBundles,
             @Nullable List<CharSequence> perOptionScreenReaderNames) {
-        super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers,
-                onWatchFaceEditorBundle, perOptionOnWatchFaceEditorBundles);
+        super(
+                id,
+                displayName,
+                description,
+                icon,
+                options,
+                defaultOptionIndex,
+                affectsLayers,
+                onWatchFaceEditorBundle,
+                perOptionOnWatchFaceEditorBundles);
         mPerOptionScreenReaderNames = perOptionScreenReaderNames;
     }
 }

@@ -25,6 +25,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.YuvImage;
@@ -59,6 +60,31 @@ public final class ImageUtil {
     public static final int DEFAULT_RGBA_PIXEL_STRIDE = 4;
 
     private ImageUtil() {
+    }
+
+    /**
+     * Creates {@link Bitmap} from {@link ImageProxy}.
+     *
+     * <p> Currently only {@link ImageFormat#YUV_420_888} and {@link PixelFormat#RGBA_8888} are
+     * supported. If the format is invalid, an {@link IllegalArgumentException} will be thrown.
+     * If the conversion to bimap failed, an {@link UnsupportedOperationException} will be thrown.
+     *
+     * @param imageProxy The input {@link ImageProxy} instance.
+     * @return {@link Bitmap} instance.
+     */
+    @NonNull
+    public static Bitmap createBitmapFromImageProxy(@NonNull ImageProxy imageProxy) {
+        switch (imageProxy.getFormat()) {
+            case ImageFormat.YUV_420_888:
+                return ImageProcessingUtil.convertYUVToBitmap(imageProxy);
+            case PixelFormat.RGBA_8888:
+                return createBitmapFromRgbaImage(imageProxy);
+            default:
+                throw new IllegalArgumentException(
+                        "Incorrect image format of the input image proxy: "
+                                + imageProxy.getFormat() + ", only ImageFormat.YUV_420_888 and "
+                                + "PixelFormat.RGBA_8888 are supported");
+        }
     }
 
     /**
@@ -401,6 +427,19 @@ public final class ImageUtil {
         return new Rational(
                 /*numerator=*/ rational.getDenominator(),
                 /*denominator=*/ rational.getNumerator());
+    }
+
+    @NonNull
+    private static Bitmap createBitmapFromRgbaImage(@NonNull ImageProxy imageProxy) {
+        Bitmap bitmap =
+                Bitmap.createBitmap(imageProxy.getWidth(),
+                imageProxy.getHeight(),
+                Bitmap.Config.ARGB_8888);
+        // Rewind the buffer just to be safe.
+        imageProxy.getPlanes()[0].getBuffer().rewind();
+        ImageProcessingUtil.copyByteBufferToBitmap(bitmap, imageProxy.getPlanes()[0].getBuffer(),
+                imageProxy.getPlanes()[0].getRowStride());
+        return bitmap;
     }
 
     /**

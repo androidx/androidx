@@ -18,7 +18,7 @@ package androidx.camera.video.internal.config
 
 import android.util.Range
 import androidx.camera.core.impl.Timebase
-import androidx.camera.testing.CamcorderProfileUtil
+import androidx.camera.testing.EncoderProfilesUtil
 import androidx.camera.video.VideoSpec
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -44,9 +44,9 @@ class VideoEncoderConfigDefaultResolverTest {
 
     @Test
     fun defaultVideoSpecProducesValidSettings_forDifferentSurfaceSizes() {
-        val surfaceSizeCif = CamcorderProfileUtil.RESOLUTION_CIF
-        val surfaceSize720p = CamcorderProfileUtil.RESOLUTION_720P
-        val surfaceSize1080p = CamcorderProfileUtil.RESOLUTION_1080P
+        val surfaceSizeCif = EncoderProfilesUtil.RESOLUTION_CIF
+        val surfaceSize720p = EncoderProfilesUtil.RESOLUTION_720P
+        val surfaceSize1080p = EncoderProfilesUtil.RESOLUTION_1080P
 
         val expectedFrameRateRange = Range(FRAME_RATE_30, FRAME_RATE_30)
 
@@ -96,7 +96,7 @@ class VideoEncoderConfigDefaultResolverTest {
 
     @Test
     fun bitrateRangeInVideoSpecClampsBitrate() {
-        val surfaceSize720p = CamcorderProfileUtil.RESOLUTION_720P
+        val surfaceSize720p = EncoderProfilesUtil.RESOLUTION_720P
 
         // Get default bit rate for this size
         val defaultConfig =
@@ -144,7 +144,7 @@ class VideoEncoderConfigDefaultResolverTest {
         // Give a VideoSpec with a frame rate higher than 30
         val videoSpec =
             VideoSpec.builder().setFrameRate(Range(FRAME_RATE_60, FRAME_RATE_60)).build()
-        val size = CamcorderProfileUtil.RESOLUTION_1080P
+        val size = EncoderProfilesUtil.RESOLUTION_1080P
 
         assertThat(
             VideoEncoderConfigDefaultResolver(
@@ -164,7 +164,7 @@ class VideoEncoderConfigDefaultResolverTest {
         // Give a VideoSpec with a frame rate higher than 30
         val videoSpec =
             VideoSpec.builder().setFrameRate(Range(FRAME_RATE_60, FRAME_RATE_60)).build()
-        val size = CamcorderProfileUtil.RESOLUTION_1080P
+        val size = EncoderProfilesUtil.RESOLUTION_1080P
 
         val expectedFrameRateRange = Range(FRAME_RATE_30, FRAME_RATE_30)
 
@@ -187,7 +187,7 @@ class VideoEncoderConfigDefaultResolverTest {
         // Give a VideoSpec with a frame rate higher than 30
         val videoSpec =
             VideoSpec.builder().setFrameRate(Range(FRAME_RATE_30, FRAME_RATE_45)).build()
-        val size = CamcorderProfileUtil.RESOLUTION_1080P
+        val size = EncoderProfilesUtil.RESOLUTION_1080P
 
         val expectedFrameRateRange = Range(FRAME_RATE_30, FRAME_RATE_60)
 

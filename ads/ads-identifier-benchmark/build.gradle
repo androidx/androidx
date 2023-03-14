@@ -28,6 +28,7 @@ dependencies {
     androidTestImplementation(project(":ads:ads-identifier-testing"))
     androidTestImplementation("androidx.work:work-runtime:2.7.0")
     androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -38,5 +39,9 @@ dependencies {
 
 android {
     namespace "androidx.ads.identifier.benchmark"
+
+    defaultConfig {
+        multiDexEnabled true
+    }
 }
 

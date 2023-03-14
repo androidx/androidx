@@ -101,7 +101,6 @@ dependencies {
     implementation(libs.kspApi)
     shadowed(libs.antlr4)
     implementation(libs.sqliteJdbc)
-    implementation(libs.kotlinMetadataJvm)
     implementation(libs.apacheCommonsCodec)
     implementation(libs.intellijAnnotations)
     testImplementation(libs.truth)

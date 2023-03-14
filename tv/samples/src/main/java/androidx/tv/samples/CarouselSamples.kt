@@ -17,6 +17,7 @@
 package androidx.tv.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -39,13 +40,12 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
-import androidx.tv.material3.CarouselItem
 import androidx.tv.material3.CarouselState
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Sampled
 @Composable
 fun SimpleCarousel() {
@@ -62,7 +62,6 @@ fun SimpleCarousel() {
             .fillMaxWidth(),
     ) { itemIndex ->
         CarouselItem(
-            overlayEnterTransitionStartDelayMillis = 0,
             background = {
                 Box(
                     modifier = Modifier
@@ -92,7 +91,7 @@ fun SimpleCarousel() {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Sampled
 @Composable
 fun CarouselIndicatorWithRectangleShape() {
@@ -132,7 +131,6 @@ fun CarouselIndicatorWithRectangleShape() {
         }
     ) { itemIndex ->
         CarouselItem(
-            overlayEnterTransitionStartDelayMillis = 0,
             background = {
                 Box(
                     modifier = Modifier

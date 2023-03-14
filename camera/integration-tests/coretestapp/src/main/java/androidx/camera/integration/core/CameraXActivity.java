@@ -37,6 +37,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.display.DisplayManager;
@@ -50,6 +51,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Range;
 import android.util.Rational;
@@ -59,6 +61,7 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -83,12 +86,13 @@ import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFailWithAutoFla
 import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFlashNotFireQuirk;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
+import androidx.camera.core.ExperimentalLensFacing;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -104,6 +108,7 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.FileOutputOptions;
@@ -192,6 +197,15 @@ public class CameraXActivity extends AppCompatActivity {
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY =
             "camera_implementation_no_history";
+
+    // Launch the activity with the specified target aspect ratio.
+    public static final String INTENT_EXTRA_TARGET_ASPECT_RATIO = "target_aspect_ratio";
+
+    // Launch the activity with the specified scale type. The default value is FILL_CENTER.
+    public static final String INTENT_EXTRA_SCALE_TYPE = "scale_type";
+    public static final int INTENT_EXTRA_FILL_CENTER = 1;
+    public static final int INTENT_EXTRA_FIT_CENTER = 4;
+
     // Launch the activity with the specified camera id.
     @VisibleForTesting
     public static final String INTENT_EXTRA_CAMERA_ID = "camera_id";
@@ -210,12 +224,13 @@ public class CameraXActivity extends AppCompatActivity {
     @VisibleForTesting
     // Sets this bit to bind ImageAnalysis when using INTENT_EXTRA_USE_CASE_COMBINATION
     public static final int BIND_IMAGE_ANALYSIS = 0x8;
-    private static final int UNKNOWN_LENS_FACING = -1;
+
     static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
     static final CameraSelector FRONT_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(
                     CameraSelector.LENS_FACING_FRONT).build();
+    private CameraSelector mExternalCameraSelector = null;
 
     private final AtomicLong mImageAnalysisFrameCount = new AtomicLong(0);
     private final AtomicLong mPreviewFrameCount = new AtomicLong(0);
@@ -228,6 +243,10 @@ public class CameraXActivity extends AppCompatActivity {
     private static final String PREVIEW_TEST_CASE = "preview_test_case";
     private static final String DESCRIPTION_FLASH_MODE_NOT_SUPPORTED = "FLASH_MODE_NOT_SUPPORTED";
     private static final Quality QUALITY_AUTO = null;
+
+    // The target aspect ratio of Preview and ImageCapture. It can be adjusted by setting
+    // INTENT_EXTRA_TARGET_ASPECT_RATIO for the e2e testing.
+    private int mTargetAspectRatio = AspectRatio.RATIO_DEFAULT;
 
     private Recording mActiveRecording;
     /** The camera to use */
@@ -243,7 +262,7 @@ public class CameraXActivity extends AppCompatActivity {
     Camera mCamera;
 
     private CameraSelector mLaunchingCameraIdSelector = null;
-    private int mLaunchingCameraLensFacing = UNKNOWN_LENS_FACING;
+    private int mLaunchingCameraLensFacing = CameraSelector.LENS_FACING_UNKNOWN;
 
     private ToggleButton mVideoToggle;
     private ToggleButton mPhotoToggle;
@@ -274,7 +293,7 @@ public class CameraXActivity extends AppCompatActivity {
     SessionMediaUriSet mSessionVideosUriSet = new SessionMediaUriSet();
 
     // Analyzer to be used with ImageAnalysis.
-    private ImageAnalysis.Analyzer mAnalyzer = new ImageAnalysis.Analyzer() {
+    private final ImageAnalysis.Analyzer mAnalyzer = new ImageAnalysis.Analyzer() {
         @Override
         public void analyze(@NonNull ImageProxy image) {
             // Since we set the callback handler to a main thread handler, we can call
@@ -294,7 +313,7 @@ public class CameraXActivity extends AppCompatActivity {
         }
     };
 
-    private FutureCallback<Integer> mEVFutureCallback = new FutureCallback<Integer>() {
+    private final FutureCallback<Integer> mEVFutureCallback = new FutureCallback<Integer>() {
 
         @Override
         public void onSuccess(@Nullable Integer result) {
@@ -315,10 +334,10 @@ public class CameraXActivity extends AppCompatActivity {
     };
 
     // Listener that handles all ToggleButton events.
-    private CompoundButton.OnCheckedChangeListener mOnCheckedChangeListener =
+    private final CompoundButton.OnCheckedChangeListener mOnCheckedChangeListener =
             (compoundButton, isChecked) -> tryBindUseCases();
 
-    private Consumer<Long> mFrameUpdateListener = timestamp -> {
+    private final Consumer<Long> mFrameUpdateListener = timestamp -> {
         if (mPreviewFrameCount.getAndIncrement() >= FRAMES_UNTIL_VIEW_IS_READY) {
             try {
                 if (!this.mViewIdlingResource.isIdleNow()) {
@@ -465,6 +484,7 @@ public class CameraXActivity extends AppCompatActivity {
         mSessionVideosUriSet.deleteAllUris();
     }
 
+    @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)
     @ImageCapture.CaptureMode
     int getCaptureMode() {
@@ -871,6 +891,12 @@ public class CameraXActivity extends AppCompatActivity {
         } else {
             if (currentCameraSelector == BACK_SELECTOR) {
                 switchedCameraSelector = FRONT_SELECTOR;
+            } else if (currentCameraSelector == FRONT_SELECTOR) {
+                if (mExternalCameraSelector != null) {
+                    switchedCameraSelector = mExternalCameraSelector;
+                } else {
+                    switchedCameraSelector = BACK_SELECTOR;
+                }
             } else {
                 switchedCameraSelector = BACK_SELECTOR;
             }
@@ -987,6 +1013,35 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    private void updatePreviewRatioAndScaleTypeByIntent(ViewStub viewFinderStub) {
+        Bundle bundle = this.getIntent().getExtras();
+        if (bundle != null) {
+            mTargetAspectRatio = bundle.getInt(INTENT_EXTRA_TARGET_ASPECT_RATIO,
+                    AspectRatio.RATIO_4_3);
+            int scaleType = bundle.getInt(INTENT_EXTRA_SCALE_TYPE, INTENT_EXTRA_FILL_CENTER);
+            if (scaleType == INTENT_EXTRA_FIT_CENTER) {
+                // Scale the view according to the target aspect ratio, display size and device
+                // orientation, so preview can be entirely contained within the view.
+                DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+                Rational ratio = (mTargetAspectRatio == AspectRatio.RATIO_16_9)
+                        ? AspectRatioUtil.ASPECT_RATIO_16_9 : AspectRatioUtil.ASPECT_RATIO_4_3;
+                int orientation = getResources().getConfiguration().orientation;
+                ViewGroup.LayoutParams lp = viewFinderStub.getLayoutParams();
+                if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    lp.width = displayMetrics.widthPixels;
+                    lp.height = (int) (displayMetrics.widthPixels / ratio.getDenominator()
+                            * ratio.getNumerator());
+                } else {
+                    lp.height = displayMetrics.heightPixels;
+                    lp.width = (int) (displayMetrics.heightPixels / ratio.getDenominator()
+                            * ratio.getNumerator());
+                }
+                viewFinderStub.setLayoutParams(lp);
+            }
+        }
+    }
+
+    @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)
     private void updateButtonsUi() {
         mRecordUi.setEnabled(mVideoToggle.isChecked());
@@ -1086,6 +1141,8 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("NullAnnotationGroup")
+    @OptIn(markerClass = ExperimentalLensFacing.class)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1098,6 +1155,8 @@ public class CameraXActivity extends AppCompatActivity {
         mImageCaptureExecutorService = Executors.newSingleThreadExecutor();
         OpenGLRenderer previewRenderer = mPreviewRenderer = new OpenGLRenderer();
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
+        updatePreviewRatioAndScaleTypeByIntent(viewFinderStub);
+
         mViewFinder = OpenGLActivity.chooseViewFinder(getIntent().getExtras(), viewFinderStub,
                 previewRenderer);
         mViewFinder.addOnLayoutChangeListener(
@@ -1197,7 +1256,7 @@ public class CameraXActivity extends AppCompatActivity {
             }
 
             String cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
-            Boolean cameraImplementationNoHistory =
+            boolean cameraImplementationNoHistory =
                     bundle.getBoolean(INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, false);
             if (cameraImplementationNoHistory) {
                 Intent newIntent = new Intent(getIntent());
@@ -1229,6 +1288,16 @@ public class CameraXActivity extends AppCompatActivity {
             mInitializationIdlingResource.decrement();
             if (cameraProviderResult.hasProvider()) {
                 mCameraProvider = cameraProviderResult.getProvider();
+
+                //initialize mExternalCameraSelector
+                CameraSelector externalCameraSelectorLocal = new CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_EXTERNAL).build();
+                List<CameraInfo> cameraInfos = externalCameraSelectorLocal.filter(
+                        mCameraProvider.getAvailableCameraInfos());
+                if (cameraInfos.size() > 0) {
+                    mExternalCameraSelector = externalCameraSelectorLocal;
+                }
+
                 updateVideoQualityByIntent(getIntent());
                 tryBindUseCases();
             } else {
@@ -1249,7 +1318,7 @@ public class CameraXActivity extends AppCompatActivity {
      */
     private void closeAppIfCameraProviderMismatch(Intent mIntent) {
         String cameraImplementation = null;
-        Boolean cameraImplementationNoHistory = false;
+        boolean cameraImplementationNoHistory = false;
         Bundle bundle = mIntent.getExtras();
         if (bundle != null) {
             cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
@@ -1323,7 +1392,7 @@ public class CameraXActivity extends AppCompatActivity {
             // Retrieves the lens facing info when the activity is launched with a specified
             // camera id.
             if (mCurrentCameraSelector == mLaunchingCameraIdSelector
-                    && mLaunchingCameraLensFacing == UNKNOWN_LENS_FACING) {
+                    && mLaunchingCameraLensFacing == CameraSelector.LENS_FACING_UNKNOWN) {
                 mLaunchingCameraLensFacing = getLensFacing(mCamera.getCameraInfo());
             }
             List<UseCase> useCases = buildUseCases();
@@ -1371,7 +1440,7 @@ public class CameraXActivity extends AppCompatActivity {
     /**
      * Unchecks use case to find a supported use cases combination.
      *
-     * Only VideoCapture or ImageAnalysis will be tried to uncheck. If only Preview and
+     * <p>Only VideoCapture or ImageAnalysis will be tried to uncheck. If only Preview and
      * ImageCapture are remained, the combination should always be supported.
      */
     private void reduceUseCaseToFindSupportedCombination() {
@@ -1407,6 +1476,7 @@ public class CameraXActivity extends AppCompatActivity {
         if (mPreviewToggle.isChecked()) {
             Preview preview = new Preview.Builder()
                     .setTargetName("Preview")
+                    .setTargetAspectRatio(mTargetAspectRatio)
                     .build();
             resetViewIdlingResource();
             // Use the listener of the future to make sure the Preview setup the new surface.
@@ -1423,6 +1493,7 @@ public class CameraXActivity extends AppCompatActivity {
         if (mPhotoToggle.isChecked()) {
             ImageCapture imageCapture = new ImageCapture.Builder()
                     .setCaptureMode(getCaptureMode())
+                    .setTargetAspectRatio(mTargetAspectRatio)
                     .setTargetName("ImageCapture")
                     .build();
             useCases.add(imageCapture);
@@ -1660,13 +1731,9 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     private void setUpZoomButton() {
-        mZoomIn2XToggle.setOnClickListener(v -> {
-            setZoomRatio(2.0f);
-        });
+        mZoomIn2XToggle.setOnClickListener(v -> setZoomRatio(2.0f));
 
-        mZoomResetToggle.setOnClickListener(v -> {
-            setZoomRatio(1.0f);
-        });
+        mZoomResetToggle.setOnClickListener(v -> setZoomRatio(1.0f));
     }
 
     void setZoomRatio(float newZoom) {
@@ -1710,7 +1777,6 @@ public class CameraXActivity extends AppCompatActivity {
 
     /** Gets the absolute path from a Uri. */
     @Nullable
-    @SuppressWarnings("deprecation")
     public String getAbsolutePathFromUri(@NonNull ContentResolver resolver,
             @NonNull Uri contentUri) {
         Cursor cursor = null;
@@ -1728,7 +1794,7 @@ public class CameraXActivity extends AppCompatActivity {
         } catch (RuntimeException e) {
             Log.e(TAG, String.format(
                     "Failed in getting absolute path for Uri %s with Exception %s",
-                    contentUri.toString(), e.toString()));
+                    contentUri, e));
             return "";
         } finally {
             if (cursor != null) {
@@ -2004,18 +2070,14 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     private static CameraSelector createCameraSelectorById(@Nullable String cameraId) {
-        return new CameraSelector.Builder().addCameraFilter(new CameraFilter() {
-            @NonNull
-            @Override
-            public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {
-                for (CameraInfo cameraInfo : cameraInfos) {
-                    if (Objects.equals(cameraId, getCameraId(cameraInfo))) {
-                        return Collections.singletonList(cameraInfo);
-                    }
+        return new CameraSelector.Builder().addCameraFilter(cameraInfos -> {
+            for (CameraInfo cameraInfo : cameraInfos) {
+                if (Objects.equals(cameraId, getCameraId(cameraInfo))) {
+                    return Collections.singletonList(cameraInfo);
                 }
-
-                throw new IllegalArgumentException("No camera can be find for id: " + cameraId);
             }
+
+            throw new IllegalArgumentException("No camera can be find for id: " + cameraId);
         }).build();
     }
 
@@ -2027,6 +2089,7 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     private static int getCamera2LensFacing(@NonNull CameraInfo cameraInfo) {
         Integer lensFacing = Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
@@ -2035,6 +2098,7 @@ public class CameraXActivity extends AppCompatActivity {
         return lensFacing == null ? CameraCharacteristics.LENS_FACING_BACK : lensFacing;
     }
 
+    @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass =
             androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class)
     private static int getCamera2PipeLensFacing(@NonNull CameraInfo cameraInfo) {
@@ -2054,12 +2118,14 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @NonNull
     private static String getCamera2CameraId(@NonNull CameraInfo cameraInfo) {
         return Camera2CameraInfo.from(cameraInfo).getCameraId();
     }
 
+    @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass =
             androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class)
     @NonNull

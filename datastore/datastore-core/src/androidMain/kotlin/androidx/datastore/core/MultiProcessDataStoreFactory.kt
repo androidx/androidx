@@ -48,9 +48,6 @@ public object MultiProcessDataStoreFactory {
      * @param migrations Migrations are run before any access to data can occur. Migrations must
      * be idempotent.
      * @param scope The scope in which IO operations and transform functions will execute.
-     * @param produceFile Function which returns the file that the new DataStore will act on. The
-     * function must return the same path every time. No two instances of DataStore should act on
-     * the same file at the same time in the same process.
      *
      * @return a new DataStore instance with the provided configuration
      */
@@ -60,11 +57,9 @@ public object MultiProcessDataStoreFactory {
         storage: Storage<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
         migrations: List<DataMigration<T>> = listOf(),
-        scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-        produceFile: () -> File
-    ): DataStore<T> = MultiProcessDataStore<T>(
+        scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    ): DataStore<T> = DataStoreImpl<T>(
         storage = storage,
-        produceFile = produceFile,
         initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
         corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
         scope = scope
@@ -106,11 +101,14 @@ public object MultiProcessDataStoreFactory {
         migrations: List<DataMigration<T>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
         produceFile: () -> File
-    ): DataStore<T> = MultiProcessDataStore<T>(
-        storage = FileStorage(serializer, produceFile),
+    ): DataStore<T> = DataStoreImpl<T>(
+        storage = FileStorage(
+            serializer,
+            { MultiProcessCoordinator(scope.coroutineContext, it) },
+            produceFile
+        ),
         initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
         corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
-        scope = scope,
-        produceFile = produceFile
+        scope = scope
     )
 }

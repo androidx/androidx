@@ -26,7 +26,7 @@ import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
-import androidx.graphics.lowlatency.SyncFenceCompat
+import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
 
 /**
@@ -130,6 +130,19 @@ class SurfaceControlCompat internal constructor(
         @Suppress("MissingGetterMatchingBuilder")
         fun setParent(surfaceView: SurfaceView): Builder {
             mBuilderImpl.setParent(surfaceView)
+            return this
+        }
+
+        /**
+         * Set a parent [SurfaceControlCompat] for the new [SurfaceControlCompat] instance.
+         * Furthermore they stack relatively in Z order, and inherit the transformation of the
+         * parent.
+         * @param surfaceControl Target [SurfaceControlCompat] used as the parent for the newly
+         * created [SurfaceControlCompat] instance
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setParent(surfaceControl: SurfaceControlCompat): Builder {
+            mBuilderImpl.setParent(surfaceControl)
             return this
         }
 

@@ -21,7 +21,10 @@ import android.graphics.PointF
 import androidx.core.graphics.plus
 import androidx.core.graphics.times
 import androidx.test.filters.SmallTest
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @SmallTest
@@ -73,7 +76,7 @@ class PolygonTest {
     fun pathTest() {
         val shape = square.toCubicShape()
         val path = shape.toPath()
-        Assert.assertFalse(path.isEmpty)
+        assertFalse(path.isEmpty)
     }
 
     @Test
@@ -95,7 +98,7 @@ class PolygonTest {
         val squareCopy = Polygon(square)
         val identity = Matrix()
         square.transform(identity)
-        Assert.assertEquals(square, squareCopy)
+        assertEquals(square, squareCopy)
 
         // Now create a matrix which translates points by (1, 2) and make sure
         // the shape is translated similarly by it
@@ -111,5 +114,49 @@ class PolygonTest {
             assertPointsEqualish(squareCopyCubics[i].p2 + offset, squareCubics[i].p2)
             assertPointsEqualish(squareCopyCubics[i].p3 + offset, squareCubics[i].p3)
         }
+    }
+
+    @Test
+    fun featuresTest() {
+        val squareFeatures = square.features
+
+        // Verify that cubics of polygon == cubics of features of that polygon
+        assertTrue(square.toCubicShape().cubics == squareFeatures.flatMap { it.cubics })
+
+        // Same as above but with rounded corners
+        val roundedSquare = RoundedPolygon(4, rounding = CornerRounding(.1f))
+        val roundedFeatures = roundedSquare.features
+        assertTrue(roundedSquare.toCubicShape().cubics == roundedFeatures.flatMap { it.cubics })
+
+        // Same as the first polygon test, but with a copy of that polygon
+        val squareCopy = Polygon(square)
+        val squareCopyFeatures = squareCopy.features
+        assertTrue(squareCopy.toCubicShape().cubics == squareCopyFeatures.flatMap { it.cubics })
+
+        // Test other elements of Features
+        val copy = Polygon(square)
+        val matrix = Matrix()
+        matrix.setTranslate(1f, 2f)
+        val features = copy.features
+        val preTransformVertices = mutableListOf<PointF>()
+        val preTransformCenters = mutableListOf<PointF>()
+        for (feature in features) {
+            if (feature is Corner) {
+                // Copy into new Point objects since the ones in the feature should transform
+                preTransformVertices.add(PointF(feature.vertex.x, feature.vertex.y))
+                preTransformCenters.add(PointF(feature.roundedCenter.x, feature.roundedCenter.y))
+            }
+        }
+        copy.transform(matrix)
+        val postTransformVertices = mutableListOf<PointF>()
+        val postTransformCenters = mutableListOf<PointF>()
+        for (feature in features) {
+            if (feature is Corner) {
+                postTransformVertices.add(feature.vertex)
+                postTransformCenters.add(feature.roundedCenter)
+            }
+        }
+        assertNotEquals(preTransformVertices, postTransformVertices)
+        assertNotEquals(preTransformCenters, postTransformCenters)
     }
 }

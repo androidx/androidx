@@ -31,15 +31,12 @@ import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.RequestMetadata
 import kotlin.reflect.KClass
 
-/**
- * An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object
- */
+/** An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object */
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class AndroidFrameMetadata constructor(
-    private val captureResult: CaptureResult,
-    override val camera: CameraId
-) : FrameMetadata {
+internal class AndroidFrameMetadata
+constructor(private val captureResult: CaptureResult, override val camera: CameraId) :
+    FrameMetadata {
     override fun <T> get(key: Metadata.Key<T>): T? = null
 
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = default
@@ -56,23 +53,21 @@ internal class AndroidFrameMetadata constructor(
     override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any>()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
-        CaptureResult::class -> captureResult as T
-        else -> null
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            CaptureResult::class -> captureResult as T
+            else -> null
+        }
 }
 
-/**
- * A version of [FrameMetadata] that can override (fix) metadata.
- */
+/** A version of [FrameMetadata] that can override (fix) metadata. */
 internal class CorrectedFrameMetadata(
     private var frameMetadata: FrameMetadata,
     override var extraMetadata: Map<*, Any?>
 ) : FrameMetadata {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: Metadata.Key<T>): T? =
-        extraMetadata[key] as T? ?: frameMetadata[key]
+    override fun <T> get(key: Metadata.Key<T>): T? = extraMetadata[key] as T? ?: frameMetadata[key]
 
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
 
@@ -92,9 +87,7 @@ internal class CorrectedFrameMetadata(
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = frameMetadata.unwrapAs(type)
 }
 
-/**
- * An implementation of [FrameInfo] that retrieves values from a [TotalCaptureResult] object.
- */
+/** An implementation of [FrameInfo] that retrieves values from a [TotalCaptureResult] object. */
 @Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AndroidFrameInfo(
@@ -103,10 +96,7 @@ internal class AndroidFrameInfo(
     override val requestMetadata: RequestMetadata
 ) : FrameInfo {
 
-    private val result = AndroidFrameMetadata(
-        totalCaptureResult,
-        camera
-    )
+    private val result = AndroidFrameMetadata(totalCaptureResult, camera)
     private val physicalResults: Map<CameraId, FrameMetadata>
 
     init {
@@ -118,11 +108,7 @@ internal class AndroidFrameInfo(
                 val map = ArrayMap<CameraId, AndroidFrameMetadata>(physicalResults.size)
                 for (entry in physicalResults) {
                     val physicalCamera = CameraId(entry.key)
-                    map[physicalCamera] =
-                        AndroidFrameMetadata(
-                            entry.value,
-                            physicalCamera
-                        )
+                    map[physicalCamera] = AndroidFrameMetadata(entry.value, physicalCamera)
                 }
                 this.physicalResults = map
             } else {

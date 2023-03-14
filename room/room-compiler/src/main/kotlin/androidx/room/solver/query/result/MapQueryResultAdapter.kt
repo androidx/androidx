@@ -18,7 +18,6 @@ package androidx.room.solver.query.result
 
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
@@ -71,7 +70,7 @@ class MapQueryResultAdapter(
     private val implMapTypeName = when (mapType) {
         MapType.DEFAULT ->
             // LinkedHashMap is used as impl to preserve key ordering for ordered query results.
-            LinkedHashMap::class.asClassName().parametrizedBy(
+            CommonTypeNames.LINKED_HASH_MAP.parametrizedBy(
                 keyTypeArg.asTypeName(), valueTypeName
             )
         MapType.ARRAY_MAP ->

@@ -49,6 +49,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.testing.TestLifecycleOwner
@@ -785,13 +786,12 @@ class NavHostTest {
 
     @Test
     fun testNestedNavHostOnBackPressed() {
-        val lifecycleOwner = TestLifecycleOwner()
         var innerLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         val onBackPressedDispatcher = OnBackPressedDispatcher()
-        val dispatcherOwner = object : OnBackPressedDispatcherOwner {
-            override fun getLifecycle() = lifecycleOwner.lifecycle
-            override fun getOnBackPressedDispatcher() = onBackPressedDispatcher
-        }
+        val dispatcherOwner =
+            object : OnBackPressedDispatcherOwner, LifecycleOwner by TestLifecycleOwner() {
+                override val onBackPressedDispatcher = onBackPressedDispatcher
+            }
         lateinit var navController: NavHostController
         lateinit var innerNavController: NavHostController
 

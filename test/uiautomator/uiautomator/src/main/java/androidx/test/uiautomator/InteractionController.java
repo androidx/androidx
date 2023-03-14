@@ -36,8 +36,6 @@ import android.view.MotionEvent.PointerProperties;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -80,34 +78,6 @@ class InteractionController {
         public boolean accept(AccessibilityEvent t) {
             // check current event in the list
             return (t.getEventType() & mMask) != 0;
-        }
-    }
-
-    /**
-     * Predicate for waiting for all the events specified in the mask and populating
-     * a ctor passed list with matching events. User of this predicate must recycle
-     * all populated events in the events list.
-     */
-    static class EventCollectingPredicate implements AccessibilityEventFilter {
-        final int mMask;
-        final List<AccessibilityEvent> mEventsList;
-
-        EventCollectingPredicate(int mask, List<AccessibilityEvent> events) {
-            mMask = mask;
-            mEventsList = events;
-        }
-
-        @Override
-        public boolean accept(AccessibilityEvent t) {
-            // check current event in the list
-            if ((t.getEventType() & mMask) != 0) {
-                // For the events you need, always store a copy when returning false from
-                // predicates since the original will automatically be recycled after the call.
-                mEventsList.add(AccessibilityEvent.obtain(t));
-            }
-
-            // get more
-            return false;
         }
     }
 
@@ -334,56 +304,21 @@ class InteractionController {
             final int steps) {
         Runnable command = () -> swipe(downX, downY, upX, upY, steps);
 
-        // Collect all accessibility events generated during the swipe command and get the
-        // last event
-        ArrayList<AccessibilityEvent> events = new ArrayList<>();
+        // Get scroll direction based on position.
+        Direction direction;
+        if (Math.abs(downX - upX) > Math.abs(downY - upY)) {
+            // Horizontal.
+            direction = downX > upX ? Direction.RIGHT : Direction.LEFT;
+        } else {
+            // Vertical.
+            direction = downY > upY ? Direction.DOWN : Direction.UP;
+        }
+        EventCondition<Boolean> condition = Until.scrollFinished(direction);
         runAndWaitForEvents(command,
-                new EventCollectingPredicate(AccessibilityEvent.TYPE_VIEW_SCROLLED, events),
+                condition,
                 Configurator.getInstance().getScrollAcknowledgmentTimeout());
 
-        AccessibilityEvent event = getLastMatchingEvent(events,
-                AccessibilityEvent.TYPE_VIEW_SCROLLED);
-
-        if (event == null) {
-            // end of scroll since no new scroll events received
-            recycleAccessibilityEvents(events);
-            return false;
-        }
-
-        // AdapterViews have indices we can use to check for the beginning.
-        boolean foundEnd = false;
-        if (event.getFromIndex() != -1 && event.getToIndex() != -1 && event.getItemCount() != -1) {
-            foundEnd = event.getFromIndex() == 0 ||
-                    (event.getItemCount() - 1) == event.getToIndex();
-        } else if (event.getScrollX() != -1 && event.getScrollY() != -1) {
-            // Determine if we are scrolling vertically or horizontally.
-            if (downX == upX) {
-                // Vertical
-                foundEnd = event.getScrollY() == 0 ||
-                        event.getScrollY() == event.getMaxScrollY();
-            } else if (downY == upY) {
-                // Horizontal
-                foundEnd = event.getScrollX() == 0 ||
-                        event.getScrollX() == event.getMaxScrollX();
-            }
-        }
-        recycleAccessibilityEvents(events);
-        return !foundEnd;
-    }
-
-    private AccessibilityEvent getLastMatchingEvent(List<AccessibilityEvent> events, int type) {
-        for (int x = events.size(); x > 0; x--) {
-            AccessibilityEvent event = events.get(x - 1);
-            if (event.getEventType() == type)
-                return event;
-        }
-        return null;
-    }
-
-    private void recycleAccessibilityEvents(List<AccessibilityEvent> events) {
-        for (AccessibilityEvent event : events)
-            event.recycle();
-        events.clear();
+        return !condition.getResult();
     }
 
     /**

@@ -28,6 +28,7 @@ import android.opengl.GLES20
 import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.hardware.SyncFenceCompat
 import androidx.opengl.EGLBindings
 import androidx.opengl.EGLExt
 import androidx.opengl.EGLExt.Companion.EGL_ANDROID_CLIENT_BUFFER
@@ -701,7 +702,8 @@ class EGLManagerTest {
                 GLES20.glFlush()
                 assertEquals("glFlush failed", GLES20.GL_NO_ERROR, GLES20.glGetError())
 
-                val syncFence = eglSpec.eglDupNativeFenceFDANDROID(sync!!)
+                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
+                val syncFence = EGLExt.eglDupNativeFenceFDANDROID(display, sync!!)
                 assertTrue(syncFence.isValid())
                 assertTrue(syncFence.await(TimeUnit.MILLISECONDS.toNanos(3000)))
 
@@ -726,16 +728,17 @@ class EGLManagerTest {
                 GLES20.glFlush()
                 assertEquals("glFlush failed", GLES20.GL_NO_ERROR, GLES20.glGetError())
 
-                val syncFence = eglSpec.eglDupNativeFenceFDANDROID(sync!!)
+                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
+                val syncFence = EGLExt.eglDupNativeFenceFDANDROID(display, sync!!)
                 assertTrue(syncFence.isValid())
-                assertNotEquals(SyncFence.SIGNAL_TIME_INVALID, syncFence.getSignalTime())
+                assertNotEquals(SyncFenceCompat.SIGNAL_TIME_INVALID, syncFence.getSignalTimeNanos())
                 assertTrue(syncFence.awaitForever())
 
                 assertTrue(eglSpec.eglDestroySyncKHR(sync))
                 assertEquals("eglDestroySyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
                 syncFence.close()
                 assertFalse(syncFence.isValid())
-                assertEquals(SyncFence.SIGNAL_TIME_INVALID, syncFence.getSignalTime())
+                assertEquals(SyncFence.SIGNAL_TIME_INVALID, syncFence.getSignalTimeNanos())
             }
         }
     }

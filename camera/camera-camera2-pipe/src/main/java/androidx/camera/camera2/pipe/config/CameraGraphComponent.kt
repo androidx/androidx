@@ -54,7 +54,8 @@ internal annotation class CameraGraphContext
 
 @CameraGraphScope
 @Subcomponent(
-    modules = [
+    modules =
+    [
         SharedCameraGraphModules::class,
         InternalCameraGraphModules::class,
         CameraGraphConfigModule::class,
@@ -71,9 +72,7 @@ internal interface CameraGraphComponent {
 }
 
 @Module
-internal class CameraGraphConfigModule(
-    private val config: CameraGraph.Config
-) {
+internal class CameraGraphConfigModule(private val config: CameraGraph.Config) {
     @Provides
     fun provideCameraGraphConfig(): CameraGraph.Config = config
 }
@@ -98,9 +97,7 @@ internal abstract class SharedCameraGraphModules {
         @Provides
         @ForCameraGraph
         fun provideCameraGraphCoroutineScope(threads: Threads): CoroutineScope {
-            return CoroutineScope(
-                threads.lightweightDispatcher.plus(CoroutineName("CXCP-Graph"))
-            )
+            return CoroutineScope(threads.lightweightDispatcher.plus(CoroutineName("CXCP-Graph")))
         }
 
         @CameraGraphScope
@@ -141,7 +138,9 @@ internal abstract class InternalCameraGraphModules {
 
             val cameraBackendId = graphConfig.cameraBackendId
             if (cameraBackendId != null) {
-                cameraBackends[cameraBackendId]
+                return checkNotNull(cameraBackends[cameraBackendId]) {
+                    "Failed to initialize $cameraBackendId from $graphConfig"
+                }
             }
             return cameraBackends.default
         }
@@ -154,7 +153,9 @@ internal abstract class InternalCameraGraphModules {
         ): CameraMetadata {
             // TODO: It might be a good idea to cache and go through caches for some of these calls
             //   instead of reading it directly from the backend.
-            return cameraBackend.readCameraMetadata(graphConfig.camera)
+            return checkNotNull(cameraBackend.awaitCameraMetadata(graphConfig.camera)) {
+                "Failed to load metadata for ${graphConfig.camera}!"
+            }
         }
 
         @CameraGraphScope
@@ -167,10 +168,7 @@ internal abstract class InternalCameraGraphModules {
             streamGraph: StreamGraphImpl,
         ): CameraController {
             return cameraBackend.createCameraController(
-                cameraContext,
-                graphConfig,
-                graphProcessor,
-                streamGraph
+                cameraContext, graphConfig, graphProcessor, streamGraph
             )
         }
     }

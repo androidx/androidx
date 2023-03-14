@@ -41,6 +41,7 @@ dependencies {
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-material-core"))
     implementation("androidx.profileinstaller:profileinstaller:1.2.0")
+    implementation("androidx.lifecycle:lifecycle-common:2.5.1")
 
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))

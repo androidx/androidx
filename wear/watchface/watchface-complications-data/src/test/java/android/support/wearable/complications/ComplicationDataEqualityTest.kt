@@ -24,11 +24,11 @@ import android.os.Build
 import android.support.wearable.complications.ComplicationText.plainText
 import android.util.Log
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicies
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
-import androidx.wear.watchface.complications.data.FloatExpression
 import androidx.wear.watchface.complications.data.SharedRobolectricTestRunner
-import androidx.wear.watchface.complications.data.StringExpression
 import com.google.common.truth.Expect
 import kotlin.random.Random
 import org.junit.Before
@@ -40,8 +40,7 @@ import org.robolectric.shadows.ShadowLog
 
 @RunWith(SharedRobolectricTestRunner::class)
 class ComplicationDataEqualityTest {
-    @get:Rule
-    val expect = Expect.create()
+    @get:Rule val expect = Expect.create()
 
     @Before
     fun setup() {
@@ -88,20 +87,8 @@ class ComplicationDataEqualityTest {
             { setRangedValue(2f) },
         ),
         RANGED_VALUE_EXPRESSION(
-            {
-                setRangedValueExpression(
-                    object : FloatExpression() {
-                        override fun asByteArray() = byteArrayOf(1, 2)
-                    }
-                )
-            },
-            {
-                setRangedValueExpression(
-                    object : FloatExpression() {
-                        override fun asByteArray() = byteArrayOf(3, 4)
-                    }
-                )
-            },
+            { setRangedValueExpression(DynamicFloat.constant(1.2f)) },
+            { setRangedValueExpression(DynamicFloat.constant(3.4f)) },
         ),
         RANGED_VALUE_TYPE(
             { setRangedValueType(1) },
@@ -265,19 +252,39 @@ class ComplicationDataEqualityTest {
             { setElementBackgroundColor(1) },
             { setElementBackgroundColor(2) },
         ),
+        TIMELINE_START_TIME(
+            { build().apply { timelineStartEpochSecond = 100 } },
+            { build().apply { timelineStartEpochSecond = 200 } },
+        ),
+        TIMELINE_END_TIME(
+            { build().apply { timelineEndEpochSecond = 100 } },
+            { build().apply { timelineEndEpochSecond = 200 } },
+        ),
+        TIMELINE_ENTRIES(
+            {
+                build().apply {
+                    setTimelineEntryCollection(
+                        listOf(ComplicationData.Builder(this).setRangedValue(1f).build())
+                    )
+                }
+            },
+            {
+                build().apply {
+                    setTimelineEntryCollection(
+                        listOf(ComplicationData.Builder(this).setRangedValue(2f).build())
+                    )
+                }
+            },
+        ),
         ;
 
+        private val base = ComplicationData.TYPE_NO_DATA
+
         /** Builds a [ComplicationData] with the first variation. */
-        fun buildOne() =
-            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                .apply { setterOne(this) }
-                .build()
+        fun buildOne() = ComplicationData.Builder(base).apply { setterOne(this) }.build()
 
         /** Builds a [ComplicationData] with the second variation. */
-        fun buildTwo() =
-            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                .apply { setterTwo(this) }
-                .build()
+        fun buildTwo() = ComplicationData.Builder(base).apply { setterTwo(this) }.build()
     }
 
     @Test
@@ -332,19 +339,11 @@ class ComplicationDataEqualityTest {
         RANGED_VALUE_EXPRESSION(
             {
                 setRangedValue(Random.nextFloat()) // Ignored when there's an expression.
-                    .setRangedValueExpression(
-                        object : FloatExpression() {
-                            override fun asByteArray() = byteArrayOf(1, 2)
-                        }
-                    )
+                    .setRangedValueExpression(DynamicFloat.constant(1.2f))
             },
             {
                 setRangedValue(Random.nextFloat()) // Ignored when there's an expression.
-                    .setRangedValueExpression(
-                        object : FloatExpression() {
-                            override fun asByteArray() = byteArrayOf(3, 4)
-                        }
-                    )
+                    .setRangedValueExpression(DynamicFloat.constant(3.4f))
             },
         ),
 
@@ -358,8 +357,7 @@ class ComplicationDataEqualityTest {
                 setShortTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
-                        StringExpression(byteArrayOf(1, 2))
+                        DynamicString.constant("1")
                     )
                 )
             },
@@ -367,8 +365,7 @@ class ComplicationDataEqualityTest {
                 setShortTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
-                        StringExpression(byteArrayOf(3, 4))
+                        DynamicString.constant("2")
                     )
                 )
             },
@@ -384,8 +381,7 @@ class ComplicationDataEqualityTest {
                 setShortText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
-                        StringExpression(byteArrayOf(1, 2))
+                        DynamicString.constant("1")
                     )
                 )
             },
@@ -393,8 +389,7 @@ class ComplicationDataEqualityTest {
                 setShortText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
-                        StringExpression(byteArrayOf(3, 4))
+                        DynamicString.constant("2")
                     )
                 )
             },
@@ -410,8 +405,7 @@ class ComplicationDataEqualityTest {
                 setLongTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
-                        StringExpression(byteArrayOf(1, 2))
+                        DynamicString.constant("1")
                     )
                 )
             },
@@ -419,8 +413,7 @@ class ComplicationDataEqualityTest {
                 setLongTitle(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
-                        StringExpression(byteArrayOf(3, 4))
+                        DynamicString.constant("2")
                     )
                 )
             },
@@ -436,8 +429,7 @@ class ComplicationDataEqualityTest {
                 setLongText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
-                        StringExpression(byteArrayOf(1, 2))
+                        DynamicString.constant("1")
                     )
                 )
             },
@@ -445,8 +437,7 @@ class ComplicationDataEqualityTest {
                 setLongText(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
-                        StringExpression(byteArrayOf(3, 4))
+                        DynamicString.constant("2")
                     )
                 )
             },
@@ -462,8 +453,7 @@ class ComplicationDataEqualityTest {
                 setContentDescription(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
-                        StringExpression(byteArrayOf(1, 2))
+                        DynamicString.constant("1")
                     )
                 )
             },
@@ -471,8 +461,7 @@ class ComplicationDataEqualityTest {
                 setContentDescription(
                     ComplicationText(
                         Random.nextInt().toString(), // Ignored when there's an expression.
-                        /* timeDependentText = */ null,
-                        StringExpression(byteArrayOf(3, 4))
+                        DynamicString.constant("2")
                     )
                 )
             },
@@ -490,8 +479,7 @@ class ComplicationDataEqualityTest {
                         .setShortText(
                             ComplicationText(
                                 Random.nextInt().toString(), // Ignored when there's an expression.
-                                /* timeDependentText = */ null,
-                                StringExpression(byteArrayOf(1, 2))
+                                DynamicString.constant("1")
                             )
                         )
                         .build()
@@ -503,8 +491,7 @@ class ComplicationDataEqualityTest {
                         .setShortText(
                             ComplicationText(
                                 Random.nextInt().toString(), // Ignored when there's an expression.
-                                /* timeDependentText = */ null,
-                                StringExpression(byteArrayOf(3, 4))
+                                DynamicString.constant("2")
                             )
                         )
                         .build()
@@ -531,17 +518,13 @@ class ComplicationDataEqualityTest {
         ),
         ;
 
+        private val base = ComplicationData.TYPE_NO_DATA
+
         /** Builds a [ComplicationData] with the first variation. */
-        fun buildOne() =
-            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                .apply { setterOne(this) }
-                .build()
+        fun buildOne() = ComplicationData.Builder(base).apply { setterOne(this) }.build()
 
         /** Builds a [ComplicationData] with the second variation. */
-        fun buildTwo() =
-            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                .apply { setterTwo(this) }
-                .build()
+        fun buildTwo() = ComplicationData.Builder(base).apply { setterTwo(this) }.build()
     }
 
     @Test

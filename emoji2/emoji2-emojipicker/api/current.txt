@@ -23,7 +23,18 @@ package androidx.emoji2.emojipicker {
     property public final java.util.List<java.lang.String> variants;
   }
 
+  public interface RecentEmojiAsyncProvider {
+    method public com.google.common.util.concurrent.ListenableFuture<java.util.List<java.lang.String>> getRecentEmojiListAsync();
+    method public void recordSelection(String emoji);
+  }
+
   public interface RecentEmojiProvider {
+    method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<? extends java.lang.String>>);
+    method public void recordSelection(String emoji);
+  }
+
+  public final class RecentEmojiProviderAdapter implements androidx.emoji2.emojipicker.RecentEmojiProvider {
+    ctor public RecentEmojiProviderAdapter(androidx.emoji2.emojipicker.RecentEmojiAsyncProvider recentEmojiAsyncProvider);
     method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<? extends java.lang.String>>);
     method public void recordSelection(String emoji);
   }

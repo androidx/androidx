@@ -26,8 +26,8 @@ internal data class AidlMethodSpec(val name: String, val parameters: List<AidlPa
             parameters.add(parameter)
         }
 
-        fun addParameter(name: String, type: AidlTypeSpec, isIn: Boolean = false) {
-            addParameter(AidlParameterSpec(name, type, isIn))
+        fun addParameter(name: String, type: AidlTypeSpec) {
+            addParameter(AidlParameterSpec(name, type, isIn = type.isList || type.isParcelable))
         }
 
         fun build() = AidlMethodSpec(name, parameters)

@@ -33,15 +33,20 @@ internal class JavaFunSpec(
     override val name: String,
     internal val actual: MethodSpec
 ) : JavaLang(), XFunSpec {
+    override fun toString() = actual.toString()
 
     internal class Builder(
         override val name: String,
         internal val actual: MethodSpec.Builder
     ) : JavaLang(), XFunSpec.Builder {
 
-        override fun addAnnotation(annotation: XAnnotationSpec) {
+        override fun addAnnotation(annotation: XAnnotationSpec) = apply {
             require(annotation is JavaAnnotationSpec)
             actual.addAnnotation(annotation.actual)
+        }
+
+        override fun addAbstractModifier() = apply {
+            actual.addModifiers(Modifier.ABSTRACT)
         }
 
         override fun addCode(code: XCodeBlock) = apply {

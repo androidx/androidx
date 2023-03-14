@@ -15,3 +15,9 @@ ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#onPostMigrate(android
     Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.onPostMigrate
 ParameterNameChange: androidx.room.RoomOpenHelper.Delegate#onPreMigrate(androidx.sqlite.db.SupportSQLiteDatabase) parameter #0:
     Attempted to change parameter name from database to db in method androidx.room.RoomOpenHelper.Delegate.onPreMigrate
+
+
+RemovedClass: androidx.room.EntityUpsertionAdapterKt:
+    Removed class androidx.room.EntityUpsertionAdapterKt
+RemovedClass: androidx.room.util.TableInfoKt:
+    Removed class androidx.room.util.TableInfoKt

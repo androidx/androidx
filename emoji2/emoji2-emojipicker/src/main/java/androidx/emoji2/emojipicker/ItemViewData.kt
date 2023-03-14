@@ -20,37 +20,34 @@ internal enum class ItemType {
     CATEGORY_TITLE,
     PLACEHOLDER_TEXT,
     EMOJI,
-    PLACEHOLDER_EMOJI,
 }
 
 /**
  * Represents an item within the body RecyclerView.
  */
-internal sealed class ItemViewData(itemType: ItemType, val occupyEntireRow: Boolean = false) {
+internal sealed class ItemViewData(val itemType: ItemType) {
     val viewType = itemType.ordinal
 }
 
 /**
  * Title of each category.
  */
-internal class CategoryTitle(val title: String) :
-    ItemViewData(ItemType.CATEGORY_TITLE, occupyEntireRow = true)
+internal data class CategoryTitle(val title: String) : ItemViewData(ItemType.CATEGORY_TITLE)
 
 /**
  * Text to display when the category contains no items.
  */
-internal class PlaceholderText(val text: String) :
-    ItemViewData(ItemType.PLACEHOLDER_TEXT, occupyEntireRow = true)
+internal data class PlaceholderText(val text: String) : ItemViewData(ItemType.PLACEHOLDER_TEXT)
 
 /**
  * Represents an emoji.
  */
-internal class EmojiViewData(
+internal data class EmojiViewData(
     var emoji: String,
-    val updateToSticky: Boolean = true
+    val updateToSticky: Boolean = true,
+    // Needed to ensure uniqueness since we enabled stable Id.
+    val dataIndex: Int = 0
 ) : ItemViewData(ItemType.EMOJI)
-
-internal object PlaceholderEmoji : ItemViewData(ItemType.PLACEHOLDER_EMOJI)
 
 internal object Extensions {
     internal fun Int.toItemType() = ItemType.values()[this]

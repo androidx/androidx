@@ -36,7 +36,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.StreamConfigurationMapCompat;
-import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
@@ -66,9 +65,6 @@ import java.util.Map;
  * 2. Preferred resolution
  * 3. Max resolution
  * 4. Is high resolution enabled
- *
- * The problematic resolutions retrieved from {@link ExcludedSupportedSizesContainer} will also
- * be execulded.
  */
 @RequiresApi(21)
 final class SupportedOutputSizesCollector {
@@ -82,8 +78,6 @@ final class SupportedOutputSizesCollector {
     private final Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
     private final Map<Integer, Size[]> mHighResolutionOutputSizesCache = new HashMap<>();
     private final Map<Integer, Size> mMaxSizeCache = new HashMap<>();
-    private final ExcludedSupportedSizesContainer mExcludedSupportedSizesContainer;
-    private final Map<Integer, List<Size>> mExcludedSizeListCache = new HashMap<>();
     private final boolean mIsSensorLandscapeResolution;
     private final boolean mIsBurstCaptureSupported;
     private final Size mActiveArraySize;
@@ -96,8 +90,6 @@ final class SupportedOutputSizesCollector {
         mCameraId = cameraId;
         mCharacteristics = cameraCharacteristics;
         mDisplayInfoManager = displayInfoManager;
-
-        mExcludedSupportedSizesContainer = new ExcludedSupportedSizesContainer(cameraId);
 
         mIsSensorLandscapeResolution = isSensorLandscapeResolution(mCharacteristics);
         mIsBurstCaptureSupported = isBurstCaptureSupported();
@@ -113,8 +105,7 @@ final class SupportedOutputSizesCollector {
      * Collects and sorts the resolution candidate list by the following steps:
      *
      * 1. Collects the candidate list by the high resolution enable setting.
-     * 2. Filters out the candidate list according to the min size bound, max resolution or
-     * excluded resolution quirk.
+     * 2. Filters out the candidate list according to the min size bound and max resolution.
      * 3. Sorts the candidate list according to the rules of legacy resolution API or new
      * Resolution API.
      * 4. Forces select specific resolutions according to ResolutionCorrector workaround.
@@ -127,10 +118,9 @@ final class SupportedOutputSizesCollector {
         List<Size> resolutionCandidateList = collectResolutionCandidateList(resolutionSelector,
                 imageFormat, isHighResolutionDisabled, customizedSupportSizes);
 
-        // 2. Filters out the candidate list according to the min size bound, max resolution or
-        // excluded resolution quirk.
+        // 2. Filters out the candidate list according to the min size bound and max resolution.
         resolutionCandidateList = filterOutResolutionCandidateListBySettings(
-                resolutionCandidateList, resolutionSelector, imageFormat);
+                resolutionCandidateList, resolutionSelector);
 
         // 3. Sorts the candidate list according to the rules of new Resolution API.
         resolutionCandidateList = sortResolutionCandidateListByResolutionSelector(
@@ -189,7 +179,7 @@ final class SupportedOutputSizesCollector {
      */
     private List<Size> filterOutResolutionCandidateListBySettings(
             @NonNull List<Size> resolutionCandidateList,
-            @NonNull ResolutionSelector resolutionSelector, int imageFormat) {
+            @NonNull ResolutionSelector resolutionSelector) {
         // Retrieves the max resolution setting. When ResolutionSelector is used, all resolution
         // selection logic should depend on ResolutionSelector's settings.
         Size maxResolution = resolutionSelector.getMaxResolution();
@@ -208,8 +198,6 @@ final class SupportedOutputSizesCollector {
                 }
             }
         }
-
-        resultList = excludeProblematicSizes(resultList, imageFormat);
 
         if (resultList.isEmpty()) {
             throw new IllegalArgumentException(
@@ -293,15 +281,7 @@ final class SupportedOutputSizesCollector {
 
     @NonNull
     private Size[] doGetOutputSizesByFormat(int imageFormat) {
-        StreamConfigurationMap map =
-                mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-
-        if (map == null) {
-            throw new IllegalArgumentException("Can not retrieve SCALER_STREAM_CONFIGURATION_MAP");
-        }
-
-        StreamConfigurationMapCompat mapCompat =
-                StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
+        StreamConfigurationMapCompat mapCompat = mCharacteristics.getStreamConfigurationMapCompat();
         Size[] outputSizes = mapCompat.getOutputSizes(imageFormat);
         if (outputSizes == null) {
             throw new IllegalArgumentException(
@@ -428,26 +408,6 @@ final class SupportedOutputSizesCollector {
                 sensorOrientation,
                 isOppositeFacingScreen);
         return sensorRotationDegrees == 90 || sensorRotationDegrees == 270;
-    }
-
-    @NonNull
-    private List<Size> excludeProblematicSizes(@NonNull List<Size> resolutionCandidateList,
-            int imageFormat) {
-        List<Size> excludedSizes = fetchExcludedSizes(imageFormat);
-        resolutionCandidateList.removeAll(excludedSizes);
-        return resolutionCandidateList;
-    }
-
-    @NonNull
-    private List<Size> fetchExcludedSizes(int imageFormat) {
-        List<Size> excludedSizes = mExcludedSizeListCache.get(imageFormat);
-
-        if (excludedSizes == null) {
-            excludedSizes = mExcludedSupportedSizesContainer.get(imageFormat);
-            mExcludedSizeListCache.put(imageFormat, excludedSizes);
-        }
-
-        return excludedSizes;
     }
 
     /**

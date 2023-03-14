@@ -257,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Jste přihlášeni!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Přihlášení dokončeno"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Ukázka šablony přihlášení"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Ukázky šablony karty"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Ukázka šablony karty"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Karta se zprávou"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Karta s panelem"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"Karta se seznamem"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Karta s mřížkou s dlouhým názvem karty"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Karta vyhledávání"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Ukázka načítání šablony karty"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Ukázka šablony karty bez karet"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Obrázky nelze zobrazit neznámému hostiteli"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Ikona"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Ukázka ikon poskytovatelů obsahu"</string>

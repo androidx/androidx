@@ -24,7 +24,7 @@ import java.util.UUID
  * current [State], output, tags, and run attempt count.  Note that output is only available
  * for the terminal states ([State.SUCCEEDED] and [State.FAILED]).
  */
-class WorkInfo(
+class WorkInfo @JvmOverloads constructor(
     /**
      * The identifier of the [WorkRequest].
      */
@@ -66,7 +66,12 @@ class WorkInfo(
      * If this worker is currently running, it can possibly be of an older generation rather than
      * returned by this function if an update has happened during an execution of this worker.
      */
-    val generation: Int = 0
+    val generation: Int = 0,
+
+    /**
+     * [Constraints] of this worker.
+     */
+    val constraints: Constraints = Constraints.NONE,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -77,6 +82,7 @@ class WorkInfo(
         if (id != workInfo.id) return false
         if (state != workInfo.state) return false
         if (outputData != workInfo.outputData) return false
+        if (constraints != workInfo.constraints) return false
         return if (tags != workInfo.tags) false else progress == workInfo.progress
     }
 
@@ -88,13 +94,14 @@ class WorkInfo(
         result = 31 * result + progress.hashCode()
         result = 31 * result + runAttemptCount
         result = 31 * result + generation
+        result = 31 * result + constraints.hashCode()
         return result
     }
 
     override fun toString(): String {
         return ("WorkInfo{id='$id', state=$state, " +
             "outputData=$outputData, tags=$tags, progress=$progress, " +
-            "runAttemptCount=$runAttemptCount, generation=$generation}")
+            "runAttemptCount=$runAttemptCount, generation=$generation, constraints=$constraints}")
     }
 
     /**

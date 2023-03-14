@@ -16,6 +16,9 @@
 
 package com.example.androidx.mediarouting.data;
 
+import android.media.AudioManager;
+import android.media.MediaRouter;
+
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -53,38 +56,107 @@ public final class RouteItem {
         this.mGroupMemberIds = new ArrayList<>();
     }
 
+    public RouteItem(
+            @NonNull String id,
+            @NonNull String name,
+            @NonNull String description,
+            @NonNull ControlFilter controlFilter,
+            @NonNull PlaybackStream playbackStream,
+            @NonNull PlaybackType playbackType,
+            boolean canDisconnect,
+            @NonNull VolumeHandling volumeHandling,
+            int volume,
+            int volumeMax,
+            @NonNull DeviceType deviceType,
+            @NonNull List<String> groupMemberIds) {
+        mId = id;
+        mName = name;
+        mDescription = description;
+        mControlFilter = controlFilter;
+        mPlaybackStream = playbackStream;
+        mPlaybackType = playbackType;
+        mCanDisconnect = canDisconnect;
+        mVolumeHandling = volumeHandling;
+        mVolume = volume;
+        mVolumeMax = volumeMax;
+        mDeviceType = deviceType;
+        mGroupMemberIds = groupMemberIds;
+    }
+
+    /** Returns a deep copy of an existing {@link RouteItem}. */
+    @NonNull
+    public static RouteItem copyOf(@NonNull RouteItem routeItem) {
+        return new RouteItem(
+                routeItem.getId(),
+                routeItem.getName(),
+                routeItem.getDescription(),
+                routeItem.getControlFilter(),
+                routeItem.getPlaybackStream(),
+                routeItem.getPlaybackType(),
+                routeItem.isCanDisconnect(),
+                routeItem.getVolumeHandling(),
+                routeItem.getVolume(),
+                routeItem.getVolumeMax(),
+                routeItem.getDeviceType(),
+                routeItem.getGroupMemberIds());
+    }
+
     public enum ControlFilter {
         BASIC,
         QUEUE,
-        SESSION
+        SESSION;
     }
 
     public enum PlaybackStream {
-        ACCESSIBILITY,
-        ALARM,
-        DTMF,
-        MUSIC,
-        NOTIFICATION,
-        RING,
-        SYSTEM,
-        VOICE_CALL
+        ACCESSIBILITY(AudioManager.STREAM_ACCESSIBILITY),
+        ALARM(AudioManager.STREAM_ALARM),
+        DTMF(AudioManager.STREAM_DTMF),
+        MUSIC(AudioManager.STREAM_MUSIC),
+        NOTIFICATION(AudioManager.STREAM_NOTIFICATION),
+        RING(AudioManager.STREAM_RING),
+        SYSTEM(AudioManager.STREAM_SYSTEM),
+        VOICE_CALL(AudioManager.STREAM_VOICE_CALL);
+
+        public final int mIntConstant;
+
+        PlaybackStream(int intConstant) {
+            mIntConstant = intConstant;
+        }
     }
 
     public enum PlaybackType {
-        LOCAL,
-        REMOTE
+        LOCAL(MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL),
+        REMOTE(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE);
+
+        public final int mIntConstant;
+
+        PlaybackType(int intConstant) {
+            mIntConstant = intConstant;
+        }
     }
 
     public enum VolumeHandling {
-        FIXED,
-        VARIABLE
+        FIXED(MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED),
+        VARIABLE(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE);
+
+        public final int mIntConstant;
+
+        VolumeHandling(int intConstant) {
+            mIntConstant = intConstant;
+        }
     }
 
     public enum DeviceType {
-        TV,
-        SPEAKER,
-        BLUETOOTH,
-        UNKNOWN
+        TV(MediaRouter.RouteInfo.DEVICE_TYPE_TV),
+        SPEAKER(MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER),
+        BLUETOOTH(MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH),
+        UNKNOWN(MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN);
+
+        public final int mIntConstant;
+
+        DeviceType(int intConstant) {
+            mIntConstant = intConstant;
+        }
     }
 
     @NonNull

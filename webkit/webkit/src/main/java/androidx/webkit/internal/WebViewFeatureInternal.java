@@ -389,6 +389,15 @@ public class WebViewFeatureInternal {
 
     /**
      * This feature covers
+     * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePath(String, String)}.
+     */
+    public static final StartupApiFeature.NoFramework STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH =
+            new StartupApiFeature.NoFramework(
+                    WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH,
+                    StartupFeatures.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH);
+
+    /**
+     * This feature covers
      * {@link WebViewCompat#getWebViewRenderProcessClient()},
      * {@link WebViewCompat#setWebViewRenderProcessClient(WebViewRenderProcessClient)},
      * {@link WebViewRenderProcessClient#onRenderProcessUnresponsive(WebView, WebViewRenderProcess)},

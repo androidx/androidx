@@ -41,6 +41,7 @@ import com.example.androidx.mediarouting.R;
 import com.example.androidx.mediarouting.RoutesManager;
 import com.example.androidx.mediarouting.services.SampleDynamicGroupMediaRouteProviderService;
 import com.example.androidx.mediarouting.ui.RoutesAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
  * Allows the user to control dialog types, enabling or disabling Dynamic Groups, enabling or
@@ -51,7 +52,6 @@ public final class SettingsActivity extends AppCompatActivity {
     private MediaRouter mMediaRouter;
     private RoutesManager mRoutesManager;
     private RoutesAdapter mRoutesAdapter;
-    private RoutesAdapter.RouteItemListener mRouteItemListener;
     private SampleDynamicGroupMediaRouteProviderService mService;
     private ServiceConnection mConnection;
 
@@ -61,44 +61,41 @@ public final class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         mMediaRouter = MediaRouter.getInstance(this);
-
         mRoutesManager = RoutesManager.getInstance(getApplicationContext());
-
         mConnection = new ProviderServiceConnection();
 
-        setUpDynamicGroupsEnabledSwitch();
-        setUpTransferToLocalSwitch();
-        setUpDialogTypeDropDownList();
+        setUpViews();
 
-        mRouteItemListener =
-                new RoutesAdapter.RouteItemListener() {
-                    @Override
-                    public void onRouteEditClick(@NonNull String routeId) {
-                        // TODO: Navigate to a new editing screen in a different CL
-                    }
+        RoutesAdapter.RouteItemListener routeItemListener = new RoutesAdapter.RouteItemListener() {
+            @Override
+            public void onRouteEditClick(@NonNull String routeId) {
+                AddEditRouteActivity.launchActivity(
+                        /* context= */ SettingsActivity.this, /* routeId */ routeId);
+            }
 
-                    @Override
-                    public void onRouteDeleteClick(@NonNull String routeId) {
-                        new AlertDialog.Builder(SettingsActivity.this)
-                                .setTitle("Delete this route?")
-                                .setMessage("Are you sure you want to delete this route?")
-                                .setPositiveButton(android.R.string.cancel, null)
-                                .setNegativeButton(
-                                        android.R.string.ok,
-                                        (dialogInterface, i) -> {
-                                            mRoutesManager.deleteRouteWithId(routeId);
-                                            mService.reloadRoutes();
-                                            mRoutesAdapter.updateRoutes(
-                                                    mRoutesManager.getRouteItems());
-                                        })
-                                .show();
-                    }
-                };
+            @Override
+            public void onRouteDeleteClick(@NonNull String routeId) {
+                new AlertDialog.Builder(SettingsActivity.this)
+                        .setTitle(R.string.delete_route_alert_dialog_title)
+                        .setMessage(R.string.delete_route_alert_dialog_message)
+                        .setPositiveButton(android.R.string.cancel, null)
+                        .setNegativeButton(
+                                android.R.string.ok,
+                                (dialogInterface, i) -> {
+                                    mRoutesManager.deleteRouteWithId(routeId);
+                                    mService.reloadRoutes();
+                                    mRoutesAdapter.updateRoutes(
+                                            mRoutesManager.getRouteItems());
+                                })
+                        .show();
+            }
+        };
 
         RecyclerView routeList = findViewById(R.id.routes_recycler_view);
-        routeList.setLayoutManager(new LinearLayoutManager(/* context */ this));
-        mRoutesAdapter = new RoutesAdapter(mRoutesManager.getRouteItems(), mRouteItemListener);
+        routeList.setLayoutManager(new LinearLayoutManager(/* context= */ this));
+        mRoutesAdapter = new RoutesAdapter(mRoutesManager.getRouteItems(), routeItemListener);
         routeList.setAdapter(mRoutesAdapter);
+        routeList.setHasFixedSize(true);
     }
 
     @Override
@@ -120,6 +117,13 @@ public final class SettingsActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         unbindService(mConnection);
+    }
+
+    private void setUpViews() {
+        setUpDynamicGroupsEnabledSwitch();
+        setUpTransferToLocalSwitch();
+        setUpDialogTypeDropDownList();
+        setUpNewRouteButton();
     }
 
     private void setUpDynamicGroupsEnabledSwitch() {
@@ -151,20 +155,8 @@ public final class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void onItemSelected(
                             AdapterView<?> adapterView, View view, int i, long l) {
-                        MediaRouterParams.Builder builder =
-                                new MediaRouterParams.Builder(mMediaRouter.getRouterParams());
-                        if (i == 0) {
-                            builder.setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
-                                    .setOutputSwitcherEnabled(false);
-                            mMediaRouter.setRouterParams(builder.build());
-                        } else if (i == 1) {
-                            builder.setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP)
-                                    .setOutputSwitcherEnabled(false);
-                            mMediaRouter.setRouterParams(builder.build());
-                        } else if (i == 2) {
-                            builder.setOutputSwitcherEnabled(true);
-                            mMediaRouter.setRouterParams(builder.build());
-                        }
+                        mRoutesManager.setDialogType(RoutesManager.DialogType.values()[i]);
+                        mRoutesManager.reloadDialogType();
                     }
 
                     @Override
@@ -185,6 +177,15 @@ public final class SettingsActivity extends AppCompatActivity {
                 == MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP) {
             spinner.setSelection(1);
         }
+    }
+
+    private void setUpNewRouteButton() {
+        FloatingActionButton newRouteButton = findViewById(R.id.new_route_button);
+        newRouteButton.setOnClickListener(
+                view -> {
+                    AddEditRouteActivity.launchActivity(
+                            /* context= */ SettingsActivity.this, /* routeId= */ null);
+                });
     }
 
     private class ProviderServiceConnection implements ServiceConnection {

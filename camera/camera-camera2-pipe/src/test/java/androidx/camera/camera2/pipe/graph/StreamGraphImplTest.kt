@@ -78,26 +78,19 @@ internal class StreamGraphImplTest {
     @Test
     fun testStreamWithMultipleOutputs() {
 
-        val streamConfig = CameraStream.Config.create(
-            listOf(
-                OutputStream.Config.create(
-                    Size(800, 600),
-                    StreamFormat.YUV_420_888
-                ),
-                OutputStream.Config.create(
-                    Size(1600, 1200),
-                    StreamFormat.YUV_420_888
-                ),
-                OutputStream.Config.create(
-                    Size(800, 600),
-                    StreamFormat.YUV_420_888
-                ),
+        val streamConfig =
+            CameraStream.Config.create(
+                listOf(
+                    OutputStream.Config.create(Size(800, 600), StreamFormat.YUV_420_888),
+                    OutputStream.Config.create(Size(1600, 1200), StreamFormat.YUV_420_888),
+                    OutputStream.Config.create(Size(800, 600), StreamFormat.YUV_420_888),
+                )
             )
-        )
-        val graphConfig = CameraGraph.Config(
-            camera = CameraId("TestCamera"),
-            streams = listOf(streamConfig),
-        )
+        val graphConfig =
+            CameraGraph.Config(
+                camera = CameraId("TestCamera"),
+                streams = listOf(streamConfig),
+            )
         val streamGraph = StreamGraphImpl(config.fakeMetadata, graphConfig)
 
         assertThat(streamGraph.streams).hasSize(1)

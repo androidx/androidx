@@ -43,7 +43,7 @@ class ServiceFactoryFileGenerator(private val generateStubs: Boolean = false) {
 
     private fun generateFactoryFunction(service: AnnotatedInterface) =
         FunSpec.builder("wrapTo${service.type.simpleName}").build {
-            addParameter(ParameterSpec("binder", SpecNames.iBinderClassName))
+            addParameter(ParameterSpec("binder", SpecNames.iBinderClass))
             returns(ClassName(service.type.packageName, service.type.simpleName))
             if (generateStubs) {
                 addAnnotation(

@@ -33,109 +33,106 @@ internal object FakeGraphConfigs {
     private val camera1 = CameraId("TestCamera-1")
     private val camera2 = CameraId("TestCamera-2")
 
-    val fakeMetadata = FakeCameraMetadata(
-        mapOf(
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-            CameraCharacteristics.LENS_FACING to
-                CameraCharacteristics.LENS_FACING_BACK
-        ),
-        cameraId = camera1
-    )
-    val fakeMetadata2 = FakeCameraMetadata(
-        mapOf(
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-            CameraCharacteristics.LENS_FACING to
-                CameraCharacteristics.LENS_FACING_FRONT
-        ),
-        cameraId = camera2
-    )
-    val fakeCameraBackend = FakeCameraBackend(
-        mapOf(
-            fakeMetadata.camera to fakeMetadata,
-            fakeMetadata2.camera to fakeMetadata2
+    val fakeMetadata =
+        FakeCameraMetadata(
+            mapOf(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK
+            ),
+            cameraId = camera1
         )
-    )
+    val fakeMetadata2 =
+        FakeCameraMetadata(
+            mapOf(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT
+            ),
+            cameraId = camera2
+        )
+    val fakeCameraBackend =
+        FakeCameraBackend(
+            mapOf(fakeMetadata.camera to fakeMetadata, fakeMetadata2.camera to fakeMetadata2)
+        )
 
-    val streamConfig1 = CameraStream.Config.create(
-        size = Size(100, 100),
-        format = StreamFormat.YUV_420_888
-    )
-    val streamConfig2 = CameraStream.Config.create(
-        size = Size(123, 321),
-        format = StreamFormat.YUV_420_888,
-        camera = camera1
-    )
-    val streamConfig3 = CameraStream.Config.create(
-        size = Size(200, 200),
-        format = StreamFormat.YUV_420_888,
-        camera = camera2,
-        outputType = OutputStream.OutputType.SURFACE_TEXTURE
-    )
-    val streamConfig4 = CameraStream.Config.create(
-        size = Size(200, 200),
-        format = StreamFormat.YUV_420_888,
-        camera = camera2,
-        outputType = OutputStream.OutputType.SURFACE_TEXTURE,
-        mirrorMode = OutputStream.MirrorMode.MIRROR_MODE_H
-    )
-    val streamConfig5 = CameraStream.Config.create(
-        size = Size(200, 200),
-        format = StreamFormat.YUV_420_888,
-        camera = camera2,
-        outputType = OutputStream.OutputType.SURFACE_TEXTURE,
-        mirrorMode = OutputStream.MirrorMode.MIRROR_MODE_AUTO,
-        timestampBase = OutputStream.TimestampBase.TIMESTAMP_BASE_MONOTONIC
-    )
-    val streamConfig6 = CameraStream.Config.create(
-        size = Size(200, 200),
-        format = StreamFormat.YUV_420_888,
-        camera = camera2,
-        outputType = OutputStream.OutputType.SURFACE_TEXTURE,
-        mirrorMode = OutputStream.MirrorMode.MIRROR_MODE_AUTO,
-        timestampBase = OutputStream.TimestampBase.TIMESTAMP_BASE_DEFAULT,
-        dynamicRangeProfile = OutputStream.DynamicRangeProfile.PUBLIC_MAX
-    )
+    val streamConfig1 =
+        CameraStream.Config.create(size = Size(100, 100), format = StreamFormat.YUV_420_888)
+    val streamConfig2 =
+        CameraStream.Config.create(
+            size = Size(123, 321), format = StreamFormat.YUV_420_888, camera = camera1
+        )
+    val streamConfig3 =
+        CameraStream.Config.create(
+            size = Size(200, 200),
+            format = StreamFormat.YUV_420_888,
+            camera = camera2,
+            outputType = OutputStream.OutputType.SURFACE_TEXTURE
+        )
+    val streamConfig4 =
+        CameraStream.Config.create(
+            size = Size(200, 200),
+            format = StreamFormat.YUV_420_888,
+            camera = camera2,
+            outputType = OutputStream.OutputType.SURFACE_TEXTURE,
+            mirrorMode = OutputStream.MirrorMode.MIRROR_MODE_H
+        )
+    val streamConfig5 =
+        CameraStream.Config.create(
+            size = Size(200, 200),
+            format = StreamFormat.YUV_420_888,
+            camera = camera2,
+            outputType = OutputStream.OutputType.SURFACE_TEXTURE,
+            mirrorMode = OutputStream.MirrorMode.MIRROR_MODE_AUTO,
+            timestampBase = OutputStream.TimestampBase.TIMESTAMP_BASE_MONOTONIC
+        )
+    val streamConfig6 =
+        CameraStream.Config.create(
+            size = Size(200, 200),
+            format = StreamFormat.YUV_420_888,
+            camera = camera2,
+            outputType = OutputStream.OutputType.SURFACE_TEXTURE,
+            mirrorMode = OutputStream.MirrorMode.MIRROR_MODE_AUTO,
+            timestampBase = OutputStream.TimestampBase.TIMESTAMP_BASE_DEFAULT,
+            dynamicRangeProfile = OutputStream.DynamicRangeProfile.PUBLIC_MAX
+        )
 
-    val streamConfig7 = CameraStream.Config.create(
-        size = Size(200, 200),
-        format = StreamFormat.YUV_420_888,
-        camera = camera2,
-        outputType = OutputStream.OutputType.SURFACE_TEXTURE,
-        mirrorMode = OutputStream.MirrorMode.MIRROR_MODE_AUTO,
-        timestampBase = OutputStream.TimestampBase.TIMESTAMP_BASE_DEFAULT,
-        dynamicRangeProfile = OutputStream.DynamicRangeProfile.STANDARD,
-        streamUseCase = OutputStream.StreamUseCase.VIDEO_RECORD
-    )
+    val streamConfig7 =
+        CameraStream.Config.create(
+            size = Size(200, 200),
+            format = StreamFormat.YUV_420_888,
+            camera = camera2,
+            outputType = OutputStream.OutputType.SURFACE_TEXTURE,
+            mirrorMode = OutputStream.MirrorMode.MIRROR_MODE_AUTO,
+            timestampBase = OutputStream.TimestampBase.TIMESTAMP_BASE_DEFAULT,
+            dynamicRangeProfile = OutputStream.DynamicRangeProfile.STANDARD,
+            streamUseCase = OutputStream.StreamUseCase.VIDEO_RECORD
+        )
 
-    val sharedOutputConfig = OutputStream.Config.create(
-        size = Size(200, 200),
-        format = StreamFormat.YUV_420_888,
-        camera = camera1
-    )
+    val sharedOutputConfig =
+        OutputStream.Config.create(
+            size = Size(200, 200), format = StreamFormat.YUV_420_888, camera = camera1
+        )
     val sharedStreamConfig1 = CameraStream.Config.create(sharedOutputConfig)
     val sharedStreamConfig2 = CameraStream.Config.create(sharedOutputConfig)
 
-    val graphConfig = CameraGraph.Config(
-        camera = camera1,
-        streams = listOf(
-            streamConfig1,
-            streamConfig2,
-            streamConfig3,
-            streamConfig4,
-            streamConfig5,
-            streamConfig6,
-            streamConfig7,
-            sharedStreamConfig1,
-            sharedStreamConfig2
-        ),
-        streamSharingGroups = listOf(listOf(streamConfig1, streamConfig2)),
-        defaultParameters = mapOf(
-            CaptureRequest.JPEG_THUMBNAIL_QUALITY to 24
-        ),
-        requiredParameters = mapOf(
-            CaptureRequest.JPEG_THUMBNAIL_QUALITY to 42
+    val graphConfig =
+        CameraGraph.Config(
+            camera = camera1,
+            streams =
+            listOf(
+                streamConfig1,
+                streamConfig2,
+                streamConfig3,
+                streamConfig4,
+                streamConfig5,
+                streamConfig6,
+                streamConfig7,
+                sharedStreamConfig1,
+                sharedStreamConfig2
+            ),
+            streamSharingGroups = listOf(listOf(streamConfig1, streamConfig2)),
+            defaultParameters = mapOf(CaptureRequest.JPEG_THUMBNAIL_QUALITY to 24),
+            requiredParameters = mapOf(CaptureRequest.JPEG_THUMBNAIL_QUALITY to 42)
         )
-    )
 }

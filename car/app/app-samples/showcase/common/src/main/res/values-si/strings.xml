@@ -257,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"ඔබ පුරා ඇත!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"පිරීම අසම්පූර්ණයි"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"පිරීම් අච්චු ආදර්ශනය"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"පටිති අච්චු ආදර්ශන"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"පටිති අච්චු ආදර්ශනය"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"පණිවිඩ පටිත්ත"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"පුවරු පටිත්ත"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"ලැයිස්තු පටිත්ත"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"දිගු පටිති මාතෘකාව සහිත ජාල පටිත්ත"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"සෙවීම් පටිත්ත"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"පටිති අච්චු පූරණය වීමේ ආදර්ශනය"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"පටිති අච්චු පටිති නැති ආදර්ශනය"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"නොදන්නා සංග්‍රාහකයෙක් සඳහා රූප සංදර්ශනය කළ නොහැකිය"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"නිරූපකය"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"අන්තර්ගත සැපයුම්කරු නිරූපක ආදර්ශනය"</string>

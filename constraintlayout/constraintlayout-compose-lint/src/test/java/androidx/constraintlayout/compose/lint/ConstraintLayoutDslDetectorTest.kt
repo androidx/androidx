@@ -16,7 +16,7 @@
 
 package androidx.constraintlayout.compose.lint
 
-import androidx.compose.lint.test.compiledStub
+import androidx.compose.lint.test.bytecodeStub
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Test
@@ -32,7 +32,7 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(ConstraintLayoutDslDetector.IncorrectReferencesDeclarationIssue)
 
-    private val ConstraintSetScopeStub = compiledStub(
+    private val ConstraintSetScopeStub = bytecodeStub(
         filename = "ConstraintSetScope.kt",
         filepath = COMPOSE_CONSTRAINTLAYOUT_FILE_PATH,
         checksum = 0x912b8878,
@@ -174,7 +174,7 @@ class ConstraintLayoutDslDetectorTest : LintDetectorTest() {
                 """
     )
 
-    private val MotionSceneScopeStub = compiledStub(
+    private val MotionSceneScopeStub = bytecodeStub(
         filename = "MotionSceneScope.kt",
         filepath = COMPOSE_CONSTRAINTLAYOUT_FILE_PATH,
         checksum = 0xc89561d0,

@@ -85,35 +85,36 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             R.string.digital_complications_setting,
             R.string.digital_complications_setting_description,
             icon = null,
-            complicationConfig = listOf(
-                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                    UserStyleSetting.Option.Id("On"),
-                    resources,
-                    R.string.digital_complication_on_screen_name,
-                    Icon.createWithResource(this, R.drawable.on),
-                    listOf(
-                        ComplicationSlotOverlay(
-                            COMPLICATION1_ID,
-                            enabled = true,
-                            complicationSlotBounds =
-                                ComplicationSlotBounds(RectF(0.1f, 0.4f, 0.3f, 0.6f))
+            complicationConfig =
+                listOf(
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                        UserStyleSetting.Option.Id("On"),
+                        resources,
+                        R.string.digital_complication_on_screen_name,
+                        Icon.createWithResource(this, R.drawable.on),
+                        listOf(
+                            ComplicationSlotOverlay(
+                                COMPLICATION1_ID,
+                                enabled = true,
+                                complicationSlotBounds =
+                                    ComplicationSlotBounds(RectF(0.1f, 0.4f, 0.3f, 0.6f))
+                            ),
+                            ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
+                            ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
                         ),
-                        ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
-                        ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
                     ),
-                ),
-                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                    UserStyleSetting.Option.Id("Off"),
-                    resources,
-                    R.string.digital_complication_off_screen_name,
-                    Icon.createWithResource(this, R.drawable.off),
-                    listOf(
-                        ComplicationSlotOverlay(COMPLICATION1_ID, enabled = false),
-                        ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
-                        ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                        UserStyleSetting.Option.Id("Off"),
+                        resources,
+                        R.string.digital_complication_off_screen_name,
+                        Icon.createWithResource(this, R.drawable.off),
+                        listOf(
+                            ComplicationSlotOverlay(COMPLICATION1_ID, enabled = false),
+                            ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
+                            ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                        )
                     )
-                )
-            ),
+                ),
             listOf(WatchFaceLayer.COMPLICATIONS)
         )
     }
@@ -197,41 +198,42 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             R.string.watchface_complications_setting,
             R.string.watchface_complications_setting_description,
             icon = null,
-            complicationConfig = listOf(
-                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                    UserStyleSetting.Option.Id("One"),
-                    resources,
-                    R.string.analog_complication_one_screen_name,
-                    Icon.createWithResource(this, R.drawable.one),
-                    listOf(
-                        ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
-                        ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
-                        ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+            complicationConfig =
+                listOf(
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                        UserStyleSetting.Option.Id("One"),
+                        resources,
+                        R.string.analog_complication_one_screen_name,
+                        Icon.createWithResource(this, R.drawable.one),
+                        listOf(
+                            ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
+                            ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
+                            ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                        )
+                    ),
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                        UserStyleSetting.Option.Id("Two"),
+                        resources,
+                        R.string.analog_complication_two_screen_name,
+                        Icon.createWithResource(this, R.drawable.two),
+                        listOf(
+                            ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
+                            ComplicationSlotOverlay(COMPLICATION2_ID, enabled = true),
+                            ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                        )
+                    ),
+                    ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
+                        UserStyleSetting.Option.Id("Three"),
+                        resources,
+                        R.string.analog_complication_three_screen_name,
+                        Icon.createWithResource(this, R.drawable.three),
+                        listOf(
+                            ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
+                            ComplicationSlotOverlay(COMPLICATION2_ID, enabled = true),
+                            ComplicationSlotOverlay(COMPLICATION3_ID, enabled = true)
+                        )
                     )
                 ),
-                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                    UserStyleSetting.Option.Id("Two"),
-                    resources,
-                    R.string.analog_complication_two_screen_name,
-                    Icon.createWithResource(this, R.drawable.two),
-                    listOf(
-                        ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
-                        ComplicationSlotOverlay(COMPLICATION2_ID, enabled = true),
-                        ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
-                    )
-                ),
-                ComplicationSlotsUserStyleSetting.ComplicationSlotsOption(
-                    UserStyleSetting.Option.Id("Three"),
-                    resources,
-                    R.string.analog_complication_three_screen_name,
-                    Icon.createWithResource(this, R.drawable.three),
-                    listOf(
-                        ComplicationSlotOverlay(COMPLICATION1_ID, enabled = true),
-                        ComplicationSlotOverlay(COMPLICATION2_ID, enabled = true),
-                        ComplicationSlotOverlay(COMPLICATION3_ID, enabled = true)
-                    )
-                )
-            ),
             listOf(WatchFaceLayer.COMPLICATIONS)
         )
     }
@@ -243,11 +245,8 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             R.string.style_digital_watch,
             R.string.style_digital_watch_screen_reader,
             icon = Icon.createWithResource(this, R.drawable.d),
-            childSettings = listOf(
-                digitalClockStyleSetting,
-                colorStyleSetting,
-                digitalComplicationSettings
-            )
+            childSettings =
+                listOf(digitalClockStyleSetting, colorStyleSetting, digitalComplicationSettings)
         )
     }
 
@@ -258,11 +257,7 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             R.string.style_analog_watch,
             R.string.style_analog_watch_screen_reader,
             icon = Icon.createWithResource(this, R.drawable.a),
-            childSettings = listOf(
-                colorStyleSetting,
-                drawHoursSetting,
-                analogComplicationSettings
-            )
+            childSettings = listOf(colorStyleSetting, drawHoursSetting, analogComplicationSettings)
         )
     }
 
@@ -278,95 +273,102 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
         )
     }
 
-    public override fun createUserStyleSchema() = UserStyleSchema(
-        listOf(
-            watchFaceType,
-            digitalClockStyleSetting,
-            colorStyleSetting,
-            drawHoursSetting,
-            digitalComplicationSettings,
-            analogComplicationSettings
+    public override fun createUserStyleSchema() =
+        UserStyleSchema(
+            listOf(
+                watchFaceType,
+                digitalClockStyleSetting,
+                colorStyleSetting,
+                drawHoursSetting,
+                digitalComplicationSettings,
+                analogComplicationSettings
+            )
         )
-    )
 
-    private val watchFaceStyle by lazy {
-        WatchFaceColorStyle.create(this, "red_style")
-    }
+    private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, "red_style") }
 
     public override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager {
-        val canvasComplicationFactory =
-            CanvasComplicationFactory { watchState, listener ->
-                CanvasComplicationDrawable(
-                    watchFaceStyle.getDrawable(this@ExampleHierarchicalStyleWatchFaceService)!!,
-                    watchState,
-                    listener
+        val canvasComplicationFactory = CanvasComplicationFactory { watchState, listener ->
+            CanvasComplicationDrawable(
+                watchFaceStyle.getDrawable(this@ExampleHierarchicalStyleWatchFaceService)!!,
+                watchState,
+                listener
+            )
+        }
+
+        val complicationOne =
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                    COMPLICATION1_ID,
+                    canvasComplicationFactory,
+                    listOf(
+                        ComplicationType.RANGED_VALUE,
+                        ComplicationType.GOAL_PROGRESS,
+                        ComplicationType.WEIGHTED_ELEMENTS,
+                        ComplicationType.SHORT_TEXT,
+                        ComplicationType.MONOCHROMATIC_IMAGE,
+                        ComplicationType.SMALL_IMAGE
+                    ),
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_WATCH_BATTERY,
+                        ComplicationType.RANGED_VALUE
+                    ),
+                    ComplicationSlotBounds(RectF(0.6f, 0.1f, 0.8f, 0.3f))
                 )
-            }
+                .setNameResourceId(R.string.hierarchical_complication1_screen_name)
+                .setScreenReaderNameResourceId(
+                    R.string.hierarchical_complication1_screen_reader_name
+                )
+                .build()
 
-        val complicationOne = ComplicationSlot.createRoundRectComplicationSlotBuilder(
-            COMPLICATION1_ID,
-            canvasComplicationFactory,
-            listOf(
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.GOAL_PROGRESS,
-                ComplicationType.WEIGHTED_ELEMENTS,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
-            DefaultComplicationDataSourcePolicy(
-                SystemDataSources.DATA_SOURCE_WATCH_BATTERY,
-                ComplicationType.RANGED_VALUE
-            ),
-            ComplicationSlotBounds(RectF(0.6f, 0.1f, 0.8f, 0.3f))
-        ).setNameResourceId(R.string.hierarchical_complication1_screen_name)
-            .setScreenReaderNameResourceId(
-                R.string.hierarchical_complication1_screen_reader_name
-            ).build()
+        val complicationTwo =
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                    COMPLICATION2_ID,
+                    canvasComplicationFactory,
+                    listOf(
+                        ComplicationType.RANGED_VALUE,
+                        ComplicationType.GOAL_PROGRESS,
+                        ComplicationType.WEIGHTED_ELEMENTS,
+                        ComplicationType.SHORT_TEXT,
+                        ComplicationType.MONOCHROMATIC_IMAGE,
+                        ComplicationType.SMALL_IMAGE
+                    ),
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_TIME_AND_DATE,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                    ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+                )
+                .setNameResourceId(R.string.hierarchical_complication2_screen_name)
+                .setScreenReaderNameResourceId(
+                    R.string.hierarchical_complication2_screen_reader_name
+                )
+                .build()
 
-        val complicationTwo = ComplicationSlot.createRoundRectComplicationSlotBuilder(
-            COMPLICATION2_ID,
-            canvasComplicationFactory,
-            listOf(
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.GOAL_PROGRESS,
-                ComplicationType.WEIGHTED_ELEMENTS,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
-            DefaultComplicationDataSourcePolicy(
-                SystemDataSources.DATA_SOURCE_TIME_AND_DATE,
-                ComplicationType.SHORT_TEXT
-            ),
-            ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-        ).setNameResourceId(R.string.hierarchical_complication2_screen_name)
-            .setScreenReaderNameResourceId(
-                R.string.hierarchical_complication2_screen_reader_name
-            ).build()
-
-        val complicationThree = ComplicationSlot.createRoundRectComplicationSlotBuilder(
-            COMPLICATION3_ID,
-            canvasComplicationFactory,
-            listOf(
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.GOAL_PROGRESS,
-                ComplicationType.WEIGHTED_ELEMENTS,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
-            DefaultComplicationDataSourcePolicy(
-                SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
-                ComplicationType.SHORT_TEXT
-            ),
-            ComplicationSlotBounds(RectF(0.6f, 0.7f, 0.8f, 0.9f))
-        ).setNameResourceId(R.string.hierarchical_complication3_screen_name)
-            .setScreenReaderNameResourceId(
-                R.string.hierarchical_complication3_screen_reader_name
-            ).build()
+        val complicationThree =
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                    COMPLICATION3_ID,
+                    canvasComplicationFactory,
+                    listOf(
+                        ComplicationType.RANGED_VALUE,
+                        ComplicationType.GOAL_PROGRESS,
+                        ComplicationType.WEIGHTED_ELEMENTS,
+                        ComplicationType.SHORT_TEXT,
+                        ComplicationType.MONOCHROMATIC_IMAGE,
+                        ComplicationType.SMALL_IMAGE
+                    ),
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                    ComplicationSlotBounds(RectF(0.6f, 0.7f, 0.8f, 0.9f))
+                )
+                .setNameResourceId(R.string.hierarchical_complication3_screen_name)
+                .setScreenReaderNameResourceId(
+                    R.string.hierarchical_complication3_screen_reader_name
+                )
+                .build()
 
         return ComplicationSlotsManager(
             listOf(complicationOne, complicationTwo, complicationThree),
@@ -379,137 +381,154 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
-    ) = WatchFace(
-        WatchFaceType.ANALOG,
-        @Suppress("Deprecation")
-        object : Renderer.CanvasRenderer(
-            surfaceHolder,
-            currentUserStyleRepository,
-            watchState,
-            CanvasType.HARDWARE,
-            16L
-        ) {
-            val renderer = ExampleHierarchicalStyleWatchFaceRenderer()
-            val context: Context = this@ExampleHierarchicalStyleWatchFaceService
+    ) =
+        WatchFace(
+            WatchFaceType.ANALOG,
+            @Suppress("Deprecation")
+            object :
+                Renderer.CanvasRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    CanvasType.HARDWARE,
+                    16L
+                ) {
+                val renderer = ExampleHierarchicalStyleWatchFaceRenderer()
+                val context: Context = this@ExampleHierarchicalStyleWatchFaceService
 
-            init {
-                CoroutineScope(Dispatchers.Main.immediate).launch {
-                    currentUserStyleRepository.userStyle.collect { userStyle ->
-                        for ((_, complication) in complicationSlotsManager.complicationSlots) {
-                            (complication.renderer as CanvasComplicationDrawable).drawable =
-                                when (userStyle[colorStyleSetting]) {
-                                    redStyle ->
-                                        WatchFaceColorStyle.create(context, "red_style")
-                                            .getDrawable(context)!!
-                                    greenStyle ->
-                                        WatchFaceColorStyle.create(context, "green_style")
-                                            .getDrawable(context)!!
-                                    blueStyle ->
-                                        WatchFaceColorStyle.create(context, "blue_style")
-                                             .getDrawable(context)!!
-                                    else -> throw IllegalArgumentException(
-                                        "Unrecognized colorStyleSetting "
-                                    )
-                                }
+                init {
+                    CoroutineScope(Dispatchers.Main.immediate).launch {
+                        currentUserStyleRepository.userStyle.collect { userStyle ->
+                            for ((_, complication) in complicationSlotsManager.complicationSlots) {
+                                (complication.renderer as CanvasComplicationDrawable).drawable =
+                                    when (userStyle[colorStyleSetting]) {
+                                        redStyle ->
+                                            WatchFaceColorStyle.create(context, "red_style")
+                                                .getDrawable(context)!!
+                                        greenStyle ->
+                                            WatchFaceColorStyle.create(context, "green_style")
+                                                .getDrawable(context)!!
+                                        blueStyle ->
+                                            WatchFaceColorStyle.create(context, "blue_style")
+                                                .getDrawable(context)!!
+                                        else ->
+                                            throw IllegalArgumentException(
+                                                "Unrecognized colorStyleSetting "
+                                            )
+                                    }
+                            }
                         }
                     }
                 }
-            }
 
-            override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-                val currentStyle = currentUserStyleRepository.userStyle.value
-                when (currentStyle[watchFaceType]) {
-                    digitalWatchFaceType -> renderer.renderDigital(
-                        canvas,
-                        bounds,
-                        zonedDateTime,
-                        renderParameters,
-                        watchState,
-                        currentStyle[digitalClockStyleSetting] == twentyFourHourClockOption,
-                        when (currentStyle[colorStyleSetting]) {
-                            redStyle -> intArrayOf(1, 0, 0)
-                            greenStyle -> intArrayOf(0, 1, 0)
-                            blueStyle -> intArrayOf(0, 0, 1)
-                            else -> throw IllegalArgumentException(
-                                "Unrecognized colorStyleSetting " +
-                                    currentStyle[colorStyleSetting]
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                    val currentStyle = currentUserStyleRepository.userStyle.value
+                    when (currentStyle[watchFaceType]) {
+                        digitalWatchFaceType ->
+                            renderer.renderDigital(
+                                canvas,
+                                bounds,
+                                zonedDateTime,
+                                renderParameters,
+                                watchState,
+                                currentStyle[digitalClockStyleSetting] == twentyFourHourClockOption,
+                                when (currentStyle[colorStyleSetting]) {
+                                    redStyle -> intArrayOf(1, 0, 0)
+                                    greenStyle -> intArrayOf(0, 1, 0)
+                                    blueStyle -> intArrayOf(0, 0, 1)
+                                    else ->
+                                        throw IllegalArgumentException(
+                                            "Unrecognized colorStyleSetting " +
+                                                currentStyle[colorStyleSetting]
+                                        )
+                                }
+                            )
+                        analogWatchFaceType ->
+                            renderer.renderAnalog(
+                                canvas,
+                                bounds,
+                                zonedDateTime,
+                                renderParameters,
+                                (currentStyle[drawHoursSetting]!!
+                                        as UserStyleSetting.BooleanUserStyleSetting.BooleanOption)
+                                    .value,
+                            )
+                        else -> {
+                            throw IllegalStateException(
+                                "Unrecognized chosenSettingId " +
+                                    currentUserStyleRepository.userStyle.value
                             )
                         }
-                    )
+                    }
 
-                    analogWatchFaceType -> renderer.renderAnalog(
-                        canvas,
-                        bounds,
-                        zonedDateTime,
-                        renderParameters,
-                        (currentStyle[drawHoursSetting]!!
-                            as UserStyleSetting.BooleanUserStyleSetting.BooleanOption).value,
-                    )
-
-                    else -> {
-                        throw IllegalStateException(
-                            "Unrecognized chosenSettingId " +
-                                currentUserStyleRepository.userStyle.value
-                        )
+                    for ((_, complication) in complicationSlotsManager.complicationSlots) {
+                        if (complication.enabled) {
+                            complication.render(canvas, zonedDateTime, renderParameters)
+                        }
                     }
                 }
 
-                for ((_, complication) in complicationSlotsManager.complicationSlots) {
-                    if (complication.enabled) {
-                        complication.render(canvas, zonedDateTime, renderParameters)
-                    }
-                }
-            }
-
-            override fun renderHighlightLayer(
-                canvas: Canvas,
-                bounds: Rect,
-                zonedDateTime: ZonedDateTime
-            ) {
-                for ((_, complication) in complicationSlotsManager.complicationSlots) {
-                    if (complication.enabled) {
-                        complication.renderHighlightLayer(canvas, zonedDateTime, renderParameters)
+                override fun renderHighlightLayer(
+                    canvas: Canvas,
+                    bounds: Rect,
+                    zonedDateTime: ZonedDateTime
+                ) {
+                    for ((_, complication) in complicationSlotsManager.complicationSlots) {
+                        if (complication.enabled) {
+                            complication.renderHighlightLayer(
+                                canvas,
+                                zonedDateTime,
+                                renderParameters
+                            )
+                        }
                     }
                 }
             }
-        }
-    )
+        )
 
     private class ExampleHierarchicalStyleWatchFaceRenderer {
-        internal val paint = Paint().apply {
-            textAlign = Paint.Align.CENTER
-            isAntiAlias = true
-        }
+        internal val paint =
+            Paint().apply {
+                textAlign = Paint.Align.CENTER
+                isAntiAlias = true
+            }
 
         internal val textBounds = Rect()
 
         @Px
-        internal val timeActiveHeight = Rect().apply {
-            paint.textSize = TIME_TEXT_ACTIVE_HEIGHT
-            paint.getTextBounds(timeText, 0, timeText.size, this)
-        }.height()
+        internal val timeActiveHeight =
+            Rect()
+                .apply {
+                    paint.textSize = TIME_TEXT_ACTIVE_HEIGHT
+                    paint.getTextBounds(timeText, 0, timeText.size, this)
+                }
+                .height()
 
         @Px
-        internal val timeAmbientHeight = Rect().apply {
-            paint.textSize = TIME_TEXT_AMBIENT_HEIGHT
-            paint.getTextBounds(timeText, 0, timeText.size, this)
-        }.height()
+        internal val timeAmbientHeight =
+            Rect()
+                .apply {
+                    paint.textSize = TIME_TEXT_AMBIENT_HEIGHT
+                    paint.getTextBounds(timeText, 0, timeText.size, this)
+                }
+                .height()
 
         @Px
-        internal val secondsHeight = Rect().apply {
-            paint.textSize = SECONDS_TEXT_HEIGHT
-            paint.getTextBounds(secondsText, 0, secondsText.size, this)
-        }.height()
+        internal val secondsHeight =
+            Rect()
+                .apply {
+                    paint.textSize = SECONDS_TEXT_HEIGHT
+                    paint.getTextBounds(secondsText, 0, secondsText.size, this)
+                }
+                .height()
 
         @Px
         internal val timeActiveOffset =
             (timeActiveHeight + secondsHeight + TEXT_PADDING) / 2 - timeActiveHeight
 
-        @Px
-        internal val timeAmbientOffset = timeAmbientHeight / 2 - timeAmbientHeight
+        @Px internal val timeAmbientOffset = timeAmbientHeight / 2 - timeAmbientHeight
 
-        @Px
-        internal val secondsActiveOffset = timeActiveOffset - secondsHeight - TEXT_PADDING
+        @Px internal val secondsActiveOffset = timeActiveOffset - secondsHeight - TEXT_PADDING
 
         fun renderDigital(
             canvas: Canvas,
@@ -525,12 +544,13 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
             val minute = zonedDateTime.minute
             val second = zonedDateTime.second
 
-            paint.color = if (isActive) {
-                val scale = 64 + 192 * second / 60
-                Color.rgb(color[0] * scale, color[1] * scale, color[2] * scale)
-            } else {
-                Color.BLACK
-            }
+            paint.color =
+                if (isActive) {
+                    val scale = 64 + 192 * second / 60
+                    Color.rgb(color[0] * scale, color[1] * scale, color[2] * scale)
+                } else {
+                    Color.BLACK
+                }
             canvas.drawRect(bounds, paint)
 
             paint.color = Color.WHITE
@@ -597,8 +617,9 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
 
             val hours = (zonedDateTime.hour % 12).toFloat()
             val minutes = zonedDateTime.minute.toFloat()
-            val seconds = zonedDateTime.second.toFloat() +
-                (zonedDateTime.nano.toDouble() / 1000000000.0).toFloat()
+            val seconds =
+                zonedDateTime.second.toFloat() +
+                    (zonedDateTime.nano.toDouble() / 1000000000.0).toFloat()
 
             val hourRot = (hours + minutes / 60.0f + seconds / 3600.0f) / 12.0f * 360.0f
             val minuteRot = (minutes + seconds / 60.0f) / 60.0f * 360.0f
@@ -641,17 +662,13 @@ open class ExampleHierarchicalStyleWatchFaceService : WatchFaceService() {
         private val timeText = charArrayOf('1', '0', ':', '0', '9')
         private val secondsText = charArrayOf('3', '0')
 
-        @Px
-        private val SECONDS_TEXT_HEIGHT = 180f
+        @Px private val SECONDS_TEXT_HEIGHT = 180f
 
-        @Px
-        private val TIME_TEXT_ACTIVE_HEIGHT = 64f
+        @Px private val TIME_TEXT_ACTIVE_HEIGHT = 64f
 
-        @Px
-        private val TIME_TEXT_AMBIENT_HEIGHT = 96f
+        @Px private val TIME_TEXT_AMBIENT_HEIGHT = 96f
 
-        @Px
-        private val TEXT_PADDING = 12
+        @Px private val TEXT_PADDING = 12
 
         const val COMPLICATION1_ID = 101
         const val COMPLICATION2_ID = 102

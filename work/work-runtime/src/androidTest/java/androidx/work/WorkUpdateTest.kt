@@ -228,7 +228,8 @@ class WorkUpdateTest {
         lateinit var runningObserver: Observer<WorkInfo>
         val liveData = workManager.getWorkInfoByIdLiveData(request.id)
         runningObserver = Observer {
-            if (it.state == State.RUNNING) {
+            // not only running, but setProgressAsync call was made
+            if (it.state == State.RUNNING && it.progress.size() != 0) {
                 runningLatch.countDown()
                 liveData.removeObserver(runningObserver)
             }
@@ -395,6 +396,34 @@ class WorkUpdateTest {
         val newTags = workManager.getWorkInfoById(request.id).get().tags
         assertThat(newTags).contains("updated")
         assertThat(newTags).doesNotContain("original")
+    }
+
+    @MediumTest
+    @Test
+    fun updatePeriodicWorkAfterFirstPeriod() {
+        val request = PeriodicWorkRequest.Builder(TestWorker::class.java, 1, TimeUnit.DAYS)
+            .addTag("original").build()
+        val onExecutedLatch = CountDownLatch(1)
+        processor.addExecutionListener { id, _ ->
+            if (id.workSpecId == request.stringId) onExecutedLatch.countDown()
+        }
+        workManager.enqueue(request).result.get()
+        workerFactory.awaitWorker(request.id)
+        workManager.awaitReenqueued(request.id)
+
+        val updatedRequest =
+            PeriodicWorkRequest.Builder(TestWorker::class.java, 1, TimeUnit.DAYS)
+                // requiresCharging constraint is faked, so it will never be satisfied
+                .setConstraints(Constraints(requiresCharging = true))
+                .setId(request.id).addTag("updated").build()
+
+        assertThat(workManager.updateWork(updatedRequest).get()).isEqualTo(APPLIED_IMMEDIATELY)
+
+        val newTags = workManager.getWorkInfoById(request.id).get().tags
+        assertThat(newTags).contains("updated")
+        assertThat(newTags).doesNotContain("original")
+        val workSpec = db.workSpecDao().getWorkSpec(request.stringId)!!
+        assertThat(workSpec.periodCount).isEqualTo(1)
     }
 
     @MediumTest

@@ -17,10 +17,10 @@
 package androidx.wear.watchface.complications
 
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.reflect.KProperty
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.reflect.KProperty
 
 @RunWith(SharedRobolectricTestRunner::class)
 public class SystemDataSourcesTest {
@@ -34,12 +34,8 @@ public class SystemDataSourcesTest {
                 return
             }
             // Must be final and const.
-            assertWithMessage("${member.name} should be final")
-                .that(member.isFinal)
-                .isTrue()
-            assertWithMessage("${member.name} should be const")
-                .that(member.isConst)
-                .isTrue()
+            assertWithMessage("${member.name} should be final").that(member.isFinal).isTrue()
+            assertWithMessage("${member.name} should be const").that(member.isConst).isTrue()
             when (val value = member.getter.call(SystemDataSources.Companion)) {
                 is Int -> {
                     valuesMap[value]?.let {

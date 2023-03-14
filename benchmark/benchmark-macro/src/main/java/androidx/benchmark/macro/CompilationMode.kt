@@ -29,6 +29,7 @@ import androidx.benchmark.macro.CompilationMode.Ignore
 import androidx.benchmark.macro.CompilationMode.None
 import androidx.benchmark.macro.CompilationMode.Partial
 import androidx.benchmark.userspaceTrace
+import androidx.core.os.BuildCompat
 import androidx.profileinstaller.ProfileInstallReceiver
 import org.junit.AssumptionViolatedException
 
@@ -72,13 +73,15 @@ import org.junit.AssumptionViolatedException
  * to compile the target app).
  */
 sealed class CompilationMode {
+    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     internal fun resetAndCompile(
         packageName: String,
+        allowCompilationSkipping: Boolean = true,
         killProcessBlock: () -> Unit,
         warmupBlock: () -> Unit
     ) {
         if (Build.VERSION.SDK_INT >= 24) {
-            if (Arguments.enableCompilation) {
+            if (Arguments.enableCompilation || !allowCompilationSkipping) {
                 Log.d(TAG, "Resetting $packageName")
                 // The compilation mode chooses whether a reset is required or not.
                 // Currently the only compilation mode that does not perform a reset is
@@ -88,7 +91,7 @@ sealed class CompilationMode {
                     // The flag `enablePackageReset` can be set to `true` on `userdebug` builds in
                     // order to speed-up the profile reset. When set to false, reset is performed
                     // uninstalling and reinstalling the app.
-                    if (Shell.isSessionRooted()) {
+                    if (BuildCompat.isAtLeastU() || Shell.isSessionRooted()) {
                         // Package reset enabled
                         Log.d(TAG, "Re-compiling $packageName")
                         // cmd package compile --reset returns a "Success" or a "Failure" to stdout.
@@ -102,7 +105,7 @@ sealed class CompilationMode {
                             "Unable to recompile $packageName ($output)"
                         }
                     } else {
-                        // User builds. Kick off a full uninstall-reinstall
+                        // User builds pre-U. Kick off a full uninstall-reinstall
                         Log.d(TAG, "Reinstalling $packageName")
                         reinstallPackage(packageName)
                     }

@@ -28,6 +28,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.testutils.LifecycleOwnerUtils.waitUntilState
 import junit.framework.TestCase.assertNotSame
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,6 +47,7 @@ class LocalesForegroundDialogTestCase {
         baseLocales = LocalesUpdateActivity.getConfigLocales(rule.activity.resources.configuration)
     }
 
+    @Ignore // b/266748759
     @Test
     fun testLocalesChangeWithForegroundDialog() {
         val firstActivity = rule.activity

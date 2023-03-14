@@ -27,10 +27,9 @@ import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.UseCaseConfig
-import androidx.core.util.Preconditions
-import kotlinx.coroutines.runBlocking
 
 /**
  * Adapt the [CameraDeviceSurfaceManager] interface to [CameraPipe].
@@ -59,14 +58,14 @@ class CameraSurfaceAdapter(
         context: Context,
         availableCameraIds: Set<String>
     ) {
-        Preconditions.checkNotNull(context)
         for (cameraId in availableCameraIds) {
+            val cameraMetadata =
+                component.getCameraDevices().awaitCameraMetadata(CameraId(cameraId))
             supportedSurfaceCombinationMap[cameraId] =
                 SupportedSurfaceCombination(
                     context,
-                    runBlocking { component.getCameraDevices().awaitMetadata(CameraId(cameraId)) },
-                    cameraId,
-                    CamcorderProfileProviderAdapter(cameraId)
+                    checkNotNull(cameraMetadata),
+                    EncoderProfilesProviderAdapter(cameraId)
                 )
         }
     }
@@ -75,11 +74,13 @@ class CameraSurfaceAdapter(
      * Check whether the input surface configuration list is under the capability of any combination
      * of this object.
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param cameraId          the camera id of the camera device to be compared
      * @param surfaceConfigList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
     override fun checkSupported(
+        isConcurrentCameraModeOn: Boolean,
         cameraId: String,
         surfaceConfigList: List<SurfaceConfig>?
     ): Boolean {
@@ -91,25 +92,30 @@ class CameraSurfaceAdapter(
             return false
         }
 
-        return supportedSurfaceCombinationMap[cameraId]!!.checkSupported(surfaceConfigList)
+        return supportedSurfaceCombinationMap[cameraId]!!.checkSupported(
+            isConcurrentCameraModeOn, surfaceConfigList)
     }
 
     /**
      * Transform to a SurfaceConfig object with cameraId, image format and size info
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param cameraId    the camera id of the camera device to transform the object
      * @param imageFormat the image format info for the surface configuration object
      * @param size        the size info for the surface configuration object
      * @return new {@link SurfaceConfig} object
      */
     override fun transformSurfaceConfig(
+        isConcurrentCameraModeOn: Boolean,
         cameraId: String,
         imageFormat: Int,
         size: Size
     ): SurfaceConfig {
         checkIfSupportedCombinationExist(cameraId)
 
-        return supportedSurfaceCombinationMap[cameraId]!!.transformSurfaceConfig(imageFormat, size)
+        return supportedSurfaceCombinationMap[cameraId]!!.transformSurfaceConfig(
+            isConcurrentCameraModeOn,
+            imageFormat, size)
     }
 
     /**
@@ -122,25 +128,26 @@ class CameraSurfaceAdapter(
     }
 
     /**
-     * Retrieves a map of suggested resolutions for the given list of use cases.
+     * Retrieves a map of suggested stream specifications for the given list of use cases.
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param cameraId          the camera id of the camera device used by the use cases
      * @param existingSurfaces  list of surfaces already configured and used by the camera. The
      *                          resolutions for these surface can not change.
      * @param newUseCaseConfigs list of configurations of the use cases that will be given a
-     *                          suggested resolution
-     * @return map of suggested resolutions for given use cases
+     *                          suggested stream specification
+     * @return map of suggested stream specifications for given use cases
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
      *                                  there isn't a supported combination of surfaces
      *                                  available, or if the {@code cameraId}
      *                                  is not a valid id.
      */
-    override fun getSuggestedResolutions(
+    override fun getSuggestedStreamSpecs(
+        isConcurrentCameraModeOn: Boolean,
         cameraId: String,
         existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>>
-    ): Map<UseCaseConfig<*>, Size> {
-        checkIfSupportedCombinationExist(cameraId)
+    ): Map<UseCaseConfig<*>, StreamSpec> {
 
         if (!checkIfSupportedCombinationExist(cameraId)) {
             throw IllegalArgumentException(
@@ -148,7 +155,8 @@ class CameraSurfaceAdapter(
             )
         }
 
-        return supportedSurfaceCombinationMap[cameraId]!!.getSuggestedResolutions(
+        return supportedSurfaceCombinationMap[cameraId]!!.getSuggestedStreamSpecifications(
+            isConcurrentCameraModeOn,
             existingSurfaces,
             newUseCaseConfigs
         )

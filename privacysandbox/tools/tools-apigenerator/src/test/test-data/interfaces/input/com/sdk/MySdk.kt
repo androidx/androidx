@@ -1,13 +1,17 @@
 package com.sdk
 
+import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
+import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 
 @PrivacySandboxService
 interface MySdk {
     suspend fun getInterface(): MyInterface
 
     suspend fun maybeGetInterface(): MyInterface?
+
+    suspend fun getUiInterface(): MySecondInterface
 }
 
 @PrivacySandboxInterface
@@ -20,6 +24,6 @@ interface MyInterface {
 }
 
 @PrivacySandboxInterface
-interface MySecondInterface {
+interface MySecondInterface : SandboxedUiAdapter {
    fun doStuff()
 }

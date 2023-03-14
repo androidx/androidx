@@ -329,6 +329,7 @@ internal sealed class KspTypeElement(
 
     override fun getEnclosedTypeElements(): List<XTypeElement> {
         return declaration.declarations.filterIsInstance<KSClassDeclaration>()
+            .filterNot { it.classKind == ClassKind.ENUM_ENTRY }
             .map { env.wrapClassDeclaration(it) }
             .toList()
     }
@@ -366,6 +367,7 @@ internal sealed class KspTypeElement(
         ): KspTypeElement {
             return when (ksClassDeclaration.classKind) {
                 ClassKind.ENUM_CLASS -> KspEnumTypeElement(env, ksClassDeclaration)
+                ClassKind.ENUM_ENTRY -> error("Expected declaration to not be an enum entry.")
                 else -> DefaultKspTypeElement(env, ksClassDeclaration)
             }
         }

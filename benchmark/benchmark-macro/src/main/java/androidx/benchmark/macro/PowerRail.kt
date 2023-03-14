@@ -43,7 +43,9 @@ object PowerRail {
      * @Throws UnsupportedOperationException if `hasException == true` and no rail metrics are found.
      */
     fun hasMetrics(throwOnMissingMetrics: Boolean = false): Boolean {
-        val output = Shell.executeScriptCaptureStdout(DUMPSYS_POWERSTATS)
+        // Note - we don't capture stderr, since if dumpsys fails due to missing
+        // service, we'll correctly fail to find channels in stdout
+        val output = Shell.executeCommandCaptureStdoutOnly(DUMPSYS_POWERSTATS)
         return hasMetrics(output, throwOnMissingMetrics)
     }
 

@@ -32,13 +32,13 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraPipe.CameraMetadataConfig
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.compat.AndroidDevicePolicyManagerWrapper
-import androidx.camera.camera2.pipe.compat.Camera2CameraDevices
 import androidx.camera.camera2.pipe.compat.DevicePolicyManagerWrapper
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
+import androidx.camera.camera2.pipe.internal.CameraDevicesImpl
 import dagger.Binds
 import dagger.Component
 import dagger.Module
@@ -55,9 +55,13 @@ internal annotation class DefaultCameraBackend
 @Qualifier
 internal annotation class CameraPipeContext
 
+@Qualifier
+internal annotation class ForGraphLifecycleManager
+
 @Singleton
 @Component(
-    modules = [
+    modules =
+    [
         CameraPipeConfigModule::class,
         CameraPipeModules::class,
         Camera2Module::class,
@@ -69,10 +73,7 @@ internal interface CameraPipeComponent {
     fun cameraSurfaceManager(): CameraSurfaceManager
 }
 
-@Module(
-    includes = [ThreadConfigModule::class],
-    subcomponents = [CameraGraphComponent::class]
-)
+@Module(includes = [ThreadConfigModule::class], subcomponents = [CameraGraphComponent::class])
 internal class CameraPipeConfigModule(private val config: CameraPipe.Config) {
     @Provides
     fun provideCameraPipeConfig(): CameraPipe.Config = config
@@ -88,7 +89,7 @@ internal class CameraPipeConfigModule(private val config: CameraPipe.Config) {
 @Module
 internal abstract class CameraPipeModules {
     @Binds
-    abstract fun bindCameras(impl: Camera2CameraDevices): CameraDevices
+    abstract fun bindCameras(impl: CameraDevicesImpl): CameraDevices
 
     @Binds
     abstract fun bindTimeSource(timeSource: SystemTimeSource): TimeSource
@@ -140,10 +141,9 @@ internal abstract class CameraPipeModules {
         ): CameraBackends {
             // This is intentionally lazy. If an internalBackend is defined as part of the
             // CameraPipe configuration, we will never create the default cameraPipeCameraBackend.
-            val internalBackend = config.cameraBackendConfig.internalBackend
-                ?: Debug.trace("Initialize defaultCameraBackend") {
-                    defaultCameraBackend.get()
-                }
+            val internalBackend =
+                config.cameraBackendConfig.internalBackend
+                    ?: Debug.trace("Initialize defaultCameraBackend") { defaultCameraBackend.get() }
 
             // Make sure that the list of additional backends does not contain the
             check(!config.cameraBackendConfig.cameraBackends.containsKey(internalBackend.id)) {

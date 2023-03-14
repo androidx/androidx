@@ -21,13 +21,14 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Trace
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import org.junit.rules.RuleChain
@@ -35,7 +36,7 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-@SdkSuppress(minSdkVersion = 29)
+@RequiresApi(Build.VERSION_CODES.Q)
 class AppWidgetHostRule(
     private var mPortraitSize: DpSize = DpSize(200.dp, 300.dp),
     private var mLandscapeSize: DpSize = DpSize(300.dp, 200.dp),

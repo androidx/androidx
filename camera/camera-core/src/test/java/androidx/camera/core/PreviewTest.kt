@@ -20,6 +20,8 @@ import android.content.Context
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper.getMainLooper
 import android.util.Rational
 import android.util.Size
@@ -32,13 +34,13 @@ import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.utils.SizeUtil
-import androidx.camera.core.processing.SurfaceProcessorInternal
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
@@ -46,6 +48,7 @@ import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
@@ -74,7 +77,7 @@ private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 )
 class PreviewTest {
 
-    var cameraUseCaseAdapter: CameraUseCaseAdapter? = null
+    private var cameraUseCaseAdapter: CameraUseCaseAdapter? = null
 
     private lateinit var appSurface: Surface
     private lateinit var appSurfaceTexture: SurfaceTexture
@@ -83,6 +86,10 @@ class PreviewTest {
     private lateinit var cameraXConfig: CameraXConfig
     private lateinit var context: Context
     private lateinit var previewToDetach: Preview
+    private lateinit var processor: FakeSurfaceProcessorInternal
+    private lateinit var effect: CameraEffect
+
+    private val handlersToRelease = mutableListOf<Handler>()
 
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
@@ -108,6 +115,8 @@ class PreviewTest {
         ).setCameraFactoryProvider(cameraFactoryProvider).build()
         context = ApplicationProvider.getApplicationContext<Context>()
         CameraXUtil.initialize(context, cameraXConfig).get()
+        processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
+        effect = FakeSurfaceEffect(processor)
     }
 
     @After
@@ -122,7 +131,11 @@ class PreviewTest {
         if (::previewToDetach.isInitialized) {
             previewToDetach.onUnbind()
         }
+        processor.release()
         CameraXUtil.shutdown().get()
+        for (handler in handlersToRelease) {
+            handler.looper.quitSafely()
+        }
     }
 
     @Test
@@ -232,11 +245,10 @@ class PreviewTest {
     @Test
     fun createSurfaceRequestWithProcessor_noCameraTransform() {
         // Arrange: attach Preview without a SurfaceProvider.
-        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
         var transformationInfo: TransformationInfo? = null
 
         // Act: create pipeline in Preview and provide Surface.
-        val preview = createPreview(processor)
+        val preview = createPreview(effect)
         preview.mCurrentSurfaceRequest!!.setTransformationInfoListener(mainThreadExecutor()) {
             transformationInfo = it
         }
@@ -264,31 +276,24 @@ class PreviewTest {
 
     @Test
     fun backCameraWithProcessor_notMirrored() {
-        // Arrange.
-        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
         // Act: create pipeline
-        val preview = createPreview(processor, backCamera)
+        val preview = createPreview(effect, backCamera)
         // Assert
         assertThat(preview.cameraEdge.mirroring).isFalse()
     }
 
     @Test
     fun frontCameraWithProcessor_mirrored() {
-        // Arrange.
-        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
         // Act: create pipeline
-        val preview = createPreview(processor, frontCamera)
+        val preview = createPreview(effect, frontCamera)
         // Assert
         assertThat(preview.cameraEdge.mirroring).isTrue()
     }
 
     @Test
     fun setTargetRotationWithProcessor_rotationChangesOnSurfaceEdge() {
-        // Arrange.
-        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor())
-
         // Act: create pipeline
-        val preview = createPreview(processor)
+        val preview = createPreview(effect)
         // Act: update target rotation
         preview.targetRotation = Surface.ROTATION_0
         shadowOf(getMainLooper()).idle()
@@ -303,10 +308,28 @@ class PreviewTest {
     }
 
     @Test
+    fun setTargetRotationWithProcessorOnBackground_rotationChangesOnSurfaceEdge() {
+        // Act: create pipeline
+        val preview = createPreview(effect)
+        // Act: update target rotation
+        preview.targetRotation = Surface.ROTATION_0
+        shadowOf(getMainLooper()).idle()
+        // Assert that the rotation of the SettableFuture is updated based on ROTATION_0.
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(0)
+
+        // Act: update target rotation again.
+        val backgroundHandler = createBackgroundHandler()
+        backgroundHandler.post { preview.targetRotation = Surface.ROTATION_180 }
+        shadowOf(backgroundHandler.looper).idle()
+        shadowOf(getMainLooper()).idle()
+        // Assert: the rotation of the SettableFuture is updated based on ROTATION_90.
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(180)
+    }
+
+    @Test
     fun invalidateAppSurfaceRequestWithProcessing_cameraNotReset() {
         // Arrange: create Preview with processing.
-        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor(), false)
-        val surfaceRequest = createPreview(processor).mCurrentSurfaceRequest
+        val surfaceRequest = createPreview(effect).mCurrentSurfaceRequest
         // Act: invalidate.
         surfaceRequest!!.invalidate()
         shadowOf(getMainLooper()).idle()
@@ -317,8 +340,7 @@ class PreviewTest {
     @Test
     fun invalidateNodeSurfaceRequest_cameraReset() {
         // Arrange: create Preview with processing.
-        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor(), false)
-        val preview = createPreview(processor)
+        val preview = createPreview(effect)
         // Act: invalidate.
         processor.surfaceRequest!!.invalidate()
         shadowOf(getMainLooper()).idle()
@@ -341,8 +363,7 @@ class PreviewTest {
     @Test
     fun invalidateWhenDetached_deferrableSurfaceClosed() {
         // Arrange: create Preview with processing then detach.
-        val processor = FakeSurfaceProcessorInternal(mainThreadExecutor(), false)
-        val preview = createPreview(processor)
+        val preview = createPreview(effect)
         val surfaceRequest = processor.surfaceRequest!!
         preview.unbindFromCamera(backCamera)
         // Act: invalidate.
@@ -354,15 +375,67 @@ class PreviewTest {
     }
 
     @Test
-    fun bindAndUnbindPreview_surfacesPropagated() {
-        // Arrange.
-        val processor = FakeSurfaceProcessorInternal(
-            mainThreadExecutor(),
-            false
+    fun hasCameraTransform_rotationDegreesNotFlipped() {
+        // Act: create preview with hasCameraTransform == true
+        val preview = createPreview(
+            effect,
+            frontCamera,
+            targetRotation = Surface.ROTATION_90
         )
+        assertThat(preview.cameraEdge.hasCameraTransform()).isTrue()
+        // Assert: rotationDegrees is not flipped.
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(90)
+    }
 
+    @Test
+    fun noCameraTransform_rotationDegreesFlipped() {
+        // Act: create preview with hasCameraTransform == false
+        frontCamera.hasTransform = false
+        val preview = createPreview(
+            effect,
+            frontCamera,
+            targetRotation = Surface.ROTATION_90
+        )
+        // Assert: rotationDegrees is flipped
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(270)
+    }
+
+    @Test
+    fun setNoCameraTransform_propagatesToCameraEdge() {
+        // Act: create preview with hasCameraTransform == false
+        frontCamera.hasTransform = false
+        val preview = createPreview(
+            effect,
+            frontCamera,
+            targetRotation = Surface.ROTATION_90
+        )
+        // Assert
+        assertThat(preview.cameraEdge.hasCameraTransform()).isFalse()
+        assertThat(preview.cameraEdge.mirroring).isFalse()
+    }
+
+    @Test
+    fun frontCameraWithoutCameraTransform_noMirroring() {
+        // Act: create preview with hasCameraTransform == false
+        frontCamera.hasTransform = false
+        val preview = createPreview(
+            effect,
+            frontCamera,
+            targetRotation = Surface.ROTATION_90
+        )
+        // Assert
+        assertThat(preview.cameraEdge.mirroring).isFalse()
+    }
+
+    @Test
+    fun cameraEdgeHasTransformByDefault() {
+        assertThat(createPreview(effect).cameraEdge.hasCameraTransform()).isTrue()
+    }
+
+    @Test
+    fun bindAndUnbindPreview_surfacesPropagated() {
         // Act: create pipeline in Preview and provide Surface.
-        val preview = createPreview(processor)
+        val preview = createPreview(effect)
         val surfaceRequest = preview.mCurrentSurfaceRequest!!
         var appSurfaceReadyToRelease = false
         surfaceRequest.provideSurface(appSurface, mainThreadExecutor()) {
@@ -388,21 +461,13 @@ class PreviewTest {
         assertThat(processor.isReleased).isTrue()
         assertThat(processor.isOutputSurfaceRequestedToClose[PREVIEW]).isTrue()
         assertThat(processor.isInputSurfaceReleased).isTrue()
-        assertThat(appSurfaceReadyToRelease).isFalse()
-
-        // Act: close SurfaceOutput
-        processor.surfaceOutputs[CameraEffect.PREVIEW]!!.close()
-        shadowOf(getMainLooper()).idle()
         assertThat(appSurfaceReadyToRelease).isTrue()
     }
 
     @Test
     fun invokedErrorListener_recreatePipeline() {
         // Arrange: create pipeline and get a reference of the SessionConfig.
-        val processor = FakeSurfaceProcessorInternal(
-            mainThreadExecutor()
-        )
-        val preview = createPreview(processor)
+        val preview = createPreview(effect)
         val originalSessionConfig = preview.sessionConfig
 
         // Act: invoke the error listener.
@@ -604,13 +669,14 @@ class PreviewTest {
     }
 
     private fun createPreview(
-        surfaceProcessor: SurfaceProcessorInternal? = null,
-        camera: FakeCamera = backCamera
+        effect: CameraEffect? = null,
+        camera: FakeCamera = backCamera,
+        targetRotation: Int = Surface.ROTATION_0
     ): Preview {
         previewToDetach = Preview.Builder()
-            .setTargetRotation(Surface.ROTATION_0)
+            .setTargetRotation(targetRotation)
             .build()
-        previewToDetach.processor = surfaceProcessor
+        previewToDetach.effect = effect
         previewToDetach.setSurfaceProvider(CameraXExecutors.directExecutor()) {}
         val previewConfig = PreviewConfig(
             cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context).getConfig(
@@ -620,7 +686,17 @@ class PreviewTest {
         )
         previewToDetach.bindToCamera(camera, null, previewConfig)
 
-        previewToDetach.onSuggestedResolutionUpdated(Size(640, 480))
+        val streamSpec = StreamSpec.builder(Size(640, 480)).build()
+        previewToDetach.onSuggestedStreamSpecUpdated(streamSpec)
         return previewToDetach
+    }
+
+    private fun createBackgroundHandler(): Handler {
+        val handler = Handler(HandlerThread("PreviewTest").run {
+            start()
+            looper
+        })
+        handlersToRelease.add(handler)
+        return handler
     }
 }

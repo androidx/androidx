@@ -16,6 +16,7 @@
 
 package androidx.room.verifier
 
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFieldElement
@@ -38,7 +39,6 @@ import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
 import androidx.room.vo.Fields
 import androidx.room.vo.PrimaryKey
-import com.squareup.javapoet.TypeName
 import java.sql.Connection
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.CoreMatchers.hasItem
@@ -312,7 +312,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                         "User",
                         field(
                             "id",
-                            primitive(invocation.context, TypeName.INT),
+                            primitive(invocation.context, XTypeName.PRIMITIVE_INT),
                             SQLTypeAffinity.INTEGER
                         ),
                         field(
@@ -348,16 +348,19 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                 entity(
                     invocation,
                     "User",
-                    field("id", primitive(context, TypeName.INT), SQLTypeAffinity.INTEGER),
+                    field("id",
+                        primitive(context, XTypeName.PRIMITIVE_INT), SQLTypeAffinity.INTEGER),
                     field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
                     field("lastName", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
-                    field("ratio", primitive(context, TypeName.FLOAT), SQLTypeAffinity.REAL)
+                    field("ratio",
+                        primitive(context, XTypeName.PRIMITIVE_FLOAT), SQLTypeAffinity.REAL)
                 )
             ),
             listOf(
                 view(
                     "UserSummary", "SELECT id, name FROM User",
-                    field("id", primitive(context, TypeName.INT), SQLTypeAffinity.INTEGER),
+                    field("id",
+                        primitive(context, XTypeName.PRIMITIVE_INT), SQLTypeAffinity.INTEGER),
                     field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT)
                 )
             )
@@ -439,7 +442,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         f.setter = FieldSetter(f.name, name, type, CallType.FIELD)
     }
 
-    private fun primitive(context: Context, typeName: TypeName): XType {
+    private fun primitive(context: Context, typeName: XTypeName): XType {
         return context.processingEnv.requireType(typeName)
     }
 

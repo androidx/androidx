@@ -135,7 +135,11 @@ class XExecutableElementTest {
         ) {
             val element = it.processingEnv.requireTypeElement("Subject")
             assertThat(element.getMethodByJvmName("method").isVarArgs()).isTrue()
-            assertThat(element.getMethodByJvmName("suspendMethod").isVarArgs()).isFalse()
+            if (it.isKsp) {
+                assertThat(element.getMethodByJvmName("suspendMethod").isVarArgs()).isTrue()
+            } else {
+                assertThat(element.getMethodByJvmName("suspendMethod").isVarArgs()).isFalse()
+            }
         }
     }
 

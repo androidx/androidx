@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
+import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
 import android.graphics.Point
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
@@ -34,9 +35,10 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.AttachedSurfaceInfo
-import androidx.camera.core.impl.CamcorderProfileProxy
+import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceSizeDefinition
@@ -68,17 +70,15 @@ import java.util.Collections
 // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SupportedSurfaceCombination(
     context: Context,
-    cameraMetadata: CameraMetadata,
-    cameraId: String,
-    camcorderProfileProviderAdapter: CamcorderProfileProviderAdapter
+    private val cameraMetadata: CameraMetadata,
+    private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter
 ) {
-    private val cameraMetadata = cameraMetadata
-    private val cameraId = cameraId
-    private val camcorderProfileProviderAdapter = camcorderProfileProviderAdapter
+    private val cameraId = cameraMetadata.camera.value
     private val hardwareLevel =
         cameraMetadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
             ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
     private val isSensorLandscapeResolution = isSensorLandscapeResolution(cameraMetadata)
+    private val concurrentSurfaceCombinations: MutableList<SurfaceCombination> = ArrayList()
     private val surfaceCombinations: MutableList<SurfaceCombination> = ArrayList()
     private val outputSizesCache: MutableMap<Int, Array<Size>> = HashMap()
     private var isRawSupported = false
@@ -92,6 +92,9 @@ class SupportedSurfaceCombination(
     init {
         checkCapabilities()
         generateSupportedCombinationList()
+        if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
+            generateConcurrentSupportedCombinationList()
+        }
         generateSurfaceSizeDefinition()
     }
 
@@ -99,11 +102,18 @@ class SupportedSurfaceCombination(
      * Check whether the input surface configuration list is under the capability of any combination
      * of this object.
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param surfaceConfigList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
-    fun checkSupported(surfaceConfigList: List<SurfaceConfig>): Boolean {
-        for (surfaceCombination in surfaceCombinations) {
+    fun checkSupported(
+        isConcurrentCameraModeOn: Boolean,
+        surfaceConfigList: List<SurfaceConfig>
+    ): Boolean {
+        // TODO(b/262772650): camera-pipe support for concurrent camera
+        val targetSurfaceCombinations = if (isConcurrentCameraModeOn)
+            concurrentSurfaceCombinations else surfaceCombinations
+        for (surfaceCombination in targetSurfaceCombinations) {
             if (surfaceCombination.isSupported(surfaceConfigList)) {
                 return true
             }
@@ -114,29 +124,38 @@ class SupportedSurfaceCombination(
     /**
      * Transform to a SurfaceConfig object with image format and size info
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param imageFormat the image format info for the surface configuration object
      * @param size        the size info for the surface configuration object
      * @return new [SurfaceConfig] object
      */
-    fun transformSurfaceConfig(imageFormat: Int, size: Size): SurfaceConfig {
-        return SurfaceConfig.transformSurfaceConfig(imageFormat, size, surfaceSizeDefinition)
+    fun transformSurfaceConfig(
+        isConcurrentCameraModeOn: Boolean,
+        imageFormat: Int,
+        size: Size
+    ): SurfaceConfig {
+        val maxOutputSizeForConcurrentMode = if (isConcurrentCameraModeOn)
+            getMaxOutputSizeByFormat(imageFormat) else null
+        return SurfaceConfig.transformSurfaceConfig(isConcurrentCameraModeOn,
+            imageFormat, size, surfaceSizeDefinition, maxOutputSizeForConcurrentMode)
     }
 
     /**
-     * Finds the suggested resolutions of the newly added UseCaseConfig.
+     * Finds the suggested stream specification of the newly added UseCaseConfig.
      *
+     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
      * @param existingSurfaces  the existing surfaces.
      * @param newUseCaseConfigs newly added UseCaseConfig.
-     * @return the suggested resolutions, which is a mapping from UseCaseConfig to the suggested
-     * resolution.
+     * @return the suggested stream specs, which is a mapping from UseCaseConfig to the suggested
+     * stream specification.
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
-     * found. This may be due to no available output size or no
-     * available surface combination.
+     * found. This may be due to no available output size or no available surface combination.
      */
-    fun getSuggestedResolutions(
+    fun getSuggestedStreamSpecifications(
+        isConcurrentCameraModeOn: Boolean,
         existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>>
-    ): Map<UseCaseConfig<*>, Size> {
+    ): Map<UseCaseConfig<*>, StreamSpec> {
         refreshPreviewSize()
         val surfaceConfigs: MutableList<SurfaceConfig> = ArrayList()
         for (scc in existingSurfaces) {
@@ -145,16 +164,20 @@ class SupportedSurfaceCombination(
         // Use the small size (640x480) for new use cases to check whether there is any possible
         // supported combination first
         for (useCaseConfig in newUseCaseConfigs) {
+            val maxOutputSizeForConcurrentMode = if (isConcurrentCameraModeOn)
+                getMaxOutputSizeByFormat(useCaseConfig.inputFormat) else null
             surfaceConfigs.add(
                 SurfaceConfig.transformSurfaceConfig(
+                    isConcurrentCameraModeOn,
                     useCaseConfig.inputFormat,
                     RESOLUTION_VGA,
-                    surfaceSizeDefinition
+                    surfaceSizeDefinition,
+                    maxOutputSizeForConcurrentMode
                 )
             )
         }
 
-        if (!checkSupported(surfaceConfigs)) {
+        if (!checkSupported(isConcurrentCameraModeOn, surfaceConfigs)) {
             throw java.lang.IllegalArgumentException(
                 "No supported surface combination is found for camera device - Id : " + cameraId +
                     ".  May be attempting to bind too many use cases. " + "Existing surfaces: " +
@@ -179,7 +202,7 @@ class SupportedSurfaceCombination(
             supportedOutputSizesList
         )
 
-        var suggestedResolutionsMap: Map<UseCaseConfig<*>, Size>? = null
+        var suggestedStreamSpecMap: Map<UseCaseConfig<*>, StreamSpec>? = null
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
         for (possibleSizeList in allPossibleSizeArrangements) {
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
@@ -192,30 +215,34 @@ class SupportedSurfaceCombination(
             for (i in possibleSizeList.indices) {
                 val size = possibleSizeList[i]
                 val newUseCase = newUseCaseConfigs[useCasesPriorityOrder[i]]
+                val maxOutputSizeForConcurrentMode = if (isConcurrentCameraModeOn)
+                    getMaxOutputSizeByFormat(newUseCase.inputFormat) else null
                 surfaceConfigList.add(
                     SurfaceConfig.transformSurfaceConfig(
+                        isConcurrentCameraModeOn,
                         newUseCase.inputFormat,
                         size,
-                        surfaceSizeDefinition
+                        surfaceSizeDefinition,
+                        maxOutputSizeForConcurrentMode
                     )
                 )
             }
 
             // Check whether the SurfaceConfig combination can be supported
-            if (checkSupported(surfaceConfigList)) {
-                suggestedResolutionsMap = HashMap()
+            if (checkSupported(isConcurrentCameraModeOn, surfaceConfigList)) {
+                suggestedStreamSpecMap = HashMap()
                 for (useCaseConfig in newUseCaseConfigs) {
-                    suggestedResolutionsMap.put(
+                    suggestedStreamSpecMap.put(
                         useCaseConfig,
-                        possibleSizeList[useCasesPriorityOrder.indexOf(
+                        StreamSpec.builder(possibleSizeList[useCasesPriorityOrder.indexOf(
                             newUseCaseConfigs.indexOf(useCaseConfig)
-                        )]
+                        )]).build()
                     )
                 }
                 break
             }
         }
-        if (suggestedResolutionsMap == null) {
+        if (suggestedStreamSpecMap == null) {
             throw java.lang.IllegalArgumentException(
                 "No supported surface combination is found for camera device - Id : " +
                     cameraId + " and Hardware level: " + hardwareLevel +
@@ -224,7 +251,7 @@ class SupportedSurfaceCombination(
                     " New configs: " + newUseCaseConfigs
             )
         }
-        return suggestedResolutionsMap
+        return suggestedStreamSpecMap
     }
 
     // Utility classes and methods:
@@ -237,7 +264,9 @@ class SupportedSurfaceCombination(
         val previewSize: Size = calculatePreviewSize()
         surfaceSizeDefinition = SurfaceSizeDefinition.create(
             surfaceSizeDefinition.analysisSize,
+            surfaceSizeDefinition.s720pSize,
             previewSize,
+            surfaceSizeDefinition.s1440pSize,
             surfaceSizeDefinition.recordSize
         )
     }
@@ -270,14 +299,26 @@ class SupportedSurfaceCombination(
         //  surface combinations to the list
     }
 
+    private fun generateConcurrentSupportedCombinationList() {
+        concurrentSurfaceCombinations.addAll(
+            GuaranteedConfigurationsUtil.generateConcurrentSupportedCombinationList())
+    }
+
     /**
-     * Generation the size definition for VGA, PREVIEW, and RECORD.
+     * Generation the size definition for VGA, s720p, PREVIEW, s1440p, and RECORD.
      */
     private fun generateSurfaceSizeDefinition() {
         val vgaSize = Size(640, 480)
+        // s720p is not a fixed size, it refers to 720p (1280 x 720) or the maximum supported
+        // resolution for the particular format returned by
+        // {@link StreamConfigurationMap#getOutputSizes(int)}, whichever is smaller.
+        // Same for s1440p.
+        val s720pSize = Size(1280, 720)
+        val s1440pSize = Size(1920, 1440)
         val previewSize: Size = calculatePreviewSize()
         val recordSize: Size = getRecordSize()
-        surfaceSizeDefinition = SurfaceSizeDefinition.create(vgaSize, previewSize, recordSize)
+        surfaceSizeDefinition = SurfaceSizeDefinition.create(vgaSize, s720pSize, previewSize,
+            s1440pSize, recordSize)
     }
 
     /**
@@ -292,12 +333,12 @@ class SupportedSurfaceCombination(
             // StreamConfigurationMap to determine the RECORD size.
             return getRecordSizeFromStreamConfigurationMap()
         }
-        var profile: CamcorderProfileProxy? = null
-        if (camcorderProfileProviderAdapter.hasProfile(cameraId)) {
-            profile = camcorderProfileProviderAdapter.get(cameraId)
+        var profiles: EncoderProfilesProxy? = null
+        if (encoderProfilesProviderAdapter.hasProfile(cameraId)) {
+            profiles = encoderProfilesProviderAdapter.getAll(cameraId)
         }
-        return if (profile != null) {
-            Size(profile.videoFrameWidth, profile.videoFrameHeight)
+        return if (profiles != null && profiles.videoProfiles.isNotEmpty()) {
+            Size(profiles.videoProfiles[0].width, profiles.videoProfiles[0].height)
         } else getRecordSizeByHasProfile()
     }
 
@@ -340,25 +381,25 @@ class SupportedSurfaceCombination(
      */
     private fun getRecordSizeByHasProfile(): Size {
         var recordSize: Size = RESOLUTION_480P
-        var profile: CamcorderProfileProxy? = null
+        var profiles: EncoderProfilesProxy? = null
 
         // Check whether 4KDCI, 2160P, 2K, 1080P, 720P, 480P (sorted by size) are supported by
-        // CamcorderProfile
-        if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_4KDCI)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_4KDCI)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2160P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_2160P)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2K)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_2K)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_1080P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_1080P)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_720P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_720P)
-        } else if (camcorderProfileProviderAdapter.hasProfile(CamcorderProfile.QUALITY_480P)) {
-            profile = camcorderProfileProviderAdapter.get(CamcorderProfile.QUALITY_480P)
+        // EncoderProfiles
+        if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_4KDCI)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_4KDCI)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2160P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_2160P)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_2K)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_2K)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_1080P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_1080P)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_720P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_720P)
+        } else if (encoderProfilesProviderAdapter.hasProfile(CamcorderProfile.QUALITY_480P)) {
+            profiles = encoderProfilesProviderAdapter.getAll(CamcorderProfile.QUALITY_480P)
         }
-        if (profile != null) {
-            recordSize = Size(profile.videoFrameWidth, profile.videoFrameHeight)
+        if (profiles != null && profiles.videoProfiles.isNotEmpty()) {
+            recordSize = Size(profiles.videoProfiles[0].width, profiles.videoProfiles[0].height)
         }
         return recordSize
     }

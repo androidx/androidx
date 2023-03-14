@@ -1034,7 +1034,7 @@ public class NotificationCompat {
         PendingIntent mContentIntent;
         PendingIntent mFullScreenIntent;
         RemoteViews mTickerView;
-        Bitmap mLargeIcon;
+        IconCompat mLargeIcon;
         CharSequence mContentInfo;
         int mNumber;
         int mPriority;
@@ -1073,7 +1073,7 @@ public class NotificationCompat {
         BubbleMetadata mBubbleMetadata;
         Notification mNotification = new Notification();
         boolean mSilent;
-        Icon mSmallIcon;
+        Object mSmallIcon; // Icon
 
         /**
          * @deprecated This field was not meant to be public.
@@ -1278,9 +1278,6 @@ public class NotificationCompat {
         /**
          * Set the time that the event occurred.  Notifications in the panel are
          * sorted by this time.
-         *
-         * <p>For apps targeting {@link android.os.Build.VERSION_CODES#N} and above, this time is
-         * not shown anymore by default and must be opted into using {@link #setShowWhen(boolean)}
          */
         public @NonNull Builder setWhen(long when) {
             mNotification.when = when;
@@ -1289,10 +1286,7 @@ public class NotificationCompat {
 
         /**
          * Control whether the timestamp set with {@link #setWhen(long) setWhen} is shown
-         * in the content view.
-         *
-         * <p>For apps targeting {@link android.os.Build.VERSION_CODES#N} and above, this
-         * defaults to {@code false}. For earlier apps, the default is {@code true}.
+         * in the content view. The default is {@code true}.
          */
         public @NonNull Builder setShowWhen(boolean show) {
             mShowWhen = show;
@@ -1595,39 +1589,25 @@ public class NotificationCompat {
         }
 
         /**
-         * Set the large icon that is shown in the notification.
+         * Sets the large icon that is shown in the notification. Icons will be scaled on versions
+         * before API 27. Starting in API 27, the framework does this automatically.
          */
         public @NonNull Builder setLargeIcon(@Nullable Bitmap icon) {
-            mLargeIcon = reduceLargeIconSize(icon);
+            mLargeIcon = icon == null ? null : IconCompat.createWithBitmap(
+             reduceLargeIconSize(mContext, icon));
             return this;
         }
 
         /**
-         * Reduce the size of a notification icon if it's overly large. The framework does
-         * this automatically starting from API 27.
+         * Sets the large icon that is shown in the notification. Starting in API 27, the framework
+         * scales icons automatically. Before API 27, for safety, {@code #reduceLargeIconSize}
+         * should be called on bitmaps before putting them in an {@code Icon} and passing them
+         * into this function.
          */
-        private @Nullable Bitmap reduceLargeIconSize(@Nullable Bitmap icon) {
-            if (icon == null || Build.VERSION.SDK_INT >= 27) {
-                return icon;
-            }
-
-            Resources res = mContext.getResources();
-            int maxWidth =
-                    res.getDimensionPixelSize(R.dimen.compat_notification_large_icon_max_width);
-            int maxHeight =
-                    res.getDimensionPixelSize(R.dimen.compat_notification_large_icon_max_height);
-            if (icon.getWidth() <= maxWidth && icon.getHeight() <= maxHeight) {
-                return icon;
-            }
-
-            double scale = Math.min(
-                    maxWidth / (double) Math.max(1, icon.getWidth()),
-                    maxHeight / (double) Math.max(1, icon.getHeight()));
-            return Bitmap.createScaledBitmap(
-                    icon,
-                    (int) Math.ceil(icon.getWidth() * scale),
-                    (int) Math.ceil(icon.getHeight() * scale),
-                    true /* filtered */);
+        @RequiresApi(23)
+        public @NonNull Builder setLargeIcon(@Nullable Icon icon) {
+            mLargeIcon = icon == null ? null : IconCompat.createFromIcon(icon);
+            return this;
         }
 
         /**
@@ -2497,7 +2477,7 @@ public class NotificationCompat {
          * this method to explicitly request deferred display.</p>
          *
          * This method has no effect when running on versions prior to
-          * {@link android.os.Build.VERSION_CODES#S}.
+         * {@link android.os.Build.VERSION_CODES#S}.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder") // no underlying getter in platform API
         @NonNull
@@ -3001,7 +2981,8 @@ public class NotificationCompat {
                 // to hide it here.
                 if (Build.VERSION.SDK_INT >= 16) {
                     contentView.setViewVisibility(R.id.icon, View.VISIBLE);
-                    contentView.setImageViewBitmap(R.id.icon, mBuilder.mLargeIcon);
+                    contentView.setImageViewBitmap(R.id.icon,
+                            createColoredBitmap(mBuilder.mLargeIcon, Color.TRANSPARENT));
                 } else {
                     contentView.setViewVisibility(R.id.icon, View.GONE);
                 }
@@ -3050,7 +3031,8 @@ public class NotificationCompat {
                 showLine3 = true;
             }
             // If there is a large icon we have a right side
-            boolean hasRightSide = !(Build.VERSION.SDK_INT >= 21) && mBuilder.mLargeIcon != null;
+            boolean hasRightSide =
+                    !(Build.VERSION.SDK_INT >= 21) && mBuilder.mLargeIcon != null;
             if (mBuilder.mContentInfo != null) {
                 contentView.setTextViewText(R.id.info, mBuilder.mContentInfo);
                 contentView.setViewVisibility(R.id.info, View.VISIBLE);
@@ -3358,6 +3340,16 @@ public class NotificationCompat {
          */
         public @NonNull BigPictureStyle bigLargeIcon(@Nullable Bitmap b) {
             mBigLargeIcon = b == null ? null : IconCompat.createWithBitmap(b);
+            mBigLargeIconSet = true;
+            return this;
+        }
+
+        /**
+         * Override the large icon when the big notification is shown.
+         */
+        @RequiresApi(23)
+        public @NonNull BigPictureStyle bigLargeIcon(@Nullable Icon i) {
+            mBigLargeIcon = i == null ? null : IconCompat.createFromIcon(i);
             mBigLargeIconSet = true;
             return this;
         }
@@ -4101,8 +4093,7 @@ public class NotificationCompat {
                     Api28Impl.setGroupConversation((Notification.MessagingStyle) frameworkStyle,
                             mIsGroupConversation);
                 }
-                Api16Impl.setBuilder((Notification.MessagingStyle) frameworkStyle,
-                        builder.getBuilder());
+                Api16Impl.setBuilder((Notification.Style) frameworkStyle, builder.getBuilder());
             } else {
                 Message latestIncomingMessage = findLatestIncomingMessage();
                 // Set the title
@@ -4955,7 +4946,7 @@ public class NotificationCompat {
                     && extras.containsKey(EXTRA_CALL_PERSON)) {
                 mPerson = Person.fromAndroidPerson(
                         (android.app.Person)
-                        extras.getParcelable(EXTRA_CALL_PERSON));
+                                extras.getParcelable(EXTRA_CALL_PERSON));
             } else if (extras.containsKey(EXTRA_CALL_PERSON_COMPAT)) {
                 mPerson = Person.fromBundle(extras.getBundle(EXTRA_CALL_PERSON_COMPAT));
             }
@@ -5057,7 +5048,7 @@ public class NotificationCompat {
                 }
                 if (style != null) {
                     // Before applying the style, we clear the actions.
-                    Api24Impl.setActions(builderAccessor.getBuilder());
+                    Api24Impl.clearActions(builderAccessor.getBuilder());
 
                     Api16Impl.setBuilder(style, builderAccessor.getBuilder());
                     if (mAnswerButtonColor != null) {
@@ -5116,7 +5107,7 @@ public class NotificationCompat {
                     List<Action> actionsList = getActionsListWithSystemActions();
                     // Clear any existing actions.
                     if (Build.VERSION.SDK_INT >= 24) {
-                        Api24Impl.setActions(builder);
+                        Api24Impl.clearActions(builder);
                     }
                     // Adds the actions to the builder in the proper order.
                     for (Action action : actionsList) {
@@ -5287,7 +5278,7 @@ public class NotificationCompat {
                 }
                 actionBuilder =
                         Api20Impl.createActionBuilder(iconResId, actionCompat.getTitle(),
-                        actionCompat.getActionIntent());
+                                actionCompat.getActionIntent());
             }
             Bundle actionExtras;
             if (actionCompat.getExtras() != null) {
@@ -5429,10 +5420,12 @@ public class NotificationCompat {
             private Api24Impl() {
             }
 
+            /**
+             * Clears actions by calling setActions() with an empty list of arguments.
+             */
             @DoNotInline
-            static Notification.Builder setActions(Notification.Builder builder,
-                    Notification.Action... actions) {
-                return builder.setActions(actions);
+            static Notification.Builder clearActions(Notification.Builder builder) {
+                return builder.setActions();
             }
 
             @DoNotInline
@@ -7076,8 +7069,7 @@ public class NotificationCompat {
                     Action[] actions = new Action[parcelables.size()];
                     for (int i = 0; i < actions.length; i++) {
                         if (Build.VERSION.SDK_INT >= 20) {
-                            actions[i] = NotificationCompat.getActionCompatFromAction(
-                                    (Notification.Action) parcelables.get(i));
+                            actions[i] = Api20Impl.getActionCompatFromAction(parcelables, i);
                         } else if (Build.VERSION.SDK_INT >= 16) {
                             actions[i] = NotificationCompatJellybean.getActionFromBundle(
                                     (Bundle) parcelables.get(i));
@@ -7881,6 +7873,14 @@ public class NotificationCompat {
             @DoNotInline
             static Notification.Action build(Notification.Action.Builder builder) {
                 return builder.build();
+            }
+
+            @DoNotInline
+            public static Action getActionCompatFromAction(ArrayList<Parcelable> parcelables,
+                    int i) {
+                // Cast to Notification.Action (added in API 19) must happen in static inner class.
+                return NotificationCompat.getActionCompatFromAction(
+                        (Notification.Action) parcelables.get(i));
             }
         }
 
@@ -9566,6 +9566,36 @@ public class NotificationCompat {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Reduces the size of a provided {@code icon} if it's larger than the maximum allowed
+     * for a notification large icon; returns the resized icon. Note that the framework does this
+     * scaling automatically starting from API 27.
+     */
+    public static @Nullable Bitmap reduceLargeIconSize(@NonNull Context context,
+            @Nullable Bitmap icon) {
+        if (icon == null || Build.VERSION.SDK_INT >= 27) {
+            return icon;
+        }
+
+        Resources res = context.getResources();
+        int maxWidth =
+                res.getDimensionPixelSize(R.dimen.compat_notification_large_icon_max_width);
+        int maxHeight =
+                res.getDimensionPixelSize(R.dimen.compat_notification_large_icon_max_height);
+        if (icon.getWidth() <= maxWidth && icon.getHeight() <= maxHeight) {
+            return icon;
+        }
+
+        double scale = Math.min(
+                maxWidth / (double) Math.max(1, icon.getWidth()),
+                maxHeight / (double) Math.max(1, icon.getHeight()));
+        return Bitmap.createScaledBitmap(
+                icon,
+                (int) Math.ceil(icon.getWidth() * scale),
+                (int) Math.ceil(icon.getHeight() * scale),
+                true /* filtered */);
     }
 
     /** @deprecated This type should not be instantiated as it contains only static methods. */

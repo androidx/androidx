@@ -91,10 +91,3 @@ interface XPropertySpec : TargetLanguage {
         }
     }
 }
-
-// TODO(b/127483380): Temporary API for XPoet migration.
-// @Deprecated("Temporary API for XPoet migration.")
-fun XPropertySpec.toJavaPoet(): FieldSpec {
-    check(this is JavaPropertySpec)
-    return this.actual
-}

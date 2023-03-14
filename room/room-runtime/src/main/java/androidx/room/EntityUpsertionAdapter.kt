@@ -208,7 +208,11 @@ class EntityUpsertionAdapter<T>(
     private fun checkUniquenessException(ex: SQLiteConstraintException) {
         val message = ex.message ?: throw ex
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            if (!message.contains(ErrorMsg, ignoreCase = true)) {
+            if (!message.contains(ErrorMsg, ignoreCase = true) && !message.contains(
+                    ErrorCode,
+                    ignoreCase = true
+                )
+            ) {
                 throw ex
             }
         } else {

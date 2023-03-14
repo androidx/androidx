@@ -172,10 +172,13 @@ class MainActivity : ComponentActivity() {
                     val request = IntentSenderRequest.Builder(
                         PendingIntent.getActivity(
                             context,
-                            0, Intent(MediaStore.ACTION_IMAGE_CAPTURE), 0
-                        ).intentSender
+                            0,
+                            Intent(MediaStore.ACTION_IMAGE_CAPTURE),
+                            PendingIntent.FLAG_IMMUTABLE
+                        )
                     )
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK, 1)
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP,
+                            1)
                         .build()
                     intentSender.launch(request)
                 }

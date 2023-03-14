@@ -224,7 +224,18 @@ Potential drawbacks include:
 
 There is one exception to the same-version policy: newly-added libraries within
 an atomic group may be "quarantined" from other libraries to allow for rapid
-iteration until they are API-stable.
+iteration until they are API-stable. For example:
+
+```groovy
+androidx {
+    name = "androidx.emoji2:emoji2-emojipicker"
+    mavenVersion = LibraryVersions.EMOJI2_QUARANTINE
+}
+```
+
+```groovy
+EMOJI2_QUARANTINE = "1.0.0-alpha01"
+```
 
 A quarantined library must stay within the `1.0.0-alphaXX` cycle until it is
 ready to conform to the same-version policy. While in quarantime, a library is
@@ -240,6 +251,47 @@ When the library would like to leave quarantine, it must wait for its atomic
 group to be within a `beta` cycle and then match the version. It is okay for a
 library in this situation to skip versions, e.g. move directly from
 `1.0.0-alpha02` to `2.1.3-beta06`.
+
+#### Kotlin Multiplatform library versions {#modules-kmp-versioning}
+
+When a library adds [Kotlin Multiplatform](/company/teams/androidx/kmp.md)
+support, it is permitted to have different versions for the multiplatform
+artifacts until they reach alpha quality.
+
+##### Atomic Kotlin Multiplatform versions
+
+To specify an atomic version group for the Kotlin Multiplatform artifacts, use
+the `multiplatformGroupVersion` property in the `libraryversions.toml` file.
+
+```
+[versions]
+DATASTORE = "1.2.3"
+DATASTORE_KMP = "1.2.3-dev05"
+[groups]
+DATASTORE = { group = "androidx.datastore", atomicGroupVersion = "versions.DATASTORE", multiplatformGroupVersion = "versions.DATASTORE_KMP" }
+```
+
+Note that you can specify a `multiplatformGroupVersion` if and only if you are
+also specifying a `atomicGroupVersion`.
+
+##### Non atomic Kotlin Multiplatform versions
+
+If your Kotlin Multiplatform Library does not have atomic version groups, you
+can specify a KMP specifc version in the `build gradle` file:
+
+```groovy
+import androidx.build.KmpPlatformsKt
+...
+
+androidx {
+    name = "Android Support Library collections"
+    type = LibraryType.KMP_LIBRARY
+    mavenGroup = LibraryGroups.COLLECTION
+    mavenVersion = KmpPlatformsKt.enableNative(project) ? LibraryVersions.COLLECTION_KMP : LibraryVersions.KMP
+    inceptionYear = "2018"
+    description = "Standalone efficient collections."
+}
+```
 
 ### Choosing a `minSdkVersion` {#module-minsdkversion}
 

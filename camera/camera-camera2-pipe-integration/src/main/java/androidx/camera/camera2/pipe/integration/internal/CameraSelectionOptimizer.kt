@@ -27,7 +27,6 @@ import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.InitializationException
 import androidx.camera.core.impl.CameraInfoInternal
-import kotlinx.coroutines.runBlocking
 
 /**
  * The [CameraSelectionOptimizer] is responsible for determining available camera Ids based on
@@ -47,8 +46,7 @@ class CameraSelectionOptimizer {
                 val cameraAppComponent = cameraFactory.cameraManager as CameraAppComponent
                 val cameraDevices = cameraAppComponent.getCameraDevices()
 
-                val cameraIdList =
-                    runBlocking { cameraDevices.ids().map { it.value } }
+                val cameraIdList = checkNotNull(cameraDevices.awaitCameraIds()).map { it.value }
                 if (availableCamerasSelector == null) {
                     return cameraIdList
                 }
@@ -103,7 +101,8 @@ class CameraSelectionOptimizer {
                 return null
             }
             if (lensFacingInteger.toInt() == CameraSelector.LENS_FACING_BACK) {
-                val camera0Metadata = cameraDevices.awaitMetadata(CameraId("0"))
+                val camera0Metadata = cameraDevices.awaitCameraMetadata(CameraId("0"))
+                checkNotNull(camera0Metadata)
                 if (camera0Metadata[CameraCharacteristics.LENS_FACING]?.equals(
                         CameraCharacteristics.LENS_FACING_BACK
                     )!!
@@ -113,7 +112,8 @@ class CameraSelectionOptimizer {
                     skippedCameraId = "1"
                 }
             } else if (lensFacingInteger.toInt() == CameraSelector.LENS_FACING_FRONT) {
-                val camera1Metadata = cameraDevices.awaitMetadata(CameraId("1"))
+                val camera1Metadata = cameraDevices.awaitCameraMetadata(CameraId("1"))
+                checkNotNull(camera1Metadata)
                 if (camera1Metadata[CameraCharacteristics.LENS_FACING]?.equals(
                         CameraCharacteristics.LENS_FACING_FRONT
                     )!!

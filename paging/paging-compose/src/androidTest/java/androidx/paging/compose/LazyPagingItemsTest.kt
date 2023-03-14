@@ -98,6 +98,7 @@ class LazyPagingItemsTest {
         assertThat(loadStates.first()).isEqualTo(expected)
     }
 
+    @Ignore // b/267374463
     @Test
     fun lazyPagingLoadStateAfterRefresh() {
         val pager = createPager()

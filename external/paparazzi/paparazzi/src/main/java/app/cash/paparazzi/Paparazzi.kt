@@ -602,7 +602,8 @@ class Paparazzi @JvmOverloads constructor(
     private val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
 
-    override fun getLifecycle(): Lifecycle = lifecycleRegistry
+    override val lifecycle: Lifecycle
+      get() = lifecycleRegistry
     override val savedStateRegistry: SavedStateRegistry =
       savedStateRegistryController.savedStateRegistry
 

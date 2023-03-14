@@ -33,12 +33,13 @@ internal class InterfaceFileGenerator {
     fun generate(annotatedInterface: AnnotatedInterface): FileSpec {
         val annotatedInterfaceType =
             TypeSpec.interfaceBuilder(annotatedInterface.type.poetClassName()).build {
+                addSuperinterfaces(annotatedInterface.superTypes.map { it.poetClassName() })
                 addFunctions(annotatedInterface.methods.map(::generateInterfaceMethod))
             }
 
         return FileSpec.get(annotatedInterface.type.packageName, annotatedInterfaceType)
             .toBuilder().build {
-            addCommonSettings()
+                addCommonSettings()
         }
     }
 

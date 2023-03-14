@@ -22,6 +22,7 @@ import androidx.room.compiler.codegen.kotlin.KotlinCodeBlock
 import androidx.room.compiler.codegen.kotlin.KotlinTypeSpec
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.addOriginatingElement
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.javapoet.JTypeSpec
 import com.squareup.kotlinpoet.javapoet.KTypeSpec
 import javax.lang.model.element.Modifier
@@ -39,6 +40,7 @@ interface XTypeSpec : TargetLanguage {
         fun addType(typeSpec: XTypeSpec): Builder
         fun setPrimaryConstructor(functionSpec: XFunSpec): Builder
         fun setVisibility(visibility: VisibilityModifier)
+        fun addAbstractModifier(): Builder
         fun build(): XTypeSpec
 
         companion object {
@@ -89,16 +91,28 @@ interface XTypeSpec : TargetLanguage {
     }
 
     companion object {
-        fun classBuilder(language: CodeLanguage, className: XClassName): Builder {
+        fun classBuilder(
+            language: CodeLanguage,
+            className: XClassName,
+            isOpen: Boolean = false
+        ): Builder {
             return when (language) {
                 CodeLanguage.JAVA -> JavaTypeSpec.Builder(
                     className = className,
-                    actual = JTypeSpec.classBuilder(className.java)
-                        .addModifiers(Modifier.FINAL)
+                    actual = JTypeSpec.classBuilder(className.java).apply {
+                        if (!isOpen) {
+                            addModifiers(Modifier.FINAL)
+                        }
+                    }
                 )
+
                 CodeLanguage.KOTLIN -> KotlinTypeSpec.Builder(
                     className = className,
-                    actual = KTypeSpec.classBuilder(className.kotlin)
+                    actual = KTypeSpec.classBuilder(className.kotlin).apply {
+                        if (isOpen) {
+                            addModifiers(KModifier.OPEN)
+                        }
+                    }
                 )
             }
         }
@@ -148,11 +162,4 @@ interface XTypeSpec : TargetLanguage {
             }
         }
     }
-}
-
-// TODO(b/127483380): Temporary API for XPoet migration.
-// @Deprecated("Temporary API for XPoet migration.")
-fun XTypeSpec.toJavaPoet(): JTypeSpec {
-    check(this is JavaTypeSpec)
-    return this.actual
 }

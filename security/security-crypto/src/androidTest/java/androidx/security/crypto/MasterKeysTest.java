@@ -50,11 +50,9 @@ public class MasterKeysTest {
     @Before
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void setup() throws Exception {
-
         final Context context = ApplicationProvider.getApplicationContext();
 
         // Delete all previous keys and shared preferences.
-
         String filePath = context.getFilesDir().getParent() + "/shared_prefs/"
                 + "__androidx_security__crypto_encrypted_prefs__";
         File deletePrefFile = new File(filePath);
@@ -103,7 +101,7 @@ public class MasterKeysTest {
     }
 
     @Test
-    public void testValidateKeyWithAuth() throws GeneralSecurityException, IOException {
+    public void testValidateKeyWithAuth() {
         KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(MasterKeys.MASTER_KEY_ALIAS,
                 KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
@@ -185,7 +183,7 @@ public class MasterKeysTest {
     }
 
     @Test
-    public void testValidateKeyWithPerUseAuthFails() throws GeneralSecurityException, IOException {
+    public void testValidateKeyWithPerUseAuthFails() {
         KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(MasterKeys.MASTER_KEY_ALIAS,
                 KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)

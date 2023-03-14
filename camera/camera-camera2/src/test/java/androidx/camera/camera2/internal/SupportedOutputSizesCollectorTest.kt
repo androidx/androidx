@@ -60,6 +60,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Shadows
@@ -223,14 +225,8 @@ class SupportedOutputSizesCollectorTest(
                 Size(1280, 960),
                 Size(640, 480),
                 Size(320, 240),
-                // Mismatched maximum JPEG resolution AspectRatio items, sorted by area size.
-                Size(3840, 2160),
-                Size(1920, 1080),
-                Size(1280, 720),
-                Size(960, 544),
-                Size(800, 450),
-                Size(320, 180),
-                Size(256, 144)
+                // Non-matched items have been removed by OutputSizesCorrector due to
+                // TargetAspectRatio quirk.
             )
         } else {
             listOf(
@@ -314,13 +310,8 @@ class SupportedOutputSizesCollectorTest(
                     Size(1280, 960),
                     Size(640, 480),
                     Size(320, 240),
-                    // Mismatched maximum JPEG resolution AspectRatio items, sorted by area size.
-                    Size(1920, 1080),
-                    Size(1280, 720),
-                    Size(960, 544),
-                    Size(800, 450),
-                    Size(320, 180),
-                    Size(256, 144)
+                    // Non-matched items have been removed by OutputSizesCorrector due to
+                    // TargetAspectRatio quirk.
                 )
             } else {
                 // The 4:3 default aspect ratio will make sizes of 4/3 have the 2nd highest
@@ -1241,6 +1232,35 @@ class SupportedOutputSizesCollectorTest(
                 // This is setup for the test to determine RECORD size from StreamConfigurationMap
                 Mockito.`when`(it.getOutputSizes(MediaRecorder::class.java))
                     .thenReturn(supportedSizes)
+
+                // setup to return different minimum frame durations depending on resolution
+                // minimum frame durations were designated only for the purpose of testing
+                Mockito.`when`(it.getOutputMinFrameDuration(anyInt(), eq(Size(4032, 3024))))
+                    .thenReturn(50000000L) // 20 fps, size maximum
+
+                Mockito.`when`(it.getOutputMinFrameDuration(anyInt(), eq(Size(3840, 2160))))
+                    .thenReturn(40000000L) // 25, size record
+
+                Mockito.`when`(it.getOutputMinFrameDuration(anyInt(), eq(Size(1920, 1440))))
+                    .thenReturn(30000000L) // 30
+
+                Mockito.`when`(it.getOutputMinFrameDuration(anyInt(), eq(Size(1920, 1080))))
+                    .thenReturn(28000000L) // 35
+
+                Mockito.`when`(it.getOutputMinFrameDuration(anyInt(), eq(Size(1280, 960))))
+                    .thenReturn(25000000L) // 40
+
+                Mockito.`when`(it.getOutputMinFrameDuration(anyInt(), eq(Size(1280, 720))))
+                    .thenReturn(22000000L) // 45, size preview/display
+
+                Mockito.`when`(it.getOutputMinFrameDuration(anyInt(), eq(Size(960, 544))))
+                    .thenReturn(20000000L) // 50
+
+                Mockito.`when`(it.getOutputMinFrameDuration(anyInt(), eq(Size(800, 450))))
+                    .thenReturn(16666000L) // 60fps
+
+                Mockito.`when`(it.getOutputMinFrameDuration(anyInt(), eq(Size(640, 480))))
+                    .thenReturn(16666000L) // 60fps
 
                 // Sets up the supported high resolution sizes
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

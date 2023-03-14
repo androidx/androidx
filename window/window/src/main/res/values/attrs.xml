@@ -14,134 +14,222 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<resources>
-    <!-- Defines what part of the width should be given to the primary activity. Defaults to an
-    equal width split. -->
+<resources xmlns:xs="http://schemas.android.com/apk/res/android">
+    <!-- An attribute for Activity Embedding rules.
+         Defines what part of the Task bounds should be given to the primary container in split.
+         Values in range `(0.0, 1.0)` define the size of the primary container of the split relative
+         to the corresponding parent Task bounds.
+         The default is `0.5`, which is to split with equal width. -->
     <attr name="splitRatio" format="float" />
-    <!-- The smallest value of width of the parent window when the split should be used. -->
-    <attr name="splitMinWidthDp" format="integer" />
-    <!-- The smallest value of the smallest-width (sw) of the parent window in any rotation when
-    the split should be used. -->
-    <attr name="splitMinSmallestWidthDp" format="integer" />
-    <!-- The largest value of the aspect ratio, expressed as (height / width) in decimal form, of
-    the parent window bounds in portrait when the split should be used.
-    `0` or `alwaysAllow` means to always allow split in portrait.
-    `-1` or `alwaysDisallow` means to always disallow split in portrait.
-    Any other values less than 1 are invalid. -->
-    <attr name="splitMaxAspectRatioInPortrait"  format="float">
-        <!-- Special value to always allow split in portrait. -->
-        <enum name="alwaysAllow" value="0" />
-        <!-- Special value to always disallow split in portrait. -->
-        <enum name="alwaysDisallow" value="-1" />
-    </attr>
-    <!-- The largest value of the aspect ratio, expressed as (width / height) in decimal form, of
-    the parent window bounds in landscape when the split should be used.
-    `0` or `alwaysAllow` means to always allow split in landscape.
-    `-1` or `alwaysDisallow` means to always disallow split in landscape.
-    Any other values less than 1 are invalid. -->
-    <attr name="splitMaxAspectRatioInLandscape"  format="float">
-        <!-- Special value to always allow split in landscape. -->
-        <enum name="alwaysAllow" value="0" />
-        <!-- Special value to always disallow split in landscape. -->
-        <enum name="alwaysDisallow" value="-1" />
-    </attr>
-    <!-- The layout direction for the split. The value must be one of "ltr", "rtl" or "locale". -->
+    <!-- An attribute for Activity Embedding rules.
+         Defines the layout direction for the Activity Embedding split. -->
     <attr name="splitLayoutDirection" format="enum">
-        <!-- It splits the task bounds vertically, and the direction is deduced from the default
-        language script of locale, which can be either "ltr" or "rtl". -->
-        <enum name="locale" value="3" />
-        <!-- It splits the task bounds vertically, and put the primary container on the left
-        portion, and the secondary container on the right portion. -->
-        <enum name="ltr" value="0" />
-        <!-- It splits the task bounds vertically, and put the primary container on the right
-        portion, and the secondary container on the left portion. -->
-        <enum name="rtl" value="1" />
+        <!-- A layout direction that splits the task bounds vertically, and the direction is deduced
+             from the language script of locale. The direction can be either `rtl` or `ltr` -->
+        <enum name="locale" value="0" />
+        <!-- The primary container is placed on the left, and the secondary is on the right hand
+             side. -->
+        <enum name="ltr" value="1" />
+        <!-- The primary container is placed on the right, and the secondary is on the left hand
+             side. -->
+        <enum name="rtl" value="2" />
+        <!-- The primary container is placed on top, and the secondary is at the bottom. -->
+        <enum name="topToBottom" value="3" />
+        <!-- The primary container is placed on bottom, and the secondary is at the top. -->
+        <enum name="bottomToTop" value="4" />
     </attr>
+    <!-- An attribute for Activity Embedding rules.
+         An optional but unique string to identify a `SplitPairRule`, `SplitPlaceholderRule` or
+         `ActivityRule`. The suggested usage is to set the tag to be able to differentiate between
+         different rules in the callbacks.
+         For example, it can be used to compute the right `SplitAttributes` for the given split rule
+         in `SplitAttributesCalculator.computeSplitAttributesForParams`. -->
+    <attr name="tag" format="string" />
+    <!-- An attribute for Activity Embedding rules.
+         Background color of Activity Embedding window animation if the animation requires a
+         background. Only opaque color is supported.
+         The default is to use the current theme's windowBackground. Any non-opaque color will be
+         treated the same as default. -->
+    <attr name="animationBackgroundColor" format="color" />
+
+    <!-- An attribute for Activity Embedding rules.
+         The smallest value of width of the parent Task bounds when the split should be used, in DP.
+         Uses `0` to always allow split regardless of the parent Task width.
+         The default is `600`. -->
+    <attr name="splitMinWidthDp" format="integer" />
+    <!-- An attribute for Activity Embedding rules.
+         The smallest value of height of the parent Task bounds when the split should be used, in
+         DP.
+         Uses `0` to always allow split regardless of the parent Task height.
+         The default is `600`. -->
+    <attr name="splitMinHeightDp" format="integer" />
+    <!-- An attribute for Activity Embedding rules.
+         The smallest value of the smallest possible width of the parent Task bounds in any rotation
+         when the split should be used, in DP.
+         Uses `0` to always allow split regardless of the parent Task smallest width.
+         The default is `600`. -->
+    <attr name="splitMinSmallestWidthDp" format="integer" />
+    <!-- An attribute for Activity Embedding rules.
+         The largest value of the aspect ratio, expressed as (height / width) in decimal form, of
+         the parent Task bounds in portrait when the split should be used.
+         Uses `0` or `alwaysAllow` to always allow split in portrait.
+         Uses `-1` or `alwaysDisallow` to always disallow split in portrait.
+         Any other values less than `1` are invalid.
+         The default is `1.4`. -->
+    <attr name="splitMaxAspectRatioInPortrait"  format="float">
+        <!-- Special value to always allow split in portrait regardless of the aspect ratio. -->
+        <enum name="alwaysAllow" value="0" />
+        <!-- Special value to always disallow split in portrait regardless of the aspect ratio. -->
+        <enum name="alwaysDisallow" value="-1" />
+    </attr>
+    <!-- An attribute for Activity Embedding rules.
+         The largest value of the aspect ratio, expressed as (width / height) in decimal form, of
+         the parent Task bounds in landscape when the split should be used.
+         Uses `0` or `alwaysAllow` to always allow split in landscape.
+         Uses `-1` or `alwaysDisallow` to always disallow split in landscape.
+         Any other values less than `1` are invalid.
+         The default is `alwaysAllow`. -->
+    <attr name="splitMaxAspectRatioInLandscape"  format="float">
+        <!-- Special value to always allow split in landscape regardless of the aspect ratio. -->
+        <enum name="alwaysAllow" value="0" />
+        <!-- Special value to always disallow split in landscape regardless of the aspect ratio. -->
+        <enum name="alwaysDisallow" value="-1" />
+    </attr>
+    <!-- An attribute for Activity Embedding rules.
+         Determines what happens with the primary container when all activities are finished in
+         the associated secondary container.
+         The default is `never`. -->
     <attr name="finishPrimaryWithSecondary" format="enum">
+        <!-- Never finish the primary container. -->
         <enum name="never" value="0" />
+        <!-- Always finish the primary container. -->
         <enum name="always" value="1" />
+        <!-- Only finish the primary container when the primary container is displayed adjacent to
+             the secondary container.
+             Does not finish the primary one when the secondary container is stacked on top of
+             the primary. -->
         <enum name="adjacent" value="2" />
     </attr>
-    <attr name="finishPrimaryWithPlaceholder" format="enum">
-        <enum name="always" value="1" />
-        <enum name="adjacent" value="2" />
-    </attr>
+
+    <!-- An attribute for Activity Embedding rules.
+         Determines what happens with the secondary container when all activities are finished
+         in the associated primary container.
+         The default is `always`. -->
     <attr name="finishSecondaryWithPrimary" format="enum">
+        <!-- Never finish the secondary container. -->
         <enum name="never" value="0" />
+        <!-- Always finish the secondary container. -->
         <enum name="always" value="1" />
+        <!-- Only finish the secondary container when the primary container is displayed adjacent to
+             the secondary container.
+             Does not finish the secondary one when the secondary container is stacked on top of
+             the primary. -->
+        <enum name="adjacent" value="2" />
+    </attr>
+    <!-- An attribute for Activity Embedding rules.
+         Determines what happens with the primary container when the associated placeholder
+         activity is being finished.
+         The default is `always`. -->
+    <attr name="finishPrimaryWithPlaceholder" format="enum">
+        <!-- Always finish the primary container. -->
+        <enum name="always" value="1" />
+        <!-- Only finish the primary container when the primary container is displayed adjacent to
+             the placeholder container.
+             Does not finish the primary one when the placeholder container is stacked on top of
+             the primary. -->
         <enum name="adjacent" value="2" />
     </attr>
 
-    <!-- Split configuration rules for activity pairs. Must contain at least one SplitPairFilter.
-    See androidx.window.embedding.SplitPairRule for complete documentation. -->
+    <!-- Attributes that are read when parsing a <SplitPairRule> tag, which defines the split
+         configuration rules for activity pairs.
+         Must contain at least one `SplitPairFilter`. -->
     <declare-styleable name="SplitPairRule">
-        <!-- When all activities are finished in the secondary container, the activity in the
-         primary container that created the split should also be finished. Defaults to "never". -->
-        <attr name="finishPrimaryWithSecondary" />
-        <!-- When all activities are finished in the primary container, the activities in the
-         secondary container in the split should also be finished. Defaults to "always". -->
-        <attr name="finishSecondaryWithPrimary" />
-        <!-- If there is an existing split with the same primary container, indicates whether the
-        existing secondary container on top and all activities in it should be destroyed when a new
-        split is created using this rule. Otherwise the new secondary will appear on top. Defaults
-         to "false". -->
+        <!-- An attribute for Activity Embedding rules.
+             If there is an existing split with the same primary container, indicates whether the
+             existing secondary container on top and all activities in it should be destroyed when a
+             new split is created using this rule. Otherwise the new secondary will appear on top.
+             The default is 'false'. -->
         <attr name="clearTop" format="boolean" />
+        <attr name="finishPrimaryWithSecondary" />
+        <attr name="finishSecondaryWithPrimary" />
         <attr name="splitRatio"/>
         <attr name="splitMinWidthDp"/>
+        <attr name="splitMinHeightDp"/>
         <attr name="splitMinSmallestWidthDp"/>
         <attr name="splitMaxAspectRatioInPortrait" />
         <attr name="splitMaxAspectRatioInLandscape" />
         <attr name="splitLayoutDirection"/>
+        <attr name="tag"/>
+        <attr name="animationBackgroundColor"/>
     </declare-styleable>
 
-    <!-- Configuration rules for split placeholders. Must contain at least one ActivityFilter for
-    the primary activity for which the rule should be applied.
-    See androidx.window.embedding.SplitPlaceholderRule for complete documentation. -->
+    <!-- Attributes that are read when parsing a <SplitPlaceholderRule> tag, which defines the split
+         configuration rules for split placeholders.
+         Must contain at least one `ActivityFilter` for the primary activity for which the rule
+         should be applied. -->
     <declare-styleable name="SplitPlaceholderRule">
-        <!-- Component name of the placeholder activity in the split. Must be non-empty. -->
+        <!-- An attribute for Activity Embedding rules.
+             Component name of the placeholder activity to launch in the split.
+             Must be non-empty. -->
         <attr name="placeholderActivityName" format="string" />
-        <!-- Determines whether the placeholder will show on top in a smaller window size after
-        it first appeared in a split with sufficient minimum width. -->
+        <!-- An attribute for Activity Embedding rules.
+             Determines whether the placeholder will show on top if Task window constraints are not
+             satisfied after it first appeared in a split with sufficient Task window constraints.
+             The default is `false`. -->
         <attr name="stickyPlaceholder" format="boolean" />
-        <!-- When all activities are finished in the secondary container, the activity in the
-         primary container that created the split should also be finished. Defaults to "always". -->
-        <attr name="finishPrimaryWithPlaceholder" />
+        <attr name="finishPrimaryWithPlaceholder"/>
         <attr name="splitRatio"/>
         <attr name="splitMinWidthDp"/>
+        <attr name="splitMinHeightDp"/>
         <attr name="splitMinSmallestWidthDp"/>
         <attr name="splitMaxAspectRatioInPortrait" />
         <attr name="splitMaxAspectRatioInLandscape" />
         <attr name="splitLayoutDirection"/>
+        <attr name="tag"/>
+        <attr name="animationBackgroundColor"/>
     </declare-styleable>
 
-    <!-- Filter used to find if a pair of activities should be put in a split. -->
+    <!-- Attributes that are read when parsing an <ActivityRule> tag, which defines the layout
+         configuration rules for individual activities. It takes precedence over `SplitPairRule`.
+         Must contain at least one `ActivityFilter`. -->
+    <declare-styleable name="ActivityRule">
+        <!-- An attribute for Activity Embedding rules.
+             Whether the activity should always be expanded on launch.
+             The default is `false`. -->
+        <attr name="alwaysExpand" format="boolean" />
+        <attr name="tag"/>
+    </declare-styleable>
+
+    <!-- Attributes that are read when parsing an <SplitPairFilter> tag, which defines the filter
+         for `SplitPairRule`. -->
     <declare-styleable name="SplitPairFilter">
-        <!-- Component name of the primary activity in the split. Must be non-empty. Can contain a
-         wildcard at the end or instead of package name and/or class name. -->
+        <!-- An attribute for Activity Embedding rules.
+             Component name of the primary activity in the split. Must be non-empty. Can contain a
+             wildcard at the end or instead of package name and/or class name. -->
         <attr name="primaryActivityName" format="string" />
-        <!-- Component name of the secondary activity in the split. Must be non-empty. Can contain a
-         wildcard at the end or instead of package name and/or class name. -->
+        <!-- An attribute for Activity Embedding rules.
+             Component name of the secondary activity in the split. Must be non-empty. Can contain a
+             wildcard at the end or instead of package name and/or class name. -->
         <attr name="secondaryActivityName" format="string" />
-        <!-- Action used for secondary activity launch. May be empty. Must not contain wildcards.
-         -->
+        <!-- An attribute for Activity Embedding rules.
+             Action used for the secondary activity launch. May be empty. Must not contain
+             wildcards.
+             When it is set, the filter only matches if the secondary activity is launched with an
+             intent with the given action. -->
         <attr name="secondaryActivityAction" format="string" />
     </declare-styleable>
 
-    <!-- Layout configuration rules for individual activities. Takes precedence over
-    SplitPairRule. Must contain at least one ActivityFilter.
-    See androidx.window.layout.ActivityRule for complete documentation. -->
-    <declare-styleable name="ActivityRule">
-        <!-- Whether the activity should always be expanded on launch. -->
-        <attr name="alwaysExpand" format="boolean" />
-    </declare-styleable>
-
-    <!-- Filter for ActivityRule. -->
+    <!-- Attributes that are read when parsing an <ActivityFilter> tag, which defines the filter
+         Filter for `ActivityRule` and `SplitPlaceholderRule`. -->
     <declare-styleable name="ActivityFilter">
-        <!-- Component name of the primary activity in the split. Must be non-empty. Can contain a
-         single wildcard at the end. -->
+        <!-- An attribute for Activity Embedding rules.
+             Component name of the launched activity. Must be non-empty. Can contain a single
+             wildcard at the end. -->
         <attr name="activityName" format="string" />
-        <!-- Action used for activity launch. May be empty. Must not contain wildcards.
-         -->
+        <!-- An attribute for Activity Embedding rules.
+             Action used for the activity launch. May be empty. Must not contain wildcards.
+             When it is set, the filter only matches if the activity is launched with an intent with
+             the given action. -->
         <attr name="activityAction" format="string" />
     </declare-styleable>
 </resources>

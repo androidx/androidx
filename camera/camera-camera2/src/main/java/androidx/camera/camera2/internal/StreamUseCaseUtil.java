@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal;
 
 import static androidx.camera.camera2.impl.Camera2ImplConfig.STREAM_USE_CASE_OPTION;
 
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraMetadata;
 import android.media.MediaCodec;
@@ -27,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
@@ -37,7 +39,9 @@ import androidx.camera.core.impl.SessionConfig;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A class that contains utility methods for stream use case.
@@ -60,10 +64,24 @@ public final class StreamUseCaseUtil {
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public static void populateSurfaceToStreamUseCaseMapping(
             @NonNull Collection<SessionConfig> sessionConfigs,
-            @NonNull Map<DeferrableSurface, Long> streamUseCaseMap) {
+            @NonNull Map<DeferrableSurface, Long> streamUseCaseMap,
+            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
+            boolean shouldSetStreamUseCaseByDefault) {
         if (Build.VERSION.SDK_INT < 33) {
             return;
         }
+
+        if (cameraCharacteristicsCompat.get(
+                CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES) == null) {
+            return;
+        }
+
+        Set<Long> supportedStreamUseCases = new HashSet<>();
+        for (long useCase : cameraCharacteristicsCompat.get(
+                CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES)) {
+            supportedStreamUseCases.add(useCase);
+        }
+
         for (SessionConfig sessionConfig : sessionConfigs) {
             if (sessionConfig.getTemplateType()
                     == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
@@ -73,26 +91,45 @@ public final class StreamUseCaseUtil {
                 return;
             }
             for (DeferrableSurface surface : sessionConfig.getSurfaces()) {
-                if (sessionConfig.getImplementationOptions().containsOption(STREAM_USE_CASE_OPTION)
-                        &&
-                        sessionConfig.getImplementationOptions()
-                                .retrieveOption(STREAM_USE_CASE_OPTION) != null
-                ) {
-                    streamUseCaseMap.put(
-                            surface,
-                            sessionConfig.getImplementationOptions()
-                                    .retrieveOption(STREAM_USE_CASE_OPTION));
-
+                if (sessionConfig.getImplementationOptions().containsOption(
+                        STREAM_USE_CASE_OPTION) && putStreamUseCaseToMappingIfAvailable(
+                        streamUseCaseMap,
+                        surface,
+                        sessionConfig.getImplementationOptions().retrieveOption(
+                                STREAM_USE_CASE_OPTION),
+                        supportedStreamUseCases)) {
                     continue;
                 }
 
-                @Nullable Long flag = getUseCaseToStreamUseCaseMapping()
-                        .get(surface.getContainerClass());
-                if (flag != null) {
-                    streamUseCaseMap.put(surface, flag);
+                if (shouldSetStreamUseCaseByDefault) {
+                    // TODO(b/266879290) This is currently gated out because of camera device
+                    // crashing due to unsupported stream useCase combinations.
+                    Long streamUseCase = getUseCaseToStreamUseCaseMapping()
+                            .get(surface.getContainerClass());
+                    putStreamUseCaseToMappingIfAvailable(streamUseCaseMap,
+                            surface,
+                            streamUseCase,
+                            supportedStreamUseCases);
                 }
             }
         }
+    }
+
+    private static boolean putStreamUseCaseToMappingIfAvailable(
+            Map<DeferrableSurface, Long> streamUseCaseMap,
+            DeferrableSurface surface,
+            @Nullable Long streamUseCase,
+            Set<Long> availableStreamUseCases) {
+        if (streamUseCase == null) {
+            return false;
+        }
+
+        if (!availableStreamUseCases.contains(streamUseCase)) {
+            return false;
+        }
+
+        streamUseCaseMap.put(surface, streamUseCase);
+        return true;
     }
 
     /**
@@ -100,7 +137,7 @@ public final class StreamUseCaseUtil {
      * associated with that class. Refer to {@link UseCase} for the potential UseCase as the
      * container class for a given surface.
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     private static Map<Class<?>, Long> getUseCaseToStreamUseCaseMapping() {
         if (sUseCaseToStreamUseCaseMapping == null) {
             sUseCaseToStreamUseCaseMapping = new HashMap<>();

@@ -41,12 +41,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.job
@@ -89,12 +90,15 @@ class MultiProcessDataStoreTest {
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
         corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>()
     ): DataStore<Byte> {
-        return MultiProcessDataStore(
-            storage = FileStorage(serializer) { file },
+        return DataStoreImpl(
+            storage = FileStorage(
+                serializer,
+                { MultiProcessCoordinator(scope.coroutineContext, it) }
+            ) { file },
             scope = scope,
             initTasksList = initTasksList,
             corruptionHandler = corruptionHandler
-        ) { file }
+        )
     }
 
     @Before
@@ -117,13 +121,13 @@ class MultiProcessDataStoreTest {
     }
 
     @Test
-    fun testReadWithNewInstance() = runTest {
-        coroutineScope {
-            val newStore = newDataStore(testFile, scope = this)
+    fun testReadWithNewInstance() = runBlocking {
+        runTest {
+            val newStore = newDataStore(testFile, scope = backgroundScope)
             newStore.updateData { 1 }
         }
-        coroutineScope {
-            val newStore = newDataStore(testFile, scope = this)
+        runTest {
+            val newStore = newDataStore(testFile, scope = backgroundScope)
             assertThat(newStore.data.first()).isEqualTo(1)
         }
     }
@@ -210,35 +214,35 @@ class MultiProcessDataStoreTest {
     }
 
     @Test
-    fun testReadAfterTransientBadWrite() = runTest {
+    fun testReadAfterTransientBadWrite() = runBlocking {
         val file = tempFolder.newFile()
-        coroutineScope {
-            val store = newDataStore(file, scope = this)
+        runTest {
+            val store = newDataStore(file, scope = backgroundScope)
             store.updateData { 1 }
             serializerConfig.failingWrite = true
             assertThrows<IOException> { store.updateData { 2 } }
         }
 
-        coroutineScope {
-            val newStore = newDataStore(file, scope = this)
+        runTest {
+            val newStore = newDataStore(file, scope = backgroundScope)
             assertThat(newStore.data.first()).isEqualTo(1)
         }
     }
 
     @Test
-    fun testWriteToNonExistentDir() = runTest {
+    fun testWriteToNonExistentDir() = runBlocking {
         val fileInNonExistentDir =
             File(tempFolder.newFolder(), "/this/does/not/exist/foo.tst")
-        coroutineScope {
-            val newStore = newDataStore(fileInNonExistentDir, scope = this)
+        runTest {
+            val newStore = newDataStore(fileInNonExistentDir, scope = backgroundScope)
 
             newStore.updateData { 1 }
 
             assertThat(newStore.data.first()).isEqualTo(1)
         }
 
-        coroutineScope {
-            val newStore = newDataStore(fileInNonExistentDir, scope = this)
+        runTest {
+            val newStore = newDataStore(fileInNonExistentDir, scope = backgroundScope)
             assertThat(newStore.data.first()).isEqualTo(1)
         }
     }
@@ -273,11 +277,14 @@ class MultiProcessDataStoreTest {
             testFile
         }
 
-        val newStore = MultiProcessDataStore(
-            storage = FileStorage(testingSerializer, fileProducer),
+        val newStore = DataStoreImpl(
+            storage = FileStorage(
+                testingSerializer,
+                { MultiProcessCoordinator(dataStoreScope.coroutineContext, it) },
+                fileProducer
+            ),
             scope = dataStoreScope,
-            initTasksList = listOf(),
-            produceFile = fileProducer
+            initTasksList = listOf()
         )
 
         assertThrows<IOException> { newStore.data.first() }.hasMessageThat().isEqualTo(
@@ -617,6 +624,61 @@ class MultiProcessDataStoreTest {
     }
 
     @Test
+    fun stressTest() = runBlocking {
+        val stressTestFile = tempFolder.newFile()
+        val testJob = Job()
+        val testScope = CoroutineScope(
+            Dispatchers.IO + testJob
+        )
+        val stressTestStore = DataStoreImpl<Int>(
+            storage = FileStorage(
+                object : Serializer<Int> {
+                    override val defaultValue: Int
+                        get() = 0
+
+                    override suspend fun readFrom(input: InputStream): Int {
+                        return input.reader(Charsets.UTF_8).use {
+                            it.readText().toIntOrNull() ?: defaultValue
+                        }
+                    }
+
+                    override suspend fun writeTo(t: Int, output: OutputStream) {
+                        output.writer(Charsets.UTF_8).use {
+                            it.write(t.toString())
+                            it.flush()
+                        }
+                    }
+                },
+                coordinatorProducer = {
+                    MultiProcessCoordinator(testScope.coroutineContext, it)
+                },
+                produceFile = { stressTestFile }
+            ),
+            scope = testScope,
+            initTasksList = emptyList()
+        )
+        val limit = 1_000
+        stressTestStore.updateData { 0 }
+        val reader = async(Dispatchers.IO + testJob) {
+            stressTestStore.data.scan(0) { prev, next ->
+                check(next >= prev) {
+                    "check failed: $prev / $next"
+                }
+                next
+            }.take(limit - 200).collect() // we can drop some intermediate values, it is fine
+        }
+        val writer = async {
+            repeat(limit) {
+                stressTestStore.updateData {
+                    it + 1
+                }
+            }
+        }
+        listOf(reader, writer).awaitAll()
+        testJob.cancelAndJoin()
+    }
+
+    @Test
     fun testMultipleFlowsReceiveData() = runTest {
         val flowOf8 = store.data.take(8)
 
@@ -638,6 +700,10 @@ class MultiProcessDataStoreTest {
         flowCollection1.join()
         flowCollection2.join()
 
+        // This test only works because runTest ensures consistent behavior
+        // Otherwise, we cannot really expect the collector to read every single value
+        // (we provide eventual consistency, so it would also be OK if it missed some intermediate
+        // values as long as it received 7 at the end).
         assertThat(bytesFromFirstCollect).isEqualTo(mutableListOf<Byte>(0, 1, 2, 3, 4, 5, 6, 7))
         assertThat(bytesFromSecondCollect).isEqualTo(mutableListOf<Byte>(0, 1, 2, 3, 4, 5, 6, 7))
     }
@@ -697,12 +763,12 @@ class MultiProcessDataStoreTest {
     }
 
     @Test
-    fun testHandlerNotCalledGoodData() = runTest {
-        coroutineScope {
-            newDataStore(testFile, scope = this).updateData { 1 }
+    fun testHandlerNotCalledGoodData() = runBlocking {
+        runTest {
+            newDataStore(testFile, scope = backgroundScope).updateData { 1 }
         }
 
-        coroutineScope {
+        runTest {
             val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
             val newStore = newDataStore(corruptionHandler = testingHandler, file = testFile)
 
@@ -714,12 +780,12 @@ class MultiProcessDataStoreTest {
     }
 
     @Test
-    fun handlerNotCalledNonCorruption() = runTest {
-        coroutineScope {
-            newDataStore(testFile, scope = this).updateData { 1 }
+    fun handlerNotCalledNonCorruption() = runBlocking {
+        runTest {
+            newDataStore(testFile, scope = backgroundScope).updateData { 1 }
         }
 
-        coroutineScope {
+        runTest {
             val testingHandler = TestingCorruptionHandler()
             serializerConfig.failingRead = true
             val newStore = newDataStore(corruptionHandler = testingHandler, file = testFile)
@@ -732,13 +798,13 @@ class MultiProcessDataStoreTest {
     }
 
     @Test
-    fun testHandlerCalledCorruptDataRead() = runTest {
-        coroutineScope {
-            val newStore = newDataStore(testFile, scope = this)
+    fun testHandlerCalledCorruptDataRead() = runBlocking {
+        runTest {
+            val newStore = newDataStore(testFile, scope = backgroundScope)
             newStore.updateData { 1 } // Pre-seed the data so the file exists.
         }
 
-        coroutineScope {
+        runTest {
             val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
             serializerConfig.failReadWithCorruptionException = true
             val newStore = newDataStore(corruptionHandler = testingHandler, file = testFile)
@@ -752,13 +818,13 @@ class MultiProcessDataStoreTest {
     }
 
     @Test
-    fun testHandlerCalledCorruptDataWrite() = runTest {
-        coroutineScope {
-            val newStore = newDataStore(file = testFile, scope = this)
+    fun testHandlerCalledCorruptDataWrite() = runBlocking {
+        runTest {
+            val newStore = newDataStore(file = testFile, scope = backgroundScope)
             newStore.updateData { 1 }
         }
 
-        coroutineScope {
+        runTest {
             val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
             serializerConfig.failReadWithCorruptionException = true
             val newStore = newDataStore(corruptionHandler = testingHandler, file = testFile)
@@ -772,18 +838,18 @@ class MultiProcessDataStoreTest {
     }
 
     @Test
-    fun testHandlerReplaceData() = runTest {
-        coroutineScope {
-            newDataStore(file = testFile, scope = this).updateData { 1 }
+    fun testHandlerReplaceData() = runBlocking {
+        runTest {
+            newDataStore(file = testFile, scope = backgroundScope).updateData { 1 }
         }
 
-        coroutineScope {
+        runTest {
             val testingHandler: TestingCorruptionHandler =
                 TestingCorruptionHandler(replaceWith = 10)
             serializerConfig.failReadWithCorruptionException = true
             val newStore = newDataStore(
                 corruptionHandler = testingHandler, file = testFile,
-                scope = this
+                scope = backgroundScope
             )
 
             assertThat(newStore.data.first()).isEqualTo(10)
@@ -793,10 +859,12 @@ class MultiProcessDataStoreTest {
     @Test
     fun testMutatingDataStoreFails() = runTest {
 
-        val dataStore = MultiProcessDataStore(
-            storage = FileStorage(ByteWrapper.ByteWrapperSerializer()) { testFile },
+        val dataStore = DataStoreImpl(
+            storage = FileStorage(ByteWrapper.ByteWrapperSerializer(), {
+                MultiProcessCoordinator(dataStoreScope.coroutineContext, it)
+            }) { testFile },
             scope = dataStoreScope,
-        ) { testFile }
+        )
 
         assertThrows<IllegalStateException> {
             dataStore.updateData { input: ByteWrapper ->
@@ -809,12 +877,15 @@ class MultiProcessDataStoreTest {
 
     @Test
     fun testDefaultValueUsedWhenNoDataOnDisk() = runTest {
-        val dataStore = MultiProcessDataStore(
-            storage = FileStorage(TestingSerializer(TestingSerializerConfig(defaultValue = 99))) {
+        val dataStore = DataStoreImpl(
+            storage = FileStorage(
+                TestingSerializer(TestingSerializerConfig(defaultValue = 99)),
+                { MultiProcessCoordinator(dataStoreScope.coroutineContext, it) }
+            ) {
                 testFile
             },
             scope = dataStoreScope
-        ) { testFile }
+        )
 
         assertThat(testFile.delete()).isTrue()
 

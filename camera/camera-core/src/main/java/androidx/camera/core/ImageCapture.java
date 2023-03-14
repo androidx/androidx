@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -105,6 +106,7 @@ import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
@@ -135,8 +137,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
@@ -339,9 +343,6 @@ public final class ImageCapture extends UseCase {
     @SuppressWarnings("WeakerAccess")
     final Executor mSequentialIoExecutor;
 
-    @Nullable
-    private CameraEffect mCameraEffect;
-
     /**
      * Creates a new image capture use case from the given configuration.
      *
@@ -370,10 +371,10 @@ public final class ImageCapture extends UseCase {
     @UiThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder createPipeline(@NonNull String cameraId,
-            @NonNull ImageCaptureConfig config, @NonNull Size resolution) {
+            @NonNull ImageCaptureConfig config, @NonNull StreamSpec streamSpec) {
         checkMainThread();
         if (isNodeEnabled()) {
-            return createPipelineWithNode(cameraId, config, resolution);
+            return createPipelineWithNode(cameraId, config, streamSpec);
         }
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
@@ -382,6 +383,7 @@ public final class ImageCapture extends UseCase {
         }
 
         // Setup the ImageReader to do processing
+        Size resolution = streamSpec.getResolution();
         if (config.getImageReaderProxyProvider() != null) {
             mImageReader =
                     new SafeCloseImageReaderProxy(
@@ -450,7 +452,7 @@ public final class ImageCapture extends UseCase {
             //  to this use case so we don't need to do this check.
             if (isCurrentCamera(cameraId)) {
                 // Only reset the pipeline when the bound camera is the same.
-                mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
+                mSessionConfigBuilder = createPipeline(cameraId, config, streamSpec);
 
                 if (mImageCaptureRequestProcessor != null) {
                     // Restore the unfinished requests to the created pipeline
@@ -567,7 +569,7 @@ public final class ImageCapture extends UseCase {
                 null);
         if (bufferFormat != null) {
             Preconditions.checkArgument(!(isSessionProcessorEnabledInCurrentCamera()
-                            &&  bufferFormat != ImageFormat.JPEG),
+                            && bufferFormat != ImageFormat.JPEG),
                     "Cannot set non-JPEG buffer format with Extensions enabled.");
             builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                     useSoftwareJpeg ? ImageFormat.YUV_420_888 : bufferFormat);
@@ -1527,16 +1529,16 @@ public final class ImageCapture extends UseCase {
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
         mSessionConfigBuilder = createPipeline(getCameraId(),
-                (ImageCaptureConfig) getCurrentConfig(), suggestedResolution);
+                (ImageCaptureConfig) getCurrentConfig(), suggestedStreamSpec);
 
         updateSessionConfig(mSessionConfigBuilder.build());
 
         // In order to speed up the take picture process, notifyActive at an early stage to
         // attach the session capture callback to repeating and get capture result all the time.
         notifyActive();
-        return suggestedResolution;
+        return suggestedStreamSpec;
     }
 
     /**
@@ -1655,13 +1657,14 @@ public final class ImageCapture extends UseCase {
     @OptIn(markerClass = ExperimentalZeroShutterLag.class)
     @MainThread
     private SessionConfig.Builder createPipelineWithNode(@NonNull String cameraId,
-            @NonNull ImageCaptureConfig config, @NonNull Size resolution) {
+            @NonNull ImageCaptureConfig config, @NonNull StreamSpec streamSpec) {
         checkMainThread();
-        Log.d(TAG, String.format("createPipelineWithNode(cameraId: %s, resolution: %s)",
-                cameraId, resolution));
+        Log.d(TAG, String.format("createPipelineWithNode(cameraId: %s, streamSpec: %s)",
+                cameraId, streamSpec));
+        Size resolution = streamSpec.getResolution();
 
         checkState(mImagePipeline == null);
-        mImagePipeline = new ImagePipeline(config, resolution, mCameraEffect);
+        mImagePipeline = new ImagePipeline(config, resolution, getEffect());
 
         if (mTakePictureManager == null) {
             // mTakePictureManager is reused when the Surface is reset.
@@ -1679,7 +1682,7 @@ public final class ImageCapture extends UseCase {
             if (isCurrentCamera(cameraId)) {
                 mTakePictureManager.pause();
                 clearPipelineWithNode(/*keepTakePictureManager=*/ true);
-                mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
+                mSessionConfigBuilder = createPipeline(cameraId, config, streamSpec);
                 updateSessionConfig(mSessionConfigBuilder.build());
                 notifyReset();
                 mTakePictureManager.resume();
@@ -1802,27 +1805,6 @@ public final class ImageCapture extends UseCase {
         return mImagePipeline != null && mTakePictureManager != null;
     }
 
-    /**
-     * @hide
-     */
-    @MainThread
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void setEffect(@Nullable CameraEffect cameraEffect) {
-        checkMainThread();
-        mCameraEffect = cameraEffect;
-    }
-
-    /**
-     * @hide
-     */
-    @MainThread
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public CameraEffect getEffect() {
-        checkMainThread();
-        return mCameraEffect;
-    }
-
     @VisibleForTesting
     @NonNull
     TakePictureManager getTakePictureManager() {
@@ -1830,6 +1812,19 @@ public final class ImageCapture extends UseCase {
     }
 
     // ===== New architecture end =====
+
+    /**
+     * @inheritDoc
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    public Set<Integer> getSupportedEffectTargets() {
+        Set<Integer> targets = new HashSet<>();
+        targets.add(IMAGE_CAPTURE);
+        return targets;
+    }
 
     /**
      * Describes the error that occurred during an image capture operation (such as {@link

@@ -1,7 +1,7 @@
 package com.mysdk
 
-import com.myotherpackage.MyOtherPackageDataClassConverter.fromParcelable
-import com.myotherpackage.MyOtherPackageDataClassConverter.toParcelable
+import android.content.Context
+import com.myotherpackage.MyOtherPackageDataClassConverter
 import com.myotherpackage.ParcelableMyOtherPackageDataClass
 import com.mysdk.PrivacySandboxThrowableParcelConverter
 import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 
 public class MyMainPackageInterfaceStubDelegate internal constructor(
   public val `delegate`: MyMainPackageInterface,
+  public val context: Context,
 ) : IMyMainPackageInterface.Stub() {
   public override fun doIntStuff(x: IntArray, transactionCallback: IListIntTransactionCallback):
       Unit {
@@ -36,8 +37,9 @@ public class MyMainPackageInterfaceStubDelegate internal constructor(
     @OptIn(DelicateCoroutinesApi::class)
     val job = GlobalScope.launch(Dispatchers.Main) {
       try {
-        val result = delegate.useDataClass(fromParcelable(x))
-        transactionCallback.onSuccess(toParcelable(result))
+        val result =
+            delegate.useDataClass(MyOtherPackageDataClassConverter(context).fromParcelable(x))
+        transactionCallback.onSuccess(MyOtherPackageDataClassConverter(context).toParcelable(result))
       }
       catch (t: Throwable) {
         transactionCallback.onFailure(toThrowableParcel(t))

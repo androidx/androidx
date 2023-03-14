@@ -16,11 +16,14 @@
 
 package com.example.androidx.mediarouting.activities;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -48,7 +51,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.mediarouter.app.MediaRouteActionProvider;
@@ -66,13 +69,17 @@ import androidx.mediarouter.media.MediaRouterParams;
 
 import com.example.androidx.mediarouting.MyMediaRouteControllerDialog;
 import com.example.androidx.mediarouting.R;
+import com.example.androidx.mediarouting.RoutesManager;
 import com.example.androidx.mediarouting.data.MediaItem;
 import com.example.androidx.mediarouting.data.PlaylistItem;
 import com.example.androidx.mediarouting.player.Player;
+import com.example.androidx.mediarouting.player.RemotePlayer;
 import com.example.androidx.mediarouting.providers.SampleMediaRouteProvider;
 import com.example.androidx.mediarouting.session.SessionManager;
 import com.example.androidx.mediarouting.ui.LibraryAdapter;
 import com.example.androidx.mediarouting.ui.PlaylistAdapter;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 
@@ -83,141 +90,48 @@ import java.io.File;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String DISCOVERY_FRAGMENT_TAG = "DiscoveryFragment";
+    private static final int POST_NOTIFICATIONS_PERMISSION_REQUEST_CODE = 5001;
     private static final boolean ENABLE_DEFAULT_CONTROL_CHECK_BOX = false;
+
+    private final Handler mHandler = new Handler();
+    private final Runnable mUpdateSeekRunnable =
+            new Runnable() {
+                @Override
+                public void run() {
+                    updateProgress();
+                    // update Ui every 1 second
+                    mHandler.postDelayed(this, 1000);
+                }
+            };
+    private final SessionManager mSessionManager = new SessionManager("app");
+    private final MediaRouter.OnPrepareTransferListener mOnPrepareTransferListener =
+            createTransferListener();
+    private final MediaRouter.Callback mMediaRouterCB = new SampleMediaRouterCallback();
 
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mSelector;
     private PlaylistAdapter mPlayListItems;
     private TextView mInfoTextView;
     private ListView mPlayListView;
-    CheckBox mUseDefaultControlCheckBox;
+    private CheckBox mUseDefaultControlCheckBox;
     private ImageButton mPauseResumeButton;
     private SeekBar mSeekBar;
-
-    final Handler mHandler = new Handler();
-
-    private final Runnable mUpdateSeekRunnable = new Runnable() {
-        @Override
-        public void run() {
-            updateProgress();
-            // update Ui every 1 second
-            mHandler.postDelayed(this, 1000);
-        }
-    };
-
-    final SessionManager mSessionManager = new SessionManager("app");
-    Player mPlayer;
-
-    private final MediaRouter.Callback mMediaRouterCB = new MediaRouter.Callback() {
-        // Return a custom callback that will simply log all of the route events
-        // for demonstration purposes.
-        @Override
-        public void onRouteAdded(@NonNull MediaRouter router, @NonNull RouteInfo route) {
-            Log.d(TAG, "onRouteAdded: route=" + route);
-        }
-
-        @Override
-        public void onRouteChanged(@NonNull MediaRouter router, @NonNull RouteInfo route) {
-            Log.d(TAG, "onRouteChanged: route=" + route);
-        }
-
-        @Override
-        public void onRouteRemoved(@NonNull MediaRouter router, @NonNull RouteInfo route) {
-            Log.d(TAG, "onRouteRemoved: route=" + route);
-        }
-
-        @Override
-        public void onRouteSelected(@NonNull MediaRouter router,
-                @NonNull RouteInfo selectedRoute, int reason, @NonNull RouteInfo requestedRoute) {
-            Log.d(TAG, "onRouteSelected: requestedRoute=" + requestedRoute
-                    + ", route=" + selectedRoute + ", reason=" + reason);
-
-            mPlayer = Player.create(MainActivity.this, selectedRoute, mMediaSession);
-            if (isPresentationApiSupported()) {
-                mPlayer.updatePresentation();
-            }
-            mSessionManager.setPlayer(mPlayer);
-            if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
-                mSessionManager.stop();
-            } else {
-                mSessionManager.unsuspend();
-            }
-
-            updateUi();
-        }
-
-        @Override
-        public void onRouteUnselected(@NonNull MediaRouter router, @NonNull RouteInfo route,
-                int reason) {
-            Log.d(TAG, "onRouteUnselected: route=" + route);
-            mMediaSession.setActive(false);
-
-            PlaylistItem item = getCheckedPlaylistItem();
-            if (item != null) {
-                long pos = item.getPosition() + (mSessionManager.isPaused()
-                        ? 0 : (SystemClock.elapsedRealtime() - item.getTimestamp()));
-                mSessionManager.suspend(pos);
-            }
-            if (isPresentationApiSupported()) {
-                mPlayer.updatePresentation();
-            }
-            mPlayer.release();
-        }
-
-        @Override
-        public void onRouteVolumeChanged(@NonNull MediaRouter router, @NonNull RouteInfo route) {
-            Log.d(TAG, "onRouteVolumeChanged: route=" + route);
-        }
-
-        @Override
-        public void onRoutePresentationDisplayChanged(
-                @NonNull MediaRouter router, @NonNull RouteInfo route) {
-            Log.d(TAG, "onRoutePresentationDisplayChanged: route=" + route);
-            if (isPresentationApiSupported()) {
-                mPlayer.updatePresentation();
-            }
-        }
-
-        @Override
-        public void onProviderAdded(@NonNull MediaRouter router, @NonNull ProviderInfo provider) {
-            Log.d(TAG, "onRouteProviderAdded: provider=" + provider);
-        }
-
-        @Override
-        public void onProviderRemoved(@NonNull MediaRouter router, @NonNull ProviderInfo provider) {
-            Log.d(TAG, "onRouteProviderRemoved: provider=" + provider);
-        }
-
-        @Override
-        public void onProviderChanged(@NonNull MediaRouter router, @NonNull ProviderInfo provider) {
-            Log.d(TAG, "onRouteProviderChanged: provider=" + provider);
-        }
-
-        private boolean isPresentationApiSupported() {
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
-        }
-    };
-
-    MediaSessionCompat mMediaSession;
+    private Player mPlayer;
+    private MediaSessionCompat mMediaSession;
     private ComponentName mEventReceiver;
     private PendingIntent mMediaPendingIntent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        // Be sure to call the super class.
         super.onCreate(savedInstanceState);
 
-        // Need overlay permission for emulating remote display.
-        if (Build.VERSION.SDK_INT >= 23 && !Api23Impl.canDrawOverlays(this)) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 0);
-        }
+        requestRequiredPermissions();
 
-        // Get the media router service.
         mMediaRouter = MediaRouter.getInstance(this);
-
         mMediaRouter.setRouterParams(getRouterParams());
+
+        RoutesManager routesManager = RoutesManager.getInstance(getApplicationContext());
+        routesManager.reloadDialogType();
 
         // Create a route selector for the type of routes that we care about.
         mSelector = new MediaRouteSelector.Builder()
@@ -226,14 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
                 .build();
 
-        mMediaRouter.setOnPrepareTransferListener((fromRoute, toRoute) -> {
-            Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
-                    + ", to=" + toRoute.getId());
-            return CallbackToFutureAdapter.getFuture(completer -> {
-                mHandler.postDelayed(() -> completer.set(null), 3000);
-                return "onPrepareTransfer";
-            });
-        });
+        mMediaRouter.setOnPrepareTransferListener(mOnPrepareTransferListener);
 
         // Add a fragment to take care of media route discovery.
         // This fragment automatically adds or removes a callback whenever the activity
@@ -333,27 +240,7 @@ public class MainActivity extends AppCompatActivity {
         stopButton.setOnClickListener(v -> mSessionManager.stop());
 
         mSeekBar = findViewById(R.id.seekbar);
-        mSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                PlaylistItem item = getCheckedPlaylistItem();
-                if (fromUser && item != null && item.getDuration() > 0) {
-                    long pos = progress * item.getDuration() / 100;
-                    mSessionManager.seek(item.getItemId(), pos);
-                    item.setPosition(pos);
-                    item.setTimestamp(SystemClock.elapsedRealtime());
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                updateUi();
-            }
-        });
+        mSeekBar.setOnSeekBarChangeListener(new SampleOnSeekBarChangeListener());
 
         // Schedule Ui update
         mHandler.postDelayed(mUpdateSeekRunnable, 1000);
@@ -363,8 +250,12 @@ public class MainActivity extends AppCompatActivity {
                 SampleMediaButtonReceiver.class.getName());
         Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         mediaButtonIntent.setComponent(mEventReceiver);
-        mMediaPendingIntent = PendingIntent.getBroadcast(this, /* requestCode = */0,
-                mediaButtonIntent, PendingIntent.FLAG_IMMUTABLE);
+        mMediaPendingIntent =
+                PendingIntent.getBroadcast(
+                        this,
+                        /* requestCode= */ 0,
+                        mediaButtonIntent,
+                        PendingIntent.FLAG_IMMUTABLE);
 
         // Create and register the remote control client
         createMediaSession();
@@ -375,113 +266,19 @@ public class MainActivity extends AppCompatActivity {
                 mMediaRouter.getSelectedRoute(), mMediaSession);
 
         mSessionManager.setPlayer(mPlayer);
-        mSessionManager.setCallback(new SessionManager.Callback() {
-            @Override
-            public void onStatusChanged() {
-                updateUi();
-            }
-
-            @Override
-            public void onItemChanged(@NonNull PlaylistItem item) {
-            }
-        });
+        mSessionManager.setCallback(new SampleSessionManagerCallback());
 
         updateUi();
     }
 
-    private void createMediaSession() {
-        // Create the MediaSession
-        mMediaSession = new MediaSessionCompat(this, "SampleMediaRouter", mEventReceiver,
-                mMediaPendingIntent);
-        mMediaSession.setCallback(new MediaSessionCompat.Callback() {
-            @Override
-            public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
-                if (mediaButtonEvent != null) {
-                    return handleMediaKey(
-                            mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT));
-                }
-                return super.onMediaButtonEvent(null);
-            }
-
-            @Override
-            public void onPlay() {
-                mSessionManager.resume();
-            }
-
-            @Override
-            public void onPause() {
-                mSessionManager.pause();
-            }
-        });
-
-        SampleMediaButtonReceiver.setActivity(MainActivity.this);
-    }
-
-    /**
-     * Handle media key events.
-     */
-    public boolean handleMediaKey(@Nullable KeyEvent event) {
-        if (event != null && event.getAction() == KeyEvent.ACTION_DOWN
-                && event.getRepeatCount() == 0) {
-            switch (event.getKeyCode()) {
-                case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                case KeyEvent.KEYCODE_HEADSETHOOK: {
-                    Log.d(TAG, "Received Play/Pause event from RemoteControlClient");
-                    if (mSessionManager.isPaused()) {
-                        mSessionManager.resume();
-                    } else {
-                        mSessionManager.pause();
-                    }
-                    return true;
-                }
-                case KeyEvent.KEYCODE_MEDIA_PLAY: {
-                    Log.d(TAG, "Received Play event from RemoteControlClient");
-                    if (mSessionManager.isPaused()) {
-                        mSessionManager.resume();
-                    }
-                    return true;
-                }
-                case KeyEvent.KEYCODE_MEDIA_PAUSE: {
-                    Log.d(TAG, "Received Pause event from RemoteControlClient");
-                    if (!mSessionManager.isPaused()) {
-                        mSessionManager.pause();
-                    }
-                    return true;
-                }
-                case KeyEvent.KEYCODE_MEDIA_STOP: {
-                    Log.d(TAG, "Received Stop event from RemoteControlClient");
-                    mSessionManager.stop();
-                    return true;
-                }
-                default:
-                    break;
-            }
-        }
-        return false;
-    }
-
     @Override
-    public boolean onKeyDown(int keyCode, @Nullable KeyEvent event) {
-        return handleMediaKey(event) || super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, @Nullable KeyEvent event) {
-        return handleMediaKey(event) || super.onKeyUp(keyCode, event);
-    }
-
-    @Override
-    public void onStart() {
-        // Be sure to call the super class.
-        super.onStart();
-    }
-
-    @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         mSessionManager.stop();
         mPlayer.release();
         mMediaSession.release();
         mMediaRouter.removeCallback(mMediaRouterCB);
+        mMediaRouter.setOnPrepareTransferListener(null);
+
         super.onDestroy();
     }
 
@@ -521,13 +318,108 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    void updateStatusFromSessionManager() {
+    @Override
+    public boolean onKeyDown(int keyCode, @Nullable KeyEvent event) {
+        return handleMediaKey(event) || super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, @Nullable KeyEvent event) {
+        return handleMediaKey(event) || super.onKeyUp(keyCode, event);
+    }
+
+    private void requestRequiredPermissions() {
+        requestDisplayOverOtherAppsPermission();
+        requestPostNotificationsPermission();
+    }
+
+    private void requestDisplayOverOtherAppsPermission() {
+        // Need overlay permission for emulating remote display.
+        if (Build.VERSION.SDK_INT >= 23 && !Api23Impl.canDrawOverlays(this)) {
+            Intent intent =
+                    new Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 0);
+        }
+    }
+
+    private void requestPostNotificationsPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(
+                            getApplicationContext(), Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                if (!Api23Impl.shouldShowRequestPermissionRationale(
+                        this, Manifest.permission.POST_NOTIFICATIONS)) {
+                    Api23Impl.requestPermissions(
+                            /* activity= */ this,
+                            /* permissions= */ new String[] {
+                                Manifest.permission.POST_NOTIFICATIONS
+                            },
+                            /* requestCode= */ POST_NOTIFICATIONS_PERMISSION_REQUEST_CODE);
+                }
+            }
+        }
+    }
+
+    private void createMediaSession() {
+        // Create the MediaSession
+        mMediaSession = new MediaSessionCompat(this, "SampleMediaRouter", mEventReceiver,
+                mMediaPendingIntent);
+        mMediaSession.setCallback(new SampleMediaSessionCompatCallback());
+        SampleMediaButtonReceiver.setActivity(MainActivity.this);
+    }
+
+    /**
+     * Handle media key events.
+     */
+    private boolean handleMediaKey(@Nullable KeyEvent event) {
+        if (event != null && event.getAction() == KeyEvent.ACTION_DOWN
+                && event.getRepeatCount() == 0) {
+            switch (event.getKeyCode()) {
+                case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                case KeyEvent.KEYCODE_HEADSETHOOK: {
+                    Log.d(TAG, "Received Play/Pause event from RemoteControlClient");
+                    if (mSessionManager.isPaused()) {
+                        mSessionManager.resume();
+                    } else {
+                        mSessionManager.pause();
+                    }
+                    return true;
+                }
+                case KeyEvent.KEYCODE_MEDIA_PLAY: {
+                    Log.d(TAG, "Received Play event from RemoteControlClient");
+                    if (mSessionManager.isPaused()) {
+                        mSessionManager.resume();
+                    }
+                    return true;
+                }
+                case KeyEvent.KEYCODE_MEDIA_PAUSE: {
+                    Log.d(TAG, "Received Pause event from RemoteControlClient");
+                    if (!mSessionManager.isPaused()) {
+                        mSessionManager.pause();
+                    }
+                    return true;
+                }
+                case KeyEvent.KEYCODE_MEDIA_STOP: {
+                    Log.d(TAG, "Received Stop event from RemoteControlClient");
+                    mSessionManager.stop();
+                    return true;
+                }
+                default:
+                    break;
+            }
+        }
+        return false;
+    }
+
+    private void updateStatusFromSessionManager() {
         if (mPlayer != null && mSessionManager != null) {
             mSessionManager.updateStatus();
         }
     }
 
-    void updateProgress() {
+    private void updateProgress() {
         // Estimate content position from last status time and elapsed time.
         // (Note this might be slightly out of sync with remote side, however
         // it avoids frequent polling the MRP.)
@@ -551,7 +443,7 @@ public class MainActivity extends AppCompatActivity {
         mSeekBar.setProgress(progress);
     }
 
-    void updateUi() {
+    private void updateUi() {
         updatePlaylist();
         updateRouteDescription();
         updateButtons();
@@ -601,7 +493,8 @@ public class MainActivity extends AppCompatActivity {
         mSeekBar.setEnabled(item != null && item.getDuration() > 0);
     }
 
-    PlaylistItem getCheckedPlaylistItem() {
+    @Nullable
+    private PlaylistItem getCheckedPlaylistItem() {
         int count = mPlayListView.getCount();
         int index = mPlayListView.getCheckedItemPosition();
         if (count > 0) {
@@ -614,12 +507,29 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
+    private long getCurrentEstimatedPosition(@NonNull PlaylistItem item) {
+        return item.getPosition() + (mSessionManager.isPaused()
+                ? 0 : (SystemClock.elapsedRealtime() - item.getTimestamp()));
+    }
+
     @NonNull
-    public MediaRouterParams getRouterParams() {
+    private MediaRouterParams getRouterParams() {
         return new MediaRouterParams.Builder()
                 .setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
                 .setTransferToLocalEnabled(true) // Phone speaker will be shown when casting.
                 .build();
+    }
+
+    /**
+     * Returns a new {@link TransferListener} it the SDK level is at least R. Otherwise, returns
+     * null.
+     */
+    private MediaRouter.OnPrepareTransferListener createTransferListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return new TransferListener();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -641,6 +551,144 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int onPrepareCallbackFlags() {
             return super.onPrepareCallbackFlags();
+        }
+    }
+
+    private final class SampleOnSeekBarChangeListener implements OnSeekBarChangeListener {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            PlaylistItem item = getCheckedPlaylistItem();
+            if (fromUser && item != null && item.getDuration() > 0) {
+                long pos = progress * item.getDuration() / 100;
+                mSessionManager.seek(item.getItemId(), pos);
+                item.setPosition(pos);
+                item.setTimestamp(SystemClock.elapsedRealtime());
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            updateUi();
+        }
+    }
+
+    private final class SampleSessionManagerCallback implements SessionManager.Callback {
+        @Override
+        public void onStatusChanged() {
+            updateUi();
+        }
+
+        @Override
+        public void onItemChanged(@NonNull PlaylistItem item) {
+        }
+    }
+
+    private final class SampleMediaSessionCompatCallback extends MediaSessionCompat.Callback {
+        @Override
+        public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
+            if (mediaButtonEvent != null) {
+                return handleMediaKey(
+                        mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT));
+            }
+            return super.onMediaButtonEvent(null);
+        }
+
+        @Override
+        public void onPlay() {
+            mSessionManager.resume();
+        }
+
+        @Override
+        public void onPause() {
+            mSessionManager.pause();
+        }
+    };
+
+    private final class SampleMediaRouterCallback extends MediaRouter.Callback {
+        // Return a custom callback that will simply log all of the route events
+        // for demonstration purposes.
+        @Override
+        public void onRouteAdded(@NonNull MediaRouter router, @NonNull RouteInfo route) {
+            Log.d(TAG, "onRouteAdded: route=" + route);
+        }
+
+        @Override
+        public void onRouteChanged(@NonNull MediaRouter router, @NonNull RouteInfo route) {
+            Log.d(TAG, "onRouteChanged: route=" + route);
+        }
+
+        @Override
+        public void onRouteRemoved(@NonNull MediaRouter router, @NonNull RouteInfo route) {
+            Log.d(TAG, "onRouteRemoved: route=" + route);
+        }
+
+        @Override
+        public void onRouteSelected(@NonNull MediaRouter router,
+                @NonNull RouteInfo selectedRoute, int reason, @NonNull RouteInfo requestedRoute) {
+            Log.d(TAG, "onRouteSelected: requestedRoute=" + requestedRoute
+                    + ", route=" + selectedRoute + ", reason=" + reason);
+
+            if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
+                mPlayer = Player.create(MainActivity.this, selectedRoute, mMediaSession);
+                if (isPresentationApiSupported()) {
+                    mPlayer.updatePresentation();
+                }
+                mSessionManager.setPlayer(mPlayer);
+            }
+            updateUi();
+        }
+
+        @Override
+        public void onRouteUnselected(@NonNull MediaRouter router, @NonNull RouteInfo route,
+                int reason) {
+            Log.d(TAG, "onRouteUnselected: route=" + route);
+
+            if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
+                mMediaSession.setActive(false);
+                mSessionManager.stop();
+
+                if (isPresentationApiSupported()) {
+                    mPlayer.updatePresentation();
+                }
+                mPlayer.release();
+            }
+        }
+
+        @Override
+        public void onRouteVolumeChanged(@NonNull MediaRouter router, @NonNull RouteInfo route) {
+            Log.d(TAG, "onRouteVolumeChanged: route=" + route);
+        }
+
+        @Override
+        public void onRoutePresentationDisplayChanged(
+                @NonNull MediaRouter router, @NonNull RouteInfo route) {
+            Log.d(TAG, "onRoutePresentationDisplayChanged: route=" + route);
+            if (isPresentationApiSupported()) {
+                mPlayer.updatePresentation();
+            }
+        }
+
+        @Override
+        public void onProviderAdded(@NonNull MediaRouter router, @NonNull ProviderInfo provider) {
+            Log.d(TAG, "onRouteProviderAdded: provider=" + provider);
+        }
+
+        @Override
+        public void onProviderRemoved(@NonNull MediaRouter router, @NonNull ProviderInfo provider) {
+            Log.d(TAG, "onRouteProviderRemoved: provider=" + provider);
+        }
+
+        @Override
+        public void onProviderChanged(@NonNull MediaRouter router, @NonNull ProviderInfo provider) {
+            Log.d(TAG, "onRouteProviderChanged: provider=" + provider);
+        }
+
+        private boolean isPresentationApiSupported() {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
         }
     }
 
@@ -683,7 +731,7 @@ public class MainActivity extends AppCompatActivity {
      * remote route volume in lock screen. It routes media key events back
      * to main app activity.
      */
-    public static class SampleMediaButtonReceiver extends BroadcastReceiver {
+    private static class SampleMediaButtonReceiver extends BroadcastReceiver {
         private static MainActivity sActivity;
 
         public static void setActivity(@NonNull MainActivity activity) {
@@ -699,7 +747,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @RequiresApi(23)
-    static class Api23Impl {
+    private static class Api23Impl {
         private Api23Impl() {
             // This class is not instantiable.
         }
@@ -707,6 +755,57 @@ public class MainActivity extends AppCompatActivity {
         @DoNotInline
         static boolean canDrawOverlays(Context context) {
             return Settings.canDrawOverlays(context);
+        }
+
+        @DoNotInline
+        static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
+            return activity.shouldShowRequestPermissionRationale(permission);
+        }
+
+        @DoNotInline
+        static void requestPermissions(Activity activity, String[] permissions, int requestCode) {
+            activity.requestPermissions(permissions, requestCode);
+        }
+    }
+
+    @RequiresApi(30)
+    private class TransferListener implements MediaRouter.OnPrepareTransferListener {
+        @Nullable
+        @Override
+        public ListenableFuture<Void> onPrepareTransfer(@NonNull RouteInfo fromRoute,
+                @NonNull RouteInfo toRoute) {
+            Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
+                    + ", to=" + toRoute.getId());
+            final PlaylistItem currentItem = getCheckedPlaylistItem();
+
+            if (currentItem != null) {
+                if (mPlayer.isRemotePlayback()) {
+                    RemotePlayer remotePlayer = (RemotePlayer) mPlayer;
+                    ListenableFuture<PlaylistItem> cacheRemoteState =
+                            remotePlayer.cacheRemoteState(currentItem);
+                    return Futures.transform(
+                            cacheRemoteState,
+                            (playlistItem) -> handleTransfer(playlistItem.getPosition(), toRoute),
+                            Runnable::run);
+                } else {
+                    long cachedPosition = getCurrentEstimatedPosition(currentItem);
+                    handleTransfer(cachedPosition, toRoute);
+                }
+            }
+            return Futures.immediateVoidFuture();
+        }
+
+        public Void handleTransfer(long currentPosition, RouteInfo destinationRoute) {
+            mSessionManager.suspend(currentPosition);
+            mMediaSession.setActive(false);
+            mPlayer.release();
+
+            mPlayer = Player.create(MainActivity.this, destinationRoute, mMediaSession);
+            mPlayer.updatePresentation();
+            mSessionManager.setPlayer(mPlayer);
+            mSessionManager.unsuspend();
+
+            return null;
         }
     }
 }

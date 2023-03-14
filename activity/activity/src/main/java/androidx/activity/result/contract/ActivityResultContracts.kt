@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
@@ -31,8 +32,11 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents.Companion.getClipDataUris
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.ACTION_SYSTEM_FALLBACK_PICK_IMAGES
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.GMS_ACTION_PICK_IMAGES
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.GMS_EXTRA_PICK_IMAGES_MAX
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.getGmsPicker
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.getSystemFallbackPicker
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.ACTION_INTENT_SENDER_REQUEST
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.EXTRA_SEND_INTENT_EXCEPTION
 import androidx.annotation.CallSuper
@@ -606,8 +610,21 @@ class ActivityResultContracts private constructor() {
     }
 
     /**
-     * An [ActivityResultContract] to use the photo picker through [MediaStore.ACTION_PICK_IMAGES]
-     * when available, and else rely on ACTION_OPEN_DOCUMENT.
+     * An [ActivityResultContract] to use the
+     * [Photo Picker](https://developer.android.com/training/data-storage/shared/photopicker)
+     * to select a single image, video, or other type of visual media.
+     *
+     * This contract always prefers the system framework provided Photo Picker available via
+     * [MediaStore.ACTION_PICK_IMAGES] when it is available, but will also provide a fallback
+     * on devices that it is not available to ensure a consistent API surface across all
+     * Android API 19 or higher devices.
+     *
+     * The priority order for handling the Photo Picker is:
+     * 1. The system framework provided [MediaStore.ACTION_PICK_IMAGES].
+     * - An OEM can provide a system app that implements [ACTION_SYSTEM_FALLBACK_PICK_IMAGES] to
+     * provide a consistent Photo Picker to older devices.
+     * - [Intent.ACTION_OPEN_DOCUMENT] is used as a final fallback on all Android API 19 or
+     * higher devices.
      *
      * The input is a [PickVisualMediaRequest].
      *
@@ -622,19 +639,52 @@ class ActivityResultContracts private constructor() {
         companion object {
             /**
              * Check if the current device has support for the photo picker by checking the running
-             * Android version or the SDK extension version (not including the picker
-             * provided by Google Play services)
+             * Android version or the SDK extension version.
+             *
+             * Note that this does not check for any Intent handled by
+             * [ACTION_SYSTEM_FALLBACK_PICK_IMAGES].
              */
             @SuppressLint("ClassVerificationFailure", "NewApi")
             @Deprecated(
                 message = "This method is deprecated in favor of isPhotoPickerAvailable(context) " +
-                    "to support the picker provided by Google Play services",
+                    "to support the picker provided by updatable system apps",
                 replaceWith = ReplaceWith("isPhotoPickerAvailable(context)")
             )
             @JvmStatic
             fun isPhotoPickerAvailable(): Boolean {
                 return isSystemPickerAvailable()
             }
+
+            /**
+             * In cases where the system framework provided [MediaStore.ACTION_PICK_IMAGES]
+             * Photo Picker cannot be implemented, OEMs or system apps can provide a consistent
+             * Photo Picker experience to those devices by creating an Activity that handles
+             * this action. This app must also include [Intent.CATEGORY_DEFAULT] in the activity's
+             * intent filter.
+             *
+             * Only system apps can implement this action - any non-system apps will be ignored
+             * when searching for the activities that handle this Intent.
+             *
+             * Note: this should not be used directly, instead relying on the selection logic
+             * done by [createIntent] to create the correct Intent for the current device.
+             */
+            @Suppress("ActionValue") /* Don't include SYSTEM_FALLBACK in the action */
+            const val ACTION_SYSTEM_FALLBACK_PICK_IMAGES =
+                "androidx.activity.result.contract.action.PICK_IMAGES"
+
+            /**
+             * Extra that will be sent by [PickMultipleVisualMedia] to an Activity that handles
+             * [ACTION_SYSTEM_FALLBACK_PICK_IMAGES] that indicates that maximum number of photos
+             * the user should select.
+             *
+             * If this extra is not present, only a single photo should be selectable.
+             *
+             * If this extra is present but equal to [Int.MAX_VALUE], then no limit should
+             * be enforced.
+             */
+            @Suppress("ActionValue") /* Don't include SYSTEM_FALLBACK in the extra */
+            const val EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX =
+                "androidx.activity.result.contract.extra.PICK_IMAGES_MAX"
 
             internal const val GMS_ACTION_PICK_IMAGES =
                 "com.google.android.gms.provider.action.PICK_IMAGES"
@@ -643,19 +693,22 @@ class ActivityResultContracts private constructor() {
 
             /**
              * Check if the current device has support for the photo picker by checking the running
-             * Android version, the SDK extension version or the picker provided by Google Play
-             * services
+             * Android version, the SDK extension version or the picker provided by
+             * a system app implementing [ACTION_SYSTEM_FALLBACK_PICK_IMAGES].
              */
             @SuppressLint("ClassVerificationFailure", "NewApi")
             @JvmStatic
             fun isPhotoPickerAvailable(context: Context): Boolean {
-                return isSystemPickerAvailable() || isGmsPickerAvailable(context)
+                return isSystemPickerAvailable() || isSystemFallbackPickerAvailable(context) ||
+                    isGmsPickerAvailable(context)
             }
 
             /**
-             * Check if the current device has support for the Android photo picker by checking the
-             * running Android version or the SDK extension version (not including the picker
-             * provided by Google Play services)
+             * Check if the current device has support for the system framework provided photo
+             * picker by checking the running Android version or the SDK extension version.
+             *
+             * Note that this does not check for any Intent handled by
+             * [ACTION_SYSTEM_FALLBACK_PICK_IMAGES].
              */
             @SuppressLint("ClassVerificationFailure", "NewApi")
             @JvmStatic
@@ -671,13 +724,32 @@ class ActivityResultContracts private constructor() {
                 }
             }
 
+            @JvmStatic
+            internal fun isSystemFallbackPickerAvailable(context: Context): Boolean {
+                return getSystemFallbackPicker(context) != null
+            }
+
             @Suppress("DEPRECATION")
             @JvmStatic
+            internal fun getSystemFallbackPicker(context: Context): ResolveInfo? {
+                return context.packageManager.resolveActivity(
+                    Intent(ACTION_SYSTEM_FALLBACK_PICK_IMAGES),
+                    PackageManager.MATCH_DEFAULT_ONLY or PackageManager.MATCH_SYSTEM_ONLY
+                )
+            }
+
+            @JvmStatic
             internal fun isGmsPickerAvailable(context: Context): Boolean {
+                return getGmsPicker(context) != null
+            }
+
+            @Suppress("DEPRECATION")
+            @JvmStatic
+            internal fun getGmsPicker(context: Context): ResolveInfo? {
                 return context.packageManager.resolveActivity(
                     Intent(GMS_ACTION_PICK_IMAGES),
-                    PackageManager.MATCH_DEFAULT_ONLY
-                ) != null
+                    PackageManager.MATCH_DEFAULT_ONLY or PackageManager.MATCH_SYSTEM_ONLY
+                )
             }
 
             internal fun getVisualMimeType(input: VisualMediaType): String? {
@@ -723,8 +795,16 @@ class ActivityResultContracts private constructor() {
                 Intent(MediaStore.ACTION_PICK_IMAGES).apply {
                     type = getVisualMimeType(input.mediaType)
                 }
+            } else if (isSystemFallbackPickerAvailable(context)) {
+                val fallbackPicker = checkNotNull(getSystemFallbackPicker(context)).activityInfo
+                Intent(ACTION_SYSTEM_FALLBACK_PICK_IMAGES).apply {
+                    setClassName(fallbackPicker.applicationInfo.packageName, fallbackPicker.name)
+                    type = getVisualMimeType(input.mediaType)
+                }
             } else if (isGmsPickerAvailable(context)) {
+                val gmsPicker = checkNotNull(getGmsPicker(context)).activityInfo
                 Intent(GMS_ACTION_PICK_IMAGES).apply {
+                    setClassName(gmsPicker.applicationInfo.packageName, gmsPicker.name)
                     type = getVisualMimeType(input.mediaType)
                 }
             } else {
@@ -760,12 +840,27 @@ class ActivityResultContracts private constructor() {
     }
 
     /**
-     * An [ActivityResultContract] to use the Photo Picker through [MediaStore.ACTION_PICK_IMAGES]
-     * when available, and else rely on ACTION_OPEN_DOCUMENT.
+     * An [ActivityResultContract] to use the
+     * [Photo Picker](https://developer.android.com/training/data-storage/shared/photopicker)
+     * to select a single image, video, or other type of visual media.
      *
-     * The constructor accepts one parameter `maxItems` to limit the number of selectable items when
-     * using the photo picker to return. Keep in mind that this parameter isn't supported on devices
-     * when the photo picker isn't available.
+     * This contract always prefers the system framework provided Photo Picker available via
+     * [MediaStore.ACTION_PICK_IMAGES] when it is available, but will also provide a fallback
+     * on devices that it is not available to provide a consistent API surface across all
+     * Android API 19 or higher devices.
+     *
+     * The priority order for handling the Photo Picker is:
+     * 1. The system framework provided [MediaStore.ACTION_PICK_IMAGES].
+     * - An OEM can provide a system app that implements
+     * [PickVisualMedia.ACTION_SYSTEM_FALLBACK_PICK_IMAGES] to provide a consistent Photo Picker
+     * to older devices. These system apps may handle the
+     * [PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX] extra to respect the
+     * [maxItems] passed to this contract.
+     * - [Intent.ACTION_OPEN_DOCUMENT] is used as a final fallback on all Android API 19 or
+     * higher devices. This Intent does not allow limiting the max items the user selects.
+     *
+     * The constructor accepts one parameter [maxItems] to limit the number of selectable items when
+     * using the photo picker to return.
      *
      * The input is a [PickVisualMediaRequest].
      *
@@ -799,9 +894,17 @@ class ActivityResultContracts private constructor() {
 
                     putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, maxItems)
                 }
-            } else if (PickVisualMedia.isGmsPickerAvailable(context)) {
-                Intent(GMS_ACTION_PICK_IMAGES).apply {
+            } else if (PickVisualMedia.isSystemFallbackPickerAvailable(context)) {
+                val fallbackPicker = checkNotNull(getSystemFallbackPicker(context)).activityInfo
+                Intent(ACTION_SYSTEM_FALLBACK_PICK_IMAGES).apply {
+                    setClassName(fallbackPicker.applicationInfo.packageName, fallbackPicker.name)
                     type = PickVisualMedia.getVisualMimeType(input.mediaType)
+                    putExtra(GMS_EXTRA_PICK_IMAGES_MAX, maxItems)
+                }
+            } else if (PickVisualMedia.isGmsPickerAvailable(context)) {
+                val gmsPicker = checkNotNull(getGmsPicker(context)).activityInfo
+                Intent(GMS_ACTION_PICK_IMAGES).apply {
+                    setClassName(gmsPicker.applicationInfo.packageName, gmsPicker.name)
                     putExtra(GMS_EXTRA_PICK_IMAGES_MAX, maxItems)
                 }
             } else {
@@ -838,8 +941,8 @@ class ActivityResultContracts private constructor() {
             /**
              * The system photo picker has a maximum limit of selectable items returned by
              * [MediaStore.getPickImagesMaxLimit()]
-             * On devices supporting picker provided by Google Play services, the limit is ignored
-             * if it's higher than the allowed limit.
+             * On devices supporting picker provided via [ACTION_SYSTEM_FALLBACK_PICK_IMAGES],
+             * the limit may be ignored if it's higher than the allowed limit.
              * On devices not supporting the photo picker, the limit is ignored.
              *
              * @see MediaStore.EXTRA_PICK_IMAGES_MAX

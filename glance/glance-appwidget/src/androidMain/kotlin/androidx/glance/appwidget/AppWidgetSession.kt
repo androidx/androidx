@@ -16,7 +16,6 @@
 
 package androidx.glance.appwidget
 
-import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -31,11 +30,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.unit.DpSize
-import androidx.datastore.preferences.core.emptyPreferences
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
-import androidx.glance.GlanceId
 import androidx.glance.LocalContext
 import androidx.glance.LocalGlanceId
 import androidx.glance.LocalState
@@ -43,15 +41,7 @@ import androidx.glance.action.LambdaAction
 import androidx.glance.session.Session
 import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceState
-import androidx.glance.state.PreferencesGlanceStateDefinition
-import java.util.concurrent.atomic.AtomicReference
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 
 /**
  * A session that composes UI for a single app widget.
@@ -80,7 +70,7 @@ internal class AppWidgetSession(
         const val DEBUG = false
     }
 
-    private val glanceState = mutableStateOf(emptyPreferences(), neverEqualPolicy())
+    private val glanceState = mutableStateOf<Any?>(null, neverEqualPolicy())
     private val options = mutableStateOf(Bundle(), neverEqualPolicy())
     private var lambdas = mapOf<String, List<LambdaAction>>()
     @VisibleForTesting
@@ -106,8 +96,10 @@ internal class AppWidgetSession(
             }
             val configIsReady by produceState(false) {
                 options.value = initialOptions ?: manager.getAppWidgetOptions(id.appWidgetId)
-                glanceState.value =
-                    configManager.getValue(context, PreferencesGlanceStateDefinition, key)
+                widget.stateDefinition?.let {
+                    glanceState.value =
+                        configManager.getValue(context, it, key)
+                }
                 value = true
             }
             remember { widget.runGlance(context, id) }
@@ -124,9 +116,9 @@ internal class AppWidgetSession(
     override suspend fun processEmittableTree(
         context: Context,
         root: EmittableWithChildren
-    ) {
+    ): Boolean {
+        if (root.shouldIgnoreResult()) return false
         root as RemoteViewsRoot
-        if (root.shouldIgnoreResult()) return
         val layoutConfig = LayoutConfiguration.load(context, id.appWidgetId)
         val appWidgetManager = context.appWidgetManager
         try {
@@ -160,14 +152,19 @@ internal class AppWidgetSession(
             layoutConfig.save()
             Tracing.endGlanceAppWidgetUpdate()
         }
+        return true
     }
 
     override suspend fun processEvent(context: Context, event: Any) {
         when (event) {
             is UpdateGlanceState -> {
                 if (DEBUG) Log.i(TAG, "Received UpdateGlanceState event for session($key)")
-                glanceState.value =
-                    configManager.getValue(context, PreferencesGlanceStateDefinition, key)
+                val newGlanceState = widget.stateDefinition?.let {
+                    configManager.getValue(context, it, key)
+                }
+                Snapshot.withMutableSnapshot {
+                    glanceState.value = newGlanceState
+                }
             }
             is UpdateAppWidgetOptions -> {
                 if (DEBUG) {
@@ -177,15 +174,15 @@ internal class AppWidgetSession(
                             "for session($key)"
                     )
                 }
-                options.value = event.newOptions
+                Snapshot.withMutableSnapshot {
+                    options.value = event.newOptions
+                }
             }
             is RunLambda -> {
-                Log.i(TAG, "Received RunLambda(${event.key}) action for session($key)")
-                lambdas[event.key]?.map { it.block() }
-                    ?: Log.w(
-                        TAG,
-                        "Triggering Action(${event.key}) for session($key) failed"
-                    )
+                if (DEBUG) Log.i(TAG, "Received RunLambda(${event.key}) action for session($key)")
+                Snapshot.withMutableSnapshot {
+                    lambdas[event.key]?.forEach { it.block() }
+                } ?: Log.w(TAG, "Triggering Action(${event.key}) for session($key) failed")
             }
             else -> {
                 throw IllegalArgumentException(
@@ -207,60 +204,11 @@ internal class AppWidgetSession(
         sendEvent(RunLambda(key))
     }
 
-    // Action types that this session supports.
+    // Event types that this session supports.
     @VisibleForTesting
     internal object UpdateGlanceState
     @VisibleForTesting
     internal class UpdateAppWidgetOptions(val newOptions: Bundle)
     @VisibleForTesting
     internal class RunLambda(val key: String)
-
-    private val Context.appWidgetManager: AppWidgetManager
-        get() = this.getSystemService(Context.APPWIDGET_SERVICE) as AppWidgetManager
 }
-
-internal fun interface ContentReceiver : CoroutineContext.Element {
-    /**
-     * Provide [content] to the Glance session, suspending until the session is
-     * shut down.
-     *
-     * If this function is called concurrently with itself, the previous call will throw
-     * [CancellationException] and the new content will replace it.
-     */
-    suspend fun provideContent(
-        content: @Composable @GlanceComposable () -> Unit
-    ): Nothing
-
-    override val key: CoroutineContext.Key<*> get() = Key
-
-    companion object Key : CoroutineContext.Key<ContentReceiver>
-}
-
-internal fun GlanceAppWidget.runGlance(
-    context: Context,
-    id: GlanceId,
-): Flow<(@GlanceComposable @Composable () -> Unit)?> = channelFlow {
-    val contentCoroutine: AtomicReference<CancellableContinuation<Nothing>?> =
-        AtomicReference(null)
-    val receiver = ContentReceiver { content ->
-        suspendCancellableCoroutine {
-            it.invokeOnCancellation { trySend(null) }
-            contentCoroutine.getAndSet(it)?.cancel()
-            trySend(content)
-        }
-    }
-    withContext(receiver) { provideGlance(context, id) }
-}
-
-internal val Context.appWidgetManager: AppWidgetManager
-    get() = this.getSystemService(Context.APPWIDGET_SERVICE) as AppWidgetManager
-
-internal fun createUniqueRemoteUiName(appWidgetId: Int) = "appWidget-$appWidgetId"
-
-internal fun AppWidgetId.toSessionKey() = createUniqueRemoteUiName(appWidgetId)
-
-/**
- * Maximum depth for a composition. Although there is no hard limit, this should avoid deep
- * recursions, which would create [RemoteViews] too large to be sent.
- */
-private const val MaxComposeTreeDepth = 50

@@ -17,14 +17,34 @@
 package androidx.privacysandbox.tools.core.generator
 
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.TypeName
 
 class ClientBinderCodeConverter(api: ParsedApi) : BinderCodeConverter(api) {
+    companion object {
+        val sandboxedUiAdapterFactoryClass =
+            ClassName("androidx.privacysandbox.ui.client", "SandboxedUiAdapterFactory")
+    }
+
     override fun convertToInterfaceModelCode(
         annotatedInterface: AnnotatedInterface,
         expression: String
-    ): CodeBlock = CodeBlock.of("%T(%L)", annotatedInterface.clientProxyNameSpec(), expression)
+    ): CodeBlock {
+        if (annotatedInterface.inheritsSandboxedUiAdapter) {
+            return CodeBlock.of(
+                "%T(%L.binder, %T.createFromCoreLibInfo(%L.coreLibInfo))",
+                annotatedInterface.clientProxyNameSpec(),
+                expression,
+                sandboxedUiAdapterFactoryClass,
+                expression,
+            )
+        }
+        return CodeBlock.of("%T(%L)", annotatedInterface.clientProxyNameSpec(), expression)
+    }
 
     override fun convertToInterfaceBinderCode(
         annotatedInterface: AnnotatedInterface,
@@ -32,5 +52,32 @@ class ClientBinderCodeConverter(api: ParsedApi) : BinderCodeConverter(api) {
     ): CodeBlock =
         CodeBlock.of(
             "(%L as %T).remote", expression, annotatedInterface.clientProxyNameSpec()
+        )
+
+    override fun convertToInterfaceBinderType(annotatedInterface: AnnotatedInterface): TypeName {
+        if (annotatedInterface.inheritsSandboxedUiAdapter) {
+            return annotatedInterface.uiAdapterAidlWrapper().poetTypeName()
+        }
+        return annotatedInterface.aidlType().innerType.poetTypeName()
+    }
+
+    override fun convertToValueBinderCode(value: AnnotatedValue, expression: String): CodeBlock =
+        CodeBlock.of(
+            "%M(%L)",
+            MemberName(
+                value.converterNameSpec(),
+                ValueConverterFileGenerator.toParcelableMethodName
+            ),
+            expression,
+        )
+
+    override fun convertToValueModelCode(value: AnnotatedValue, expression: String): CodeBlock =
+        CodeBlock.of(
+            "%M(%L)",
+            MemberName(
+                value.converterNameSpec(),
+                ValueConverterFileGenerator.fromParcelableMethodName
+            ),
+            expression,
         )
 }

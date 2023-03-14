@@ -26,10 +26,11 @@ import androidx.health.connect.client.HealthConnectClient
 
 @Sampled
 suspend fun AvailabilityCheckSamples(context: Context, providerPackageName: String) {
-    if (!HealthConnectClient.isApiSupported()) {
+    val availabilityStatus = HealthConnectClient.sdkStatus(context, providerPackageName)
+    if (availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE) {
         return // early return as there is no viable integration
     }
-    if (!HealthConnectClient.isProviderAvailable(context)) {
+    if (availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
         // Optionally redirect to package installer to find a provider, for example:
         val uriString =
             "market://details?id=$providerPackageName&url=healthconnect%3A%2F%2Fonboarding"

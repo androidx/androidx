@@ -57,4 +57,10 @@ class StreamConfigurationMapCompatBaseImpl
     public <T> Size[] getOutputSizes(@NonNull Class<T> klass) {
         return mStreamConfigurationMap.getOutputSizes(klass);
     }
+
+    @NonNull
+    @Override
+    public StreamConfigurationMap unwrap() {
+        return mStreamConfigurationMap;
+    }
 }

@@ -52,8 +52,6 @@ interface GraphListener {
      */
     fun onGraphModified(requestProcessor: GraphRequestProcessor)
 
-    /**
-     * Used to indicate that the graph has encountered an error.
-     */
+    /** Used to indicate that the graph has encountered an error. */
     fun onGraphError(graphStateError: GraphStateError)
 }

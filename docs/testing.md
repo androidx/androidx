@@ -32,6 +32,14 @@ NOTE For best practices on writing libraries in a way that makes it easy for end
 users -- and library developers -- to write tests, see the
 [Testability](/company/teams/androidx/testability.md) guide.
 
+### Adding a JVM based screenshot test
+
+For UI heavy libraries, it might make sense to add screenshot tests to verify
+that everything still renders as expected. For that you need to write the test
+([example](https://r.android.com/2428035)) and add new goldens
+([example](https://r.android.com/2428721)). You can run these tests just like
+any other JVM test using `test` Gradle task.
+
 ### What gets tested, and when {#affected-module-detector}
 
 With over 45000 tests executed on every CI run, it is necessary for us to run

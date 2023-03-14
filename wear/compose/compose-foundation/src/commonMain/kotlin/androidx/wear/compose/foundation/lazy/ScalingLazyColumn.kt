@@ -53,6 +53,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
@@ -418,17 +419,21 @@ public fun ScalingLazyColumn(
                 // vertical spacing between items.
                 if (autoCentering != null) {
                     item {
-                        Spacer(
-                            modifier = Modifier.height(state.topAutoCenteringItemSizePx.toDp())
-                        )
+                        Spacer(modifier = remember(state) {
+                            Modifier.autoCenteringHeight {
+                                state.topAutoCenteringItemSizePx
+                            }
+                        })
                     }
                 }
                 scope.content()
                 if (autoCentering != null) {
                     item {
-                        Spacer(
-                            modifier = Modifier.height(state.bottomAutoCenteringItemSizePx.toDp())
-                        )
+                        Spacer(modifier = remember(state) {
+                            Modifier.autoCenteringHeight {
+                                state.bottomAutoCenteringItemSizePx
+                            }
+                        })
                     }
                 }
             }
@@ -723,7 +728,6 @@ public class CombinedPaddingValues(
 public fun Modifier.verticalNegativePadding(
     extraPadding: Dp,
 ) = layout { measurable, constraints ->
-    require(constraints.hasBoundedWidth)
     require(constraints.hasBoundedHeight)
     val topAndBottomPadding = (extraPadding * 2).roundToPx()
     val placeable = measurable.measure(
@@ -737,3 +741,15 @@ public fun Modifier.verticalNegativePadding(
         placeable.place(0, -extraPadding.roundToPx())
     }
 }
+
+private fun Modifier.autoCenteringHeight(getHeight: () -> Int) =
+    layout { measurable, constraints ->
+        val height = getHeight()
+        val placeable = measurable.measure(
+            constraints.copy(minHeight = height, maxHeight = height)
+        )
+
+        layout(placeable.width, placeable.height) {
+            placeable.place(IntOffset.Zero)
+        }
+    }

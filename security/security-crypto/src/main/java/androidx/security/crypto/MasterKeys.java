@@ -54,6 +54,8 @@ public final class MasterKeys {
     public static final KeyGenParameterSpec AES256_GCM_SPEC =
             createAES256GCMKeyGenParameterSpec(MASTER_KEY_ALIAS);
 
+    private static final Object sLock = new Object();
+
     /**
      * Provides a safe and easy to use KenGenParameterSpec with the settings.
      * Algorithm: AES
@@ -80,7 +82,7 @@ public final class MasterKeys {
     /**
      * Creates or gets the master key provided
      *
-     * The encryption scheme is required fields to ensure that the type of
+     * <p>The encryption scheme is required fields to ensure that the type of
      * encryption used is clear to developers.
      *
      * @param keyGenParameterSpec The key encryption scheme
@@ -92,9 +94,13 @@ public final class MasterKeys {
             @NonNull KeyGenParameterSpec keyGenParameterSpec)
             throws GeneralSecurityException, IOException {
         validate(keyGenParameterSpec);
-        if (!MasterKeys.keyExists(keyGenParameterSpec.getKeystoreAlias())) {
-            generateKey(keyGenParameterSpec);
+
+        synchronized (sLock) {
+            if (!MasterKeys.keyExists(keyGenParameterSpec.getKeystoreAlias())) {
+                generateKey(keyGenParameterSpec);
+            }
         }
+
         return keyGenParameterSpec.getKeystoreAlias();
     }
 

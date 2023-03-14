@@ -41,7 +41,7 @@ import java.io.FileNotFoundException;
  *
  * <pre class="prettyprint">
  *  &lt;provider
- *             android:authorities="{{your package}}.DropDataProvider"
+ *             android:authorities="&lt;your-package&gt;.DropDataProvider"
  *             android:name="androidx.webkit.DropDataContentProvider"
  *             android:exported="false"
  *             android:grantUriPermissions="true"/&gt;

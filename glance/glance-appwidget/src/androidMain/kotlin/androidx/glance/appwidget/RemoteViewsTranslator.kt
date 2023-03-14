@@ -434,9 +434,9 @@ private fun RemoteViews.translateEmittableSpacer(
 internal fun RemoteViews.setChildren(
     translationContext: TranslationContext,
     parentDef: InsertedViewInfo,
-    children: Iterable<Emittable>
+    children: List<Emittable>
 ) {
-    children.forEachIndexed { index, child ->
+    children.take(10).forEachIndexed { index, child ->
         translateChild(
             translationContext.forChild(parent = parentDef, pos = index),
             child,

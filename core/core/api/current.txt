@@ -278,6 +278,7 @@ package androidx.core.app {
     method @RequiresApi(19) public static boolean getUsesChronometer(android.app.Notification);
     method public static int getVisibility(android.app.Notification);
     method public static boolean isGroupSummary(android.app.Notification);
+    method public static android.graphics.Bitmap? reduceLargeIconSize(android.content.Context, android.graphics.Bitmap?);
     field public static final int BADGE_ICON_LARGE = 2; // 0x2
     field public static final int BADGE_ICON_NONE = 0; // 0x0
     field public static final int BADGE_ICON_SMALL = 1; // 0x1
@@ -467,6 +468,7 @@ package androidx.core.app {
     ctor public NotificationCompat.BigPictureStyle();
     ctor public NotificationCompat.BigPictureStyle(androidx.core.app.NotificationCompat.Builder?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigLargeIcon(android.graphics.Bitmap?);
+    method @RequiresApi(23) public androidx.core.app.NotificationCompat.BigPictureStyle bigLargeIcon(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.Bitmap?);
     method @RequiresApi(31) public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle setBigContentTitle(CharSequence?);
@@ -558,6 +560,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setGroupAlertBehavior(int);
     method public androidx.core.app.NotificationCompat.Builder setGroupSummary(boolean);
     method public androidx.core.app.NotificationCompat.Builder setLargeIcon(android.graphics.Bitmap?);
+    method @RequiresApi(23) public androidx.core.app.NotificationCompat.Builder setLargeIcon(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.Builder setLights(@ColorInt int, int, int);
     method public androidx.core.app.NotificationCompat.Builder setLocalOnly(boolean);
     method public androidx.core.app.NotificationCompat.Builder setLocusId(androidx.core.content.LocusIdCompat?);
@@ -804,6 +807,7 @@ package androidx.core.app {
     method public java.util.List<androidx.core.app.NotificationChannelCompat!> getNotificationChannelsCompat();
     method @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) public void notify(int, android.app.Notification);
     method @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) public void notify(String?, int, android.app.Notification);
+    method @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) public void notify(java.util.List<androidx.core.app.NotificationManagerCompat.NotificationWithIdAndTag!>);
     field public static final String ACTION_BIND_SIDE_CHANNEL = "android.support.BIND_NOTIFICATION_SIDE_CHANNEL";
     field public static final String EXTRA_USE_SIDE_CHANNEL = "android.support.useSideChannel";
     field public static final int IMPORTANCE_DEFAULT = 3; // 0x3
@@ -813,6 +817,11 @@ package androidx.core.app {
     field public static final int IMPORTANCE_MIN = 1; // 0x1
     field public static final int IMPORTANCE_NONE = 0; // 0x0
     field public static final int IMPORTANCE_UNSPECIFIED = -1000; // 0xfffffc18
+  }
+
+  public static class NotificationManagerCompat.NotificationWithIdAndTag {
+    ctor public NotificationManagerCompat.NotificationWithIdAndTag(String?, int, android.app.Notification);
+    ctor public NotificationManagerCompat.NotificationWithIdAndTag(int, android.app.Notification);
   }
 
   public interface OnMultiWindowModeChangedProvider {
@@ -1680,7 +1689,7 @@ package androidx.core.location {
     method public static boolean hasProvider(android.location.LocationManager, String);
     method public static boolean isLocationEnabled(android.location.LocationManager);
     method @RequiresApi(android.os.Build.VERSION_CODES.N) @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssMeasurementsCallback(android.location.LocationManager, android.location.GnssMeasurementsEvent.Callback, android.os.Handler);
-    method @RequiresApi(android.os.Build.VERSION_CODES.R) @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssMeasurementsCallback(android.location.LocationManager, java.util.concurrent.Executor, android.location.GnssMeasurementsEvent.Callback);
+    method @RequiresApi(android.os.Build.VERSION_CODES.N) @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssMeasurementsCallback(android.location.LocationManager, java.util.concurrent.Executor, android.location.GnssMeasurementsEvent.Callback);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);
     method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void removeUpdates(android.location.LocationManager, androidx.core.location.LocationListenerCompat);
@@ -3252,7 +3261,7 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getLabeledBy();
     method public int getLiveRegion();
     method public int getMaxTextLength();
-    method public int getMinMillisBetweenContentChanges();
+    method public long getMinDurationBetweenContentChangesMillis();
     method public int getMovementGranularities();
     method public CharSequence! getPackageName();
     method public CharSequence? getPaneTitle();
@@ -3338,7 +3347,7 @@ package androidx.core.view.accessibility {
     method public void setLiveRegion(int);
     method public void setLongClickable(boolean);
     method public void setMaxTextLength(int);
-    method public void setMinMillisBetweenContentChanges(int);
+    method public void setMinDurationBetweenContentChangesMillis(long);
     method public void setMovementGranularities(int);
     method public void setMultiLine(boolean);
     method public void setPackageName(CharSequence!);

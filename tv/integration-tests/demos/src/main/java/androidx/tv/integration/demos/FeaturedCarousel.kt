@@ -16,6 +16,7 @@
 
 package androidx.tv.integration.demos
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -42,11 +43,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
-import androidx.tv.material3.CarouselItem
 import androidx.tv.material3.CarouselState
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 
 @Composable
 fun FeaturedCarouselContent() {
@@ -95,7 +95,7 @@ fun Modifier.drawBorderOnFocus(borderColor: Color = Color.White): Modifier {
         .onFocusChanged { isFocused = it.isFocused }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
     val backgrounds = listOf(
@@ -127,7 +127,6 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
         }
     ) { itemIndex ->
         CarouselItem(
-            overlayEnterTransitionStartDelayMillis = 0,
             background = {
                 Box(
                     modifier = Modifier
@@ -136,18 +135,22 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
                 )
             }
         ) {
-            OverlayButton()
+            Box(modifier = Modifier) {
+                OverlayButton(
+                    modifier = Modifier
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun OverlayButton() {
+private fun OverlayButton(modifier: Modifier = Modifier) {
     var isFocused by remember { mutableStateOf(false) }
 
     Button(
         onClick = { },
-        modifier = Modifier
+        modifier = modifier
             .onFocusChanged { isFocused = it.isFocused }
             .padding(40.dp)
             .border(

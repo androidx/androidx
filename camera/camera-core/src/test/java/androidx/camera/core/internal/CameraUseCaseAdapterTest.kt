@@ -16,6 +16,7 @@
 
 package androidx.camera.core.internal
 
+import android.graphics.ImageFormat.JPEG
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
@@ -23,23 +24,31 @@ import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.ViewPort
+import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
+import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
-import androidx.camera.core.processing.SurfaceProcessorWithExecutor
+import androidx.camera.core.internal.CameraUseCaseAdapter.CameraException
+import androidx.camera.core.processing.DefaultSurfaceProcessor
+import androidx.camera.core.streamsharing.StreamSharing
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeCameraCoordinator
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
-import androidx.camera.testing.fakes.FakePreviewEffect
-import androidx.camera.testing.fakes.FakeSurfaceProcessor
+import androidx.camera.testing.fakes.FakeSurfaceEffect
+import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
@@ -73,37 +82,201 @@ private const val CAMERA_ID = "0"
 )
 class CameraUseCaseAdapterTest {
 
-    private lateinit var surfaceProcessor: FakeSurfaceProcessor
     private lateinit var effects: List<CameraEffect>
     private lateinit var executor: ExecutorService
 
     private lateinit var fakeCameraDeviceSurfaceManager: FakeCameraDeviceSurfaceManager
     private lateinit var fakeCamera: FakeCamera
     private lateinit var useCaseConfigFactory: UseCaseConfigFactory
+    private lateinit var previewEffect: FakeSurfaceEffect
+    private lateinit var videoEffect: FakeSurfaceEffect
+    private lateinit var cameraCoordinator: CameraCoordinator
     private val fakeCameraSet = LinkedHashSet<CameraInternal>()
     private val imageEffect = GrayscaleImageEffect()
+    private val preview = Preview.Builder().build()
+    private val video = FakeUseCase().apply {
+        this.supportedEffectTargets = setOf(VIDEO_CAPTURE)
+    }
+    private val image = ImageCapture.Builder().build()
+    private val analysis = ImageAnalysis.Builder().build()
+    private lateinit var adapter: CameraUseCaseAdapter
 
     @Before
     fun setUp() {
         fakeCameraDeviceSurfaceManager = FakeCameraDeviceSurfaceManager()
         fakeCamera = FakeCamera(CAMERA_ID)
+        cameraCoordinator = FakeCameraCoordinator()
         useCaseConfigFactory = FakeUseCaseConfigFactory()
         fakeCameraSet.add(fakeCamera)
-        surfaceProcessor = FakeSurfaceProcessor(mainThreadExecutor())
         executor = Executors.newSingleThreadExecutor()
-        effects = listOf(FakePreviewEffect(executor, surfaceProcessor), imageEffect)
+        previewEffect = FakeSurfaceEffect(
+            PREVIEW,
+            FakeSurfaceProcessorInternal(mainThreadExecutor())
+        )
+        videoEffect = FakeSurfaceEffect(
+            VIDEO_CAPTURE,
+            FakeSurfaceProcessorInternal(mainThreadExecutor())
+        )
+        effects = listOf(previewEffect, imageEffect, videoEffect)
+        adapter = CameraUseCaseAdapter(
+            fakeCameraSet,
+            cameraCoordinator,
+            fakeCameraDeviceSurfaceManager,
+            useCaseConfigFactory
+        )
+        DefaultSurfaceProcessor.Factory.setSupplier { FakeSurfaceProcessorInternal(executor) }
     }
 
     @After
     fun tearDown() {
-        surfaceProcessor.cleanUp()
         executor.shutdown()
+    }
+
+    @Test
+    fun attachAndDetachUseCases_cameraUseCasesAttachedAndDetached() {
+        // Arrange: bind UseCases that requires sharing.
+        adapter.addUseCases(setOf(preview, video, image))
+        val streamSharing =
+            adapter.cameraUseCases.filterIsInstance(StreamSharing::class.java).single()
+        // Act: attach use cases.
+        adapter.attachUseCases()
+        // Assert: StreamSharing and image are attached.
+        assertThat(fakeCamera.attachedUseCases).containsExactly(image, streamSharing)
+        // Act: detach.
+        adapter.detachUseCases()
+        // Assert: use cases are detached.
+        assertThat(fakeCamera.attachedUseCases).isEmpty()
+    }
+
+    @Test(expected = CameraException::class)
+    fun addStreamSharing_throwsException() {
+        val streamSharing = StreamSharing(fakeCamera, setOf(preview, video), useCaseConfigFactory)
+        // Act: add use cases that can only be supported with StreamSharing
+        adapter.addUseCases(setOf(streamSharing, video, image))
+    }
+
+    @Test
+    fun invalidUseCaseCombo_streamSharingOn() {
+        // Act: add use cases that can only be supported with StreamSharing
+        adapter.addUseCases(setOf(preview, video, image))
+        // Assert: StreamSharing is connected to camera.
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java
+        )
+        // Assert: StreamSharing children are bound
+        assertThat(preview.camera).isNotNull()
+        assertThat(video.camera).isNotNull()
+    }
+
+    @Test
+    fun validUseCaseCombo_streamSharingOff() {
+        // Act: add use cases that do not need StreamSharing
+        adapter.addUseCases(setOf(preview, video))
+        // Assert: the app UseCase are connected to camera.
+        adapter.cameraUseCases.hasExactTypes(
+            Preview::class.java,
+            FakeUseCase::class.java
+        )
+    }
+
+    @Test(expected = CameraException::class)
+    fun invalidUseCaseComboCantBeFixedByStreamSharing_throwsException() {
+        // Arrange: create a camera that only support one JPEG stream.
+        fakeCameraDeviceSurfaceManager.setValidSurfaceCombos(setOf(listOf(JPEG)))
+        // Act: add PRIV and JPEG streams.
+        adapter.addUseCases(setOf(preview, image))
+    }
+
+    @Test
+    fun addChildThatRequiresStreamSharing_streamSharingOn() {
+        // Act: add UseCase that do not need StreamSharing
+        adapter.addUseCases(setOf(video, image))
+        // Assert.
+        adapter.cameraUseCases.hasExactTypes(
+            FakeUseCase::class.java,
+            ImageCapture::class.java
+        )
+        // Act: add a new UseCase that needs StreamSharing
+        adapter.addUseCases(setOf(preview))
+        // Assert: StreamSharing is created.
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java
+        )
+        // Assert: StreamSharing children are bound
+        assertThat(preview.camera).isNotNull()
+        assertThat(video.camera).isNotNull()
+        assertThat(image.camera).isNotNull()
+    }
+
+    @Test
+    fun removeChildThatRequiresStreamSharing_streamSharingOff() {
+        // Act: add UseCases that need StreamSharing.
+        adapter.addUseCases(setOf(preview, video, image))
+        // Assert: StreamSharing exists and bound.
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java
+        )
+        val streamSharing =
+            adapter.cameraUseCases.filterIsInstance(StreamSharing::class.java).single()
+        assertThat(streamSharing.camera).isNotNull()
+        // Act: remove UseCase so that StreamSharing is no longer needed
+        adapter.removeUseCases(setOf(video))
+        // Assert: StreamSharing removed and unbound.
+        adapter.cameraUseCases.hasExactTypes(
+            Preview::class.java,
+            ImageCapture::class.java
+        )
+        assertThat(streamSharing.camera).isNull()
+    }
+
+    @Test(expected = CameraException::class)
+    fun extensionEnabled_streamSharingOffAndThrowsException() {
+        // Arrange: enable extensions
+        adapter.setExtendedConfig(createCoexistingRequiredRuleCameraConfig())
+        // Act: add UseCases that require StreamSharing
+        adapter.addUseCases(setOf(preview, video, image))
+    }
+
+    @Test
+    fun addAdditionalUseCase_streamSharingReused() {
+        // Act: add UseCases that require StreamSharing
+        adapter.addUseCases(setOf(preview, video, image))
+        // Assert: StreamSharing is used.
+        val streamSharing = adapter.getStreamSharing()
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java
+        )
+        // Act: add another UseCase
+        adapter.addUseCases(setOf(analysis))
+        // Assert: the same StreamSharing instance is kept.
+        assertThat(adapter.getStreamSharing()).isSameInstanceAs(streamSharing)
+        adapter.cameraUseCases.hasExactTypes(
+            StreamSharing::class.java,
+            ImageCapture::class.java,
+            ImageAnalysis::class.java
+        )
+    }
+
+    private fun CameraUseCaseAdapter.getStreamSharing(): StreamSharing {
+        return this.cameraUseCases.filterIsInstance(StreamSharing::class.java).single()
+    }
+
+    private fun Collection<UseCase>.hasExactTypes(vararg classTypes: Any) {
+        assertThat(classTypes.size).isEqualTo(size)
+        classTypes.forEach {
+            assertThat(filterIsInstance(it as Class<*>)).hasSize(1)
+        }
     }
 
     @Test
     fun detachUseCases() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -126,11 +299,13 @@ class CameraUseCaseAdapterTest {
         fakeCamera.cameraControlInternal.addInteropConfig(originalConfig)
         val cameraUseCaseAdapter1 = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
         val cameraUseCaseAdapter2 = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -169,6 +344,7 @@ class CameraUseCaseAdapterTest {
         fakeCamera.cameraControlInternal.addInteropConfig(config)
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -184,6 +360,7 @@ class CameraUseCaseAdapterTest {
     fun closeCameraUseCaseAdapter() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -198,6 +375,7 @@ class CameraUseCaseAdapterTest {
     fun cameraIdEquals() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -209,11 +387,13 @@ class CameraUseCaseAdapterTest {
     fun cameraEquivalent() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
         val otherCameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -224,6 +404,7 @@ class CameraUseCaseAdapterTest {
     fun useCase_onAttach() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -240,6 +421,7 @@ class CameraUseCaseAdapterTest {
     fun useCase_onDetach() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -253,6 +435,7 @@ class CameraUseCaseAdapterTest {
     fun eventCallbackOnBind() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -266,6 +449,7 @@ class CameraUseCaseAdapterTest {
     fun eventCallbackOnUnbind() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -284,6 +468,7 @@ class CameraUseCaseAdapterTest {
         // Arrange: set up adapter with aspect ratio 1.
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -323,10 +508,10 @@ class CameraUseCaseAdapterTest {
 
         // Arrange: set up adapter with aspect ratio 1.
         // The sensor size is 4032x3024 defined in FakeCameraDeviceSurfaceManager
-        fakeCameraDeviceSurfaceManager.setSuggestedResolution(
+        fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(
             CAMERA_ID,
             FakeUseCaseConfig::class.java,
-            Size(4032, 3022)
+            StreamSpec.builder(Size(4032, 3022)).build()
         )
         /*         Sensor to Buffer                 Crop on Buffer
          *        0               4032
@@ -338,6 +523,7 @@ class CameraUseCaseAdapterTest {
          */
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -360,6 +546,7 @@ class CameraUseCaseAdapterTest {
     fun canSetExtendedCameraConfig_whenNoUseCase() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -370,6 +557,7 @@ class CameraUseCaseAdapterTest {
     fun canNotSetExtendedCameraConfig_whenUseCaseHasExisted() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -385,6 +573,7 @@ class CameraUseCaseAdapterTest {
     fun canSetSameExtendedCameraConfig_whenUseCaseHasExisted() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -400,6 +589,7 @@ class CameraUseCaseAdapterTest {
     fun canSwitchExtendedCameraConfig_afterUnbindUseCases() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -422,6 +612,7 @@ class CameraUseCaseAdapterTest {
     fun noExtraUseCase_whenBindEmptyUseCaseList() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -435,6 +626,7 @@ class CameraUseCaseAdapterTest {
     fun addExtraImageCapture_whenOnlyBindPreview() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -452,6 +644,7 @@ class CameraUseCaseAdapterTest {
     fun removeExtraImageCapture_afterBindImageCapture() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -476,6 +669,7 @@ class CameraUseCaseAdapterTest {
     fun addExtraImageCapture_whenUnbindImageCapture() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -503,6 +697,7 @@ class CameraUseCaseAdapterTest {
     fun addExtraPreview_whenOnlyBindImageCapture() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -520,6 +715,7 @@ class CameraUseCaseAdapterTest {
     fun removeExtraPreview_afterBindPreview() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -543,6 +739,7 @@ class CameraUseCaseAdapterTest {
     fun addExtraPreview_whenUnbindPreview() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -570,6 +767,7 @@ class CameraUseCaseAdapterTest {
     fun noExtraUseCase_whenUnbindBothPreviewAndImageCapture() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -597,6 +795,7 @@ class CameraUseCaseAdapterTest {
     fun noExtraImageCapture_whenOnlyBindPreviewWithoutRule() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -613,6 +812,7 @@ class CameraUseCaseAdapterTest {
     fun noExtraPreview_whenOnlyBindImageCaptureWithoutRule() {
         val cameraUseCaseAdapter = CameraUseCaseAdapter(
             fakeCameraSet,
+            cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory
         )
@@ -625,27 +825,29 @@ class CameraUseCaseAdapterTest {
         assertThat(cameraUseCaseAdapter.useCases.size).isEqualTo(1)
     }
 
+    @Test(expected = IllegalStateException::class)
+    fun updateEffectsWithDuplicateTargets_throwsException() {
+        CameraUseCaseAdapter.updateEffects(listOf(previewEffect, previewEffect), listOf(preview))
+    }
+
     @Test
     fun updateEffects_effectsAddedAndRemoved() {
         // Arrange.
-        val preview = Preview.Builder().build()
-        val imageCapture = ImageCapture.Builder().build()
-        val useCases = listOf(preview, imageCapture)
+        val useCases = listOf(preview, video, image)
 
         // Act: update use cases with effects.
         CameraUseCaseAdapter.updateEffects(effects, useCases)
-        // Assert: preview has processor wrapped with the right executor.
-        val previewProcessor = preview.processor as SurfaceProcessorWithExecutor
-        assertThat(previewProcessor.processor).isEqualTo(surfaceProcessor)
-        assertThat(previewProcessor.executor).isEqualTo(executor)
-        // Assert: imageCapture has the effect set.
-        assertThat(imageCapture.effect).isEqualTo(imageEffect)
+        // Assert: UseCase have effects
+        assertThat(preview.effect).isEqualTo(previewEffect)
+        assertThat(image.effect).isEqualTo(imageEffect)
+        assertThat(video.effect).isEqualTo(videoEffect)
 
         // Act: update again with no effects.
         CameraUseCaseAdapter.updateEffects(listOf(), useCases)
         // Assert: use cases no longer has effects.
-        assertThat(preview.processor).isNull()
-        assertThat(imageCapture.effect).isNull()
+        assertThat(preview.effect).isNull()
+        assertThat(image.effect).isNull()
+        assertThat(video.effect).isNull()
     }
 
     private fun createCoexistingRequiredRuleCameraConfig(): CameraConfig {

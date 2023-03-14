@@ -156,7 +156,7 @@ class Camera2CapturePipeline {
         mExecutor = executor;
         mCameraQuirk = cameraQuirks;
         mUseTorchAsFlash = new UseTorchAsFlash(cameraQuirks);
-        mHasFlashUnit = FlashAvailabilityChecker.isFlashAvailable(cameraCharacteristics);
+        mHasFlashUnit = FlashAvailabilityChecker.isFlashAvailable(cameraCharacteristics::get);
     }
 
     @ExecutedBy("mExecutor")

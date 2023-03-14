@@ -22,11 +22,8 @@ import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOUR
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
-import static java.util.Objects.requireNonNull;
-
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
-import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.util.Pair;
 import android.util.Size;
@@ -54,9 +51,9 @@ import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
-import androidx.camera.core.impl.CamcorderProfileProvider;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.Timebase;
@@ -115,7 +112,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @NonNull
     private final Quirks mCameraQuirks;
     @NonNull
-    private final CamcorderProfileProvider mCamera2CamcorderProfileProvider;
+    private final EncoderProfilesProvider mCamera2EncoderProfilesProvider;
     @NonNull
     private final CameraManagerCompat mCameraManager;
 
@@ -131,8 +128,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         mCameraCharacteristicsCompat = cameraManager.getCameraCharacteristicsCompat(mCameraId);
         mCamera2CameraInfo = new Camera2CameraInfo(this);
         mCameraQuirks = CameraQuirks.get(cameraId, mCameraCharacteristicsCompat);
-        mCamera2CamcorderProfileProvider = new Camera2CamcorderProfileProvider(cameraId,
-                mCameraCharacteristicsCompat);
+        mCamera2EncoderProfilesProvider = new Camera2EncoderProfilesProvider(cameraId);
         mCameraStateLiveData = new RedirectableLiveData<>(
                 CameraState.create(CameraState.Type.CLOSED));
     }
@@ -267,7 +263,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public boolean hasFlashUnit() {
-        return FlashAvailabilityChecker.isFlashAvailable(mCameraCharacteristicsCompat);
+        return FlashAvailabilityChecker.isFlashAvailable(mCameraCharacteristicsCompat::get);
     }
 
     @NonNull
@@ -401,8 +397,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     /** {@inheritDoc} */
     @NonNull
     @Override
-    public CamcorderProfileProvider getCamcorderProfileProvider() {
-        return mCamera2CamcorderProfileProvider;
+    public EncoderProfilesProvider getEncoderProfilesProvider() {
+        return mCamera2EncoderProfilesProvider;
     }
 
     @NonNull
@@ -423,10 +419,8 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @NonNull
     @Override
     public List<Size> getSupportedResolutions(int format) {
-        StreamConfigurationMap map = requireNonNull(mCameraCharacteristicsCompat.get(
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP));
         StreamConfigurationMapCompat mapCompat =
-                StreamConfigurationMapCompat.toStreamConfigurationMapCompat(map);
+                mCameraCharacteristicsCompat.getStreamConfigurationMapCompat();
         Size[] size = mapCompat.getOutputSizes(format);
         return size != null ? Arrays.asList(size) : Collections.emptyList();
     }

@@ -59,23 +59,30 @@ class TestUtils {
          * contain
          * @param subset the subset json that should have equal to or less keys and subvalues than
          * the superset
+         * @param requiredKeys the fixed required keys for this test
          * @return a boolean indicating if the subset was truly a subset of the superset it was
          * tested with
          */
-        fun isSubsetJson(superset: JSONObject, subset: JSONObject): Boolean {
-            val keys = subset.keys()
+        fun isSubsetJson(superset: JSONObject, subset: JSONObject, requiredKeys: JSONObject):
+            Boolean {
+            val keys = requiredKeys.keys()
             for (key in keys) {
-                if (!superset.has(key)) {
+                if (!superset.has(key) || !subset.has(key)) {
                     return false
                 }
+
+                val requiredValues = requiredKeys.get(key)
                 val values = subset.get(key)
                 val superValues = superset.get(key)
 
-                if (values::class.java != superValues::class.java) {
+                if ((values::class.java != superValues::class.java || values::class.java !=
+                    requiredValues::class.java) && requiredValues !is Boolean
+                ) {
                     return false
                 }
-                if (values is JSONObject) {
-                    if (!isSubsetJson(superValues as JSONObject, values)) {
+                if (requiredValues is JSONObject) {
+                    if (!isSubsetJson(superValues as JSONObject, values as JSONObject,
+                            requiredValues)) {
                         return false
                     }
                 } else if (values is JSONArray) {

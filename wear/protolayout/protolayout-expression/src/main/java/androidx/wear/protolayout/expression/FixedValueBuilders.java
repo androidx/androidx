@@ -26,8 +26,9 @@ import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.FixedProto;
 import androidx.wear.protolayout.expression.proto.StateEntryProto;
 
-/** Builders for fixed value primitive types that can be used in dynamic expressions and in for
- * state state valuess
+/**
+ * Builders for fixed value primitive types that can be used in dynamic expressions and in for state
+ * state values.
  */
 final class FixedValueBuilders {
   private FixedValueBuilders() {}
@@ -48,7 +49,7 @@ final class FixedValueBuilders {
     }
 
     /**
-     * Gets the value. Intended for testing purposes only.
+     * Gets the value.
      *
      * @since 1.2
      */
@@ -88,6 +89,12 @@ final class FixedValueBuilders {
     @NonNull
     public StateEntryProto.StateEntryValue toStateEntryValueProto() {
       return StateEntryProto.StateEntryValue.newBuilder().setInt32Val(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedInt32{" + "value=" + getValue() + "}";
     }
 
     /** Builder for {@link FixedInt32}. */
@@ -178,6 +185,12 @@ final class FixedValueBuilders {
       return StateEntryProto.StateEntryValue.newBuilder().setStringVal(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedString{" + "value=" + getValue() + "}";
+    }
+
     /** Builder for {@link FixedString}. */
     public static final class Builder
         implements DynamicBuilders.DynamicString.Builder,
@@ -265,6 +278,12 @@ final class FixedValueBuilders {
       return StateEntryProto.StateEntryValue.newBuilder().setFloatVal(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedFloat{" + "value=" + getValue() + "}";
+    }
+
     /** Builder for {@link FixedFloat}. */
     public static final class Builder
         implements DynamicBuilders.DynamicFloat.Builder,
@@ -350,6 +369,12 @@ final class FixedValueBuilders {
     @NonNull
     public StateEntryProto.StateEntryValue toStateEntryValueProto() {
       return StateEntryProto.StateEntryValue.newBuilder().setBoolVal(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedBool{" + "value=" + getValue() + "}";
     }
 
     /** Builder for {@link FixedBool}. */
@@ -440,6 +465,12 @@ final class FixedValueBuilders {
       return StateEntryProto.StateEntryValue.newBuilder().setColorVal(mImpl).build();
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedColor{" + "argb=" + getArgb() + "}";
+    }
+
     /** Builder for {@link FixedColor}. */
     public static final class Builder
         implements DynamicBuilders.DynamicColor.Builder,
@@ -465,6 +496,88 @@ final class FixedValueBuilders {
       @NonNull
       public FixedColor build() {
         return new FixedColor(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
+   * A fixed time instant type.
+   *
+   * @since 1.2
+   */
+  static final class FixedInstant implements DynamicBuilders.DynamicInstant {
+    private final FixedProto.FixedInstant mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    FixedInstant(FixedProto.FixedInstant impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+     *
+     * @since 1.2
+     */
+    public long getEpochSeconds() {
+      return mImpl.getEpochSeconds();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+
+    @NonNull
+    static FixedInstant fromProto(@NonNull FixedProto.FixedInstant proto) {
+      return new FixedInstant(proto, null);
+    }
+
+    @NonNull
+    FixedProto.FixedInstant toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicInstant toDynamicInstantProto() {
+      return DynamicProto.DynamicInstant.newBuilder().setFixed(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "FixedInstant{" + "epochSeconds=" + getEpochSeconds() + "}";
+    }
+
+    /** Builder for {@link FixedInstant}. */
+    public static final class Builder implements DynamicBuilders.DynamicInstant.Builder {
+      private final FixedProto.FixedInstant.Builder mImpl = FixedProto.FixedInstant.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(-1986552556);
+
+      public Builder() {}
+
+      /**
+       * Sets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setEpochSeconds(long epochSeconds) {
+        mImpl.setEpochSeconds(epochSeconds);
+        mFingerprint.recordPropertyUpdate(1, Long.hashCode(epochSeconds));
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public FixedInstant build() {
+        return new FixedInstant(mImpl.build(), mFingerprint);
       }
     }
   }

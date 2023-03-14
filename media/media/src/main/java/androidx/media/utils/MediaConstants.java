@@ -552,42 +552,42 @@ public final class MediaConstants {
      * custom action.
      *
      * <p>A custom browser action is defined by an
-     * {@linkplain MediaConstants#EXTRA_KEY_CUSTOM_BROWSER_ACTION_ID action ID}, an
-     * {@linkplain MediaConstants#EXTRA_KEY_CUSTOM_BROWSER_ACTION_LABEL action label},
-     * an {@linkplain MediaConstants#EXTRA_KEY_CUSTOM_BROWSER_ACTION_ICON_URI action icon
+     * {@linkplain MediaConstants#EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID action ID}, an
+     * {@linkplain MediaConstants#EXTRAS_KEY_CUSTOM_BROWSER_ACTION_LABEL action label},
+     * an {@linkplain MediaConstants#EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ICON_URI action icon
      * URI}, and optionally an
-     * {@linkplain MediaConstants#EXTRA_KEY_CUSTOM_BROWSER_ACTION_EXTRAS action extras
+     * {@linkplain MediaConstants#EXTRAS_KEY_CUSTOM_BROWSER_ACTION_EXTRAS action extras
      * bundle}.
      *
      * <p>Custom browser action example:
      * <ul>
      *   <li>Action ID: "com.example.audioapp.download"
      *     <ul>
-     *       <li>Key: {@link MediaConstants#EXTRA_KEY_CUSTOM_BROWSER_ACTION_ID}
+     *       <li>Key: {@link MediaConstants#EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID}
      *     </ul>
      *   </li>
      *     <li>Action label: "Download Song"
      *     <ul>
-     *       <li>Key: {@link MediaConstants#EXTRA_KEY_CUSTOM_BROWSER_ACTION_LABEL}
+     *       <li>Key: {@link MediaConstants#EXTRAS_KEY_CUSTOM_BROWSER_ACTION_LABEL}
      *       <li>Localized String label for action
      *     </ul>
      *   </li>
      *     <li>Action Icon URI: "content://com.example.public/download"
      *     <ul>
-     *       <li>Key: {@link MediaConstants#EXTRA_KEY_CUSTOM_BROWSER_ACTION_ICON_URI}
+     *       <li>Key: {@link MediaConstants#EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ICON_URI}
      *       <li>Tintable vector drawable
      *     </ul>
      *   </li>
      *     <li>Action extras: {bundle}
      *     <ul>
-     *       <li>Key: {@link MediaConstants#EXTRA_KEY_CUSTOM_BROWSER_ACTION_EXTRAS}
+     *       <li>Key: {@link MediaConstants#EXTRAS_KEY_CUSTOM_BROWSER_ACTION_EXTRAS}
      *       <li>Bundle extras
      *     </ul>
      *   </li>
      * </ul>
      */
     public static final String BROWSER_SERVICE_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ROOT_LIST =
-            "android.media.extra.CUSTOM_BROWSER_ACTION_ROOT_LIST";
+            "androidx.media.utils.extras.CUSTOM_BROWSER_ACTION_ROOT_LIST";
 
     /**
      * {@link Bundle} key used to define a string list of custom browser actions for a
@@ -616,7 +616,7 @@ public final class MediaConstants {
      * @see MediaConstants#BROWSER_SERVICE_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ROOT_LIST
      */
     public static final String DESCRIPTION_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID_LIST =
-            "android.media.extra.CUSTOM_BROWSER_ACTION_ID_LIST";
+            "androidx.media.utils.extras.CUSTOM_BROWSER_ACTION_ID_LIST";
 
     /**
      * {@link Bundle} key used to define the ID for a custom browser action.
@@ -626,8 +626,8 @@ public final class MediaConstants {
      * @see MediaConstants#BROWSER_SERVICE_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ROOT_LIST
      * @see MediaConstants#DESCRIPTION_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID_LIST
      */
-    public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_ID =
-            "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_ID";
+    public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID =
+            "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_ID";
 
     /**
      * {@link Bundle} key used to define the label for a custom browser action. Label is a localized
@@ -638,8 +638,8 @@ public final class MediaConstants {
      * @see MediaConstants#BROWSER_SERVICE_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ROOT_LIST
      * @see MediaConstants#DESCRIPTION_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID_LIST
      */
-    public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_LABEL =
-            "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_LABEL";
+    public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_LABEL =
+            "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_LABEL";
     /**
      * {@link Bundle} key used to define the icon URI for a custom browser action.
      *
@@ -648,8 +648,8 @@ public final class MediaConstants {
      * @see MediaConstants#BROWSER_SERVICE_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ROOT_LIST
      * @see MediaConstants#DESCRIPTION_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID_LIST
      */
-    public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_ICON_URI =
-            "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_ICON_URI";
+    public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ICON_URI =
+            "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_ICON_URI";
     /**
      * {@link Bundle} key used to define an extras bundle for a custom browser action.
      *
@@ -661,14 +661,14 @@ public final class MediaConstants {
      * @see MediaConstants#BROWSER_SERVICE_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ROOT_LIST
      * @see MediaConstants#DESCRIPTION_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID_LIST
      */
-    public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_EXTRAS =
-            "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_EXTRAS";
+    public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_EXTRAS =
+            "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_EXTRAS";
     /**
      * {@link Bundle} key used to define the total number of actions allowed per item. Passed to
      * {@link MediaBrowserServiceCompat} using
      * {@link MediaBrowserServiceCompat#onGetRoot(String, int, Bundle)} in root hints bundle.
      *
-     * <p>Presence and non-zero value of this key in the root hints indicates that custom browse
+     * <p>Presence of this key and positive value in the root hints indicates that custom browse
      * actions feature is supported. Actions beyond this limit will be truncated.
      *
      * <p>TYPE: int, number of actions each item is limited to.
@@ -678,7 +678,7 @@ public final class MediaConstants {
      * @see MediaConstants#DESCRIPTION_EXTRAS_KEY_CUSTOM_BROWSER_ACTION_ID_LIST
      */
     public static final String BROWSER_ROOT_HINTS_KEY_CUSTOM_BROWSER_ACTION_LIMIT =
-            "androidx.media.MediaBrowserCompat.CUSTOM_BROWSER_ACTION_LIMIT";
+            "androidx.media.utils.MediaBrowserCompat.extras.CUSTOM_BROWSER_ACTION_LIMIT";
 
     /**
      * {@link Bundle} key used to define the ID of the {@link MediaBrowserCompat.MediaItem}
@@ -686,7 +686,8 @@ public final class MediaConstants {
      *
      * <p>A {@link MediaBrowserCompat} that supports custom browser actions can set this key
      * in the parameter extra bundle when using
-     * {@link MediaBrowserCompat#sendCustomAction(String, Bundle, MediaBrowserCompat.CustomActionCallback)}.
+     * {@link MediaBrowserCompat#sendCustomAction(String, Bundle,
+     * MediaBrowserCompat.CustomActionCallback)}.
      *
      * <p>A {@link MediaBrowserServiceCompat} that supports custom browser actions should override
      * {@link MediaBrowserServiceCompat#onCustomAction(
@@ -701,22 +702,24 @@ public final class MediaConstants {
      * @see
      * MediaBrowserCompat#sendCustomAction(String, Bundle, MediaBrowserCompat.CustomActionCallback)
      */
-    public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_MEDIA_ITEM_ID =
-            "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_MEDIA_ITEM_ID";
+    public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_MEDIA_ITEM_ID =
+            "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_MEDIA_ITEM_ID";
     /**
-     * {@link Bundle} key set in custom browser action extra bundle or
-     * {@link MediaBrowserServiceCompat.Result} to indicate which browse node should be displayed
-     * next.
+     * {@link Bundle} key set in {@link MediaBrowserServiceCompat.Result} to indicate which
+     * browse node should be displayed next.
      *
      * <p>A {@link MediaBrowserServiceCompat} that supports custom browser actions can set this key
      * in the {@link MediaBrowserServiceCompat.Result} passed in
-     * {@link MediaBrowserServiceCompat#onCustomAction(String, Bundle, MediaBrowserServiceCompat.Result)}.
-     *
-     * If this key is present in a {@link MediaBrowserCompat.CustomActionCallback} data
-     * {@link Bundle} the {@link MediaBrowserCompat} will update the current browse root when
-     * {@link MediaBrowserCompat.CustomActionCallback#onProgressUpdate(String, Bundle, Bundle)} or
+     * {@link MediaBrowserServiceCompat#onCustomAction(String, Bundle,
+     * MediaBrowserServiceCompat.Result)}.
+     * <p>If this key is present in a {@link MediaBrowserCompat.CustomActionCallback} data
+     * {@link Bundle} the {@link MediaBrowserCompat} will update the current browse node when
      * {@link MediaBrowserCompat.CustomActionCallback#onResult(String, Bundle, Bundle)} is called by
-     * the {@link MediaBrowserServiceCompat}.
+     * the {@link MediaBrowserServiceCompat}. The new browse node will be fetched by
+     * {@link MediaBrowserCompat#getItem(String, MediaBrowserCompat.ItemCallback)}.
+     * <p>A {@link MediaBrowserServiceCompat} that supports custom browser actions must implement
+     * {@link MediaBrowserServiceCompat#onLoadItem(String, MediaBrowserServiceCompat.Result)} to
+     * use this feature.
      *
      * <p>TYPE: string, string {@link MediaBrowserCompat.MediaItem} ID to set as new browse node.
      *
@@ -726,55 +729,51 @@ public final class MediaConstants {
      * @see
      * MediaBrowserServiceCompat#onCustomAction(String, Bundle, MediaBrowserServiceCompat.Result)
      */
-    public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE =
-            "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE";
+    public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE =
+            "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_BROWSE_NODE";
 
     /**
-     * {@link Bundle} key set in custom browser action extra bundle or
-     * {@link MediaBrowserServiceCompat.Result} to show the playing item.
+     * {@link Bundle} key set in {@link MediaBrowserServiceCompat.Result} to show the
+     * currently playing item.
      *
      * <p>A {@link MediaBrowserServiceCompat} that supports custom browser actions can set this key
-     * in the
-     * {@link MediaBrowserServiceCompat.Result} passed in
-     * {@link MediaBrowserServiceCompat#onCustomAction(String, Bundle, MediaBrowserServiceCompat.Result)}.
-     *
-     * <p>If this key is present in {@link MediaBrowserCompat.CustomActionCallback}
-     * {@link MediaBrowserServiceCompat.Result}, the currently playing item will be shown
-     * when result is handled by {@link MediaBrowserCompat}.
-     *
-     * <P>TYPE: string, string {@link MediaBrowserCompat.MediaItem} ID of item to show, or if no
-     * value is set then show currently playing
-     * {@link MediaBrowserCompat.MediaItem}
-     *
+     * in the {@link MediaBrowserServiceCompat.Result} passed in
+     * {@link MediaBrowserServiceCompat#onCustomAction(String, Bundle,
+     * MediaBrowserServiceCompat.Result)}.
+     * <p>If this key is present and the value is true in
+     * {@link MediaBrowserCompat.CustomActionCallback}
+     * {@link MediaBrowserServiceCompat.Result}, the currently playing item will be shown when
+     * {@link MediaBrowserCompat.CustomActionCallback#onResult(String, Bundle, Bundle)} is called by
+     * the {@link MediaBrowserServiceCompat}.
+     * <p>TYPE: boolean, boolean value of true will show currently playing item.
      * @see
      * MediaBrowserCompat#sendCustomAction(String, Bundle, MediaBrowserCompat.CustomActionCallback)
      * @see MediaBrowserCompat.CustomActionCallback
      * @see
      * MediaBrowserServiceCompat#onCustomAction(String, Bundle, MediaBrowserServiceCompat.Result)
      */
-    public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_RESULT_SHOW_PLAYING_ITEM =
-            "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_RESULT_SHOW_PLAYING_ITEM";
+    public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_SHOW_PLAYING_ITEM =
+            "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_SHOW_PLAYING_ITEM";
 
     /**
-     * {@link Bundle} key set in custom browser action extra bundle or
-     * {@link MediaBrowserServiceCompat.Result} to refresh a
+     * {@link Bundle} key set in {@link MediaBrowserServiceCompat.Result} to refresh a
      * {@link MediaBrowserCompat.MediaItem} in the browse tree.
      *
      * <p>A {@link MediaBrowserServiceCompat} that supports custom browser actions can set this key
      * in the {@link MediaBrowserServiceCompat.Result} passed in
-     * {@link MediaBrowserServiceCompat#onCustomAction(String, Bundle, MediaBrowserServiceCompat.Result)}.
+     * {@link MediaBrowserServiceCompat#onCustomAction(String, Bundle,
+     * MediaBrowserServiceCompat.Result)}.
      *
-     * <p>A {@link MediaBrowserCompat} that supports custom browser actions will refresh
-     * the items custom browser action IDs by using
-     * {@link MediaBrowserCompat#getItem(String, MediaBrowserCompat.ItemCallback)}.
-     * A {@link MediaBrowserServiceCompat} that supports custom browser actions  must implement
+     * <p>If this key is present in {@link MediaBrowserCompat.CustomActionCallback}
+     * {@link MediaBrowserServiceCompat.Result}, the item will be refreshed with
+     * {@link MediaBrowserCompat#getItem(String, MediaBrowserCompat.ItemCallback)} when
+     * {@link MediaBrowserCompat.CustomActionCallback#onProgressUpdate(String, Bundle, Bundle)} or
+     * {@link MediaBrowserCompat.CustomActionCallback#onResult(String, Bundle, Bundle)} is called by
+     * the {@link MediaBrowserServiceCompat}.
+     * <p>A {@link MediaBrowserServiceCompat} that supports custom browser actions must
+     * implement
      * {@link MediaBrowserServiceCompat#onLoadItem(String, MediaBrowserServiceCompat.Result)} in
-     * order to refresh actions in an item.
-     *
-     * The key in the action result bundle will trigger the item refresh
-     * when the {@link MediaBrowserCompat.CustomActionCallback} is called, which is passed
-     * to the {@link MediaBrowserServiceCompat} using
-     * {@link MediaBrowserCompat#sendCustomAction(String, Bundle, MediaBrowserCompat.CustomActionCallback)}
+     * order to update the state of the item.
      *
      * <p>TYPE: string, string {@link MediaBrowserCompat.MediaItem} ID to refresh.
      *
@@ -784,22 +783,24 @@ public final class MediaConstants {
      * @see
      * MediaBrowserServiceCompat#onCustomAction(String, Bundle, MediaBrowserServiceCompat.Result)
      */
-    public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_RESULT_REFRESH_ITEM =
-            "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_RESULT_REFRESH_ITEM";
+    public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_REFRESH_ITEM =
+            "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_REFRESH_ITEM";
     /**
-     * {@link Bundle} key set in custom browser action extra bundle or
-     * {@link MediaBrowserServiceCompat.Result} to set a message for user.
+     * {@link Bundle} key set in {@link MediaBrowserServiceCompat.Result} to set a message for
+     * the user.
      *
      * <p>A {@link MediaBrowserServiceCompat} that supports custom browser actions can set this key
      * in the {@link MediaBrowserServiceCompat.Result} passed in
-     * {@link MediaBrowserServiceCompat#onCustomAction(String, Bundle, MediaBrowserServiceCompat.Result)}.
+     * {@link MediaBrowserServiceCompat#onCustomAction(String, Bundle,
+     * MediaBrowserServiceCompat.Result)}.
      *
-     * The key in the action result bundle will trigger the message
-     * handling when the {@link MediaBrowserCompat.CustomActionCallback} is called, which is passed
-     * to the {@link MediaBrowserServiceCompat} using
-     * {@link MediaBrowserCompat#sendCustomAction(String, Bundle, MediaBrowserCompat.CustomActionCallback)}
+     * <p>If this key is present in {@link MediaBrowserCompat.CustomActionCallback}
+     * {@link MediaBrowserServiceCompat.Result}, the message will be shown to the user when
+     * {@link MediaBrowserCompat.CustomActionCallback#onProgressUpdate(String, Bundle, Bundle)} or
+     * {@link MediaBrowserCompat.CustomActionCallback#onResult(String, Bundle, Bundle)} is called by
+     * the {@link MediaBrowserServiceCompat}.
      *
-     * <p>TYPE: string, localized message string to show user.
+     * <p>TYPE: string, localized message string to show the user.
      *
      * @see
      * MediaBrowserCompat#sendCustomAction(String, Bundle, MediaBrowserCompat.CustomActionCallback)
@@ -807,8 +808,8 @@ public final class MediaConstants {
      * @see
      * MediaBrowserServiceCompat#onCustomAction(String, Bundle, MediaBrowserServiceCompat.Result)
      */
-    public static final String EXTRA_KEY_CUSTOM_BROWSER_ACTION_RESULT_MESSAGE =
-            "androidx.media.utils.extra.KEY_CUSTOM_BROWSER_ACTION_RESULT_MESSAGE";
+    public static final String EXTRAS_KEY_CUSTOM_BROWSER_ACTION_RESULT_MESSAGE =
+            "androidx.media.utils.extras.KEY_CUSTOM_BROWSER_ACTION_RESULT_MESSAGE";
 
     /**
      * Bundle key used for the media ID in {@link PlaybackStateCompat playback state} extras. It's

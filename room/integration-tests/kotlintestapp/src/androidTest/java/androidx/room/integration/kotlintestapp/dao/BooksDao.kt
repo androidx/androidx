@@ -134,7 +134,13 @@ interface BooksDao {
     fun getBook(bookId: String): Book
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
+    fun getBookNullable(bookId: String): Book?
+
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
     suspend fun getBookSuspend(bookId: String): Book
+
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
+    suspend fun getBookNullableSuspend(bookId: String): Book?
 
     @Query("SELECT * FROM book")
     suspend fun getBooksSuspend(): List<Book>
@@ -365,6 +371,9 @@ interface BooksDao {
 
     @Query("SELECT * FROM Publisher WHERE publisherId = :publisherId")
     fun getPublisher(publisherId: String): Publisher
+
+    @Query("SELECT * FROM Publisher WHERE publisherId = :publisherId")
+    fun getPublisherNullable(publisherId: String): Publisher?
 
     @Query("SELECT * FROM Publisher WHERE _rowid_ = :rowid")
     fun getPublisher(rowid: Long): Publisher

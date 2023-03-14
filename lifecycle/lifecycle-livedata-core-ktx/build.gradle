@@ -35,10 +35,6 @@ dependencies {
     testImplementation(libs.truth)
 
     lintPublish(project(":lifecycle:lifecycle-livedata-core-ktx-lint"))
-
-    constraints {
-        implementation(project(":lifecycle:lifecycle-livedata-core"))
-    }
 }
 
 androidx {

@@ -45,9 +45,9 @@ internal val captureSessionDebugIds = atomic(0)
  * it to the [GraphListener].
  *
  * After this object is created, it waits for:
- *  - A valid CameraDevice via [cameraDevice]
- *  - A valid map of Surfaces via [configureSurfaceMap]
- * Once these objects are available, it will create the [CameraCaptureSession].
+ * - A valid CameraDevice via [cameraDevice]
+ * - A valid map of Surfaces via [configureSurfaceMap] Once these objects are available, it will
+ *   create the [CameraCaptureSession].
  *
  * If at any time this object is put into a COSING or CLOSED state the session will either never be
  * created, or if the session has already been created, it will be de-referenced and ignored. This
@@ -76,16 +76,17 @@ internal class CaptureSessionState(
     private var _cameraDevice: CameraDeviceWrapper? = null
     var cameraDevice: CameraDeviceWrapper?
         get() = synchronized(lock) { _cameraDevice }
-        set(value) = synchronized(lock) {
-            if (state == State.CLOSING || state == State.CLOSED) {
-                return
-            }
+        set(value) =
+            synchronized(lock) {
+                if (state == State.CLOSING || state == State.CLOSED) {
+                    return
+                }
 
-            _cameraDevice = value
-            if (value != null) {
-                scope.launch { tryCreateCaptureSession() }
+                _cameraDevice = value
+                if (value != null) {
+                    scope.launch { tryCreateCaptureSession() }
+                }
             }
-        }
 
     @GuardedBy("lock")
     private var cameraCaptureSession: ConfiguredCameraCaptureSession? = null
@@ -197,12 +198,13 @@ internal class CaptureSessionState(
             }
 
             if (cameraCaptureSession == null && session != null) {
-                captureSession = ConfiguredCameraCaptureSession(
-                    session,
-                    GraphRequestProcessor.from(
-                        captureSequenceProcessorFactory.create(session, activeSurfaceMap)
+                captureSession =
+                    ConfiguredCameraCaptureSession(
+                        session,
+                        GraphRequestProcessor.from(
+                            captureSequenceProcessorFactory.create(session, activeSurfaceMap)
+                        )
                     )
-                )
                 cameraCaptureSession = captureSession
             } else {
                 captureSession = cameraCaptureSession
@@ -306,11 +308,12 @@ internal class CaptureSessionState(
     }
 
     private fun finalizeSession() {
-        val tokenList = synchronized(lock) {
-            val tokens = _surfaceTokenMap.values.toList()
-            _surfaceTokenMap.clear()
-            tokens
-        }
+        val tokenList =
+            synchronized(lock) {
+                val tokens = _surfaceTokenMap.values.toList()
+                _surfaceTokenMap.clear()
+                tokens
+            }
         tokenList.forEach { it.close() }
     }
 
@@ -384,11 +387,10 @@ internal class CaptureSessionState(
             "Creating CameraCaptureSession from ${device?.cameraId} using $this with $surfaces"
         }
 
-        val deferred = Debug.trace(
-            "CameraDevice-${device?.cameraId?.value}#createCaptureSession"
-        ) {
-            captureSessionFactory.create(device!!, surfaces!!, this)
-        }
+        val deferred =
+            Debug.trace("CameraDevice-${device?.cameraId?.value}#createCaptureSession") {
+                captureSessionFactory.create(device!!, surfaces!!, this)
+            }
 
         synchronized(lock) {
             if (state == State.CLOSING || state == State.CLOSED) {
@@ -406,9 +408,7 @@ internal class CaptureSessionState(
                 }
                 pendingOutputMap = deferred
 
-                val availableDeferredSurfaces = _surfaceMap?.filter {
-                    deferred.containsKey(it.key)
-                }
+                val availableDeferredSurfaces = _surfaceMap?.filter { deferred.containsKey(it.key) }
 
                 if (availableDeferredSurfaces != null &&
                     availableDeferredSurfaces.size == deferred.size

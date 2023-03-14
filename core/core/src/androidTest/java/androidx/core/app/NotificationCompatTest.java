@@ -47,6 +47,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -303,6 +304,11 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         // different internal state.  However, this unit test still validates that the
         // notification is built successfully (without throwing an exception).
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
+
+        Notification nDefault = builder.build();
+        if (Build.VERSION.SDK_INT >= 19) {
+            assertThat(NotificationCompat.getShowWhen(nDefault)).isTrue();
+        }
 
         // test true
         Notification nTrue = builder.setShowWhen(true).build();
@@ -1134,6 +1140,148 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
+    public void testSetNotification_setLargeIconNull() {
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setLargeIcon((Bitmap) null)
+                .build();
+
+        // Extras are not populated before API 19.
+        if (Build.VERSION.SDK_INT >= 19) {
+            Bundle extras = NotificationCompat.getExtras(n);
+            assertNotNull(extras);
+            assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON));
+            assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON));
+        }
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertNull(n.getLargeIcon());
+        }
+    }
+
+    @Test
+    public void testSetNotification_setLargeIconBitmap() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setLargeIcon(bitmap)
+                .build();
+
+        // Extras are not populated before API 19.
+        if (Build.VERSION.SDK_INT >= 19) {
+            Bundle extras = NotificationCompat.getExtras(n);
+            assertNotNull(extras);
+            assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON));
+            assertNotNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON));
+        }
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertNotNull(n.getLargeIcon());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testSetNotification_setLargeIconNullIcon() {
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setLargeIcon((Icon) null)
+                .build();
+
+        assertNull(n.getLargeIcon());
+
+        Bundle extras = NotificationCompat.getExtras(n);
+        assertNotNull(extras);
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON));
+        assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON));
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testSetNotification_setLargeIconIcon() {
+        IconCompat iconCompat = IconCompat.createWithResource(mContext,
+                R.drawable.notification_bg_low_pressed);
+        Icon icon = iconCompat.toIcon(mContext);
+
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setLargeIcon(icon)
+                .build();
+
+        Bundle extras = NotificationCompat.getExtras(n);
+        assertNotNull(extras);
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON));
+        assertNotNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON));
+        if (Build.VERSION.SDK_INT >= 28) {
+            assertEquals(n.getLargeIcon().getResId(), icon.getResId());
+            Icon recoveredIcon = extras.getParcelable(NotificationCompat.EXTRA_LARGE_ICON);
+            assertEquals(icon.getResId(), recoveredIcon.getResId());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 26)
+    @Test
+    public void testSetNotification_setLargeIconBitmapScales() {
+        // Original icon is 860x860
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_oversize_large_icon_bg);
+
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setLargeIcon(bitmap)
+                .build();
+
+        Icon recoveredIcon = n.getLargeIcon();
+        Drawable drawable = recoveredIcon.loadDrawable(mContext);
+        // Scale has reduced its height and width.
+        assertTrue(drawable.getIntrinsicHeight() < 860);
+        assertTrue(drawable.getIntrinsicWidth() < 860);
+    }
+
+    @Test
+    public void testReduceLargeIconSize_nullIcon() {
+        assertNull(NotificationCompat.reduceLargeIconSize(mContext, null));
+    }
+
+    @SdkSuppress(minSdkVersion = 27)
+    @Test
+    public void testReduceLargeIconSize_doesNotResizeInModernVersions() {
+        // We expect the function to do nothing for API 27 and higher, where scaling is not needed.
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_oversize_large_icon_bg);
+        assertEquals(bitmap, NotificationCompat.reduceLargeIconSize(mContext, bitmap));
+    }
+
+    @SdkSuppress(maxSdkVersion = 26)
+    @Test
+    public void testReduceLargeIconSize() {
+        // Original icon is 860x860; set inScaled to false to validate the unscaled size.
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_oversize_large_icon_bg, options);
+
+        assertEquals(860, bitmap.getWidth());
+        assertEquals(860, bitmap.getHeight());
+
+        // In the case that the bitmap is larger than the max allowable width or height, we expect
+        // reduceLargeIconSize scales it down.
+        // Because each device sets this differently, we only want to test the expectation that
+        // the size is reduced on the devices where it's appropriate.
+        int maxWidth =
+                mContext.getResources().getDimensionPixelSize(
+                        R.dimen.compat_notification_large_icon_max_width);
+        int maxHeight =
+                mContext.getResources().getDimensionPixelSize(
+                        R.dimen.compat_notification_large_icon_max_height);
+        if (maxWidth < 860 || maxHeight < 860) {
+            // We don't check the exact size because it varies based on the device scaling factor.
+            Bitmap newBitmap = NotificationCompat.reduceLargeIconSize(mContext, bitmap);
+            assertTrue(newBitmap.getWidth() < 860);
+            assertTrue(newBitmap.getHeight() < 860);
+        }
+    }
+
+    @Test
     public void testSetNotificationSilent() {
 
         Notification nSummary = new NotificationCompat.Builder(mActivityTestRule.getActivity())
@@ -1411,7 +1559,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .setSmallIcon(1)
                 .setStyle(new NotificationCompat.BigPictureStyle()
                         .bigPicture(bitmap)
-                        .bigLargeIcon(null)
+                        .bigLargeIcon((Bitmap) null)
                         .setBigContentTitle("Big Content Title")
                         .setSummaryText("Summary Text"))
                 .build();
@@ -1421,6 +1569,52 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             assertNotNull(extras);
             assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG));
             assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testBigPictureStyle_withIconNullBigLargeIcon() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon((Icon) null)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        Bundle extras = NotificationCompat.getExtras(n);
+        assertNotNull(extras);
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+        assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testBigPictureStyle_withIconBigLargeIcon() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        IconCompat iconCompat = IconCompat.createWithResource(mContext, R.drawable.ic_call_decline);
+        Icon icon = iconCompat.toIcon(mContext);
+
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(icon)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        Bundle extras = NotificationCompat.getExtras(n);
+        assertNotNull(extras);
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+        assertNotNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+
+        Icon recoveredIcon = extras.getParcelable(NotificationCompat.EXTRA_LARGE_ICON_BIG);
+        if (Build.VERSION.SDK_INT >= 28) {
+            assertEquals(icon.getResId(), recoveredIcon.getResId());
         }
     }
 
@@ -2546,9 +2740,9 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
         NotificationCompat.Builder originalBuilder =
                 new NotificationCompat.Builder(mContext, "test id")
-                .setSmallIcon(1)
-                .setContentTitle("test title")
-                .setStyle(callStyle);
+                        .setSmallIcon(1)
+                        .setContentTitle("test title")
+                        .setStyle(callStyle);
 
         Notification notification = originalBuilder.build();
 

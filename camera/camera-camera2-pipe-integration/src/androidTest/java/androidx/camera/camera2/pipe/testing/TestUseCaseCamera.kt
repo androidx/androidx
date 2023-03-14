@@ -26,12 +26,14 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
+import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CapturePipeline
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
@@ -41,9 +43,9 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraState
 import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
+import androidx.camera.camera2.pipe.integration.impl.toMap
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.Config
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -71,6 +73,7 @@ class TestUseCaseCamera(
             cameraPipe = cameraPipe,
             requestListener = ComboRequestListener(),
             useCaseSurfaceManager = useCaseSurfaceManager,
+            cameraInteropStateCallbackRepository = CameraInteropStateCallbackRepository()
         )
 
     override val requestControl: UseCaseCameraRequestControl = UseCaseCameraRequestControlImpl(
@@ -96,12 +99,25 @@ class TestUseCaseCamera(
         useCaseGraphConfig = useCaseCameraGraphConfig,
     ).apply {
         SessionConfigAdapter(useCases).getValidSessionConfigOrNull()?.let { sessionConfig ->
-            setSessionConfigAsync(sessionConfig)
+            setConfigAsync(
+                type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
+                config = sessionConfig.implementationOptions,
+                tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
+                listeners = setOf(
+                    CameraCallbackMap.createFor(
+                        sessionConfig.repeatingCameraCaptureCallbacks,
+                        threads.backgroundExecutor
+                    )
+                ),
+                template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
+                streams = useCaseCameraGraphConfig.getStreamIdsFromSurfaces(
+                    sessionConfig.repeatingCaptureConfig.surfaces
+                ),
+            )
         }
     }
 
-    override val runningUseCasesLiveData = MutableLiveData(useCases.toSet())
-
+    override var runningUseCases = useCases.toSet()
     override fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,
         value: T,

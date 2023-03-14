@@ -19,7 +19,7 @@ package androidx.room.processor
 import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_LONG
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -35,7 +35,6 @@ import androidx.room.vo.Index
 import androidx.room.vo.Pojo
 import androidx.room.vo.columnNames
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -63,7 +62,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             )
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
-            val intType = invocation.processingEnv.requireType(TypeName.INT)
+            val intType = invocation.processingEnv.requireType(XTypeName.PRIMITIVE_INT)
             assertThat(
                 field,
                 `is`(
@@ -123,9 +122,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             classpathFiles = libraryClasspath
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasError(
-                    ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD +
-                        " - id in test.library.MissingGetterEntity"
+                hasErrorContaining(
+                    ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
                 )
             }
         }
@@ -2606,7 +2604,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             )
             val parsed = parser.process()
             val field = parsed.primaryKey.fields.first()
-            assertThat(field.typeName.toJavaPoet()).isEqualTo(TypeName.LONG)
+            assertThat(field.typeName).isEqualTo(PRIMITIVE_LONG)
         }
     }
 }

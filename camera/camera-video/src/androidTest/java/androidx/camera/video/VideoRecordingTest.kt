@@ -45,6 +45,7 @@ import androidx.camera.core.impl.utils.TransformUtils.rectToSize
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.SurfaceTextureProvider
@@ -151,8 +152,8 @@ class VideoRecordingTest(
     private lateinit var mockVideoRecordEventConsumer: MockConsumer<VideoRecordEvent>
     private lateinit var videoCapture: VideoCapture<Recorder>
 
-    private val audioSourceAvailable by lazy {
-        AudioChecker.canAudioSourceBeStarted(
+    private val audioStreamAvailable by lazy {
+        AudioChecker.canAudioStreamBeStarted(
             context, cameraSelector, Recorder.DEFAULT_QUALITY_SELECTOR
         )
     }
@@ -185,12 +186,7 @@ class VideoRecordingTest(
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
-        // Skip for b/168175357, b/233661493
-        assumeFalse(
-            "Skip tests for Cuttlefish MediaCodec issues",
-            Build.MODEL.contains("Cuttlefish") &&
-                (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
-        )
+        skipVideoRecordingTestIfNotSupportedByEmulator()
 
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context).get()
@@ -223,9 +219,11 @@ class VideoRecordingTest(
     @Test
     fun getMetadataRotation_when_setTargetRotation() {
         // Arrange.
-        // Just set one Surface.ROTATION_90 to verify the function work or not.
-        val targetRotation = Surface.ROTATION_90
-        videoCapture.targetRotation = targetRotation
+        // Set Surface.ROTATION_90 for the 1st recording and update to Surface.ROTATION_180
+        // for the 2nd recording.
+        val targetRotation1 = Surface.ROTATION_90
+        val targetRotation2 = Surface.ROTATION_180
+        videoCapture.targetRotation = targetRotation1
 
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         latchForVideoSaved = CountDownLatch(1)
@@ -239,10 +237,32 @@ class VideoRecordingTest(
         completeVideoRecording(videoCapture, file)
 
         // Verify.
-        verifyMetadataRotation(getExpectedRotation(videoCapture).metadataRotation, file)
+        val (videoContentRotation, metadataRotation) = getExpectedRotation(videoCapture)
+        verifyMetadataRotation(metadataRotation, file)
 
         // Cleanup.
         file.delete()
+
+        // Arrange: Prepare for 2nd recording
+        val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        latchForVideoSaved = CountDownLatch(1)
+        latchForVideoRecording = CountDownLatch(5)
+
+        // Act: Update targetRotation.
+        videoCapture.targetRotation = targetRotation2
+        completeVideoRecording(videoCapture, file2)
+
+        // Verify.
+        val metadataRotation2 = cameraInfo.getSensorRotationDegrees(targetRotation2).let {
+            if (videoCapture.node != null) {
+                // If effect is enabled, the rotation should eliminate the video content rotation.
+                it - videoContentRotation
+            } else it
+        }
+        verifyMetadataRotation(metadataRotation2, file2)
+
+        // Cleanup.
+        file2.delete()
     }
 
     @Test
@@ -570,17 +590,17 @@ class VideoRecordingTest(
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
         val file1 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        performRecording(videoCapture, file1, includeAudio = audioSourceAvailable)
+        performRecording(videoCapture, file1, includeAudio = audioStreamAvailable)
 
         val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        performRecording(videoCapture, file2, includeAudio = audioSourceAvailable)
+        performRecording(videoCapture, file2, includeAudio = audioStreamAvailable)
 
         val file3 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-        performRecording(videoCapture, file3, includeAudio = audioSourceAvailable)
+        performRecording(videoCapture, file3, includeAudio = audioStreamAvailable)
 
-        verifyRecordingResult(file1, audioSourceAvailable)
-        verifyRecordingResult(file2, audioSourceAvailable)
-        verifyRecordingResult(file3, audioSourceAvailable)
+        verifyRecordingResult(file1, audioStreamAvailable)
+        verifyRecordingResult(file2, audioStreamAvailable)
+        verifyRecordingResult(file3, audioStreamAvailable)
 
         file1.delete()
         file2.delete()
@@ -590,7 +610,7 @@ class VideoRecordingTest(
     @Test
     fun canRecordMultipleFilesWithThenWithoutAudio() {
         // This test requires that audio is available
-        assumeTrue(audioSourceAvailable)
+        assumeTrue("Audio stream is not available", audioStreamAvailable)
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
@@ -610,7 +630,7 @@ class VideoRecordingTest(
     @Test
     fun canRecordMultipleFilesWithoutThenWithAudio() {
         // This test requires that audio is available
-        assumeTrue(audioSourceAvailable)
+        assumeTrue(audioStreamAvailable)
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }
@@ -636,13 +656,13 @@ class VideoRecordingTest(
         // Start and stop a recording to ensure recorder is idling
         val file1 = File.createTempFile("CameraX1", ".tmp").apply { deleteOnExit() }
 
-        performRecording(videoCapture, file1, audioSourceAvailable)
+        performRecording(videoCapture, file1, audioStreamAvailable)
 
         // First recording is now finalized. Try starting second recording paused.
         val file2 = File.createTempFile("CameraX2", ".tmp").apply { deleteOnExit() }
         videoCapture.output.prepareRecording(context, FileOutputOptions.Builder(file2).build())
             .apply {
-                if (audioSourceAvailable) {
+                if (audioStreamAvailable) {
                     withAudioEnabled()
                 }
             }.start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer).use {
@@ -688,7 +708,7 @@ class VideoRecordingTest(
 
     @Test
     fun canSwitchAudioOnOff() {
-        assumeTrue("Audio source is not available", audioSourceAvailable)
+        assumeTrue("Audio stream is not available", audioStreamAvailable)
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
         }

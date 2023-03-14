@@ -45,6 +45,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -52,13 +53,16 @@ import android.view.MenuItem
 import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.impl.utils.CompareSizesByArea
-import androidx.camera.core.impl.utils.futures.FutureCallback
-import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.viewfinder.CameraViewfinder
+import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode
+import androidx.camera.viewfinder.CameraViewfinder.ScaleType
+import androidx.camera.viewfinder.CameraViewfinderExt.requestSurface
 import androidx.camera.viewfinder.ViewfinderSurfaceRequest
+import androidx.camera.viewfinder.populateFromCharacteristics
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -70,18 +74,15 @@ import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import com.google.common.base.Objects
-import com.google.common.util.concurrent.ListenableFuture
 import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.Arrays
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -89,6 +90,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 
 /**
@@ -97,52 +99,54 @@ import kotlinx.coroutines.withContext
 class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private lateinit var cameraThread: HandlerThread
-
-    private lateinit var cameraHandler: Handler
-
-    private lateinit var imageReaderThread: HandlerThread
-
-    private lateinit var imageReaderHandler: Handler
-
-    private val cameraOpenCloseLock = Semaphore(1)
+    private val cameraOpenCloseLock = Mutex()
 
     private val onImageAvailableListener = ImageReader.OnImageAvailableListener {
-        cameraHandler.post(
+        cameraHandler?.post(
             ImageSaver(
                 it.acquireNextImage(),
-                file
+                checkNotNull(file) { "file cannot be null when saving image" }
             )
         )
     }
-
-    private lateinit var camera: CameraDevice
-
-    private lateinit var characteristics: CameraCharacteristics
-
-    private lateinit var cameraId: String
 
     private lateinit var cameraManager: CameraManager
 
     private lateinit var cameraViewfinder: CameraViewfinder
 
-    private lateinit var file: File
-
-    private lateinit var imageReader: ImageReader
-
-    private lateinit var relativeOrientation: OrientationLiveData
-
-    private lateinit var session: CameraCaptureSession
-
-    private lateinit var surfaceListenableFuture: ListenableFuture<Surface>
-
     private lateinit var windowInfoTracker: WindowInfoTracker
+
+    private var cameraThread: HandlerThread? = null
+
+    private var cameraHandler: Handler? = null
+
+    private var imageReaderThread: HandlerThread? = null
+
+    private var imageReaderHandler: Handler? = null
+
+    private var camera: CameraDevice? = null
+
+    private var characteristics: CameraCharacteristics? = null
+
+    private var cameraId: String? = null
+
+    private var file: File? = null
+
+    private var imageReader: ImageReader? = null
+
+    private var relativeOrientation: OrientationLiveData? = null
+
+    private var session: CameraCaptureSession? = null
 
     private var activeWindowLayoutInfo: WindowLayoutInfo? = null
 
     private var isViewfinderInLeftTop = true
 
     private var viewfinderSurfaceRequest: ViewfinderSurfaceRequest? = null
+
+    private var resolution: Size? = null
+
+    private var layoutChangedListener: ViewTreeObserver.OnGlobalLayoutListener? = null
 
     @Deprecated("Deprecated in Java")
     @Suppress("DEPRECATION")
@@ -171,19 +175,22 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.implementationMode -> {
-                cameraViewfinder.implementationMode =
+                val implementationMode =
                     when (cameraViewfinder.implementationMode) {
-                        CameraViewfinder.ImplementationMode.PERFORMANCE ->
-                            CameraViewfinder.ImplementationMode.COMPATIBLE
-                        else -> CameraViewfinder.ImplementationMode.PERFORMANCE
+                        ImplementationMode.PERFORMANCE ->
+                            ImplementationMode.COMPATIBLE
+                        else -> ImplementationMode.PERFORMANCE
                     }
-                closeCamera()
-                sendSurfaceRequest(false)
+
+                lifecycleScope.launch {
+                    closeCamera()
+                    sendSurfaceRequest(implementationMode, false)
+                }
             }
-            R.id.fitCenter -> cameraViewfinder.scaleType = CameraViewfinder.ScaleType.FIT_CENTER
-            R.id.fillCenter -> cameraViewfinder.scaleType = CameraViewfinder.ScaleType.FILL_CENTER
-            R.id.fitStart -> cameraViewfinder.scaleType = CameraViewfinder.ScaleType.FIT_START
-            R.id.fitEnd -> cameraViewfinder.scaleType = CameraViewfinder.ScaleType.FIT_END
+            R.id.fitCenter -> cameraViewfinder.scaleType = ScaleType.FIT_CENTER
+            R.id.fillCenter -> cameraViewfinder.scaleType = ScaleType.FILL_CENTER
+            R.id.fitStart -> cameraViewfinder.scaleType = ScaleType.FIT_START
+            R.id.fitEnd -> cameraViewfinder.scaleType = ScaleType.FIT_END
         }
         return super.onOptionsItemSelected(item)
     }
@@ -209,9 +216,13 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     override fun onResume() {
         super.onResume()
         cameraThread = HandlerThread("CameraThread").apply { start() }
-        cameraHandler = Handler(cameraThread.looper)
+        cameraHandler = Handler(checkNotNull(cameraThread) {
+            "camera thread cannot be null"
+        }.looper)
         imageReaderThread = HandlerThread("ImageThread").apply { start() }
-        imageReaderHandler = Handler(imageReaderThread.looper)
+        imageReaderHandler = Handler(checkNotNull(imageReaderThread) {
+            "image reader thread cannot be null"
+        }.looper)
 
         // Request Permission
         val cameraPermission = activity?.let {
@@ -234,7 +245,13 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
             }
         }
 
-        sendSurfaceRequest(false)
+        layoutChangedListener = ViewTreeObserver.OnGlobalLayoutListener {
+            cameraViewfinder.viewTreeObserver.removeOnGlobalLayoutListener(layoutChangedListener)
+            layoutChangedListener = null
+
+            sendSurfaceRequest(null, false)
+        }
+        cameraViewfinder.viewTreeObserver.addOnGlobalLayoutListener(layoutChangedListener)
 
         lifecycleScope.launch {
             windowInfoTracker.windowLayoutInfo(requireActivity())
@@ -247,10 +264,12 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     }
 
     override fun onPause() {
-        closeCamera()
-        cameraThread.quitSafely()
-        imageReaderThread.quitSafely()
-        viewfinderSurfaceRequest?.markSurfaceSafeToRelease()
+        lifecycleScope.launch {
+            closeCamera()
+            cameraThread?.quitSafely()
+            imageReaderThread?.quitSafely()
+            viewfinderSurfaceRequest?.markSurfaceSafeToRelease()
+        }
         super.onPause()
     }
 
@@ -302,28 +321,20 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     }
 
     // ------------- Create Capture Session --------------
-    private fun sendSurfaceRequest(toggleCamera: Boolean) {
-        cameraViewfinder.post {
-            if (isAdded && context != null) {
-                setUpCameraOutputs(toggleCamera)
-
-                val context = requireContext()
-                surfaceListenableFuture =
-                    cameraViewfinder.requestSurfaceAsync(viewfinderSurfaceRequest!!)
-
-                Futures.addCallback(surfaceListenableFuture, object : FutureCallback<Surface?> {
-                    override fun onSuccess(surface: Surface?) {
-                        Log.d(TAG, "request onSurfaceAvailable surface = $surface")
-                        if (surface != null) {
-                            initializeCamera(surface)
-                        }
-                    }
-
-                    override fun onFailure(t: Throwable) {
-                        Log.e(TAG, "request onSurfaceClosed")
-                    }
-                }, ContextCompat.getMainExecutor(context))
+    private fun sendSurfaceRequest(
+        implementationMode: ImplementationMode?,
+        toggleCamera: Boolean
+    ) = lifecycleScope.launch {
+        if (isAdded && context != null) {
+            setUpCameraOutputs(toggleCamera)
+            val builder = ViewfinderSurfaceRequest.Builder(resolution!!)
+                .populateFromCharacteristics(characteristics!!)
+            if (implementationMode != null) {
+                builder.setImplementationMode(implementationMode)
             }
+            viewfinderSurfaceRequest = builder.build()
+            val surface = cameraViewfinder.requestSurface(viewfinderSurfaceRequest!!)
+            initializeCamera(surface)
         }
     }
 
@@ -331,34 +342,44 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
         try {
             for (cameraId in cameraManager.cameraIdList) {
                 characteristics = cameraManager.getCameraCharacteristics(cameraId)
-                relativeOrientation = OrientationLiveData(requireContext(), characteristics).apply {
+                relativeOrientation = OrientationLiveData(requireContext(),
+                    checkNotNull(characteristics) {
+                        "camera characteristics cannot be null"
+                    }).apply {
                     observe(viewLifecycleOwner, Observer { orientation ->
                         Log.d(TAG, "Orientation changed: $orientation")
                     })
                 }
 
-                val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
+                val facing = checkNotNull(characteristics) {
+                    "camera characteristics cannot be null"
+                }.get(CameraCharacteristics.LENS_FACING)
 
                 // Toggle the front and back camera
                 if (toggleCamera) {
-                    val currentFacing: Int? = cameraManager.getCameraCharacteristics(this.cameraId)
+                    val currentFacing: Int? = cameraManager.getCameraCharacteristics(
+                        checkNotNull(this.cameraId) {
+                            "camera id cannot be null"
+                        })
                         .get<Int>(CameraCharacteristics.LENS_FACING)
                     if (Objects.equal(currentFacing, facing)) {
                         continue
                     }
                 }
 
-                val map = characteristics.get(
+                val map = checkNotNull(characteristics) {
+                    "camera characteristics cannot be null"
+                }.get(
                     CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
                 ) ?: continue
 
                 // For still image captures, we use the largest available size.
-                val largest = Collections.max(
-                    /* coll = */ Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
+                resolution = Collections.max(
+                    /* coll = */ listOf(*map.getOutputSizes(ImageFormat.JPEG)),
                     /* comp = */ CompareSizesByArea()
                 )
                 imageReader = ImageReader.newInstance(
-                    largest.width, largest.height,
+                    resolution!!.width, resolution!!.height,
                     ImageFormat.JPEG, /*maxImages*/ 2
                 ).apply {
                     setOnImageAvailableListener(onImageAvailableListener, imageReaderHandler)
@@ -366,9 +387,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
 
                 this.cameraId = cameraId
                 this.characteristics = cameraManager.getCameraCharacteristics(cameraId)
-                viewfinderSurfaceRequest = ViewfinderSurfaceRequest(largest, characteristics)
-
-                Log.d(TAG, "viewfinderSurfaceRequest created = $viewfinderSurfaceRequest")
                 return
             }
         } catch (e: CameraAccessException) {
@@ -376,31 +394,42 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
         }
     }
 
-    private fun initializeCamera(surface: Surface) = lifecycleScope.launch(Dispatchers.IO) {
-        cameraOpenCloseLock.acquire()
+    private suspend fun initializeCamera(surface: Surface) {
+        cameraOpenCloseLock.lock()
 
-        // Open the selected camera
-        camera = openCamera(cameraManager, cameraId, cameraHandler)
+        withContext(Dispatchers.IO) {
+            // Open the selected camera
+            camera = openCamera(cameraManager, checkNotNull(cameraId) {
+                "camera id cannot be null"
+            }, cameraHandler)
 
-        // Creates list of Surfaces where the camera will output frames
-        val targets = listOf(surface, imageReader.surface)
+            // Creates list of Surfaces where the camera will output frames
+            val targets = listOf(surface, checkNotNull(imageReader?.surface) {
+                "image reader surface cannot be null"
+            })
 
-        try {
-            // Start a capture session using our open camera and list of Surfaces where frames will go
-            session = createCaptureSession(camera, targets, cameraHandler)
+            try {
+                // Start a capture session using our open camera and list of Surfaces where frames will go
+                session = createCaptureSession(checkNotNull(camera) {
+                    "camera cannot be null"
+                }, targets, cameraHandler)
 
-            val captureRequest = camera.createCaptureRequest(
-                CameraDevice.TEMPLATE_PREVIEW).apply { addTarget(surface) }
+                val captureRequest = checkNotNull(camera) {
+                    "camera cannot be null"
+                }.createCaptureRequest(
+                    CameraDevice.TEMPLATE_PREVIEW
+                ).apply { addTarget(surface) }
 
-            // This will keep sending the capture request as frequently as possible until the
-            // session is torn down or session.stopRepeating() is called
-            session.setRepeatingRequest(captureRequest.build(), null, cameraHandler)
-        } catch (e: CameraAccessException) {
-            Log.e(TAG, "createCaptureSession CameraAccessException")
-        } catch (e: IllegalArgumentException) {
-            Log.e(TAG, "createCaptureSession IllegalArgumentException")
-        } catch (e: SecurityException) {
-            Log.e(TAG, "createCaptureSession SecurityException")
+                // This will keep sending the capture request as frequently as possible until the
+                // session is torn down or session.stopRepeating() is called
+                session?.setRepeatingRequest(captureRequest.build(), null, cameraHandler)
+            } catch (e: CameraAccessException) {
+                Log.e(TAG, "createCaptureSession CameraAccessException")
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, "createCaptureSession IllegalArgumentException")
+            } catch (e: SecurityException) {
+                Log.e(TAG, "createCaptureSession SecurityException")
+            }
         }
     }
 
@@ -409,58 +438,55 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
         manager: CameraManager,
         cameraId: String,
         handler: Handler? = null
-    ): CameraDevice = suspendCancellableCoroutine { cont ->
-        try {
-            manager.openCamera(cameraId, object : CameraDevice.StateCallback() {
-                override fun onOpened(device: CameraDevice) {
-                    cameraOpenCloseLock.release()
-                    cont.resume(device)
-                }
-
-                override fun onDisconnected(device: CameraDevice) {
-                    Log.w(TAG, "Camera $cameraId has been disconnected")
-                    cameraOpenCloseLock.release()
-                }
-
-                override fun onError(device: CameraDevice, error: Int) {
-                    val msg = when (error) {
-                        ERROR_CAMERA_DEVICE -> "Fatal (device)"
-                        ERROR_CAMERA_DISABLED -> "Device policy"
-                        ERROR_CAMERA_IN_USE -> "Camera in use"
-                        ERROR_CAMERA_SERVICE -> "Fatal (service)"
-                        ERROR_MAX_CAMERAS_IN_USE -> "Maximum cameras in use"
-                        else -> "Unknown"
+    ): CameraDevice = withContext(Dispatchers.IO) {
+        suspendCancellableCoroutine { cont ->
+            try {
+                manager.openCamera(cameraId, object : CameraDevice.StateCallback() {
+                    override fun onOpened(device: CameraDevice) {
+                        cameraOpenCloseLock.unlock()
+                        cont.resume(device)
                     }
-                    Log.e(TAG, "Camera $cameraId error: ($error) $msg")
-                }
-            }, handler)
-        } catch (e: CameraAccessException) {
-            Log.e(TAG, "openCamera CameraAccessException")
-        } catch (e: IllegalArgumentException) {
-            Log.e(TAG, "openCamera IllegalArgumentException")
-        } catch (e: SecurityException) {
-            Log.e(TAG, "openCamera SecurityException")
+
+                    override fun onDisconnected(device: CameraDevice) {
+                        Log.w(TAG, "Camera $cameraId has been disconnected")
+                        cameraOpenCloseLock.unlock()
+                    }
+
+                    override fun onError(device: CameraDevice, error: Int) {
+                        val msg = when (error) {
+                            ERROR_CAMERA_DEVICE -> "Fatal (device)"
+                            ERROR_CAMERA_DISABLED -> "Device policy"
+                            ERROR_CAMERA_IN_USE -> "Camera in use"
+                            ERROR_CAMERA_SERVICE -> "Fatal (service)"
+                            ERROR_MAX_CAMERAS_IN_USE -> "Maximum cameras in use"
+                            else -> "Unknown"
+                        }
+                        Log.e(TAG, "Camera $cameraId error: ($error) $msg")
+                    }
+                }, handler)
+            } catch (e: CameraAccessException) {
+                Log.e(TAG, "openCamera CameraAccessException")
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, "openCamera IllegalArgumentException")
+            } catch (e: SecurityException) {
+                Log.e(TAG, "openCamera SecurityException")
+            }
         }
     }
 
-    private fun closeCamera() {
+    private suspend fun closeCamera() = withContext(Dispatchers.IO) {
         try {
-            cameraOpenCloseLock.acquire()
-            if (::session.isInitialized) {
-                session.close()
-            }
-
-            if (::camera.isInitialized) {
-                camera.close()
-            }
-
-            if (::imageReader.isInitialized) {
-                imageReader.close()
-            }
+            cameraOpenCloseLock.lock()
+            session?.close()
+            camera?.close()
+            imageReader?.close()
+            session = null
+            camera = null
+            imageReader = null
         } catch (exc: Throwable) {
             Log.e(TAG, "Error closing camera", exc)
         } finally {
-            cameraOpenCloseLock.release()
+            cameraOpenCloseLock.unlock()
         }
     }
 
@@ -469,26 +495,30 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
         device: CameraDevice,
         targets: List<Surface>,
         handler: Handler? = null
-    ): CameraCaptureSession = suspendCoroutine { cont ->
+    ): CameraCaptureSession = withContext(Dispatchers.IO) {
+        suspendCoroutine { cont ->
 
-        // Create a capture session using the predefined targets; this also involves defining the
-        // session state callback to be notified of when the session is ready
-        device.createCaptureSession(targets, object : CameraCaptureSession.StateCallback() {
+            // Create a capture session using the predefined targets; this also involves defining the
+            // session state callback to be notified of when the session is ready
+            device.createCaptureSession(targets, object : CameraCaptureSession.StateCallback() {
 
-            override fun onConfigured(session: CameraCaptureSession) = cont.resume(session)
+                override fun onConfigured(session: CameraCaptureSession) = cont.resume(session)
 
-            override fun onConfigureFailed(session: CameraCaptureSession) {
-                val exc = RuntimeException("Camera ${device.id} session configuration failed")
-                Log.e(TAG, exc.message, exc)
-                cont.resumeWithException(exc)
-            }
-        }, handler)
+                override fun onConfigureFailed(session: CameraCaptureSession) {
+                    val exc = RuntimeException("Camera ${device.id} session configuration failed")
+                    Log.e(TAG, exc.message, exc)
+                    cont.resumeWithException(exc)
+                }
+            }, handler)
+        }
     }
 
     // ------------- Toggle Camera -----------
     private fun toggleCamera() {
-        closeCamera()
-        sendSurfaceRequest(true)
+        lifecycleScope.launch {
+            closeCamera()
+            sendSurfaceRequest(null, true)
+        }
     }
 
     // ------------- Save Bitmap ------------
@@ -509,8 +539,10 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
             val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             val uri = resolver.insert(contentUri, values)
             try {
-                val fos = resolver.openOutputStream(uri!!)
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos!!)
+                val fos = resolver.openOutputStream(checkNotNull(uri) { "uri cannot be null" })
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, checkNotNull(fos) {
+                    "fos cannot be null"
+                })
                 fos.close()
                 showToast("Saved: $displayName")
             } catch (e: IOException) {
@@ -745,83 +777,89 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
 
         // Flush any images left in the image reader
         @Suppress("ControlFlowWithEmptyBody")
-        while (imageReader.acquireNextImage() != null) {
+        while (imageReader?.acquireNextImage() != null) {
         }
 
         // Start a new image queue
         val imageQueue = ArrayBlockingQueue<Image>(IMAGE_BUFFER_SIZE)
-        imageReader.setOnImageAvailableListener({ reader ->
+        imageReader?.setOnImageAvailableListener({ reader ->
             val image = reader.acquireNextImage()
             Log.d(TAG, "Image available in queue: ${image.timestamp}")
             imageQueue.add(image)
         }, imageReaderHandler)
 
-        val captureRequest = session.device.createCaptureRequest(
-            CameraDevice.TEMPLATE_STILL_CAPTURE).apply { addTarget(imageReader.surface) }
-        session.capture(captureRequest.build(), object : CameraCaptureSession.CaptureCallback() {
+        val captureRequest = session?.device?.createCaptureRequest(
+            CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
+            imageReader?.surface?.let { this?.addTarget(it) } }
+        if (captureRequest != null) {
+            session?.capture(captureRequest.build(),
+                object : CameraCaptureSession.CaptureCallback() {
 
-            override fun onCaptureStarted(
-                session: CameraCaptureSession,
-                request: CaptureRequest,
-                timestamp: Long,
-                frameNumber: Long
-            ) {
-                super.onCaptureStarted(session, request, timestamp, frameNumber)
-            }
+                override fun onCaptureStarted(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    timestamp: Long,
+                    frameNumber: Long
+                ) {
+                    super.onCaptureStarted(session, request, timestamp, frameNumber)
+                }
 
-            override fun onCaptureCompleted(
-                session: CameraCaptureSession,
-                request: CaptureRequest,
-                result: TotalCaptureResult
-            ) {
-                super.onCaptureCompleted(session, request, result)
-                val resultTimestamp = result.get(CaptureResult.SENSOR_TIMESTAMP)
-                Log.d(TAG, "Capture result received: $resultTimestamp")
+                override fun onCaptureCompleted(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    result: TotalCaptureResult
+                ) {
+                    super.onCaptureCompleted(session, request, result)
+                    val resultTimestamp = result.get(CaptureResult.SENSOR_TIMESTAMP)
+                    Log.d(TAG, "Capture result received: $resultTimestamp")
 
-                // Set a timeout in case image captured is dropped from the pipeline
-                val exc = TimeoutException("Image dequeuing took too long")
-                val timeoutRunnable = Runnable { cont.resumeWithException(exc) }
-                imageReaderHandler.postDelayed(timeoutRunnable, IMAGE_CAPTURE_TIMEOUT_MILLIS)
+                    // Set a timeout in case image captured is dropped from the pipeline
+                    val exc = TimeoutException("Image dequeuing took too long")
+                    val timeoutRunnable = Runnable { cont.resumeWithException(exc) }
+                    imageReaderHandler?.postDelayed(timeoutRunnable, IMAGE_CAPTURE_TIMEOUT_MILLIS)
 
-                // Loop in the coroutine's context until an image with matching timestamp comes
-                // We need to launch the coroutine context again because the callback is done in
-                //  the handler provided to the `capture` method, not in our coroutine context
-                @Suppress("BlockingMethodInNonBlockingContext")
-                lifecycleScope.launch(cont.context) {
-                    while (true) {
+                    // Loop in the coroutine's context until an image with matching timestamp comes
+                    // We need to launch the coroutine context again because the callback is done in
+                    //  the handler provided to the `capture` method, not in our coroutine context
+                    @Suppress("BlockingMethodInNonBlockingContext")
+                    lifecycleScope.launch(cont.context) {
+                        while (true) {
 
-                        // Dequeue images while timestamps don't match
-                        val image = imageQueue.take()
-                        // if (image.timestamp != resultTimestamp) continue
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                            image.format != ImageFormat.DEPTH_JPEG &&
-                            image.timestamp != resultTimestamp) continue
-                        Log.d(TAG, "Matching image dequeued: ${image.timestamp}")
+                            // Dequeue images while timestamps don't match
+                            val image = imageQueue.take()
+                            // if (image.timestamp != resultTimestamp) continue
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                                image.format != ImageFormat.DEPTH_JPEG &&
+                                image.timestamp != resultTimestamp) continue
+                            Log.d(TAG, "Matching image dequeued: ${image.timestamp}")
 
-                        // Unset the image reader listener
-                        imageReaderHandler.removeCallbacks(timeoutRunnable)
-                        imageReader.setOnImageAvailableListener(null, null)
+                            // Unset the image reader listener
+                            imageReaderHandler?.removeCallbacks(timeoutRunnable)
+                            imageReader?.setOnImageAvailableListener(null, null)
 
-                        // Clear the queue of images, if there are left
-                        while (imageQueue.size > 0) {
-                            imageQueue.take().close()
+                            // Clear the queue of images, if there are left
+                            while (imageQueue.size > 0) {
+                                imageQueue.take().close()
+                            }
+
+                            // Compute EXIF orientation metadata
+                            val rotation = relativeOrientation?.value ?: 0
+                            val mirrored = characteristics?.get(
+                                CameraCharacteristics.LENS_FACING) ==
+                                CameraCharacteristics.LENS_FACING_FRONT
+                            val exifOrientation = computeExifOrientation(rotation, mirrored)
+
+                            // Build the result and resume progress
+                            cont.resume(CombinedCaptureResult(
+                                image, result, exifOrientation, checkNotNull(imageReader) {
+                                    "image reader cannot be null"
+                                }.imageFormat))
+                            // There is no need to break out of the loop, this coroutine will suspend
                         }
-
-                        // Compute EXIF orientation metadata
-                        val rotation = relativeOrientation.value ?: 0
-                        val mirrored = characteristics.get(CameraCharacteristics.LENS_FACING) ==
-                            CameraCharacteristics.LENS_FACING_FRONT
-                        val exifOrientation = computeExifOrientation(rotation, mirrored)
-
-                        // Build the result and resume progress
-                        cont.resume(CombinedCaptureResult(
-                            image, result, exifOrientation, imageReader.imageFormat))
-
-                        // There is no need to break out of the loop, this coroutine will suspend
                     }
                 }
-            }
-        }, cameraHandler)
+            }, cameraHandler)
+        }
     }
 
     /** Helper function used to save a [CombinedCaptureResult] into a [File] */
@@ -844,7 +882,9 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
 
             // When the format is RAW we use the DngCreator utility library
             ImageFormat.RAW_SENSOR -> {
-                val dngCreator = DngCreator(characteristics, result.metadata)
+                val dngCreator = DngCreator(checkNotNull(characteristics) {
+                    "camera characteristics cannot be null"
+                }, result.metadata)
                 try {
                     val output = createFile("dng")
                     FileOutputStream(output).use { dngCreator.writeImage(it, result.image) }

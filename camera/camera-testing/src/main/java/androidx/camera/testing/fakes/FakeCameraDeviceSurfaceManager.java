@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 
@@ -46,36 +47,41 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
 
     public static final Size MAX_OUTPUT_SIZE = new Size(4032, 3024); // 12.2 MP
 
-    private final Map<String, Map<Class<? extends UseCaseConfig<?>>, Size>> mDefinedResolutions =
-            new HashMap<>();
+    private final Map<String, Map<Class<? extends UseCaseConfig<?>>, StreamSpec>>
+            mDefinedStreamSpecs = new HashMap<>();
 
-    private final Set<List<Integer>> mValidSurfaceCombos = createDefaultValidSurfaceCombos();
+    private Set<List<Integer>> mValidSurfaceCombos = createDefaultValidSurfaceCombos();
 
     /**
-     * Sets the given suggested resolutions for the specified camera Id and use case type.
+     * Sets the given suggested stream specs for the specified camera Id and use case type.
      */
-    public void setSuggestedResolution(@NonNull String cameraId,
+    public void setSuggestedStreamSpec(@NonNull String cameraId,
             @NonNull Class<? extends UseCaseConfig<?>> type,
-            @NonNull Size size) {
-        Map<Class<? extends UseCaseConfig<?>>, Size> useCaseConfigTypeToSizeMap =
-                mDefinedResolutions.get(cameraId);
-        if (useCaseConfigTypeToSizeMap == null) {
-            useCaseConfigTypeToSizeMap = new HashMap<>();
-            mDefinedResolutions.put(cameraId, useCaseConfigTypeToSizeMap);
+            @NonNull StreamSpec streamSpec) {
+        Map<Class<? extends UseCaseConfig<?>>, StreamSpec> useCaseConfigTypeToStreamSpecMap =
+                mDefinedStreamSpecs.get(cameraId);
+        if (useCaseConfigTypeToStreamSpecMap == null) {
+            useCaseConfigTypeToStreamSpecMap = new HashMap<>();
+            mDefinedStreamSpecs.put(cameraId, useCaseConfigTypeToStreamSpecMap);
         }
 
-        useCaseConfigTypeToSizeMap.put(type, size);
+        useCaseConfigTypeToStreamSpecMap.put(type, streamSpec);
     }
 
     @Override
-    public boolean checkSupported(@NonNull String cameraId,
+    public boolean checkSupported(
+            boolean isConcurrentCameraModeOn,
+            @NonNull String cameraId,
             @Nullable List<SurfaceConfig> surfaceConfigList) {
         return false;
     }
 
     @Override
     @Nullable
-    public SurfaceConfig transformSurfaceConfig(@NonNull String cameraId, int imageFormat,
+    public SurfaceConfig transformSurfaceConfig(
+            boolean isConcurrentCameraModeOn,
+            @NonNull String cameraId,
+            int imageFormat,
             @NonNull Size size) {
 
         //returns a placeholder SurfaceConfig
@@ -85,27 +91,28 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
 
     @Override
     @NonNull
-    public Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
+    public Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
+            boolean isConcurrentCameraModeOn,
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
         checkSurfaceCombo(existingSurfaces, newUseCaseConfigs);
-        Map<UseCaseConfig<?>, Size> suggestedSizes = new HashMap<>();
+        Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecs = new HashMap<>();
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
-            Size resolution = MAX_OUTPUT_SIZE;
-            Map<Class<? extends UseCaseConfig<?>>, Size> definedResolutions =
-                    mDefinedResolutions.get(cameraId);
-            if (definedResolutions != null) {
-                Size definedResolution = definedResolutions.get(useCaseConfig.getClass());
-                if (definedResolution != null) {
-                    resolution = definedResolution;
+            StreamSpec streamSpec = StreamSpec.builder(MAX_OUTPUT_SIZE).build();
+            Map<Class<? extends UseCaseConfig<?>>, StreamSpec> definedStreamSpecs =
+                    mDefinedStreamSpecs.get(cameraId);
+            if (definedStreamSpecs != null) {
+                StreamSpec definedStreamSpec = definedStreamSpecs.get(useCaseConfig.getClass());
+                if (definedStreamSpec != null) {
+                    streamSpec = definedStreamSpec;
                 }
             }
 
-            suggestedSizes.put(useCaseConfig, resolution);
+            suggestedStreamSpecs.put(useCaseConfig, streamSpec);
         }
 
-        return suggestedSizes;
+        return suggestedStreamSpecs;
     }
 
     /**
@@ -156,5 +163,9 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
         validCombos.add(asList(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                 INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE));
         return validCombos;
+    }
+
+    public void setValidSurfaceCombos(@NonNull Set<List<Integer>> validSurfaceCombos) {
+        mValidSurfaceCombos = validSurfaceCombos;
     }
 }

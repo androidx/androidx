@@ -41,7 +41,8 @@ import androidx.camera.camera2.pipe.writeParameter
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
-/** Interface around a [CameraDevice] with minor modifications.
+/**
+ * Interface around a [CameraDevice] with minor modifications.
  *
  * This interface has been modified to correct nullness, adjust exceptions, and to return or produce
  * wrapper interfaces instead of the native Camera2 types.
@@ -110,7 +111,7 @@ internal interface CameraDeviceWrapper : UnsafeWrapper {
     @Throws(ObjectUnavailableException::class)
     fun createCaptureSession(config: SessionConfigData)
 
-    /** Invoked when the [CameraDevice] has been closed **/
+    /** Invoked when the [CameraDevice] has been closed */
     fun onDeviceClosed()
 }
 
@@ -126,9 +127,7 @@ internal fun CameraDevice?.closeWithTrace() {
     this?.let {
         val start = Timestamps.now(timeSource)
         Log.info { "Closing Camera ${it.id}" }
-        Debug.trace("CameraDevice-${it.id}#close") {
-            it.close()
-        }
+        Debug.trace("CameraDevice-${it.id}#close") { it.close() }
         val duration = Timestamps.now(timeSource) - start
         Log.info { "Closed Camera ${it.id} in ${duration.formatMs()}" }
     }
@@ -148,7 +147,6 @@ internal class AndroidCameraDevice(
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
     ) = rethrowCamera2Exceptions {
-
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
@@ -158,10 +156,7 @@ internal class AndroidCameraDevice(
         cameraDevice.createCaptureSession(
             outputs,
             AndroidCaptureSessionStateCallback(
-                this,
-                stateCallback,
-                previousStateCallback,
-                interopSessionStateCallback
+                this, stateCallback, previousStateCallback, interopSessionStateCallback
             ),
             handler
         )
@@ -174,7 +169,6 @@ internal class AndroidCameraDevice(
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
     ) = rethrowCamera2Exceptions {
-
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
@@ -185,10 +179,7 @@ internal class AndroidCameraDevice(
             input,
             outputs,
             AndroidCaptureSessionStateCallback(
-                this,
-                stateCallback,
-                previousStateCallback,
-                interopSessionStateCallback
+                this, stateCallback, previousStateCallback, interopSessionStateCallback
             ),
             handler
         )
@@ -200,7 +191,6 @@ internal class AndroidCameraDevice(
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
     ) = rethrowCamera2Exceptions {
-
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
@@ -210,10 +200,7 @@ internal class AndroidCameraDevice(
             cameraDevice,
             outputs,
             AndroidCaptureSessionStateCallback(
-                this,
-                stateCallback,
-                previousStateCallback,
-                interopSessionStateCallback
+                this, stateCallback, previousStateCallback, interopSessionStateCallback
             ),
             handler
         )
@@ -225,7 +212,6 @@ internal class AndroidCameraDevice(
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
     ) = rethrowCamera2Exceptions {
-
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
@@ -235,10 +221,7 @@ internal class AndroidCameraDevice(
             cameraDevice,
             outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
             AndroidCaptureSessionStateCallback(
-                this,
-                stateCallback,
-                previousStateCallback,
-                interopSessionStateCallback
+                this, stateCallback, previousStateCallback, interopSessionStateCallback
             ),
             handler
         )
@@ -251,7 +234,6 @@ internal class AndroidCameraDevice(
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
         handler: Handler?
     ) = rethrowCamera2Exceptions {
-
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
@@ -264,10 +246,7 @@ internal class AndroidCameraDevice(
             ),
             outputs.map { it.unwrapAs(OutputConfiguration::class) },
             AndroidCaptureSessionStateCallback(
-                this,
-                stateCallback,
-                previousStateCallback,
-                interopSessionStateCallback
+                this, stateCallback, previousStateCallback, interopSessionStateCallback
             ),
             handler
         )
@@ -279,17 +258,15 @@ internal class AndroidCameraDevice(
         val previousStateCallback = _lastStateCallback.value
         check(_lastStateCallback.compareAndSet(previousStateCallback, stateCallback))
 
-        val sessionConfig = Api28Compat.newSessionConfiguration(
-            config.sessionType,
-            config.outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
-            config.executor,
-            AndroidCaptureSessionStateCallback(
-                this,
-                stateCallback,
-                previousStateCallback,
-                interopSessionStateCallback
+        val sessionConfig =
+            Api28Compat.newSessionConfiguration(
+                config.sessionType,
+                config.outputConfigurations.map { it.unwrapAs(OutputConfiguration::class) },
+                config.executor,
+                AndroidCaptureSessionStateCallback(
+                    this, stateCallback, previousStateCallback, interopSessionStateCallback
+                )
             )
-        )
 
         if (config.inputConfiguration != null) {
             Api28Compat.setInputConfiguration(

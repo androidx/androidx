@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -59,7 +60,10 @@ final class SurfaceOutputImpl implements SurfaceOutput {
 
     @NonNull
     private final Surface mSurface;
+    @CameraEffect.Targets
     private final int mTargets;
+    @CameraEffect.Formats
+    private final int mFormat;
     @NonNull
     private final Size mSize;
     private final Size mInputSize;
@@ -86,8 +90,8 @@ final class SurfaceOutputImpl implements SurfaceOutput {
 
     SurfaceOutputImpl(
             @NonNull Surface surface,
-            // TODO(b/238222270): annotate targets with IntDef.
-            int targets,
+            @CameraEffect.Targets int targets,
+            @CameraEffect.Formats int format,
             @NonNull Size size,
             @NonNull Size inputSize,
             @NonNull Rect inputCropRect,
@@ -95,6 +99,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
             boolean mirroring) {
         mSurface = surface;
         mTargets = targets;
+        mFormat = format;
         mSize = size;
         mInputSize = inputSize;
         mInputCropRect = new Rect(inputCropRect);
@@ -164,6 +169,12 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     @Override
     public int getTargets() {
         return mTargets;
+    }
+
+    @CameraEffect.Formats
+    @Override
+    public int getFormat() {
+        return mFormat;
     }
 
     /**

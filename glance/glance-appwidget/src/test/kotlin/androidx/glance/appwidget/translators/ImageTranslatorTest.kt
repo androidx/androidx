@@ -24,17 +24,22 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.widget.ImageView
+import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.toBitmap
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
-import androidx.glance.appwidget.applyRemoteViews
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.appwidget.ImageProvider
+import androidx.glance.appwidget.ImageViewSubject.Companion.assertThat
+import androidx.glance.appwidget.applyRemoteViews
 import androidx.glance.appwidget.runAndTranslate
 import androidx.glance.appwidget.test.R
 import androidx.glance.layout.ContentScale
-import androidx.glance.Image
-import androidx.glance.ImageProvider
 import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics
+import androidx.glance.unit.ColorProvider
+import androidx.glance.unit.ResourceColorProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -219,5 +224,53 @@ class ImageTranslatorTest {
 
             val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
             assertThat(imageView.getContentDescription()).isNull()
+        }
+
+    @Test
+    @Config(sdk = [23, 31])
+    fun translateImage_colorFilter() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(ColorProvider(Color.Gray))
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView).hasColorFilter(Color.Gray)
+        }
+
+    @Test
+    @Config(sdk = [23, 31])
+    fun translateImage_colorFilterWithResource() =
+        fakeCoroutineScope.runTest {
+            val colorProvider = ColorProvider(R.color.my_color) as ResourceColorProvider
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(colorProvider)
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView).hasColorFilter(colorProvider.getColor(context))
+        }
+
+    @Test
+    @Config(sdk = [23, 31])
+    fun translateImage_noColorFilter() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                )
+            }
+
+            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+            assertThat(imageView.colorFilter).isNull()
         }
 }

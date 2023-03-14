@@ -28,21 +28,8 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.asMutableClassName
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
+import com.squareup.kotlinpoet.javapoet.JTypeName
 import java.util.concurrent.Callable
-import kotlin.reflect.KClass
-
-val L = "\$L"
-val T = "\$T"
-val N = "\$N"
-val S = "\$S"
-val W = "\$W"
-
-val KClass<*>.typeName: ClassName
-    get() = ClassName.get(this.java)
-val KClass<*>.arrayTypeName: ArrayTypeName
-    get() = ArrayTypeName.of(typeName)
 
 object SupportDbTypeNames {
     val DB = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteDatabase")
@@ -88,11 +75,19 @@ object RoomTypeNames {
     val RELATION_UTIL = XClassName.get("androidx.room.util", "RelationUtil")
 }
 
+object RoomAnnotationTypeNames {
+    val QUERY = XClassName.get(ROOM_PACKAGE, "Query")
+    val DAO = XClassName.get(ROOM_PACKAGE, "Dao")
+    val DATABASE = XClassName.get(ROOM_PACKAGE, "Database")
+    val PRIMARY_KEY = XClassName.get(ROOM_PACKAGE, "PrimaryKey")
+    val TYPE_CONVERTERS = XClassName.get(ROOM_PACKAGE, "TypeConverters")
+    val TYPE_CONVERTER = XClassName.get(ROOM_PACKAGE, "TypeConverter")
+    val ENTITY = XClassName.get(ROOM_PACKAGE, "Entity")
+}
+
 object PagingTypeNames {
-    val DATA_SOURCE: ClassName =
-        ClassName.get(PAGING_PACKAGE, "DataSource")
-    val POSITIONAL_DATA_SOURCE: ClassName =
-        ClassName.get(PAGING_PACKAGE, "PositionalDataSource")
+    val DATA_SOURCE = XClassName.get(PAGING_PACKAGE, "DataSource")
+    val POSITIONAL_DATA_SOURCE = XClassName.get(PAGING_PACKAGE, "PositionalDataSource")
     val DATA_SOURCE_FACTORY = XClassName.get(PAGING_PACKAGE, "DataSource", "Factory")
     val PAGING_SOURCE = XClassName.get(PAGING_PACKAGE, "PagingSource")
     val LISTENABLE_FUTURE_PAGING_SOURCE =
@@ -131,20 +126,32 @@ object KotlinCollectionMemberNames {
 object CommonTypeNames {
     val VOID = Void::class.asClassName()
     val COLLECTION = Collection::class.asClassName()
+    val COLLECTIONS = XClassName.get("java.util", "Collections")
+    val ARRAYS = XClassName.get("java.util", "Arrays")
     val LIST = List::class.asClassName()
     val MUTABLE_LIST = List::class.asMutableClassName()
     val ARRAY_LIST = XClassName.get("java.util", "ArrayList")
     val MAP = Map::class.asClassName()
     val MUTABLE_MAP = Map::class.asMutableClassName()
     val HASH_MAP = XClassName.get("java.util", "HashMap")
+    val QUEUE = XClassName.get("java.util", "Queue")
+    val LINKED_HASH_MAP = LinkedHashMap::class.asClassName()
     val SET = Set::class.asClassName()
     val MUTABLE_SET = Set::class.asMutableClassName()
     val HASH_SET = XClassName.get("java.util", "HashSet")
     val STRING = String::class.asClassName()
+    val STRING_BUILDER = XClassName.get("java.lang", "StringBuilder")
     val OPTIONAL = XClassName.get("java.util", "Optional")
     val UUID = XClassName.get("java.util", "UUID")
     val BYTE_BUFFER = XClassName.get("java.nio", "ByteBuffer")
     val JAVA_CLASS = XClassName.get("java.lang", "Class")
+    val CALLABLE = Callable::class.asClassName()
+    val DATE = XClassName.get("java.util", "Date")
+}
+
+object ExceptionTypeNames {
+    val ILLEGAL_STATE_EXCEPTION = IllegalStateException::class.asClassName()
+    val ILLEGAL_ARG_EXCEPTION = IllegalArgumentException::class.asClassName()
 }
 
 object GuavaTypeNames {
@@ -320,7 +327,7 @@ fun CallableTypeSpecBuilder(
     parameterTypeName: XTypeName,
     callBody: XFunSpec.Builder.() -> Unit
 ) = XTypeSpec.anonymousClassBuilder(language, "").apply {
-    addSuperinterface(Callable::class.asClassName().parametrizedBy(parameterTypeName))
+    addSuperinterface(CommonTypeNames.CALLABLE.parametrizedBy(parameterTypeName))
     addFunction(
         XFunSpec.builder(
             language = language,
@@ -332,7 +339,7 @@ fun CallableTypeSpecBuilder(
             callBody()
         }.apply(
             javaMethodBuilder = {
-                addException(Exception::class.typeName)
+                addException(JTypeName.get(Exception::class.java))
             },
             kotlinFunctionBuilder = { }
         ).build()

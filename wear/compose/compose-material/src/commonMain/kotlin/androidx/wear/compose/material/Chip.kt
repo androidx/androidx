@@ -907,11 +907,17 @@ public object ChipDefaults {
         secondaryContentColor: Color = contentColor,
         iconColor: Color = contentColor
     ): ChipColors {
+        // For light background colors, the default disabled content colors do not provide
+        // sufficient contrast. Instead, we default to using background for disabled content.
+        // See b/254025377.
         return chipColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconColor = iconColor
+            iconColor = iconColor,
+            disabledContentColor = MaterialTheme.colors.background,
+            disabledSecondaryContentColor = MaterialTheme.colors.background,
+            disabledIconColor = MaterialTheme.colors.background
         )
     }
 

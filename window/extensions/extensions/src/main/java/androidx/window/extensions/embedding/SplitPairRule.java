@@ -16,6 +16,8 @@
 
 package androidx.window.extensions.embedding;
 
+import static androidx.window.extensions.embedding.SplitAttributes.SplitType.createSplitTypeFromLegacySplitRatio;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -23,10 +25,14 @@ import android.os.Build;
 import android.util.Pair;
 import android.view.WindowMetrics;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.core.util.function.Predicate;
 
-import java.util.function.Predicate;
+import java.util.Objects;
 
 /**
  * Split configuration rules for activity pairs.
@@ -42,13 +48,14 @@ public class SplitPairRule extends SplitRule {
     private final int mFinishSecondaryWithPrimary;
     private final boolean mClearTop;
 
-    SplitPairRule(float splitRatio, @LayoutDirection int layoutDirection,
+    SplitPairRule(@NonNull SplitAttributes defaultSplitAttributes,
             @SplitFinishBehavior int finishPrimaryWithSecondary,
             @SplitFinishBehavior int finishSecondaryWithPrimary, boolean clearTop,
             @NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,
             @NonNull Predicate<Pair<Activity, Intent>> activityIntentPredicate,
-            @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate) {
-        super(parentWindowMetricsPredicate, splitRatio, layoutDirection);
+            @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate,
+            @Nullable String tag) {
+        super(parentWindowMetricsPredicate, defaultSplitAttributes, tag);
         mActivityPairPredicate = activityPairPredicate;
         mActivityIntentPredicate = activityIntentPredicate;
         mFinishPrimaryWithSecondary = finishPrimaryWithSecondary;
@@ -114,15 +121,52 @@ public class SplitPairRule extends SplitRule {
         private final Predicate<Pair<Activity, Intent>> mActivityIntentPredicate;
         @NonNull
         private final Predicate<WindowMetrics> mParentWindowMetricsPredicate;
+        // Keep for backward compatibility
+        @FloatRange(from = 0.0, to = 1.0)
         private float mSplitRatio;
-        @LayoutDirection
+        // Keep for backward compatibility
+        @SplitAttributes.ExtLayoutDirection
         private int mLayoutDirection;
+        private SplitAttributes mDefaultSplitAttributes;
         private boolean mClearTop;
         @SplitFinishBehavior
         private int mFinishPrimaryWithSecondary;
         @SplitFinishBehavior
         private int mFinishSecondaryWithPrimary;
+        @Nullable
+        private String mTag;
 
+        /**
+         * @deprecated Use {@link #Builder(Predicate, Predicate, Predicate)} starting with
+         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+         * {@link #Builder(Predicate, Predicate, Predicate)} can't be called on
+         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         */
+        @Deprecated
+        @RequiresApi(Build.VERSION_CODES.N)
+        public Builder(@NonNull java.util.function.Predicate<Pair<Activity, Activity>>
+                        activityPairPredicate,
+                @NonNull java.util.function.Predicate<Pair<Activity, Intent>>
+                        activityIntentPredicate,
+                @NonNull java.util.function.Predicate<WindowMetrics>
+                        parentWindowMetricsPredicate) {
+            mActivityPairPredicate = activityPairPredicate::test;
+            mActivityIntentPredicate = activityIntentPredicate::test;
+            mParentWindowMetricsPredicate = parentWindowMetricsPredicate::test;
+        }
+
+        /**
+         * The {@link SplitPairRule} builder constructor
+         *
+         * @param activityPairPredicate the {@link Predicate} to verify if an {@link Activity} pair
+         *                              matches this rule
+         * @param activityIntentPredicate the {@link Predicate} to verify if an ({@link Activity},
+         *                              {@link Intent}) pair matches this rule
+         * @param parentWindowMetricsPredicate the {@link Predicate} to verify if the matched split
+         *                               pair is allowed to show adjacent to each other with the
+         *                               given parent {@link WindowMetrics}
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         */
         public Builder(@NonNull Predicate<Pair<Activity, Activity>> activityPairPredicate,
                 @NonNull Predicate<Pair<Activity, Intent>> activityIntentPredicate,
                 @NonNull Predicate<WindowMetrics> parentWindowMetricsPredicate) {
@@ -131,17 +175,45 @@ public class SplitPairRule extends SplitRule {
             mParentWindowMetricsPredicate = parentWindowMetricsPredicate;
         }
 
-        /** @see SplitRule#getSplitRatio() */
+        /**
+         * @deprecated Use {@link #setDefaultSplitAttributes(SplitAttributes)} starting with
+         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+         * {@link #setDefaultSplitAttributes(SplitAttributes)} can't be called on
+         * {@link WindowExtensions#VENDOR_API_LEVEL_1}. {@code splitRatio} will be translated to
+         * {@link SplitAttributes.SplitType.ExpandContainersSplitType} for value {@code 0.0} and
+         * {@code 1.0}, and {@link SplitAttributes.SplitType.RatioSplitType} for value with range
+         * (0.0, 1.0).
+         */
+        @Deprecated
         @NonNull
-        public Builder setSplitRatio(float splitRatio) {
+        public Builder setSplitRatio(@FloatRange(from = 0.0, to = 1.0) float splitRatio) {
             mSplitRatio = splitRatio;
             return this;
         }
 
-        /** @see SplitRule#getLayoutDirection() */
+        /**
+         * @deprecated Use {@link #setDefaultSplitAttributes(SplitAttributes)} starting with
+         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+         * {@link #setDefaultSplitAttributes(SplitAttributes)} can't be called on
+         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         */
+        @Deprecated
         @NonNull
-        public Builder setLayoutDirection(@LayoutDirection int layoutDirection) {
+        public Builder setLayoutDirection(@SplitAttributes.ExtLayoutDirection int layoutDirection) {
             mLayoutDirection = layoutDirection;
+            return this;
+        }
+
+        /**
+         * See {@link SplitPairRule#getDefaultSplitAttributes()} for reference.
+         * Overrides values if set in {@link #setSplitRatio(float)} and
+         * {@link #setLayoutDirection(int)}
+         *
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         */
+        @NonNull
+        public Builder setDefaultSplitAttributes(@NonNull SplitAttributes attrs) {
+            mDefaultSplitAttributes = attrs;
             return this;
         }
 
@@ -181,13 +253,31 @@ public class SplitPairRule extends SplitRule {
             return this;
         }
 
+        /**
+         * @see SplitPairRule#getTag()
+         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
+         */
+        @NonNull
+        public Builder setTag(@NonNull String tag) {
+            mTag = Objects.requireNonNull(tag);
+            return this;
+        }
+
         /** Builds a new instance of {@link SplitPairRule}. */
         @NonNull
         public SplitPairRule build() {
-            return new SplitPairRule(mSplitRatio, mLayoutDirection,
+            // To provide compatibility with prior version of WM Jetpack library, where
+            // #setDefaultAttributes hasn't yet been supported and thus would not be set.
+            mDefaultSplitAttributes = (mDefaultSplitAttributes != null)
+                    ? mDefaultSplitAttributes
+                    : new SplitAttributes.Builder()
+                            .setSplitType(createSplitTypeFromLegacySplitRatio(mSplitRatio))
+                            .setLayoutDirection(mLayoutDirection)
+                            .build();
+            return new SplitPairRule(mDefaultSplitAttributes,
                     mFinishPrimaryWithSecondary, mFinishSecondaryWithPrimary,
                     mClearTop, mActivityPairPredicate, mActivityIntentPredicate,
-                    mParentWindowMetricsPredicate);
+                    mParentWindowMetricsPredicate, mTag);
         }
     }
 
@@ -219,7 +309,9 @@ public class SplitPairRule extends SplitRule {
     @Override
     public String toString() {
         return "SplitPairRule{"
-                + "mFinishPrimaryWithSecondary=" + mFinishPrimaryWithSecondary
+                + "mTag=" + getTag()
+                + ", mDefaultSplitAttributes=" + getDefaultSplitAttributes()
+                + ", mFinishPrimaryWithSecondary=" + mFinishPrimaryWithSecondary
                 + ", mFinishSecondaryWithPrimary=" + mFinishSecondaryWithPrimary
                 + ", mClearTop=" + mClearTop
                 + '}';

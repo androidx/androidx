@@ -37,6 +37,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -65,19 +66,18 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )
@@ -87,19 +87,18 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )
@@ -158,7 +157,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testDoubleBufferedLayerRender() {
         val renderLatch = CountDownLatch(1)
@@ -169,19 +168,18 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )
@@ -191,19 +189,18 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )
@@ -284,6 +281,471 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
+    @Test
+    fun testRenderDoubleBufferLayer() {
+        val squareSize = 100f
+        val renderLatch = CountDownLatch(1)
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Int> {
+
+            private val mOrthoMatrix = FloatArray(16)
+            private val mProjectionMatrix = FloatArray(16)
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Int
+            ) {
+                // NO-OP we do not render to the front buffered layer in this test case
+            }
+
+            override fun onDrawDoubleBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Int>
+            ) {
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferInfo.width.toFloat(),
+                    0f,
+                    bufferInfo.height.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                assertEquals(params.size, 4)
+                with(Rectangle()) {
+                    draw(mProjectionMatrix, params.elementAt(0),
+                        0f, 0f, squareSize / 2f, squareSize / 2f)
+                    draw(mProjectionMatrix, params.elementAt(1),
+                        squareSize / 2f, 0f, squareSize, squareSize / 2f)
+                    draw(mProjectionMatrix, params.elementAt(2),
+                        0f, squareSize / 2f, squareSize / 2f, squareSize)
+                    draw(mProjectionMatrix, params.elementAt(3),
+                        squareSize / 2f, squareSize / 2f, squareSize, squareSize)
+                }
+            }
+
+            override fun onDoubleBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        })
+                } else {
+                    renderLatch.countDown()
+                }
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Int>? = null
+        var surfaceView: SurfaceView? = null
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                val colors = listOf(Color.RED, Color.BLACK, Color.YELLOW, Color.BLUE)
+                renderer?.renderDoubleBufferedLayer(colors)
+            }
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+            }
+
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val topLeft = bitmap.getPixel(
+                    coords[0] + (squareSize / 4).toInt(),
+                    coords[1] + (squareSize / 4).toInt()
+                )
+                val topRight = bitmap.getPixel(
+                    coords[0] + (squareSize * 3f / 4f).roundToInt(),
+                    coords[1] + (squareSize / 4).toInt()
+                )
+                val bottomLeft = bitmap.getPixel(
+                    coords[0] + (squareSize / 4f).toInt(),
+                    coords[1] + (squareSize * 3f / 4f).roundToInt()
+                )
+                val bottomRight = bitmap.getPixel(
+                    coords[0] + (squareSize * 3f / 4f).roundToInt(),
+                    coords[1] + (squareSize * 3f / 4f).roundToInt()
+                )
+                Color.RED == topLeft &&
+                    Color.BLACK == topRight &&
+                    Color.YELLOW == bottomLeft &&
+                    Color.BLUE == bottomRight
+            }
+        } finally {
+            renderer.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
+    @Test
+    fun testBufferRetargetingFrontBufferLayer() {
+        val squareSize = 100f
+        val renderLatch = CountDownLatch(1)
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Int> {
+
+            private val mOrthoMatrix = FloatArray(16)
+            private val mProjectionMatrix = FloatArray(16)
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Int
+            ) {
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferInfo.width.toFloat(),
+                    0f,
+                    bufferInfo.height.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                val buffer = IntArray(1)
+                GLES20.glGenFramebuffers(1, buffer, 0)
+                GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, buffer[0])
+                Rectangle().draw(transform, Color.RED, 0f, 0f, squareSize, squareSize)
+
+                GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, bufferInfo.frameBufferId)
+                Rectangle().draw(mProjectionMatrix, param, 0f, 0f, squareSize, squareSize)
+            }
+
+            override fun onFrontBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        })
+                } else {
+                    renderLatch.countDown()
+                }
+            }
+
+            override fun onDrawDoubleBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Int>
+            ) {
+                // NO-OP
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Int>? = null
+        var surfaceView: SurfaceView? = null
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                renderer?.renderFrontBufferedLayer(Color.BLUE)
+            }
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+            }
+
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val center = bitmap.getPixel(
+                    coords[0] + (squareSize / 2).toInt(),
+                    coords[1] + (squareSize / 2).toInt()
+                )
+                Color.BLUE == center
+            }
+        } finally {
+            renderer.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
+    @Test
+    fun testBufferRetargetingDoubleBufferedLayer() {
+        val squareSize = 100f
+        val renderLatch = CountDownLatch(1)
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Int> {
+
+            private val mOrthoMatrix = FloatArray(16)
+            private val mProjectionMatrix = FloatArray(16)
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Int
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawDoubleBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Int>
+            ) {
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferInfo.width.toFloat(),
+                    0f,
+                    bufferInfo.height.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                val buffer = IntArray(1)
+                GLES20.glGenFramebuffers(1, buffer, 0)
+                GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, buffer[0])
+                Rectangle().draw(transform, Color.RED, 0f, 0f, squareSize, squareSize)
+
+                GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, bufferInfo.frameBufferId)
+                for (param in params) {
+                    Rectangle().draw(mProjectionMatrix, param, 0f, 0f, squareSize, squareSize)
+                }
+            }
+
+            override fun onDoubleBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        })
+                } else {
+                    renderLatch.countDown()
+                }
+            }
+        }
+
+        var renderer: GLFrontBufferedRenderer<Int>? = null
+        var surfaceView: SurfaceView? = null
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                renderer?.renderFrontBufferedLayer(Color.BLUE)
+                renderer?.commit()
+            }
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+            }
+
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val center = bitmap.getPixel(
+                    coords[0] + (squareSize / 2).toInt(),
+                    coords[1] + (squareSize / 2).toInt()
+                )
+                Color.BLUE == center
+            }
+        } finally {
+            renderer.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
+    @Test
+    fun testCancelFrontBufferLayerRender() {
+        val squareSize = 100f
+        val renderLatch = CountDownLatch(1)
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Int> {
+
+            private val mOrthoMatrix = FloatArray(16)
+            private val mProjectionMatrix = FloatArray(16)
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Int
+            ) {
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferInfo.width.toFloat(),
+                    0f,
+                    bufferInfo.height.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                Rectangle().draw(mProjectionMatrix, param, 0f, 0f, squareSize, squareSize)
+            }
+
+            override fun onDrawDoubleBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Int>
+            ) {
+
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                Matrix.orthoM(
+                    mOrthoMatrix,
+                    0,
+                    0f,
+                    bufferInfo.width.toFloat(),
+                    0f,
+                    bufferInfo.height.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                for (p in params) {
+                    Rectangle().draw(mProjectionMatrix, p, 0f, 0f, squareSize, squareSize)
+                }
+            }
+
+            override fun onDoubleBufferedLayerRenderComplete(
+                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        Executors.newSingleThreadExecutor(),
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                renderLatch.countDown()
+                            }
+                        })
+                } else {
+                    renderLatch.countDown()
+                }
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Int>? = null
+        var surfaceView: SurfaceView? = null
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                with(renderer!!) {
+                    renderFrontBufferedLayer(Color.BLUE)
+                    commit()
+                    renderFrontBufferedLayer(Color.RED)
+                    cancel()
+                }
+            }
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val coords = IntArray(2)
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+            }
+
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val pixel = bitmap.getPixel(
+                    coords[0] + (squareSize / 2).toInt(),
+                    coords[1] + (squareSize / 2).toInt()
+                )
+                // After cancel is invoked the front buffered layer should not be visible
+                Color.BLUE == pixel
+            }
+        } finally {
+            renderer.blockingRelease()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testExecute() {
+        val executeLatch = CountDownLatch(1)
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Int> {
+
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: Int
+            ) {
+                // NO-OP
+            }
+
+            override fun onDrawDoubleBufferedLayer(
+                eglManager: EGLManager,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<Int>
+            ) {
+                // NO-OP
+            }
+        }
+        var renderer: GLFrontBufferedRenderer<Int>? = null
+        var surfaceView: SurfaceView?
+        try {
+            val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
+                .moveToState(Lifecycle.State.CREATED)
+                .onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
+                }
+
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+                renderer?.execute {
+                    executeLatch.countDown()
+                }
+            }
+
+            assertTrue(executeLatch.await(3000, TimeUnit.MILLISECONDS))
+        } finally {
+            renderer.blockingRelease()
+        }
+    }
+
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun testUsageFlagContainsFrontBufferUsage() {
@@ -338,19 +800,18 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )
@@ -365,19 +826,18 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )
@@ -405,7 +865,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q, maxSdkVersion = 32) // b/266749527
     @Test
     fun testDoubleBufferedContentsNotPersisted() {
         val mOrthoMatrix = FloatArray(16)
@@ -418,19 +878,18 @@ class GLFrontBufferedRendererTest {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )
@@ -446,19 +905,18 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )
@@ -545,19 +1003,18 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )
@@ -567,19 +1024,18 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )
@@ -676,19 +1132,18 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 param: Any
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )
@@ -698,19 +1153,18 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EGLManager,
-                bufferWidth: Int,
-                bufferHeight: Int,
+                bufferInfo: BufferInfo,
                 transform: FloatArray,
                 params: Collection<Any>
             ) {
-                GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
                     mOrthoMatrix,
                     0,
                     0f,
-                    bufferWidth.toFloat(),
+                    bufferInfo.width.toFloat(),
                     0f,
-                    bufferHeight.toFloat(),
+                    bufferInfo.height.toFloat(),
                     -1f,
                     1f
                 )

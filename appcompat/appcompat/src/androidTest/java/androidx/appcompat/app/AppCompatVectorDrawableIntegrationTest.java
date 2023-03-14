@@ -34,6 +34,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,10 +65,15 @@ public class AppCompatVectorDrawableIntegrationTest {
         mCanvas = new Canvas(mBitmap);
     }
 
+    @Ignore("b/266237884")
     @Test
     @UiThreadTest
     @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testVectorDrawableAutoMirrored() {
+        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
+            return; // b/262909049: Do not run this test on pre-release Android U.
+        }
+
         Activity activity = mActivityTestRule.getActivity();
         ImageView view1 = (ImageView) activity.findViewById(R.id.view_vector_1);
         Drawable vectorDrawable = view1.getDrawable();

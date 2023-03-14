@@ -29,6 +29,12 @@
                 android:name="androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition"
                 android:resource="@xml/xml_watchface" />
         </service>
+        <activity
+            android:name="androidx.wear.watchface.client.test.SurfaceRenderingTestActivity"
+            android:exported="true"
+            android:label="Config"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        </activity>
     </application>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>

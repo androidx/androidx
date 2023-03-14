@@ -1,5 +1,6 @@
 package com.mysdk
 
+import android.content.Context
 import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
 import kotlin.Int
 import kotlin.Unit
@@ -10,6 +11,7 @@ import kotlinx.coroutines.launch
 
 public class WithoutRuntimeLibrarySdkStubDelegate internal constructor(
   public val `delegate`: WithoutRuntimeLibrarySdk,
+  public val context: Context,
 ) : IWithoutRuntimeLibrarySdk.Stub() {
   public override fun doStuff(
     x: Int,

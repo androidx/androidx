@@ -17,6 +17,8 @@
 package androidx.window.rxjava2.layout
 
 import android.app.Activity
+import android.content.Context
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
@@ -28,10 +30,11 @@ import org.junit.Test
 /**
  * Tests for the RxJava 2 adapters.
  */
-public class WindowInfoTrackerRxTest {
+@OptIn(ExperimentalWindowApi::class)
+class WindowInfoTrackerRxTest {
 
     @Test
-    public fun testWindowLayoutInfoObservable() {
+    fun testWindowLayoutInfoObservable() {
         val activity = mock<Activity>()
         val feature = mock<FoldingFeature>()
         val expected = WindowLayoutInfo(listOf(feature))
@@ -44,8 +47,33 @@ public class WindowInfoTrackerRxTest {
     }
 
     @Test
-    public fun testWindowLayoutInfoFlowable() {
+    fun testWindowLayoutInfoFlowable() {
         val activity = mock<Activity>()
+        val feature = mock<FoldingFeature>()
+        val expected = WindowLayoutInfo(listOf(feature))
+        val mockTracker = mock<WindowInfoTracker>()
+        whenever(mockTracker.windowLayoutInfo(activity)).thenReturn(flowOf(expected))
+
+        val testSubscriber = mockTracker.windowLayoutInfoFlowable(activity).test()
+
+        testSubscriber.assertValue(expected)
+    }
+    @Test
+    fun testWindowLayoutInfoObservable_context() {
+        val activity = mock<Context>()
+        val feature = mock<FoldingFeature>()
+        val expected = WindowLayoutInfo(listOf(feature))
+        val mockTracker = mock<WindowInfoTracker>()
+        whenever(mockTracker.windowLayoutInfo(activity)).thenReturn(flowOf(expected))
+
+        val testSubscriber = mockTracker.windowLayoutInfoObservable(activity).test()
+
+        testSubscriber.assertValue(expected)
+    }
+
+    @Test
+    fun testWindowLayoutInfoFlowable_context() {
+        val activity = mock<Context>()
         val feature = mock<FoldingFeature>()
         val expected = WindowLayoutInfo(listOf(feature))
         val mockTracker = mock<WindowInfoTracker>()

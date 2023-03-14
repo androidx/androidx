@@ -257,6 +257,15 @@
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Prijavljeni ste."</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Prijava je dokončana"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Predstavitvena različica predloge prijave"</string>
+    <string name="tab_template_layouts_demo_title" msgid="6529681462424538165">"Predstavitvene različice predlog zavihkov"</string>
+    <string name="tab_template_demo_title" msgid="7587839101813629975">"Predstavitvena različica predloge zavihka"</string>
+    <string name="tab_title_message" msgid="5266710951630087246">"Zavihek s sporočilom"</string>
+    <string name="tab_title_pane" msgid="2520606145526537263">"Zavihek s podoknom"</string>
+    <string name="tab_title_list" msgid="5104962518489668123">"Zavihek s seznamom"</string>
+    <string name="tab_title_grid" msgid="5268168907976325154">"Zavihek z mrežo in dolgim naslovom zavihka"</string>
+    <string name="tab_title_search" msgid="1892925693146631173">"Zavihek za iskanje"</string>
+    <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Predstavitvena različica predloge zavihka za stanje nalaganja"</string>
+    <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Predstavitvena različica predloge zavihka za stanje brez zavihkov"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Slik ni mogoče prikazati za neznanega gostitelja."</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Ikona"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Predstavitvena različica ikon ponudnika storitev"</string>

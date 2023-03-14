@@ -131,13 +131,19 @@ class CameraPipeActivity : CameraPermissionActivity() {
     }
 
     private suspend fun findNextCamera(lastCameraId: CameraId?): CameraId {
-        val cameras: List<CameraId> = cameraPipe.cameras().ids()
+        val cameras = cameraPipe.cameras().getCameraIds()
+        checkNotNull(cameras) { "Unable to load CameraIds from CameraPipe" }
+
         // By default, open the first back facing camera if no camera was previously configured.
         if (lastCameraId == null) {
-            return cameras.firstOrNull {
-                cameraPipe.cameras().getMetadata(it)[CameraCharacteristics.LENS_FACING] ==
-                    CameraCharacteristics.LENS_FACING_BACK
-            } ?: cameras.first()
+            for (id in cameras) {
+                val metadata = cameraPipe.cameras().getCameraMetadata(id)
+                if (metadata != null && metadata[CameraCharacteristics.LENS_FACING] ==
+                    CameraCharacteristics.LENS_FACING_BACK) {
+                    return id
+                }
+            }
+            return cameras.first()
         }
 
         // If a camera was previously opened and the operating mode is NORMAL, return the same

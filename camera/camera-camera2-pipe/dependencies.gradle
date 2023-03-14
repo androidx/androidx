@@ -16,12 +16,12 @@
 
 ext {
     CAMERA_PIPE_DEPS = [
-        API : [
-                "androidx.annotation:annotation:1.2.0",
-                libs.kotlinStdlib,
-                libs.kotlinCoroutinesAndroid,
-                "org.jetbrains.kotlinx:atomicfu:0.13.1"
-        ],
-        IMPLEMENTATION : [libs.dagger]
+            API           : [
+                    "androidx.annotation:annotation:1.2.0",
+                    libs.kotlinStdlib,
+                    libs.kotlinCoroutinesAndroid,
+                    "org.jetbrains.kotlinx:atomicfu:0.13.1"
+            ],
+            IMPLEMENTATION: [libs.dagger]
     ]
 }

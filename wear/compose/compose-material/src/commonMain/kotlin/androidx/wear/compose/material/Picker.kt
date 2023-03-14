@@ -494,7 +494,7 @@ public class PickerState constructor(
             verifyNumberOfOptions(newNumberOfOptions)
             // We need to maintain the mapping between the currently selected item and the
             // currently selected option.
-            optionsOffset = positiveModule(
+            optionsOffset = positiveModulo(
                 selectedOption.coerceAtMost(newNumberOfOptions - 1) -
                     scalingLazyListState.centerItemIndex,
                 newNumberOfOptions
@@ -537,18 +537,29 @@ public class PickerState constructor(
      * @param index The index of the option to scroll to.
      */
     public suspend fun scrollToOption(index: Int) {
-        val itemIndex =
-            if (!repeatItems) {
-                index
-            } else {
-                // Pick the itemIndex closest to the current one, that it's congruent modulo
-                // numberOfOptions with index - optionOffset.
-                // This is to try to work around http://b/230582961
-                val minTargetIndex = scalingLazyListState.centerItemIndex - numberOfOptions / 2
-                minTargetIndex + positiveModule(index - minTargetIndex, numberOfOptions) -
-                    optionsOffset
-            }
-        scalingLazyListState.scrollToItem(itemIndex, 0)
+        scalingLazyListState.scrollToItem(getClosestTargetItemIndex(index), 0)
+    }
+
+    /**
+     * Animate (smooth scroll) to the given item at [index]
+     *
+     * A smooth scroll always happens to the closest item if PickerState has repeatItems=true.
+     * For example, picker values are :
+     * 0 1 2 3 0 1 2 [3] 0 1 2 3
+     * Target value is [0].
+     * 0 1 2 3 >0< 1 2 [3] >0< 1 2 3
+     * Picker can be scrolled forwards or backwards. To get to the target 0 it requires 1 step to
+     * scroll forwards and 3 steps to scroll backwards. Picker will be scrolled forwards
+     * as this is the closest destination.
+     *
+     * If the distance between possible targets is the same, picker will be scrolled backwards.
+     *
+     * @sample androidx.wear.compose.material.samples.AnimateOptionChangePicker
+     *
+     * @param index The index of the option to scroll to.
+     */
+    public suspend fun animateScrollToOption(index: Int) {
+        scalingLazyListState.animateScrollToItem(getClosestTargetItemIndex(index), 0)
     }
 
     public companion object {
@@ -592,6 +603,21 @@ public class PickerState constructor(
 
     override val canScrollBackward: Boolean
         get() = scalingLazyListState.canScrollBackward
+
+    /**
+     * Function which calculates the real position of an option
+     */
+    private fun getClosestTargetItemIndex(option: Int): Int =
+        if (!repeatItems) {
+            option
+        } else {
+            // Calculating the distance to the target option in front or back.
+            // The minimum distance is then selected and picker is scrolled in that direction.
+            val stepsPrev = positiveModulo(selectedOption - option, numberOfOptions)
+            val stepsNext = positiveModulo(option - selectedOption, numberOfOptions)
+            scalingLazyListState.centerItemIndex +
+                if (stepsPrev <= stepsNext) -stepsPrev else stepsNext
+        }
 
     private fun verifyNumberOfOptions(numberOfOptions: Int) {
         require(numberOfOptions > 0) { "The picker should have at least one item." }
@@ -704,7 +730,7 @@ public interface PickerScope {
     public val selectedOption: Int
 }
 
-private fun positiveModule(n: Int, mod: Int) = ((n % mod) + mod) % mod
+private fun positiveModulo(n: Int, mod: Int) = ((n % mod) + mod) % mod
 
 private fun convertToDefaultFoundationScalingParams(
     @Suppress("DEPRECATION")

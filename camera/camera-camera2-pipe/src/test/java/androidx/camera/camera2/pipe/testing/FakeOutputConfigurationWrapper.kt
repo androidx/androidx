@@ -21,9 +21,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
 import kotlin.reflect.KClass
 
-/**
- * Fake [OutputConfigurationWrapper] for use in tests.
- */
+/** Fake [OutputConfigurationWrapper] for use in tests. */
 class FakeOutputConfigurationWrapper(
     outputSurface: Surface? = null,
     override val physicalCameraId: CameraId? = null,

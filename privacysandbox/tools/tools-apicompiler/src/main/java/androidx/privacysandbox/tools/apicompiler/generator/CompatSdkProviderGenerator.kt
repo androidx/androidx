@@ -16,6 +16,8 @@
 
 package androidx.privacysandbox.tools.apicompiler.generator
 
+import androidx.privacysandbox.tools.core.generator.SpecNames.bundleClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
 import androidx.privacysandbox.tools.core.generator.build
 import androidx.privacysandbox.tools.core.generator.stubDelegateNameSpec
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -39,13 +41,16 @@ internal class CompatSdkProviderGenerator(parsedApi: ParsedApi) :
         addModifiers(KModifier.OVERRIDE)
         addParameter("params", bundleClass)
         returns(sandboxedSdkCompatClass)
+
+        // TODO: Throw early with a helpful message if context is null
         addStatement(
             "val sdk = ${createServiceFunctionName(api.getOnlyService())}(context!!)"
         )
         addStatement(
-            "return %T(%T(sdk))",
+            "return %T(%T(sdk, %N!!))",
             sandboxedSdkCompatClass,
-            api.getOnlyService().stubDelegateNameSpec()
+            api.getOnlyService().stubDelegateNameSpec(),
+            contextPropertyName,
         )
     }
 }

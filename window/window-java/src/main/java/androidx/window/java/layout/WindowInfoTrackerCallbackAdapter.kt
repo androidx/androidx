@@ -17,7 +17,11 @@
 package androidx.window.java.layout
 
 import android.app.Activity
+import android.content.Context
+import androidx.annotation.UiContext
 import androidx.core.util.Consumer
+import android.inputmethodservice.InputMethodService
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.CoroutineScope
@@ -45,8 +49,11 @@ class WindowInfoTrackerCallbackAdapter(
     private val consumerToJobMap = mutableMapOf<Consumer<*>, Job>()
 
     /**
-     * Register a listener to consume [WindowLayoutInfo] values. If the same consumer is
-     * registered twice then this method is a no-op.
+     * Registers a listener to consume [WindowLayoutInfo] values of the [Activity] window. If the
+     * same consumer is registered twice then this method is a no-op.
+     * @param activity an [Activity] that hosts a [Window].
+     * @param executor that the consumer will invoke on.
+     * @param consumer for [WindowLayoutInfo] values.
      * @see WindowInfoTracker.windowLayoutInfo
      */
     fun addWindowLayoutInfoListener(
@@ -55,6 +62,24 @@ class WindowInfoTrackerCallbackAdapter(
         consumer: Consumer<WindowLayoutInfo>
     ) {
         addListener(executor, consumer, tracker.windowLayoutInfo(activity))
+    }
+
+    /**
+     * Registers a [UiContext] listener to consume [WindowLayoutInfo] values. If the same consumer
+     * is registered twice then this method is a no-op.
+     * @param context a [UiContext] such as an [Activity], created with
+     * [Context#createWindowContext] or is a [InputMethodService].
+     * @param executor that the consumer will invoke on.
+     * @param consumer for [WindowLayoutInfo] values.
+     * @see WindowInfoTracker.windowLayoutInfo
+     */
+    @OptIn(ExperimentalWindowApi::class)
+    fun addWindowLayoutInfoListener(
+        @UiContext context: Context,
+        executor: Executor,
+        consumer: Consumer<WindowLayoutInfo>
+    ) {
+        addListener(executor, consumer, tracker.windowLayoutInfo(context))
     }
 
     /**
