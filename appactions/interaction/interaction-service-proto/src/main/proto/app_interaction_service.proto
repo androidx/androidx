@@ -30,11 +30,11 @@ option java_outer_classname = "AppInteractionServiceProto";
 // user issues a query. This proto contains user's query (parsed into BII).
 // NEXT_ID: 3
 message Request {
-  // Session_id is used to identify the hosts. When there are multiple hosts
-  // connecting to the provider at the same time for different requests,
-  // provider can use the session_ids to distinguish sessions, thus
-  // providing different responses to different hosts.
-  int32 session_id = 1  [deprecated = true];
+  // This session id corresponds to the one in [AppDialogState]. Session id is used to identify the
+  // hosts. When there are multiple hosts connecting to the provider at the same time for different
+  // requests, provider can use the session_ids to distinguish sessions, thus providing different
+  // responses to different hosts.
+  string session_identifier = 1;
   // FulfillmentRequest contains the request data sent from Assistant, such as
   // new values of BII arguments.
   .androidx.appactions.interaction.proto.FulfillmentRequest fulfillment_request = 2;
@@ -91,8 +91,8 @@ message CollectionUpdate {
 // NEXT_ID: 3
 message UiRequest {
   int32 session_id = 1 [deprecated = true];
-  // Indicates the UiResponse should contain only the responses for this
-  // particular session.
+  // This session id corresponds to the one in [AppDialogState]. Indicates the UiResponse should
+  // contain only the responses for this particular session.
   string session_identifier = 2;
 }
 
@@ -195,8 +195,8 @@ message StartSessionResponse {
 // NEXT_ID: 11
 message CollectionRequest {
   int32 session_id = 1 [deprecated = true];
-  // Indicates the CollectionResponse should contain only the responses for this
-  // particular session.
+  // This session id corresponds to the one in [AppDialogState]. Indicates the CollectionResponse
+  // should contain only the responses for this particular session.
   string session_identifier = 10;
   int32 view_id = 2;
   oneof request_data {

@@ -24,7 +24,6 @@ import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 import androidx.appactions.interaction.proto.FulfillmentRequest
 import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment
-import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.SessionInfo
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
@@ -93,11 +92,7 @@ class AppInteractionServiceGrpcImplTest {
     private val testFulfillmentRequest =
         FulfillmentRequest.newBuilder()
             .addFulfillments(
-                Fulfillment.newBuilder()
-                    .setName(testBiiName)
-                    .setIdentifier(capabilityId)
-                    .setSessionInfo(SessionInfo.newBuilder().setSessionIdentifier(sessionId))
-                    .build(),
+                Fulfillment.newBuilder().setName(testBiiName).setIdentifier(capabilityId).build()
             )
             .build()
     private val testFulfillmentResponse =
@@ -147,8 +142,7 @@ class AppInteractionServiceGrpcImplTest {
         val responseCaptor = argumentCaptor<StartSessionResponse>()
         verify(startSessionResponseObserver).onNext(responseCaptor.capture())
         val startSessionResponse = responseCaptor.firstValue
-        assertThat(startSessionResponse)
-            .isEqualTo(StartSessionResponse.getDefaultInstance())
+        assertThat(startSessionResponse).isEqualTo(StartSessionResponse.getDefaultInstance())
         verify(startSessionResponseObserver, times(1)).onNext(any())
 
         server.shutdownNow()
@@ -195,7 +189,6 @@ class AppInteractionServiceGrpcImplTest {
                 AppInteractionServiceGrpcImpl(FakeAppInteractionService(listOf(capability1))),
                 remoteViewsInterceptor,
             )
-
         val channel = createInProcessChannel()
         val stub = AppInteractionServiceGrpc.newStub(channel)
         val futureStub = AppInteractionServiceGrpc.newFutureStub(channel)
@@ -204,7 +197,10 @@ class AppInteractionServiceGrpcImplTest {
 
         // Send fulfillment request
         val request =
-            Request.newBuilder().setFulfillmentRequest(testFulfillmentRequest).build()
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequest)
+                .build()
         val responseFuture = futureStub.sendRequestFulfillment(request)
 
         val response = responseFuture.await()
@@ -236,8 +232,7 @@ class AppInteractionServiceGrpcImplTest {
             assertFailsWith<StatusRuntimeException> {
                 futureStub.sendRequestFulfillment(requestWithMissingFulfillment).await()
             }
-        assertThat(Status.fromThrowable(exception).code)
-            .isEqualTo(Status.Code.FAILED_PRECONDITION)
+        assertThat(Status.fromThrowable(exception).code).isEqualTo(Status.Code.FAILED_PRECONDITION)
         assertThat(Status.fromThrowable(exception).description)
             .isEqualTo(ERROR_NO_FULFILLMENT_REQUEST)
 
@@ -260,16 +255,11 @@ class AppInteractionServiceGrpcImplTest {
 
         val requestWithUnknownFulfillmentId =
             Request.newBuilder()
+                .setSessionIdentifier(sessionId)
                 .setFulfillmentRequest(
                     FulfillmentRequest.newBuilder()
                         .addFulfillments(
-                            Fulfillment.newBuilder()
-                                .setIdentifier("UNKNOWN_FULFILLMENT_ID")
-                                .setSessionInfo(
-                                    SessionInfo.newBuilder()
-                                        .setIsNewSession(true)
-                                        .setSessionIdentifier(sessionId),
-                                ),
+                            Fulfillment.newBuilder().setIdentifier("UNKNOWN_FULFILLMENT_ID")
                         ),
                 )
                 .build()
@@ -277,8 +267,7 @@ class AppInteractionServiceGrpcImplTest {
             assertFailsWith<StatusRuntimeException> {
                 futureStub.sendRequestFulfillment(requestWithUnknownFulfillmentId).await()
             }
-        assertThat(Status.fromThrowable(exception).code)
-            .isEqualTo(Status.Code.FAILED_PRECONDITION)
+        assertThat(Status.fromThrowable(exception).code).isEqualTo(Status.Code.FAILED_PRECONDITION)
         assertThat(Status.fromThrowable(exception).description)
             .isEqualTo(ERROR_NO_ACTION_CAPABILITY)
 
@@ -301,25 +290,17 @@ class AppInteractionServiceGrpcImplTest {
 
         val requestWithUnknownFulfillmentId =
             Request.newBuilder()
+                .setSessionIdentifier("UNKNOWN_SESSION_ID")
                 .setFulfillmentRequest(
                     FulfillmentRequest.newBuilder()
-                        .addFulfillments(
-                            Fulfillment.newBuilder()
-                                .setIdentifier(capabilityId)
-                                .setSessionInfo(
-                                    SessionInfo.newBuilder()
-                                        .setIsNewSession(true)
-                                        .setSessionIdentifier("UNKNOWN_SESSION_ID"),
-                                ),
-                        ),
+                        .addFulfillments(Fulfillment.newBuilder().setIdentifier(capabilityId)),
                 )
                 .build()
         val exception =
             assertFailsWith<StatusRuntimeException> {
                 futureStub.sendRequestFulfillment(requestWithUnknownFulfillmentId).await()
             }
-        assertThat(Status.fromThrowable(exception).code)
-            .isEqualTo(Status.Code.FAILED_PRECONDITION)
+        assertThat(Status.fromThrowable(exception).code).isEqualTo(Status.Code.FAILED_PRECONDITION)
         assertThat(Status.fromThrowable(exception).description).isEqualTo(ERROR_NO_SESSION)
 
         server.shutdownNow()
@@ -346,15 +327,16 @@ class AppInteractionServiceGrpcImplTest {
 
         // Send request to completed session.
         val requestToEndedSession =
-            Request.newBuilder().setFulfillmentRequest(testFulfillmentRequest).build()
+            Request.newBuilder()
+                .setSessionIdentifier(sessionId)
+                .setFulfillmentRequest(testFulfillmentRequest)
+                .build()
         val exception =
             assertFailsWith<StatusRuntimeException> {
                 futureStub.sendRequestFulfillment(requestToEndedSession).await()
             }
-        assertThat(Status.fromThrowable(exception).code)
-            .isEqualTo(Status.Code.FAILED_PRECONDITION)
-        assertThat(Status.fromThrowable(exception).description)
-            .isEqualTo(ERROR_SESSION_ENDED)
+        assertThat(Status.fromThrowable(exception).code).isEqualTo(Status.Code.FAILED_PRECONDITION)
+        assertThat(Status.fromThrowable(exception).description).isEqualTo(ERROR_SESSION_ENDED)
 
         server.shutdownNow()
     }
