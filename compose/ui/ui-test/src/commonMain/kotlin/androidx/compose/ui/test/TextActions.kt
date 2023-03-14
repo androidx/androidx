@@ -23,7 +23,6 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.performImeAction
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextInputForTests
@@ -40,7 +39,6 @@ fun SemanticsNodeInteraction.performTextClearance() {
  *
  * @param text Text to send.
  */
-@OptIn(ExperimentalTextApi::class)
 fun SemanticsNodeInteraction.performTextInput(text: String) {
     performTextInput { inputTextForTest(text) }
 }
@@ -102,7 +100,6 @@ fun SemanticsNodeInteraction.performImeAction() {
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 internal fun SemanticsNodeInteraction.performTextInput(action: TextInputForTests.() -> Unit) {
     val node = getNodeAndFocus()
 

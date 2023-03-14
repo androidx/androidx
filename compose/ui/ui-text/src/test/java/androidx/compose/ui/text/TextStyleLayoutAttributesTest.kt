@@ -287,7 +287,6 @@ class TextStyleLayoutAttributesTest {
     }
 
     @Suppress("DEPRECATION")
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_false_for_platformStyle_change() {
         val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
@@ -308,7 +307,6 @@ class TextStyleLayoutAttributesTest {
         ).isFalse()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_false_for_lineHeightStyle_change() {
         val style = TextStyle(
@@ -329,7 +327,6 @@ class TextStyleLayoutAttributesTest {
         ).isFalse()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun returns_false_for_lineBreak_change() {
         val style = TextStyle(

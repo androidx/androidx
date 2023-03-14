@@ -20,7 +20,6 @@ package androidx.compose.ui.text.font
 
 import android.content.Context
 import android.graphics.Typeface
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.testutils.AsyncFauxFont
 import androidx.compose.ui.text.font.testutils.AsyncTestTypefaceLoader
 import androidx.compose.ui.text.font.testutils.BlockingFauxFont
@@ -56,7 +55,6 @@ import kotlinx.coroutines.test.runCurrent
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTextApi::class)
 class FontListFontFamilyTypefaceAdapterTest {
 
     private lateinit var typefaceLoader: AsyncTestTypefaceLoader

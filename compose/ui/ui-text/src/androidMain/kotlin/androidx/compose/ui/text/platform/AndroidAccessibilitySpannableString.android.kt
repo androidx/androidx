@@ -101,7 +101,6 @@ fun AnnotatedString.toAccessibilitySpannableString(
 }
 
 /** Apply the serializable styles to SpannableString. */
-@OptIn(ExperimentalTextApi::class)
 private fun SpannableString.setSpanStyle(
     spanStyle: SpanStyle,
     start: Int,

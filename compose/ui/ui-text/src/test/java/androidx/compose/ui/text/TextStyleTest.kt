@@ -178,7 +178,6 @@ class TextStyleTest {
         assertThat(style.copy().hyphens).isEqualTo(Hyphens.Auto)
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun `copy with hyphens returns new hyphens`() {
         val style = TextStyle(hyphens = Hyphens.Auto)

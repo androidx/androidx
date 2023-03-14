@@ -1589,7 +1589,6 @@ class MultiParagraphIntegrationTest {
             .isEqualToBitmap(multiParagraph2.bitmap(brush, 0.5f))
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun multiParagraph_appliesDrawStyle_toAllParagraphs() = with(defaultDensity) {
         val fontSize = 20.sp

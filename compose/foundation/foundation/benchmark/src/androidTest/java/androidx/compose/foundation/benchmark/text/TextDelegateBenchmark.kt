@@ -24,7 +24,6 @@ import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.benchmark.RandomTextGenerator
 import androidx.compose.ui.text.benchmark.TextBenchmarkTestRule
@@ -85,7 +84,6 @@ class TextDelegateBenchmark(
         ).roundToInt()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     private fun textDelegate(textGenerator: RandomTextGenerator): TextDelegate {
         val text = textGenerator.nextAnnotatedString(
             length = textLength,
@@ -101,7 +99,6 @@ class TextDelegateBenchmark(
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun constructor() {
         textBenchmarkTestRule.generator { textGenerator ->

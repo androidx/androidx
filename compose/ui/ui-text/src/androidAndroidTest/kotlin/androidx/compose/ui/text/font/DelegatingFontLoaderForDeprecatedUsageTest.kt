@@ -17,7 +17,6 @@
 package androidx.compose.ui.text.font
 
 import android.graphics.Typeface
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.testutils.AsyncFauxFont
 import androidx.compose.ui.text.font.testutils.AsyncTestTypefaceLoader
 import androidx.compose.ui.text.font.testutils.BlockingFauxFont
@@ -32,7 +31,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@OptIn(ExperimentalTextApi::class)
 class DelegatingFontLoaderForDeprecatedUsageTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context
