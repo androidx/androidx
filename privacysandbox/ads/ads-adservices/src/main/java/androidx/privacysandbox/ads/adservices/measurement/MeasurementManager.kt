@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.ext.SdkExtensions
+import android.util.Log
 import android.view.InputEvent
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresExtension
@@ -250,6 +251,7 @@ abstract class MeasurementManager {
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): MeasurementManager? {
+            Log.d("MeasurementManager", "AdServicesInfo.version=${AdServicesInfo.version()}")
             return if (AdServicesInfo.version() >= 5) {
                 Api33Ext5Impl(context)
             } else {
