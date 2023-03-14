@@ -83,6 +83,14 @@ abstract class FtlRunner : DefaultTask() {
     @get:Option(option = "pullScreenshots", description = "true if screenshots should be pulled")
     abstract val pullScreenshots: Property<String>
 
+    @get:Optional
+    @get:Input
+    @get:Option(
+        option = "instrumentationArgs",
+        description = "instrumentation arguments to pass to FTL test runner"
+    )
+    abstract val instrumentationArgs: Property<String>
+
     @get:Input
     abstract val device: Property<String>
 
@@ -142,6 +150,8 @@ abstract class FtlRunner : DefaultTask() {
                     if (shouldPull) {
                         "/sdcard/Android/data/${apkPackageName.get()}/cache/androidx_screenshots"
                     } else null,
+                    if (instrumentationArgs.isPresent) "--environment-variables" else null,
+                    if (instrumentationArgs.isPresent) instrumentationArgs.get() else null,
                 )
             )
         }
