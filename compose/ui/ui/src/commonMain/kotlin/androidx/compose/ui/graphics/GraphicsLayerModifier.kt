@@ -617,7 +617,7 @@ private class SimpleGraphicsLayerModifier(
     fun invalidateLayerBlock() {
         requireCoordinator(Nodes.Layout).wrapped?.updateLayerBlock(
             this.layerBlock,
-            forceLayerInvalidated = true
+            forceUpdateLayerParameters = true
         )
     }
 
