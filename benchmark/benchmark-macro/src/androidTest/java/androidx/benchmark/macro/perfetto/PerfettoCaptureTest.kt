@@ -34,7 +34,7 @@ import kotlin.test.assertFailsWith
 @RunWith(AndroidJUnit4::class)
 class PerfettoCaptureTest {
     @SdkSuppress(
-        minSdkVersion = 21,
+        minSdkVersion = 23,
         maxSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED - 1
     )
     @SmallTest
