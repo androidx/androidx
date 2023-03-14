@@ -45,6 +45,7 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class MultiButtonLayoutTest {
     private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
     private static final Clickable CLICKABLE =

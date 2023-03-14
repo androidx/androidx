@@ -26,7 +26,12 @@ import androidx.annotation.RestrictTo.Scope;
  * objects for all Material components.
  *
  * <p>See {@link #DEFAULT} for default color scheme.
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.Colors} which provides
+ *     the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class Colors {
 
     /**

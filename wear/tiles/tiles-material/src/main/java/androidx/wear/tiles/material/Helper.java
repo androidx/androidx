@@ -35,7 +35,11 @@ import java.util.Collection;
 /**
  * Helper class used for Tiles Material.
  *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.Helper} which provides
+ *     the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 @RestrictTo(Scope.LIBRARY_GROUP)
 public class Helper {
     private Helper() {}

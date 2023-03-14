@@ -29,6 +29,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class ChipColorsTest {
     private static final int ARGB_BACKGROUND_COLOR = 0x12345678;
     private static final int ARGB_CONTENT_COLOR = 0x11223344;

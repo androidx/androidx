@@ -45,6 +45,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class PrimaryLayoutTest {
     private static final Clickable CLICKABLE =
             new Clickable.Builder()

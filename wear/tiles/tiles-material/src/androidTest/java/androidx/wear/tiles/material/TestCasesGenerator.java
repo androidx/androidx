@@ -21,8 +21,6 @@ import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END;
 import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
-import static androidx.wear.tiles.material.ProgressIndicatorDefaults.GAP_END_ANGLE;
-import static androidx.wear.tiles.material.ProgressIndicatorDefaults.GAP_START_ANGLE;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -39,6 +37,7 @@ import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("deprecation")
 public class TestCasesGenerator {
     private TestCasesGenerator() {}
 
@@ -253,8 +252,8 @@ public class TestCasesGenerator {
         testCases.put(
                 "default_gap_circularprogressindicator",
                 new CircularProgressIndicator.Builder()
-                        .setStartAngle(GAP_START_ANGLE)
-                        .setEndAngle(GAP_END_ANGLE)
+                        .setStartAngle(ProgressIndicatorDefaults.GAP_START_ANGLE)
+                        .setEndAngle(ProgressIndicatorDefaults.GAP_END_ANGLE)
                         .build());
         testCases.put(
                 "default_full_90_circularprogressindicator",
@@ -263,8 +262,8 @@ public class TestCasesGenerator {
                 "default_gap_90_circularprogressindicator",
                 new CircularProgressIndicator.Builder()
                         .setProgress(0.25f)
-                        .setStartAngle(GAP_START_ANGLE)
-                        .setEndAngle(GAP_END_ANGLE)
+                        .setStartAngle(ProgressIndicatorDefaults.GAP_START_ANGLE)
+                        .setEndAngle(ProgressIndicatorDefaults.GAP_END_ANGLE)
                         .build());
         testCases.put(
                 "custom_gap_45_circularprogressindicator",

@@ -34,6 +34,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.LayoutElementProto;
+import androidx.wear.protolayout.proto.ModifiersProto;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
 import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.FontStyle;
@@ -44,8 +46,6 @@ import androidx.wear.tiles.LayoutElementBuilders.TextOverflow;
 import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.material.Typography.TypographyName;
-import androidx.wear.protolayout.proto.LayoutElementProto;
-import androidx.wear.protolayout.proto.ModifiersProto;
 
 /**
  * Tiles component {@link Text} that represents text object holding any information.
@@ -71,7 +71,12 @@ import androidx.wear.protolayout.proto.ModifiersProto;
  * <pre>{@code
  * Text myText = Text.fromLayoutElement(box.getContents().get(0));
  * }</pre>
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.Text} which provides
+ *     the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class Text implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Text is actually a Material Text. */
     static final String METADATA_TAG = "TXT";

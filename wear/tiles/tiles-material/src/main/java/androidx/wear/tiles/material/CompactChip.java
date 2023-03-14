@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
@@ -39,7 +40,6 @@ import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
-import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
  * Tiles component {@link CompactChip} that represents clickable object with the text.
@@ -70,7 +70,12 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
  * <pre>{@code
  * CompactChip myChip = CompactChip.fromLayoutElement(box.getContents().get(0));
  * }</pre>
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.CompactChip} which
+ *     provides the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class CompactChip implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a CompactChip. */
     static final String METADATA_TAG = "CMPCHP";

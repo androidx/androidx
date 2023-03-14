@@ -52,6 +52,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class ChipTest {
     private static final String MAIN_TEXT = "Primary text";
     private static final Clickable CLICKABLE =
