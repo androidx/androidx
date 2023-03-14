@@ -20,6 +20,7 @@ import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavOptions
@@ -48,6 +49,8 @@ class NavControllerWithFragmentTest {
         fm?.executePendingTransactions()
         val fragment = fm?.findFragmentById(R.id.nav_host)
 
+        val oldEntry = navController.currentBackStackEntry
+
         navController.navigate(
             R.id.empty_fragment,
             null,
@@ -61,6 +64,13 @@ class NavControllerWithFragmentTest {
         assertWithMessage("Replacement should be a new instance")
             .that(replacementFragment)
             .isNotSameInstanceAs(fragment)
+
+        assertWithMessage("Old Entry should have been DESTROYED")
+            .that(oldEntry!!.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertWithMessage("New Entry should be RESUMED")
+            .that(navController.currentBackStackEntry!!.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
     }
 
     @Test
