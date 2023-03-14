@@ -59,6 +59,7 @@ import androidx.compose.material3.tokens.SearchBarTokens
 import androidx.compose.material3.tokens.SearchViewTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -82,6 +83,7 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
@@ -101,6 +103,7 @@ import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.delay
 
 /**
  * <a href="https://m3.material.io/components/search/overview" class="external" target="_blank">Material Design search</a>.
@@ -177,6 +180,7 @@ fun SearchBar(
         animationSpec = if (active) AnimationEnterFloatSpec else AnimationExitFloatSpec
     )
 
+    val focusManager = LocalFocusManager.current
     val density = LocalDensity.current
 
     val defaultInputFieldShape = SearchBarDefaults.inputFieldShape
@@ -276,6 +280,15 @@ fun SearchBar(
         }
     }
 
+    LaunchedEffect(active) {
+        if (!active) {
+            // Not strictly needed according to the motion spec, but since the animation already has
+            // a delay, this works around b/261632544.
+            delay(AnimationDelayMillis.toLong())
+            focusManager.clearFocus()
+        }
+    }
+
     BackHandler(enabled = active) {
         onActiveChange(false)
     }
@@ -344,6 +357,8 @@ fun DockedSearchBar(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+
     Surface(
         shape = shape,
         color = colors.containerColor,
@@ -386,6 +401,15 @@ fun DockedSearchBar(
                     content()
                 }
             }
+        }
+    }
+
+    LaunchedEffect(active) {
+        if (!active) {
+            // Not strictly needed according to the motion spec, but since the animation already has
+            // a delay, this works around b/261632544.
+            delay(AnimationDelayMillis.toLong())
+            focusManager.clearFocus()
         }
     }
 
