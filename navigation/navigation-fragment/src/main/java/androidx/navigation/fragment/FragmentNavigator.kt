@@ -115,13 +115,9 @@ public open class FragmentNavigator(
             override fun onBackStackChangeStarted(fragment: Fragment, pop: Boolean) {
                 // We only care about the pop case here since in the navigate case by the time
                 // we get here the fragment will have already been moved to STARTED.
-                // In the case of a pop, we move the top most entry from RESUMED to STARTED by
-                // calling prepareForTransition.
+                // In the case of a pop, we move the entries to STARTED
                 if (pop) {
-                    val entry = state.backStack.value.lastOrNull {
-                        it.id == fragment.tag &&
-                            it.lifecycle.currentState == Lifecycle.State.RESUMED
-                    }
+                    val entry = state.backStack.value.lastOrNull { it.id == fragment.tag }
                     entry?.let { state.prepareForTransition(it) }
                 }
             }
