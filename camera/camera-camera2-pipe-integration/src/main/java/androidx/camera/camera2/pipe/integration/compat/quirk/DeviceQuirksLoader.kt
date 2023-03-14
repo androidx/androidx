@@ -38,6 +38,10 @@ object DeviceQuirksLoader {
             quirks.add(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk())
         }
 
+        if (ControlZoomRatioRangeAssertionErrorQuirk.isEnabled()) {
+            quirks.add(ControlZoomRatioRangeAssertionErrorQuirk())
+        }
+
         if (FlashAvailabilityBufferUnderflowQuirk.isEnabled()) {
             quirks.add(FlashAvailabilityBufferUnderflowQuirk())
         }

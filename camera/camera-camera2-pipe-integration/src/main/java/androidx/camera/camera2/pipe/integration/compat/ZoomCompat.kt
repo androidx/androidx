@@ -24,6 +24,7 @@ import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.util.Range
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.integration.compat.workaround.getControlZoomRatioRangeSafely
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import dagger.Module
@@ -51,8 +52,7 @@ interface ZoomCompat {
             @Provides
             fun provideZoomRatio(cameraProperties: CameraProperties): ZoomCompat {
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    val range =
-                        cameraProperties.metadata[CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE]
+                    val range = cameraProperties.metadata.getControlZoomRatioRangeSafely()
                     if (range != null) {
                         AndroidRZoomCompat(cameraProperties, range)
                     } else {
