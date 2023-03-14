@@ -15,7 +15,6 @@
  */
 package androidx.privacysandbox.sdkruntime.core
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.SandboxedSdk
 import android.os.IBinder
 import android.os.ext.SdkExtensions.AD_SERVICES
@@ -120,8 +119,6 @@ class SandboxedSdkCompat private constructor(
         fun toSandboxedSdk(): SandboxedSdk
     }
 
-    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
-    @SuppressLint("NewApi", "ClassVerificationFailure")
     @RequiresExtension(extension = AD_SERVICES, version = 4)
     private open class ApiAdServicesV4Impl(
         protected val sandboxedSdk: SandboxedSdk
@@ -147,9 +144,8 @@ class SandboxedSdkCompat private constructor(
         }
     }
 
-    // TODO(b/265295473): Replace @RequiresApi with correct @RequiresExtension
-    @RequiresApi(34)
-    @SuppressLint("NewApi") // b/249981547
+    @RequiresApi(33)
+    @RequiresExtension(extension = AD_SERVICES, version = 5)
     private class ApiAdServicesV5Impl(
         sandboxedSdk: SandboxedSdk
     ) : ApiAdServicesV4Impl(sandboxedSdk) {
@@ -163,8 +159,8 @@ class SandboxedSdkCompat private constructor(
         }
     }
 
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
     private object SdkImplFactory {
-        @SuppressLint("NewApi") // b/249981547
         fun createSdkImpl(sandboxedSdk: SandboxedSdk): SandboxedSdkImpl {
             return if (AdServicesInfo.isAtLeastV5()) {
                 ApiAdServicesV5Impl(sandboxedSdk)

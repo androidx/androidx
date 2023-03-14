@@ -15,7 +15,6 @@
  */
 package androidx.privacysandbox.sdkruntime.core
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.SandboxedSdk
 import android.content.pm.SharedLibraryInfo
 import android.os.Binder
@@ -51,8 +50,6 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
-    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
-    @SuppressLint("NewApi")
     // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @SdkSuppress(minSdkVersion = TIRAMISU)
@@ -68,8 +65,6 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
-    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
-    @SuppressLint("NewApi")
     // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @SdkSuppress(minSdkVersion = TIRAMISU)
@@ -103,8 +98,6 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
-    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
-    @SuppressLint("NewApi")
     // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @SdkSuppress(minSdkVersion = TIRAMISU)
@@ -123,9 +116,9 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
-    // TODO(b/265295473) Update version check after AdServices V5 finalisation.
-    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
-    @SuppressLint("NewApi") // b/24998154
+    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
+    @SdkSuppress(minSdkVersion = TIRAMISU)
     fun getSdkInfo_whenCreatedFromSandboxedSdkAndSharedLibraryInfoAvailable_returnsSdkInfo() {
         assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
         assumeTrue(
@@ -150,7 +143,6 @@ class SandboxedSdkCompatTest {
     }
 
     private object ApiAdServicesV5 {
-        @Suppress("SameParameterValue")
         @RequiresApi(28)
         fun mockSharedLibraryInfo(
             sdkName: String,
@@ -163,9 +155,7 @@ class SandboxedSdkCompatTest {
             return sharedLibraryInfo
         }
 
-        @Suppress("SameParameterValue")
-        @RequiresApi(34)
-        @SuppressLint("NewApi") // b/24998154
+        @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
         fun mockSandboxedSdkWithSharedLibraryInfo(
             sharedLibraryInfo: SharedLibraryInfo
         ): SandboxedSdk {
@@ -179,7 +169,7 @@ class SandboxedSdkCompatTest {
     }
 
     private fun isSandboxApiAvailable() =
-        AdServicesInfo.version() >= 4
+        AdServicesInfo.isAtLeastV4()
 
     private fun isSharedLibraryInfoAvailable() =
         AdServicesInfo.isAtLeastV5()

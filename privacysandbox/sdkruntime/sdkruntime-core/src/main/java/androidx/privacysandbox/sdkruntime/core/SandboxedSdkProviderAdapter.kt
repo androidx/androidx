@@ -30,8 +30,7 @@ import androidx.annotation.RequiresExtension
  * Gets compat class name from asset "SandboxedSdkProviderCompatClassName.txt"
  *
  */
-// TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
-@SuppressLint("NewApi", "ClassVerificationFailure", "Override")
+@SuppressLint("Override") // b/273473397
 @RequiresExtension(extension = AD_SERVICES, version = 4)
 class SandboxedSdkProviderAdapter internal constructor(
     private val classNameProvider: CompatClassNameProvider
