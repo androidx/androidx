@@ -97,12 +97,14 @@ internal class MultiParagraphLayoutCache(
     private var layoutCache: TextLayoutResult? = null
 
     /**
-     * Last intrinsic height computation
-     *
-     * - first = input width
-     * - second = output height
+     * Input width for the last call to [intrinsicHeight]
      */
-    private var cachedIntrinsicHeight: Pair<Int, Int>? = null
+    private var cachedIntrinsicHeightInputWidth: Int = -1
+
+    /**
+     * Output height for last call to [intrinsicHeight] at [cachedIntrinsicHeightInputWidth]
+     */
+    private var cachedIntrinsicHeight: Int = -1
 
     /**
      * The last computed TextLayoutResult, or throws if not initialized.
@@ -192,15 +194,16 @@ internal class MultiParagraphLayoutCache(
      * The natural height of text at [width] in [layoutDirection]
      */
     fun intrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int {
-        cachedIntrinsicHeight?.let { (prevWidth, prevHeight) ->
-            if (width == prevWidth) return prevHeight
-        }
+        val localWidth = cachedIntrinsicHeightInputWidth
+        val localHeght = cachedIntrinsicHeight
+        if (width == localWidth && localWidth != -1) return localHeght
         val result = layoutText(
             Constraints(0, width, 0, Constraints.Infinity),
             layoutDirection
         ).height.ceilToIntPx()
 
-        cachedIntrinsicHeight = width to result
+        cachedIntrinsicHeightInputWidth = width
+        cachedIntrinsicHeight = result
         return result
     }
 
