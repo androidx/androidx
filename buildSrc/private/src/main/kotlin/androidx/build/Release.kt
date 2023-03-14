@@ -69,6 +69,13 @@ open class GMavenZipTask : Zip() {
                 )
             }
         }
+
+        doLast {
+            val destFile = archiveFile.get().getAsFile()
+            if (!destFile.exists()) {
+                throw GradleException("Did not create $destFile")
+            }
+        }
     }
 
     /**
@@ -95,10 +102,16 @@ open class GMavenZipTask : Zip() {
         )
         // We specifically pass the subdirectory into 'from' so that changes in other artifacts
         // won't cause this task to become out of date
-        from("$androidxRepoOut/$projectSubdir") { spec ->
+        val fromDir = project.file("$androidxRepoOut/$projectSubdir")
+        from(fromDir) { spec ->
             spec.into("m2repository/$projectSubdir")
             for (inclusion in includes) {
                 include(inclusion)
+            }
+        }
+        doFirst {
+            if (!fromDir.exists()) {
+                throw GradleException("Cannot zip nonexistent $fromDir")
             }
         }
     }
@@ -395,9 +408,10 @@ val AndroidXExtension.publishedArtifacts: List<Artifact>
 
 private val AndroidXExtension.publishPlatforms: List<String>
     get() {
-        val declaredTargets = project.multiplatformExtension?.targets?.asMap?.keys?.map {
+        val potentialTargets = project.multiplatformExtension?.targets?.asMap?.keys?.map {
             it.lowercase()
         } ?: emptySet()
+        val declaredTargets = potentialTargets.filter { it != "metadata" }
         return declaredTargets.toList()
     }
 
