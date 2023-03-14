@@ -42,7 +42,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.isContainer
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,12 +55,6 @@ import androidx.compose.ui.zIndex
 fun SearchBarSample() {
     var text by rememberSaveable { mutableStateOf("") }
     var active by rememberSaveable { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
-
-    fun closeSearchBar() {
-        focusManager.clearFocus()
-        active = false
-    }
 
     Box(Modifier.fillMaxSize()) {
         // Talkback focus order sorts based on x and y position before considering z-index. The
@@ -72,11 +65,10 @@ fun SearchBarSample() {
                 modifier = Modifier.align(Alignment.TopCenter),
                 query = text,
                 onQueryChange = { text = it },
-                onSearch = { closeSearchBar() },
+                onSearch = { active = false },
                 active = active,
                 onActiveChange = {
                     active = it
-                    if (!active) focusManager.clearFocus()
                 },
                 placeholder = { Text("Hinted search text") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
@@ -95,7 +87,7 @@ fun SearchBarSample() {
                             leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
                             modifier = Modifier.clickable {
                                 text = resultText
-                                closeSearchBar()
+                                active = false
                             }
                         )
                     }
@@ -122,12 +114,6 @@ fun SearchBarSample() {
 fun DockedSearchBarSample() {
     var text by rememberSaveable { mutableStateOf("") }
     var active by rememberSaveable { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
-
-    fun closeSearchBar() {
-        focusManager.clearFocus()
-        active = false
-    }
 
     Box(Modifier.fillMaxSize()) {
         // Talkback focus order sorts based on x and y position before considering z-index. The
@@ -138,12 +124,9 @@ fun DockedSearchBarSample() {
                 modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
                 query = text,
                 onQueryChange = { text = it },
-                onSearch = { closeSearchBar() },
+                onSearch = { active = false },
                 active = active,
-                onActiveChange = {
-                    active = it
-                    if (!active) focusManager.clearFocus()
-                },
+                onActiveChange = { active = it },
                 placeholder = { Text("Hinted search text") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
@@ -161,7 +144,7 @@ fun DockedSearchBarSample() {
                             leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
                             modifier = Modifier.clickable {
                                 text = resultText
-                                closeSearchBar()
+                                active = false
                             }
                         )
                     }
