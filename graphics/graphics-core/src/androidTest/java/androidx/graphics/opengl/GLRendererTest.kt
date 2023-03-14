@@ -40,6 +40,7 @@ import android.view.TextureView
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.SurfaceTextureRenderer
+import androidx.graphics.isAllColor
 import androidx.graphics.lowlatency.LineRenderer
 import androidx.graphics.lowlatency.Rectangle
 import androidx.hardware.SyncFenceCompat
@@ -949,8 +950,6 @@ class GLRendererTest {
                 val surface = Surface(surfaceTexture)
                 val canvas = surface.lockCanvas(null)
                 canvas.save()
-                // GL is flipped vertically from Android's canvas so flip the canvas here
-                canvas.scale(1f, -1f, width / 2f, height / 2f)
                 val paint = Paint()
                 // top left
                 canvas.drawRect(0f, 0f, width / 2f, height / 2f,
@@ -1056,9 +1055,6 @@ class GLRendererTest {
         val frameHandler = Handler(frameHandlerThread.looper)
         val renderNode = RenderNode("node").apply {
             setPosition(0, 0, width, height)
-            scaleY = -1f
-            pivotX = width / 2f
-            pivotY = height / 2f
             val canvas = beginRecording()
             val paint = Paint()
             // top left
@@ -1341,17 +1337,6 @@ class GLRendererTest {
             copyHandler
         )
         assertTrue(copyLatch.await(3000, TimeUnit.MILLISECONDS))
-    }
-
-    private fun Bitmap.isAllColor(targetColor: Int): Boolean {
-        for (i in 0 until width) {
-            for (j in 0 until height) {
-                if (getPixel(i, j) != targetColor) {
-                    return false
-                }
-            }
-        }
-        return true
     }
 
     private fun genTexture(): Int {
