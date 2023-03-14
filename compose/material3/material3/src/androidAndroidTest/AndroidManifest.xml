@@ -16,7 +16,8 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <application>
+    <application
+        android:supportsRtl="true">
         <activity
             android:name="androidx.compose.material3.MaterialWindowInsetsActivity"
             android:windowSoftInputMode="adjustResize"
