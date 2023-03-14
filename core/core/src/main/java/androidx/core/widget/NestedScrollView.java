@@ -124,13 +124,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     private final Rect mTempRect = new Rect();
     private OverScroller mScroller;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @VisibleForTesting
     @NonNull
     public EdgeEffect mEdgeGlowTop;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @VisibleForTesting
     @NonNull
@@ -1827,7 +1825,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     /**
      * <p>The scroll range of a scroll view is the overall height of all of its
      * children.</p>
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
@@ -1852,35 +1849,30 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         return scrollRange;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeVerticalScrollOffset() {
         return Math.max(0, super.computeVerticalScrollOffset());
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeVerticalScrollExtent() {
         return super.computeVerticalScrollExtent();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollRange() {
         return super.computeHorizontalScrollRange();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollOffset() {
         return super.computeHorizontalScrollOffset();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollExtent() {

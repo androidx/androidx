@@ -143,7 +143,6 @@ public class RemoteAuthClient internal constructor(
         /**
          * Errors returned in [Callback.onAuthorizationError].
          *
-         * @hide
          */
         @IntDef(NO_ERROR, ERROR_UNSUPPORTED, ERROR_PHONE_UNAVAILABLE)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

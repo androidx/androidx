@@ -76,12 +76,12 @@ class ComplicationDataExpressionEvaluatorTest {
     }
 
     /**
-     * Scenarios for testing expressions.
+     * Scenarios for testing data with expressions.
      *
      * Each scenario describes the expressed data, the flow of states, and the flow of the evaluated
      * data output.
      */
-    enum class DataExpressionScenario(
+    enum class DataWithExpressionScenario(
         val expressed: WireComplicationData,
         val states: List<Map<String, StateEntryValue>>,
         val evaluated: List<WireComplicationData>,
@@ -103,28 +103,11 @@ class ComplicationDataExpressionEvaluatorTest {
                 listOf(
                     WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
                         .setRangedValue(1f)
-                        .setRangedValueExpression(DynamicFloat.constant(1f))
-                        .setLongText(
-                            WireComplicationText("Long Text", DynamicString.constant("Long Text"))
-                        )
-                        .setLongTitle(
-                            WireComplicationText("Long Title", DynamicString.constant("Long Title"))
-                        )
-                        .setShortText(
-                            WireComplicationText("Short Text", DynamicString.constant("Short Text"))
-                        )
-                        .setShortTitle(
-                            WireComplicationText(
-                                "Short Title",
-                                DynamicString.constant("Short Title")
-                            )
-                        )
-                        .setContentDescription(
-                            WireComplicationText(
-                                "Description",
-                                DynamicString.constant("Description")
-                            )
-                        )
+                        .setLongText(WireComplicationText("Long Text"))
+                        .setLongTitle(WireComplicationText("Long Title"))
+                        .setShortText(WireComplicationText("Short Text"))
+                        .setShortTitle(WireComplicationText("Short Title"))
+                        .setContentDescription(WireComplicationText("Description"))
                         .build()
                 ),
         ),
@@ -156,34 +139,11 @@ class ComplicationDataExpressionEvaluatorTest {
                     INVALID_DATA, // Before state is available.
                     WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
                         .setRangedValue(1f)
-                        .setRangedValueExpression(DynamicFloat.fromState("ranged_value"))
-                        .setLongText(
-                            WireComplicationText("Long Text", DynamicString.fromState("long_text"))
-                        )
-                        .setLongTitle(
-                            WireComplicationText(
-                                "Long Title",
-                                DynamicString.fromState("long_title")
-                            )
-                        )
-                        .setShortText(
-                            WireComplicationText(
-                                "Short Text",
-                                DynamicString.fromState("short_text")
-                            )
-                        )
-                        .setShortTitle(
-                            WireComplicationText(
-                                "Short Title",
-                                DynamicString.fromState("short_title")
-                            )
-                        )
-                        .setContentDescription(
-                            WireComplicationText(
-                                "Description",
-                                DynamicString.fromState("description")
-                            )
-                        )
+                        .setLongText(WireComplicationText("Long Text"))
+                        .setLongTitle(WireComplicationText("Long Title"))
+                        .setShortText(WireComplicationText("Short Text"))
+                        .setShortTitle(WireComplicationText("Short Title"))
+                        .setContentDescription(WireComplicationText("Description"))
                         .build()
                 ),
         ),
@@ -201,12 +161,8 @@ class ComplicationDataExpressionEvaluatorTest {
                 listOf(
                     INVALID_DATA, // Before state is available.
                     WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                        .setShortTitle(
-                            WireComplicationText("Valid", DynamicString.fromState("valid"))
-                        )
-                        .setShortText(
-                            WireComplicationText("Valid", DynamicString.fromState("valid"))
-                        )
+                        .setShortTitle(WireComplicationText("Valid"))
+                        .setShortText(WireComplicationText("Valid"))
                         .build(),
                 ),
         ),
@@ -244,12 +200,8 @@ class ComplicationDataExpressionEvaluatorTest {
                 listOf(
                     INVALID_DATA, // Before state is available.
                     WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                        .setShortTitle(
-                            WireComplicationText("Valid", DynamicString.fromState("valid"))
-                        )
-                        .setShortText(
-                            WireComplicationText("Valid", DynamicString.fromState("invalid"))
-                        )
+                        .setShortTitle(WireComplicationText("Valid"))
+                        .setShortText(WireComplicationText("Valid"))
                         .build(),
                     INVALID_DATA, // After it was invalidated.
                 ),
@@ -257,8 +209,8 @@ class ComplicationDataExpressionEvaluatorTest {
     }
 
     @Test
-    fun data_expression_setToEvaluated() {
-        for (scenario in DataExpressionScenario.values()) {
+    fun data_withExpression_setToEvaluated() {
+        for (scenario in DataWithExpressionScenario.values()) {
             // Defensive copy due to in-place evaluation.
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
             val stateStore = ObservableStateStore(mapOf())
@@ -284,6 +236,52 @@ class ComplicationDataExpressionEvaluatorTest {
                     .that(allEvaluations.replayCache)
                     .isEqualTo(scenario.evaluated)
             }
+        }
+    }
+
+    @Test
+    fun data_keepExpression_doesNotTrimUnevaluatedExpression() {
+        val expressed =
+            WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                .setRangedValueExpression(DynamicFloat.constant(1f))
+                .setLongText(WireComplicationText(DynamicString.constant("Long Text")))
+                .setLongTitle(WireComplicationText(DynamicString.constant("Long Title")))
+                .setShortText(WireComplicationText(DynamicString.constant("Short Text")))
+                .setShortTitle(WireComplicationText(DynamicString.constant("Short Title")))
+                .setContentDescription(WireComplicationText(DynamicString.constant("Description")))
+                .build()
+        ComplicationDataExpressionEvaluator(expressed, keepExpression = true).use { evaluator ->
+            evaluator.init()
+            runUiThreadTasks()
+
+            assertThat(evaluator.data.value)
+                .isEqualTo(
+                    WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                        .setRangedValue(1f)
+                        .setRangedValueExpression(DynamicFloat.constant(1f))
+                        .setLongText(
+                            WireComplicationText("Long Text", DynamicString.constant("Long Text"))
+                        )
+                        .setLongTitle(
+                            WireComplicationText("Long Title", DynamicString.constant("Long Title"))
+                        )
+                        .setShortText(
+                            WireComplicationText("Short Text", DynamicString.constant("Short Text"))
+                        )
+                        .setShortTitle(
+                            WireComplicationText(
+                                "Short Title",
+                                DynamicString.constant("Short Title")
+                            )
+                        )
+                        .setContentDescription(
+                            WireComplicationText(
+                                "Description",
+                                DynamicString.constant("Description")
+                            )
+                        )
+                        .build()
+                )
         }
     }
 
@@ -334,22 +332,25 @@ class ComplicationDataExpressionEvaluatorTest {
 
     @Test
     fun compat_notInitialized_listenerNotInvoked() {
-        ComplicationDataExpressionEvaluator.Compat(DATA_WITH_NO_EXPRESSION, listener).use {
-            runUiThreadTasks()
+        ComplicationDataExpressionEvaluator.Compat.Builder(DATA_WITH_NO_EXPRESSION, listener)
+            .build()
+            .use {
+                runUiThreadTasks()
 
-            verify(listener, never()).accept(any())
-        }
+                verify(listener, never()).accept(any())
+            }
     }
 
     @Test
     fun compat_noExpression_listenerInvokedWithData() {
-        ComplicationDataExpressionEvaluator.Compat(DATA_WITH_NO_EXPRESSION, listener).use {
-            evaluator ->
-            evaluator.init(ContextCompat.getMainExecutor(getApplicationContext()))
-            runUiThreadTasks()
+        ComplicationDataExpressionEvaluator.Compat.Builder(DATA_WITH_NO_EXPRESSION, listener)
+            .build()
+            .use { evaluator ->
+                evaluator.init(ContextCompat.getMainExecutor(getApplicationContext()))
+                runUiThreadTasks()
 
-            verify(listener, times(1)).accept(DATA_WITH_NO_EXPRESSION)
-        }
+                verify(listener, times(1)).accept(DATA_WITH_NO_EXPRESSION)
+            }
     }
 
     private companion object {

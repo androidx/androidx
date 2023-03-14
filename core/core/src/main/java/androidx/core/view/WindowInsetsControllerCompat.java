@@ -152,7 +152,6 @@ public final class WindowInsetsControllerCompat {
     /**
      * Determines the behavior of system bars when hiding them by calling {@link #hide}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)

@@ -39,7 +39,9 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 21)
-class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
+class EncoderProfilesProviderAdapterDeviceTest(
+    private val quality: Int,
+) {
 
     companion object {
         @JvmStatic
@@ -74,7 +76,10 @@ class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
 
         cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK)!!
         intCameraId = cameraId.toInt()
+        setUptEncoderProfileProvider()
+    }
 
+    private fun setUptEncoderProfileProvider() {
         encoderProfilesProvider = EncoderProfilesProviderAdapter(cameraId)
     }
 

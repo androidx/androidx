@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.test
+package androidx.room.integration.kotlintestapp.test
 
-import androidx.room.integration.kotlintestapp.test.TestDatabaseTest
-import androidx.room.integration.kotlintestapp.test.TestUtil
 import androidx.room.invalidationTrackerFlow
 import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4

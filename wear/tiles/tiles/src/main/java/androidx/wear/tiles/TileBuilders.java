@@ -120,7 +120,6 @@ public final class TileBuilders {
         /**
          * Creates a new wrapper instance from the proto.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -131,7 +130,6 @@ public final class TileBuilders {
         /**
          * Returns the internal proto instance.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -242,7 +240,6 @@ public final class TileBuilders {
     /**
      * Utility class with the current version of the Tile schema in use.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public static final class Version {

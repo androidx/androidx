@@ -27,7 +27,6 @@ import java.util.concurrent.Executor;
  * An {@link Executor} that runs each task in the thread that invokes {@link Executor#execute
  * execute}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 enum DirectExecutor implements Executor {

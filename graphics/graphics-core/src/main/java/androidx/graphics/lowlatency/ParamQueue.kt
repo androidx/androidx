@@ -80,4 +80,8 @@ internal class ParamQueue<T> {
             mParams.add(param)
         }
     }
+
+    fun count(): Int = mLock.withLock { mParams.size }
+
+    fun isEmpty() = count() == 0
 }

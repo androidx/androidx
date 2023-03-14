@@ -118,8 +118,9 @@ public class ImagePipeline {
      * Creates a {@link SessionConfig.Builder} for configuring camera.
      */
     @NonNull
-    public SessionConfig.Builder createSessionConfigBuilder() {
-        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mUseCaseConfig);
+    public SessionConfig.Builder createSessionConfigBuilder(@NonNull Size resolution) {
+        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mUseCaseConfig,
+                resolution);
         builder.addNonRepeatingSurface(mPipelineIn.getSurface());
         return builder;
     }

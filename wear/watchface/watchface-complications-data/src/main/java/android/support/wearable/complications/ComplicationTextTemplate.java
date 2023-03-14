@@ -46,7 +46,6 @@ import java.util.List;
 /**
  * Displays one or more ComplicationText objects in a template.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("BanParcelableUsage")

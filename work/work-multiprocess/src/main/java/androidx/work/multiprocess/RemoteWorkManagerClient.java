@@ -73,7 +73,6 @@ import java.util.concurrent.Executor;
  * The implementation of the {@link RemoteWorkManager} which sets up the
  * {@link android.content.ServiceConnection} and dispatches the request.
  *
- * @hide
  */
 @SuppressLint("BanKeepAnnotation")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -472,7 +471,6 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     /**
      * The implementation of {@link ServiceConnection} that handles changes in the connection.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class Session implements ServiceConnection {

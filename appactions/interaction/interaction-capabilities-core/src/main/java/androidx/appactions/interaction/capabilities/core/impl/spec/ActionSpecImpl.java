@@ -95,11 +95,14 @@ final class ActionSpecImpl<
         StructuredOutput.Builder outputBuilder = StructuredOutput.newBuilder();
         for (Map.Entry<String, Function<OutputT, List<ParamValue>>> entry :
                 mOutputBindings.entrySet()) {
-            outputBuilder.addOutputValues(
-                    StructuredOutput.OutputValue.newBuilder()
-                            .setName(entry.getKey())
-                            .addAllValues(entry.getValue().apply(output))
-                            .build());
+            List<ParamValue> values = entry.getValue().apply(output);
+            if (!values.isEmpty()) {
+                outputBuilder.addOutputValues(
+                        StructuredOutput.OutputValue.newBuilder()
+                                .setName(entry.getKey())
+                                .addAllValues(values)
+                                .build());
+            }
         }
         return outputBuilder.build();
     }

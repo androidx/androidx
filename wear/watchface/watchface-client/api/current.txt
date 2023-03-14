@@ -52,8 +52,8 @@ package androidx.wear.watchface.client {
     ctor @Deprecated public DefaultComplicationDataSourcePolicyAndType(androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy policy, androidx.wear.watchface.complications.data.ComplicationType type);
     method @Deprecated public androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy getPolicy();
     method @Deprecated public androidx.wear.watchface.complications.data.ComplicationType getType();
-    property public final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy policy;
-    property public final androidx.wear.watchface.complications.data.ComplicationType type;
+    property @Deprecated public final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy policy;
+    property @Deprecated public final androidx.wear.watchface.complications.data.ComplicationType type;
   }
 
   public final class DeviceConfig {
@@ -145,7 +145,7 @@ package androidx.wear.watchface.client {
     method @AnyThread public void removeClientDisconnectListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.ClientDisconnectListener listener);
     method public void removeOnWatchFaceReadyListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.OnWatchFaceReadyListener listener);
     method @RequiresApi(27) @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>? idAndComplicationData) throws android.os.RemoteException;
-    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void sendTouchEvent(@Px int xPosition, @Px int yPosition, @androidx.wear.watchface.TapType int tapType) throws android.os.RemoteException;
+    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void sendTouchEvent(@Px int xPosition, @Px int yPosition, int tapType) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void setWatchUiState(androidx.wear.watchface.client.WatchUiState watchUiState) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void updateComplicationData(java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData> slotIdToComplicationData) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void updateWatchFaceInstance(String newInstanceId, androidx.wear.watchface.style.UserStyle userStyle) throws android.os.RemoteException;

@@ -144,7 +144,6 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     static final int EVENT_NESTED_SCROLL = 1;
     static final int EVENT_VIEW_REMOVED = 2;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({EVENT_PRE_DRAW, EVENT_NESTED_SCROLL, EVENT_VIEW_REMOVED})
@@ -393,7 +392,6 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
@@ -1787,8 +1785,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
     @Override
     public boolean onStartNestedScroll(@NonNull View child, @NonNull View target,
-            int nestedScrollAxes) {
-        return onStartNestedScroll(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
+            int axes) {
+        return onStartNestedScroll(child, target, axes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override

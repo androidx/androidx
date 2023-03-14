@@ -140,7 +140,6 @@ public interface WatchFaceMetadataClient : AutoCloseable {
             return true
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Suppress("DEPRECATION")
         open class ParserProvider {
@@ -158,7 +157,6 @@ public interface WatchFaceMetadataClient : AutoCloseable {
             }
         }
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Suppress("ShowingMemberInHiddenClass") // Spurious warning about exposing the
         // 'hidden' companion object, which _isn't_ hidden.

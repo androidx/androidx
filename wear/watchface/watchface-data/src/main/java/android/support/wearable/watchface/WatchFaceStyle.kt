@@ -33,7 +33,6 @@ import androidx.annotation.RestrictTo
  *
  * <p>To construct a WatchFaceStyle use [WatchFaceStyle.Builder].
  *
- * @hide
  */
 @SuppressWarnings("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

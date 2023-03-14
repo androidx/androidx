@@ -23,6 +23,7 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
+import androidx.camera.camera2.pipe.integration.compat.workaround.AutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
@@ -41,6 +42,7 @@ import kotlinx.coroutines.Deferred
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class State3AControl @Inject constructor(
     val cameraProperties: CameraProperties,
+    private val aeModeDisabler: AutoFlashAEModeDisabler,
 ) : UseCaseCameraControl, UseCaseCamera.RunningUseCasesChangeListener {
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera: UseCaseCamera?
@@ -115,11 +117,9 @@ class State3AControl @Inject constructor(
         val preferAeMode = preferredAeMode ?: when (flashMode) {
             ImageCapture.FLASH_MODE_OFF -> CaptureRequest.CONTROL_AE_MODE_ON
             ImageCapture.FLASH_MODE_ON -> CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
-            ImageCapture.FLASH_MODE_AUTO -> CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
-            // TODO(b/209383160): porting the Quirk for AEModeDisabler
-            //      mAutoFlashAEModeDisabler.getCorrectedAeMode(
-            //      CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
-            //    )
+            ImageCapture.FLASH_MODE_AUTO -> aeModeDisabler.getCorrectedAeMode(
+                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+            )
             else -> CaptureRequest.CONTROL_AE_MODE_ON
         }
 

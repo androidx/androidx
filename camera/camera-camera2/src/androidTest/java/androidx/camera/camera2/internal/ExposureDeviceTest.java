@@ -152,7 +152,9 @@ public class ExposureDeviceTest {
         mSessionStateCallback = new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
         mCameraId = CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING);
         mSemaphore = new Semaphore(0);
-        mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
+        mCameraCoordinator = new FakeCameraCoordinator();
+        mCameraStateRegistry = new CameraStateRegistry(mCameraCoordinator,
+                DEFAULT_AVAILABLE_CAMERA_COUNT);
         CameraManagerCompat cameraManagerCompat =
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
@@ -161,6 +163,7 @@ public class ExposureDeviceTest {
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext()),
                 mCameraId,
                 camera2CameraInfo,
+                mCameraCoordinator,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler,
                 DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
         );
@@ -449,7 +452,8 @@ public class ExposureDeviceTest {
         }
 
         private void createPipeline(StreamSpec streamSpec) {
-            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(getCurrentConfig());
+            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(getCurrentConfig(),
+                    streamSpec.getResolution());
 
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             if (mDeferrableSurface != null) {

@@ -28,7 +28,6 @@ import androidx.annotation.RestrictTo;
 import java.util.Locale;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class AllCapsTransformationMethod implements TransformationMethod {

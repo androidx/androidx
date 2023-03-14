@@ -37,6 +37,15 @@ import androidx.constraintlayout.compose.OnSwipe
 import androidx.constraintlayout.compose.SwipeDirection
 import androidx.constraintlayout.compose.SwipeSide
 
+/**
+ * Shows how to use MotionLayout to interpolate custom values such as colors during animation.
+ *
+ * This example animates the background color of a box from [Color.Red] to [Color.Blue] while using
+ * KeyFrames to add intermediate colors [Color.Yellow] and [Color.Green] at 33% and 66% points of
+ * the animation, respectively.
+ *
+ * The animation is driven with an swipe gesture defined by [OnSwipe].
+ */
 @Preview
 @Composable
 fun CustomColorInKeyAttributesDemo() {

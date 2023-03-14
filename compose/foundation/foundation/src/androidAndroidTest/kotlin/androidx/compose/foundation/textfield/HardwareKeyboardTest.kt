@@ -20,7 +20,6 @@ import android.view.KeyEvent
 import android.view.KeyEvent.META_ALT_ON
 import android.view.KeyEvent.META_CTRL_ON
 import android.view.KeyEvent.META_SHIFT_ON
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.text.BasicTextField
@@ -57,7 +56,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 class HardwareKeyboardTest {
     @get:Rule
     val rule = createComposeRule()
@@ -372,6 +371,101 @@ class HardwareKeyboardTest {
         }
     }
 
+    @Test
+    fun textField_tabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.Tab.downAndUp()
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_tabMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.Tab.downAndUp()
+            expectedText("\ttext")
+        }
+    }
+
+    @Test
+    fun textField_shiftTabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.Tab.downAndUp(metaState = META_SHIFT_ON)
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_enterSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.Enter.downAndUp()
+            expectedText("text") // no change, should do ime action instead
+        }
+    }
+
+    @Test
+    fun textField_enterMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.Enter.downAndUp()
+            expectedText("\ntext")
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_tabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Tab.downAndUp()
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_tabMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Tab.downAndUp()
+            expectedText("t\tt")
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_shiftTabSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Tab.downAndUp(metaState = META_SHIFT_ON)
+            expectedText("text") // no change, should try focus change instead
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_enterSingleLine() {
+        keysSequenceTest(initText = "text", singleLine = true) {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Enter.downAndUp()
+            expectedText("text") // no change, should do ime action instead
+        }
+    }
+
+    @Test
+    fun textField_withActiveSelection_enterMultiLine() {
+        keysSequenceTest(initText = "text") {
+            Key.DirectionRight.downAndUp()
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.DirectionRight.downAndUp(META_SHIFT_ON)
+            Key.Enter.downAndUp()
+            expectedText("t\nt")
+        }
+    }
+
     private inner class SequenceScope(
         val state: MutableState<TextFieldValue>,
         val nodeGetter: () -> SemanticsNodeInteraction
@@ -405,16 +499,23 @@ class HardwareKeyboardTest {
     private fun keysSequenceTest(
         initText: String = "",
         modifier: Modifier = Modifier.fillMaxSize(),
+        singleLine: Boolean = false,
         sequence: SequenceScope.() -> Unit,
     ) {
         val value = mutableStateOf(TextFieldValue(initText))
-        keysSequenceTest(value = value, modifier = modifier, sequence = sequence)
+        keysSequenceTest(
+            value = value,
+            modifier = modifier,
+            singleLine = singleLine,
+            sequence = sequence
+        )
     }
 
     private fun keysSequenceTest(
         value: MutableState<TextFieldValue>,
         modifier: Modifier = Modifier.fillMaxSize(),
         onValueChange: (TextFieldValue) -> Unit = { value.value = it },
+        singleLine: Boolean = false,
         sequence: SequenceScope.() -> Unit,
     ) {
         val inputService = TextInputService(mock())
@@ -431,7 +532,8 @@ class HardwareKeyboardTest {
                         fontSize = 10.sp
                     ),
                     modifier = modifier.focusRequester(focusRequester),
-                    onValueChange = onValueChange
+                    onValueChange = onValueChange,
+                    singleLine = singleLine,
                 )
             }
         }

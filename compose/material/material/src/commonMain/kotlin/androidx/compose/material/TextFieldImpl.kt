@@ -131,8 +131,10 @@ internal fun CommonDecorationBox(
             }
         }
 
+        // Transparent components interfere with Talkback (b/261061240), so if the placeholder has
+        // alpha == 0, we set the component to null instead.
         val decoratedPlaceholder: @Composable ((Modifier) -> Unit)? =
-            if (placeholder != null && transformedText.isEmpty()) {
+            if (placeholder != null && transformedText.isEmpty() && placeholderAlphaProgress > 0f) {
                 @Composable { modifier ->
                     Box(modifier.alpha(placeholderAlphaProgress)) {
                         Decoration(

@@ -540,7 +540,7 @@ public class ImageCaptureTest {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setCaptureOptionUnpacker((config, builder) -> {
                 })
-                .setSessionOptionUnpacker((config, builder) -> {
+                .setSessionOptionUnpacker((resolution, config, builder) -> {
                 }).build();
         imageCapture.setCropAspectRatio(new Rational(16, 9));
 

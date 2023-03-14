@@ -31,7 +31,6 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 
 /**
  * A fake implementation of {@link UseCaseConfigFactory}.
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -53,7 +52,8 @@ public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
         MutableOptionsBundle mutableConfig = MutableOptionsBundle.create();
 
         mutableConfig.insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, (config, builder) -> {});
-        mutableConfig.insertOption(OPTION_SESSION_CONFIG_UNPACKER, (config, builder) -> {});
+        mutableConfig.insertOption(OPTION_SESSION_CONFIG_UNPACKER,
+                (resolution, config, builder) -> {});
 
         return OptionsBundle.from(mutableConfig);
     }

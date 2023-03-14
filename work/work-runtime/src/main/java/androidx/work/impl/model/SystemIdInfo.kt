@@ -23,7 +23,6 @@ import androidx.room.ForeignKey
 /**
  * Stores system ids for a [WorkSpec] id.
  *
- * @hide
  */
 @Entity(
     foreignKeys = [ForeignKey(

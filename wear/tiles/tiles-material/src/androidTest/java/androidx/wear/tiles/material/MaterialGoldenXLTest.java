@@ -28,6 +28,7 @@ import android.util.DisplayMetrics;
 
 import androidx.annotation.Dimension;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.wear.tiles.DeviceParametersBuilders;
@@ -134,6 +135,7 @@ public class MaterialGoldenXLTest {
         getApplicationContext().getResources().getDisplayMetrics().setTo(OLD_DISPLAY_METRICS);
     }
 
+    @SdkSuppress(maxSdkVersion = 32) // b/271486183
     @Test
     public void test() {
         runSingleScreenshotTest(mScreenshotRule, mLayoutElement, mExpected);

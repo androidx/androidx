@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.task;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appactions.interaction.capabilities.core.values.SearchAction;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -25,7 +26,9 @@ import com.google.common.util.concurrent.ListenableFuture;
  * Similar to ValueListener, but also need to handle grounding of ungrounded values.
  *
  * @param <T>
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface AppEntityResolver<T> extends ValueListener<T> {
     /**
      * Given a search criteria, looks up the inventory during runtime, renders the search result

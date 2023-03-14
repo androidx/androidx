@@ -69,7 +69,6 @@ import androidx.camera.core.impl.SizeCoordinate;
  * can check which resolution is finally selected by using the use case's {@code
  * getResolutionInfo()} function.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -101,7 +100,6 @@ public class ResolutionSelector {
     /**
      * Retrieves the preferred aspect ratio in the ResolutionSelector.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @AspectRatio.Ratio
@@ -112,7 +110,6 @@ public class ResolutionSelector {
     /**
      * Retrieves the preferred resolution in the ResolutionSelector.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
@@ -123,7 +120,6 @@ public class ResolutionSelector {
     /**
      * Retrieves the size coordinate of the preferred resolution in the ResolutionSelector.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
@@ -134,7 +130,6 @@ public class ResolutionSelector {
     /**
      * Returns the max resolution in the ResolutionSelector.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
@@ -145,7 +140,6 @@ public class ResolutionSelector {
     /**
      * Returns {@code true} if high resolutions are allowed to be selected, otherwise {@code false}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isHighResolutionEnabled() {

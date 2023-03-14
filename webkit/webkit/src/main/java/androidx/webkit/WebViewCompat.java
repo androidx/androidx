@@ -360,7 +360,6 @@ public class WebViewCompat {
     }
 
     /**
-     * @hide Internal use only.
      * @see #getCurrentWebViewPackage(Context)
      * @return the loaded WebView package, or null if no WebView is created.
      */
@@ -741,7 +740,6 @@ public class WebViewCompat {
      * @see ScriptHandler
      *
      * TODO(swestphal): unhide when ready.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(

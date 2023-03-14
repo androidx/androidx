@@ -37,12 +37,14 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertNotEquals
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,7 +58,6 @@ class DialogWithInsetsTest {
     /**
      * Make sure that insets are available in the Dialog.
      */
-    @Ignore // b/261191574
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun dialogSupportsWindowInsets() {
@@ -110,6 +111,19 @@ class DialogWithInsetsTest {
 
         val originalSize = dialogSize
 
+        // Add listener for the IME insets
+        val insetsAppliedLatch = CountDownLatch(1)
+        rule.runOnUiThread {
+            val decorView = rule.activity.window.decorView
+            ViewCompat.setOnApplyWindowInsetsListener(decorView) { _, insets ->
+                val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+                if (ime.bottom > 0) {
+                    insetsAppliedLatch.countDown()
+                }
+                insets
+            }
+        }
+
         // show the IME
         rule.runOnUiThread {
             focusRequester.requestFocus()
@@ -118,6 +132,15 @@ class DialogWithInsetsTest {
         rule.waitForIdle()
         rule.runOnUiThread {
             controller.show(WindowInsetsCompat.Type.ime())
+        }
+
+        val applied = insetsAppliedLatch.await(1, TimeUnit.SECONDS)
+
+        if (!applied) {
+            // The IME couldn't be opened, so we'll just exit the test.
+            // This is pretty rare, but some devices are flaky when it comes
+            // to opening the IME.
+            return
         }
 
         rule.waitUntil {

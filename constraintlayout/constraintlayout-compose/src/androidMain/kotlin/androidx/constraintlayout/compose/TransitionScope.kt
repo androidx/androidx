@@ -16,8 +16,9 @@
 
 package androidx.constraintlayout.compose
 
-import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.core.parser.CLArray
 import androidx.constraintlayout.core.parser.CLContainer
 import androidx.constraintlayout.core.parser.CLNumber
@@ -241,9 +242,10 @@ abstract class BaseKeyFrameScope internal constructor() {
     protected fun <T> addOnPropertyChange(initialValue: T, nameOverride: String? = null) =
         object : ObservableProperty<T>(initialValue) {
             override fun afterChange(property: KProperty<*>, oldValue: T, newValue: T) {
-                val name = nameOverride ?: property.name
                 if (newValue != null) {
-                    keyFramePropertiesValue[name] = newValue
+                    keyFramePropertiesValue[nameOverride ?: property.name] = newValue
+                } else {
+                    keyFramePropertiesValue.remove(nameOverride ?: property.name)
                 }
             }
         }
@@ -306,6 +308,9 @@ abstract class BaseKeyFrameScope internal constructor() {
                         end = stringChars.size.toLong() - 1
                     })
                 }
+                is Dp -> {
+                    array.add(CLNumber(value.value))
+                }
                 is Number -> {
                     array.add(CLNumber(value.toFloat()))
                 }
@@ -322,9 +327,9 @@ class KeyAttributeScope internal constructor() : BaseKeyFrameScope() {
     var rotationX by addOnPropertyChange(0f, "rotationX")
     var rotationY by addOnPropertyChange(0f, "rotationY")
     var rotationZ by addOnPropertyChange(0f, "rotationZ")
-    var translationX by addOnPropertyChange(0f, "translationX")
-    var translationY by addOnPropertyChange(0f, "translationY")
-    var translationZ by addOnPropertyChange(0f, "translationZ")
+    var translationX: Dp by addOnPropertyChange(0.dp, "translationX")
+    var translationY: Dp by addOnPropertyChange(0.dp, "translationY")
+    var translationZ: Dp by addOnPropertyChange(0.dp, "translationZ")
 }
 
 @ExperimentalMotionApi
@@ -344,9 +349,9 @@ class KeyCycleScope internal constructor() : BaseKeyFrameScope() {
     var rotationX by addOnPropertyChange(0f)
     var rotationY by addOnPropertyChange(0f)
     var rotationZ by addOnPropertyChange(0f)
-    var translationX by addOnPropertyChange(0f)
-    var translationY by addOnPropertyChange(0f)
-    var translationZ by addOnPropertyChange(0f)
+    var translationX: Dp by addOnPropertyChange(0.dp)
+    var translationY: Dp by addOnPropertyChange(0.dp)
+    var translationZ: Dp by addOnPropertyChange(0.dp)
     var period by addOnPropertyChange(0f)
     var offset by addOnPropertyChange(0f)
     var phase by addOnPropertyChange(0f)
@@ -384,13 +389,16 @@ class Easing internal constructor(override val name: String) : NamedPropertyOrVa
         /**
          * Defines a Cubic-Bezier curve where the points P1 and P2 are at the given coordinate
          * ratios.
+         *
+         * P1 and P2 are typically defined within (0f, 0f) and (1f, 1f), but may be assigned beyond
+         * these values for overshoot curves.
+         *
+         * @param x1 X-axis value for P1. Value is typically defined within 0f-1f.
+         * @param y1 Y-axis value for P1. Value is typically defined within 0f-1f.
+         * @param x2 X-axis value for P2. Value is typically defined within 0f-1f.
+         * @param y2 Y-axis value for P2. Value is typically defined within 0f-1f.
          */
-        fun Cubic(
-            @FloatRange(from = 0.0, to = 1.0) x1: Float,
-            @FloatRange(from = 0.0, to = 1.0) y1: Float,
-            @FloatRange(from = 0.0, to = 1.0) x2: Float,
-            @FloatRange(from = 0.0, to = 1.0) y2: Float
-        ) = Easing("cubic($x1, $y1, $x2, $y2)")
+        fun Cubic(x1: Float, y1: Float, x2: Float, y2: Float) = Easing("cubic($x1, $y1, $x2, $y2)")
     }
 }
 

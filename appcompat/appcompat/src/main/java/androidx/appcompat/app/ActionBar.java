@@ -91,7 +91,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 public abstract class ActionBar {
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({NAVIGATION_MODE_STANDARD, NAVIGATION_MODE_LIST, NAVIGATION_MODE_TABS})
@@ -136,7 +135,6 @@ public abstract class ActionBar {
     @Deprecated
     public static final int NAVIGATION_MODE_TABS = 2;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef(flag=true, value={
             DISPLAY_USE_LOGO,
@@ -864,7 +862,6 @@ public abstract class ActionBar {
      * of available space.
      *
      * @return true if the Title field has been truncated
-     * @hide pending API approval
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isTitleTruncated() { return false; }
@@ -1036,69 +1033,57 @@ public abstract class ActionBar {
         return 0;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setDefaultDisplayHomeAsUpEnabled(boolean enabled) {
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setShowHideAnimationEnabled(boolean enabled) {
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void onConfigurationChanged(Configuration config) {
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void dispatchMenuVisibilityChanged(boolean visible) {
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ActionMode startActionMode(ActionMode.Callback callback) {
         return null;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean openOptionsMenu() {
         return false;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean closeOptionsMenu() {
         return false;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean invalidateOptionsMenu() {
         return false;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean onMenuKeyEvent(KeyEvent event) {
         return false;
     }
 
-    /** @hide **/
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean onKeyShortcut(int keyCode, KeyEvent ev) {
         return false;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean collapseActionView() {
         return false;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setWindowTitle(CharSequence title) {
     }
@@ -1107,7 +1092,6 @@ public abstract class ActionBar {
      * Attempts to move focus to the ActionBar if it does not already contain the focus.
      *
      * @return {@code true} if focus changes or {@code false} if focus doesn't change.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     boolean requestFocus() {

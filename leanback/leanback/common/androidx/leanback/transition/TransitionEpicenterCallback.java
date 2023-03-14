@@ -19,7 +19,6 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Class to get the epicenter of Transition.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class TransitionEpicenterCallback {

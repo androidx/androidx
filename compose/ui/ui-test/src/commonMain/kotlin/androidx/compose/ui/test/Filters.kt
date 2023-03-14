@@ -374,14 +374,22 @@ fun hasImeAction(actionType: ImeAction) =
     SemanticsMatcher.expectValue(SemanticsProperties.ImeAction, actionType)
 
 /**
- * Returns whether the node defines semantics action to set text to it.
+ * Returns whether the node defines a semantics action to set text on it.
  *
- * This can be used to for instance filter out text fields.
+ * This can be used to, for instance, filter out text fields.
  *
  * @see SemanticsActions.SetText
  */
 fun hasSetTextAction() =
     hasKey(SemanticsActions.SetText)
+
+/**
+ * Returns whether the node defines a semantics action to perform the
+ * [IME action][SemanticsProperties.ImeAction] on it.
+ *
+ * @see SemanticsActions.PerformImeAction
+ */
+fun hasPerformImeAction() = hasKey(SemanticsActions.PerformImeAction)
 
 /**
  * Returns whether the node defines the ability to scroll to an item index.

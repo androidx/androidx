@@ -139,7 +139,12 @@ fun BasicText(
         state.selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
     }
 
-    Layout(modifier = modifier.then(controller.modifiers), measurePolicy = controller.measurePolicy)
+    Layout(
+        modifier = modifier
+            .textPointerHoverIcon(selectionRegistrar)
+            .then(controller.modifiers),
+        measurePolicy = controller.measurePolicy
+    )
 }
 
 /**
@@ -256,7 +261,9 @@ fun BasicText(
         } else {
             { InlineChildren(text, inlineComposables) }
         },
-        modifier = modifier.then(controller.modifiers),
+        modifier = modifier
+            .textPointerHoverIcon(selectionRegistrar)
+            .then(controller.modifiers),
         measurePolicy = controller.measurePolicy
     )
 }
@@ -316,3 +323,5 @@ private fun selectionIdSaver(selectionRegistrar: SelectionRegistrar?) = Saver<Lo
     save = { if (selectionRegistrar.hasSelection(it)) it else null },
     restore = { it }
 )
+
+internal expect fun Modifier.textPointerHoverIcon(selectionRegistrar: SelectionRegistrar?): Modifier

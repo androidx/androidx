@@ -19,7 +19,6 @@ package androidx.window.embedding
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -81,7 +80,6 @@ class EmbeddingRuleConstructionTests {
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
             .setLayoutDirection(LOCALE)
-            .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.DEFAULT)
             .build()
         assertNull(rule.tag)
         assertEquals(SPLIT_MIN_DIMENSION_DP_DEFAULT, rule.minWidthDp)
@@ -133,7 +131,6 @@ class EmbeddingRuleConstructionTests {
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
             .setLayoutDirection(TOP_TO_BOTTOM)
-            .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.BLUE))
             .build()
         assertEquals(TEST_TAG, rule.tag)
         assertEquals(NEVER, rule.finishPrimaryWithSecondary)
@@ -154,7 +151,6 @@ class EmbeddingRuleConstructionTests {
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
             .setLayoutDirection(LOCALE)
-            .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.DEFAULT)
             .build()
         assertNull(rule.tag)
         assertEquals(SPLIT_MIN_DIMENSION_DP_DEFAULT, rule.minWidthDp)
@@ -180,7 +176,6 @@ class EmbeddingRuleConstructionTests {
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
             .setLayoutDirection(LEFT_TO_RIGHT)
-            .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GREEN))
             .build()
         filters.add(
             SplitPairFilter(
@@ -382,7 +377,6 @@ class EmbeddingRuleConstructionTests {
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
             .setLayoutDirection(LOCALE)
-            .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.DEFAULT)
             .build()
         assertNull(rule.tag)
         assertEquals(SPLIT_MIN_DIMENSION_DP_DEFAULT, rule.minWidthDp)
@@ -437,8 +431,6 @@ class EmbeddingRuleConstructionTests {
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
             .setLayoutDirection(BOTTOM_TO_TOP)
-            .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(
-                application.resources.getColor(R.color.testColor, null)))
             .build()
         assertEquals(TEST_TAG, rule.tag)
         assertEquals(ALWAYS, rule.finishPrimaryWithPlaceholder)
@@ -466,7 +458,6 @@ class EmbeddingRuleConstructionTests {
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
             .setLayoutDirection(LOCALE)
-            .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.DEFAULT)
             .build()
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertTrue(rule.checkParentBounds(density, minValidWindowBounds()))
@@ -490,7 +481,6 @@ class EmbeddingRuleConstructionTests {
         val expectedSplitLayout = SplitAttributes.Builder()
             .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
             .setLayoutDirection(LEFT_TO_RIGHT)
-            .setAnimationBackgroundColor(SplitAttributes.BackgroundColor.color(Color.GREEN))
             .build()
         val rule = SplitPlaceholderRule.Builder(filters, intent)
             .setMinWidthDp(123)

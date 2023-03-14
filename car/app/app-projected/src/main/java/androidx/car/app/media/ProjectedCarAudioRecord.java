@@ -23,7 +23,6 @@ import static androidx.car.app.utils.LogTags.TAG;
 
 import android.util.Log;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
@@ -38,7 +37,6 @@ import java.io.InputStream;
 /**
  * A {@link CarAudioRecord} for projection.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 @KeepFields

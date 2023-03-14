@@ -19,6 +19,7 @@ package androidx.wear.tiles.tooling
 import androidx.wear.tiles.tooling.test.R
 import android.app.Activity
 import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.TextView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -53,7 +54,9 @@ class TileServiceViewAdapterTest {
         initAndInflate("androidx.wear.tiles.tooling.TestTileService")
 
         activityTestRule.runOnUiThread {
-            val textView = tileServiceViewAdapter.getChildAt(0) as TextView
+            val textView =
+                (tileServiceViewAdapter.getChildAt(0) as ViewGroup)
+                    .getChildAt(0) as TextView
             assertNotNull(textView)
             assertEquals("Hello world!", textView.text.toString())
         }

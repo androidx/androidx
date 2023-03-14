@@ -313,19 +313,6 @@ public class WatchFaceServiceImageTest {
         )
     }
 
-    private fun setAmbient(ambient: Boolean) {
-        val interactiveWatchFaceInstance =
-            InteractiveInstanceManager.getAndRetainInstance(
-                interactiveWatchFaceInstance.instanceId
-            )!!
-
-        try {
-            interactiveWatchFaceInstance.setWatchUiState(WatchUiState(ambient, 0))
-        } finally {
-            interactiveWatchFaceInstance.release()
-        }
-    }
-
     @FlakyTest(bugId = 259980310)
     @Test
     public fun testActiveScreenshot() {
@@ -347,7 +334,7 @@ public class WatchFaceServiceImageTest {
         sendComplications()
 
         handler.post {
-            setAmbient(true)
+            engineWrapper.setWatchUiState(WatchUiState(true, 0), fromSysUi = true)
             engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull())
         }
 

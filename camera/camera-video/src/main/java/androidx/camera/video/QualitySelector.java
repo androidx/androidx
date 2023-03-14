@@ -149,7 +149,6 @@ public final class QualitySelector {
      * Gets a map from all supported qualities to mapped resolutions.
      *
      * @param cameraInfo the cameraInfo to query the supported qualities on that camera.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull

@@ -18,9 +18,14 @@ package androidx.benchmark.macro.perfetto
 
 import android.util.Log
 import androidx.benchmark.macro.StartupMode
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.Slice
+import androidx.benchmark.perfetto.processNameLikePkg
+import androidx.benchmark.perfetto.toSlices
+import org.intellij.lang.annotations.Language
 
 internal object StartupTimingQuery {
-
+    @Language("sql")
     private fun getFullQuery(targetPackageName: String) = """
         ------ Select all startup-relevant slices from slice table
         SELECT
@@ -102,12 +107,12 @@ internal object StartupTimingQuery {
     }
 
     fun getFrameSubMetrics(
-        perfettoTraceProcessor: PerfettoTraceProcessor,
+        session: PerfettoTraceProcessor.Session,
         captureApiLevel: Int,
         targetPackageName: String,
         startupMode: StartupMode
     ): SubMetrics? {
-        val queryResultIterator = perfettoTraceProcessor.rawQuery(
+        val queryResultIterator = session.query(
             query = getFullQuery(
                 targetPackageName = targetPackageName
             )

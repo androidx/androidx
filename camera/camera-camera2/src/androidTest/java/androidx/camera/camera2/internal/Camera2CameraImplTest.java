@@ -16,6 +16,9 @@
 
 package androidx.camera.camera2.internal;
 
+import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT;
+import static androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_SINGLE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.TestCase.assertTrue;
@@ -29,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
@@ -68,6 +72,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraCoordinator;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
@@ -96,6 +101,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -116,6 +122,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class Camera2CameraImplTest {
     @CameraSelector.LensFacing
     private static final int DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_BACK;
+    @CameraSelector.LensFacing
+    private static final int DEFAULT_PAIRED_CAMERA_LENS_FACING = CameraSelector.LENS_FACING_FRONT;
     // For the purpose of this test, always say we have 1 camera available.
     private static final int DEFAULT_AVAILABLE_CAMERA_COUNT = 1;
     private static final Set<CameraInternal.State> STABLE_STATES = new HashSet<>(Arrays.asList(
@@ -132,13 +140,16 @@ public final class Camera2CameraImplTest {
 
     private ArrayList<FakeUseCase> mFakeUseCases = new ArrayList<>();
     private Camera2CameraImpl mCamera2CameraImpl;
+    private Camera2CameraImpl mPairedCamera2CameraImpl;
     private static HandlerThread sCameraHandlerThread;
     private static Handler sCameraHandler;
+    private FakeCameraCoordinator mCameraCoordinator;
     private CameraStateRegistry mCameraStateRegistry;
     Semaphore mSemaphore;
     OnImageAvailableListener mMockOnImageAvailableListener;
     CameraCaptureCallback mMockRepeatingCaptureCallback;
     String mCameraId;
+    String mPairedCameraId;
     SemaphoreReleasingCamera2Callbacks.SessionStateCallback mSessionStateCallback;
 
     @BeforeClass
@@ -160,14 +171,18 @@ public final class Camera2CameraImplTest {
         mMockRepeatingCaptureCallback = Mockito.mock(CameraCaptureCallback.class);
         mSessionStateCallback = new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
         mCameraId = CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING);
+        mPairedCameraId = CameraUtil.getCameraIdWithLensFacing(DEFAULT_PAIRED_CAMERA_LENS_FACING);
         mSemaphore = new Semaphore(0);
-        mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
+        mCameraCoordinator = new FakeCameraCoordinator();
+        mCameraStateRegistry = new CameraStateRegistry(mCameraCoordinator,
+                DEFAULT_AVAILABLE_CAMERA_COUNT);
         CameraManagerCompat cameraManagerCompat =
                 CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
+
         Camera2CameraInfoImpl camera2CameraInfo = new Camera2CameraInfoImpl(
                 mCameraId, cameraManagerCompat);
         mCamera2CameraImpl = new Camera2CameraImpl(
-                cameraManagerCompat, mCameraId, camera2CameraInfo,
+                cameraManagerCompat, mCameraId, camera2CameraInfo, mCameraCoordinator,
                 mCameraStateRegistry, sCameraExecutor, sCameraHandler,
                 DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
         );
@@ -540,10 +555,11 @@ public final class Camera2CameraImplTest {
 
         // Ensure real camera can't open due to max cameras being open
         Camera mockCamera = mock(Camera.class);
-
-        mCameraStateRegistry.registerCamera(mockCamera, CameraXExecutors.directExecutor(),
-                () -> {
-                });
+        mCameraStateRegistry.registerCamera(
+                mockCamera,
+                CameraXExecutors.directExecutor(),
+                () -> {},
+                () -> {});
         mCameraStateRegistry.tryOpenCamera(mockCamera);
 
         mCamera2CameraImpl.getCameraState().addObserver(CameraXExecutors.directExecutor(),
@@ -973,6 +989,62 @@ public final class Camera2CameraImplTest {
                 .isTrue();
     }
 
+    @Test
+    public void attachUseCaseWithTemplatePreviewInConcurrentMode() throws Exception {
+        // Arrange.
+        CameraManagerCompat cameraManagerCompat =
+                CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
+
+        PackageManager pm = ApplicationProvider.getApplicationContext().getPackageManager();
+        if (mPairedCameraId != null
+                && pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_CONCURRENT)) {
+            Camera2CameraInfoImpl pairedCamera2CameraInfo = new Camera2CameraInfoImpl(
+                    mPairedCameraId, cameraManagerCompat);
+            mPairedCamera2CameraImpl = new Camera2CameraImpl(
+                    cameraManagerCompat, mPairedCameraId, pairedCamera2CameraInfo,
+                    mCameraCoordinator,
+                    mCameraStateRegistry, sCameraExecutor, sCameraHandler,
+                    DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()));
+            mCameraCoordinator.addConcurrentCameraIdsAndCameraSelectors(
+                    new HashMap<String, CameraSelector>() {{
+                        put(mCameraId, CameraSelector.DEFAULT_BACK_CAMERA);
+                        put(mPairedCameraId, CameraSelector.DEFAULT_FRONT_CAMERA);
+                    }});
+            mCameraCoordinator.setCameraOperatingMode(CAMERA_OPERATING_MODE_CONCURRENT);
+            mCameraStateRegistry.onCameraOperatingModeUpdated(
+                    CAMERA_OPERATING_MODE_SINGLE, CAMERA_OPERATING_MODE_CONCURRENT);
+
+            // Act.
+            UseCase preview1 = createUseCase(CameraDevice.TEMPLATE_PREVIEW, /* isZslDisabled = */
+                    false);
+            mCamera2CameraImpl.attachUseCases(Arrays.asList(preview1));
+            mCamera2CameraImpl.onUseCaseActive(preview1);
+            HandlerUtil.waitForLooperToIdle(sCameraHandler);
+
+            // Assert.
+            ArgumentCaptor<CameraCaptureResult> captor =
+                    ArgumentCaptor.forClass(CameraCaptureResult.class);
+            verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(captor.capture());
+
+            // Act.
+            UseCase preview2 = createUseCase(CameraDevice.TEMPLATE_PREVIEW, /* isZslDisabled = */
+                    false);
+            mPairedCamera2CameraImpl.attachUseCases(Arrays.asList(preview2));
+            mPairedCamera2CameraImpl.onUseCaseActive(preview2);
+            HandlerUtil.waitForLooperToIdle(sCameraHandler);
+
+            // Assert.
+            captor = ArgumentCaptor.forClass(CameraCaptureResult.class);
+            verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
+                    .onCaptureCompleted(captor.capture());
+            CaptureResult captureResult = (captor.getValue()).getCaptureResult();
+            assertThat(captureResult.get(CaptureResult.CONTROL_CAPTURE_INTENT))
+                    .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
+
+            mCamera2CameraImpl.detachUseCases(Arrays.asList(preview1));
+        }
+    }
+
     private DeferrableSurface getUseCaseSurface(UseCase useCase) {
         return useCase.getSessionConfig().getSurfaces().get(0);
     }
@@ -1058,7 +1130,8 @@ public final class Camera2CameraImplTest {
         @NonNull
         protected StreamSpec onSuggestedStreamSpecUpdated(
                 @NonNull StreamSpec suggestedStreamSpec) {
-            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfig);
+            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfig,
+                    suggestedStreamSpec.getResolution());
 
             builder.setTemplateType(mTemplate);
             builder.addRepeatingCameraCaptureCallback(mRepeatingCaptureCallback);

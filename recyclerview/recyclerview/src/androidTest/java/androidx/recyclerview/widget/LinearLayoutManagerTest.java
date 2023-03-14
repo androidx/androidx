@@ -831,6 +831,19 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     public void hiddenNoneRemoveViewAccessibility() throws Throwable {
+        // TODO(b/263592347): remove the RecyclerView.setDebugAssertionsEnabled calls
+        //  and combine this into the impl method
+        // This is just a separate method to temporarily wrap the whole thing in a try/finally
+        // block without messing with git history too much.
+        RecyclerView.setDebugAssertionsEnabled(false);
+        try {
+            hiddenNoneRemoveViewAccessibilityImpl();
+        } finally {
+            RecyclerView.setDebugAssertionsEnabled(true);
+        }
+    }
+
+    public void hiddenNoneRemoveViewAccessibilityImpl() throws Throwable {
         final Config config = new Config();
         int adapterSize = 1000;
         final boolean[] firstItemSpecialSize = new boolean[] {false};
@@ -1314,7 +1327,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_TO_POSITION));
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+    @SdkSuppress(minSdkVersion = 23) // b/271602453
     @Test
     public void onInitializeAccessibilityNodeInfo_addActionScrollToPosition_addedWithNonEmptyList()
             throws Throwable {

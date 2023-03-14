@@ -285,7 +285,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     static final boolean DISPATCH_TEMP_DETACH = false;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({HORIZONTAL, VERTICAL})
     @Retention(RetentionPolicy.SOURCE)
@@ -1017,6 +1016,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         Log.d(TAG, "reAttach " + vh);
                     }
                     vh.clearTmpDetachFlag();
+                } else {
+                    if (sDebugAssertionsEnabled) {
+                        throw new IllegalArgumentException(
+                                "No ViewHolder found for child: " + child + ", index: " + index
+                                        + exceptionLabel());
+                    }
                 }
                 RecyclerView.this.attachViewToParent(child, index, layoutParams);
             }
@@ -1035,6 +1040,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                             Log.d(TAG, "tmpDetach " + vh);
                         }
                         vh.addFlags(ViewHolder.FLAG_TMP_DETACHED);
+                    }
+                } else {
+                    if (sDebugAssertionsEnabled) {
+                        throw new IllegalArgumentException(
+                                "No view at offset " + offset + exceptionLabel());
                     }
                 }
                 RecyclerView.this.detachViewFromParent(offset);
@@ -4844,6 +4854,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 throw new IllegalArgumentException("Called removeDetachedView with a view which"
                         + " is not flagged as tmp detached." + vh + exceptionLabel());
             }
+        } else {
+            if (sDebugAssertionsEnabled) {
+                throw new IllegalArgumentException(
+                        "No ViewHolder found for child: " + child + exceptionLabel());
+            }
         }
 
         // Clear any android.view.animation.Animation that may prevent the item from
@@ -6615,7 +6630,30 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 // abort - we have a deadline we can't meet
                 return false;
             }
+
+            // Holders being bound should be either fully attached or fully detached.
+            // We don't want to bind with views that are temporarily detached, because that
+            // creates a situation in which they are unable to reason about their attach state
+            // properly.
+            // For example, isAttachedToWindow will return true, but the itemView will lack a
+            // parent. This breaks, among other possible issues, anything involving traversing
+            // the view tree, such as ViewTreeLifecycleOwner.
+            // Thus, we temporarily reattach any temp-detached holders for the bind operation.
+            // See https://issuetracker.google.com/265347515 for additional details on problems
+            // resulting from this
+            boolean reattachedForBind = false;
+            if (holder.isTmpDetached()) {
+                attachViewToParent(holder.itemView, getChildCount(),
+                        holder.itemView.getLayoutParams());
+                reattachedForBind = true;
+            }
+
             mAdapter.bindViewHolder(holder, offsetPosition);
+
+            if (reattachedForBind) {
+                detachViewFromParent(holder.itemView);
+            }
+
             long endBindNs = getNanoTime();
             mRecyclerPool.factorInBindTime(holder.getItemViewType(), endBindNs - startBindNs);
             attachAccessibilityDelegateOnBind(holder);
@@ -7794,6 +7832,23 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 TraceCompat.beginSection(TRACE_BIND_VIEW_TAG);
             }
             holder.mBindingAdapter = this;
+            if (sDebugAssertionsEnabled) {
+                if (holder.itemView.getParent() == null
+                        && (ViewCompat.isAttachedToWindow(holder.itemView)
+                        != holder.isTmpDetached())) {
+                    throw new IllegalStateException("Temp-detached state out of sync with reality. "
+                            + "holder.isTmpDetached(): " + holder.isTmpDetached()
+                            + ", attached to window: "
+                            + ViewCompat.isAttachedToWindow(holder.itemView)
+                            + ", holder: " + holder);
+                }
+                if (holder.itemView.getParent() == null
+                        && ViewCompat.isAttachedToWindow(holder.itemView)) {
+                    throw new IllegalStateException(
+                            "Attempting to bind attached holder with no parent"
+                                    + " (AKA temp detached): " + holder);
+                }
+            }
             onBindViewHolder(holder, position, holder.getUnmodifiedPayloads());
             if (rootBind) {
                 holder.clearPayload();
@@ -12197,6 +12252,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         void resetInternal() {
+            if (sDebugAssertionsEnabled && isTmpDetached()) {
+                throw new IllegalStateException("Attempting to reset temp-detached ViewHolder: "
+                        + this + ". ViewHolders should be fully detached before resetting.");
+            }
+
             mFlags = 0;
             mPosition = NO_POSITION;
             mOldPosition = NO_POSITION;
@@ -13207,7 +13267,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     /**
      * This is public so that the CREATOR can be accessed on cold launch.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static class SavedState extends AbsSavedState {

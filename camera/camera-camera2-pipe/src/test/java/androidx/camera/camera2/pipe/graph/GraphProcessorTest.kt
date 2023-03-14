@@ -254,6 +254,40 @@ internal class GraphProcessorTest {
     }
 
     @Test
+    fun graphProcessorDoesNotForgetRejectedRepeatingRequests() = runTest {
+        val graphProcessor =
+            GraphProcessorImpl(
+                FakeThreads.fromTestScope(this),
+                FakeGraphConfigs.graphConfig,
+                graphState3A,
+                this,
+                arrayListOf(globalListener)
+            )
+
+        fakeProcessor1.rejectRequests = true
+        graphProcessor.onGraphStarted(graphRequestProcessor1)
+
+        graphProcessor.startRepeating(request1)
+        val event1 = fakeProcessor1.nextEvent()
+        assertThat(event1.rejected).isTrue()
+        assertThat(event1.requestSequence!!.captureRequestList[0]).isSameInstanceAs(request1)
+
+        graphProcessor.startRepeating(request2)
+        val event2 = fakeProcessor1.nextEvent()
+        assertThat(event2.rejected).isTrue()
+        fakeProcessor1.awaitEvent(request = request2) {
+            !it.submit && it.requestSequence?.repeating == true
+        }
+
+        fakeProcessor1.rejectRequests = false
+        graphProcessor.onGraphStarted(graphRequestProcessor1)
+
+        fakeProcessor1.awaitEvent(request = request2) {
+            it.submit && it.requestSequence?.repeating == true
+        }
+    }
+
+    @Test
     fun graphProcessorTracksRepeatingRequest() = runTest {
         val graphProcessor =
             GraphProcessorImpl(

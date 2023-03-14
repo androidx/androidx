@@ -71,7 +71,6 @@ public class ExerciseUpdate internal constructor(
      */
     public val startTime: Instant? = null,
 ) {
-    /** @hide */
     @RestrictTo(Scope.LIBRARY)
     public constructor(
         proto: DataProto.ExerciseUpdate
@@ -123,7 +122,6 @@ public class ExerciseUpdate internal constructor(
         public val activeDuration: Duration,
     ) {
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY)
         internal fun toProto(): DataProto.ExerciseUpdate.ActiveDurationCheckpoint =
             DataProto.ExerciseUpdate.ActiveDurationCheckpoint.newBuilder()
@@ -153,7 +151,6 @@ public class ExerciseUpdate internal constructor(
         }
 
         internal companion object {
-            /** @hide */
             @RestrictTo(Scope.LIBRARY)
             internal fun fromProto(
                 proto: DataProto.ExerciseUpdate.ActiveDurationCheckpoint

@@ -16,13 +16,10 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.appactions.interaction.capabilities.core.impl.concurrent.convertToListenableFuture
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.guava.future
-/**
- * Base interface for Session of all verticals.
- */
+
+/** Base interface for Session of all verticals. */
 interface BaseSession<ArgumentT, OutputT> {
     /**
      * Implement any initialization logic.
@@ -33,6 +30,7 @@ interface BaseSession<ArgumentT, OutputT> {
 
     /**
      * Called when all arguments are finalized.
+     *
      * @param argument the Argument instance containing data for fulfillment.
      * @return an ExecutionResult instance.
      */
@@ -42,17 +40,14 @@ interface BaseSession<ArgumentT, OutputT> {
 
     /**
      * Called when all arguments are finalized.
+     *
      * @param argument the Argument instance containing data for fulfillment.
      * @return a ListenableFuture containing an ExecutionResult instance.
      */
-    @kotlin.OptIn(DelicateCoroutinesApi::class)
     fun onFinishAsync(argument: ArgumentT): ListenableFuture<ExecutionResult<OutputT>> {
-        return GlobalScope.future { onFinish(argument) }
+        return convertToListenableFuture("onFinish") { onFinish(argument) }
     }
 
-    /**
-     * Implement any cleanup logic.
-     * This method is called some time after the session finishes.
-     */
+    /** Implement any cleanup logic. This method is called some time after the session finishes. */
     fun onDestroy() {}
 }

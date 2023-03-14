@@ -24,7 +24,6 @@ import androidx.health.services.client.proto.RequestsProto
 /**
  * Request for enabling/disabling auto pause/resume.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AutoPauseAndResumeConfigRequest(

@@ -67,7 +67,6 @@ public class CustomTabsCallback {
      * Key for the extra included in {@link #onRelationshipValidationResult} {@code extras}
      * containing whether the verification was performed while the device was online. This may be
      * missing in cases verification was short cut.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String ONLINE_EXTRAS_KEY = "online";

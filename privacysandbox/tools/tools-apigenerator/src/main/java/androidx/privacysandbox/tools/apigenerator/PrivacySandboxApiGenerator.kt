@@ -49,6 +49,13 @@ import kotlin.io.path.readBytes
 
 /** Generate source files for communicating with an SDK running in the Privacy Sandbox. */
 class PrivacySandboxApiGenerator {
+    @Deprecated("Please supply the frameworkAidl path argument")
+    fun generate(
+        sdkInterfaceDescriptors: Path,
+        aidlCompiler: Path,
+        outputDirectory: Path,
+    ) = generateImpl(sdkInterfaceDescriptors, aidlCompiler, null, outputDirectory)
+
     /**
      * Generate API sources for a given SDK.
      *
@@ -58,11 +65,20 @@ class PrivacySandboxApiGenerator {
      *
      * @param sdkInterfaceDescriptors Zip file with the SDK's annotated and compiled interfaces.
      * @param aidlCompiler AIDL compiler binary. It must target API 30 or above.
+     * @param frameworkAidl Framework AIDL stubs to compile with
      * @param outputDirectory Output directory for the sources.
      */
     fun generate(
         sdkInterfaceDescriptors: Path,
         aidlCompiler: Path,
+        frameworkAidl: Path,
+        outputDirectory: Path,
+    ) = generateImpl(sdkInterfaceDescriptors, aidlCompiler, frameworkAidl, outputDirectory)
+
+    private fun generateImpl(
+        sdkInterfaceDescriptors: Path,
+        aidlCompiler: Path,
+        frameworkAidl: Path?,
         outputDirectory: Path,
     ) {
         check(outputDirectory.exists() && outputDirectory.isDirectory()) {
@@ -76,7 +92,7 @@ class PrivacySandboxApiGenerator {
         val binderCodeConverter = ClientBinderCodeConverter(api)
         val interfaceFileGenerator = InterfaceFileGenerator()
 
-        generateBinders(api, AidlCompiler(aidlCompiler), output)
+        generateBinders(api, AidlCompiler(aidlCompiler, frameworkAidl), output)
         generateServiceFactory(api, output)
         generateStubDelegates(
             api,

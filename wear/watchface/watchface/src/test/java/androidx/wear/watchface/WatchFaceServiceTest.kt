@@ -5190,27 +5190,57 @@ public class WatchFaceServiceTest {
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1]
+                .text
+                .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+        )
+            .isEqualTo("A")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1]
+                .text
+                .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+        )
+            .isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(2000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("C")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1]
+                .text
+                .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+        )
+            .isEqualTo("C")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(2999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("C")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(3000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1]
+                .text
+                .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+        )
+            .isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(3999))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("B")
 
         complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(4000))
         assertThat(getLeftShortTextComplicationDataText()).isEqualTo("A")
+        assertThat(
+            engineWrapper.contentDescriptionLabels[1]
+                .text
+                .getTextAt(ApplicationProvider.getApplicationContext<Context>().resources, 0)
+        )
+            .isEqualTo("A")
     }
 
     @Test
@@ -5628,9 +5658,7 @@ public class WatchFaceServiceTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
-    public fun onActionScreenOff_onActionScreenOn_ambientEnabled() {
-        Settings.Global.putInt(context.contentResolver, BroadcastsObserver.AMBIENT_ENABLED_PATH, 1)
-
+    public fun onActionAmbientStarted_onActionAmbientStopped_ambientEnabled() {
         testWatchFaceService =
             TestWatchFaceService(
                 WatchFaceType.DIGITAL,
@@ -5685,20 +5713,21 @@ public class WatchFaceServiceTest {
 
         watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
 
-        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        watchFaceImpl.broadcastsObserver.onActionAmbientStarted()
         assertThat(watchState.isAmbient.value).isTrue()
 
-        watchFaceImpl.broadcastsObserver.onActionScreenOn()
+        watchFaceImpl.broadcastsObserver.onActionAmbientStopped()
         assertThat(watchState.isAmbient.value).isFalse()
 
-        // After SysUI has sent WatchUiState onActionScreenOff/onActionScreenOn should be ignored.
+        // After SysUI has sent WatchUiState onActionAmbientStarted/onActionAmbientStopped should be
+        // ignored.
         engineWrapper.setWatchUiState(WatchUiState(false, 0), fromSysUi = true)
 
-        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        watchFaceImpl.broadcastsObserver.onActionAmbientStarted()
         assertThat(watchState.isAmbient.value).isFalse()
 
         engineWrapper.setWatchUiState(WatchUiState(true, 0), fromSysUi = true)
-        watchFaceImpl.broadcastsObserver.onActionScreenOn()
+        watchFaceImpl.broadcastsObserver.onActionAmbientStopped()
         assertThat(watchState.isAmbient.value).isTrue()
     }
 

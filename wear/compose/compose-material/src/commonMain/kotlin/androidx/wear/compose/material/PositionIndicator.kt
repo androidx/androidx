@@ -1097,7 +1097,6 @@ private fun BoundsLimiter(
 // Sets the size of this element, but lets the child measure using the constraints
 // of the element containing this.
 private fun Modifier.transparentSizeModifier(size: Density.() -> IntSize): Modifier = this.then(
-    @Suppress("ModifierInspectorInfo")
     object : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,

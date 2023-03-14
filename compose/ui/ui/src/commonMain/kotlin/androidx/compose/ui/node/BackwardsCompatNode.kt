@@ -37,13 +37,10 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputModifier
-import androidx.compose.ui.layout.IntermediateLayoutModifier
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LayoutModifier
-import androidx.compose.ui.layout.LookaheadLayoutCoordinates
-import androidx.compose.ui.layout.LookaheadOnPlacedModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -79,7 +76,6 @@ import androidx.compose.ui.unit.toSize
 @OptIn(ExperimentalComposeUiApi::class)
 internal class BackwardsCompatNode(element: Modifier.Element) :
     LayoutModifierNode,
-    IntermediateLayoutModifierNode,
     DrawModifierNode,
     SemanticsModifierNode,
     PointerInputModifierNode,
@@ -309,11 +305,6 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
     }
 
     override val isValidOwnerScope: Boolean get() = isAttached
-    override var targetSize: IntSize
-        get() = (element as IntermediateLayoutModifier).targetSize
-        set(value) {
-            (element as IntermediateLayoutModifier).targetSize = value
-        }
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -402,14 +393,6 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         (element as OnGloballyPositionedModifier).onGloballyPositioned(coordinates)
-    }
-
-    @OptIn(ExperimentalComposeUiApi::class)
-    override fun onLookaheadPlaced(coordinates: LookaheadLayoutCoordinates) {
-        val element = element
-        if (element is LookaheadOnPlacedModifier) {
-            element.onPlaced(coordinates)
-        }
     }
 
     override fun onRemeasured(size: IntSize) {

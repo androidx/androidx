@@ -169,7 +169,6 @@ public final class MediaPlayer extends SessionPlayer {
     public static final int PLAYER_ERROR_TIMED_OUT = -110;
 
     /**
-     * @hide
      */
     @IntDef(flag = false, /*prefix = "PLAYER_ERROR",*/ value = {
             PLAYER_ERROR_UNKNOWN,
@@ -185,7 +184,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * The player just started the playback of this media item.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_START = 2;
@@ -199,7 +197,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * The player just completed the playback of this media item.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_END = 5;
@@ -208,7 +205,6 @@ public final class MediaPlayer extends SessionPlayer {
      * The player just completed the playback of all the media items set by {@link #setPlaylist}
      * and {@link #setMediaItem}.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_LIST_END = 6;
@@ -217,7 +213,6 @@ public final class MediaPlayer extends SessionPlayer {
      * The player just completed an iteration of playback loop. This event is sent only when
      * looping is enabled by {@link #setRepeatMode(int)}.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_MEDIA_ITEM_REPEAT = 7;
@@ -226,7 +221,6 @@ public final class MediaPlayer extends SessionPlayer {
      * The player just finished preparing a media item for playback.
      * @see #prepare()
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_PREPARED = 100;
@@ -242,7 +236,6 @@ public final class MediaPlayer extends SessionPlayer {
      * The player is temporarily pausing playback internally in order to
      * buffer more data.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_BUFFERING_START = 701;
@@ -250,7 +243,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * The player is resuming playback after filling buffers.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_BUFFERING_END = 702;
@@ -260,7 +252,6 @@ public final class MediaPlayer extends SessionPlayer {
      * simultaneously as {@link #MEDIA_INFO_BUFFERING_START} and {@link #MEDIA_INFO_BUFFERING_END}
      * when playing network files.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_NETWORK_BANDWIDTH = 703;
@@ -301,7 +292,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * A new set of external-only metadata is available.  Used by
      * JAVA framework to avoid triggering track scanning.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_EXTERNAL_METADATA_UPDATE = 803;
@@ -323,7 +313,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Subtitle track was not supported by the media framework.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_UNSUPPORTED_SUBTITLE = 901;
@@ -331,13 +320,11 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Reading the subtitle track takes too long.
      * @see PlayerCallback#onInfo
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final int MEDIA_INFO_SUBTITLE_TIMED_OUT = 902;
 
     /**
-     * @hide
      */
     @IntDef(flag = false, /*prefix = "MEDIA_INFO",*/ value = {
             MEDIA_INFO_MEDIA_ITEM_START,
@@ -397,7 +384,6 @@ public final class MediaPlayer extends SessionPlayer {
      */
     public static final int SEEK_CLOSEST          = 0x03;
 
-    /** @hide */
     @IntDef(flag = false, /*prefix = "SEEK",*/ value = {
             SEEK_PREVIOUS_SYNC,
             SEEK_NEXT_SYNC,
@@ -2160,7 +2146,6 @@ public final class MediaPlayer extends SessionPlayer {
      * The attributes are described in {@link MetricsConstants}.
      *
      * Additional vendor-specific fields may also be present in the return value.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @RequiresApi(21)
@@ -2658,7 +2643,6 @@ public final class MediaPlayer extends SessionPlayer {
      * Retrieves the DRM Info associated with the current media item.
      *
      * @throws IllegalStateException if called before being prepared
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
@@ -2689,7 +2673,6 @@ public final class MediaPlayer extends SessionPlayer {
      * {@link PlayerCallback#onDrmInfo}.
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link DrmResult} will be delivered when the command completed.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     // This is an asynchronous call.
@@ -2724,7 +2707,6 @@ public final class MediaPlayer extends SessionPlayer {
      * A {@code reset()} call will release the DRM session implicitly.
      *
      * @throws NoDrmSchemeException if there is no active DRM session to release
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void releaseDrm() throws NoDrmSchemeException {
@@ -2771,7 +2753,6 @@ public final class MediaPlayer extends SessionPlayer {
      * This may be {@code null} if no additional parameters are to be sent.
      *
      * @throws NoDrmSchemeException if there is no active DRM session
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -2807,7 +2788,6 @@ public final class MediaPlayer extends SessionPlayer {
      * @throws NoDrmSchemeException if there is no active DRM session
      * @throws DeniedByServerException if the response indicates that the
      * server rejected the request
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY)
@@ -2826,7 +2806,6 @@ public final class MediaPlayer extends SessionPlayer {
      * keys to load, obtained from a prior call to {@link #provideDrmKeyResponse}.
      *
      * @param keySetId identifies the saved key set to restore
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void restoreDrmKeys(@NonNull byte[] keySetId) throws NoDrmSchemeException {
@@ -2848,7 +2827,6 @@ public final class MediaPlayer extends SessionPlayer {
      * Standard fields names are:
      * {@link MediaDrm#PROPERTY_VENDOR}, {@link MediaDrm#PROPERTY_VERSION},
      * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -2872,7 +2850,6 @@ public final class MediaPlayer extends SessionPlayer {
      * Standard fields names are:
      * {@link MediaDrm#PROPERTY_VENDOR}, {@link MediaDrm#PROPERTY_VERSION},
      * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void setDrmPropertyString(@NonNull String propertyName, @NonNull String value)
@@ -2898,7 +2875,6 @@ public final class MediaPlayer extends SessionPlayer {
      * of {@link #prepareDrm(UUID uuid)}.
      *
      * @param listener the callback that will be run
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void setOnDrmConfigHelper(@Nullable final OnDrmConfigHelper listener) {
@@ -3604,7 +3580,6 @@ public final class MediaPlayer extends SessionPlayer {
          * @param item the MediaItem of this media item
          * @param drmInfo DRM info of the source including PSSH, and subset
          *                of crypto schemes supported by this device
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public void onDrmInfo(@NonNull MediaPlayer mp,
@@ -3634,7 +3609,6 @@ public final class MediaPlayer extends SessionPlayer {
 
     /**
      * Encapsulates the DRM properties of the source.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final class DrmInfo {
@@ -3672,7 +3646,6 @@ public final class MediaPlayer extends SessionPlayer {
      * <p>
      * The only allowed DRM calls in this listener are {@link #getDrmPropertyString}
      * and {@link #setDrmPropertyString}.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public interface OnDrmConfigHelper {
@@ -3688,7 +3661,6 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Thrown when a DRM method is called before preparing a DRM scheme through prepareDrm().
      * Extends MediaDrm.MediaDrmException
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static class NoDrmSchemeException extends Exception {
@@ -3699,7 +3671,6 @@ public final class MediaPlayer extends SessionPlayer {
 
     /**
      * Definitions for the metrics that are reported via the {@link #getMetrics} call.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final class MetricsConstants {
@@ -3796,7 +3767,6 @@ public final class MediaPlayer extends SessionPlayer {
 
     /**
      * Result class of the asynchronous DRM APIs.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static class DrmResult extends PlayerResult {
@@ -3825,7 +3795,6 @@ public final class MediaPlayer extends SessionPlayer {
          */
         public static final int RESULT_ERROR_RESOURCE_BUSY = -1005;
 
-        /** @hide */
         @IntDef(flag = false, /*prefix = "PREPARE_DRM_STATUS",*/ value = {
                 RESULT_SUCCESS,
                 RESULT_ERROR_PROVISIONING_NETWORK_ERROR,

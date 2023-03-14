@@ -17,7 +17,6 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Math Utilities for leanback library.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class MathUtil {

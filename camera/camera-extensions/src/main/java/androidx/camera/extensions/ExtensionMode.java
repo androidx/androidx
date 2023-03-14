@@ -65,7 +65,6 @@ public final class ExtensionMode {
      * not a specific Camera supports an extension mode use
      * {@link ExtensionsManager#isExtensionAvailable(CameraSelector, int)}.
      *
-     * @hide
      */
     @IntDef({NONE, BOKEH, HDR, NIGHT, FACE_RETOUCH, AUTO})
     @Retention(RetentionPolicy.SOURCE)

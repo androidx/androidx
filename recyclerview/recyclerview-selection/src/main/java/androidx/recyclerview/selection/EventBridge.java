@@ -37,7 +37,6 @@ import androidx.recyclerview.widget.RecyclerView;
  * with multiple RecyclerView instances. This may be necessary when multiple
  * different views of data are presented to the user.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @VisibleForTesting(otherwise = PACKAGE_PRIVATE)

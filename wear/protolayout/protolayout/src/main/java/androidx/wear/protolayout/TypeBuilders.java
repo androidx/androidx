@@ -54,7 +54,6 @@ public final class TypeBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -126,7 +125,6 @@ public final class TypeBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -197,7 +195,6 @@ public final class TypeBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -268,7 +265,6 @@ public final class TypeBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -284,6 +280,12 @@ public final class TypeBuilders {
     @NonNull
     TypesProto.BoolProp toProto() {
       return mImpl;
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "BoolProp{" + "value=" + getValue() + "}";
     }
 
     /** Builder for {@link BoolProp} */

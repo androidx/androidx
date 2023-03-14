@@ -20,7 +20,6 @@ import android.animation.TimeInterpolator;
 import androidx.annotation.RestrictTo;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class LogAccelerateInterpolator implements TimeInterpolator {

@@ -178,6 +178,7 @@ class CameraControlAdapterDeviceTest {
 
     // TODO: test all public API of the CameraControl to ensure the RequestOptions still exist
     //  after adding/removing the UseCase.
+    @SdkSuppress(minSdkVersion = 22) // b/266740827
     @Test
     fun removeUseCase_requestOptionsShouldSetToCamera(): Unit = runBlocking {
         // Arrange.
@@ -388,6 +389,7 @@ class CameraControlAdapterDeviceTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/266740827
     @Test
     fun setZoomRatio_operationCanceledExceptionIfNoUseCase() {
         assertFutureFailedWithOperationCancellation(cameraControl.setZoomRatio(1.5f))

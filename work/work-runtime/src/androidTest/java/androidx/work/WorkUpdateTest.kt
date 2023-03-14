@@ -28,9 +28,9 @@ import androidx.work.WorkManager.UpdateResult.APPLIED_FOR_NEXT_RUN
 import androidx.work.WorkManager.UpdateResult.APPLIED_IMMEDIATELY
 import androidx.work.WorkManager.UpdateResult.NOT_APPLIED
 import androidx.work.impl.Processor
-import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.WorkLauncherImpl
 import androidx.work.impl.background.greedy.GreedyScheduler
 import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.testutils.TestConstraintTracker
@@ -67,17 +67,14 @@ class WorkUpdateTest {
     )
     val db = WorkDatabase.create(context, executor, true)
 
-    // ugly, ugly hack because of circular dependency:
-    // Schedulers need WorkManager, WorkManager needs schedulers
-    val schedulers = mutableListOf<Scheduler>()
     val processor = Processor(context, configuration, taskExecutor, db)
+    val launcher = WorkLauncherImpl(processor, taskExecutor)
+    val greedyScheduler = GreedyScheduler(context, configuration, trackers, processor, launcher)
     val workManager = WorkManagerImpl(
-        context, configuration, taskExecutor, db, schedulers, processor, trackers
+        context, configuration, taskExecutor, db, listOf(greedyScheduler), processor, trackers
     )
-    val greedyScheduler = GreedyScheduler(context, configuration, trackers, workManager)
 
     init {
-        schedulers.add(greedyScheduler)
         WorkManagerImpl.setDelegate(workManager)
     }
 

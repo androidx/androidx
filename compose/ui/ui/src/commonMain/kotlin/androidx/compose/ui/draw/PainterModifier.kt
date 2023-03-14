@@ -92,7 +92,6 @@ fun Modifier.paint(
  *
  * @sample androidx.compose.ui.samples.PainterModifierSample
  */
-@ExperimentalComposeUiApi
 private data class PainterModifierNodeElement(
     val painter: Painter,
     val sizeToIntrinsics: Boolean,

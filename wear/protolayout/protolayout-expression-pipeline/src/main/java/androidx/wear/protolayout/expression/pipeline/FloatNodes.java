@@ -24,6 +24,7 @@ import androidx.annotation.UiThread;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticFloatOp;
+import androidx.wear.protolayout.expression.proto.DynamicProto.StateFloatSource;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 
 /** Dynamic data nodes which yield floats. */
@@ -59,12 +60,16 @@ class FloatNodes {
     }
 
     /** Dynamic float node that gets value from the state. */
-    static class StateFloatNode extends StateSourceNode<Float> {
-        StateFloatNode(
+    static class StateFloatSourceNode extends StateSourceNode<Float> {
+        StateFloatSourceNode(
                 ObservableStateStore observableStateStore,
-                String bindKey,
+                StateFloatSource protoNode,
                 DynamicTypeValueReceiver<Float> downstream) {
-            super(observableStateStore, bindKey, se -> se.getFloatVal().getValue(), downstream);
+            super(
+                    observableStateStore,
+                    protoNode.getSourceKey(),
+                    se -> se.getFloatVal().getValue(),
+                    downstream);
         }
     }
 

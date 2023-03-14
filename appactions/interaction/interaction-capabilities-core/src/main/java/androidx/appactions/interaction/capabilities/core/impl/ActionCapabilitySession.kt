@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.impl
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.proto.AppActionsContext.AppAction
+import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 
 /**
  * Internal interface for a session, contains developer's Session instance
@@ -38,16 +38,31 @@ interface ActionCapabilitySession {
     )
 
     /**
+     * Notify this session to stop processing and perform cleanup.
+     */
+    fun destroy()
+
+    /**
      * Support for manual input. This method should be invoked by AppInteraction SDKs
      * (background/foreground), so the developers have a way to report state updates back to
      * Assistant.
      */
     fun setTouchEventCallback(callback: TouchEventCallback)
 
-    val state: AppAction
+    /**
+     * The current state of the multi-turn session including slot values and their statuses.
+     */
+    val state: AppDialogState
 
+    /** The current status of the ActionCapabilitySession. */
     val status: Status
 
+    /**
+     * The developer-provided external object (either a BaseSession instance or an ActionExecutor instance).
+     */
+    val uiHandle: Any
+
+    /** This enum describes the current status of the ActionCapabilitySession. */
     enum class Status {
         UNINITIATED,
         IN_PROGRESS,

@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.room.androidx.room.integration.kotlintestapp.test
+package androidx.room.integration.kotlintestapp.test
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.testing.TestLifecycleOwner
-import androidx.room.integration.kotlintestapp.test.TestDatabaseTest
-import androidx.room.integration.kotlintestapp.test.TestUtil
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.integration.kotlintestapp.vo.Lang
 import androidx.room.integration.kotlintestapp.vo.MiniBook

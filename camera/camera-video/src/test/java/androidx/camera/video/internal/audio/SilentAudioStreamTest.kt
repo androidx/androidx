@@ -21,7 +21,6 @@ import android.media.MediaRecorder
 import android.os.Build
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.ioExecutor
 import androidx.camera.testing.mocks.helpers.CallTimes
-import androidx.camera.video.internal.SilentAudioStream
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import org.junit.After

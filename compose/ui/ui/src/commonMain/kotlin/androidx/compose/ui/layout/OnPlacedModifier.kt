@@ -17,7 +17,6 @@
 package androidx.compose.ui.layout
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.LayoutAwareModifierNode
@@ -36,13 +35,12 @@ fun Modifier.onPlaced(
     onPlaced: (LayoutCoordinates) -> Unit
 ) = this then OnPlacedElement(onPlaced)
 
-@OptIn(ExperimentalComposeUiApi::class)
 private data class OnPlacedElement(
     val onPlaced: (LayoutCoordinates) -> Unit
-) : ModifierNodeElement<OnPlacedModifierImpl>() {
-    override fun create() = OnPlacedModifierImpl(callback = onPlaced)
+) : ModifierNodeElement<OnPlacedNode>() {
+    override fun create() = OnPlacedNode(callback = onPlaced)
 
-    override fun update(node: OnPlacedModifierImpl) = node.apply {
+    override fun update(node: OnPlacedNode) = node.apply {
         callback = onPlaced
     }
 
@@ -52,8 +50,7 @@ private data class OnPlacedElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-private class OnPlacedModifierImpl(
+private class OnPlacedNode(
     var callback: (LayoutCoordinates) -> Unit
 ) : LayoutAwareModifierNode, Modifier.Node() {
 

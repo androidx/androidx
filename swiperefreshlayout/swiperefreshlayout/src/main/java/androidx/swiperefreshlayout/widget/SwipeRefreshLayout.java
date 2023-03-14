@@ -963,9 +963,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     // NestedScrollingParent 1
 
     @Override
-    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
+    public boolean onStartNestedScroll(View child, View target, int axes) {
         return isEnabled() && !mReturningToStart && !mRefreshing
-                && (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
+                && (axes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
     @Override

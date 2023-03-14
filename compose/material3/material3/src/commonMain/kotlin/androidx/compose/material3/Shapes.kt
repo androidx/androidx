@@ -145,7 +145,9 @@ internal fun CornerBasedShape.top(): CornerBasedShape {
     return copy(bottomStart = CornerSize(0.0.dp), bottomEnd = CornerSize(0.0.dp))
 }
 
-/** Helper function for component shape tokens. Used to grab the top values of a shape parameter. */
+/**
+ * Helper function for component shape tokens. Used to grab the bottom values of a shape parameter.
+ */
 internal fun CornerBasedShape.bottom(): CornerBasedShape {
     return copy(topStart = CornerSize(0.0.dp), topEnd = CornerSize(0.0.dp))
 }

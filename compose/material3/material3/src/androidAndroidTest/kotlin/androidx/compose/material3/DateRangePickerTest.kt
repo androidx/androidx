@@ -86,66 +86,40 @@ class DateRangePickerTest {
         }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException::class)
     fun state_initWithEndDateOnly() {
-        lateinit var dateRangePickerState: DateRangePickerState
         rule.setMaterialContent(lightColorScheme()) {
-            // 04/12/2022
-            dateRangePickerState = rememberDateRangePickerState(
+            // Expecting this to throw an exception when only end-date is provided.
+            rememberDateRangePickerState(
                 // 04/12/2022
                 initialSelectedEndDateMillis = 1649721600000L
             )
         }
-        with(dateRangePickerState) {
-            // Expecting null for both start and end dates when providing just an initial end date.
-            assertThat(selectedStartDateMillis).isNull()
-            assertThat(selectedEndDateMillis).isNull()
-        }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException::class)
     fun state_initWithEndDateBeforeStartDate() {
-        lateinit var dateRangePickerState: DateRangePickerState
         rule.setMaterialContent(lightColorScheme()) {
-            // 04/12/2022
-            dateRangePickerState = rememberDateRangePickerState(
+            // Expecting an exception with a start date that appears after the end date.
+            rememberDateRangePickerState(
                 // 04/12/2022
                 initialSelectedStartDateMillis = 1649721600000L,
                 // 04/11/2022
                 initialSelectedEndDateMillis = 1649721600000L - MillisecondsIn24Hours
             )
         }
-        with(dateRangePickerState) {
-            assertThat(selectedStartDateMillis).isEqualTo(1649721600000L)
-            // Expecting the end date to be null, as it was initialized with date that is earlier
-            // than the start date.
-            assertThat(selectedEndDateMillis).isNull()
-            assertThat(stateData.displayedMonth).isEqualTo(
-                stateData.calendarModel.getMonth(year = 2022, month = 4)
-            )
-        }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException::class)
     fun state_initWithEqualStartAndEndDates() {
-        lateinit var dateRangePickerState: DateRangePickerState
         rule.setMaterialContent(lightColorScheme()) {
-            // 04/12/2022
-            dateRangePickerState = rememberDateRangePickerState(
-                // 04/12/2022 + a few added milliseconds to ensure that the state is checking the
-                // canonical date.
+            // Expecting this to throw an exception when the start and end dates are the same.
+            rememberDateRangePickerState(
+                // 04/12/2022 + a few added milliseconds to ensure that the state is initialized
+                // with a canonical date.
                 initialSelectedStartDateMillis = 1649721600000L + 1000,
                 // 04/12/2022
                 initialSelectedEndDateMillis = 1649721600000L
-            )
-        }
-        with(dateRangePickerState) {
-            assertThat(selectedStartDateMillis).isEqualTo(1649721600000L)
-            // Expecting the end date to be null, as it was initialized with the same canonical date
-            // as the start date.
-            assertThat(selectedEndDateMillis).isNull()
-            assertThat(stateData.displayedMonth).isEqualTo(
-                stateData.calendarModel.getMonth(year = 2022, month = 4)
             )
         }
     }
@@ -298,6 +272,80 @@ class DateRangePickerTest {
             )
             assertThat(dateRangePickerState.selectedEndDateMillis).isNull()
         }
+    }
+
+    @Test
+    fun state_resetSelections() {
+        lateinit var defaultStartSelectionHeadline: String
+        lateinit var defaultEndSelectionHeadline: String
+        lateinit var dateRangePickerState: DateRangePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            defaultStartSelectionHeadline = getString(Strings.DateRangePickerStartHeadline)
+            defaultEndSelectionHeadline = getString(Strings.DateRangePickerEndHeadline)
+            // 04/12/2022
+            dateRangePickerState = rememberDateRangePickerState(
+                // 04/12/2022
+                initialSelectedStartDateMillis = 1649721600000L + 10000L,
+                // 04/13/2022
+                initialSelectedEndDateMillis = 1649721600000L + MillisecondsIn24Hours
+            )
+            DateRangePicker(state = dateRangePickerState)
+        }
+        rule.onNodeWithText("Apr 12, 2022", useUnmergedTree = true).assertExists()
+        rule.onNodeWithText("Apr 13, 2022", useUnmergedTree = true).assertExists()
+        with(dateRangePickerState) {
+            assertThat(selectedStartDateMillis).isEqualTo(1649721600000L)
+            assertThat(selectedEndDateMillis).isEqualTo(1649721600000L + MillisecondsIn24Hours)
+
+            // Reset the selections
+            dateRangePickerState.setSelection(null, null)
+            assertThat(selectedStartDateMillis).isNull()
+            assertThat(selectedEndDateMillis).isNull()
+            rule.onNodeWithText("Apr 12, 2022", useUnmergedTree = true).assertDoesNotExist()
+            rule.onNodeWithText("Apr 13, 2022", useUnmergedTree = true).assertDoesNotExist()
+            rule.onNodeWithText(defaultStartSelectionHeadline, useUnmergedTree = true)
+                .assertExists()
+            rule.onNodeWithText(defaultEndSelectionHeadline, useUnmergedTree = true).assertExists()
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun setSelection_outOfYearsBound() {
+        lateinit var dateRangePickerState: DateRangePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            dateRangePickerState = rememberDateRangePickerState(yearRange = IntRange(2000, 2050))
+        }
+
+        // Setting the selection to a year that is out of range.
+        dateRangePickerState.setSelection(
+            dayInUtcMilliseconds(
+                year = 1999,
+                month = 5,
+                dayOfMonth = 11
+            ), null
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun setSelection_endBeforeStart() {
+        lateinit var dateRangePickerState: DateRangePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            dateRangePickerState = rememberDateRangePickerState()
+        }
+
+        // Expecting an exception since the start date is after the end date.
+        dateRangePickerState.setSelection(
+            startDateMillis = dayInUtcMilliseconds(
+                year = 2000,
+                month = 10,
+                dayOfMonth = 10
+            ),
+            endDateMillis = dayInUtcMilliseconds(
+                year = 1998,
+                month = 10,
+                dayOfMonth = 10
+            )
+        )
     }
 
     @Test

@@ -16,6 +16,8 @@
 
 package androidx.work.testing;
 
+import static androidx.work.testing.TestWorkManagerImplKt.createTestWorkManagerImpl;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -69,7 +71,7 @@ public final class WorkManagerTestInitHelper {
         }
 
         WorkManagerImpl.setDelegate(
-                new TestWorkManagerImpl(context, configuration, serialExecutor)
+                createTestWorkManagerImpl(context, configuration, serialExecutor)
         );
     }
 
@@ -83,7 +85,7 @@ public final class WorkManagerTestInitHelper {
      */
     public static void initializeTestWorkManagerWithRealExecutors(@NonNull Context context) {
         Configuration configuration = new Configuration.Builder().build();
-        WorkManagerImpl.setDelegate(new TestWorkManagerImpl(context, configuration));
+        WorkManagerImpl.setDelegate(createTestWorkManagerImpl(context, configuration));
     }
 
     /**
@@ -96,7 +98,7 @@ public final class WorkManagerTestInitHelper {
      */
     public static void initializeTestWorkManagerWithRealExecutors(
             @NonNull Context context, @NonNull Configuration configuration) {
-        WorkManagerImpl.setDelegate(new TestWorkManagerImpl(context, configuration));
+        WorkManagerImpl.setDelegate(createTestWorkManagerImpl(context, configuration));
     }
 
     /**
@@ -110,7 +112,7 @@ public final class WorkManagerTestInitHelper {
         if (workManager == null) {
             return null;
         } else {
-            return (TestWorkManagerImpl) workManager;
+            return TestWorkManagerImplKt.getTestDriver(workManager);
         }
     }
 
@@ -120,7 +122,7 @@ public final class WorkManagerTestInitHelper {
      */
     public static @Nullable TestDriver getTestDriver(@NonNull Context context) {
         try {
-            return (TestWorkManagerImpl) WorkManagerImpl.getInstance(context);
+            return TestWorkManagerImplKt.getTestDriver(WorkManagerImpl.getInstance(context));
         } catch (IllegalStateException e) {
             return null;
         }

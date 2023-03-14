@@ -30,7 +30,6 @@ import java.util.Arrays;
 
 /**
  * Video specification that is options to config video encoding.
- * @hide
  */
 @SuppressWarnings("NullableProblems") // Nullable problem in AutoValue generated class
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -107,7 +106,6 @@ public abstract class VideoSpec {
 
     /**
      * The builder of the {@link VideoSpec}.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @SuppressWarnings("StaticFinalBuilder")

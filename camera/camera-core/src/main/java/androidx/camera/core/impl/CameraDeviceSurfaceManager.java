@@ -87,12 +87,16 @@ public interface CameraDeviceSurfaceManager {
     /**
      * Retrieves a map of suggested stream specifications for the given list of use cases.
      *
-     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
-     * @param cameraId          the camera id of the camera device used by the use cases
-     * @param existingSurfaces  list of surfaces already configured and used by the camera. The
-     *                          stream specifications for these surface can not change.
-     * @param newUseCaseConfigs list of configurations of the use cases that will be given a
-     *                          suggested stream specification
+     * @param isConcurrentCameraModeOn          true if concurrent camera mode is on, otherwise
+     *                                          false.
+     * @param cameraId                          the camera id of the camera device used by the
+     *                                          use cases
+     * @param existingSurfaces                  list of surfaces already configured and used by
+     *                                          the camera. The stream specifications for these
+     *                                          surface can not change.
+     * @param newUseCaseConfigsSupportedSizeMap map of configurations of the use cases to the
+     *                                          supported output sizes list that will be given a
+     *                                          suggested stream specification
      * @return map of suggested stream specifications for given use cases
      * @throws IllegalStateException    if not initialized
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
@@ -105,5 +109,5 @@ public interface CameraDeviceSurfaceManager {
             boolean isConcurrentCameraModeOn,
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
-            @NonNull List<UseCaseConfig<?>> newUseCaseConfigs);
+            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap);
 }

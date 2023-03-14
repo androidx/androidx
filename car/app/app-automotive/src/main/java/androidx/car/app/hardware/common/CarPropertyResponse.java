@@ -38,7 +38,6 @@ import java.util.List;
  * {@link androidx.car.app.hardware.info.AutomotiveCarInfo}.
  *
  * @param <T> is the value type of response.
- * @hide
  */
 @RestrictTo(LIBRARY)
 @AutoValue

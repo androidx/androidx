@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -31,6 +32,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -44,6 +47,9 @@ internal val LocalContentTestData: ProvidableCompositionLocal<Int> = composition
 internal const val EXPECTED_LOCAL_TEST_DATA = 42
 
 internal const val TEST_TAG = "test-item"
+
+val BigTestMaxWidth = 5000.dp
+val BigTestMaxHeight = 5000.dp
 
 internal enum class Status {
     Enabled,
@@ -112,4 +118,28 @@ private fun ImageBitmap.histogram(): MutableMap<Color, Long> {
         }
     }
     return histogram
+}
+
+internal fun ComposeContentTestRule.setContentForSizeAssertions(
+    parentMaxWidth: Dp = BigTestMaxWidth,
+    parentMaxHeight: Dp = BigTestMaxHeight,
+    useUnmergedTree: Boolean = false,
+    content: @Composable () -> Unit
+): SemanticsNodeInteraction {
+    setContent {
+        Box {
+            Box(
+                Modifier
+                    .sizeIn(
+                        maxWidth = parentMaxWidth,
+                        maxHeight = parentMaxHeight
+                    )
+                    .testTag("containerForSizeAssertion")
+            ) {
+                content()
+            }
+        }
+    }
+
+    return onNodeWithTag("containerForSizeAssertion", useUnmergedTree = useUnmergedTree)
 }

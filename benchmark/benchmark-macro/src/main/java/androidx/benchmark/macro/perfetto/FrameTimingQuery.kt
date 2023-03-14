@@ -16,7 +16,14 @@
 
 package androidx.benchmark.macro.perfetto
 
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.Slice
+import androidx.benchmark.perfetto.processNameLikePkg
+import androidx.benchmark.perfetto.toSlices
+import org.intellij.lang.annotations.Language
+
 internal object FrameTimingQuery {
+    @Language("sql")
     private fun getFullQuery(packageName: String) = """
         ------ Select all frame-relevant slices from slice table
         SELECT
@@ -135,11 +142,11 @@ internal object FrameTimingQuery {
     }
 
     fun getFrameSubMetrics(
-        perfettoTraceProcessor: PerfettoTraceProcessor,
+        session: PerfettoTraceProcessor.Session,
         captureApiLevel: Int,
         packageName: String,
     ): Map<SubMetric, List<Long>> {
-        val queryResultIterator = perfettoTraceProcessor.rawQuery(
+        val queryResultIterator = session.query(
             query = getFullQuery(packageName)
         )
         val slices = queryResultIterator.toSlices().let { list ->

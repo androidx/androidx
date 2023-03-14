@@ -1654,6 +1654,12 @@ internal fun Placeable.PlacementScope.placeWithFrameTransform(
     frame: WidgetFrame,
     offset: IntOffset = IntOffset.Zero
 ) {
+    if (frame.visibility == ConstraintWidget.GONE) {
+        if (DEBUG) {
+            Log.d("CCL", "Widget: ${frame.id} is Gone. Skipping placement.")
+        }
+        return
+    }
     if (frame.isDefaultTransform) {
         val x = frame.left - offset.x
         val y = frame.top - offset.y

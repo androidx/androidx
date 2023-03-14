@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo;
  * A 2 element fixed sized vector, where each element is a double. This class can represent a (2x1)
  * or (1x2) matrix.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class DVector2 {

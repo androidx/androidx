@@ -46,7 +46,6 @@ import java.util.Set;
  * {@link SelectionPredicate#canSelectMultiple()}.
  *
  * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
- * @hide
  */
 @RestrictTo(LIBRARY)
 @SuppressWarnings("unchecked")

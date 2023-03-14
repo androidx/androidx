@@ -63,7 +63,6 @@ import androidx.compose.ui.unit.Dp
  * LocalContentAlpha, LocalTextStyle which are dependent on a specific material design version
  * and are not part of this material-agnostic library.
  * @param content The content displayed on the [Button] such as text, icon or image.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable

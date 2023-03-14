@@ -98,9 +98,9 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     var cancelFocusMeteringResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
 
     override suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
         afTriggerStartAeMode: AeMode?
     ): Deferred<Result3A> {
         focusMeteringCalls.add(
@@ -124,9 +124,9 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     }
 
     data class FocusMeteringParams(
-        val aeRegions: List<MeteringRectangle> = emptyList(),
-        val afRegions: List<MeteringRectangle> = emptyList(),
-        val awbRegions: List<MeteringRectangle> = emptyList(),
+        val aeRegions: List<MeteringRectangle>? = null,
+        val afRegions: List<MeteringRectangle>? = null,
+        val awbRegions: List<MeteringRectangle>? = null,
         val afTriggerStartAeMode: AeMode? = null
     )
 

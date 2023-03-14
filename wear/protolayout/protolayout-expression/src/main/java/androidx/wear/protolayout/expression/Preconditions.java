@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo.Scope;
 /**
  * Preconditions for use within this library.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class Preconditions {

@@ -23,7 +23,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -61,6 +63,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
@@ -562,6 +565,8 @@ internal fun OutlinedTextFieldLayout(
                 Box(
                     Modifier
                         .layoutId(PrefixId)
+                        .heightIn(min = MinTextLineHeight)
+                        .wrapContentHeight()
                         .padding(start = startPadding, end = PrefixSuffixTextPadding)
                 ) {
                     prefix()
@@ -571,36 +576,51 @@ internal fun OutlinedTextFieldLayout(
                 Box(
                     Modifier
                         .layoutId(SuffixId)
+                        .heightIn(min = MinTextLineHeight)
+                        .wrapContentHeight()
                         .padding(start = PrefixSuffixTextPadding, end = endPadding)
                 ) {
                     suffix()
                 }
             }
 
-            val textPadding = Modifier.padding(
-                start = if (prefix == null) startPadding else 0.dp,
-                end = if (suffix == null) endPadding else 0.dp,
-            )
+            val textPadding = Modifier
+                .heightIn(min = MinTextLineHeight)
+                .wrapContentHeight()
+                .padding(
+                    start = if (prefix == null) startPadding else 0.dp,
+                    end = if (suffix == null) endPadding else 0.dp,
+                )
 
             if (placeholder != null) {
-                placeholder(Modifier.layoutId(PlaceholderId).then(textPadding))
+                placeholder(Modifier
+                    .layoutId(PlaceholderId)
+                    .then(textPadding))
             }
 
             Box(
-                modifier = Modifier.layoutId(TextFieldId).then(textPadding),
+                modifier = Modifier
+                    .layoutId(TextFieldId)
+                    .then(textPadding),
                 propagateMinConstraints = true
             ) {
                 textField()
             }
 
             if (label != null) {
-                Box(modifier = Modifier.layoutId(LabelId)) { label() }
+                Box(Modifier
+                    .heightIn(min = lerp(
+                        MinTextLineHeight, MinFocusedLabelLineHeight, animationProgress))
+                    .wrapContentHeight()
+                    .layoutId(LabelId)) { label() }
             }
 
             if (supporting != null) {
                 @OptIn(ExperimentalMaterial3Api::class)
                 Box(Modifier
                     .layoutId(SupportingId)
+                    .heightIn(min = MinSupportingTextLineHeight)
+                    .wrapContentHeight()
                     .padding(TextFieldDefaults.supportingTextPadding())
                 ) { supporting() }
             }
@@ -1011,7 +1031,6 @@ private fun Placeable.PlacementScope.place(
 
     // label position is animated
     // in single line text field, label is centered vertically before animation starts
-    var labelPositionY: Int? = null
     labelPlaceable?.let {
         val startPositionY = if (singleLine) {
             Alignment.CenterVertically.align(it.height, height)
@@ -1019,7 +1038,6 @@ private fun Placeable.PlacementScope.place(
             topPadding
         }
         val positionY = lerp(startPositionY, -(it.height / 2), animationProgress)
-        labelPositionY = positionY
         val positionX = (
             if (leadingPlaceable == null) {
                 0f
@@ -1032,8 +1050,8 @@ private fun Placeable.PlacementScope.place(
 
     // Single line text fields have text components centered vertically.
     // Multiline text fields have text components aligned to top with padding.
-    fun calculateVerticalPosition(placeable: Placeable): Int {
-        val verticalPosition = max(
+    fun calculateVerticalPosition(placeable: Placeable): Int =
+        max(
             if (singleLine) {
                 Alignment.CenterVertically.align(placeable.height, height)
             } else {
@@ -1041,16 +1059,6 @@ private fun Placeable.PlacementScope.place(
             },
             heightOrZero(labelPlaceable) / 2
         )
-
-        // Ensure placeable's bounding box does not cover label in unfocused state
-        // (workaround for b/261061240)
-        labelPositionY?.let { labelPositionY ->
-            if (verticalPosition <= labelPositionY) {
-                return labelPositionY + 1
-            }
-        }
-        return verticalPosition
-    }
 
     prefixPlaceable?.placeRelative(
         widthOrZero(leadingPlaceable),

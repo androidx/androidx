@@ -128,7 +128,6 @@ private constructor(
         }
     )
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleWireFormat = UserStyleWireFormat(toMap())
 
@@ -370,7 +369,6 @@ public class MutableUserStyle internal constructor(userStyle: UserStyle) :
  * clients and the editor where we can't practically use [UserStyle] due to its limitations.
  */
 public class UserStyleData(public val userStyleMap: Map<String, ByteArray>) {
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(userStyle: UserStyleWireFormat) : this(userStyle.mUserStyle)
 
@@ -387,7 +385,6 @@ public class UserStyleData(public val userStyleMap: Map<String, ByteArray>) {
             ) +
             "}"
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleWireFormat = UserStyleWireFormat(userStyleMap)
 
@@ -591,12 +588,10 @@ public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSettin
         }
     }
 
-    /** @hide */
     @Suppress("Deprecation") // userStyleSettings
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(wireFormat: UserStyleSchemaWireFormat) : this(wireFormat.toApiFormat())
 
-    /** @hide */
     @Suppress("Deprecation") // userStyleSettings
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toWireFormat(): UserStyleSchemaWireFormat =
@@ -618,7 +613,6 @@ public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSettin
             }
         )
 
-    /** @hide */
     @Suppress("Deprecation") // userStyleSettings
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getDefaultUserStyle() =
@@ -725,7 +719,6 @@ public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
     /**
      * The UserStyle options must be from the supplied [UserStyleSchema].
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun updateUserStyle(newUserStyle: UserStyle) {

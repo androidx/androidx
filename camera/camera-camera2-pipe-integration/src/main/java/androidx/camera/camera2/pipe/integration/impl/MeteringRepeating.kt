@@ -28,7 +28,9 @@ import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.error
+import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
+import androidx.camera.camera2.pipe.integration.compat.workaround.getSupportedRepeatingSurfaceSizes
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
@@ -74,7 +76,7 @@ class MeteringRepeating(
         Builder(cameraProperties, displayInfoManager)
 
     override fun onSuggestedStreamSpecUpdated(suggestedStreamSpec: StreamSpec): StreamSpec {
-        updateSessionConfig(createPipeline().build())
+        updateSessionConfig(createPipeline(meteringSurfaceSize).build())
         notifyActive()
         return StreamSpec.builder(meteringSurfaceSize).build()
     }
@@ -93,15 +95,15 @@ class MeteringRepeating(
         updateSuggestedStreamSpec(StreamSpec.builder(DEFAULT_PREVIEW_SIZE).build())
     }
 
-    private fun createPipeline(): SessionConfig.Builder {
+    private fun createPipeline(resolution: Size): SessionConfig.Builder {
         synchronized(deferrableSurfaceLock) {
             val surfaceTexture = SurfaceTexture(0).apply {
-                setDefaultBufferSize(meteringSurfaceSize.width, meteringSurfaceSize.height)
+                setDefaultBufferSize(resolution.width, resolution.height)
             }
             val surface = Surface(surfaceTexture)
 
             deferrableSurface?.close()
-            deferrableSurface = ImmediateSurface(surface, meteringSurfaceSize, imageFormat)
+            deferrableSurface = ImmediateSurface(surface, resolution, imageFormat)
             deferrableSurface!!.terminationFuture
                 .addListener(
                     {
@@ -113,12 +115,12 @@ class MeteringRepeating(
         }
 
         return SessionConfig.Builder
-            .createFrom(MeteringRepeatingConfig())
+            .createFrom(MeteringRepeatingConfig(), resolution)
             .apply {
                 setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
                 addSurface(deferrableSurface!!)
                 addErrorListener { _, _ ->
-                    updateSessionConfig(createPipeline().build())
+                    updateSessionConfig(createPipeline(resolution).build())
                     notifyReset()
                 }
             }
@@ -140,7 +142,7 @@ class MeteringRepeating(
     }
 
     private fun getProperPreviewSize(): Size {
-        val outputSizes = cameraProperties.getOutputSizes()
+        var outputSizes = cameraProperties.getOutputSizes()
 
         if (outputSizes == null) {
             error { "Can not get output size list." }
@@ -152,7 +154,13 @@ class MeteringRepeating(
             return DEFAULT_PREVIEW_SIZE
         }
 
-        // TODO(b/256805716): get supported output sizes handling quirks.
+        val supportedOutputSizes = outputSizes.getSupportedRepeatingSurfaceSizes()
+
+        if (supportedOutputSizes.isNotEmpty()) {
+            outputSizes = supportedOutputSizes
+        } else {
+            warn { "No supported output size list, fallback to current list" }
+        }
 
         outputSizes.sortBy { size -> size.width.toLong() * size.height.toLong() }
 

@@ -45,7 +45,6 @@ import androidx.appcompat.R;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class AppCompatDrawableManager {

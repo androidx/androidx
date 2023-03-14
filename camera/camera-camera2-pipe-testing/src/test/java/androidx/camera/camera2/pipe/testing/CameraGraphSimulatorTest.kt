@@ -41,11 +41,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -70,7 +70,6 @@ class CameraGraphSimulatorTest {
 
     private val context = ApplicationProvider.getApplicationContext() as Context
 
-    @Ignore("b/188446185")
     @Test
     fun simulatorCanSimulateRepeatingFrames() = runTest {
         CameraGraphSimulator.create(
@@ -90,6 +89,8 @@ class CameraGraphSimulatorTest {
             }
             simulator.cameraGraph.start()
             simulator.simulateCameraStarted()
+            simulator.simulateFakeSurfaceConfiguration()
+            advanceUntilIdle()
 
             val frame = simulator.simulateNextFrame()
 
@@ -220,6 +221,7 @@ class CameraGraphSimulatorTest {
             simulator.cameraGraph.start()
             simulator.simulateCameraStarted()
             simulator.simulateFakeSurfaceConfiguration()
+            advanceUntilIdle()
 
             val frame = simulator.simulateNextFrame()
             assertThat(frame.request).isSameInstanceAs(request)
@@ -232,7 +234,6 @@ class CameraGraphSimulatorTest {
         }
     }
 
-    @Ignore("b/188446185")
     @Test
     fun simulatorCanIssueMultipleFrames() = runTest {
         CameraGraphSimulator.create(
@@ -253,6 +254,8 @@ class CameraGraphSimulatorTest {
             }
             simulator.cameraGraph.start()
             simulator.simulateCameraStarted()
+            simulator.simulateFakeSurfaceConfiguration()
+            advanceUntilIdle()
 
             val frame1 = simulator.simulateNextFrame()
             val frame2 = simulator.simulateNextFrame()

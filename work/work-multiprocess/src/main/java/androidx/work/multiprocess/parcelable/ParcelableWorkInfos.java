@@ -31,7 +31,6 @@ import java.util.List;
  * A {@link android.os.Parcelable} representation of a {@link java.util.List} of
  * {@link androidx.work.WorkInfo}s.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

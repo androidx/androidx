@@ -202,7 +202,6 @@ public final class OutputConfigurationCompat {
     /**
      * Retrieve the physical camera ID set by {@link #setPhysicalCameraId(String)}.
      *
-     * @hide Not supported on all API levels. Used for compatibility checks on lower API levels.
      */
     @RestrictTo(Scope.LIBRARY)
     @Nullable

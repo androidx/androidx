@@ -22,6 +22,8 @@ import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -39,6 +41,7 @@ import kotlinx.coroutines.launch
  * This class is responsible for detecting when item position changed, figuring our start/end
  * offsets and starting the animations.
  */
+@OptIn(ExperimentalFoundationApi::class)
 internal class LazyListItemPlacementAnimator(
     private val scope: CoroutineScope,
     private val isVertical: Boolean
@@ -47,7 +50,7 @@ internal class LazyListItemPlacementAnimator(
     private val keyToItemInfoMap = mutableMapOf<Any, ItemInfo>()
 
     // snapshot of the key to index map used for the last measuring.
-    private var keyToIndexMap: Map<Any, Int> = emptyMap()
+    private var keyToIndexMap: LazyLayoutKeyIndexMap = LazyLayoutKeyIndexMap.Empty
 
     // keeps the index of the first visible item index.
     private var firstVisibleIndex = 0
@@ -56,8 +59,8 @@ internal class LazyListItemPlacementAnimator(
     private val movingAwayKeys = LinkedHashSet<Any>()
     private val movingInFromStartBound = mutableListOf<LazyListPositionedItem>()
     private val movingInFromEndBound = mutableListOf<LazyListPositionedItem>()
-    private val movingAwayToStartBound = mutableListOf<LazyMeasuredItem>()
-    private val movingAwayToEndBound = mutableListOf<LazyMeasuredItem>()
+    private val movingAwayToStartBound = mutableListOf<LazyListMeasuredItem>()
+    private val movingAwayToEndBound = mutableListOf<LazyListMeasuredItem>()
 
     /**
      * Should be called after the measuring so we can detect position changes and start animations.
@@ -69,7 +72,7 @@ internal class LazyListItemPlacementAnimator(
         layoutWidth: Int,
         layoutHeight: Int,
         positionedItems: MutableList<LazyListPositionedItem>,
-        itemProvider: LazyMeasuredItemProvider
+        itemProvider: LazyListMeasuredItemProvider
     ) {
         if (!positionedItems.fastAny { it.hasAnimations } && keyToItemInfoMap.isEmpty()) {
             // no animations specified - no work needed
@@ -98,7 +101,7 @@ internal class LazyListItemPlacementAnimator(
                 // there is no state associated with this item yet
                 if (itemInfo == null) {
                     val previousIndex = previousKeyToIndexMap[item.key]
-                    if (previousIndex != null && item.index != previousIndex) {
+                    if (previousIndex != -1 && item.index != previousIndex) {
                         if (previousIndex < previousFirstVisibleIndex) {
                             // the larger index will be in the start of the list
                             movingInFromStartBound.add(item)
@@ -147,7 +150,7 @@ internal class LazyListItemPlacementAnimator(
             // whether the animation associated with the item has been finished or not yet started
             val inProgress = itemInfo.placeables.fastAny { it.inProgress }
             if (itemInfo.placeables.isEmpty() ||
-                newIndex == null ||
+                newIndex == -1 ||
                 (!inProgress && newIndex == previousKeyToIndexMap[key]) ||
                 (!inProgress && !itemInfo.isWithinBounds(mainAxisLayoutSize))
             ) {
@@ -228,7 +231,7 @@ internal class LazyListItemPlacementAnimator(
      */
     fun reset() {
         keyToItemInfoMap.clear()
-        keyToIndexMap = emptyMap()
+        keyToIndexMap = LazyLayoutKeyIndexMap.Empty
         firstVisibleIndex = -1
     }
 

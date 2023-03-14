@@ -53,7 +53,6 @@ import androidx.core.view.GravityCompat;
  * This widget implements the dynamic action bar tab behavior that can change across different
  * configurations or circumstances.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ScrollingTabContainerView extends HorizontalScrollView

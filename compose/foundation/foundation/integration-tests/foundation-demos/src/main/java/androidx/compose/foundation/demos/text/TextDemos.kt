@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.demos.text
 
+import androidx.compose.foundation.demos.text2.BasicTextField2Demos
+import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
 
@@ -111,6 +113,18 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Tail Following Text Field") { TailFollowingTextFieldDemo() },
                 ComposableDemo("Focus immediately") { FocusTextFieldImmediatelyDemo() },
                 ComposableDemo("Secondary input system") { PlatformTextInputAdapterDemo() },
+                ComposableDemo("TextField focus") { TextFieldFocusDemo() },
+            )
+        ),
+        DemoCategory(
+            "BasicTextField2",
+            listOf(
+                ComposableDemo("Basic text input") {
+                    BasicTextField2Demos()
+                },
+                ComposableDemo("Keyboard Options") {
+                    KeyboardOptionsDemos()
+                }
             )
         ),
         DemoCategory(

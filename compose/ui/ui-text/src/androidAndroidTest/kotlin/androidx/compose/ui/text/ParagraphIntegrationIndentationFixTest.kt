@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -64,6 +65,7 @@ class ParagraphIntegrationIndentationFixTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/269193223
     @Test
     fun getLineLeftAndGetLineRight_Ltr_TextIndent() {
         val paragraph = paragraph(
@@ -147,6 +149,7 @@ class ParagraphIntegrationIndentationFixTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/269193223
     @Test
     fun getLineLeftAndGetLineRight_Ltr_TextIndent_sp_letterspacing() {
         val paragraph = paragraph(

@@ -123,7 +123,6 @@ public class PlaybackSupportFragment extends Fragment {
 
     /**
      * Resets the focus on the button in the middle of control row.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void resetFocus() {
@@ -207,7 +206,6 @@ public class PlaybackSupportFragment extends Fragment {
     /**
      * Listener allowing the application to receive notification of fade in and/or fade out
      * completion events.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class OnFadeCompleteListener {
@@ -407,7 +405,6 @@ public class PlaybackSupportFragment extends Fragment {
 
     /**
      * Sets the listener to be called when fade in or out has completed.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setFadeCompleteListener(OnFadeCompleteListener listener) {
@@ -416,7 +413,6 @@ public class PlaybackSupportFragment extends Fragment {
 
     /**
      * Returns the listener to be called when fade in or out has completed.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public OnFadeCompleteListener getFadeCompleteListener() {

@@ -17,6 +17,7 @@
 package androidx.work.impl;
 
 import static androidx.work.impl.Scheduler.MAX_GREEDY_SCHEDULER_LIMIT;
+import static androidx.work.impl.WorkManagerImpl.CONTENT_URI_TRIGGER_API_LEVEL;
 import static androidx.work.impl.utils.PackageManagerHelper.setComponentEnabled;
 
 import android.content.Context;
@@ -43,7 +44,6 @@ import java.util.concurrent.Executor;
  * Helps schedule {@link androidx.work.impl.model.WorkSpec}s while enforcing
  * {@link Scheduler#MAX_SCHEDULER_LIMIT}s.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Schedulers {
@@ -97,24 +97,23 @@ public class Schedulers {
 
         workDatabase.beginTransaction();
         try {
+            List<WorkSpec> contentUriWorkSpecs = null;
+            if (Build.VERSION.SDK_INT >= CONTENT_URI_TRIGGER_API_LEVEL) {
+                contentUriWorkSpecs = workSpecDao.getEligibleWorkForSchedulingWithContentUris();
+                markScheduled(workSpecDao, contentUriWorkSpecs);
+            }
+
             // Enqueued workSpecs when scheduling limits are applicable.
             eligibleWorkSpecsForLimitedSlots = workSpecDao.getEligibleWorkForScheduling(
                     configuration.getMaxSchedulerLimit());
+            markScheduled(workSpecDao, eligibleWorkSpecsForLimitedSlots);
+            if (contentUriWorkSpecs != null) {
+                eligibleWorkSpecsForLimitedSlots.addAll(contentUriWorkSpecs);
+            }
 
             // Enqueued workSpecs when scheduling limits are NOT applicable.
             allEligibleWorkSpecs = workSpecDao.getAllEligibleWorkSpecsForScheduling(
                     MAX_GREEDY_SCHEDULER_LIMIT);
-
-            if (eligibleWorkSpecsForLimitedSlots.size() > 0) {
-                long now = System.currentTimeMillis();
-
-                // Mark all the WorkSpecs as scheduled.
-                // Calls to Scheduler#schedule() could potentially result in more schedules
-                // on a separate thread. Therefore, this needs to be done first.
-                for (WorkSpec workSpec : eligibleWorkSpecsForLimitedSlots) {
-                    workSpecDao.markWorkSpecScheduled(workSpec.id, now);
-                }
-            }
             workDatabase.setTransactionSuccessful();
         } finally {
             workDatabase.endTransaction();
@@ -148,14 +147,13 @@ public class Schedulers {
     }
 
     @NonNull
-    static Scheduler createBestAvailableBackgroundScheduler(
-            @NonNull Context context,
-            @NonNull WorkManagerImpl workManager) {
+    static Scheduler createBestAvailableBackgroundScheduler(@NonNull Context context,
+            @NonNull WorkDatabase workDatabase, Configuration configuration) {
 
         Scheduler scheduler;
 
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            scheduler = new SystemJobScheduler(context, workManager);
+            scheduler = new SystemJobScheduler(context, workDatabase, configuration);
             setComponentEnabled(context, SystemJobService.class, true);
             Logger.get().debug(TAG, "Created SystemJobScheduler and enabled SystemJobService");
         } else {
@@ -184,5 +182,18 @@ public class Schedulers {
     }
 
     private Schedulers() {
+    }
+
+    private static void markScheduled(WorkSpecDao dao, List<WorkSpec> workSpecs) {
+        if (workSpecs.size() > 0) {
+            long now = System.currentTimeMillis();
+
+            // Mark all the WorkSpecs as scheduled.
+            // Calls to Scheduler#schedule() could potentially result in more schedules
+            // on a separate thread. Therefore, this needs to be done first.
+            for (WorkSpec workSpec : workSpecs) {
+                dao.markWorkSpecScheduled(workSpec.id, now);
+            }
+        }
     }
 }

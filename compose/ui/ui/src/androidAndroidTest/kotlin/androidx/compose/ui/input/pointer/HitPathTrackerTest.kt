@@ -39,7 +39,6 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.node.InternalCoreApi
@@ -72,6 +71,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -3560,9 +3562,11 @@ internal class LayoutCoordinatesStub(
 ) : NodeCoordinator(LayoutNode()) {
 
     var additionalOffset = Offset.Zero
-    override fun createLookaheadDelegate(scope: LookaheadScope): LookaheadDelegate {
+    override fun ensureLookaheadDelegateCreated() {
         TODO("Not yet implemented")
     }
+
+    override var lookaheadDelegate: LookaheadDelegate? = null
 
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = TODO("not implemented")
@@ -3615,7 +3619,9 @@ internal class LayoutCoordinatesStub(
 @OptIn(InternalCoreApi::class)
 private class MockOwner(
     val position: IntOffset = IntOffset.Zero,
-    override val root: LayoutNode = LayoutNode()
+    override val root: LayoutNode = LayoutNode(),
+    override val coroutineContext: CoroutineContext =
+        Executors.newFixedThreadPool(3).asCoroutineDispatcher()
 ) : Owner {
     val onRequestMeasureParams = mutableListOf<LayoutNode>()
     val onAttachParams = mutableListOf<LayoutNode>()

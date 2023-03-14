@@ -33,6 +33,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.util.SizeF;
 import android.view.Surface;
@@ -96,7 +97,7 @@ public class Camera2CameraInfoImplTest {
     private static final int[] CAMERA0_SUPPORTED_CAPABILITIES = new int[] {
             CAMERA0_SUPPORTED_PRIVATE_REPROCESSING,
     };
-    private static final float[] CAMERA0_LENS_FOCAL_LENGTH = new float[] {
+    private static final float[] CAMERA0_LENS_FOCAL_LENGTH = new float[]{
             3.0F,
             4.0F,
             5.0F
@@ -104,6 +105,13 @@ public class Camera2CameraInfoImplTest {
     private static final SizeF CAMERA0_SENSOR_PHYSICAL_SIZE = new SizeF(1.5F, 1F);
     private static final Rect CAMERA0_SENSOR_ACTIVE_ARRAY_SIZE = new Rect(0, 0, 1920, 1080);
     private static final Size CAMERA0_SENSOR_PIXEL_ARRAY_SIZE = new Size(1920, 1080);
+
+    private static final Range<?>[] CAMERA0_AE_FPS_RANGES = {
+            new Range<>(12, 30),
+            new Range<>(24, 24),
+            new Range<>(30, 30),
+            new Range<>(60, 60)
+    };
     private static final String CAMERA1_ID = "1";
     private static final int CAMERA1_SUPPORTED_HARDWARE_LEVEL =
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3;
@@ -114,7 +122,7 @@ public class Camera2CameraInfoImplTest {
     private static final String CAMERA2_ID = "2";
     private static final int CAMERA2_SENSOR_ORIENTATION = 90;
     private static final int CAMERA2_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_BACK;
-    private static final float[] CAMERA2_LENS_FOCAL_LENGTH = new float[] {
+    private static final float[] CAMERA2_LENS_FOCAL_LENGTH = new float[]{
             5.0F
     };
     private static final SizeF CAMERA2_SENSOR_PHYSICAL_SIZE = new SizeF(1.5F, 1F);
@@ -123,6 +131,10 @@ public class Camera2CameraInfoImplTest {
     private static final float CAMERA2_INTRINSIC_ZOOM_RATIO =
             ((float) FovUtil.focalLengthToViewAngleDegrees(CAMERA0_LENS_FOCAL_LENGTH[0], 1))
                     / FovUtil.focalLengthToViewAngleDegrees(CAMERA2_LENS_FOCAL_LENGTH[0], 1);
+    private static final Range<?>[] CAMERA2_AE_FPS_RANGES = {
+            new Range<>(12, 30),
+            new Range<>(30, 30),
+    };
 
     private CameraCharacteristicsCompat mCameraCharacteristics0;
     private CameraManagerCompat mCameraManagerCompat;
@@ -636,6 +648,35 @@ public class Camera2CameraInfoImplTest {
     }
 
     @Test
+    public void cameraInfo_canReturnSupportedFpsRanges() throws CameraAccessExceptionCompat {
+        init(/* hasReprocessingCapabilities = */ false);
+
+        final Camera2CameraInfoImpl cameraInfo0 = new Camera2CameraInfoImpl(CAMERA0_ID,
+                mCameraManagerCompat);
+        final Camera2CameraInfoImpl cameraInfo2 = new Camera2CameraInfoImpl(CAMERA2_ID,
+                mCameraManagerCompat);
+
+        List<Range<Integer>> resultFpsRanges0 = cameraInfo0.getSupportedFpsRanges();
+        List<Range<Integer>> resultFpsRanges2 = cameraInfo2.getSupportedFpsRanges();
+
+        assertThat(resultFpsRanges0).containsExactly((Object[]) CAMERA0_AE_FPS_RANGES);
+        assertThat(resultFpsRanges2).containsExactly((Object[]) CAMERA2_AE_FPS_RANGES);
+    }
+
+    @Test
+    public void cameraInfo_returnsEmptyFpsRanges_whenNotSupported()
+            throws CameraAccessExceptionCompat {
+        init(/* hasReprocessingCapabilities = */ false);
+
+        final Camera2CameraInfoImpl cameraInfo1 = new Camera2CameraInfoImpl(CAMERA1_ID,
+                mCameraManagerCompat);
+
+        List<Range<Integer>> resultFpsRanges1 = cameraInfo1.getSupportedFpsRanges();
+
+        assertThat(resultFpsRanges1).isEmpty();
+    }
+
+    @Test
     public void cameraInfo_checkDefaultCameraIntrinsicZoomRatio()
             throws CameraAccessExceptionCompat {
         init(/* hasReprocessingCapabilities = */ false);
@@ -726,6 +767,10 @@ public class Camera2CameraInfoImplTest {
         shadowCharacteristics0.set(
                 CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS, CAMERA0_LENS_FOCAL_LENGTH);
 
+        shadowCharacteristics0.set(
+                CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
+                CAMERA0_AE_FPS_RANGES);
+
         // Mock the request capability
         if (hasReprocessingCapabilities) {
             shadowCharacteristics0.set(REQUEST_AVAILABLE_CAPABILITIES,
@@ -804,6 +849,10 @@ public class Camera2CameraInfoImplTest {
 
         shadowCharacteristics2.set(
                 CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS, CAMERA2_LENS_FOCAL_LENGTH);
+
+        shadowCharacteristics2.set(
+                CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
+                CAMERA2_AE_FPS_RANGES);
 
         // Add the camera to the camera service
         ((ShadowCameraManager)

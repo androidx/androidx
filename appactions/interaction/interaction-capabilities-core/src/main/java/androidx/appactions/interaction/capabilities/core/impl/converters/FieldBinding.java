@@ -17,9 +17,9 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
+import androidx.appactions.interaction.protobuf.Value;
 
 import com.google.auto.value.AutoValue;
-import com.google.protobuf.Value;
 
 import java.util.Optional;
 import java.util.function.Function;

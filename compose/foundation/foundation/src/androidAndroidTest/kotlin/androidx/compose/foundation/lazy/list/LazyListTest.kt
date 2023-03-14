@@ -42,6 +42,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.savePointerInputEvents
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.matchers.isZero
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -108,6 +109,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -561,7 +563,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(Modifier.requiredSize(width = 100.dp, height = 150.dp)) {
                 items(listOf(0)) {
-                    Spacer(Modifier.fillParentMaxSize().testTag(firstItemTag))
+                    Spacer(
+                        Modifier
+                            .fillParentMaxSize()
+                            .testTag(firstItemTag))
                 }
             }
         }
@@ -614,7 +619,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(Modifier.requiredSize(width = 100.dp, height = 150.dp)) {
                 items(listOf(0)) {
-                    Spacer(Modifier.fillParentMaxSize(0.5f).testTag(firstItemTag))
+                    Spacer(
+                        Modifier
+                            .fillParentMaxSize(0.5f)
+                            .testTag(firstItemTag))
                 }
             }
         }
@@ -630,7 +638,10 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.setContentWithTestViewConfiguration {
             LazyColumnOrRow(Modifier.requiredSize(parentSize)) {
                 items(listOf(0)) {
-                    Spacer(Modifier.fillParentMaxSize().testTag(firstItemTag))
+                    Spacer(
+                        Modifier
+                            .fillParentMaxSize()
+                            .testTag(firstItemTag))
                 }
             }
         }
@@ -1916,6 +1927,50 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
 
         rule.runOnIdle {
             assertThat(recomposeCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun scrollingDoesntCauseItemRecomposition() {
+        lateinit var state: LazyListState
+        val recomposedItems = hashMapOf<Int, Int>()
+        var composedMoreThanOnce = 0
+
+        rule.setContentWithTestViewConfiguration {
+            state = rememberLazyListState()
+            LazyColumnOrRow(
+                Modifier.testTag(LazyListTag).mainAxisSize(100.dp),
+                state
+            ) {
+                items(1000) {
+                    Spacer(Modifier.size(5.dp))
+                    SideEffect {
+                        recomposedItems[it] = (recomposedItems[it] ?: 0) + 1
+                    }
+                    DisposableEffect(it) {
+                        onDispose {
+                            val count = recomposedItems.remove(it)
+                            if (count != null && count > 1) {
+                                composedMoreThanOnce++
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        repeat(5) {
+            rule.onNodeWithTag(LazyListTag)
+                .scrollMainAxisBy(50.dp) // 10 items, half a screen
+        }
+
+        rule.runOnIdle {
+            assertThat(composedMoreThanOnce).isZero()
+
+            assertTrue(
+                "Items are expected to be composed only once.",
+                recomposedItems.values.all { it == 1 },
+            )
         }
     }
 

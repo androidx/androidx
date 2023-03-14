@@ -54,7 +54,7 @@ open class GMavenZipTask : Zip() {
     init {
         // multiple artifacts in the same group might have the same maven-metadata.xml
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        if (!project.shouldAddGroupConstraints()) {
+        if (!project.shouldAddGroupConstraints() && !isSnapshotBuild()) {
             doFirst {
                 throw GradleException(
                     """

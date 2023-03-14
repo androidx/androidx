@@ -126,7 +126,6 @@ class NodeInfo implements TreeNode {
     /**
      * Returns the number of active bound dynamic types.
      *
-     * @hide
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @SuppressWarnings("RestrictTo")
@@ -180,9 +179,9 @@ class NodeInfo implements TreeNode {
 
     /** Reset the avd animations with the given trigger type */
     @UiThread
-    void stopAvdAnimations() {
+    void stopAvdAnimations(@NonNull InnerCase triggerCase) {
         for (ResolvedAvd entry : mResolvedAvds) {
-            if (entry.mDrawable.isRunning()) {
+            if (entry.mDrawable.isRunning() && entry.mTrigger.getInnerCase() == triggerCase) {
                 entry.mDrawable.stop();
                 // We need to manually call the callback, as per Javadoc, callback is called later,
                 // on a different thread, meaning that quota won't be released in time.
@@ -208,7 +207,6 @@ class NodeInfo implements TreeNode {
     /**
      * Returns how many animations are running.
      *
-     * @hide
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @SuppressWarnings("RestrictTo")

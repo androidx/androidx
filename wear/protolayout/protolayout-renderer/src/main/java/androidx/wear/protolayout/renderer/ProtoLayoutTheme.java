@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo.Scope;
 /**
  * Theme customization for ProtoLayout texts, which includes Font types and variants.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public interface ProtoLayoutTheme {

@@ -1150,9 +1150,14 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         if (Build.VERSION.SDK_INT >= 19) {
             Bundle extras = NotificationCompat.getExtras(n);
             assertNotNull(extras);
-            assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON));
-            assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON));
+            if (Build.VERSION.SDK_INT <= 23) {
+                assertFalse(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON));
+            } else {
+                assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON));
+                assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON));
+            }
         }
+
         if (Build.VERSION.SDK_INT >= 23) {
             assertNull(n.getLargeIcon());
         }
@@ -1191,8 +1196,17 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
         Bundle extras = NotificationCompat.getExtras(n);
         assertNotNull(extras);
-        assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON));
-        assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON));
+        // Prior to API version 24, EXTRA_LARGE_ICON was not set if largeIcon was set to null.
+        // Starting in version 24, EXTRA_LARGE_ICON is set, but its value is null.
+        // Note that extras are not populated before API 19, but this test's minSdkVersion is 23,
+        // so we don't have to check that.
+        if (Build.VERSION.SDK_INT <= 23) {
+            assertFalse(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON));
+        } else {
+            assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON));
+            assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON));
+        }
+
     }
 
     @SdkSuppress(minSdkVersion = 23)

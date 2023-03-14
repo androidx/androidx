@@ -38,7 +38,6 @@ import androidx.core.provider.FontsContractCompat;
 import java.io.IOException;
 import java.io.InputStream;
 
-/** @hide */
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(29)
 public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {

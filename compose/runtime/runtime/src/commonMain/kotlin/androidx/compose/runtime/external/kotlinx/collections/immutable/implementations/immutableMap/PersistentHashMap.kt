@@ -10,7 +10,7 @@ import androidx.compose.runtime.external.kotlinx.collections.immutable.Immutable
 import androidx.compose.runtime.external.kotlinx.collections.immutable.PersistentMap
 import androidx.compose.runtime.external.kotlinx.collections.immutable.mutate
 
-internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
+internal open class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
                                        override val size: Int): AbstractMap<K, V>(), PersistentMap<K, V> {
 
     override val keys: ImmutableSet<K>

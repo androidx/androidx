@@ -40,7 +40,6 @@ import androidx.core.content.res.ResourcesCompat;
  * A class that wraps a {@link TypedArray} and provides the same public API
  * surface. The purpose of this class is so that we can intercept calls to new APIs.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class TintTypedArray {

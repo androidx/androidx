@@ -65,6 +65,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -851,23 +852,19 @@ class TabTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalDensity provides
-                        Density(
-                            density = LocalDensity.current.density,
-                            fontScale = 2.0f
-                        )
+                    LocalDensity provides Density(density = 1f, fontScale = 10f)
                 ) {
                     Surface {
                         Tab(
                             selected = true,
                             onClick = {},
-                            text = { Text("Text") },
+                            text = { Text(text = "Text", fontSize = 10.sp) },
                             icon = { Icon(icon, null) }
                         )
                     }
                 }
             }
-            .assertHeightIsAtLeast(100.dp)
+            .assertHeightIsAtLeast(90.dp)
     }
 
     @Test

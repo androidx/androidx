@@ -147,7 +147,6 @@ import java.text.ParsePosition;
  * </p>
  *
  * icu_annot::stable ICU 4.4
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SelectFormat extends Format{

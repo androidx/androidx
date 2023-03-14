@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Class containing helpers for querying wearable navigation pattern
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class WearableNavigationHelper {

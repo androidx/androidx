@@ -323,13 +323,11 @@ public open class NavHostFragment : Fragment(), NavHost {
 
     public companion object {
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_GRAPH_ID: String = "android-support-nav:fragment:graphId"
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_START_DESTINATION_ARGS: String =

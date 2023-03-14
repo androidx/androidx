@@ -50,7 +50,6 @@ import java.nio.ByteBuffer;
  * <p> This class is backed by a single {@link ByteBuffer}. The bytes are stored following the
  * {@link Bitmap.Config#ARGB_8888}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

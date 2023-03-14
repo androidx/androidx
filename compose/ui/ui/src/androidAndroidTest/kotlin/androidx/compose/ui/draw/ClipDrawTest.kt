@@ -53,6 +53,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -262,6 +263,7 @@ class ClipDrawTest {
         }
     }
 
+    @Ignore("Test disabled due to flakiness, see b/256950653")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun concaveClip() {

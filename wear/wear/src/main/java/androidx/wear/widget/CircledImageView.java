@@ -46,7 +46,6 @@ import java.util.Objects;
 /**
  * An image view surrounded by a circle.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class CircledImageView extends View {

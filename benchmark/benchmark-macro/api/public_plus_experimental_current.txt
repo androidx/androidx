@@ -6,7 +6,7 @@ package androidx.benchmark.macro {
   }
 
   public enum BaselineProfileMode {
-    method public static androidx.benchmark.macro.BaselineProfileMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.benchmark.macro.BaselineProfileMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.benchmark.macro.BaselineProfileMode[] values();
     enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Disable;
     enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Require;
@@ -79,7 +79,7 @@ package androidx.benchmark.macro {
   }
 
   @androidx.benchmark.macro.ExperimentalMetricApi public enum PowerCategory {
-    method public static androidx.benchmark.macro.PowerCategory valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.benchmark.macro.PowerCategory valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.benchmark.macro.PowerCategory[] values();
     enum_constant public static final androidx.benchmark.macro.PowerCategory CPU;
     enum_constant public static final androidx.benchmark.macro.PowerCategory DISPLAY;
@@ -92,7 +92,7 @@ package androidx.benchmark.macro {
   }
 
   @androidx.benchmark.macro.ExperimentalMetricApi public enum PowerCategoryDisplayLevel {
-    method public static androidx.benchmark.macro.PowerCategoryDisplayLevel valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.benchmark.macro.PowerCategoryDisplayLevel valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.benchmark.macro.PowerCategoryDisplayLevel[] values();
     enum_constant public static final androidx.benchmark.macro.PowerCategoryDisplayLevel BREAKDOWN;
     enum_constant public static final androidx.benchmark.macro.PowerCategoryDisplayLevel TOTAL;
@@ -131,7 +131,7 @@ package androidx.benchmark.macro {
   }
 
   public enum StartupMode {
-    method public static androidx.benchmark.macro.StartupMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.benchmark.macro.StartupMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.benchmark.macro.StartupMode[] values();
     enum_constant public static final androidx.benchmark.macro.StartupMode COLD;
     enum_constant public static final androidx.benchmark.macro.StartupMode HOT;
@@ -147,10 +147,49 @@ package androidx.benchmark.macro {
   }
 
   public enum TraceSectionMetric.Mode {
-    method public static androidx.benchmark.macro.TraceSectionMetric.Mode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.benchmark.macro.TraceSectionMetric.Mode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.benchmark.macro.TraceSectionMetric.Mode[] values();
     enum_constant public static final androidx.benchmark.macro.TraceSectionMetric.Mode First;
     enum_constant public static final androidx.benchmark.macro.TraceSectionMetric.Mode Sum;
+  }
+
+}
+
+package androidx.benchmark.perfetto {
+
+  @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalPerfettoTraceProcessorApi {
+  }
+
+  @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public final class PerfettoTraceProcessor {
+    ctor public PerfettoTraceProcessor();
+    method public <T> T! loadTrace(androidx.benchmark.perfetto.PerfettoTrace trace, kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor.Session,? extends T> block);
+    method public static <T> T! runServer(kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor,? extends T> block);
+    field public static final androidx.benchmark.perfetto.PerfettoTraceProcessor.Companion Companion;
+  }
+
+  public static final class PerfettoTraceProcessor.Companion {
+    method public <T> T! runServer(kotlin.jvm.functions.Function1<? super androidx.benchmark.perfetto.PerfettoTraceProcessor,? extends T> block);
+  }
+
+  public static final class PerfettoTraceProcessor.Session {
+    method public kotlin.sequences.Sequence<androidx.benchmark.perfetto.Row> query(@org.intellij.lang.annotations.Language("sql") String query);
+    method public byte[] queryBytes(@org.intellij.lang.annotations.Language("sql") String query);
+  }
+
+  @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public final class Row implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<java.lang.String,java.lang.Object> {
+    ctor public Row(java.util.Map<java.lang.String,?> map);
+    method public byte[] bytes(String columnName);
+    method public double double(String columnName);
+    method public long long(String columnName);
+    method public byte[]? nullableBytes(String columnName);
+    method public Double? nullableDouble(String columnName);
+    method public Long? nullableLong(String columnName);
+    method public String? nullableString(String columnName);
+    method public String string(String columnName);
+  }
+
+  public final class RowKt {
+    method @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public static androidx.benchmark.perfetto.Row rowOf(kotlin.Pair<java.lang.String,?>... pairs);
   }
 
 }

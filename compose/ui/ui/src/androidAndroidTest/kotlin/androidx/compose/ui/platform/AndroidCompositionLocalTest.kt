@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.platform
 
+import android.content.res.Configuration
+import android.view.View
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -55,6 +57,77 @@ class AndroidCompositionLocalTest {
         }
         rule.runOnIdle {
             assertThat(actual).isSameInstanceAs(expected)
+        }
+    }
+
+    @Test
+    fun localConfigurationComparesForEquality_sameInstance() {
+        lateinit var view: View
+        var compositionCount = 0
+        rule.setContent {
+            view = LocalView.current
+            with(LocalConfiguration.current) {
+                compositionCount++
+            }
+        }
+        rule.runOnIdle {
+            assertThat(compositionCount).isEqualTo(1)
+        }
+        val configuration = view.context.resources.configuration
+        // Dispatch the same configuration: same instance and compares equal so we shouldn't
+        // invalidate LocalConfiguration
+        view.dispatchConfigurationChanged(configuration)
+        rule.runOnIdle {
+            assertThat(compositionCount).isEqualTo(1)
+        }
+        configuration.densityDpi *= 2
+        // Same instance but different fields, so we should invalidate LocalConfiguration
+        view.dispatchConfigurationChanged(configuration)
+        rule.runOnIdle {
+            assertThat(compositionCount).isEqualTo(2)
+        }
+        configuration.screenHeightDp *= 2
+        // Same instance but different fields, so we should invalidate LocalConfiguration
+        view.dispatchConfigurationChanged(configuration)
+        rule.runOnIdle {
+            assertThat(compositionCount).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun localConfigurationComparesForEquality_newInstance() {
+        lateinit var view: View
+        var compositionCount = 0
+        rule.setContent {
+            view = LocalView.current
+            with(LocalConfiguration.current) {
+                compositionCount++
+            }
+        }
+        rule.runOnIdle {
+            assertThat(compositionCount).isEqualTo(1)
+        }
+        val configuration = view.context.resources.configuration
+        // Make a deep copy
+        val configurationCopy = Configuration(configuration)
+        // New instance, but compares equal, so we shouldn't invalidate LocalConfiguration
+        view.dispatchConfigurationChanged(configurationCopy)
+        rule.runOnIdle {
+            assertThat(compositionCount).isEqualTo(1)
+        }
+        // Make another deep copy and mutate its fields
+        val configurationCopy2 = Configuration(configuration).apply { densityDpi *= 2 }
+        // New instance and different fields, so we should invalidate LocalConfiguration
+        view.dispatchConfigurationChanged(configurationCopy2)
+        rule.runOnIdle {
+            assertThat(compositionCount).isEqualTo(2)
+        }
+        // Make another deep copy and mutate its fields
+        val configurationCopy3 = Configuration(configurationCopy2).apply { screenHeightDp *= 2 }
+        // New instance and different fields, so we should invalidate LocalConfiguration
+        view.dispatchConfigurationChanged(configurationCopy3)
+        rule.runOnIdle {
+            assertThat(compositionCount).isEqualTo(3)
         }
     }
 }

@@ -38,13 +38,11 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Base class for derived classes that want to have common fields for programs defined in
  * {@link TvContractCompat}.
- * @hide
  */
 @RestrictTo(LIBRARY)
 @SuppressWarnings("unchecked")
 public abstract class BaseProgram {
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static final String[] PROJECTION = getProjection();
@@ -53,7 +51,6 @@ public abstract class BaseProgram {
     private static final int INVALID_INT_VALUE = -1;
     private static final int IS_SEARCHABLE = 1;
 
-    /** @hide */
     @IntDef({
             REVIEW_RATING_STYLE_UNKNOWN,
             ProgramColumns.REVIEW_RATING_STYLE_STARS,
@@ -69,7 +66,6 @@ public abstract class BaseProgram {
      */
     private static final int REVIEW_RATING_STYLE_UNKNOWN = -1;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     protected ContentValues mValues;
 
@@ -90,7 +86,6 @@ public abstract class BaseProgram {
     /**
      * @return The package name for the program.
      * @see androidx.tvprovider.media.tv.TvContractCompat.BaseTvColumns#COLUMN_PACKAGE_NAME
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public String getPackageName() {
@@ -540,7 +535,6 @@ public abstract class BaseProgram {
      * @param <T> The Builder of the derived classe.
      */
     public abstract static class Builder<T extends Builder> {
-        /** @hide */
         @RestrictTo(LIBRARY)
         protected ContentValues mValues;
 
@@ -577,7 +571,6 @@ public abstract class BaseProgram {
          * @param packageName The package name for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
          * @see androidx.tvprovider.media.tv.TvContractCompat.BaseTvColumns#COLUMN_PACKAGE_NAME
-         * @hide
          */
         @RestrictTo(LIBRARY)
         public T setPackageName(String packageName) {

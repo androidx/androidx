@@ -32,8 +32,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.SheetValue.Expanded
-import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.material3.SheetValue.Hidden
+import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -102,6 +102,20 @@ fun ModalBottomSheet(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val animateToDismiss: () -> Unit = {
+        if (sheetState.swipeableState.confirmValueChange(Hidden)) {
+            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                if (!sheetState.isVisible) {
+                    onDismissRequest()
+                }
+            }
+        }
+    }
+    val settleToDismiss: (velocity: Float) -> Unit = {
+        scope.launch { sheetState.settle(it) }.invokeOnCompletion {
+            if (!sheetState.isVisible) onDismissRequest()
+        }
+    }
 
     // Callback that is invoked when the anchors have changed.
     val anchorChangeHandler = remember(sheetState, scope) {
@@ -128,11 +142,7 @@ fun ModalBottomSheet(
             val fullHeight = constraints.maxHeight
             Scrim(
                 color = scrimColor,
-                onDismissRequest = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) { onDismissRequest() }
-                    }
-                },
+                onDismissRequest = animateToDismiss,
                 visible = sheetState.targetValue != Hidden
             )
             Surface(
@@ -153,11 +163,7 @@ fun ModalBottomSheet(
                             ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                                 sheetState = sheetState,
                                 orientation = Orientation.Vertical,
-                                onFling = {
-                                    scope.launch { sheetState.settle(it) }.invokeOnCompletion {
-                                            if (!sheetState.isVisible) onDismissRequest()
-                                        }
-                                }
+                                onFling = settleToDismiss
                             )
                         }
                     )
@@ -167,11 +173,7 @@ fun ModalBottomSheet(
                         screenHeight = fullHeight.toFloat(),
                         bottomPadding = systemBarHeight.toFloat(),
                         onDragStopped = {
-                            scope
-                                .launch { sheetState.settle(it) }
-                                .invokeOnCompletion {
-                                    if (!sheetState.isVisible) onDismissRequest()
-                                }
+                            settleToDismiss(it)
                         },
                     ),
                 shape = shape,
@@ -181,29 +183,28 @@ fun ModalBottomSheet(
             ) {
                 Column(Modifier.fillMaxWidth()) {
                     if (dragHandle != null) {
+                        val collapseActionLabel = getString(Strings.BottomSheetCollapseDescription)
+                        val dismissActionLabel = getString(Strings.BottomSheetDismissDescription)
+                        val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
                         Box(Modifier
                             .align(Alignment.CenterHorizontally)
                             .semantics {
                                 // Provides semantics to interact with the bottomsheet based on its
                                 // current value.
                                 with(sheetState) {
-                                    dismiss {
-                                        if (swipeableState.confirmValueChange(Hidden)) {
-                                            scope.launch { hide() }.invokeOnCompletion {
-                                                if (!isVisible) { onDismissRequest() }
-                                            }
-                                        }
+                                    dismiss(dismissActionLabel) {
+                                        animateToDismiss()
                                         true
                                     }
                                     if (currentValue == PartiallyExpanded) {
-                                        expand {
+                                        expand(expandActionLabel) {
                                             if (swipeableState.confirmValueChange(Expanded)) {
                                                 scope.launch { sheetState.expand() }
                                             }
                                             true
                                         }
                                     } else if (hasPartiallyExpandedState) {
-                                        collapse {
+                                        collapse(collapseActionLabel) {
                                             if (
                                                 swipeableState.confirmValueChange(PartiallyExpanded)
                                             ) {
@@ -300,9 +301,8 @@ private fun Modifier.modalBottomSheetSwipeable(
                 PartiallyExpanded -> when {
                     sheetSize.height < screenHeight / 2 -> null
                     sheetState.skipPartiallyExpanded -> null
-                    else -> sheetSize.height / 2f
+                    else -> screenHeight / 2f
                 }
-
                 Expanded -> if (sheetSize.height != 0) {
                     max(0f, screenHeight - sheetSize.height)
                 } else null

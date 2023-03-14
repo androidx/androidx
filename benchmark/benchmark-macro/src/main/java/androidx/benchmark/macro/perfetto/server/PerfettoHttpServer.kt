@@ -23,7 +23,8 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
 import androidx.benchmark.ShellScript
-import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.QueryResultIterator
 import androidx.benchmark.userspaceTrace
 import java.io.IOException
 import java.io.InputStream
@@ -185,18 +186,23 @@ internal class PerfettoHttpServer {
     }
 
     /**
-     * Executes the given [sqlQuery] on a previously parsed trace and returns the result as a
-     * query result iterator.
+     * Executes the given [sqlQuery] on a previously parsed trace with custom decoding.
      */
-    fun query(sqlQuery: String): QueryResultIterator =
-        QueryResultIterator(
-            httpRequest(
-                method = METHOD_POST,
-                url = PATH_QUERY,
-                encodeBlock = { QueryArgs.ADAPTER.encode(it, QueryArgs(sqlQuery)) },
-                decodeBlock = { QueryResult.ADAPTER.decode(it) }
-            )
+    fun <T> query(sqlQuery: String, decodeBlock: (InputStream) -> T): T =
+        httpRequest(
+            method = METHOD_POST,
+            url = PATH_QUERY,
+            encodeBlock = { QueryArgs.ADAPTER.encode(it, QueryArgs(sqlQuery)) },
+            decodeBlock = decodeBlock
         )
+
+    /**
+     * Executes the given [sqlQuery] on a previously parsed trace and returns the result as a
+     * [QueryResultIterator]
+     */
+    fun query(sqlQuery: String): QueryResultIterator = query(sqlQuery) {
+        QueryResultIterator(QueryResult.ADAPTER.decode(it))
+    }
 
     /**
      * Computes the given metrics on a previously parsed trace.

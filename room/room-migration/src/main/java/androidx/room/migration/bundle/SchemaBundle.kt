@@ -17,7 +17,6 @@
 package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
-
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
@@ -28,20 +27,18 @@ import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.io.UnsupportedEncodingException
-import kotlin.jvm.Throws
 
 /**
  * Data class that holds the information about a database schema export.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class SchemaBundle(
@@ -62,7 +59,6 @@ public open class SchemaBundle(
             .create()
 
         /**
-         * @hide
          */
         @Throws(UnsupportedEncodingException::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -70,19 +66,24 @@ public open class SchemaBundle(
         public fun deserialize(fis: InputStream): SchemaBundle {
             InputStreamReader(fis, CHARSET).use { inputStream ->
                 return GSON.fromJson(inputStream, SchemaBundle::class.javaObjectType)
-                    ?: throw IllegalStateException("Invalid schema file")
+                    ?: throw IllegalStateException("Empty schema file")
             }
         }
 
         /**
-         * @hide
          */
         @Throws(IOException::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         @JvmStatic
         public fun serialize(bundle: SchemaBundle, file: File) {
-            val fos = FileOutputStream(file, false)
-            OutputStreamWriter(fos, CHARSET).use { outputStreamWriter ->
+            serialize(bundle, FileOutputStream(file, false))
+        }
+
+        @Throws(IOException::class)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @JvmStatic
+        public fun serialize(bundle: SchemaBundle, outputStream: OutputStream) {
+            OutputStreamWriter(outputStream, CHARSET).use { outputStreamWriter ->
                 GSON.toJson(bundle, outputStreamWriter)
             }
         }

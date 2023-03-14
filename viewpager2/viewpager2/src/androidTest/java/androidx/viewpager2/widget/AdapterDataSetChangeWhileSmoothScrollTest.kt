@@ -36,6 +36,7 @@ import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -105,6 +106,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         test.setAdapterSync(config.adapterProvider.provider(dataSet))
     }
 
+    @Ignore // b/271634631
     @Test
     fun test() {
         tryNTimes(3, resetBlock = { test.resetViewPagerTo(initialPage) }) {

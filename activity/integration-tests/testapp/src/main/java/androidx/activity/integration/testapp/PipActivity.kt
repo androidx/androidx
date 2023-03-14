@@ -30,10 +30,8 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
-@ExperimentalCoroutinesApi
 class PipActivity : ComponentActivity() {
 
     private lateinit var moveButton: Button
@@ -60,7 +58,6 @@ class PipActivity : ComponentActivity() {
         return true
     }
 
-    @ExperimentalCoroutinesApi
     private fun trackHintView() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             lifecycleScope.launch {

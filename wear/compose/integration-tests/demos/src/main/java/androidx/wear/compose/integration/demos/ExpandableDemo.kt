@@ -29,18 +29,18 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.ExpandableItemsDefaults
+import androidx.wear.compose.foundation.ExpandableItemsState
+import androidx.wear.compose.foundation.expandableItem
+import androidx.wear.compose.foundation.expandableItems
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
+import androidx.wear.compose.foundation.rememberExpandableItemsState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.ExpandableItemsDefaults
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.OutlinedChip
-import androidx.wear.compose.material.ExpandableItemsState
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.rememberExpandableItemsState
-import androidx.wear.compose.material.expandableItem
-import androidx.wear.compose.material.expandableItems
 
 @Composable
 fun ExpandableListItems() {

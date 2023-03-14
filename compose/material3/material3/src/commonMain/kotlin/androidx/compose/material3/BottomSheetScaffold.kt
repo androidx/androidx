@@ -74,6 +74,7 @@ import kotlinx.coroutines.launch
  * children. Defaults to the matching content color for [sheetContainerColor], or if that is
  * not a color from the theme, this will keep the same content color set above the bottom sheet.
  * @param sheetTonalElevation the tonal elevation of the bottom sheet
+ * @param sheetShadowElevation the shadow elevation of the bottom sheet
  * @param sheetDragHandle optional visual marker to pull the scaffold's bottom sheet
  * @param sheetSwipeEnabled whether the sheet swiping is enabled and should react to the user's
  * input
@@ -101,6 +102,7 @@ fun BottomSheetScaffold(
     sheetContainerColor: Color = BottomSheetDefaults.ContainerColor,
     sheetContentColor: Color = contentColorFor(sheetContainerColor),
     sheetTonalElevation: Dp = BottomSheetDefaults.Elevation,
+    sheetShadowElevation: Dp = BottomSheetDefaults.Elevation,
     sheetDragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     sheetSwipeEnabled: Boolean = true,
     topBar: @Composable (() -> Unit)? = null,
@@ -129,6 +131,7 @@ fun BottomSheetScaffold(
                     containerColor = sheetContainerColor,
                     contentColor = sheetContentColor,
                     tonalElevation = sheetTonalElevation,
+                    shadowElevation = sheetShadowElevation,
                     dragHandle = sheetDragHandle,
                     content = sheetContent
                 )
@@ -196,6 +199,7 @@ private fun StandardBottomSheet(
     containerColor: Color,
     contentColor: Color,
     tonalElevation: Dp,
+    shadowElevation: Dp,
     dragHandle: @Composable (() -> Unit)?,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -257,10 +261,13 @@ private fun StandardBottomSheet(
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
-        tonalElevation = tonalElevation
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
     ) {
         Column(Modifier.fillMaxWidth()) {
             if (dragHandle != null) {
+                val collapseActionLabel = getString(Strings.BottomSheetCollapseDescription)
+                val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
                 Box(Modifier
                     .align(CenterHorizontally)
                     .semantics {
@@ -270,11 +277,15 @@ private fun StandardBottomSheet(
                             if (swipeableState.anchors.size > 1 && sheetSwipeEnabled) {
                                 if (currentValue == PartiallyExpanded) {
                                     if (swipeableState.confirmValueChange(Expanded)) {
-                                        expand { scope.launch { expand() }; true }
+                                        expand(expandActionLabel) {
+                                            scope.launch { expand() }; true
+                                        }
                                     }
                                 } else {
                                     if (swipeableState.confirmValueChange(PartiallyExpanded)) {
-                                        collapse { scope.launch { partialExpand() }; true }
+                                        collapse(collapseActionLabel) {
+                                            scope.launch { partialExpand() }; true
+                                        }
                                     }
                                 }
                             }

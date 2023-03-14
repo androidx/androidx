@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.task;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -26,7 +27,9 @@ import java.util.List;
  * Repeated version of {@code InventoryResolver}.
  *
  * @param <T>
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface InventoryListResolver<T> extends ValueListener<List<T>> {
     /**
      * Renders the provided entities in the app UI for dismabiguation.

@@ -22,7 +22,6 @@ import androidx.work.impl.StartStopToken
 
 /**
  * A [Runnable] that requests [androidx.work.impl.Processor] to stop the work
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class StopWorkRunnable(

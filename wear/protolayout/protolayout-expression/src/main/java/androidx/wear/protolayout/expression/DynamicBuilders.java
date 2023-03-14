@@ -47,10 +47,50 @@ public final class DynamicBuilders {
   private DynamicBuilders() {}
 
   /**
+   * The type of data to provide to a {@link PlatformInt32Source}.
+   *
+   * @since 1.2
+   */
+  @RestrictTo(RestrictTo.Scope.LIBRARY)
+  @IntDef({
+    PLATFORM_INT32_SOURCE_TYPE_UNDEFINED,
+    PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE,
+    PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT
+  })
+  @Retention(RetentionPolicy.SOURCE)
+  @ProtoLayoutExperimental
+  @interface PlatformInt32SourceType {}
+
+  /**
+   * Undefined source.
+   *
+   * @since 1.2
+   */
+  @ProtoLayoutExperimental static final int PLATFORM_INT32_SOURCE_TYPE_UNDEFINED = 0;
+
+  /**
+   * The user's current heart rate. Note that to use this data source, your app must already have
+   * the "BODY_SENSORS" permission granted to it. If this permission is not present, this source
+   * type will never yield any data.
+   *
+   * @since 1.2
+   */
+  @ProtoLayoutExperimental static final int PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE = 1;
+
+  /**
+   * The user's current daily steps. This is the number of steps they have taken since midnight, and
+   * will reset to zero at midnight. Note that to use this data source, your app must already have
+   * the "ACTIVITY_RECOGNITION" permission granted to it. If this permission is not present, this
+   * source type will never yield any data.
+   *
+   * @since 1.2
+   */
+  @ProtoLayoutExperimental static final int PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT = 2;
+
+  /**
    * The type of arithmetic operation used in {@link ArithmeticInt32Op} and {@link
    * ArithmeticFloatOp}.
    *
-   * @hide
    * @since 1.2
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -113,7 +153,6 @@ public final class DynamicBuilders {
    * Rounding mode to use when converting a float to an int32.
    *
    * @since 1.2
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({ROUND_MODE_UNDEFINED, ROUND_MODE_FLOOR, ROUND_MODE_ROUND, ROUND_MODE_CEILING})
@@ -152,7 +191,6 @@ public final class DynamicBuilders {
    * The type of comparison used in {@link ComparisonInt32Op} and {@link ComparisonFloatOp}.
    *
    * @since 1.2
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({
@@ -221,7 +259,6 @@ public final class DynamicBuilders {
    * The type of logical operation to carry out in a {@link LogicalBoolOp} operation.
    *
    * @since 1.2
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({LOGICAL_OP_TYPE_UNDEFINED, LOGICAL_OP_TYPE_AND, LOGICAL_OP_TYPE_OR})
@@ -253,7 +290,6 @@ public final class DynamicBuilders {
    * The duration part to retrieve using {@link GetDurationPartOp}.
    *
    * @since 1.2
-   * @hide
    */
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   @IntDef({
@@ -345,6 +381,109 @@ public final class DynamicBuilders {
   static final int DURATION_PART_TYPE_SECONDS = 8;
 
   /**
+   * A dynamic Int32 which sources its data from some platform data source, e.g. from sensors, or
+   * the current time.
+   *
+   * @since 1.2
+   */
+  @ProtoLayoutExperimental
+  static final class PlatformInt32Source implements DynamicInt32 {
+    private final DynamicProto.PlatformInt32Source mImpl;
+    @Nullable private final Fingerprint mFingerprint;
+
+    PlatformInt32Source(DynamicProto.PlatformInt32Source impl, @Nullable Fingerprint fingerprint) {
+      this.mImpl = impl;
+      this.mFingerprint = fingerprint;
+    }
+
+    /**
+     * Gets the source to load data from.
+     *
+     * @since 1.2
+     */
+    @PlatformInt32SourceType
+    public int getSourceType() {
+      return mImpl.getSourceType().getNumber();
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Fingerprint getFingerprint() {
+      return mFingerprint;
+    }
+    /**
+     * Creates a new wrapper instance from the proto.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static PlatformInt32Source fromProto(
+        @NonNull DynamicProto.PlatformInt32Source proto, @Nullable Fingerprint fingerprint) {
+      return new PlatformInt32Source(proto, fingerprint);
+    }
+
+    @NonNull
+    static PlatformInt32Source fromProto(@NonNull DynamicProto.PlatformInt32Source proto) {
+      return fromProto(proto, null);
+    }
+
+    /**
+     * Returns the internal proto instance.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    DynamicProto.PlatformInt32Source toProto() {
+      return mImpl;
+    }
+
+    /** @hide */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
+      return DynamicProto.DynamicInt32.newBuilder().setPlatformSource(mImpl).build();
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+      return "PlatformInt32Source{" + "sourceType=" + getSourceType() + "}";
+    }
+
+    /** Builder for {@link PlatformInt32Source}. */
+    public static final class Builder implements DynamicInt32.Builder {
+      private final DynamicProto.PlatformInt32Source.Builder mImpl =
+          DynamicProto.PlatformInt32Source.newBuilder();
+      private final Fingerprint mFingerprint = new Fingerprint(1355180718);
+
+      public Builder() {}
+
+      /**
+       * Sets the source to load data from.
+       *
+       * @since 1.2
+       */
+      @NonNull
+      public Builder setSourceType(@PlatformInt32SourceType int sourceType) {
+        mImpl.setSourceType(DynamicProto.PlatformInt32SourceType.forNumber(sourceType));
+        mFingerprint.recordPropertyUpdate(1, sourceType);
+        return this;
+      }
+
+      @Override
+      @NonNull
+      public PlatformInt32Source build() {
+        return new PlatformInt32Source(mImpl.build(), mFingerprint);
+      }
+    }
+  }
+
+  /**
    * An arithmetic operation, operating on two Int32 instances. This implements simple binary
    * operations of the form "result = LHS <op> RHS", where the available operation types are
    * described in {@code ArithmeticOpType}.
@@ -401,7 +540,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -421,7 +559,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -512,7 +649,6 @@ public final class DynamicBuilders {
       return mImpl.getSourceKey();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -530,7 +666,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -632,7 +767,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -652,7 +786,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -780,7 +913,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -800,7 +932,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -906,7 +1037,6 @@ public final class DynamicBuilders {
       return mImpl.getRoundMode().getNumber();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -924,7 +1054,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1026,7 +1155,6 @@ public final class DynamicBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1036,7 +1164,6 @@ public final class DynamicBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1053,7 +1180,6 @@ public final class DynamicBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1061,7 +1187,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1184,7 +1309,6 @@ public final class DynamicBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1194,7 +1318,6 @@ public final class DynamicBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1211,7 +1334,6 @@ public final class DynamicBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1219,7 +1341,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1307,7 +1428,6 @@ public final class DynamicBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2173,7 +2293,6 @@ public final class DynamicBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2182,7 +2301,6 @@ public final class DynamicBuilders {
     /**
      * Builder to create {@link DynamicInt32} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
@@ -2197,13 +2315,15 @@ public final class DynamicBuilders {
    * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
    * created using this method can't be added to any other wrapper.
    *
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
   public static DynamicInt32 dynamicInt32FromProto(@NonNull DynamicProto.DynamicInt32 proto) {
     if (proto.hasFixed()) {
       return FixedInt32.fromProto(proto.getFixed());
+    }
+    if(proto.hasPlatformSource()) {
+        return PlatformInt32Source.fromProto(proto.getPlatformSource());
     }
     if (proto.hasArithmeticOperation()) {
       return ArithmeticInt32Op.fromProto(proto.getArithmeticOperation());
@@ -2280,7 +2400,6 @@ public final class DynamicBuilders {
       return mImpl.getGroupingUsed();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2298,7 +2417,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2401,7 +2519,6 @@ public final class DynamicBuilders {
       return mImpl.getSourceKey();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2419,7 +2536,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2518,7 +2634,6 @@ public final class DynamicBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2536,7 +2651,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2655,7 +2769,6 @@ public final class DynamicBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2673,7 +2786,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2805,7 +2917,6 @@ public final class DynamicBuilders {
       return mImpl.getGroupingUsed();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -2823,7 +2934,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -2944,7 +3054,6 @@ public final class DynamicBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3024,7 +3133,6 @@ public final class DynamicBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3033,7 +3141,6 @@ public final class DynamicBuilders {
     /**
      * Builder to create {@link DynamicString} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
@@ -3048,7 +3155,6 @@ public final class DynamicBuilders {
    * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
    * created using this method can't be added to any other wrapper.
    *
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
@@ -3131,7 +3237,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -3151,7 +3256,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -3242,7 +3346,6 @@ public final class DynamicBuilders {
       return mImpl.getSourceKey();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3260,7 +3363,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3330,7 +3432,6 @@ public final class DynamicBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3348,7 +3449,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3438,7 +3538,6 @@ public final class DynamicBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3456,7 +3555,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3579,7 +3677,6 @@ public final class DynamicBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -3597,7 +3694,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -3685,7 +3781,6 @@ public final class DynamicBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -4459,7 +4554,6 @@ public final class DynamicBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -4468,7 +4562,6 @@ public final class DynamicBuilders {
     /**
      * Builder to create {@link DynamicFloat} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
@@ -4483,7 +4576,6 @@ public final class DynamicBuilders {
    * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
    * created using this method can't be added to any other wrapper.
    *
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
@@ -4536,7 +4628,6 @@ public final class DynamicBuilders {
       return mImpl.getSourceKey();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -4554,7 +4645,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -4654,7 +4744,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -4674,7 +4763,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -4798,7 +4886,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -4818,7 +4905,6 @@ public final class DynamicBuilders {
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -4913,7 +4999,6 @@ public final class DynamicBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -4931,7 +5016,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -5026,7 +5110,6 @@ public final class DynamicBuilders {
       return mImpl.getOperationType().getNumber();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -5044,7 +5127,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -5128,7 +5210,6 @@ public final class DynamicBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -5220,7 +5301,6 @@ public final class DynamicBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -5229,7 +5309,6 @@ public final class DynamicBuilders {
     /**
      * Builder to create {@link DynamicBool} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
@@ -5244,7 +5323,6 @@ public final class DynamicBuilders {
    * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
    * created using this method can't be added to any other wrapper.
    *
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
@@ -5294,7 +5372,6 @@ public final class DynamicBuilders {
       return mImpl.getSourceKey();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -5312,7 +5389,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -5403,7 +5479,6 @@ public final class DynamicBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -5421,7 +5496,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -5544,7 +5618,6 @@ public final class DynamicBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -5562,7 +5635,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -5632,7 +5704,6 @@ public final class DynamicBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -5762,7 +5833,6 @@ public final class DynamicBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -5771,7 +5841,6 @@ public final class DynamicBuilders {
     /**
      * Builder to create {@link DynamicColor} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
@@ -5786,7 +5855,6 @@ public final class DynamicBuilders {
    * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
    * created using this method can't be added to any other wrapper.
    *
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
@@ -5820,7 +5888,6 @@ public final class DynamicBuilders {
       this.mFingerprint = fingerprint;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -5838,7 +5905,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -5880,7 +5946,6 @@ public final class DynamicBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -5946,7 +6011,6 @@ public final class DynamicBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -5955,7 +6019,6 @@ public final class DynamicBuilders {
     /**
      * Builder to create {@link DynamicInstant} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
@@ -5970,7 +6033,6 @@ public final class DynamicBuilders {
    * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
    * created using this method can't be added to any other wrapper.
    *
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
@@ -6026,7 +6088,6 @@ public final class DynamicBuilders {
       }
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -6044,7 +6105,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -6114,7 +6174,6 @@ public final class DynamicBuilders {
     /**
      * Get the protocol buffer representation of this object.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -6324,7 +6383,6 @@ public final class DynamicBuilders {
     /**
      * Get the fingerprint for this object or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -6333,7 +6391,6 @@ public final class DynamicBuilders {
     /**
      * Builder to create {@link DynamicDuration} objects.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder {
@@ -6348,7 +6405,6 @@ public final class DynamicBuilders {
    * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
    * created using this method can't be added to any other wrapper.
    *
-   * @hide
    */
   @RestrictTo(Scope.LIBRARY_GROUP)
   @NonNull
@@ -6399,7 +6455,6 @@ public final class DynamicBuilders {
       return mImpl.getDurationPart().getNumber();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -6417,7 +6472,6 @@ public final class DynamicBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

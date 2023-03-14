@@ -40,7 +40,6 @@ import java.util.UUID
 /**
  * Stores information about a logical unit of work.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Entity(indices = [Index(value = ["schedule_requested_at"]), Index(value = ["last_enqueue_time"])])
@@ -305,11 +304,11 @@ data class WorkSpec(
                 val offset = if (periodCount == 0) 0 else intervalDuration
                 start + offset
             }
+        } else if (lastEnqueueTime == 0L) {
+            // If never enqueued, we aren't scheduled to run.
+            Long.MAX_VALUE / 2 // 100 million years.
         } else {
-            // We are checking for (periodStartTime == 0) to support our testing use case.
-            // For newly created WorkSpecs periodStartTime will always be 0.
-            val start = if (lastEnqueueTime == 0L) System.currentTimeMillis() else lastEnqueueTime
-            start + initialDelay
+            lastEnqueueTime + initialDelay
         }
     }
 

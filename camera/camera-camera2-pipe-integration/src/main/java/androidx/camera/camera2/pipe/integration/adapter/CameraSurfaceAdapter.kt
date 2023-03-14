@@ -134,8 +134,9 @@ class CameraSurfaceAdapter(
      * @param cameraId          the camera id of the camera device used by the use cases
      * @param existingSurfaces  list of surfaces already configured and used by the camera. The
      *                          resolutions for these surface can not change.
-     * @param newUseCaseConfigs list of configurations of the use cases that will be given a
-     *                          suggested stream specification
+     * @param newUseCaseConfigsSupportedSizeMap map of configurations of the use cases to the
+     *                                          supported sizes list that will be given a
+     *                                          suggested stream specification
      * @return map of suggested stream specifications for given use cases
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
      *                                  there isn't a supported combination of surfaces
@@ -146,7 +147,7 @@ class CameraSurfaceAdapter(
         isConcurrentCameraModeOn: Boolean,
         cameraId: String,
         existingSurfaces: List<AttachedSurfaceInfo>,
-        newUseCaseConfigs: List<UseCaseConfig<*>>
+        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>
     ): Map<UseCaseConfig<*>, StreamSpec> {
 
         if (!checkIfSupportedCombinationExist(cameraId)) {
@@ -158,7 +159,7 @@ class CameraSurfaceAdapter(
         return supportedSurfaceCombinationMap[cameraId]!!.getSuggestedStreamSpecifications(
             isConcurrentCameraModeOn,
             existingSurfaces,
-            newUseCaseConfigs
+            newUseCaseConfigsSupportedSizeMap
         )
     }
 }

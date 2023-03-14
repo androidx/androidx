@@ -21,7 +21,7 @@ import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.InitArg
-import androidx.appactions.interaction.capabilities.core.SessionBuilder
+import androidx.appactions.interaction.capabilities.core.SessionFactory
 import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
@@ -57,6 +57,8 @@ import androidx.appactions.interaction.capabilities.core.values.EntityValue
 import androidx.appactions.interaction.capabilities.core.values.ListItem
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
+import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
+import androidx.appactions.interaction.proto.AppActionsContext.DialogParameter
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
@@ -85,7 +87,7 @@ import java.util.function.Supplier
 class TaskCapabilityImplTest {
     val capability: ActionCapability = createCapability<EmptyTaskUpdater>(
         SINGLE_REQUIRED_FIELD_PROPERTY,
-        sessionBuilder = SessionBuilder {
+        sessionFactory = SessionFactory {
             object : Session {
                 override fun onFinishAsync(argument: Argument) =
                     Futures.immediateFuture(ExecutionResult.getDefaultInstance<Output>())
@@ -118,12 +120,25 @@ class TaskCapabilityImplTest {
     }
 
     @Test
+    fun actionCapabilitySession_getUiHandle() {
+        val externalSession = object : Session {}
+        val capability = createCapability(
+            SINGLE_REQUIRED_FIELD_PROPERTY,
+            SessionFactory { externalSession },
+            SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+            ::EmptyTaskUpdater,
+        )
+        val session = capability.createSession(hostProperties)
+        assertThat(session.uiHandle).isSameInstanceAs(externalSession)
+    }
+
+    @Test
     @kotlin.Throws(Exception::class)
     fun onInitInvoked_invokedOnce() {
         val onSuccessInvocationCount = AtomicInteger(0)
         val capability: ActionCapability = createCapability(
             SINGLE_REQUIRED_FIELD_PROPERTY,
-            sessionBuilder = SessionBuilder {
+            sessionFactory = SessionFactory {
                 object : Session {
                     override fun onInit(initArg: InitArg) {
                         onSuccessInvocationCount.incrementAndGet()
@@ -183,7 +198,7 @@ class TaskCapabilityImplTest {
             completer.set(t)
         }
 
-        override fun onReceived(value: T): ListenableFuture<ValidationResult> {
+        override fun onReceivedAsync(value: T): ListenableFuture<ValidationResult> {
             return CallbackToFutureAdapter.getFuture { newCompleter ->
                 val oldCompleter: Completer<ValidationResult>? = mCompleterRef.getAndSet(
                     newCompleter,
@@ -201,7 +216,7 @@ class TaskCapabilityImplTest {
     fun fulfillmentType_unknown_errorReported() {
         val capability: ActionCapability = createCapability(
             SINGLE_REQUIRED_FIELD_PROPERTY,
-            sessionBuilder = SessionBuilder {
+            sessionFactory = SessionFactory {
                 object : Session {
                     override fun onFinishAsync(argument: Argument) =
                         Futures.immediateFuture(
@@ -244,7 +259,7 @@ class TaskCapabilityImplTest {
                 .setSlotA(EntityProperty.Builder().setRequired(true).build())
                 .setSlotB(EntityProperty.Builder().setRequired(true).build())
                 .build()
-        val sessionBuilder = SessionBuilder<CapabilityTwoEntityValues.Session> {
+        val sessionFactory = SessionFactory<CapabilityTwoEntityValues.Session> {
             object : CapabilityTwoEntityValues.Session {
                 override suspend fun onFinish(
                     argument: CapabilityTwoEntityValues.Argument,
@@ -266,7 +281,7 @@ class TaskCapabilityImplTest {
             "fakeId",
             CapabilityTwoEntityValues.ACTION_SPEC,
             property,
-            sessionBuilder,
+            sessionFactory,
             sessionBridge,
             ::EmptyTaskUpdater,
         )
@@ -321,7 +336,7 @@ class TaskCapabilityImplTest {
                 .setSlotA(EntityProperty.Builder().setRequired(true).build())
                 .setSlotB(EntityProperty.Builder().setRequired(false).build())
                 .build()
-        val sessionBuilder = SessionBuilder<CapabilityTwoEntityValues.Session> {
+        val sessionFactory = SessionFactory<CapabilityTwoEntityValues.Session> {
             object : CapabilityTwoEntityValues.Session {
                 override suspend fun onFinish(
                     argument: CapabilityTwoEntityValues.Argument,
@@ -346,7 +361,7 @@ class TaskCapabilityImplTest {
             "fakeId",
             CapabilityTwoEntityValues.ACTION_SPEC,
             property,
-            sessionBuilder,
+            sessionFactory,
             sessionBridge,
             ::EmptyTaskUpdater,
         )
@@ -406,7 +421,7 @@ class TaskCapabilityImplTest {
             .build()
         val capability: ActionCapability = createCapability(
             property,
-            sessionBuilder = SessionBuilder { Session.DEFAULT },
+            sessionFactory = SessionFactory { Session.DEFAULT },
             sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
             sessionUpdaterSupplier = ::EmptyTaskUpdater,
         )
@@ -459,7 +474,7 @@ class TaskCapabilityImplTest {
     fun disambig_singleParam_disambigEntitiesInContext() {
         val capability: ActionCapability = createCapability(
             SINGLE_REQUIRED_FIELD_PROPERTY,
-            sessionBuilder = {
+            sessionFactory = {
                 object : Session {
                     override suspend fun onFinish(argument: Argument) =
                         ExecutionResult.getDefaultInstance<Output>()
@@ -477,8 +492,8 @@ class TaskCapabilityImplTest {
                                 )
                             }
 
-                            override fun onReceived(
-                                newValue: EntityValue,
+                            override fun onReceivedAsync(
+                                value: EntityValue,
                             ): ListenableFuture<ValidationResult> {
                                 return Futures.immediateFuture(ValidationResult.newAccepted())
                             }
@@ -514,18 +529,16 @@ class TaskCapabilityImplTest {
         assertThat(onSuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
         assertThat(session.state)
             .isEqualTo(
-                AppAction.newBuilder()
-                    .setName("actions.intent.TEST")
-                    .setIdentifier("id")
+                AppDialogState.newBuilder()
+                    .setFulfillmentIdentifier("id")
                     .addParams(
-                        IntentParameter.newBuilder()
+                        DialogParameter.newBuilder()
                             .setName("required")
-                            .setIsRequired(true)
                             .addCurrentValue(
                                 CurrentValue.newBuilder()
                                     .setValue(
                                         buildSearchActionParamValue(
-                                            "invalid",
+                                            "invalid"
                                         ),
                                     )
                                     .setStatus(
@@ -542,7 +555,7 @@ class TaskCapabilityImplTest {
                                                     )
                                                     .setName(
                                                         "valid1",
-                                                    ),
+                                                    )
                                             )
                                             .addEntities(
                                                 Entity
@@ -556,11 +569,7 @@ class TaskCapabilityImplTest {
                                             ),
                                     ),
                             ),
-                    )
-                    .setTaskInfo(
-                        TaskInfo.newBuilder().setSupportsPartialFulfillment(true),
-                    )
-                    .build(),
+                    ).build()
             )
 
         // TURN 2.
@@ -579,13 +588,11 @@ class TaskCapabilityImplTest {
         assertThat(turn2SuccessInvoked.getFuture().get(CB_TIMEOUT, MILLISECONDS)).isTrue()
         assertThat(session.state)
             .isEqualTo(
-                AppAction.newBuilder()
-                    .setName("actions.intent.TEST")
-                    .setIdentifier("id")
+                AppDialogState.newBuilder()
+                    .setFulfillmentIdentifier("id")
                     .addParams(
-                        IntentParameter.newBuilder()
+                        DialogParameter.newBuilder()
                             .setName("required")
-                            .setIsRequired(true)
                             .addCurrentValue(
                                 CurrentValue.newBuilder()
                                     .setValue(
@@ -602,10 +609,7 @@ class TaskCapabilityImplTest {
                                     ),
                             ),
                     )
-                    .setTaskInfo(
-                        TaskInfo.newBuilder().setSupportsPartialFulfillment(true),
-                    )
-                    .build(),
+                    .build()
             )
     }
 
@@ -627,7 +631,7 @@ class TaskCapabilityImplTest {
         val onFinishListItemCb: SettableFutureWrapper<ListItem> = SettableFutureWrapper()
         val onFinishStringCb: SettableFutureWrapper<String> = SettableFutureWrapper()
 
-        val sessionBuilder = SessionBuilder<CapabilityStructFill.Session> {
+        val sessionFactory = SessionFactory<CapabilityStructFill.Session> {
             object : CapabilityStructFill.Session {
                 override suspend fun onFinish(
                     argument: CapabilityStructFill.Argument,
@@ -640,10 +644,10 @@ class TaskCapabilityImplTest {
                 }
 
                 override fun getListItemListener() = object : AppEntityResolver<ListItem> {
-                    override fun onReceived(
-                        listItem: ListItem,
+                    override fun onReceivedAsync(
+                        value: ListItem,
                     ): ListenableFuture<ValidationResult> {
-                        onReceivedCb.set(listItem)
+                        onReceivedCb.set(value)
                         return Futures.immediateFuture(ValidationResult.newAccepted())
                     }
 
@@ -675,7 +679,7 @@ class TaskCapabilityImplTest {
             "selectListItem",
             CapabilityStructFill.ACTION_SPEC,
             property,
-            sessionBuilder,
+            sessionFactory,
             sessionBridge,
             ::EmptyTaskUpdater,
         )
@@ -692,13 +696,11 @@ class TaskCapabilityImplTest {
         assertThat(onFinishListItemCb.getFuture().isDone()).isFalse()
         assertThat(session.state)
             .isEqualTo(
-                AppAction.newBuilder()
-                    .setName("actions.intent.TEST")
-                    .setIdentifier("selectListItem")
+                AppDialogState.newBuilder()
+                    .setFulfillmentIdentifier("selectListItem")
                     .addParams(
-                        IntentParameter.newBuilder()
+                        DialogParameter.newBuilder()
                             .setName("listItem")
-                            .setIsRequired(true)
                             .addCurrentValue(
                                 CurrentValue.newBuilder()
                                     .setValue(
@@ -707,7 +709,7 @@ class TaskCapabilityImplTest {
                                         ),
                                     )
                                     .setStatus(
-                                        CurrentValue.Status.DISAMBIG,
+                                        CurrentValue.Status.DISAMBIG
                                     )
                                     .setDisambiguationData(
                                         DisambiguationData
@@ -731,15 +733,11 @@ class TaskCapabilityImplTest {
                             .build(),
                     )
                     .addParams(
-                        IntentParameter.newBuilder()
+                        DialogParameter.newBuilder()
                             .setName("string")
-                            .setIsRequired(true)
-                            .build(),
+                            .build()
                     )
-                    .setTaskInfo(
-                        TaskInfo.newBuilder().setSupportsPartialFulfillment(true),
-                    )
-                    .build(),
+                    .build()
             )
 
         // second sync request, sending grounded ParamValue with identifier only
@@ -781,7 +779,7 @@ class TaskCapabilityImplTest {
     @Test
     @kotlin.Throws(Exception::class)
     fun executionResult_resultReturned() {
-        val sessionBuilder = SessionBuilder<Session> {
+        val sessionFactory = SessionFactory<Session> {
             object : Session {
                 override suspend fun onFinish(argument: Argument) =
                     ExecutionResult.Builder<Output>()
@@ -797,7 +795,8 @@ class TaskCapabilityImplTest {
             }
         }
         val capability = CapabilityBuilder()
-            .setSessionBuilder(sessionBuilder)
+            .setId("fakeId")
+            .setSessionFactory(sessionFactory)
             .build()
         val session = capability.createSession(hostProperties)
         val onSuccessInvoked: SettableFutureWrapper<FulfillmentResponse> = SettableFutureWrapper()
@@ -869,9 +868,9 @@ class TaskCapabilityImplTest {
             RequiredTaskUpdater()
         }
 
-        public override fun setSessionBuilder(
-            sessionBuilder: SessionBuilder<Session>,
-        ): CapabilityBuilder = super.setSessionBuilder(sessionBuilder)
+        public override fun setSessionFactory(
+            sessionFactory: SessionFactory<Session>,
+        ): CapabilityBuilder = super.setSessionFactory(sessionFactory)
     }
 
     companion object {
@@ -892,7 +891,9 @@ class TaskCapabilityImplTest {
                     )
                 }
 
-                override fun onReceived(newValue: EntityValue): ListenableFuture<ValidationResult> {
+                override fun onReceivedAsync(
+                    value: EntityValue,
+                ): ListenableFuture<ValidationResult> {
                     return Futures.immediateFuture(ValidationResult.newAccepted())
                 }
             }
@@ -908,7 +909,9 @@ class TaskCapabilityImplTest {
                     )
                 }
 
-                override fun onReceived(newValue: EntityValue): ListenableFuture<ValidationResult> {
+                override fun onReceivedAsync(
+                    value: EntityValue,
+                ): ListenableFuture<ValidationResult> {
                     return Futures.immediateFuture(ValidationResult.newRejected())
                 }
             }
@@ -965,13 +968,14 @@ class TaskCapabilityImplTest {
             return !paramValue.hasIdentifier()
         }
 
-        // TODO(b/269638788) migrate session state to AppDialogState message
-        @Suppress("DEPRECATION")
-        private fun getCurrentValues(argName: String, appAction: AppAction): List<CurrentValue> {
-            return appAction.getParamsList().stream()
-                .filter { intentParam -> intentParam.getName().equals(argName) }
+        private fun getCurrentValues(
+            argName: String,
+            appDialogState: AppDialogState
+        ): List<CurrentValue> {
+            return appDialogState.getParamsList().stream()
+                .filter { dialogParam -> dialogParam.getName().equals(argName) }
                 .findFirst()
-                .orElse(IntentParameter.getDefaultInstance())
+                .orElse(DialogParameter.getDefaultInstance())
                 .getCurrentValueList()
         }
 
@@ -981,7 +985,7 @@ class TaskCapabilityImplTest {
          */
         private fun <SessionUpdaterT : AbstractTaskUpdater> createCapability(
             property: Property,
-            sessionBuilder: SessionBuilder<Session>,
+            sessionFactory: SessionFactory<Session>,
             sessionBridge: SessionBridge<Session, Confirmation>,
             sessionUpdaterSupplier: Supplier<SessionUpdaterT>,
         ): TaskCapabilityImpl<Property,
@@ -994,7 +998,7 @@ class TaskCapabilityImplTest {
                 "id",
                 ACTION_SPEC,
                 property,
-                sessionBuilder,
+                sessionFactory,
                 sessionBridge,
                 sessionUpdaterSupplier,
             )

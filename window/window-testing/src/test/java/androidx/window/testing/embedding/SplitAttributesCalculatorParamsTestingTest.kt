@@ -40,6 +40,7 @@ import org.robolectric.RobolectricTestRunner
 @OptIn(ExperimentalWindowApi::class)
 @RunWith(RobolectricTestRunner::class)
 class SplitAttributesCalculatorParamsTestingTest {
+
     /** Verifies if the default values of [TestSplitAttributesCalculatorParams] are as expected. */
     @Test
     fun testDefaults() {

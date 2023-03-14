@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 
 /**
@@ -28,7 +27,6 @@ import androidx.compose.ui.Modifier
  *
  * @see DelegatingNode
  */
-@ExperimentalComposeUiApi
 abstract class DelegatingNode : Modifier.Node() {
     override fun updateCoordinator(coordinator: NodeCoordinator?) {
         super.updateCoordinator(coordinator)

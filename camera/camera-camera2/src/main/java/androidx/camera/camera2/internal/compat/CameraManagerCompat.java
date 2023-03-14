@@ -76,7 +76,6 @@ public final class CameraManagerCompat {
     /**
      * Get a {@link CameraManagerCompat} instance from a provided {@link CameraManagerCompatImpl}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     @NonNull

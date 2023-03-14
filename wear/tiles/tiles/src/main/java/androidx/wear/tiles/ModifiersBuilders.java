@@ -64,14 +64,12 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Clickable fromProto(@NonNull ModifiersProto.Clickable proto) {
             return new Clickable(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ModifiersProto.Clickable toProto() {
@@ -130,14 +128,12 @@ public final class ModifiersBuilders {
             return mImpl.getObsoleteContentDescription();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Semantics fromProto(@NonNull ModifiersProto.Semantics proto) {
             return new Semantics(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ModifiersProto.Semantics toProto() {
@@ -238,14 +234,12 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Padding fromProto(@NonNull ModifiersProto.Padding proto) {
             return new Padding(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ModifiersProto.Padding toProto() {
@@ -360,14 +354,12 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Border fromProto(@NonNull ModifiersProto.Border proto) {
             return new Border(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ModifiersProto.Border toProto() {
@@ -420,14 +412,12 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Corner fromProto(@NonNull ModifiersProto.Corner proto) {
             return new Corner(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ModifiersProto.Corner toProto() {
@@ -490,14 +480,12 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Background fromProto(@NonNull ModifiersProto.Background proto) {
             return new Background(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ModifiersProto.Background toProto() {
@@ -560,14 +548,12 @@ public final class ModifiersBuilders {
             return mImpl.getTagData().toByteArray();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ElementMetadata fromProto(@NonNull ModifiersProto.ElementMetadata proto) {
             return new ElementMetadata(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ModifiersProto.ElementMetadata toProto() {
@@ -684,14 +670,12 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Modifiers fromProto(@NonNull ModifiersProto.Modifiers proto) {
             return new Modifiers(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ModifiersProto.Modifiers toProto() {
@@ -801,14 +785,12 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ArcModifiers fromProto(@NonNull ModifiersProto.ArcModifiers proto) {
             return new ArcModifiers(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ModifiersProto.ArcModifiers toProto() {
@@ -875,14 +857,12 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static SpanModifiers fromProto(@NonNull ModifiersProto.SpanModifiers proto) {
             return new SpanModifiers(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ModifiersProto.SpanModifiers toProto() {

@@ -34,7 +34,6 @@ import androidx.preference.R;
  *
  * Used by Car.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("AppCompatCustomView")

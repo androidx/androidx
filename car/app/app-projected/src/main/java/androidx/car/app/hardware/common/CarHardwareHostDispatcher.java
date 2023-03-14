@@ -38,7 +38,6 @@ import androidx.car.app.utils.RemoteUtils;
  * <p>Since the standard {@link HostDispatcher} does not know about the {@link ICarHardwareHost}
  * this wrapper fetches it and then does direct dispatch.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public class CarHardwareHostDispatcher {

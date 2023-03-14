@@ -24,17 +24,18 @@ import java.util.Objects.requireNonNull
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-internal data class LibInfo(val context: Context) {
-  fun getVersion(): Version {
-    return Version.parse(
-            context.getResources().getString(R.string.appactions_interaction_library_version))
-  }
+data class LibInfo(val context: Context) {
+    fun getVersion(): Version {
+        return Version.parse(
+            context.resources.getString(R.string.appactions_interaction_library_version)
+        )
+    }
 
-  data class Version(
-    val major: Int,
-    val minor: Int,
-    val patch: Int,
-    val preReleaseId: String? = null,
+    data class Version(
+        val major: Int,
+        val minor: Int,
+        val patch: Int,
+        val preReleaseId: String? = null,
   ) : Comparable<Version> {
 
     override fun compareTo(other: Version) = compareValuesBy(

@@ -84,7 +84,6 @@ import java.lang.annotation.RetentionPolicy;
 public class PlaybackBannerControlGlue<T extends PlayerAdapter>
         extends PlaybackBaseControlGlue<T> {
 
-    /** @hide */
     @IntDef(
             flag = true,
             value = {
@@ -141,7 +140,6 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
             PlaybackBaseControlGlue.ACTION_CUSTOM_RIGHT_FIRST;
 
 
-    /** @hide */
     @IntDef({
                     PLAYBACK_SPEED_INVALID,
                     PLAYBACK_SPEED_PAUSED,

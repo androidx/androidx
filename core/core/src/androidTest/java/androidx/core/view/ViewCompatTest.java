@@ -21,10 +21,12 @@ import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.Acces
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -41,11 +43,15 @@ import android.os.Bundle;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.Display;
 import android.view.View;
+import android.view.autofill.AutofillId;
+import android.view.contentcapture.ContentCaptureSession;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.Insets;
 import androidx.core.test.R;
+import androidx.core.view.autofill.AutofillIdCompat;
+import androidx.core.view.contentcapture.ContentCaptureSessionCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -308,6 +314,91 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         verify(view).performAccessibilityAction(eq(actionCompat.getId()), bundleCaptor.capture());
         assertEquals(100,
                 bundleCaptor.getValue().getInt(ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT));
+    }
+
+    @SdkSuppress(maxSdkVersion = 25)
+    @Test
+    public void testGetAutofillId_returnsNullBelowSDK26() {
+        Object result = ViewCompat.getAutofillId(mView);
+        assertNull(result);
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    public void testGetAutofillId_returnsAutofillIdAboveSDK26() {
+        AutofillIdCompat result = ViewCompat.getAutofillId(mView);
+
+        assertEquals(mView.getAutofillId(), result.toAutofillId());
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    public void testSetAutofillId_throwsIllegalStateExceptionAboveSDK28() {
+        AutofillId id = mock(AutofillId.class);
+        AutofillIdCompat idCompat = AutofillIdCompat.toAutofillIdCompat(id);
+        // Some final methods in the mock object throw IllegalStateException.
+        assertThrows(IllegalStateException.class,
+                () -> ViewCompat.setAutofillId(mView, idCompat));
+    }
+
+    @SdkSuppress(maxSdkVersion = 29)
+    @Test
+    public void testGetImportantForContentCapture_returnsZeroBelowSDK30() {
+        int result = ViewCompat.getImportantForContentCapture(mView);
+        assertEquals(0, result);
+    }
+
+    @SdkSuppress(minSdkVersion = 30)
+    @Test
+    public void testSetImportantForContentCapture_successAboveSDK30() {
+        int result = ViewCompat.getImportantForContentCapture(mView);
+        assertEquals(0, result);
+
+        ViewCompat.setImportantForContentCapture(mView,
+                ViewCompat.IMPORTANT_FOR_CONTENT_CAPTURE_YES_EXCLUDE_DESCENDANTS);
+        result = ViewCompat.getImportantForContentCapture(mView);
+        assertEquals(ViewCompat.IMPORTANT_FOR_CONTENT_CAPTURE_YES_EXCLUDE_DESCENDANTS, result);
+    }
+
+    @SdkSuppress(maxSdkVersion = 29)
+    @Test
+    public void testIsImportantForContentCapture_returnsFalseBelowSDK30() {
+        boolean result = ViewCompat.isImportantForContentCapture(mView);
+        assertFalse(result);
+    }
+
+    @SdkSuppress(minSdkVersion = 30)
+    @Test
+    public void testSetIsImportantForContentCapture_successAboveSDK30() {
+        ViewCompat.setImportantForContentCapture(mView,
+                ViewCompat.IMPORTANT_FOR_CONTENT_CAPTURE_YES);
+        boolean result = ViewCompat.isImportantForContentCapture(mView);
+        assertTrue(result);
+    }
+
+    @SdkSuppress(maxSdkVersion = 28)
+    @Test
+    public void testGetContentCaptureSession_returnsNullBelowSDK29() {
+        Object result = ViewCompat.getContentCaptureSession(mView);
+        assertNull(result);
+    }
+
+    @SdkSuppress(minSdkVersion = 29)
+    @Test
+    public void testGetContentCaptureSession_returnsNullWhenSessionNotSetAboveSDK29() {
+        Object result = ViewCompat.getContentCaptureSession(mView);
+        assertNull(result);
+    }
+
+    @SdkSuppress(minSdkVersion = 29)
+    @Test
+    public void testSetContentCaptureSession_successAboveSDK29() {
+        ContentCaptureSession contentCaptureSession = mock(ContentCaptureSession.class);
+        ViewCompat.setContentCaptureSession(mView,
+                ContentCaptureSessionCompat.toContentCaptureSessionCompat(
+                        contentCaptureSession, mView));
+        ContentCaptureSessionCompat result = ViewCompat.getContentCaptureSession(mView);
+        assertEquals(contentCaptureSession, result.toContentCaptureSession());
     }
 
     private static boolean isViewIdGenerated(int id) {

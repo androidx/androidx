@@ -257,7 +257,7 @@ private fun rememberLazyGridMeasurePolicy(
             )
         }
 
-        val measuredItemProvider = LazyMeasuredItemProvider(
+        val measuredItemProvider = LazyGridMeasuredItemProvider(
             itemProvider,
             this,
             spaceBetweenLines
@@ -277,7 +277,7 @@ private fun rememberLazyGridMeasurePolicy(
                 placementAnimator = placementAnimator
             )
         }
-        val measuredLineProvider = LazyMeasuredLineProvider(
+        val measuredLineProvider = LazyGridMeasuredLineProvider(
             isVertical,
             resolvedSlotSizesSums,
             spaceBetweenSlots,

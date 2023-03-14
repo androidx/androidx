@@ -84,7 +84,6 @@ class Configuration internal constructor(builder: Builder) {
 
     /**
      * The minimum logging level, corresponding to the constants found in [android.util.Log]
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val minimumLoggingLevel: Int
@@ -110,9 +109,18 @@ class Configuration internal constructor(builder: Builder) {
     val maxJobSchedulerId: Int
 
     /**
+     * Maximum number of Workers with [Constraints.contentUriTriggers] that
+     * could be enqueued simultaneously.
+     *
+     * Unlike the other workers Workers with [Constraints.contentUriTriggers] must immediately
+     * occupy slots in JobScheduler to avoid missing updates, thus they are separated in the
+     * its own category.
+     */
+    val contentUriTriggerWorkersLimit: Int
+
+    /**
      * The maximum number of system requests which can be enqueued by [WorkManager]
      * when using [android.app.job.JobScheduler] or [android.app.AlarmManager]
-     * @hide
      */
     @get:IntRange(from = MIN_SCHEDULER_LIMIT.toLong(), to = Scheduler.MAX_SCHEDULER_LIMIT.toLong())
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -120,7 +128,6 @@ class Configuration internal constructor(builder: Builder) {
 
     /**
      * @return `true` If the default task [Executor] is being used
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val isUsingDefaultTaskExecutor: Boolean
@@ -147,6 +154,7 @@ class Configuration internal constructor(builder: Builder) {
         initializationExceptionHandler = builder.initializationExceptionHandler
         schedulingExceptionHandler = builder.schedulingExceptionHandler
         defaultProcessName = builder.defaultProcessName
+        contentUriTriggerWorkersLimit = builder.contentUriTriggerWorkersLimit
     }
 
     /**
@@ -165,6 +173,7 @@ class Configuration internal constructor(builder: Builder) {
         internal var minJobSchedulerId: Int = INITIAL_ID
         internal var maxJobSchedulerId: Int = Int.MAX_VALUE
         internal var maxSchedulerLimit: Int = MIN_SCHEDULER_LIMIT
+        internal var contentUriTriggerWorkersLimit: Int = DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT
 
         /**
          * Creates a new [Configuration.Builder].
@@ -176,7 +185,6 @@ class Configuration internal constructor(builder: Builder) {
          * template.
          *
          * @param configuration An existing [Configuration] to use as a template
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         constructor(configuration: Configuration) {
@@ -302,6 +310,19 @@ class Configuration internal constructor(builder: Builder) {
         }
 
         /**
+         * Specifies the maximum number of Workers with [Constraints.contentUriTriggers] that
+         * could be enqueued simultaneously.
+         *
+         * Unlike the other workers Workers with [Constraints.contentUriTriggers] must immediately
+         * occupy slots in JobScheduler to avoid missing updates, thus they are separated in the
+         * its own category.
+         */
+        fun setContentUriTriggerWorkersLimit(contentUriTriggerWorkersLimit: Int): Builder {
+            this.contentUriTriggerWorkersLimit = max(contentUriTriggerWorkersLimit, 0)
+            return this
+        }
+
+        /**
          * Specifies the minimum logging level, corresponding to the constants found in
          * [android.util.Log]. For example, specifying [android.util.Log.VERBOSE] will
          * log everything, whereas specifying [android.util.Log.ERROR] will only log errors
@@ -415,6 +436,8 @@ class Configuration internal constructor(builder: Builder) {
         const val MIN_SCHEDULER_LIMIT = 20
     }
 }
+
+internal val DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT = 8
 
 private fun createDefaultExecutor(isTaskExecutor: Boolean): Executor {
     val factory = object : ThreadFactory {

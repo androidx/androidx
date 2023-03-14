@@ -198,7 +198,6 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     /**
      * Gets the caller provided {@link ImageReaderProxy}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
@@ -209,7 +208,6 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     /**
      * Returns whether ImageCapture should use a software JPEG encoder, if available.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean isSoftwareJpegEncoderRequested() {

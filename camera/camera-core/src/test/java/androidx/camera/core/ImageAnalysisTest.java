@@ -16,6 +16,9 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -143,9 +146,45 @@ public class ImageAnalysisTest {
     }
 
     @Test
+    public void verifySupportedEffects() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        assertThat(imageAnalysis.isEffectTargetsSupported(CameraEffect.PREVIEW)).isFalse();
+        assertThat(imageAnalysis.isEffectTargetsSupported(CameraEffect.IMAGE_CAPTURE)).isFalse();
+        assertThat(imageAnalysis.isEffectTargetsSupported(CameraEffect.VIDEO_CAPTURE)).isFalse();
+    }
+
+    @Test
     public void canSetQueueDepth() {
         assertThat(getMergedImageAnalysisConfig(null, null, QUEUE_DEPTH,
                 false).getImageQueueDepth()).isEqualTo(QUEUE_DEPTH);
+    }
+
+    @Test
+    public void setTargetRotationDegrees() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        imageAnalysis.setTargetRotationDegrees(45);
+        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_270);
+        imageAnalysis.setTargetRotationDegrees(135);
+        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
+        imageAnalysis.setTargetRotationDegrees(225);
+        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_90);
+        imageAnalysis.setTargetRotationDegrees(315);
+        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_0);
+        imageAnalysis.setTargetRotationDegrees(405);
+        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_270);
+        imageAnalysis.setTargetRotationDegrees(-45);
+        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_0);
+    }
+
+    @Test
+    public void defaultMirrorModeIsOff() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        assertThat(imageAnalysis.getMirrorModeInternal()).isEqualTo(MIRROR_MODE_OFF);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void setMirrorMode_throwException() {
+        new ImageAnalysis.Builder().setMirrorMode(MIRROR_MODE_FRONT_ON);
     }
 
     @Test
@@ -470,7 +509,7 @@ public class ImageAnalysisTest {
                                     height, format, queueDepth, usage);
                             return mFakeImageReaderProxy;
                         })
-                .setSessionOptionUnpacker((config, builder) -> {
+                .setSessionOptionUnpacker((resolution, config, builder) -> {
                 })
                 .setOnePixelShiftEnabled(false)
                 .build();

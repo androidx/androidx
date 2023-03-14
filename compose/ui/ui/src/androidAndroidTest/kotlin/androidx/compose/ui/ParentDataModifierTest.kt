@@ -21,9 +21,17 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutIdParentData
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
@@ -152,6 +160,24 @@ class ParentDataModifierTest {
         }
     }
 
+    @Test
+    fun implementingBothParentDataAndLayoutModifier() {
+        val parentData = "data"
+        runOnUiThread {
+            activity.setContent {
+                Layout({
+                    Layout(
+                        modifier = ParentDataAndLayoutElement(parentData),
+                        content = {}
+                    ) { _, _ -> layout(0, 0) {} }
+                }) { measurables, _ ->
+                    assertEquals("data", measurables[0].parentData)
+                    layout(0, 0) { }
+                }
+            }
+        }
+    }
+
     // We only need this because IR compiler doesn't like converting lambdas to Runnables
     private fun runOnUiThread(block: () -> Unit) {
         val runnable: Runnable = object : Runnable {
@@ -172,4 +198,25 @@ fun SimpleDrawChild(drawLatch: CountDownLatch) {
             drawLatch.countDown()
         }
     ) {}
+}
+
+private data class ParentDataAndLayoutElement(val data: String) :
+    ModifierNodeElement<ParentDataAndLayoutNode>() {
+    override fun create() = ParentDataAndLayoutNode(data)
+    override fun update(node: ParentDataAndLayoutNode) = node.also { it.data = data }
+}
+
+class ParentDataAndLayoutNode(var data: String) : Modifier.Node(), LayoutModifierNode,
+    ParentDataModifierNode {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) {
+            placeable.place(0, 0)
+        }
+    }
+
+    override fun Density.modifyParentData(parentData: Any?) = data
 }

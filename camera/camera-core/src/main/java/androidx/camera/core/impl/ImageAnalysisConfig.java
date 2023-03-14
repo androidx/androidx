@@ -152,7 +152,6 @@ public final class ImageAnalysisConfig
     /**
      * Gets if one pixel shift is requested or not.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -163,7 +162,6 @@ public final class ImageAnalysisConfig
     /**
      * Gets if output image rotation is enabled or not.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -174,7 +172,6 @@ public final class ImageAnalysisConfig
     /**
      * Gets the caller provided {@link ImageReaderProxy}.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable

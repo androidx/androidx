@@ -39,7 +39,6 @@ public interface DynamicTypeValueReceiver<T> {
      * figure out how many of its dependencies are going to be updated, and wait for all of them to
      * be updated (via {@link DynamicTypeValueReceiver#onData(T)}) before acting on the change.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     void onPreUpdate();

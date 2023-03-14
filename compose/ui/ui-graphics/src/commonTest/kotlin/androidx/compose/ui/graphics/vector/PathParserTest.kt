@@ -26,6 +26,40 @@ import kotlin.test.assertEquals
 import kotlin.test.Test
 
 class PathParserTest {
+    @Test
+    fun negativeExponent() {
+        val linePath = object : TestPath() {
+            var lineToPoints = ArrayList<Offset>()
+
+            override fun lineTo(x: Float, y: Float) {
+                lineToPoints.add(Offset(x, y))
+            }
+        }
+
+        val parser = PathParser()
+        parser.parsePathString("H1e-5").toPath(linePath)
+
+        assertEquals(1, linePath.lineToPoints.size)
+        assertEquals(1e-5f, linePath.lineToPoints[0].x)
+    }
+
+    @Test
+    fun dotDot() {
+        val linePath = object : TestPath() {
+            var lineToPoints = ArrayList<Offset>()
+
+            override fun relativeLineTo(dx: Float, dy: Float) {
+                lineToPoints.add(Offset(dx, dy))
+            }
+        }
+
+        val parser = PathParser()
+        parser.parsePathString("m0 0l2..5").toPath(linePath)
+
+        assertEquals(1, linePath.lineToPoints.size)
+        assertEquals(2.0f, linePath.lineToPoints[0].x)
+        assertEquals(0.5f, linePath.lineToPoints[0].y)
+    }
 
     @Test
     fun relativeQuadToTest() {

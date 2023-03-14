@@ -317,7 +317,8 @@ class DefaultSurfaceProcessorTest {
             Size(WIDTH, HEIGHT),
             Rect(0, 0, WIDTH, HEIGHT),
             /*rotationDegrees=*/0,
-            /*mirroring=*/false
+            /*mirroring=*/false,
+            FakeCamera()
         )
 
     private fun createCustomShaderProvider(

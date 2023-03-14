@@ -529,6 +529,7 @@ class SurfaceEdgeTest {
             INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
             sizeToRect(INPUT_SIZE),
             /*rotationDegrees=*/0,
-            /*mirroring=*/false
+            /*mirroring=*/false,
+            FakeCamera()
         )
 }

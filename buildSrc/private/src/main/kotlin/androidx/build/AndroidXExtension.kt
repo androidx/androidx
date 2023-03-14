@@ -123,15 +123,21 @@ open class AndroidXExtension(val project: Project) {
             chooseProjectVersion()
         }
 
-    fun getAllProjectPathsInSameGroup(): List<String> {
-        val allProjectPaths = listProjectsService.get().allPossibleProjectPaths
+    internal var projectDirectlySpecifiesMavenVersion: Boolean = false
+
+    fun getOtherProjectsInSameGroup(): List<SettingsParser.IncludedProject> {
+        val allProjects = listProjectsService.get().allPossibleProjects
         val ourGroup = chooseLibraryGroup()
         if (ourGroup == null)
-            return listOf(project.path)
-        val projectPathsInSameGroup = allProjectPaths.filter { otherPath ->
-            getLibraryGroupFromProjectPath(otherPath) == ourGroup
+            return listOf()
+        val otherProjectsInSameGroup = allProjects.filter { otherProject ->
+            if (otherProject.gradlePath == project.path) {
+                false
+            } else {
+                getLibraryGroupFromProjectPath(otherProject.gradlePath) == ourGroup
+            }
         }
-        return projectPathsInSameGroup
+        return otherProjectsInSameGroup
     }
 
     /**
@@ -222,6 +228,7 @@ open class AndroidXExtension(val project: Project) {
         val groupVersion: Version? = mavenGroup?.atomicGroupVersion
         val mavenVersion: Version? = mavenVersion
         if (mavenVersion != null) {
+            projectDirectlySpecifiesMavenVersion = true
             if (groupVersion != null && !isGroupVersionOverrideAllowed()) {
                 throw GradleException(
                     "Cannot set mavenVersion (" + mavenVersion +
@@ -234,6 +241,7 @@ open class AndroidXExtension(val project: Project) {
                 version = mavenVersion
             }
         } else {
+            projectDirectlySpecifiesMavenVersion = false
             if (groupVersion != null) {
                 verifyVersionExtraFormat(groupVersion)
                 version = groupVersion

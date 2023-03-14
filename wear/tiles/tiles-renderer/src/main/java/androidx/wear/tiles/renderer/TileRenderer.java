@@ -16,6 +16,8 @@
 
 package androidx.wear.tiles.renderer;
 
+import static androidx.core.util.Preconditions.checkNotNull;
+
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,13 +25,20 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
-import androidx.wear.tiles.LayoutElementBuilders;
+import androidx.wear.protolayout.LayoutElementBuilders;
+import androidx.wear.protolayout.proto.LayoutElementProto;
+import androidx.wear.protolayout.proto.ResourceProto;
+import androidx.wear.protolayout.proto.StateProto;
+import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance;
 import androidx.wear.tiles.ResourceBuilders;
 import androidx.wear.tiles.StateBuilders;
-import androidx.wear.tiles.renderer.internal.StandardResourceResolvers;
-import androidx.wear.tiles.renderer.internal.TileRendererInternal;
+import androidx.wear.tiles.TileService;
+
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Renderer for Wear Tiles.
@@ -51,7 +60,10 @@ public final class TileRenderer {
         void onClick(@NonNull StateBuilders.State nextState);
     }
 
-    private final TileRendererInternal mRenderer;
+    @NonNull private final ProtoLayoutViewInstance mInstance;
+    @NonNull private final LayoutElementProto.Layout mLayout;
+    @NonNull private final ResourceProto.Resources mResources;
+    @NonNull private final ListeningExecutorService mUiExecutor;
 
     /**
      * Default constructor.
@@ -63,8 +75,8 @@ public final class TileRenderer {
      */
     public TileRenderer(
             @NonNull Context uiContext,
-            @NonNull LayoutElementBuilders.Layout layout,
-            @NonNull ResourceBuilders.Resources resources,
+            @NonNull androidx.wear.tiles.LayoutElementBuilders.Layout layout,
+            @NonNull androidx.wear.tiles.ResourceBuilders.Resources resources,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
         this(
@@ -88,20 +100,41 @@ public final class TileRenderer {
      */
     public TileRenderer(
             @NonNull Context uiContext,
-            @NonNull LayoutElementBuilders.Layout layout,
+            @NonNull androidx.wear.tiles.LayoutElementBuilders.Layout layout,
             @StyleRes int tilesTheme,
-            @NonNull ResourceBuilders.Resources resources,
+            @NonNull androidx.wear.tiles.ResourceBuilders.Resources resources,
             @NonNull Executor loadActionExecutor,
             @NonNull LoadActionListener loadActionListener) {
-        this.mRenderer =
-                new TileRendererInternal(
-                        uiContext,
-                        layout.toProto(),
-                        StandardResourceResolvers.forLocalApp(resources.toProto(), uiContext)
-                                .build(),
-                        tilesTheme,
-                        loadActionExecutor,
-                        (s) -> loadActionListener.onClick(StateBuilders.State.fromProto(s)));
+        this.mLayout = fromTileLayout(layout);
+        this.mResources = fromTileResources(resources);
+        this.mUiExecutor = MoreExecutors.newDirectExecutorService();
+        ProtoLayoutViewInstance.LoadActionListener instanceListener =
+                nextState -> loadActionExecutor.execute(
+                        () -> loadActionListener.onClick(fromProtoLayoutState(nextState)));
+
+        ProtoLayoutViewInstance.Config.Builder config =
+                new ProtoLayoutViewInstance.Config.Builder(uiContext, mUiExecutor, mUiExecutor,
+                        TileService.EXTRA_CLICKABLE_ID)
+                        .setLoadActionListener(instanceListener);
+        this.mInstance = new ProtoLayoutViewInstance(config.build());
+    }
+
+    @NonNull private ResourceProto.Resources fromTileResources(
+            @NonNull androidx.wear.tiles.ResourceBuilders.Resources resources) {
+        return checkNotNull(
+                ResourceBuilders.Resources
+                        .fromByteArray(resources.toByteArray())).toProto();
+    }
+
+    @NonNull private LayoutElementProto.Layout fromTileLayout(
+            @NonNull androidx.wear.tiles.LayoutElementBuilders.Layout layout) {
+        return checkNotNull(
+                LayoutElementBuilders.Layout
+                        .fromByteArray(layout.toByteArray())).toProto();
+    }
+
+    @NonNull StateBuilders.State fromProtoLayoutState(@NonNull StateProto.State state) {
+        return StateBuilders.State.fromProto(state);
     }
 
     /**
@@ -114,6 +147,15 @@ public final class TileRenderer {
      */
     @Nullable
     public View inflate(@NonNull ViewGroup parent) {
-        return mRenderer.inflate(parent);
+        mInstance.renderAndAttach(mLayout, mResources, parent);
+        boolean finished;
+        try {
+            mUiExecutor.shutdown();
+            finished = mUiExecutor.awaitTermination(30, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Rendering tile has not successfully finished.");
+        }
+        // TODO(b/271076323): Update when renderAndAttach returns result.
+        return finished ? parent.getChildAt(0) : null;
     }
 }

@@ -57,7 +57,6 @@ final class FixedValueBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -75,7 +74,6 @@ final class FixedValueBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -83,7 +81,6 @@ final class FixedValueBuilders {
       return DynamicProto.DynamicInt32.newBuilder().setFixed(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -151,7 +148,6 @@ final class FixedValueBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -169,7 +165,6 @@ final class FixedValueBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -177,7 +172,6 @@ final class FixedValueBuilders {
       return DynamicProto.DynamicString.newBuilder().setFixed(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -244,7 +238,6 @@ final class FixedValueBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -262,7 +255,6 @@ final class FixedValueBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -270,7 +262,6 @@ final class FixedValueBuilders {
       return DynamicProto.DynamicFloat.newBuilder().setFixed(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -337,7 +328,6 @@ final class FixedValueBuilders {
       return mImpl.getValue();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -355,7 +345,6 @@ final class FixedValueBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -363,7 +352,6 @@ final class FixedValueBuilders {
       return DynamicProto.DynamicBool.newBuilder().setFixed(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -431,7 +419,6 @@ final class FixedValueBuilders {
       return mImpl.getArgb();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -449,7 +436,6 @@ final class FixedValueBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -457,7 +443,6 @@ final class FixedValueBuilders {
       return DynamicProto.DynamicColor.newBuilder().setFixed(mImpl).build();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -523,7 +508,6 @@ final class FixedValueBuilders {
       return mImpl.getEpochSeconds();
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -541,7 +525,6 @@ final class FixedValueBuilders {
       return mImpl;
     }
 
-    /** @hide */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>Time differences greater than {@link Integer#MAX_VALUE} days are not supported.
  *
- * @hide
  * @see ComplicationText.TimeDifferenceBuilder
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)

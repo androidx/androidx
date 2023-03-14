@@ -68,7 +68,6 @@ import java.util.concurrent.TimeUnit;
  * Alarms and Jobs get cancelled when an application is force-stopped. To reschedule, we
  * create a pending alarm that will not survive force stops.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ForceStopRunnable implements Runnable {
@@ -275,7 +274,8 @@ public class ForceStopRunnable implements Runnable {
             // Mitigation for faulty implementations of JobScheduler (b/134058261) and
             // Mitigation for a platform bug, which causes jobs to get dropped when binding to
             // SystemJobService fails.
-            needsReconciling = SystemJobScheduler.reconcileJobs(mContext, mWorkManager);
+            needsReconciling = SystemJobScheduler.reconcileJobs(mContext,
+                    mWorkManager.getWorkDatabase());
         }
         // Reset previously unfinished work.
         WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
@@ -394,7 +394,6 @@ public class ForceStopRunnable implements Runnable {
      * long lived alarm which helps track force stops for an application.  This is the target of the
      * alarm set by ForceStopRunnable in {@link #setAlarm(Context)}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class BroadcastReceiver extends android.content.BroadcastReceiver {
