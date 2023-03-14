@@ -67,7 +67,11 @@ class TestUseCaseCamera(
     ),
 ) : UseCaseCamera {
     val useCaseCameraGraphConfig =
-        UseCaseCameraConfig(useCases, CameraStateAdapter()).provideUseCaseGraphConfig(
+        UseCaseCameraConfig(
+            useCases,
+            CameraStateAdapter(),
+            CameraGraph.Flags()
+        ).provideUseCaseGraphConfig(
             callbackMap = callbackMap,
             cameraConfig = cameraConfig,
             cameraPipe = cameraPipe,

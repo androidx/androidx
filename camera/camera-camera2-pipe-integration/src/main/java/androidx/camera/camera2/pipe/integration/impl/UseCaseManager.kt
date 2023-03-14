@@ -20,6 +20,7 @@ import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
@@ -71,6 +72,7 @@ class UseCaseManager @Inject constructor(
     private val controls: java.util.Set<UseCaseCameraControl>,
     private val camera2CameraControl: Camera2CameraControl,
     private val cameraStateAdapter: CameraStateAdapter,
+    private val cameraGraphFlags: CameraGraph.Flags,
     cameraProperties: CameraProperties,
     displayInfoManager: DisplayInfoManager,
 ) {
@@ -254,7 +256,9 @@ class UseCaseManager @Inject constructor(
         }
 
         // Create and configure the new camera component.
-        _activeComponent = builder.config(UseCaseCameraConfig(useCases, cameraStateAdapter)).build()
+        _activeComponent =
+            builder.config(UseCaseCameraConfig(useCases, cameraStateAdapter, cameraGraphFlags))
+                .build()
         for (control in allControls) {
             control.useCaseCamera = camera
         }
@@ -277,6 +281,7 @@ class UseCaseManager @Inject constructor(
 
         return !meteringRepeatingEnabled && (onlyVideoCapture || requireMeteringRepeating)
     }
+
     @GuardedBy("lock")
     private fun addRepeatingUseCase() {
         meteringRepeating.setupSession()

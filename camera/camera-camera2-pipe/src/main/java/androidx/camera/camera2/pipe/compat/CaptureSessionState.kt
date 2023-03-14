@@ -241,7 +241,7 @@ internal class CaptureSessionState(
      * a closed state. This will not cancel repeating requests or abort captures.
      */
     fun disconnect() {
-        shutdown(false)
+        shutdown(abortAndStopRepeating = false)
     }
 
     /**
@@ -263,21 +263,6 @@ internal class CaptureSessionState(
 
         val graphProcessor = configuredCaptureSession?.processor
         if (graphProcessor != null) {
-            Log.debug { "$this Shutdown" }
-
-            Debug.traceStart { "$this#shutdown" }
-            Debug.traceStart { "$graphListener#onGraphStopped" }
-            graphListener.onGraphStopped(graphProcessor)
-            Debug.traceStop()
-            if (abortAndStopRepeating) {
-                Debug.traceStart { "$this#stopRepeating" }
-                graphProcessor.stopRepeating()
-                Debug.traceStop()
-                Debug.traceStart { "$this#stopRepeating" }
-                graphProcessor.abortCaptures()
-                Debug.traceStop()
-            }
-
             // WARNING:
             // This does NOT call close on the captureSession to avoid potentially slow
             // reconfiguration during mode switch and shutdown. This avoids unintentional restarts
@@ -288,6 +273,20 @@ internal class CaptureSessionState(
             // cleanly unless the device is also closed. See b/135125484 for example.
             //
             // WARNING - DO NOT CALL session.close().
+            Log.debug { "$this Shutdown" }
+
+            Debug.traceStart { "$this#shutdown" }
+            Debug.traceStart { "$graphListener#onGraphStopped" }
+            graphListener.onGraphStopped(graphProcessor)
+            Debug.traceStop()
+            if (abortAndStopRepeating) {
+                Debug.traceStart { "$this#stopRepeating" }
+                graphProcessor.stopRepeating()
+                Debug.traceStop()
+                Debug.traceStart { "$this#abortCaptures" }
+                graphProcessor.abortCaptures()
+                Debug.traceStop()
+            }
 
             Debug.traceStop()
         }

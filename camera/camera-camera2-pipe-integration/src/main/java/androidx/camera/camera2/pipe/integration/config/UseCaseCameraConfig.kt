@@ -82,6 +82,7 @@ abstract class UseCaseCameraModule {
 class UseCaseCameraConfig(
     private val useCases: List<UseCase>,
     private val cameraStateAdapter: CameraStateAdapter,
+    private val cameraGraphFlags: CameraGraph.Flags,
 ) {
     @UseCaseCameraScope
     @Provides
@@ -142,6 +143,7 @@ class UseCaseCameraConfig(
                 camera = cameraConfig.cameraId,
                 streams = streamConfigMap.keys.toList(),
                 defaultListeners = listOf(callbackMap, requestListener),
+                flags = cameraGraphFlags,
             )
         )
 
