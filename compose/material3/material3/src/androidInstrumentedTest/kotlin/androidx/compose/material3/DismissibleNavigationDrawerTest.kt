@@ -58,13 +58,12 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMaterial3Api::class)
 class DismissibleNavigationDrawerTest {
 
     @get:Rule
     val rule = createComposeRule()
 
-    val NavigationDrawerWidth = NavigationDrawerTokens.ContainerWidth
+    private val NavigationDrawerWidth = NavigationDrawerTokens.ContainerWidth
 
     @Test
     fun dismissibleNavigationDrawer_testOffset_whenOpen() {
@@ -244,11 +243,13 @@ class DismissibleNavigationDrawerTest {
         rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
 
         // When the drawer state is set to Opened
+        @Suppress("DEPRECATION") // animateTo is deprecated, but we are testing it
         drawerState.animateTo(DrawerValue.Open, TweenSpec())
         // Then the drawer should be opened
         rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(0.dp)
 
         // When the drawer state is set to Closed
+        @Suppress("DEPRECATION") // animateTo is deprecated, but we are testing it
         drawerState.animateTo(DrawerValue.Closed, TweenSpec())
         // Then the drawer should be closed
         rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
@@ -560,4 +561,4 @@ class DismissibleNavigationDrawerTest {
         }
 }
 
-private val DrawerTestTag = "drawer"
+private const val DrawerTestTag = "drawer"
