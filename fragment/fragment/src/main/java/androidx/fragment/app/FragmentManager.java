@@ -988,7 +988,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 }
             }
         };
-        lifecycle.addObserver(observer);
         LifecycleAwareResultListener storedListener = mResultListeners.put(requestKey,
                 new LifecycleAwareResultListener(lifecycle, listener, observer));
         if (storedListener != null) {
@@ -998,6 +997,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
             Log.v(FragmentManager.TAG, "Setting FragmentResultListener with key " + requestKey
                     + " lifecycleOwner " + lifecycle + " and listener " + listener);
         }
+        // Only add the observer after we've added the listener to the map
+        // to ensure that re-entrant removals actually have a registered listener to remove
+        lifecycle.addObserver(observer);
     }
 
     @Override
