@@ -20,7 +20,6 @@ import androidx.compose.foundation.benchmark.text.DoFullBenchmark
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -29,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,10 +49,12 @@ class SetTextWithInlineContent(
 ) : LayeredComposeTestCase(), ToggleableTestCase {
     private var toggleText = mutableStateOf(AnnotatedString(""))
 
+    private val style = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
+
     @Composable
     override fun MeasuredContent() {
-        Text(toggleText.value,
-            fontFamily = FontFamily.Monospace,
+        Subject(toggleText.value,
+            style = style,
             inlineContent = mapOf(
                 BenchmarkInlineContentId to InlineTextContent(
                     Placeholder(12.sp, 12.sp, PlaceholderVerticalAlign.Center)

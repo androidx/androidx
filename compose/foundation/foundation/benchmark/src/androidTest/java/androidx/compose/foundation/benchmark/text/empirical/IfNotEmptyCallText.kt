@@ -17,7 +17,7 @@
 package androidx.compose.foundation.benchmark.text.empirical
 
 import androidx.compose.foundation.benchmark.text.DoFullBenchmark
-import androidx.compose.foundation.text.BasicText
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -42,7 +42,7 @@ class IfNotEmptyCallText(private val text: String) : LayeredComposeTestCase(), T
     @Composable
     override fun MeasuredContent() {
         if (toggleText.value.isNotEmpty()) {
-            BasicText(
+            Text(
                 toggleText.value,
                 style = style
             )

@@ -72,6 +72,9 @@ open class StaticLayoutBaseline(private val size: Int) {
                 isEmpty = !isEmpty
                 if (isEmpty) "" else text
             }
+            // measure requires this in typical cases
+            Layout.getDesiredWidth(measureText, textPaint)
+            // paint requires this in all cases
             val layout = makeStaticLayout(measureText, textPaint)
             layout.draw(canvas)
         }
