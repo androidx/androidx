@@ -914,8 +914,9 @@ internal class StateData constructor(
      * Sets a start and end selection dates.
      *
      * The function expects the dates to be within the state's year-range, and for the start date to
-     * appear before the end date. Also, if an end date is provided (e.g. not `null`), a start date
-     * is also expected to be provided. In any other case, an [IllegalArgumentException] is thrown.
+     * appear before, or be equal, the end date. Also, if an end date is provided (e.g. not `null`),
+     * a start date is also expected to be provided. In any other case, an
+     * [IllegalArgumentException] is thrown.
      *
      * @param startDateMillis timestamp in _UTC_ milliseconds from the epoch that represents the
      * start date selection. Provide a `null` to indicate no selection.
@@ -951,8 +952,8 @@ internal class StateData constructor(
             requireNotNull(startDate) {
                 "An end date was provided without a start date."
             }
-            // Validate that the end date appears after the start date.
-            require(startDate.utcTimeMillis < endDate.utcTimeMillis) {
+            // Validate that the end date appears on or after the start date.
+            require(startDate.utcTimeMillis <= endDate.utcTimeMillis) {
                 "The provided end date appears before the start date."
             }
         }
