@@ -15,7 +15,6 @@
  */
 package androidx.appactions.interaction.capabilities.core.task.impl
 
-import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.proto.CurrentValue
 
 /**
@@ -25,8 +24,8 @@ import androidx.appactions.interaction.proto.CurrentValue
  * * listener#onReceived returned ACCEPTED for all grounded values (which could be empty list)
  *
  * @param processedValues Processed CurrentValue objects.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-data class SlotProcessingResult
-constructor(val isSuccessful: Boolean, val processedValues: List<CurrentValue>)
+internal data class SlotProcessingResult(
+    val isSuccessful: Boolean,
+    val processedValues: List<CurrentValue>,
+)

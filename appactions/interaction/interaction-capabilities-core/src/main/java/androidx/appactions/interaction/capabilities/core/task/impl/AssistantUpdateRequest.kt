@@ -15,7 +15,6 @@
  */
 package androidx.appactions.interaction.capabilities.core.task.impl
 
-import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 
@@ -24,10 +23,8 @@ import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
  *
  * @param argumentsWrapper The fulfillment request data.
  * @param callbackInternal The callback to report results from handling this request.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-data class AssistantUpdateRequest(
+internal data class AssistantUpdateRequest(
     val argumentsWrapper: ArgumentsWrapper,
     val callbackInternal: CallbackInternal,
 )
