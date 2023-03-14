@@ -281,6 +281,7 @@ class LazyColumnTest {
         }
     }
 
+    @Ignore("b/273482357")
     @Test
     fun itemContent_multipleViews() {
         TestGlanceAppWidget.uiDefinition = {
