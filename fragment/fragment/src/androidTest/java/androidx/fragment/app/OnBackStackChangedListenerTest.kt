@@ -332,7 +332,7 @@ class OnBackStackChangedListenerTest {
             executePendingTransactions()
 
             assertThat(startedCount).isEqualTo(1)
-            assertThat(committedCount).isEqualTo(0)
+            assertThat(committedCount).isEqualTo(1)
         }
     }
 }
