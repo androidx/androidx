@@ -229,6 +229,8 @@ class CameraStateAdapter @Inject constructor() {
                     CameraError.ERROR_SECURITY_EXCEPTION ->
                         CameraState.ERROR_CAMERA_FATAL_ERROR
 
+                    CameraError.ERROR_GRAPH_CONFIG -> CameraState.ERROR_STREAM_CONFIG
+
                     else -> throw IllegalArgumentException("Unexpected CameraError: $this")
                 }
             )

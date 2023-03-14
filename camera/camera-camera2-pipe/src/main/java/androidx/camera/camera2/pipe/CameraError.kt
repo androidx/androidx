@@ -87,6 +87,12 @@ value class CameraError private constructor(val value: Int) {
         /** This indicates that we received SecurityException while opening the camera. */
         val ERROR_SECURITY_EXCEPTION = CameraError(8)
 
+        /**
+         * This indicates we've encountered an error while configuring our camera graph, such as
+         * creating, finalizing capture sessions, and creating, submitting capture requests.
+         */
+        val ERROR_GRAPH_CONFIG = CameraError(9)
+
         internal fun from(throwable: Throwable) =
             when (throwable) {
                 is CameraAccessException -> from(throwable)

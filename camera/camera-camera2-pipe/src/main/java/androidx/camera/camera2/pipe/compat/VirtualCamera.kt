@@ -299,7 +299,13 @@ internal class AndroidCameraState(
         // while if it synchronously calls createCaptureSession.
         _state.value =
             CameraStateOpen(
-                AndroidCameraDevice(metadata, cameraDevice, cameraId, interopSessionStateCallback)
+                AndroidCameraDevice(
+                    metadata,
+                    cameraDevice,
+                    cameraId,
+                    cameraErrorListener,
+                    interopSessionStateCallback
+                )
             )
 
         // Check to see if we received close() or other events in the meantime.

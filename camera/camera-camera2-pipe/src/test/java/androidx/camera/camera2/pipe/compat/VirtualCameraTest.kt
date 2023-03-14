@@ -54,6 +54,7 @@ internal class VirtualCameraStateTest {
     private val cameraId = RobolectricCameras.create()
     private val testCamera = RobolectricCameras.open(cameraId)
     private val graphListener: GraphListener = mock()
+    private val cameraErrorListener: CameraErrorListener = mock()
 
     @After
     fun teardown() {
@@ -94,7 +95,10 @@ internal class VirtualCameraStateTest {
             flowOf(
                 CameraStateOpen(
                     AndroidCameraDevice(
-                        testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId
+                        testCamera.metadata,
+                        testCamera.cameraDevice,
+                        testCamera.cameraId,
+                        cameraErrorListener,
                     )
                 )
             )
@@ -126,7 +130,10 @@ internal class VirtualCameraStateTest {
             listOf(
                 CameraStateOpen(
                     AndroidCameraDevice(
-                        testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId
+                        testCamera.metadata,
+                        testCamera.cameraDevice,
+                        testCamera.cameraId,
+                        cameraErrorListener,
                     )
                 ),
                 CameraStateClosing(),
