@@ -61,6 +61,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.focused
@@ -165,6 +166,7 @@ public fun TimePicker(
                 pickerGroupState.selectedIndex = curr.index
             } else if (next == FocusableElementsTimePicker.CONFIRM_BUTTON) {
                 focusRequesterConfirmButton.requestFocus()
+                pickerGroupState.selectedIndex = next.index
             } else {
                 pickerGroupState.selectedIndex = next.index
             }
@@ -201,8 +203,11 @@ public fun TimePicker(
                     PickerGroup(
                         PickerGroupItem(
                             pickerState = hourState,
-                            modifier = Modifier.size(40.dp, 100.dp),
-                            focusRequester = remember { FocusRequester() },
+                            modifier = Modifier
+                                .size(40.dp, 100.dp).rsbScroll(
+                                    scrollableState = hourState,
+                                    flingBehavior = PickerDefaults.flingBehavior(hourState),
+                                ),
                             onSelected = {
                                 onPickerSelected(
                                     FocusableElementsTimePicker.HOURS,
@@ -214,8 +219,11 @@ public fun TimePicker(
                         ),
                         PickerGroupItem(
                             pickerState = minuteState,
-                            modifier = Modifier.size(40.dp, 100.dp),
-                            focusRequester = remember { FocusRequester() },
+                            modifier = Modifier
+                                .size(40.dp, 100.dp).rsbScroll(
+                                    scrollableState = minuteState,
+                                    flingBehavior = PickerDefaults.flingBehavior(minuteState),
+                                ),
                             onSelected = {
                                 onPickerSelected(
                                     FocusableElementsTimePicker.MINUTES,
@@ -227,8 +235,11 @@ public fun TimePicker(
                         ),
                         PickerGroupItem(
                             pickerState = secondState,
-                            modifier = Modifier.size(40.dp, 100.dp),
-                            focusRequester = remember { FocusRequester() },
+                            modifier = Modifier
+                                .size(40.dp, 100.dp).rsbScroll(
+                                    scrollableState = secondState,
+                                    flingBehavior = PickerDefaults.flingBehavior(secondState),
+                                ),
                             onSelected = {
                                 onPickerSelected(
                                     FocusableElementsTimePicker.SECONDS,
@@ -393,8 +404,10 @@ public fun TimePickerWith12HourClock(
                     PickerGroup(
                         PickerGroupItem(
                             pickerState = hourState,
-                            modifier = Modifier.size(50.dp, 100.dp),
-                            focusRequester = remember { FocusRequester() },
+                            modifier = Modifier.size(50.dp, 100.dp).rsbScroll(
+                                scrollableState = hourState,
+                                flingBehavior = PickerDefaults.flingBehavior(hourState),
+                            ),
                             onSelected = {
                                 doubleTapToNext(
                                     FocusableElement12Hour.HOURS,
@@ -406,8 +419,10 @@ public fun TimePickerWith12HourClock(
                         ),
                         PickerGroupItem(
                             pickerState = minuteState,
-                            modifier = Modifier.size(50.dp, 100.dp),
-                            focusRequester = remember { FocusRequester() },
+                            modifier = Modifier.size(50.dp, 100.dp).rsbScroll(
+                                scrollableState = minuteState,
+                                flingBehavior = PickerDefaults.flingBehavior(minuteState),
+                            ),
 
                             onSelected = {
                                 doubleTapToNext(
@@ -420,8 +435,10 @@ public fun TimePickerWith12HourClock(
                         ),
                         PickerGroupItem(
                             pickerState = periodState,
-                            modifier = Modifier.size(64.dp, 100.dp),
-                            focusRequester = remember { FocusRequester() },
+                            modifier = Modifier.size(64.dp, 100.dp).rsbScroll(
+                                scrollableState = periodState,
+                                flingBehavior = PickerDefaults.flingBehavior(periodState),
+                            ),
                             contentDescription = periodContentDescription,
                             onSelected = {
                                 doubleTapToNext(
@@ -587,6 +604,17 @@ public fun DatePicker(
                     focusedElement, datePickerState.currentDay(), "${datePickerState.currentDay()}"
                 )
             } }
+
+        val focusManager = LocalFocusManager.current
+
+        LaunchedEffect(focusedElement) {
+            when (focusedElement) {
+                FocusableElementDatePicker.DAY -> focusRequesterDay.requestFocus()
+                FocusableElementDatePicker.MONTH -> focusRequesterMonth.requestFocus()
+                FocusableElementDatePicker.YEAR -> focusRequesterYear.requestFocus()
+                else -> focusManager.clearFocus()
+            }
+        }
 
         BoxWithConstraints(
             modifier = modifier
