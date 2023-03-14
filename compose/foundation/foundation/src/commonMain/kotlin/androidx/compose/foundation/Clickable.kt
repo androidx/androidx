@@ -40,13 +40,16 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalReadScope
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.toOffset
 import kotlinx.coroutines.CoroutineScope
@@ -512,23 +515,6 @@ internal fun Modifier.genericClickableWithoutGesture(
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit
 ): Modifier {
-    fun Modifier.clickSemantics() = this.semantics(mergeDescendants = true) {
-        if (role != null) {
-            this.role = role
-        }
-        // b/156468846:  add long click semantics and double click if needed
-        onClick(
-            action = { onClick(); true },
-            label = onClickLabel
-        )
-        if (onLongClick != null) {
-            onLongClick(action = { onLongClick(); true }, label = onLongClickLabel)
-        }
-        if (!enabled) {
-            disabled()
-        }
-    }
-
     fun Modifier.detectPressAndClickFromKey() = this.onKeyEvent { keyEvent ->
         when {
             enabled && keyEvent.isPress -> {
@@ -555,11 +541,101 @@ internal fun Modifier.genericClickableWithoutGesture(
             else -> false
         }
     }
-    return this
-        .clickSemantics()
-        .detectPressAndClickFromKey()
-        .indication(interactionSource, indication)
-        .hoverable(enabled = enabled, interactionSource = interactionSource)
-        .focusableInNonTouchMode(enabled = enabled, interactionSource = interactionSource)
-        .then(gestureModifiers)
+    return this then
+        ClickableSemanticsElement(
+            enabled = enabled,
+            role = role,
+            onLongClickLabel = onLongClickLabel,
+            onLongClick = onLongClick,
+            onClickLabel = onClickLabel,
+            onClick = onClick
+        )
+            .detectPressAndClickFromKey()
+            .indication(interactionSource, indication)
+            .hoverable(enabled = enabled, interactionSource = interactionSource)
+            .focusableInNonTouchMode(enabled = enabled, interactionSource = interactionSource)
+            .then(gestureModifiers)
+}
+
+private class ClickableSemanticsElement(
+    private val enabled: Boolean,
+    private val role: Role?,
+    private val onLongClickLabel: String?,
+    private val onLongClick: (() -> Unit)?,
+    private val onClickLabel: String?,
+    private val onClick: () -> Unit
+) : ModifierNodeElement<ClickableSemanticsNode>() {
+    override fun create() = ClickableSemanticsNode(
+        enabled = enabled,
+        role = role,
+        onLongClickLabel = onLongClickLabel,
+        onLongClick = onLongClick,
+        onClickLabel = onClickLabel,
+        onClick = onClick
+    )
+
+    override fun update(node: ClickableSemanticsNode) = node.also {
+        it.enabled = enabled
+        it.role = role
+        it.onLongClickLabel = onLongClickLabel
+        it.onLongClick = onLongClick
+        it.onClickLabel = onClickLabel
+        it.onClick = onClick
+    }
+
+    override fun InspectorInfo.inspectableProperties() = Unit
+
+    override fun hashCode(): Int {
+        var result = enabled.hashCode()
+        result = 31 * result + role.hashCode()
+        result = 31 * result + onLongClickLabel.hashCode()
+        result = 31 * result + onLongClick.hashCode()
+        result = 31 * result + onClickLabel.hashCode()
+        result = 31 * result + onClick.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ClickableSemanticsElement) return false
+
+        if (enabled != other.enabled) return false
+        if (role != other.role) return false
+        if (onLongClickLabel != other.onLongClickLabel) return false
+        if (onLongClick != other.onLongClick) return false
+        if (onClickLabel != other.onClickLabel) return false
+        if (onClick != other.onClick) return false
+
+        return true
+    }
+}
+
+private class ClickableSemanticsNode(
+    var enabled: Boolean,
+    var role: Role?,
+    var onLongClickLabel: String?,
+    var onLongClick: (() -> Unit)?,
+    var onClickLabel: String?,
+    var onClick: () -> Unit,
+) : SemanticsModifierNode, Modifier.Node() {
+    override val semanticsConfiguration
+        get() = SemanticsConfiguration().apply {
+            isMergingSemanticsOfDescendants = true
+            if (this@ClickableSemanticsNode.role != null) {
+                role = this@ClickableSemanticsNode.role!!
+            }
+            onClick(
+                action = { onClick(); true },
+                label = onClickLabel
+            )
+            if (onLongClick != null) {
+                onLongClick(
+                    action = { onLongClick?.invoke(); true },
+                    label = onLongClickLabel
+                )
+            }
+            if (!enabled) {
+                disabled()
+            }
+        }
 }
