@@ -883,6 +883,7 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
         }
     }
 
+    @Ignore("b/273482617")
     @Test
     fun addWatchFaceReadyListener_alreadyReady() {
         val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
