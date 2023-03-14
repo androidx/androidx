@@ -179,6 +179,13 @@ package androidx.compose.ui.test {
     method @Deprecated public static void up(androidx.compose.ui.test.GestureScope, optional int pointerId);
   }
 
+  public final class GlobalAssertions {
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void addGlobalAssertion(String name, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.SemanticsNodeInteraction,kotlin.Unit> assertion);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteraction invokeGlobalAssertions(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static androidx.compose.ui.test.SemanticsNodeInteractionCollection invokeGlobalAssertions(androidx.compose.ui.test.SemanticsNodeInteractionCollection);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void removeGlobalAssertion(String name);
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface IdlingResource {
     method public default String? getDiagnosticMessageIfBusy();
     method public boolean isIdleNow();
