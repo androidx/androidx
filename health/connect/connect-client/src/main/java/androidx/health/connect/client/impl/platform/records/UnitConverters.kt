@@ -38,7 +38,7 @@ internal fun BloodGlucose.toPlatformBloodGlucose(): PlatformBloodGlucose {
 }
 
 internal fun Energy.toPlatformEnergy(): PlatformEnergy {
-    return PlatformEnergy.fromJoules(inJoules)
+    return PlatformEnergy.fromCalories(inCalories)
 }
 
 internal fun Length.toPlatformLength(): PlatformLength {
@@ -46,7 +46,7 @@ internal fun Length.toPlatformLength(): PlatformLength {
 }
 
 internal fun Mass.toPlatformMass(): PlatformMass {
-    return PlatformMass.fromKilograms(inKilograms)
+    return PlatformMass.fromGrams(inGrams)
 }
 
 internal fun Percentage.toPlatformPercentage(): PlatformPercentage {
@@ -70,7 +70,7 @@ internal fun Velocity.toPlatformVelocity(): PlatformVelocity {
 }
 
 internal fun Volume.toPlatformVolume(): PlatformVolume {
-    return PlatformVolume.fromMilliliters(inMilliliters)
+    return PlatformVolume.fromLiters(inLiters)
 }
 
 internal fun PlatformBloodGlucose.toSdkBloodGlucose(): BloodGlucose {
@@ -78,7 +78,7 @@ internal fun PlatformBloodGlucose.toSdkBloodGlucose(): BloodGlucose {
 }
 
 internal fun PlatformEnergy.toSdkEnergy(): Energy {
-    return Energy.joules(inJoules)
+    return Energy.calories(inCalories)
 }
 
 internal fun PlatformLength.toSdkLength(): Length {
@@ -86,7 +86,7 @@ internal fun PlatformLength.toSdkLength(): Length {
 }
 
 internal fun PlatformMass.toSdkMass(): Mass {
-    return Mass.kilograms(inKilograms)
+    return Mass.grams(inGrams)
 }
 
 internal fun PlatformPercentage.toSdkPercentage(): Percentage {
@@ -110,5 +110,5 @@ internal fun PlatformVelocity.toSdkVelocity(): Velocity {
 }
 
 internal fun PlatformVolume.toSdkVolume(): Volume {
-    return Volume.milliliters(inMilliliters)
+    return Volume.liters(inLiters)
 }

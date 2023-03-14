@@ -74,7 +74,7 @@ class ResponseConvertersTest {
             getLongMetricValues(
                 mapOf(
                     NutritionRecord.ENERGY_TOTAL as AggregateMetric<Any> to
-                        PlatformEnergy.fromJoules(418_400.0)
+                        PlatformEnergy.fromCalories(418_400.0)
                 )
             )
         assertThat(metricValues).isEmpty()
@@ -86,12 +86,12 @@ class ResponseConvertersTest {
             getDoubleMetricValues(
                 mapOf(
                     NutritionRecord.ENERGY_TOTAL as AggregateMetric<Any> to
-                        PlatformEnergy.fromJoules(418_400.0)
+                        PlatformEnergy.fromCalories(418_400.0)
                 )
             )
         assertThat(metricValues)
             .comparingValuesUsing(tolerance)
-            .containsExactly(NutritionRecord.ENERGY_TOTAL.metricKey, 100.0)
+            .containsExactly(NutritionRecord.ENERGY_TOTAL.metricKey, 418.4)
     }
 
     @Test
@@ -112,10 +112,10 @@ class ResponseConvertersTest {
             getDoubleMetricValues(
                 mapOf(
                     NutritionRecord.BIOTIN_TOTAL as AggregateMetric<Any> to
-                        PlatformMass.fromKilograms(88.0)
+                        PlatformMass.fromGrams(88.0)
                 )
             )
-        assertThat(metricValues).containsExactly(NutritionRecord.BIOTIN_TOTAL.metricKey, 88_000.0)
+        assertThat(metricValues).containsExactly(NutritionRecord.BIOTIN_TOTAL.metricKey, 88.0)
     }
 
     @Test
@@ -135,7 +135,7 @@ class ResponseConvertersTest {
             getDoubleMetricValues(
                 mapOf(
                     HydrationRecord.VOLUME_TOTAL as AggregateMetric<Any> to
-                        PlatformVolume.fromMilliliters(1500.0)
+                        PlatformVolume.fromLiters(1.5)
                 )
             )
         assertThat(metricValues).containsExactly(HydrationRecord.VOLUME_TOTAL.metricKey, 1.5)
@@ -157,14 +157,14 @@ class ResponseConvertersTest {
                     ExerciseSessionRecord.EXERCISE_DURATION_TOTAL as AggregateMetric<Any> to
                         60_000L,
                     NutritionRecord.ENERGY_TOTAL as AggregateMetric<Any> to
-                        PlatformEnergy.fromJoules(418_400.0),
+                        PlatformEnergy.fromCalories(418_400.0),
                     DistanceRecord.DISTANCE_TOTAL as AggregateMetric<Any> to
                         PlatformLength.fromMeters(50.0),
                     NutritionRecord.BIOTIN_TOTAL as AggregateMetric<Any> to
-                        PlatformMass.fromKilograms(88.0),
+                        PlatformMass.fromGrams(88.0),
                     PowerRecord.POWER_AVG as AggregateMetric<Any> to PlatformPower.fromWatts(366.0),
                     HydrationRecord.VOLUME_TOTAL as AggregateMetric<Any> to
-                        PlatformVolume.fromMilliliters(1500.0),
+                        PlatformVolume.fromLiters(1.5),
                     FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10L,
                     BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL as AggregateMetric<Any> to
                         PlatformPower.fromWatts(500.0),
@@ -188,28 +188,28 @@ class ResponseConvertersTest {
                     ExerciseSessionRecord.EXERCISE_DURATION_TOTAL as AggregateMetric<Any> to
                         60_000L,
                     NutritionRecord.ENERGY_TOTAL as AggregateMetric<Any> to
-                        PlatformEnergy.fromJoules(418_400.0),
+                        PlatformEnergy.fromCalories(418_400.0),
                     DistanceRecord.DISTANCE_TOTAL as AggregateMetric<Any> to
                         PlatformLength.fromMeters(50.0),
                     NutritionRecord.BIOTIN_TOTAL as AggregateMetric<Any> to
-                        PlatformMass.fromKilograms(88.0),
+                        PlatformMass.fromGrams(88.0),
                     PowerRecord.POWER_AVG as AggregateMetric<Any> to PlatformPower.fromWatts(366.0),
                     HydrationRecord.VOLUME_TOTAL as AggregateMetric<Any> to
-                        PlatformVolume.fromMilliliters(1500.0),
+                        PlatformVolume.fromLiters(1500.0),
                     FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10.0,
                     BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL as AggregateMetric<Any> to
-                        PlatformEnergy.fromJoules(836_800.0),
+                        PlatformEnergy.fromCalories(836_800.0),
                 )
             )
         assertThat(metricValues)
             .comparingValuesUsing(tolerance)
             .containsExactly(
                 NutritionRecord.ENERGY_TOTAL.metricKey,
-                100.0,
+                418.4,
                 DistanceRecord.DISTANCE_TOTAL.metricKey,
                 50.0,
                 NutritionRecord.BIOTIN_TOTAL.metricKey,
-                88_000.0,
+                88,
                 PowerRecord.POWER_AVG.metricKey,
                 366.0,
                 HydrationRecord.VOLUME_TOTAL.metricKey,
@@ -217,7 +217,7 @@ class ResponseConvertersTest {
                 FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL.metricKey,
                 10.0,
                 BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL.metricKey,
-                200.0
+                836.9
             )
     }
 }

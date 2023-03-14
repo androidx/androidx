@@ -114,12 +114,12 @@ class RecordConvertersTest {
                     endTime = END_TIME,
                     endZoneOffset = END_ZONE_OFFSET,
                     metadata = METADATA,
-                    energy = Energy.joules(200.0),
+                    energy = Energy.calories(200.0),
                 )
                 .toPlatformRecord() as PlatformActiveCaloriesBurnedRecord
 
         assertPlatformRecord(platformActiveCaloriesBurned) {
-            assertThat(energy).isEqualTo(PlatformEnergy.fromJoules(200.0))
+            assertThat(energy).isEqualTo(PlatformEnergy.fromCalories(200.0))
         }
     }
 
@@ -253,12 +253,12 @@ class RecordConvertersTest {
                     time = TIME,
                     zoneOffset = ZONE_OFFSET,
                     metadata = METADATA,
-                    mass = Mass.kilograms(40.0),
+                    mass = Mass.grams(40.0),
                 )
                 .toPlatformRecord() as PlatformBodyWaterMassRecord
 
         assertPlatformRecord(platformBodyWaterMass) {
-            assertThat(bodyWaterMass).isEqualTo(PlatformMass.fromKilograms(40.0))
+            assertThat(bodyWaterMass).isEqualTo(PlatformMass.fromGrams(40.0))
         }
     }
 
@@ -269,12 +269,12 @@ class RecordConvertersTest {
                     time = TIME,
                     zoneOffset = ZONE_OFFSET,
                     metadata = METADATA,
-                    mass = Mass.kilograms(5.0),
+                    mass = Mass.grams(5.0),
                 )
                 .toPlatformRecord() as PlatformBoneMassRecord
 
         assertPlatformRecord(platformBoneMass) {
-            assertThat(mass).isEqualTo(PlatformMass.fromKilograms(5.0))
+            assertThat(mass).isEqualTo(PlatformMass.fromGrams(5.0))
         }
     }
 
@@ -484,12 +484,12 @@ class RecordConvertersTest {
                     endTime = END_TIME,
                     endZoneOffset = END_ZONE_OFFSET,
                     metadata = METADATA,
-                    volume = Volume.milliliters(333.3),
+                    volume = Volume.liters(333.3),
                 )
                 .toPlatformRecord() as PlatformHydrationRecord
 
         assertPlatformRecord(platformHydration) {
-            assertThat(volume).isEqualTo(PlatformVolume.fromMilliliters(333.3))
+            assertThat(volume).isEqualTo(PlatformVolume.fromLiters(333.3))
         }
     }
 
@@ -513,12 +513,12 @@ class RecordConvertersTest {
                     time = TIME,
                     zoneOffset = ZONE_OFFSET,
                     metadata = METADATA,
-                    mass = Mass.kilograms(21.3),
+                    mass = Mass.grams(21.3),
                 )
                 .toPlatformRecord() as PlatformLeanBodyMassRecord
 
         assertPlatformRecord(platformLeanBodyMass) {
-            assertThat(mass).isEqualTo(PlatformMass.fromKilograms(21.3))
+            assertThat(mass).isEqualTo(PlatformMass.fromGrams(21.3))
         }
     }
 
@@ -563,18 +563,14 @@ class RecordConvertersTest {
                 endZoneOffset = END_ZONE_OFFSET,
                 metadata = METADATA,
                 caffeine = Mass.grams(20.0),
-                energy = Energy.joules(300.0)
+                energy = Energy.calories(300.0)
             )
 
         val platformNutrition = nutrition.toPlatformRecord() as PlatformNutritionRecord
 
         assertPlatformRecord(platformNutrition) {
-            assertThat(caffeine!!.inKilograms)
-                .isWithin(tolerance)
-                .of(PlatformMass.fromKilograms(0.02).inKilograms)
-            assertThat(energy!!.inJoules)
-                .isWithin(tolerance)
-                .of(PlatformEnergy.fromJoules(300.0).inJoules)
+            assertThat(caffeine!!.inGrams).isWithin(tolerance).of(20.0)
+            assertThat(energy!!.inCalories).isWithin(tolerance).of(300.0)
         }
     }
 
@@ -778,12 +774,12 @@ class RecordConvertersTest {
                     endTime = END_TIME,
                     endZoneOffset = END_ZONE_OFFSET,
                     metadata = METADATA,
-                    energy = Energy.joules(100.0),
+                    energy = Energy.calories(100.0),
                 )
                 .toPlatformRecord() as PlatformTotalCaloriesBurnedRecord
 
         assertPlatformRecord(platformTotalCaloriesBurned) {
-            assertThat(energy).isEqualTo(PlatformEnergy.fromJoules(100.0))
+            assertThat(energy).isEqualTo(PlatformEnergy.fromCalories(100.0))
         }
     }
 
@@ -815,12 +811,12 @@ class RecordConvertersTest {
                     time = TIME,
                     zoneOffset = ZONE_OFFSET,
                     metadata = METADATA,
-                    weight = Mass.kilograms(100.0),
+                    weight = Mass.grams(100.0),
                 )
                 .toPlatformRecord() as PlatformWeightRecord
 
         assertPlatformRecord(platformWeight) {
-            assertThat(weight).isEqualTo(PlatformMass.fromKilograms(100.0))
+            assertThat(weight).isEqualTo(PlatformMass.fromGrams(100.0))
         }
     }
 
@@ -847,7 +843,7 @@ class RecordConvertersTest {
                     PLATFORM_METADATA,
                     START_TIME,
                     END_TIME,
-                    PlatformEnergy.fromJoules(300.0)
+                    PlatformEnergy.fromCalories(300.0)
                 )
                 .setStartZoneOffset(START_ZONE_OFFSET)
                 .setEndZoneOffset(END_ZONE_OFFSET)
@@ -855,7 +851,7 @@ class RecordConvertersTest {
                 .toSdkRecord() as ActiveCaloriesBurnedRecord
 
         assertSdkRecord(sdkActiveCaloriesBurned) {
-            assertThat(energy).isEqualTo(Energy.joules(300.0))
+            assertThat(energy).isEqualTo(Energy.calories(300.0))
         }
     }
 
@@ -985,24 +981,24 @@ class RecordConvertersTest {
             PlatformBodyWaterMassRecordBuilder(
                     PLATFORM_METADATA,
                     TIME,
-                    PlatformMass.fromKilograms(12.0)
+                    PlatformMass.fromGrams(12.0)
                 )
                 .setZoneOffset(ZONE_OFFSET)
                 .build()
                 .toSdkRecord() as BodyWaterMassRecord
 
-        assertSdkRecord(sdkBodyWaterMass) { assertThat(mass).isEqualTo(Mass.kilograms(12.0)) }
+        assertSdkRecord(sdkBodyWaterMass) { assertThat(mass).isEqualTo(Mass.grams(12.0)) }
     }
 
     @Test
     fun boneMassRecord_convertToSdk() {
         val sdkBoneMass =
-            PlatformBoneMassRecordBuilder(PLATFORM_METADATA, TIME, PlatformMass.fromKilograms(73.0))
+            PlatformBoneMassRecordBuilder(PLATFORM_METADATA, TIME, PlatformMass.fromGrams(73.0))
                 .setZoneOffset(ZONE_OFFSET)
                 .build()
                 .toSdkRecord() as BoneMassRecord
 
-        assertSdkRecord(sdkBoneMass) { assertThat(mass).isEqualTo(Mass.kilograms(73.0)) }
+        assertSdkRecord(sdkBoneMass) { assertThat(mass).isEqualTo(Mass.grams(73.0)) }
     }
 
     @Test
@@ -1162,14 +1158,14 @@ class RecordConvertersTest {
                     PLATFORM_METADATA,
                     START_TIME,
                     END_TIME,
-                    PlatformVolume.fromMilliliters(500.0)
+                    PlatformVolume.fromLiters(500.0)
                 )
                 .setStartZoneOffset(START_ZONE_OFFSET)
                 .setEndZoneOffset(END_ZONE_OFFSET)
                 .build()
                 .toSdkRecord() as HydrationRecord
 
-        assertSdkRecord(sdkHydration) { assertThat(volume).isEqualTo(Volume.milliliters(500.0)) }
+        assertSdkRecord(sdkHydration) { assertThat(volume).isEqualTo(Volume.liters(500.0)) }
     }
 
     @Test
@@ -1189,16 +1185,12 @@ class RecordConvertersTest {
     @Test
     fun leanBodyMassRecord_convertToSdk() {
         val sdkLeanBodyMass =
-            PlatformLeanBodyMassRecordBuilder(
-                    PLATFORM_METADATA,
-                    TIME,
-                    PlatformMass.fromKilograms(9.0)
-                )
+            PlatformLeanBodyMassRecordBuilder(PLATFORM_METADATA, TIME, PlatformMass.fromGrams(9.0))
                 .setZoneOffset(ZONE_OFFSET)
                 .build()
                 .toSdkRecord() as LeanBodyMassRecord
 
-        assertSdkRecord(sdkLeanBodyMass) { assertThat(mass).isEqualTo(Mass.kilograms(9.0)) }
+        assertSdkRecord(sdkLeanBodyMass) { assertThat(mass).isEqualTo(Mass.grams(9.0)) }
     }
 
     @Test
@@ -1236,7 +1228,7 @@ class RecordConvertersTest {
             PlatformNutritionRecordBuilder(PLATFORM_METADATA, START_TIME, END_TIME)
                 .setMealName("Cheat meal")
                 .setMealType(PlatformMealType.MEAL_TYPE_DINNER)
-                .setChromium(PlatformMass.fromKilograms(0.01))
+                .setChromium(PlatformMass.fromGrams(0.01))
                 .setStartZoneOffset(START_ZONE_OFFSET)
                 .setEndZoneOffset(END_ZONE_OFFSET)
                 .build()
@@ -1245,7 +1237,7 @@ class RecordConvertersTest {
         assertSdkRecord(sdkNutrition) {
             assertThat(name).isEqualTo("Cheat meal")
             assertThat(mealType).isEqualTo(MealType.MEAL_TYPE_DINNER)
-            assertThat(chromium).isEqualTo(Mass.kilograms(0.01))
+            assertThat(chromium).isEqualTo(Mass.grams(0.01))
         }
     }
 
@@ -1416,7 +1408,7 @@ class RecordConvertersTest {
                     PLATFORM_METADATA,
                     START_TIME,
                     END_TIME,
-                    PlatformEnergy.fromJoules(333.0)
+                    PlatformEnergy.fromCalories(333.0)
                 )
                 .setStartZoneOffset(START_ZONE_OFFSET)
                 .setEndZoneOffset(END_ZONE_OFFSET)
@@ -1424,7 +1416,7 @@ class RecordConvertersTest {
                 .toSdkRecord() as TotalCaloriesBurnedRecord
 
         assertSdkRecord(sdkTotalCaloriesBurned) {
-            assertThat(energy).isEqualTo(Energy.joules(333.0))
+            assertThat(energy).isEqualTo(Energy.calories(333.0))
         }
     }
 
@@ -1451,12 +1443,12 @@ class RecordConvertersTest {
     @Test
     fun weightRecord_convertToSdk() {
         val sdkWeight =
-            PlatformWeightRecordBuilder(PLATFORM_METADATA, TIME, PlatformMass.fromKilograms(63.0))
+            PlatformWeightRecordBuilder(PLATFORM_METADATA, TIME, PlatformMass.fromGrams(63.0))
                 .setZoneOffset(ZONE_OFFSET)
                 .build()
                 .toSdkRecord() as WeightRecord
 
-        assertSdkRecord(sdkWeight) { assertThat(weight).isEqualTo(Mass.kilograms(63.0)) }
+        assertSdkRecord(sdkWeight) { assertThat(weight).isEqualTo(Mass.grams(63.0)) }
     }
 
     @Test
