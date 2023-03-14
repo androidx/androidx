@@ -2673,6 +2673,7 @@ internal class ComposerImpl(
 
     internal fun tryImminentInvalidation(scope: RecomposeScopeImpl, instance: Any?): Boolean {
         val anchor = scope.anchor ?: return false
+        val slotTable = reader.table
         val location = anchor.toIndexFor(slotTable)
         if (isComposing && location >= reader.currentGroup) {
             // if we are invalidating a scope that is going to be traversed during this

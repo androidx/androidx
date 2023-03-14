@@ -933,14 +933,23 @@ internal class CompositionImpl(
             scope.defaultsInvalid = true
         }
         val anchor = scope.anchor
-        if (anchor == null || !slotTable.ownsAnchor(anchor) || !anchor.valid)
-            return InvalidationResult.IGNORED // The scope has not yet entered the composition
-        if (!anchor.valid)
+        if (anchor == null || !anchor.valid)
             return InvalidationResult.IGNORED // The scope was removed from the composition
+        if (!slotTable.ownsAnchor(anchor)) {
+            // The scope might be owned by the delegate
+            val delegate = synchronized(lock) { invalidationDelegate }
+            if (delegate?.tryImminentInvalidation(scope, instance) == true)
+                return InvalidationResult.IMMINENT // The scope was owned by the delegate
+
+            return InvalidationResult.IGNORED // The scope has not yet entered the composition
+        }
         if (!scope.canRecompose)
             return InvalidationResult.IGNORED // The scope isn't able to be recomposed/invalidated
         return invalidateChecked(scope, anchor, instance)
     }
+
+    private fun tryImminentInvalidation(scope: RecomposeScopeImpl, instance: Any?): Boolean =
+        isComposing && composer.tryImminentInvalidation(scope, instance)
 
     private fun invalidateChecked(
         scope: RecomposeScopeImpl,
@@ -959,7 +968,7 @@ internal class CompositionImpl(
                 } else null
             }
             if (delegate == null) {
-                if (isComposing && composer.tryImminentInvalidation(scope, instance)) {
+                if (tryImminentInvalidation(scope, instance)) {
                     // The invalidation was redirected to the composer.
                     return InvalidationResult.IMMINENT
                 }

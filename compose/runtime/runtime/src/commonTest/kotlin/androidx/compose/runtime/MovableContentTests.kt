@@ -32,8 +32,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @Stable
+@OptIn(ExperimentalCoroutinesApi::class)
 class MovableContentTests {
 
     @Test
@@ -1470,6 +1472,39 @@ class MovableContentTests {
         assertEquals(2, hashList.size)
         assertEquals(hashList[0], hashList[1])
     }
+
+    @Test
+    fun parameterPassingThroughDeferredSubcompose() = compositionTest {
+        var state by mutableStateOf(false)
+        var lastSeen: Boolean? = null
+        val content = movableContentOf { parameter: Boolean ->
+            Container {
+                lastSeen = parameter
+            }
+        }
+
+        compose {
+            if (state) {
+                content(true)
+            } else {
+                DeferredSubcompose {
+                    content(state)
+                }
+            }
+        }
+
+        testCoroutineScheduler.advanceTimeBy(5_000)
+
+        assertEquals(state, lastSeen)
+
+        repeat(5) {
+            state = !state
+
+            expectChanges()
+
+            assertEquals(state, lastSeen, "Failed in iteration $it")
+        }
+    }
 }
 
 @Composable
@@ -1593,7 +1628,6 @@ private fun DeferredSubcompose(content: @Composable () -> Unit) {
         composition.setContent(content)
     }
     DisposableEffect(Unit) {
-
         onDispose { composition.dispose() }
     }
 }
@@ -1622,14 +1656,14 @@ class RememberedObject : RememberObserver {
     }
 
     override fun onForgotten() {
-        check(count > 0) { "Abandoned or forgotten mor times than remembered" }
+        check(count > 0) { "Abandoned or forgotten more times than remembered" }
         forgottenCount++
         count--
         if (count == 0) died = true
     }
 
     override fun onAbandoned() {
-        check(count > 0) { "Abandoned or forgotten mor times than remembered" }
+        check(count > 0) { "Abandoned or forgotten more times than remembered" }
         abandonedCount++
         count--
         if (count == 0) died = true
