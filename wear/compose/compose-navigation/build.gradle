@@ -29,7 +29,7 @@ dependencies {
     api(project(":compose:runtime:runtime"))
     api("androidx.navigation:navigation-runtime:2.5.3")
     api(project(":wear:compose:compose-material"))
-    api(project(":activity:activity-compose"))
+    api("androidx.activity:activity-compose:1.7.0")
     api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
 
     implementation(libs.kotlinStdlib)
