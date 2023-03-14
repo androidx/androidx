@@ -35,6 +35,9 @@ import androidx.wear.protolayout.proto.TypesProto;
 public final class DimensionBuilders {
     private DimensionBuilders() {}
 
+    private static final ExpandedDimensionProp EXPAND = new ExpandedDimensionProp.Builder().build();
+    private static final WrappedDimensionProp WRAP = new WrappedDimensionProp.Builder().build();
+
     /** Shortcut for building a {@link DpProp} using a measurement in DP. */
     @NonNull
     public static DpProp dp(@Dimension(unit = DP) float valueDp) {
@@ -63,6 +66,28 @@ public final class DimensionBuilders {
     @NonNull
     public static DegreesProp degrees(float valueDegrees) {
         return new DegreesProp.Builder().setValue(valueDegrees).build();
+    }
+
+    /**
+     * Shortcut for building an {@link ExpandedDimensionProp} that will expand to the size of its
+     * parent.
+     *
+     * @since 1.0
+     */
+    @NonNull
+    public static ExpandedDimensionProp expand() {
+        return EXPAND;
+    }
+
+    /**
+     * Shortcut for building an {@link WrappedDimensionProp} that will shrink to the size of its
+     * children.
+     *
+     * @since 1.0
+     */
+    @NonNull
+    public static WrappedDimensionProp wrap() {
+        return WRAP;
     }
 
     /**
@@ -373,7 +398,6 @@ public final class DimensionBuilders {
      *
      * @since 1.0
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class ExpandedDimensionProp implements ContainerDimension, ImageDimension {
         private final DimensionProto.ExpandedDimensionProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -472,7 +496,6 @@ public final class DimensionBuilders {
      *
      * @since 1.0
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class WrappedDimensionProp implements ContainerDimension {
         private final DimensionProto.WrappedDimensionProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
