@@ -15,7 +15,6 @@
  */
 package androidx.privacysandbox.sdkruntime.core
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
 import android.content.Context
 import android.os.Binder
@@ -39,8 +38,6 @@ import org.mockito.Mockito.mock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-// TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
-@SuppressLint("NewApi")
 // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
 @RequiresExtension(extension = AD_SERVICES, version = 4)
 @SdkSuppress(minSdkVersion = TIRAMISU)
@@ -259,5 +256,5 @@ class SandboxedSdkProviderAdapterTest {
     }
 
     private fun isSandboxApiAvailable() =
-        AdServicesInfo.version() >= 4
+        AdServicesInfo.isAtLeastV4()
 }

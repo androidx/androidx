@@ -213,5 +213,5 @@ class SdkSandboxManagerCompatTest {
     }
 
     private fun isSandboxApiNotAvailable() =
-        AdServicesInfo.version() < 4
+        !AdServicesInfo.isAtLeastV4()
 }

@@ -153,8 +153,7 @@ class SdkSandboxManagerCompat private constructor(
         fun getSandboxedSdks(): List<SandboxedSdkCompat> = emptyList()
     }
 
-    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
-    @SuppressLint("NewApi", "ClassVerificationFailure")
+    @RequiresApi(33)
     @RequiresExtension(extension = AD_SERVICES, version = 4)
     private open class ApiAdServicesV4Impl(context: Context) : PlatformApi {
         protected val sdkSandboxManager = context.getSystemService(
@@ -189,9 +188,8 @@ class SdkSandboxManagerCompat private constructor(
         }
     }
 
-    // TODO(b/265295473): Replace @RequiresApi with correct @RequiresExtension
-    @RequiresApi(34)
-    @SuppressLint("NewApi") // b/24998154
+    @RequiresApi(33)
+    @RequiresExtension(extension = AD_SERVICES, version = 5)
     private class ApiAdServicesV5Impl(
         context: Context
     ) : ApiAdServicesV4Impl(context) {
@@ -255,11 +253,11 @@ class SdkSandboxManagerCompat private constructor(
     }
 
     private object PlatformApiFactory {
-        @SuppressLint("NewApi") // b/24998154
+        @SuppressLint("NewApi", "ClassVerificationFailure")
         fun create(context: Context): PlatformApi {
             return if (AdServicesInfo.isAtLeastV5()) {
                 ApiAdServicesV5Impl(context)
-            } else if (AdServicesInfo.version() >= 4) {
+            } else if (AdServicesInfo.isAtLeastV4()) {
                 ApiAdServicesV4Impl(context)
             } else {
                 FailImpl()

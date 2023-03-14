@@ -15,7 +15,6 @@
  */
 package androidx.privacysandbox.sdkruntime.core
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
 import android.os.Bundle
 import android.os.ext.SdkExtensions.AD_SERVICES
@@ -119,8 +118,6 @@ class LoadSdkCompatException : Exception {
         return ApiAdServicesV4Impl.toLoadSdkException(this)
     }
 
-    // TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
-    @SuppressLint("NewApi", "ClassVerificationFailure")
     @RequiresExtension(extension = AD_SERVICES, version = 4)
     private object ApiAdServicesV4Impl {
 

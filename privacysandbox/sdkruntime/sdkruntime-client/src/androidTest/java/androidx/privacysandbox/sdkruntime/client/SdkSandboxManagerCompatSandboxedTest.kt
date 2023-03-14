@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.sdkruntime.client
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SdkSandboxManager
@@ -55,8 +54,6 @@ import org.mockito.invocation.InvocationOnMock
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 // TODO(b/249982507) Test should be rewritten to use real SDK in sandbox instead of mocking manager
-// TODO(b/249981547) Remove suppress after updating to new lint version (b/262251309)
-@SuppressLint("NewApi")
 // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
 @RequiresExtension(extension = AD_SERVICES, version = 4)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
@@ -165,8 +162,8 @@ class SdkSandboxManagerCompatSandboxedTest {
     }
 
     @Test
-    // TODO(b/265295473) Update version check after AdServices V5 finalisation.
-    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+    @RequiresExtension(extension = AD_SERVICES, version = 5)
     fun getSandboxedSdks_whenLoadedSdkListAvailable_returnCombinedLocalAndPlatformResult() {
         assumeTrue("Requires getSandboxedSdks API available", isAtLeastV5())
 
@@ -187,8 +184,8 @@ class SdkSandboxManagerCompatSandboxedTest {
     }
 
     @Test
-    // TODO(b/265295473) Update version check after AdServices V5 finalisation.
-    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+    @RequiresExtension(extension = AD_SERVICES, version = 5)
     fun sdkController_getSandboxedSdks_dontIncludeSandboxedSdk() {
         assumeTrue("Requires getSandboxedSdks API available", isAtLeastV5())
 
@@ -214,7 +211,7 @@ class SdkSandboxManagerCompatSandboxedTest {
     companion object SandboxApi {
 
         private fun isSandboxApiAvailable() =
-            AdServicesInfo.version() >= 4
+            AdServicesInfo.isAtLeastV4()
 
         private fun isAtLeastV5() =
             AdServicesInfo.isAtLeastV5()

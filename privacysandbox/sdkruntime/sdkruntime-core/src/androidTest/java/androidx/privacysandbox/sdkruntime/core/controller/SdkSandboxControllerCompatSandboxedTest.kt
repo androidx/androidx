@@ -16,12 +16,13 @@
 
 package androidx.privacysandbox.sdkruntime.core.controller
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
 import android.os.Binder
 import android.os.Build
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -70,9 +71,9 @@ class SdkSandboxControllerCompatSandboxedTest {
     }
 
     @Test
-    // TODO(b/265295473) Update version check after AdServices V5 finalisation.
-    @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
-    @SuppressLint("NewApi") // b/249981547
+    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun getSandboxedSdks_whenApiAvailable_returnsListFromPlatformApi() {
         assumeTrue(
             "Requires SandboxController API available",
