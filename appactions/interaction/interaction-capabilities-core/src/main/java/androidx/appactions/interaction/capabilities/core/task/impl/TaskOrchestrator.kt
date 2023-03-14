@@ -40,7 +40,9 @@ import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.proto.TouchEventMetadata
 import androidx.concurrent.futures.await
-import java.util.Collections
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 import kotlin.jvm.Throws
 
 /**
@@ -58,9 +60,15 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     private val taskHandler: TaskHandler<ConfirmationT>,
     private val externalSession: BaseSession<ArgumentT, OutputT>
 ) {
+    /**
+     * A [reader-writer lock](https://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock) to protect
+     * the synchronizing operation on [currentValuesMap]
+     */
+    private val valuesMapLock = ReentrantReadWriteLock()
+
     /** Map of argument name to the [CurrentValue] which wraps the argument name and status . */
-    private val currentValuesMap: MutableMap<String, List<CurrentValue>> =
-        Collections.synchronizedMap(HashMap())
+    @GuardedBy("valuesMapLock")
+    private val currentValuesMap = mutableMapOf<String, List<CurrentValue>>()
 
     /**
      * The callback that should be invoked when manual input processing finishes. This sends the
@@ -91,13 +99,16 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
         get() =
             AppActionsContext.AppDialogState.newBuilder()
                 .addAllParams(
-                    appAction.paramsList.map { intentParam ->
-                        val dialogParameterBuilder =
-                            AppActionsContext.DialogParameter.newBuilder().setName(intentParam.name)
-                        currentValuesMap[intentParam.name]?.let {
-                            dialogParameterBuilder.addAllCurrentValue(it)
+                    valuesMapLock.read {
+                        appAction.paramsList.map { intentParam ->
+                            val dialogParameterBuilder =
+                                AppActionsContext.DialogParameter.newBuilder()
+                                    .setName(intentParam.name)
+                            currentValuesMap[intentParam.name]?.let {
+                                dialogParameterBuilder.addAllCurrentValue(it)
+                            }
+                            dialogParameterBuilder.build()
                         }
-                        dialogParameterBuilder.build()
                     }
                 )
                 .setFulfillmentIdentifier(appAction.identifier)
@@ -172,16 +183,20 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
         ) {
             return
         }
-        for ((argName, value) in paramValuesMap) {
-            currentValuesMap[argName] =
-                value.map { TaskCapabilityUtils.toCurrentValue(it, CurrentValue.Status.ACCEPTED) }
+        valuesMapLock.write {
+            for ((argName, value) in paramValuesMap) {
+                currentValuesMap[argName] =
+                    value.map {
+                        TaskCapabilityUtils.toCurrentValue(it, CurrentValue.Status.ACCEPTED)
+                    }
+            }
         }
 
         try {
             if (!anyParamsOfStatus(CurrentValue.Status.DISAMBIG)) {
                 val fulfillmentValuesMap =
                     TaskCapabilityUtils.paramValuesMapToFulfillmentValuesMap(
-                        currentPendingArguments
+                        getCurrentPendingArguments()
                     )
                 processFulfillmentValues(fulfillmentValuesMap)
             }
@@ -226,7 +241,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
      */
     @Throws(StructConversionException::class, MissingRequiredArgException::class)
     private suspend fun maybeConfirmOrFinish(): FulfillmentResponse {
-        val finalArguments = currentAcceptedArguments
+        val finalArguments = getCurrentAcceptedArguments()
         if (
             anyParamsOfStatus(CurrentValue.Status.REJECTED) ||
                 !TaskCapabilityUtils.isSlotFillingComplete(finalArguments, appAction.paramsList)
@@ -270,7 +285,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
      * turn.
      */
     private suspend fun handleConfirm(callback: CallbackInternal) {
-        val finalArguments = currentAcceptedArguments
+        val finalArguments = getCurrentAcceptedArguments()
         try {
             val fulfillmentResponse = getFulfillmentResponseForExecution(finalArguments)
             LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task confirm success")
@@ -282,11 +297,13 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     }
 
     private fun clearMissingArgs(assistantArgs: ArgumentsWrapper) {
-        val argsCleared =
-            currentValuesMap.keys.filter { !assistantArgs.paramValues.containsKey(it) }
-        for (arg in argsCleared) {
-            currentValuesMap.remove(arg)
-            // TODO(b/234170829): notify listener#onReceived of the cleared arguments
+        valuesMapLock.write {
+            val argsCleared =
+                currentValuesMap.keys.filter { !assistantArgs.paramValues.containsKey(it) }
+            for (arg in argsCleared) {
+                currentValuesMap.remove(arg)
+                // TODO(b/234170829): notify listener#onReceived of the cleared arguments
+            }
         }
     }
 
@@ -323,7 +340,8 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
         slotKey: String,
         newSlotValues: List<FulfillmentRequest.Fulfillment.FulfillmentValue>
     ): SlotProcessingResult {
-        val currentSlotValues = currentValuesMap.getOrDefault(slotKey, emptyList())
+        val currentSlotValues =
+            valuesMapLock.read { currentValuesMap.getOrDefault(slotKey, emptyList()) }
         val modifiedSlotValues =
             TaskCapabilityUtils.getMaybeModifiedSlotValues(currentSlotValues, newSlotValues)
         if (TaskCapabilityUtils.canSkipSlotProcessing(currentSlotValues, modifiedSlotValues)) {
@@ -335,7 +353,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
                 CurrentValue.Status.PENDING
             )
         val currentResult = processSlot(slotKey, previousResult, pendingArgs)
-        currentValuesMap[slotKey] = currentResult.processedValues
+        valuesMapLock.write { currentValuesMap[slotKey] = currentResult.processedValues }
         return currentResult
     }
 
@@ -365,30 +383,36 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
      *
      * A slot is considered accepted if all CurrentValues in the slot has ACCEPTED status.
      */
-    private val currentAcceptedArguments: Map<String, List<ParamValue>>
-        get() =
-            currentValuesMap
-                .filterValues { currentValues ->
+    private fun getCurrentAcceptedArguments(): Map<String, List<ParamValue>> =
+        valuesMapLock
+            .read {
+                currentValuesMap.filterValues { currentValues ->
                     currentValues.all { it.status == CurrentValue.Status.ACCEPTED }
                 }
-                .mapValues { currentValue -> currentValue.value.map { it.value } }
+            }
+            .mapValues { currentValue -> currentValue.value.map { it.value } }
 
     /**
      * Retrieve all ParamValue from pending slots in currentValuesMap.
      *
      * A slot is considered pending if any CurrentValues in the slot has PENDING status.
      */
-    private val currentPendingArguments: Map<String, List<ParamValue>>
-        get() =
-            currentValuesMap
-                .filterValues { currentValues ->
+    private fun getCurrentPendingArguments(): Map<String, List<ParamValue>> =
+        valuesMapLock
+            .read {
+                currentValuesMap.filterValues { currentValues ->
                     currentValues.any { it.status == CurrentValue.Status.PENDING }
                 }
-                .mapValues { currentValues -> currentValues.value.map { it.value } }
+            }
+            .mapValues { currentValues -> currentValues.value.map { it.value } }
 
     /** Returns true if any CurrentValue in currentValuesMap has the given Status. */
     private fun anyParamsOfStatus(status: CurrentValue.Status) =
-        currentValuesMap.values.any { currentValues -> currentValues.any { it.status == status } }
+        valuesMapLock.read {
+            currentValuesMap.values.any { currentValues ->
+                currentValues.any { it.status == status }
+            }
+        }
 
     @Throws(StructConversionException::class, MissingRequiredArgException::class)
     private suspend fun getFulfillmentResponseForConfirmation(
