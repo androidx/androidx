@@ -62,7 +62,6 @@ public final class LayoutElementBuilders {
     /**
      * The horizontal alignment of an element within its container.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -97,7 +96,6 @@ public final class LayoutElementBuilders {
     /**
      * The vertical alignment of an element within its container.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -124,7 +122,6 @@ public final class LayoutElementBuilders {
     /**
      * The weight to be applied to the font.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({FONT_WEIGHT_UNDEFINED, FONT_WEIGHT_NORMAL, FONT_WEIGHT_MEDIUM, FONT_WEIGHT_BOLD})
@@ -148,7 +145,6 @@ public final class LayoutElementBuilders {
      * The variant of a font. Some renderers may use different fonts for title and body text, which
      * can be selected using this field.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({FONT_VARIANT_UNDEFINED, FONT_VARIANT_TITLE, FONT_VARIANT_BODY})
@@ -168,7 +164,6 @@ public final class LayoutElementBuilders {
      * The alignment of a {@link SpanImage} within the line height of the surrounding {@link
      * Spannable}.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -199,7 +194,6 @@ public final class LayoutElementBuilders {
     /**
      * Alignment of a text element.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({TEXT_ALIGN_UNDEFINED, TEXT_ALIGN_START, TEXT_ALIGN_CENTER, TEXT_ALIGN_END})
@@ -225,7 +219,6 @@ public final class LayoutElementBuilders {
     /**
      * How text that will not fit inside the bounds of a {@link Text} element will be handled.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({TEXT_OVERFLOW_UNDEFINED, TEXT_OVERFLOW_TRUNCATE, TEXT_OVERFLOW_ELLIPSIZE_END})
@@ -271,7 +264,6 @@ public final class LayoutElementBuilders {
      *
      * }</pre>
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({ARC_ANCHOR_UNDEFINED, ARC_ANCHOR_START, ARC_ANCHOR_CENTER, ARC_ANCHOR_END})
@@ -303,7 +295,6 @@ public final class LayoutElementBuilders {
      * How content which does not match the dimensions of its bounds (e.g. an image resource being
      * drawn inside an {@link Image}) will be resized to fit its bounds.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -354,7 +345,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static HorizontalAlignmentProp fromProto(
@@ -362,7 +352,6 @@ public final class LayoutElementBuilders {
             return new HorizontalAlignmentProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public AlignmentProto.HorizontalAlignmentProp toProto() {
@@ -405,7 +394,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static VerticalAlignmentProp fromProto(
@@ -413,7 +401,6 @@ public final class LayoutElementBuilders {
             return new VerticalAlignmentProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public AlignmentProto.VerticalAlignmentProp toProto() {
@@ -456,14 +443,12 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static FontWeightProp fromProto(@NonNull LayoutElementProto.FontWeightProp proto) {
             return new FontWeightProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.FontWeightProp toProto() {
@@ -507,14 +492,12 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static FontVariantProp fromProto(@NonNull LayoutElementProto.FontVariantProp proto) {
             return new FontVariantProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.FontVariantProp toProto() {
@@ -557,7 +540,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static SpanVerticalAlignmentProp fromProto(
@@ -565,7 +547,6 @@ public final class LayoutElementBuilders {
             return new SpanVerticalAlignmentProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.SpanVerticalAlignmentProp toProto() {
@@ -697,14 +678,12 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static FontStyle fromProto(@NonNull LayoutElementProto.FontStyle proto) {
             return new FontStyle(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.FontStyle toProto() {
@@ -853,7 +832,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TextAlignmentProp fromProto(
@@ -861,7 +839,6 @@ public final class LayoutElementBuilders {
             return new TextAlignmentProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public AlignmentProto.TextAlignmentProp toProto() {
@@ -904,7 +881,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TextOverflowProp fromProto(
@@ -912,7 +888,6 @@ public final class LayoutElementBuilders {
             return new TextOverflowProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.TextOverflowProp toProto() {
@@ -955,7 +930,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ArcAnchorTypeProp fromProto(
@@ -963,7 +937,6 @@ public final class LayoutElementBuilders {
             return new ArcAnchorTypeProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public AlignmentProto.ArcAnchorTypeProp toProto() {
@@ -1096,21 +1069,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Text fromProto(@NonNull LayoutElementProto.Text proto) {
             return new Text(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Text toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1263,7 +1233,6 @@ public final class LayoutElementBuilders {
             return mImpl.getValue().getNumber();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ContentScaleModeProp fromProto(
@@ -1271,7 +1240,6 @@ public final class LayoutElementBuilders {
             return new ContentScaleModeProp(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.ContentScaleModeProp toProto() {
@@ -1325,14 +1293,12 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ColorFilter fromProto(@NonNull LayoutElementProto.ColorFilter proto) {
             return new ColorFilter(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.ColorFilter toProto() {
@@ -1460,21 +1426,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Image fromProto(@NonNull LayoutElementProto.Image proto) {
             return new Image(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Image toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1617,21 +1580,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Spacer fromProto(@NonNull LayoutElementProto.Spacer proto) {
             return new Spacer(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Spacer toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1764,21 +1724,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Box fromProto(@NonNull LayoutElementProto.Box proto) {
             return new Box(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Box toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1930,21 +1887,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static SpanText fromProto(@NonNull LayoutElementProto.SpanText proto) {
             return new SpanText(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.SpanText toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2070,21 +2024,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static SpanImage fromProto(@NonNull LayoutElementProto.SpanImage proto) {
             return new SpanImage(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.SpanImage toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2179,7 +2130,6 @@ public final class LayoutElementBuilders {
         /**
          * Get the protocol buffer representation of this object.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2189,7 +2139,6 @@ public final class LayoutElementBuilders {
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2310,21 +2259,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Spannable fromProto(@NonNull LayoutElementProto.Spannable proto) {
             return new Spannable(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Spannable toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2532,21 +2478,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Column fromProto(@NonNull LayoutElementProto.Column proto) {
             return new Column(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Column toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2711,21 +2654,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Row fromProto(@NonNull LayoutElementProto.Row proto) {
             return new Row(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Row toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2885,21 +2825,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Arc fromProto(@NonNull LayoutElementProto.Arc proto) {
             return new Arc(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.Arc toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3043,21 +2980,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ArcText fromProto(@NonNull LayoutElementProto.ArcText proto) {
             return new ArcText(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.ArcText toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3167,21 +3101,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ArcLine fromProto(@NonNull LayoutElementProto.ArcLine proto) {
             return new ArcLine(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.ArcLine toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3279,21 +3210,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ArcSpacer fromProto(@NonNull LayoutElementProto.ArcSpacer proto) {
             return new ArcSpacer(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.ArcSpacer toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3373,21 +3301,18 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ArcAdapter fromProto(@NonNull LayoutElementProto.ArcAdapter proto) {
             return new ArcAdapter(proto);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         LayoutElementProto.ArcAdapter toProto() {
             return mImpl;
         }
 
-        /** @hide */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3453,7 +3378,6 @@ public final class LayoutElementBuilders {
         /**
          * Get the protocol buffer representation of this object.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3463,7 +3387,6 @@ public final class LayoutElementBuilders {
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3514,7 +3437,6 @@ public final class LayoutElementBuilders {
         /**
          * Get the protocol buffer representation of this object.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3524,7 +3446,6 @@ public final class LayoutElementBuilders {
          * Return an instance of one of this object's subtypes, from the protocol buffer
          * representation.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3574,7 +3495,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Layout fromProto(@NonNull LayoutElementProto.Layout proto) {
@@ -3587,7 +3507,6 @@ public final class LayoutElementBuilders {
             return new Builder().setRoot(layoutElement).build();
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.Layout toProto() {

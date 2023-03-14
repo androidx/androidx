@@ -30,7 +30,6 @@ import java.util.concurrent.Executor;
 /**
  * Provides a portrait post-processing effect.
  *
- * @hide
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

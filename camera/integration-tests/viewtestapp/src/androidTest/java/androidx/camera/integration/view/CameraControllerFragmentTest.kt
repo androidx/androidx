@@ -140,7 +140,7 @@ class CameraControllerFragmentTest(
         // Arrange: launch app and verify effect is inactive.
         fragment.assertPreviewIsStreaming()
         val processor =
-            fragment.mToneMappingPreviewEffect.surfaceProcessor as ToneMappingSurfaceProcessor
+            fragment.mToneMappingSurfaceEffect.surfaceProcessor as ToneMappingSurfaceProcessor
         assertThat(processor.isSurfaceRequestedAndProvided()).isFalse()
 
         // Act: turn on effect.

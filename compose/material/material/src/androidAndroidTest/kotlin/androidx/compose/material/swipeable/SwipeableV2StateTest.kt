@@ -32,6 +32,7 @@ import androidx.compose.material.swipeable.TestState.A
 import androidx.compose.material.swipeable.TestState.B
 import androidx.compose.material.swipeable.TestState.C
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +53,8 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
@@ -440,5 +443,39 @@ class SwipeableV2StateTest {
 
         shouldInvokeChangeHandler = state.updateAnchors(mapOf(A to 100f, B to 500f, C to 700f))
         assertThat(shouldInvokeChangeHandler).isTrue()
+    }
+
+    @Test
+    fun swipeable_updateAnchors_ongoingOffsetMutation_shouldNotUpdate() = runBlocking {
+        val clock = HandPumpTestFrameClock()
+        val animationScope = CoroutineScope(clock)
+        val animationDuration = 2000
+        val state = SwipeableV2State(initialValue = A, animationSpec = tween(animationDuration))
+        val anchors = mapOf(A to 0f, B to 200f, C to 300f)
+
+        state.updateAnchors(anchors)
+        animationScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            state.animateTo(B)
+        }
+        clock.advanceByFrame()
+
+        assertThat(state.isAnimationRunning).isTrue()
+
+        val offsetBeforeAnchorUpdate = state.offset
+        val shouldInvokeChangeHandler = state.updateAnchors(mapOf(A to 100f, B to 500f, C to 700f))
+        assertThat(offsetBeforeAnchorUpdate).isEqualTo(state.offset)
+        assertThat(shouldInvokeChangeHandler).isTrue()
+    }
+
+    private class HandPumpTestFrameClock : MonotonicFrameClock {
+        private val frameCh = Channel<Long>(1)
+
+        suspend fun advanceByFrame() {
+            frameCh.send(16_000_000L)
+        }
+
+        override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R {
+            return onFrame(frameCh.receive())
+        }
     }
 }

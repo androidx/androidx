@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.InspectorInfo
@@ -37,7 +36,6 @@ import androidx.compose.ui.tryPopulateReflectively
  * @see Modifier.Node
  * @see Modifier.Element
  */
-@ExperimentalComposeUiApi
 abstract class ModifierNodeElement<N : Modifier.Node> : Modifier.Element, InspectableValue {
 
     /**

@@ -38,13 +38,15 @@ abstract class BaseApiGeneratorTest {
                 loadSourcesFromDirectory(inputDirectory),
                 mapOf(Metadata.filePath to Metadata.toolMetadata.toByteArray())
             )
-        val aidlPath = System.getProperty("aidl_compiler_path")?.let(::Path)
+        val aidlCompilerPath = System.getProperty("aidl_compiler_path")?.let(::Path)
             ?: throw IllegalArgumentException("aidl_compiler_path flag not set.")
+        val frameworkAidlPath = System.getProperty("framework_aidl_path")?.let(::Path)
+            ?: throw IllegalArgumentException("framework_aidl_path flag not set.")
 
         val generator = PrivacySandboxApiGenerator()
 
         val outputDir = Files.createTempDirectory("output").also { it.toFile().deleteOnExit() }
-        generator.generate(descriptors, aidlPath, outputDir)
+        generator.generate(descriptors, aidlCompilerPath, frameworkAidlPath, outputDir)
         loadSourcesFromDirectory(outputDir.toFile())
     }
 

@@ -39,7 +39,7 @@ import com.google.devtools.ksp.symbol.Variance
  * this is what KAPT generates and Room needs it as long as it generates java code.
  */
 internal class KspSyntheticContinuationParameterElement(
-    private val env: KspProcessingEnv,
+    val env: KspProcessingEnv,
     override val enclosingElement: KspMethodElement
 ) : XExecutableParameterElement,
     XEquality,

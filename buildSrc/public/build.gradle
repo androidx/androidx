@@ -12,9 +12,9 @@ sourceSets {
 
     // Baseline profile
     main.java.srcDirs += "${supportRootFolder}" +
-            "/benchmark/baseline-profiles-gradle-plugin/src/main/kotlin"
+            "/benchmark/baseline-profile-gradle-plugin/src/main/kotlin"
     main.resources.srcDirs += "${supportRootFolder}" +
-            "/benchmark/baseline-profiles-gradle-plugin/src/main/resources"
+            "/benchmark/baseline-profile-gradle-plugin/src/main/resources"
 
     // Inspection
     main.java.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/kotlin"
@@ -44,21 +44,21 @@ gradlePlugin {
             id = "androidx.benchmark"
             implementationClass = "androidx.benchmark.gradle.BenchmarkPlugin"
         }
-        baselineProfilesProducer {
-            id = "androidx.baselineprofiles.producer"
-            implementationClass = "androidx.baselineprofiles.gradle.producer.BaselineProfilesProducerPlugin"
+        baselineProfileProducer {
+            id = "androidx.baselineprofile.producer"
+            implementationClass = "androidx.baselineprofile.gradle.producer.BaselineProfileProducerPlugin"
         }
-        baselineProfilesConsumer {
-            id = "androidx.baselineprofiles.consumer"
-            implementationClass = "androidx.baselineprofiles.gradle.consumer.BaselineProfilesConsumerPlugin"
+        baselineProfileConsumer {
+            id = "androidx.baselineprofile.consumer"
+            implementationClass = "androidx.baselineprofile.gradle.consumer.BaselineProfileConsumerPlugin"
         }
-        baselineProfilesApkProvider {
-            id = "androidx.baselineprofiles.apkprovider"
-            implementationClass = "androidx.baselineprofiles.gradle.apkprovider.BaselineProfilesApkProviderPlugin"
+        baselineProfileAppTarget {
+            id = "androidx.baselineprofile.apptarget"
+            implementationClass = "androidx.baselineprofile.gradle.apptarget.BaselineProfileAppTargetPlugin"
         }
-        baselineProfilesWrapper {
-            id = "androidx.baselineprofiles"
-            implementationClass = "androidx.baselineprofiles.gradle.wrapper.BaselineProfilesWrapperPlugin"
+        baselineProfileWrapper {
+            id = "androidx.baselineprofile"
+            implementationClass = "androidx.baselineprofile.gradle.wrapper.BaselineProfileWrapperPlugin"
         }
         inspection {
             id = "androidx.inspection"

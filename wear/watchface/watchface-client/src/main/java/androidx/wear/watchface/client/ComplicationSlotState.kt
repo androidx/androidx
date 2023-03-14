@@ -271,7 +271,6 @@ public class ComplicationSlotState {
         this.boundingArc = null
     }
 
-    /** @hide */
     @OptIn(ComplicationExperimental::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(

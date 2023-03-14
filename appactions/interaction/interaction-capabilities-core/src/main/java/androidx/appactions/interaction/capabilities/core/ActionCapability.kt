@@ -18,9 +18,6 @@ package androidx.appactions.interaction.capabilities.core
 
 import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
-import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
-import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
-import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 
 /**
@@ -33,7 +30,7 @@ import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 interface ActionCapability {
 
     /** Returns the unique Id of this capability declaration. */
-    val id: String?
+    val id: String
 
     /**
      * Returns whether or not this capability supports multi-turn task.
@@ -49,39 +46,11 @@ interface ActionCapability {
     fun getAppAction(): AppAction
 
     /**
-     * Executes the action and returns the result of execution.
-     *
-     * @param argumentsWrapper The arguments send from assistant to the activity.
-     * @param callback The callback to receive app action result.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun execute(
-        argumentsWrapper: ArgumentsWrapper,
-        callback: CallbackInternal,
-    ) {
-        throw UnsupportedOperationException()
-    }
-
-    /**
-     * Support for manual input. This method should be invoked by AppInteraction SDKs
-     * (background/foreground), so the developers have a way to report state updates back to
-     * Assistant.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun setTouchEventCallback(callback: TouchEventCallback) {}
-
-    /**
      * Create a new capability session. The capability library doesn't maintain registry of
      * capabilities, so it's not going to assign any session id.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun createSession(hostProperties: HostProperties): ActionCapabilitySession {
-        throw UnsupportedOperationException()
-    }
+    fun createSession(hostProperties: HostProperties): ActionCapabilitySession
 }

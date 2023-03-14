@@ -139,6 +139,8 @@ interface OutputStream {
     val timestampBase: TimestampBase?
     val dynamicRangeProfile: DynamicRangeProfile?
     val streamUseCase: StreamUseCase?
+    val outputType: OutputType?
+
     // TODO: Consider adding sensor mode and/or other metadata
 
     /**

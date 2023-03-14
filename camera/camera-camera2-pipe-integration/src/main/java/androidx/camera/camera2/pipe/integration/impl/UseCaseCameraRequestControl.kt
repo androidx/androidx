@@ -102,8 +102,7 @@ interface UseCaseCameraRequestControl {
      *
      *  This method will:
      *  (1) Stores [config], [tags] and [listeners] by [type] respectively. The new inputs above
-     *  will take place of the existing value of the [type]. If the [type] isn't set, it will
-     *  override the config which is stored as the [Type.DEFAULT].
+     *  will take place of the existing value of the [type].
      *  (2) Update the repeating request by merging all the [config], [tags] and [listeners] from
      *  all the defined types.
      *
@@ -130,9 +129,9 @@ interface UseCaseCameraRequestControl {
     // 3A
     suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A>
     suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
+        aeRegions: List<MeteringRectangle>? = null,
+        afRegions: List<MeteringRectangle>? = null,
+        awbRegions: List<MeteringRectangle>? = null,
         afTriggerStartAeMode: AeMode? = null
     ): Deferred<Result3A>
 
@@ -217,9 +216,9 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         }
 
     override suspend fun startFocusAndMeteringAsync(
-        aeRegions: List<MeteringRectangle>,
-        afRegions: List<MeteringRectangle>,
-        awbRegions: List<MeteringRectangle>,
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
         afTriggerStartAeMode: AeMode?
     ): Deferred<Result3A> = graph.acquireSession().use {
         it.lock3A(

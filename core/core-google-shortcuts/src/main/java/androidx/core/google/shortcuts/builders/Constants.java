@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Constants for the Shortcut Corpus.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class Constants {

@@ -121,6 +121,7 @@ val ALLOW_RERUNNING_TASKS = setOf(
     "generateProjectStructureMetadata",
 
     // https://github.com/google/protobuf-gradle-plugin/issues/667
+    ":appactions:interaction:interaction-service-proto:extractIncludeTestProto",
     ":datastore:datastore-preferences-proto:extractIncludeTestProto",
     ":glance:glance-appwidget-proto:extractIncludeTestProto",
     ":health:connect:connect-client-proto:extractIncludeTestProto",

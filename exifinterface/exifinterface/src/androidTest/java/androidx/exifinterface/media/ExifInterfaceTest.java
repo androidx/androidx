@@ -18,10 +18,13 @@ package androidx.exifinterface.media;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -64,6 +67,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
@@ -87,6 +91,10 @@ public class ExifInterfaceTest {
 
     private static final String JPEG_WITH_EXIF_BYTE_ORDER_II = "jpeg_with_exif_byte_order_ii.jpg";
     private static final String JPEG_WITH_EXIF_BYTE_ORDER_MM = "jpeg_with_exif_byte_order_mm.jpg";
+    private static final String JPEG_WITH_EXIF_INVALID_OFFSET = "jpeg_with_exif_invalid_offset.jpg";
+    private static final String JPEG_WITH_EXIF_FULL_APP1_SEGMENT =
+            "jpeg_with_exif_full_app1_segment.jpg";
+
     private static final String DNG_WITH_EXIF_WITH_XMP = "dng_with_exif_with_xmp.dng";
     private static final String JPEG_WITH_EXIF_WITH_XMP = "jpeg_with_exif_with_xmp.jpg";
     private static final String PNG_WITH_EXIF_BYTE_ORDER_II = "png_with_exif_byte_order_ii.png";
@@ -107,6 +115,8 @@ public class ExifInterfaceTest {
     private static final int[] IMAGE_RESOURCES = new int[] {
             R.raw.jpeg_with_exif_byte_order_ii,
             R.raw.jpeg_with_exif_byte_order_mm,
+            R.raw.jpeg_with_exif_invalid_offset,
+            R.raw.jpeg_with_exif_full_app1_segment,
             R.raw.dng_with_exif_with_xmp,
             R.raw.jpeg_with_exif_with_xmp,
             R.raw.png_with_exif_byte_order_ii,
@@ -122,6 +132,8 @@ public class ExifInterfaceTest {
     private static final String[] IMAGE_FILENAMES = new String[] {
             JPEG_WITH_EXIF_BYTE_ORDER_II,
             JPEG_WITH_EXIF_BYTE_ORDER_MM,
+            JPEG_WITH_EXIF_INVALID_OFFSET,
+            JPEG_WITH_EXIF_FULL_APP1_SEGMENT,
             DNG_WITH_EXIF_WITH_XMP,
             JPEG_WITH_EXIF_WITH_XMP,
             PNG_WITH_EXIF_BYTE_ORDER_II,
@@ -452,6 +464,36 @@ public class ExifInterfaceTest {
     public void testJpegWithExifAndXmp() throws Throwable {
         readFromFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, R.array.jpeg_with_exif_with_xmp);
         writeToFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, R.array.jpeg_with_exif_with_xmp);
+    }
+
+    // https://issuetracker.google.com/264729367
+    @Test
+    @LargeTest
+    public void testJpegWithInvalidOffset() throws Throwable {
+        readFromFilesWithExif(JPEG_WITH_EXIF_INVALID_OFFSET, R.array.jpeg_with_exif_invalid_offset);
+        writeToFilesWithExif(JPEG_WITH_EXIF_INVALID_OFFSET, R.array.jpeg_with_exif_invalid_offset);
+    }
+
+    // https://issuetracker.google.com/263747161
+    @Test
+    @LargeTest
+    public void testJpegWithFullApp1Segment() throws Throwable {
+        File srcFile = getFileFromExternalDir(JPEG_WITH_EXIF_FULL_APP1_SEGMENT);
+        File imageFile = clone(srcFile);
+        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        // Add a really long string that makes the Exif data too large for the JPEG APP1 segment.
+        char[] longStringChars = new char[500];
+        Arrays.fill(longStringChars, 'a');
+        String longString = new String(longStringChars);
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, longString);
+
+        IOException expected = assertThrows(IOException.class,
+                exifInterface::saveAttributes);
+        assertThat(expected)
+                .hasCauseThat()
+                .hasMessageThat()
+                .contains("exceeds the max size of a JPEG APP1 segment");
+        assertBitmapsEquivalent(srcFile, imageFile);
     }
 
     @Test

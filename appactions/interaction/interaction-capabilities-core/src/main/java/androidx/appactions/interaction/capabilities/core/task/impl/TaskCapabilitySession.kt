@@ -1,7 +1,7 @@
 /*
  * Copyright 2023 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License")
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -16,53 +16,68 @@
 
 package androidx.appactions.interaction.capabilities.core.task.impl
 
+import androidx.annotation.GuardedBy
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback
-import androidx.appactions.interaction.capabilities.core.impl.concurrent.FutureCallback
-import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
-import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
+import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
+import androidx.appactions.interaction.proto.ParamValue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 internal class TaskCapabilitySession<
     ArgumentT,
     OutputT,
     ConfirmationT,
-    > (
-    val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
-    val appAction: AppAction,
-    val taskHandler: TaskHandler<ConfirmationT>,
-    val externalSession: BaseSession<ArgumentT, OutputT>,
+>(
+    actionSpec: ActionSpec<*, ArgumentT, OutputT>,
+    appAction: AppAction,
+    taskHandler: TaskHandler<ConfirmationT>,
+    externalSession: BaseSession<ArgumentT, OutputT>,
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) : ActionCapabilitySession, TaskUpdateHandler {
-    override val state: AppAction
-        get() = sessionOrchestrator.getAppAction()
+    override val state: AppDialogState
+        get() = sessionOrchestrator.appDialogState
 
     // single-turn capability does not have status
     override val status: ActionCapabilitySession.Status
-        get() = sessionOrchestrator.getStatus()
+        get() = sessionOrchestrator.status
+
+    override fun destroy() {
+        // TODO(b/270751989): cancel current processing request immediately
+        this.sessionOrchestrator.terminate()
+    }
+
+    override val uiHandle: Any = externalSession
 
     /** synchronize on this lock to enqueue assistant/manual input requests. */
     private val requestLock = Any()
 
     /** Contains session state and request processing logic. */
-    private val sessionOrchestrator: TaskOrchestrator<
-        ArgumentT, OutputT, ConfirmationT,> =
+    private val sessionOrchestrator:
+        TaskOrchestrator<
+            ArgumentT,
+            OutputT,
+            ConfirmationT,
+        > =
         TaskOrchestrator(
             actionSpec,
             appAction,
             taskHandler,
             externalSession,
-            Runnable::run,
         )
-    private var pendingAssistantRequest: AssistantUpdateRequest? = null
-    private var pendingTouchEventRequest: TouchEventUpdateRequest? = null
+
+    @GuardedBy("requestLock") private var pendingAssistantRequest: AssistantUpdateRequest? = null
+    @GuardedBy("requestLock") private var pendingTouchEventRequest: TouchEventUpdateRequest? = null
 
     override fun execute(argumentsWrapper: ArgumentsWrapper, callback: CallbackInternal) {
-        enqueueAssistantRequest(AssistantUpdateRequest.create(argumentsWrapper, callback))
+        enqueueAssistantRequest(AssistantUpdateRequest(argumentsWrapper, callback))
     }
 
     override fun updateParamValues(paramValuesMap: Map<String, List<ParamValue>>) {
@@ -82,7 +97,7 @@ internal class TaskCapabilitySession<
      */
     private fun enqueueAssistantRequest(request: AssistantUpdateRequest) {
         synchronized(requestLock) {
-            pendingAssistantRequest?.callbackInternal()?.onError(ErrorStatusInternal.CANCELLED)
+            pendingAssistantRequest?.callbackInternal?.onError(ErrorStatusInternal.CANCELLED)
             pendingAssistantRequest = request
             dispatchPendingRequestIfIdle()
         }
@@ -90,19 +105,16 @@ internal class TaskCapabilitySession<
 
     private fun enqueueTouchEventRequest(request: TouchEventUpdateRequest) {
         synchronized(requestLock) {
-            if (pendingTouchEventRequest == null) {
-                pendingTouchEventRequest = request
-            } else {
-                pendingTouchEventRequest =
-                    TouchEventUpdateRequest.merge(pendingTouchEventRequest!!, request)
-            }
+            pendingTouchEventRequest =
+                if (pendingTouchEventRequest == null) request
+                else pendingTouchEventRequest!!.mergeWith(request)
             dispatchPendingRequestIfIdle()
         }
     }
 
     /**
-     * If sessionOrchestrator is idle, select the next request to dispatch to sessionOrchestrator (if
-     * there are any pending requests).
+     * If sessionOrchestrator is idle, select the next request to dispatch to sessionOrchestrator
+     * (if there are any pending requests).
      *
      * <p>If sessionOrchestrator is not idle, do nothing, since this method will automatically be
      * called when sessionOrchestrator becomes idle.
@@ -114,40 +126,17 @@ internal class TaskCapabilitySession<
             }
             var nextRequest: UpdateRequest? = null
             if (pendingAssistantRequest != null) {
-                nextRequest = UpdateRequest.of(pendingAssistantRequest)
+                nextRequest = UpdateRequest(pendingAssistantRequest!!)
                 pendingAssistantRequest = null
             } else if (pendingTouchEventRequest != null) {
-                nextRequest = UpdateRequest.of(pendingTouchEventRequest)
+                nextRequest = UpdateRequest(pendingTouchEventRequest!!)
                 pendingTouchEventRequest = null
             }
             if (nextRequest != null) {
-                Futures.addCallback(
-                    sessionOrchestrator.processUpdateRequest(nextRequest),
-                    object : FutureCallback<Void?> {
-                        override fun onSuccess(unused: Void?) {
-                            dispatchPendingRequestIfIdle()
-                        }
-
-                        /**
-                         * A fatal exception has occurred, cause by one of the following:
-                         *
-                         * <ul>
-                         *   <li>1. The developer listener threw some runtime exception
-                         *   <li>2. The SDK encountered some uncaught internal exception
-                         * </ul>
-                         *
-                         * <p>In both cases, this exception will be rethrown which will crash
-                         * the app.
-                         */
-                        override fun onFailure(t: Throwable) {
-                            throw IllegalStateException(
-                                "unhandled exception in request processing",
-                                t,
-                            )
-                        }
-                    },
-                    Runnable::run,
-                )
+                scope.launch {
+                    sessionOrchestrator.processUpdateRequest(nextRequest)
+                    dispatchPendingRequestIfIdle()
+                }
             }
         }
     }

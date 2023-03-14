@@ -23,7 +23,6 @@ import androidx.compose.ui.layout.LookaheadLayoutCoordinatesImpl
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -81,7 +80,6 @@ internal abstract class LookaheadCapablePlaceable : Placeable(), MeasureScopeWit
 
 internal abstract class LookaheadDelegate(
     val coordinator: NodeCoordinator,
-    val lookaheadScope: LookaheadScope
 ) : Measurable, LookaheadCapablePlaceable() {
     override val child: LookaheadCapablePlaceable?
         get() = coordinator.wrapped?.lookaheadDelegate

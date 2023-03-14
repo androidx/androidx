@@ -245,14 +245,12 @@ public final class ImageCapture extends UseCase {
     /**
      * When flash is required for taking a picture, a normal one shot flash will be used.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int FLASH_TYPE_ONE_SHOT_FLASH = 0;
     /**
      * When flash is required for taking a picture, torch will be used as flash.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int FLASH_TYPE_USE_TORCH_AS_FLASH = 1;
@@ -260,7 +258,6 @@ public final class ImageCapture extends UseCase {
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
@@ -376,7 +373,8 @@ public final class ImageCapture extends UseCase {
         if (isNodeEnabled()) {
             return createPipelineWithNode(cameraId, config, streamSpec);
         }
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
+                streamSpec.getResolution());
 
         if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
             getCameraControl().addZslConfig(sessionConfigBuilder);
@@ -506,7 +504,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -528,7 +525,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -540,7 +536,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -614,7 +609,6 @@ public final class ImageCapture extends UseCase {
     /**
      * Configures flash mode to CameraControlInternal once it is ready.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -708,9 +702,10 @@ public final class ImageCapture extends UseCase {
      *
      * <p>The rotation can be set prior to constructing an ImageCapture using
      * {@link ImageCapture.Builder#setTargetRotation(int)} or dynamically by calling
-     * {@link ImageCapture#setTargetRotation(int)}. The rotation of an image taken is determined
-     * by the rotation value set at the time image capture is initiated, such as when calling
-     * {@link #takePicture(Executor, OnImageCapturedCallback)}.
+     * {@link ImageCapture#setTargetRotation(int)} or
+     * {@link ImageCapture#setTargetRotationDegrees(int)}. The rotation of an image taken is
+     * determined by the rotation value set at the time image capture is initiated, such as when
+     * calling {@link #takePicture(Executor, OnImageCapturedCallback)}.
      *
      * <p>If no target rotation is set by the application, it is set to the value of
      * {@link Display#getRotation()} of the default display at the time the use case is
@@ -739,15 +734,9 @@ public final class ImageCapture extends UseCase {
      * a given image.  This is important since display orientation may be locked by device
      * default, user setting, or app configuration, and some devices may not transition to a
      * reverse-portrait display orientation. In these cases,
-     * use {@code setTargetRotation} to set target rotation dynamically according to the
-     * {@link android.view.OrientationEventListener}, without re-creating the use case.  Note
-     * the OrientationEventListener output of degrees in the range [0..359] should be converted to
-     * a surface rotation. The mapping values are listed as the following.
-     * <p>{@link android.view.OrientationEventListener#ORIENTATION_UNKNOWN}: orientation == -1
-     * <p>{@link Surface#ROTATION_0}: orientation >= 315 || orientation < 45
-     * <p>{@link Surface#ROTATION_90}: orientation >= 225 && orientation < 315
-     * <p>{@link Surface#ROTATION_180}: orientation >= 135 && orientation < 225
-     * <p>{@link Surface#ROTATION_270}: orientation >= 45 && orientation < 135
+     * use {@link #setTargetRotationDegrees} to set target rotation dynamically according to the
+     * {@link android.view.OrientationEventListener}, without re-creating the use case.
+     * See {@link #setTargetRotationDegrees} for more information.
      *
      * <p>When this function is called, value set by
      * {@link ImageCapture.Builder#setTargetResolution(Size)} will be updated automatically to make
@@ -756,8 +745,11 @@ public final class ImageCapture extends UseCase {
      * make sure the output image is cropped into expected aspect ratio.
      *
      * <p>If no target rotation is set by the application, it is set to the value of
-     * {@link Display#getRotation()} of the default display at the time the use case is created. The
-     * use case is fully created once it has been attached to a camera.
+     * {@link Display#getRotation()} of the default display at the time the use case is bound. To
+     * return to the default value, set the value to
+     * <pre>{@code
+     * context.getSystemService(WindowManager.class).getDefaultDisplay().getRotation();
+     * }</pre>
      *
      * <p>takePicture uses the target rotation at the time it begins executing (which may be delayed
      * waiting on a previous takePicture call to complete).
@@ -783,6 +775,79 @@ public final class ImageCapture extends UseCase {
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }
+    }
+
+    /**
+     * Sets the desired rotation of the output image in degrees.
+     *
+     * <p>In general, it is best to use an {@link  android.view.OrientationEventListener} to set
+     * the target rotation. This way, the rotation output will indicate which way is down for a
+     * given image. This is important since display orientation may be locked by device default,
+     * user setting, or app configuration, and some devices may not transition to a
+     * reverse-portrait display orientation. In these cases, use
+     * {@code setTargetRotationDegrees()} to set target rotation dynamically according
+     * to the {@link  android.view.OrientationEventListener}, without re-creating the use case.
+     * The sample code is as below:
+     * <pre>{@code
+     * public class CameraXActivity extends AppCompatActivity {
+     *
+     *     private OrientationEventListener mOrientationEventListener;
+     *
+     *     @Override
+     *     protected void onStart() {
+     *         super.onStart();
+     *         if (mOrientationEventListener == null) {
+     *             mOrientationEventListener = new OrientationEventListener(this) {
+     *                 @Override
+     *                 public void onOrientationChanged(int orientation) {
+     *                     if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
+     *                         return;
+     *                     }
+     *                     mImageCapture.setTargetRotationDegrees(orientation);
+     *                 }
+     *             };
+     *         }
+     *         mOrientationEventListener.enable();
+     *     }
+     *
+     *     @Override
+     *     protected void onStop() {
+     *         super.onStop();
+     *         mOrientationEventListener.disable();
+     *     }
+     * }
+     * }</pre>
+     *
+     * <p>{@code setTargetRotationDegrees()} cannot rotate the camera image to an arbitrary angle,
+     * instead it maps the angle to one of {@link Surface#ROTATION_0},
+     * {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180} and {@link Surface#ROTATION_270}
+     * as the input of {@link #setTargetRotation(int)}. The rule is as follows:
+     * <p>If the input degrees is not in the range [0..359], it will be converted to the equivalent
+     * degrees in the range [0..359]. And then take the following mapping based on the input
+     * degrees.
+     * <p>degrees >= 315 || degrees < 45 -> {@link Surface#ROTATION_0}
+     * <p>degrees >= 225 && degrees < 315 -> {@link Surface#ROTATION_90}
+     * <p>degrees >= 135 && degrees < 225 -> {@link Surface#ROTATION_180}
+     * <p>degrees >= 45 && degrees < 135 -> {@link Surface#ROTATION_270}
+     * <p>The rotation value can be obtained by {@link #getTargetRotation()}. This means the
+     * rotation previously set by {@link #setTargetRotation(int)} will be overridden by
+     * {@code setTargetRotationDegrees(int)}, and vice versa.
+     *
+     * <p>When this function is called, value set by
+     * {@link ImageCapture.Builder#setTargetResolution(Size)} will be updated automatically to make
+     * sure the suitable resolution can be selected when the use case is bound. Value set by
+     * {@link ImageCapture#setCropAspectRatio(Rational)} will also be updated automatically to
+     * make sure the output image is cropped into expected aspect ratio.
+     *
+     * <p>takePicture uses the target rotation at the time it begins executing (which may be delayed
+     * waiting on a previous takePicture call to complete).
+     *
+     * @param degrees Desired rotation degree of the output image.
+     * @see #setTargetRotation(int)
+     * @see #getTargetRotation()
+     */
+    public void setTargetRotationDegrees(int degrees) {
+        setTargetRotation(orientationDegreesToSurfaceRotation(degrees));
     }
 
     /**
@@ -838,7 +903,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1022,7 +1086,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @UiThread
@@ -1490,7 +1553,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -1503,7 +1565,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1524,7 +1585,6 @@ public final class ImageCapture extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @NonNull
     @Override
@@ -1672,7 +1732,8 @@ public final class ImageCapture extends UseCase {
         }
         mTakePictureManager.setImagePipeline(mImagePipeline);
 
-        SessionConfig.Builder sessionConfigBuilder = mImagePipeline.createSessionConfigBuilder();
+        SessionConfig.Builder sessionConfigBuilder =
+                mImagePipeline.createSessionConfigBuilder(streamSpec.getResolution());
         if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
             getCameraControl().addZslConfig(sessionConfigBuilder);
         }
@@ -1815,7 +1876,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * @inheritDoc
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1833,7 +1893,6 @@ public final class ImageCapture extends UseCase {
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
      * ImageCapture.OnImageSavedCallback#onError(ImageCaptureException)}.
      *
-     * @hide
      */
     @IntDef({ERROR_UNKNOWN, ERROR_FILE_IO, ERROR_CAPTURE_FAILED, ERROR_CAMERA_CLOSED,
             ERROR_INVALID_CAMERA})
@@ -1846,7 +1905,6 @@ public final class ImageCapture extends UseCase {
      * Capture mode options for ImageCapture. A picture will always be taken regardless of
      * mode, and the mode will be used on devices that support it.
      *
-     * @hide
      */
     @IntDef({CAPTURE_MODE_MAXIMIZE_QUALITY, CAPTURE_MODE_MINIMIZE_LATENCY,
             CAPTURE_MODE_ZERO_SHUTTER_LAG})
@@ -1868,7 +1926,6 @@ public final class ImageCapture extends UseCase {
      * the torch is disabled, flash will function as specified by
      * {@link #setFlashMode(int)}.
      *
-     * @hide
      */
     @IntDef({FLASH_MODE_UNKNOWN, FLASH_MODE_AUTO, FLASH_MODE_ON, FLASH_MODE_OFF})
     @Retention(RetentionPolicy.SOURCE)
@@ -1879,7 +1936,6 @@ public final class ImageCapture extends UseCase {
     /**
      * The flash type options when flash is required for taking a picture.
      *
-     * @hide
      */
     @IntDef({FLASH_TYPE_ONE_SHOT_FLASH, FLASH_TYPE_USE_TORCH_AS_FLASH})
     @Retention(RetentionPolicy.SOURCE)
@@ -1954,7 +2010,6 @@ public final class ImageCapture extends UseCase {
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
@@ -2015,7 +2070,6 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2024,7 +2078,6 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2033,7 +2086,6 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2042,7 +2094,6 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2051,7 +2102,6 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * @hide
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2064,7 +2114,6 @@ public final class ImageCapture extends UseCase {
          * front camera. External core API users shouldn't need this because they are the ones who
          * created the {@link Metadata}.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2183,7 +2232,6 @@ public final class ImageCapture extends UseCase {
         private final Uri mSavedUri;
 
         /**
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public OutputFileResults(@Nullable Uri savedUri) {
@@ -2247,7 +2295,6 @@ public final class ImageCapture extends UseCase {
          * <p> CameraController's default behavior is mirroring the picture when front camera is
          * used. This method is used to check if reverseHorizontal is set explicitly by the app.
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public boolean isReversedHorizontalSet() {
@@ -2486,7 +2533,6 @@ public final class ImageCapture extends UseCase {
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2499,7 +2545,6 @@ public final class ImageCapture extends UseCase {
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2510,7 +2555,6 @@ public final class ImageCapture extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -2522,7 +2566,6 @@ public final class ImageCapture extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2631,7 +2674,6 @@ public final class ImageCapture extends UseCase {
          *
          * @param bufferImageFormat The image format for captured images.
          * @return The current Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2640,7 +2682,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2649,7 +2690,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -2660,7 +2700,6 @@ public final class ImageCapture extends UseCase {
 
         // Implementations of TargetConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2741,7 +2780,7 @@ public final class ImageCapture extends UseCase {
          * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
          *
          * <p>In general, it is best to additionally set the target rotation dynamically on the use
-         * case.  See {@link androidx.camera.core.ImageCapture#setTargetRotation(int)} for
+         * case.  See {@link androidx.camera.core.ImageCapture#setTargetRotationDegrees(int)} for
          * additional documentation.
          *
          * <p>If not set, the target rotation will default to the value of
@@ -2751,6 +2790,7 @@ public final class ImageCapture extends UseCase {
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
          * @see androidx.camera.core.ImageCapture#setTargetRotation(int)
+         * @see androidx.camera.core.ImageCapture#setTargetRotationDegrees(int)
          * @see android.view.OrientationEventListener
          */
         @NonNull
@@ -2758,6 +2798,17 @@ public final class ImageCapture extends UseCase {
         public Builder setTargetRotation(@RotationValue int rotation) {
             getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
             return this;
+        }
+
+        /**
+         * setMirrorMode is not supported on ImageCapture.
+         *
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+            throw new UnsupportedOperationException("setMirrorMode is not supported.");
         }
 
         /**
@@ -2813,7 +2864,6 @@ public final class ImageCapture extends UseCase {
          *
          * @param resolution The default resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2824,7 +2874,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -2850,7 +2899,6 @@ public final class ImageCapture extends UseCase {
          * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
          * {@link #build()} is called to create the {@link ImageCapture} instance.
          *
-         * @hide
          **/
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -2860,7 +2908,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setImageReaderProxyProvider(
@@ -2870,7 +2917,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setSoftwareJpegEncoderRequested(boolean requestSoftwareJpeg) {
@@ -2887,7 +2933,6 @@ public final class ImageCapture extends UseCase {
          * @param flashType The requested flash mode. Value is {@link #FLASH_TYPE_ONE_SHOT_FLASH}
          *                  or {@link #FLASH_TYPE_USE_TORCH_AS_FLASH}.
          * @return The current Builder.
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2945,7 +2990,6 @@ public final class ImageCapture extends UseCase {
 
         // Implementations of UseCaseConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2954,7 +2998,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2963,7 +3006,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2973,7 +3015,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2983,7 +3024,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2992,7 +3032,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -3001,7 +3040,6 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -3014,7 +3052,6 @@ public final class ImageCapture extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3027,7 +3064,6 @@ public final class ImageCapture extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

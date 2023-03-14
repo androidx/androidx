@@ -43,7 +43,7 @@ import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatN
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.FixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.Int32ToFloatNode;
-import androidx.wear.protolayout.expression.pipeline.FloatNodes.StateFloatNode;
+import androidx.wear.protolayout.expression.pipeline.FloatNodes.StateFloatSourceNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.FixedInstantNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.PlatformTimeSourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
@@ -54,7 +54,6 @@ import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FloatToInt32Node
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartOpNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.PlatformInt32SourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
-import androidx.wear.protolayout.expression.pipeline.PlatformDataSources.SensorGatewayPlatformDataSource;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.FixedStringNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.FloatFormatNode;
 import androidx.wear.protolayout.expression.pipeline.StringNodes.Int32FormatNode;
@@ -261,7 +260,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
      * @param locale The locale used for the given String source.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -307,7 +305,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param int32Source The given integer dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -334,7 +331,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      *     UI thread.
      * @param animationFallbackValue The value used if the given {@link DynamicInt32} is animatable
      *     and animations are disabled.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -382,7 +378,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      *     UI thread.
      * @param animationFallbackValue The value used if the given {@link DynamicFloat} is animatable
      *     and animation are disabled.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -404,7 +399,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param floatSource The given float dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -448,7 +442,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param colorSource The given color dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -471,7 +464,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      *     UI thread.
      * @param animationFallbackValue The value used if the given {@link DynamicFloat} is animatable
      *     and animation are disabled.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -517,7 +509,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param durationSource The given durations dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -562,7 +553,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param instantSource The given instant dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -605,7 +595,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      * @param boolSource The given boolean dynamic type that should be evaluated.
      * @param consumer The registered consumer for results of the evaluation. It will be called from
      *     UI thread.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -949,9 +938,8 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                 node = new FixedFloatNode(floatSource.getFixed(), consumer);
                 break;
             case STATE_SOURCE:
-                node =
-                        new StateFloatNode(
-                                mStateStore, floatSource.getStateSource().getSourceKey(), consumer);
+                node = new StateFloatSourceNode(
+                                mStateStore, floatSource.getStateSource(), consumer);
                 break;
             case ARITHMETIC_OPERATION:
                 {
@@ -1267,7 +1255,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     /**
      * Closes existing time gateway.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override

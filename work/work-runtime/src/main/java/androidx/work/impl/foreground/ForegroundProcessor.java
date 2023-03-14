@@ -25,7 +25,6 @@ import androidx.work.ListenableWorker;
  * An interface that provides {@link androidx.work.impl.WorkerWrapper} the hooks to move a
  * {@link androidx.work.ListenableWorker}s execution to the foreground.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ForegroundProcessor {

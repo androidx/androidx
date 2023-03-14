@@ -45,6 +45,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 BanInappropriateExperimentalUsage.NULL_ANNOTATION_GROUP_ISSUE,
                 BanInlineOptIn.ISSUE,
                 BanKeepAnnotation.ISSUE,
+                BanThreadSleep.ISSUE,
                 TargetApiAnnotationUsageDetector.ISSUE,
                 // If you add more SampledAnnotationDetector issues here, you
                 // MUST also update `buildSrc/lint_samples.xml` to ensure they
@@ -61,7 +62,8 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 BanSynchronizedMethods.ISSUE,
                 MetadataTagInsideApplicationTagDetector.ISSUE,
                 PrivateConstructorForUtilityClassDetector.ISSUE,
-                ClassVerificationFailureDetector.ISSUE,
+                ClassVerificationFailureDetector.METHOD_CALL_ISSUE,
+                ClassVerificationFailureDetector.IMPLICIT_CAST_ISSUE,
                 IdeaSuppressionDetector.ISSUE,
                 CameraXQuirksClassDetector.ISSUE,
                 NullabilityAnnotationsDetector.ISSUE,

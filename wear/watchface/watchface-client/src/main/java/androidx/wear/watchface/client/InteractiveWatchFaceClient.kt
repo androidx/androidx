@@ -29,6 +29,7 @@ import androidx.annotation.AnyThread
 import androidx.annotation.IntDef
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotBoundsType
@@ -58,7 +59,7 @@ import androidx.wear.watchface.utility.TraceEvent
 import java.time.Instant
 import java.util.concurrent.Executor
 
-/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @IntDef(value = [DisconnectReasons.ENGINE_DIED, DisconnectReasons.ENGINE_DETACHED])
 public annotation class DisconnectReason
 
@@ -416,6 +417,7 @@ internal constructor(
     private val readyListeners =
         HashMap<InteractiveWatchFaceClient.OnWatchFaceReadyListener, Executor>()
     private val watchFaceColorsChangeListeners = HashMap<Consumer<WatchFaceColors?>, Executor>()
+    private var watchFaceReady = false
     private var watchfaceReadyListenerRegistered = false
     private var lastWatchFaceColors: WatchFaceColors? = null
     private var disconnectReason: Int? = null
@@ -687,7 +689,10 @@ internal constructor(
     internal fun onWatchFaceReady() {
         var listenerCopy: HashMap<InteractiveWatchFaceClient.OnWatchFaceReadyListener, Executor>
 
-        synchronized(lock) { listenerCopy = HashMap(readyListeners) }
+        synchronized(lock) {
+            listenerCopy = HashMap(readyListeners)
+            watchFaceReady = true
+        }
 
         for ((listener, executor) in listenerCopy) {
             executor.execute { listener.onWatchFaceReady() }
@@ -699,6 +704,11 @@ internal constructor(
         listener: InteractiveWatchFaceClient.OnWatchFaceReadyListener
     ) {
         synchronized(lock) {
+            if (watchFaceReady) {
+                executor.execute { listener.onWatchFaceReady() }
+                return
+            }
+
             require(!readyListeners.contains(listener)) {
                 "Don't call addWatchFaceReadyListener multiple times for the same listener"
             }

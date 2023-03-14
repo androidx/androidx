@@ -2,6 +2,51 @@
 <issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(time);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/widget/CircularProgressLayoutTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(MILLIS_TO_WAIT_FOR_ACTIVITY_TO_BE_DRAWN);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/activity/ConfirmationActivityTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(MILLIS_TO_WAIT_FOR_ACTIVITY_TO_BE_DRAWN);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/activity/ConfirmationActivityTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(duration - MILLIS_BEFORE_END_OF_DURATION"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/activity/ConfirmationActivityTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(MILLIS_AFTER_END_OF_DURATION + MILLIS_BEFORE_END_OF_DURATION"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/wear/activity/ConfirmationActivityTest.java"/>
+    </issue>
+
+    <issue
         id="KotlinPropertyAccess"
         message="This method should be called `getCircleColor` such that `circleColor` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="    public int getDefaultCircleColor() {"

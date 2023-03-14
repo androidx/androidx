@@ -39,6 +39,7 @@ android {
 androidx {
     name = "Android Graphics Shapes"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GRAPHICS_SHAPES
     inceptionYear = "2022"
     description = "create and render rounded polygonal shapes"
 }

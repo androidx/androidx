@@ -3314,6 +3314,103 @@ class CompositionTests {
         revalidate()
     }
 
+    @Test
+    fun test_returnConditionally_fromInlineLambda() = compositionTest {
+        var condition by mutableStateOf(true)
+
+        compose {
+            InlineWrapper {
+                if (condition) return@InlineWrapper
+                Text("Test")
+            }
+        }
+
+        validate {
+            if (!condition) {
+                Text("Test")
+            }
+        }
+
+        condition = false
+
+        expectChanges()
+
+        revalidate()
+    }
+
+    @Test
+    fun test_returnConditionally_fromInlineLambda_nonLocal() = compositionTest {
+        var condition by mutableStateOf(true)
+
+        compose {
+            InlineWrapper {
+                M1 {
+                    if (condition) return@InlineWrapper
+                    Text("Test")
+                }
+            }
+        }
+
+        validate {
+            if (!condition) {
+                Text("Test")
+            }
+        }
+
+        condition = false
+
+        expectChanges()
+
+        revalidate()
+    }
+
+    @Test
+    fun test_returnConditionally_fromLambda_nonLocal() = compositionTest {
+        var condition by mutableStateOf(true)
+
+        compose {
+            Wrap {
+                M1 {
+                    if (condition) return@Wrap
+                    Text("Test")
+                }
+            }
+        }
+
+        validate {
+            if (!condition) {
+                Text("Test")
+            }
+        }
+
+        condition = false
+
+        expectChanges()
+
+        revalidate()
+    }
+
+    @Test
+    fun test_returnConditionally_fromFunction_nonLocal() = compositionTest {
+        val text = mutableStateOf<String?>(null)
+
+        compose {
+            TextWithNonLocalReturn(text.value)
+        }
+
+        validate {
+            if (text.value != null) {
+                Text(text.value!!)
+            }
+        }
+
+        text.value = "Test"
+
+        expectChanges()
+
+        revalidate()
+    }
+
     @Test // regression test for 267586102
     fun test_remember_in_a_loop() = compositionTest {
         var i1 = 0
@@ -3592,7 +3689,9 @@ private inline fun InlineWrapper(content: @Composable () -> Unit) = content()
 private inline fun M1(content: @Composable () -> Unit) = InlineWrapper { content() }
 
 @Composable
-private inline fun M2(content: @Composable () -> Unit) = M1 { content() }
-
-@Composable
-private inline fun M3(content: @Composable () -> Unit) = M2 { content() }
+private fun TextWithNonLocalReturn(text: String?) {
+    InlineWrapper {
+        if (text == null) return
+        Text(text)
+    }
+}

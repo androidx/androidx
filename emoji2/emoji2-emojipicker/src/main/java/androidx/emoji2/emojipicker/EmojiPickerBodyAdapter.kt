@@ -59,7 +59,6 @@ internal class EmojiPickerBodyAdapter(
 
             ItemType.EMOJI -> {
                 EmojiViewHolder(context,
-                    parent,
                     emojiCellWidth!!,
                     emojiCellHeight!!,
                     layoutInflater,

@@ -156,6 +156,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     }
 
     /** Sets the sweep angle of this arc in degrees. */
+    @Override
     public void setSweepAngleDegrees(float sweepAngleDegrees) {
         this.mSweepAngleDegrees = sweepAngleDegrees;
         updatePathAndPaint();

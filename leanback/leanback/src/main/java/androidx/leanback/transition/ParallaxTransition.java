@@ -40,7 +40,6 @@ import androidx.leanback.widget.Parallax;
  * side, calling ParallaxSource.updateValues() on every frame. User should make sure slide
  * and ParallaxTransition are using same duration and startDelay.
  *
- * @hide
  */
 @RequiresApi(21)
 @RestrictTo(LIBRARY_GROUP_PREFIX)

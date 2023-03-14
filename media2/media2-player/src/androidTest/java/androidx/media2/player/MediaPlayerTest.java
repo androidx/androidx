@@ -464,6 +464,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.reset();
     }
 
+    @Ignore("Test disabled due to flakiness, see b/272342480")
     @Test
     @LargeTest
     public void seekModes() throws Exception {

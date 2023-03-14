@@ -81,7 +81,6 @@ public interface WatchFaceControlClient : AutoCloseable {
                 }
             )
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public suspend fun createWatchFaceControlClientImpl(
             context: Context,

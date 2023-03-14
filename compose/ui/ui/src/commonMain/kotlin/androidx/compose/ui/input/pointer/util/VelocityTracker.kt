@@ -20,7 +20,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
-import androidx.compose.ui.input.pointer.util.VelocityTracker1D.Strategy
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
@@ -154,8 +153,12 @@ class VelocityTracker1D internal constructor(
         Impulse,
     }
     // Circular buffer; current sample at index.
-    private val samples: Array<DataPointAtTime?> = Array(HistorySize) { null }
+    private val samples: Array<DataPointAtTime?> = arrayOfNulls(HistorySize)
     private var index: Int = 0
+
+    // Reusable arrays to avoid allocation inside calculateVelocity.
+    private val reusableDataPointsArray = FloatArray(HistorySize)
+    private val reusableTimeArray = FloatArray(HistorySize)
 
     /**
      * Adds a data point for velocity calculation at a given time, [timeMillis]. The data ponit
@@ -181,8 +184,8 @@ class VelocityTracker1D internal constructor(
      * This can be expensive. Only call this when you need the velocity.
      */
     fun calculateVelocity(): Float {
-        val dataPoints: MutableList<Float> = mutableListOf()
-        val time: MutableList<Float> = mutableListOf()
+        val dataPoints = reusableDataPointsArray
+        val time = reusableTimeArray
         var sampleCount = 0
         var index: Int = index
 
@@ -204,8 +207,8 @@ class VelocityTracker1D internal constructor(
                 break
             }
 
-            dataPoints.add(sample.dataPoint)
-            time.add(-age)
+            dataPoints[sampleCount] = sample.dataPoint
+            time[sampleCount] = -age
             index = (if (index == 0) HistorySize else index) - 1
 
             sampleCount += 1
@@ -213,12 +216,14 @@ class VelocityTracker1D internal constructor(
 
         if (sampleCount >= minSampleSize) {
             // Choose computation logic based on strategy.
-            // Multiply by "1000" to convert from units/ms to units/s
             return when (strategy) {
-                Strategy.Impulse ->
-                    calculateImpulseVelocity(dataPoints, time, isDataDifferential) * 1000
-                Strategy.Lsq2 -> calculateLeastSquaresVelocity(dataPoints, time) * 1000
-            }
+                Strategy.Impulse -> {
+                    calculateImpulseVelocity(dataPoints, time, sampleCount, isDataDifferential)
+                }
+                Strategy.Lsq2 -> {
+                    calculateLeastSquaresVelocity(dataPoints, time, sampleCount)
+                }
+            } * 1000 // Multiply by "1000" to convert from units/ms to units/s
         }
 
         // We're unable to make a velocity estimate but we did have at least one
@@ -239,12 +244,16 @@ class VelocityTracker1D internal constructor(
      * should be provided in reverse chronological order. The returned velocity is in "units/ms",
      * where "units" is unit of the [dataPoints].
      */
-    private fun calculateLeastSquaresVelocity(dataPoints: List<Float>, time: List<Float>): Float {
+    private fun calculateLeastSquaresVelocity(
+        dataPoints: FloatArray,
+        time: FloatArray,
+        sampleCount: Int
+    ): Float {
         // The 2nd coefficient is the derivative of the quadratic polynomial at
         // x = 0, and that happens to be the last timestamp that we end up
         // passing to polyFitLeastSquares.
         try {
-            return polyFitLeastSquares(time, dataPoints, 2)[1]
+            return polyFitLeastSquares(time, dataPoints, sampleCount, 2)[1]
         } catch (exception: IllegalArgumentException) {
             return 0f
         }
@@ -336,40 +345,36 @@ private const val DefaultWeight = 1f
  * Throws an IllegalArgumentException if:
  * <ul>
  *   <li>[degree] is not a positive integer.
- *   <li>[x] and [y] are not the same size.
- *   <li>[x] or [y] are empty.
- *   <li>(some other reason that
+ *   <li>[sampleCount] is zero.
  * </ul>
  *
  */
 internal fun polyFitLeastSquares(
     /** The x-coordinates of each data point. */
-    x: List<Float>,
+    x: FloatArray,
     /** The y-coordinates of each data point. */
-    y: List<Float>,
+    y: FloatArray,
+    /** number of items in each array */
+    sampleCount: Int,
     degree: Int
-): List<Float> {
+): FloatArray {
     if (degree < 1) {
         throw IllegalArgumentException("The degree must be at positive integer")
     }
-    if (x.size != y.size) {
-        throw IllegalArgumentException("x and y must be the same length")
-    }
-    if (x.isEmpty()) {
+    if (sampleCount == 0) {
         throw IllegalArgumentException("At least one point must be provided")
     }
 
     val truncatedDegree =
-        if (degree >= x.size) {
-            x.size - 1
+        if (degree >= sampleCount) {
+            sampleCount - 1
         } else {
             degree
         }
 
-    val coefficients = MutableList(degree + 1) { 0.0f }
-
+    val coefficients = FloatArray(degree + 1)
     // Shorthands for the purpose of notation equivalence to original C++ code.
-    val m: Int = x.size
+    val m: Int = sampleCount
     val n: Int = truncatedDegree + 1
 
     // Expand the X vector to a matrix A, pre-multiplied by the weights.
@@ -513,15 +518,15 @@ internal fun polyFitLeastSquares(
  * the boundary condition must be applied to the oldest sample to be accurate.
  */
 private fun calculateImpulseVelocity(
-    dataPoints: List<Float>,
-    time: List<Float>,
+    dataPoints: FloatArray,
+    time: FloatArray,
+    sampleCount: Int,
     isDataDifferential: Boolean
 ): Float {
-    val numDataPoints = dataPoints.size
-    if (numDataPoints < 2) {
+    if (sampleCount < 2) {
         return 0f
     }
-    if (numDataPoints == 2) {
+    if (sampleCount == 2) {
         if (time[0] == time[1]) {
             return 0f
         }
@@ -534,7 +539,7 @@ private fun calculateImpulseVelocity(
         return dataPointsDelta / (time[0] - time[1])
     }
     var work = 0f
-    for (i in (numDataPoints - 1) downTo 1) {
+    for (i in (sampleCount - 1) downTo 1) {
         if (time[i] == time[i - 1]) {
             continue
         }
@@ -544,7 +549,7 @@ private fun calculateImpulseVelocity(
             else dataPoints[i] - dataPoints[i - 1]
         val vCurr = dataPointsDelta / (time[i] - time[i - 1])
         work += (vCurr - vPrev) * abs(vCurr)
-        if (i == (numDataPoints - 1)) {
+        if (i == (sampleCount - 1)) {
             work = (work * 0.5f)
         }
     }
@@ -563,7 +568,7 @@ private fun kineticEnergyToVelocity(kineticEnergy: Float): Float {
 private class Vector(
     val length: Int
 ) {
-    val elements: Array<Float> = Array(length) { 0.0f }
+    val elements: FloatArray = FloatArray(length)
 
     operator fun get(i: Int) = elements[i]
 

@@ -272,42 +272,6 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
                 it.serviceToTPath.set(this.path)
             }
         }
-        it.clientPreviousServiceToT.fileValue(
-            File(
-                this.getTestConfigDirectory(),
-                "${mediaPrefix}ClientPreviousServiceToT$variantName.xml"
-            )
-        )
-        it.clientToTServicePrevious.fileValue(
-            File(
-                this.getTestConfigDirectory(),
-                "${mediaPrefix}ClientToTServicePrevious$variantName.xml"
-            )
-        )
-        it.clientToTServiceToT.fileValue(
-            File(
-                this.getTestConfigDirectory(),
-                "${mediaPrefix}ClientToTServiceToT$variantName.xml"
-            )
-        )
-        it.constrainedClientPreviousServiceToT.fileValue(
-            File(
-                this.getConstrainedTestConfigDirectory(),
-                "${mediaPrefix}ClientPreviousServiceToT$variantName.xml"
-            )
-        )
-        it.constrainedClientToTServicePrevious.fileValue(
-            File(
-                this.getConstrainedTestConfigDirectory(),
-                "${mediaPrefix}ClientToTServicePrevious$variantName.xml"
-            )
-        )
-        it.constrainedClientToTServiceToT.fileValue(
-            File(
-                this.getConstrainedTestConfigDirectory(),
-                "${mediaPrefix}ClientToTServiceToT$variantName.xml"
-            )
-        )
         it.jsonClientPreviousServiceToTClientTests.fileValue(
             File(
                 this.getTestConfigDirectory(),

@@ -118,7 +118,6 @@ public object RemoteViewsCompat {
             }
         }
 
-        /** @hide */
         internal constructor(parcel: Parcel) {
             val length = parcel.readInt()
             mIds = LongArray(length)
@@ -128,7 +127,6 @@ public object RemoteViewsCompat {
             mViewTypeCount = parcel.readInt()
         }
 
-        /** @hide */
         internal fun writeToParcel(dest: Parcel, flags: Int) {
             dest.writeInt(mIds.size)
             dest.writeLongArray(mIds)

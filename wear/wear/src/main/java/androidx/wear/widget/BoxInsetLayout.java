@@ -394,7 +394,6 @@ public class BoxInsetLayout extends ViewGroup {
      */
     public static class LayoutParams extends FrameLayout.LayoutParams {
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef({BOX_NONE, BOX_LEFT, BOX_TOP, BOX_RIGHT, BOX_BOTTOM, BOX_ALL})
         @Retention(RetentionPolicy.SOURCE)

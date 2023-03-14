@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":wear:tiles:tiles-renderer"))
 
     implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesGuava)
 
     implementation("androidx.core:core:1.1.0")
 

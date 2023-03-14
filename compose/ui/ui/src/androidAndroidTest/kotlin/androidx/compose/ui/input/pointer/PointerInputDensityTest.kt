@@ -16,13 +16,21 @@
 
 package androidx.compose.ui.input.pointer
 
+import android.view.MotionEvent
+import android.view.View
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.background
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -38,6 +46,134 @@ class PointerInputDensityTest {
 
     @get:Rule
     val rule = createComposeRule()
+
+    val tag = "Tagged Layout"
+
+    @Test
+    fun sendNotANumberDensityInPointerEvents() {
+        lateinit var view: View
+
+        val motionEventsToTrigger = generateMultipleMotionEvents(
+            lastPointerX = Float.NaN,
+            lastPointerY = Float.NaN
+        )
+        val recordedEvents = mutableListOf<PointerEventType>()
+
+        rule.setContent {
+            view = LocalView.current
+
+            Box(Modifier
+                .fillMaxSize()
+                .background(Color.Green)
+                .testTag(tag)
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event: PointerEvent = awaitPointerEvent()
+                            recordedEvents += event.type
+                        }
+                    }
+                }
+            ) { }
+        }
+
+        rule.waitForIdle()
+
+        rule.runOnUiThread {
+            motionEventsToTrigger.forEach {
+                view.dispatchTouchEvent(it)
+            }
+        }
+        rule.waitForIdle()
+
+        assertThat(recordedEvents).hasSize(2)
+        assertThat(recordedEvents[0]).isEqualTo(PointerEventType.Press)
+        assertThat(recordedEvents[1]).isEqualTo(PointerEventType.Press)
+    }
+
+    @Test
+    fun sendPositiveInfinityDensityInPointerEvents() {
+        lateinit var view: View
+
+        val motionEventsToTrigger = generateMultipleMotionEvents(
+            lastPointerX = Float.POSITIVE_INFINITY,
+            lastPointerY = Float.POSITIVE_INFINITY
+        )
+        val recordedEvents = mutableListOf<PointerEventType>()
+
+        rule.setContent {
+            view = LocalView.current
+
+            Box(Modifier
+                .fillMaxSize()
+                .background(Color.Red)
+                .testTag(tag)
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event: PointerEvent = awaitPointerEvent()
+                            recordedEvents += event.type
+                        }
+                    }
+                }
+            ) { }
+        }
+
+        rule.waitForIdle()
+
+        rule.runOnUiThread {
+            motionEventsToTrigger.forEach {
+                view.dispatchTouchEvent(it)
+            }
+        }
+        rule.waitForIdle()
+
+        assertThat(recordedEvents).hasSize(2)
+        assertThat(recordedEvents[0]).isEqualTo(PointerEventType.Press)
+        assertThat(recordedEvents[1]).isEqualTo(PointerEventType.Press)
+    }
+
+    @Test
+    fun sendNegativeInfinityDensityInPointerEvents() {
+        lateinit var view: View
+
+        val motionEventsToTrigger = generateMultipleMotionEvents(
+            lastPointerX = Float.NEGATIVE_INFINITY,
+            lastPointerY = Float.NEGATIVE_INFINITY
+        )
+        val recordedEvents = mutableListOf<PointerEventType>()
+
+        rule.setContent {
+            view = LocalView.current
+
+            Box(Modifier
+                .fillMaxSize()
+                .background(Color.Cyan)
+                .testTag(tag)
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event: PointerEvent = awaitPointerEvent()
+                            recordedEvents += event.type
+                        }
+                    }
+                }
+            ) { }
+        }
+
+        rule.waitForIdle()
+
+        rule.runOnUiThread {
+            motionEventsToTrigger.forEach {
+                view.dispatchTouchEvent(it)
+            }
+        }
+        rule.waitForIdle()
+
+        assertThat(recordedEvents).hasSize(2)
+        assertThat(recordedEvents[0]).isEqualTo(PointerEventType.Press)
+        assertThat(recordedEvents[1]).isEqualTo(PointerEventType.Press)
+    }
 
     @Test
     fun compositionLocalDensityChangeRestartsPointerInputOverload1() {
@@ -89,5 +225,105 @@ class PointerInputDensityTest {
             assertThat(pointerInputDensities.size).isEqualTo(2)
             assertThat(pointerInputDensities.last()).isEqualTo(9f)
         }
+    }
+
+    private fun generateMultipleMotionEvents(
+        lastPointerX: Float,
+        lastPointerY: Float
+    ): List<MotionEvent> {
+        val firstPointerOffset = Offset(0f, 0f)
+        val secondPointerOffset = Offset(10f, 0f)
+
+        val firstFingerPointerPropertiesId = 0
+        val secondFingerPointerPropertiesId = 1
+        val thirdFingerPointerPropertiesId = 2
+
+        val firstPointerProperties =
+            PointerProperties(firstFingerPointerPropertiesId).also {
+                it.toolType = MotionEvent.TOOL_TYPE_FINGER
+            }
+        val secondPointerProperties =
+            PointerProperties(secondFingerPointerPropertiesId).also {
+                it.toolType = MotionEvent.TOOL_TYPE_FINGER
+            }
+
+        val thirdPointerProperties =
+            PointerProperties(thirdFingerPointerPropertiesId).also {
+                it.toolType = MotionEvent.TOOL_TYPE_FINGER
+            }
+
+        val eventDownTime = 1L
+        var eventStartTime = 0L
+
+        val firstPointerEvent = MotionEvent.obtain(
+            eventDownTime,
+            eventStartTime,
+            MotionEvent.ACTION_DOWN,
+            1,
+            arrayOf(firstPointerProperties),
+            arrayOf(PointerCoords(firstPointerOffset.x, firstPointerOffset.y)),
+            0,
+            0,
+            0f,
+            0f,
+            0,
+            0,
+            0,
+            0
+        )
+
+        eventStartTime += 500
+
+        val secondPointerEvent = MotionEvent.obtain(
+            eventDownTime,
+            eventStartTime,
+            MotionEvent.ACTION_POINTER_DOWN,
+            2,
+            arrayOf(
+                firstPointerProperties,
+                secondPointerProperties
+            ),
+            arrayOf(
+                PointerCoords(firstPointerOffset.x, firstPointerOffset.y),
+                PointerCoords(secondPointerOffset.x, secondPointerOffset.y)
+            ),
+            0,
+            0,
+            0f,
+            0f,
+            0,
+            0,
+            0,
+            0
+        )
+
+        eventStartTime += 500
+
+        val thirdPointerEvent = MotionEvent.obtain(
+            eventDownTime,
+            eventStartTime,
+            MotionEvent.ACTION_POINTER_DOWN,
+            3,
+            arrayOf(
+                firstPointerProperties,
+                secondPointerProperties,
+                thirdPointerProperties
+            ),
+            arrayOf(
+                PointerCoords(firstPointerOffset.x, firstPointerOffset.y),
+                PointerCoords(secondPointerOffset.x, secondPointerOffset.y),
+                PointerCoords(lastPointerX, lastPointerY)
+            ),
+            0,
+            0,
+            0f,
+            0f,
+            0,
+            0,
+            0,
+            0
+        )
+
+        return listOf(firstPointerEvent, secondPointerEvent, thirdPointerEvent)
     }
 }

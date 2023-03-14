@@ -34,4 +34,5 @@
     <dimen name="emoji_picker_skin_tone_circle_radius">6dp</dimen>
     <dimen name="emoji_picker_category_name_height">24dp</dimen>
     <dimen name="emoji_picker_category_name_padding_top">4dp</dimen>
+    <dimen name="emoji_picker_emoji_view_padding">2dp</dimen>
 </resources>

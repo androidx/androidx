@@ -297,7 +297,6 @@ public final class PatternsCompat {
      * tries to match the URL structure with a relaxed rule for TLDs. If the string does not start
      * with http(s):// the TLDs are expected to be one of the known TLDs.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final Pattern AUTOLINK_WEB_URL = Pattern.compile(
@@ -326,7 +325,6 @@ public final class PatternsCompat {
     /**
      * Regular expression pattern to match email addresses. It excludes double quoted local parts
      * and the special characters #&~!^`{}/=$*?| that are included in RFC5321.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final Pattern AUTOLINK_EMAIL_ADDRESS = Pattern.compile("(" + WORD_BOUNDARY +

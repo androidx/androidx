@@ -93,6 +93,8 @@ Namespace 'androidx\..*' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, 
 A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :viewpager2:viewpager2:compileDebugAndroidTestKotlin
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/HostFragmentBackStackTest\.kt\: \([0-9]+\, [0-9]+\)\: \'enableDebugLogging\(Boolean\)\: Unit\' is deprecated\. Deprecated in Java
+#> Task :docs-public:unzipJvmSources
+Encountered duplicate path "androidx/test/espresso/remote/.*.java" during copy operation configured with DuplicatesStrategy.WARN
 # > Task :docs-public:dackkaDocs
 ERROR: An attempt to write .*
 WARN: Missing @param tag for parameter `activity` of function androidx\.appcompat\.app/AppCompatDelegate/create/\#android\.app\.Activity\#androidx\.appcompat\.app\.AppCompatCallback/PointingToDeclaration/
@@ -773,8 +775,6 @@ Writing .* to \$OUT_DIR/.*/build/generated/source/wire
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
 \$SUPPORT/compose/ui/ui\-tooling/src/androidAndroidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 dagger\.lint\.DaggerIssueRegistry in .*/lint\.jar does not specify a vendor; see IssueRegistry#vendor
-# > Task :compose:foundation:foundation:androidReleaseSourcesJar
-Encountered duplicate path "android[a-zA-Z]*/.+" during copy operation configured with DuplicatesStrategy\.WARN
 # > Task :jvmSourcesJar
 Encountered duplicate path \"jvmMain(\/([a-zA-Z]+))+(\.jvm)?\.kt\" during copy operation configured with DuplicatesStrategy.WARN
 # ./gradlew tasks warns as we have warnings present
@@ -790,14 +790,14 @@ To honour the JVM settings for this build a single\-use Daemon process will be f
 C/C\+\+: Building ver\.\: [0-9]+\.[0-9]+\.[0-9]+
 C/C\+\+: Packaging for\: (amd\-[0-9]+|armhf\-[0-9]+|x86\-[0-9]+)
 C/C\+\+: Compiling for ARM
-w: \[ksp\] Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\. \- androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDb\.jvmDao\(\)
+w: \[ksp\] Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\. \- androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDb\.jvmDao\(\)
 w: \[ksp\] \$SUPPORT/room/integration\-tests/kotlintestapp/src/androidTest/java/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.kt:[0-9]+: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
 # > Task :room:integration-tests:room-testapp-kotlin:kaptWithKaptDebugAndroidTestKotlin
-\$OUT_DIR/androidx/room/integration\-tests/room\-testapp\-kotlin/build/tmp/kapt[0-9]+/stubs/withKaptDebugAndroidTest/androidx/room/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.java:[0-9]+: warning: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
+\$OUT_DIR/androidx/room/integration\-tests/room\-testapp\-kotlin/build/tmp/kapt[0-9]+/stubs/withKaptDebugAndroidTest/androidx/room/integration/kotlintestapp/test/JvmNameInDaoTest\.java:[0-9]+: warning: Using @JvmName annotation on a function or accessor that will be overridden by Room is not supported\. If this is important for your use case, please file a bug at https://issuetracker\.google\.com/issues/new\?component=[0-9]+ with details\.
 public abstract void jvmDelete\(T t\);
 public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
-public abstract java\.util\.List<androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
-public abstract androidx\.room\.androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
+public abstract java\.util\.List<androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
+public abstract androidx\.room\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
 \^
 # Gradle will log if you are not authenticated to upload scans
 A build scan was not published as you have not authenticated with server 'ge\.androidx\.dev'\.

@@ -678,7 +678,6 @@ private fun ScalingLazyColumnItemWrapper(
     }
 }
 
-/** @hide **/
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 public class CombinedPaddingValues(
@@ -723,7 +722,6 @@ public class CombinedPaddingValues(
     }
 }
 
-/** @hide **/
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Modifier.verticalNegativePadding(
     extraPadding: Dp,

@@ -38,7 +38,6 @@ import androidx.lifecycle.LifecycleService;
 import androidx.work.Logger;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemForegroundService extends LifecycleService implements

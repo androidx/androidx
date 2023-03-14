@@ -16,7 +16,6 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-
 import static java.lang.Math.abs;
 
 import android.util.Log;
@@ -24,8 +23,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.wear.protolayout.expression.pipeline.PlatformDataSources.PlatformDataSource;
-import androidx.wear.protolayout.expression.pipeline.PlatformDataSources.SensorGatewayPlatformDataSource;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticInt32Op;
@@ -41,7 +38,9 @@ import java.time.Duration;
 
 /** Dynamic data nodes which yield integers. */
 class Int32Nodes {
-    private Int32Nodes() {}
+
+    private Int32Nodes() {
+    }
 
     /** Dynamic integer node that has a fixed value. */
     static class FixedInt32Node implements DynamicDataSourceNode<Integer> {
@@ -75,22 +74,30 @@ class Int32Nodes {
         private static final String TAG = "PlatformInt32SourceNode";
 
         @Nullable private final SensorGatewayPlatformDataSource mSensorGatewaySource;
-        private final PlatformInt32Source mProtoNode;
+        private final PlatformInt32SourceType mPlatformSourceType;
         private final DynamicTypeValueReceiver<Integer> mDownstream;
 
         PlatformInt32SourceNode(
                 PlatformInt32Source protoNode,
                 @Nullable SensorGatewayPlatformDataSource sensorGatewaySource,
                 DynamicTypeValueReceiver<Integer> downstream) {
-            this.mProtoNode = protoNode;
-            this.mSensorGatewaySource = sensorGatewaySource;
+            this.mPlatformSourceType = protoNode.getSourceType();
+            if (mPlatformSourceType
+                    == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE
+                    || mPlatformSourceType
+                    == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT) {
+                this.mSensorGatewaySource = sensorGatewaySource;
+            } else {
+                this.mSensorGatewaySource = null;
+                Log.w(TAG, "Unknown PlatformInt32SourceType: " + mPlatformSourceType);
+            }
             this.mDownstream = downstream;
         }
 
         @Override
         @UiThread
         public void preInit() {
-            if (platformInt32SourceTypeToPlatformDataSource(mProtoNode.getSourceType()) != null) {
+            if (mSensorGatewaySource != null) {
                 mDownstream.onPreUpdate();
             }
         }
@@ -98,10 +105,14 @@ class Int32Nodes {
         @Override
         @UiThread
         public void init() {
-            PlatformDataSource dataSource =
-                    platformInt32SourceTypeToPlatformDataSource(mProtoNode.getSourceType());
-            if (dataSource != null) {
-                dataSource.registerForData(mProtoNode.getSourceType(), mDownstream);
+            if (mSensorGatewaySource != null) {
+                try {
+                    mSensorGatewaySource.registerForData(mPlatformSourceType, mDownstream);
+                } catch (SecurityException e) {
+                    // Package does not have the permission to request the health data.
+                    Log.w(TAG, e.getMessage(), e);
+                    mDownstream.onInvalidated();
+                }
             } else {
                 mDownstream.onInvalidated();
             }
@@ -110,27 +121,9 @@ class Int32Nodes {
         @Override
         @UiThread
         public void destroy() {
-            PlatformDataSource dataSource =
-                    platformInt32SourceTypeToPlatformDataSource(mProtoNode.getSourceType());
-            if (dataSource != null) {
-                dataSource.unregisterForData(mProtoNode.getSourceType(), mDownstream);
+            if (mSensorGatewaySource != null) {
+                mSensorGatewaySource.unregisterForData(mPlatformSourceType, mDownstream);
             }
-        }
-
-        @Nullable
-        private PlatformDataSource platformInt32SourceTypeToPlatformDataSource(
-                PlatformInt32SourceType sourceType) {
-            switch (sourceType) {
-                case UNRECOGNIZED:
-                case PLATFORM_INT32_SOURCE_TYPE_UNDEFINED:
-                    Log.w(TAG, "Unknown PlatformInt32SourceType");
-                    return null;
-                case PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE:
-                case PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT:
-                    return mSensorGatewaySource;
-            }
-            Log.w(TAG, "Unknown PlatformInt32SourceType");
-            return null;
         }
     }
 
@@ -210,7 +203,6 @@ class Int32Nodes {
 
     /** Dynamic integer node that gets duration part from a duration. */
     static class GetDurationPartOpNode extends DynamicDataTransformNode<Duration, Integer> {
-
         private static final String TAG = "GetDurationPartOpNode";
 
         GetDurationPartOpNode(

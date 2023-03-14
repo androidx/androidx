@@ -29,6 +29,8 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
+import static androidx.work.impl.WorkManagerImplExtKt.createWorkManager;
+import static androidx.work.impl.WorkManagerImplExtKt.schedulers;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 import static androidx.work.impl.workers.ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME;
 
@@ -96,6 +98,7 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
+import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkName;
@@ -167,14 +170,16 @@ public class WorkManagerImplTest {
                 .setExecutor(Executors.newSingleThreadExecutor())
                 .setMinimumLoggingLevel(Log.DEBUG)
                 .build();
-        mWorkManagerImpl =
-                spy(new WorkManagerImpl(mContext, mConfiguration, new InstantWorkTaskExecutor()));
+        InstantWorkTaskExecutor workTaskExecutor = new InstantWorkTaskExecutor();
+        mWorkManagerImpl = spy(createWorkManager(mContext, mConfiguration, workTaskExecutor));
+        WorkLauncher workLauncher = new WorkLauncherImpl(mWorkManagerImpl.getProcessor(),
+                workTaskExecutor);
         mScheduler =
                 spy(new GreedyScheduler(
                         mContext,
                         mWorkManagerImpl.getConfiguration(),
                         mWorkManagerImpl.getTrackers(),
-                        mWorkManagerImpl));
+                        mWorkManagerImpl.getProcessor(), workLauncher));
         // Don't return any scheduler. We don't need to actually execute work for most of our tests.
         when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.<Scheduler>emptyList());
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
@@ -1795,16 +1800,20 @@ public class WorkManagerImplTest {
                 return packageManager;
             }
         };
-        mWorkManagerImpl =
-                spy(new WorkManagerImpl(mContext, mConfiguration, new InstantWorkTaskExecutor()));
+        InstantWorkTaskExecutor workTaskExecutor = new InstantWorkTaskExecutor();
+        Processor processor = new Processor(mContext,  mConfiguration, workTaskExecutor, mDatabase);
+        WorkLauncherImpl launcher = new WorkLauncherImpl(processor, workTaskExecutor);
+
+        Trackers trackers = mWorkManagerImpl.getTrackers();
         Scheduler scheduler =
                 new GreedyScheduler(
                         mContext,
                         mWorkManagerImpl.getConfiguration(),
-                        mWorkManagerImpl.getTrackers(),
-                        mWorkManagerImpl);
-        // Return GreedyScheduler alone, because real jobs gets scheduled which slow down tests.
-        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(scheduler));
+                        trackers,
+                        processor, launcher);
+        mWorkManagerImpl =  createWorkManager(mContext, mConfiguration, workTaskExecutor,
+                mDatabase, trackers, processor, schedulers(scheduler));
+
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
         // Initialization of WM enables SystemJobService which needs to be discounted.

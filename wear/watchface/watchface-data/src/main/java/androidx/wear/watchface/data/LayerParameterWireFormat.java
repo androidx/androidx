@@ -34,7 +34,6 @@ import androidx.versionedparcelable.VersionedParcelize;
  * <p>Unfortunately we can't ever add new members to this because we use it in lists and
  * VersionedParcelable isn't fully backwards compatible when new members are added to lists.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

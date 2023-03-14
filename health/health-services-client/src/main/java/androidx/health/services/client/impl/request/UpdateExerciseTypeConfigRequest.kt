@@ -25,7 +25,6 @@ import androidx.health.services.client.proto.RequestsProto
 /**
  * Request for updating exercise type configuration in an [ExerciseTypeConfig].
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class UpdateExerciseTypeConfigRequest(

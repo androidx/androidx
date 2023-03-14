@@ -38,7 +38,6 @@ import java.util.Map;
 
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("UnknownNullness")

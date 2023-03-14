@@ -149,7 +149,6 @@ private fun RoomDatabase.createTransactionContext(
 /**
  * A [CoroutineContext.Element] that indicates there is an on-going database transaction.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class TransactionElement(

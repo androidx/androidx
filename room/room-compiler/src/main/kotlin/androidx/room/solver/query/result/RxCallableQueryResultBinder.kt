@@ -106,8 +106,11 @@ internal class RxCallableQueryResultBinder(
         beginControlFlow("try").apply {
             adapter?.convert(outVar, cursorVar, adapterScope)
             add(adapterScope.generate())
-            if ((language == CodeLanguage.JAVA && !rxType.canBeNull) ||
-                returnType.nullability == XNullability.NULLABLE
+            if (
+                !rxType.canBeNull &&
+                (language == CodeLanguage.JAVA ||
+                    (language == CodeLanguage.KOTLIN &&
+                        returnType.nullability == XNullability.NULLABLE))
             ) {
                 beginControlFlow("if (%L == null)", outVar).apply {
                     addStatement(

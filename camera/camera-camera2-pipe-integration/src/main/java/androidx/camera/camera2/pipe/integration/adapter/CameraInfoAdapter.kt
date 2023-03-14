@@ -19,15 +19,17 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
-import android.os.Build
+import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
@@ -43,15 +45,12 @@ import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.EncoderProfilesProvider
-import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.lifecycle.LiveData
 import java.util.concurrent.Executor
 import javax.inject.Inject
-
-internal val defaultQuirks = Quirks(emptyList())
 
 /**
  * Adapt the [CameraInfoInternal] interface to [CameraPipe].
@@ -66,9 +65,11 @@ class CameraInfoAdapter @Inject constructor(
     private val cameraStateAdapter: CameraStateAdapter,
     private val cameraControlStateAdapter: CameraControlStateAdapter,
     private val cameraCallbackMap: CameraCallbackMap,
-    private val focusMeteringControl: FocusMeteringControl
+    private val focusMeteringControl: FocusMeteringControl,
+    private val cameraQuirks: CameraQuirks,
+    private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter,
+    private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
 ) : CameraInfoInternal {
-    private lateinit var encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter
     @OptIn(ExperimentalCamera2Interop::class)
     internal val camera2CameraInfo: Camera2CameraInfo by lazy {
         Camera2CameraInfo.create(cameraProperties)
@@ -91,8 +92,7 @@ class CameraInfoAdapter @Inject constructor(
     }
 
     override fun getSensorRotationDegrees(): Int = getSensorRotationDegrees(Surface.ROTATION_0)
-    override fun hasFlashUnit(): Boolean =
-        cameraProperties.metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]!!
+    override fun hasFlashUnit(): Boolean = cameraProperties.isFlashAvailable()
 
     override fun getSensorRotationDegrees(relativeRotation: Int): Int {
         val sensorOrientation: Int =
@@ -128,9 +128,6 @@ class CameraInfoAdapter @Inject constructor(
     override fun getImplementationType(): String = "CameraPipe"
 
     override fun getEncoderProfilesProvider(): EncoderProfilesProvider {
-        if (!::encoderProfilesProviderAdapter.isInitialized) {
-            encoderProfilesProviderAdapter = EncoderProfilesProviderAdapter(cameraId)
-        }
         return encoderProfilesProviderAdapter
     }
 
@@ -147,26 +144,29 @@ class CameraInfoAdapter @Inject constructor(
 
     @SuppressLint("ClassVerificationFailure")
     override fun getSupportedResolutions(format: Int): List<Size> {
-        val streamConfigurationMap =
-            cameraProperties.metadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
-        return if (Build.VERSION.SDK_INT < 23 &&
-            format == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-        ) {
-            streamConfigurationMap.getOutputSizes(SurfaceTexture::class.java)
-        } else {
-            streamConfigurationMap.getOutputSizes(format)
-        }?.toList() ?: emptyList()
+        return streamConfigurationMapCompat.getOutputSizes(format)?.toList() ?: emptyList()
+    }
+
+    @SuppressLint("ClassVerificationFailure")
+    override fun getSupportedHighResolutions(format: Int): List<Size> {
+        return streamConfigurationMapCompat.getHighResolutionOutputSizes(format)?.toList()
+            ?: emptyList()
     }
 
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
 
     override fun getCameraQuirks(): Quirks {
-        Log.warn { "TODO: Quirks are not yet supported." }
-        return defaultQuirks
+        return cameraQuirks.quirks
     }
 
     override fun isFocusMeteringSupported(action: FocusMeteringAction) =
         focusMeteringControl.isFocusMeteringSupported(action)
+
+    override fun getSupportedFpsRanges(): List<Range<Int>> {
+        return cameraProperties
+            .metadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES]?.toList()
+            ?: listOf()
+    }
 
     override fun isZslSupported(): Boolean {
         Log.warn { "TODO: isZslSupported are not yet supported." }

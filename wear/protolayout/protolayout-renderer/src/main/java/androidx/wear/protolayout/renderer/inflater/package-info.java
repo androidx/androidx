@@ -17,7 +17,6 @@
 /**
  * Internal implementation of the inflater.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.wear.protolayout.renderer.inflater;

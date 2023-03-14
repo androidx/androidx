@@ -16,15 +16,13 @@
 
 package androidx.appactions.interaction.capabilities.core.impl
 
+import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.ActionCapability
-import androidx.appactions.interaction.capabilities.core.BaseSession
+import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.HostProperties
-import androidx.appactions.interaction.capabilities.core.SessionBuilder
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction
 import androidx.appactions.interaction.proto.TaskInfo
-
-import androidx.annotation.RestrictTo
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -33,24 +31,24 @@ internal class SingleTurnCapabilityImpl<
     ArgumentT,
     OutputT,
     > constructor(
-    override val id: String?,
+    override val id: String,
     val actionSpec: ActionSpec<PropertyT, ArgumentT, OutputT>,
     val property: PropertyT,
-    val sessionBuilder: SessionBuilder<BaseSession<ArgumentT, OutputT>>,
+    val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
 ) : ActionCapability {
     override val supportsMultiTurnTask = false
 
     override fun getAppAction(): AppAction {
-        val appActionBuilder = actionSpec.convertPropertyToProto(property).toBuilder()
+        return actionSpec.convertPropertyToProto(property).toBuilder()
             .setTaskInfo(TaskInfo.newBuilder().setSupportsPartialFulfillment(false))
-        id?.let(appActionBuilder::setIdentifier)
-        return appActionBuilder.build()
+            .setIdentifier(id)
+            .build()
     }
 
     override fun createSession(hostProperties: HostProperties): ActionCapabilitySession {
         return SingleTurnCapabilitySession(
             actionSpec,
-            sessionBuilder.createSession(hostProperties),
+            actionExecutorAsync,
         )
     }
 }

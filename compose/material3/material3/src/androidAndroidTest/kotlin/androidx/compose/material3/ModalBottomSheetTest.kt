@@ -51,7 +51,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -104,10 +103,14 @@ class ModalBottomSheetTest {
     @Test
     fun modalBottomSheet_isDismissedOnTapOutside() {
         var showBottomSheet by mutableStateOf(true)
+        val sheetState = SheetState(skipPartiallyExpanded = false)
 
         rule.setContent {
             if (showBottomSheet) {
-                ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
+                ModalBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = { showBottomSheet = false }
+                ) {
                     Box(
                         Modifier
                             .size(sheetHeight)
@@ -116,12 +119,13 @@ class ModalBottomSheetTest {
                 }
             }
         }
-        rule.onNodeWithTag(sheetTag).assertIsDisplayed()
 
+        assertThat(sheetState.isVisible).isTrue()
+
+        // Tap Scrim
         val outsideY = with(rule.density) {
             rule.onAllNodes(isPopup()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() / 4
         }
-
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(0, outsideY)
         rule.waitForIdle()
 
@@ -243,11 +247,12 @@ class ModalBottomSheetTest {
             ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
                 Box(
                     Modifier
-                        .fillMaxSize()
+                        // Deliberately use fraction != 1f
+                        .fillMaxSize(0.6f)
                         .testTag(sheetTag))
             }
         }
-        rule.waitForIdle()
+
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         assertThat(sheetState.requireOffset())
             .isWithin(1f)
@@ -255,15 +260,20 @@ class ModalBottomSheetTest {
     }
 
     @Test
-    fun modalBottomSheet_isDismissedOnBackPress() {
+    fun modalBottomSheet_shortSheet_isDismissedOnBackPress() {
         var showBottomSheet by mutableStateOf(true)
+        val sheetState = SheetState(skipPartiallyExpanded = true)
+
         rule.setContent {
             val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             if (showBottomSheet) {
-                ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
+                ModalBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = { showBottomSheet = false }
+                ) {
                     Box(
                         Modifier
-                            .size(sheetHeight)
+                            .fillMaxHeight(0.4f)
                             .testTag(sheetTag)) {
                         Button(
                             onClick = { dispatcher.onBackPressed() },
@@ -275,8 +285,42 @@ class ModalBottomSheetTest {
             }
         }
 
-        // Popup should be visible
-        rule.onNodeWithTag(sheetTag).assertIsDisplayed()
+        assertThat(sheetState.isVisible).isTrue()
+
+        rule.onNodeWithTag(BackTestTag).performClick()
+
+        rule.onNodeWithTag(BackTestTag).assertDoesNotExist()
+
+        // Popup should not exist
+        rule.onNodeWithTag(sheetTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun modalBottomSheet_tallSheet_isDismissedOnBackPress() {
+        var showBottomSheet by mutableStateOf(true)
+        val sheetState = SheetState(skipPartiallyExpanded = false)
+
+        rule.setContent {
+            val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            if (showBottomSheet) {
+                ModalBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = { showBottomSheet = false }
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxHeight(0.6f)
+                            .testTag(sheetTag)) {
+                        Button(
+                            onClick = { dispatcher.onBackPressed() },
+                            modifier = Modifier.testTag(BackTestTag),
+                            content = { Text("Content") },
+                        )
+                    }
+                }
+            }
+        }
+        assertThat(sheetState.isVisible).isTrue()
 
         rule.onNodeWithTag(BackTestTag).performClick()
         rule.onNodeWithTag(BackTestTag).assertDoesNotExist()
@@ -539,7 +583,7 @@ class ModalBottomSheetTest {
     }
 
     @Test
-    fun modalBottomSheet_respectsConfirmStateChange() {
+    fun modalBottomSheet_respectsConfirmValueChange() {
         lateinit var sheetState: SheetState
         rule.setContent {
             sheetState = rememberModalBottomSheetState(
@@ -574,6 +618,16 @@ class ModalBottomSheetTest {
         rule.onNodeWithTag(dragHandleTag).onParent()
             .performSemanticsAction(SemanticsActions.Dismiss)
 
+        rule.runOnIdle {
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+        }
+
+        // Tap Scrim
+        val outsideY = with(rule.density) {
+            rule.onAllNodes(isPopup()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() / 4
+        }
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(0, outsideY)
+        rule.waitForIdle()
         rule.runOnIdle {
             assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
         }

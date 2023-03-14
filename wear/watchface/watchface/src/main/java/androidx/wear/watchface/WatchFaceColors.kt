@@ -63,7 +63,6 @@ public class WatchFaceColors(
         )
 }
 
-/** @hide */
 @OptIn(WatchFaceExperimental::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun WatchFaceColorsWireFormat.toApiFormat() =

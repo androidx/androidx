@@ -79,7 +79,6 @@ public final class StateBuilders {
     /**
      * Get the fingerprint for this object, or null if unknown.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -89,7 +88,6 @@ public final class StateBuilders {
     /**
      * Creates a new wrapper instance from the proto.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -102,7 +100,6 @@ public final class StateBuilders {
      * Creates a new wrapper instance from the proto. Intended for testing purposes only. An object
      * created using this method can't be added to any other wrapper.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -113,7 +110,6 @@ public final class StateBuilders {
     /**
      * Returns the internal proto instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

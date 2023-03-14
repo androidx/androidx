@@ -31,8 +31,9 @@ message ParamValue {
     string string_value = 2;
     bool bool_value = 3;
     double number_value = 4;
-    google.protobuf.Struct struct_value = 5;
+    google.protobuf.Struct struct_value = 6;
   }
+  reserved 5;  // Deleted DateTime type.
 }
 
 message Entity {
@@ -182,8 +183,7 @@ message AppActionsContext {
     bool is_focused = 3;
   }
 
-  // Current version of the protocol. Populated with values from the artifact version of the
-  // interaction-proto Jetpack library.
+  // Current version of the protocol. Populated with from the interaction-capabiliites-core library.
   optional Version version = 4;
 
   // Represents the dynamic capabilities declared by an App. Capabilities
@@ -205,12 +205,12 @@ message AppActionsContext {
 message TaskInfo {
   reserved 2;
 
-  // Whether the app supports partial funfillment with multi-turn dialog.
+  // Whether the app supports partial fulfillment with multi-turn dialog.
   bool supports_partial_fulfillment = 1;
 }
 
 // Represents the data used to perform an intent.
-// Next ID: 5
+// Next ID: 8
 message FulfillmentRequest {
   message Fulfillment {
     // Name of the intent. For example: actions.intent.UPDATE_FORM_FIELD
@@ -219,6 +219,24 @@ message FulfillmentRequest {
     // The identifier of the intent. This field is corresponding to the
     // |identifier| field with in `AppActionsContext.AppAction`.
     string identifier = 2;
+
+    message SessionInfo {
+      // Identifier of the dialog session that the user is currently interacting
+      // with. Assistant will generate this ID as UUID. This is different from
+      // the identifier field in FulfillmentRequest.Fulfillment in that identifier
+      // stays constant for each intent, even when there are multiple dialog
+      // instances of the intent, but the session_identifier is unique per dialog
+      // instance.
+      string session_identifier = 1;
+
+      // True if this fulfillment request is from a new dialog. Mainly used for
+      // debugging purpose.
+      bool is_new_session = 2;
+    }
+
+    // Information related to this dialog session. Used by the SDK to create a new
+    // session.
+    optional SessionInfo session_info = 7;
 
     message FulfillmentValue {
       // The resolved value for the parameter.
@@ -372,7 +390,7 @@ message Version {
   // The patch version.
   optional uint64 patch = 3;
 
-  // The prerelease version: a series of dot-separated identifiers.
+  // The prerelease version suffix.
   optional string prerelease_id = 4;
 }
 

@@ -33,7 +33,7 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 @LargeTest
-@SdkSuppress(minSdkVersion = 21)
+@SdkSuppress(minSdkVersion = 23)
 @RunWith(AndroidJUnit4::class)
 class PerfettoHelperTest {
     @Before

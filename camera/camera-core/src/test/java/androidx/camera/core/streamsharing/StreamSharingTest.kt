@@ -20,6 +20,9 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
 import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
+import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.SessionConfig
@@ -35,6 +38,7 @@ import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.fakes.FakeSurfaceEffect
 import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.fakes.FakeUseCase
+import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
@@ -57,8 +61,12 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class StreamSharingTest {
 
-    private val child1 = FakeUseCase()
-    private val child2 = FakeUseCase()
+    private val child1 = FakeUseCase(
+        FakeUseCaseConfig.Builder().setSurfaceOccupancyPriority(1).useCaseConfig
+    )
+    private val child2 = FakeUseCase(
+        FakeUseCaseConfig.Builder().setSurfaceOccupancyPriority(2).useCaseConfig
+    )
     private val useCaseConfigFactory = FakeUseCaseConfigFactory()
     private val camera = FakeCamera()
     private lateinit var streamSharing: StreamSharing
@@ -75,7 +83,7 @@ class StreamSharingTest {
         streamSharing = StreamSharing(camera, setOf(child1, child2), useCaseConfigFactory)
         defaultConfig = streamSharing.getDefaultConfig(true, useCaseConfigFactory)!!
         effectProcessor = FakeSurfaceProcessorInternal(mainThreadExecutor())
-        effect = FakeSurfaceEffect(effectProcessor)
+        effect = FakeSurfaceEffect(PREVIEW or VIDEO_CAPTURE, effectProcessor)
     }
 
     @After
@@ -85,6 +93,26 @@ class StreamSharingTest {
         }
         effectProcessor.release()
         shadowOf(getMainLooper()).idle()
+    }
+
+    @Test
+    fun getParentSurfacePriority_isHighestChildrenPriority() {
+        assertThat(
+            streamSharing.mergeConfigs(
+                camera.cameraInfoInternal, /*extendedConfig*/null, /*cameraDefaultConfig*/null
+            ).surfaceOccupancyPriority
+        ).isEqualTo(2)
+    }
+
+    @Test
+    fun verifySupportedEffects() {
+        assertThat(streamSharing.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE)).isTrue()
+        assertThat(
+            streamSharing.isEffectTargetsSupported(PREVIEW or VIDEO_CAPTURE or IMAGE_CAPTURE)
+        ).isTrue()
+        assertThat(streamSharing.isEffectTargetsSupported(IMAGE_CAPTURE)).isFalse()
+        assertThat(streamSharing.isEffectTargetsSupported(PREVIEW)).isFalse()
+        assertThat(streamSharing.isEffectTargetsSupported(VIDEO_CAPTURE)).isFalse()
     }
 
     @Test

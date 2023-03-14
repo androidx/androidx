@@ -76,7 +76,6 @@ class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
     /**
      * Returns all capture request options contained in this configuration.
      *
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     val captureRequestOptions: CaptureRequestOptions

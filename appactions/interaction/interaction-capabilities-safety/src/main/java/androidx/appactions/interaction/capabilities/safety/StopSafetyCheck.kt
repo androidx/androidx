@@ -30,8 +30,8 @@ import androidx.appactions.interaction.capabilities.core.values.executionstatus.
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyAccountNotLoggedIn
 import androidx.appactions.interaction.capabilities.safety.executionstatus.SafetyFeatureNotOnboarded
 import androidx.appactions.interaction.proto.ParamValue
-import com.google.protobuf.Struct
-import com.google.protobuf.Value
+import androidx.appactions.interaction.protobuf.Struct
+import androidx.appactions.interaction.protobuf.Value
 import java.util.Optional
 
 /** StopSafetyCheck.kt in interaction-capabilities-safety */
@@ -44,17 +44,17 @@ private val ACTION_SPEC =
         .setOutput(StopSafetyCheck.Output::class.java)
         .bindOptionalOutput(
             "executionStatus",
-            StopSafetyCheck.Output::executionStatus.getter,
-            StopSafetyCheck.ExecutionStatus::toParamValue,
+            { output -> Optional.ofNullable(output.executionStatus) },
+            StopSafetyCheck.ExecutionStatus::toParamValue
         )
         .build()
 
 // TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
 class StopSafetyCheck private constructor() {
-    // TODO(b/267805819): Update to include the SessionBuilder once Session API is ready.
+    // TODO(b/267805819): Update to include the SessionFactory once Session API is ready.
     class CapabilityBuilder :
         CapabilityBuilderBase<
-            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session,
+            CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
             >(ACTION_SPEC) {
         override fun build(): ActionCapability {
             super.setProperty(Property())
@@ -71,50 +71,37 @@ class StopSafetyCheck private constructor() {
         }
     }
 
-    // TODO(b/267533126): Remove the use of optional once ActionSpecBuilder supports nullability.
-    class Output internal constructor(val executionStatus: Optional<ExecutionStatus>) {
+    class Output internal constructor(val executionStatus: ExecutionStatus?) {
+        override fun toString(): String {
+            return "Output(executionStatus=$executionStatus)"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Output
+
+            if (executionStatus != other.executionStatus) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            return executionStatus.hashCode()
+        }
+
         class Builder {
             private var executionStatus: ExecutionStatus? = null
 
             fun setExecutionStatus(executionStatus: ExecutionStatus): Builder =
                 apply { this.executionStatus = executionStatus }
 
-            fun setExecutionStatus(successStatus: SuccessStatus): Builder = apply {
-                this.executionStatus = ExecutionStatus(successStatus)
-            }
-
-            fun setExecutionStatus(genericErrorStatus: GenericErrorStatus): Builder = apply {
-                this.executionStatus = ExecutionStatus(genericErrorStatus)
-            }
-
-            fun setExecutionStatus(actionNotInProgress: ActionNotInProgress): Builder = apply {
-                this.executionStatus = ExecutionStatus(actionNotInProgress)
-            }
-
-            fun setExecutionStatus(safetyAccountNotLoggedIn: SafetyAccountNotLoggedIn): Builder =
-                apply {
-                    this.executionStatus =
-                        ExecutionStatus(safetyAccountNotLoggedIn)
-                }
-
-            fun setExecutionStatus(safetyFeatureNotOnboarded: SafetyFeatureNotOnboarded): Builder =
-                apply {
-                    this.executionStatus =
-                        ExecutionStatus(safetyFeatureNotOnboarded)
-                }
-
-            fun setExecutionStatus(noInternetConnection: NoInternetConnection): Builder =
-                apply {
-                    this.executionStatus =
-                        ExecutionStatus(noInternetConnection)
-                }
-
-            fun build(): Output = Output(Optional.ofNullable(executionStatus))
+            fun build(): Output = Output(executionStatus)
         }
     }
 
     class ExecutionStatus {
-
         private var successStatus: SuccessStatus? = null
         private var genericErrorStatus: GenericErrorStatus? = null
         private var actionNotInProgress: ActionNotInProgress? = null

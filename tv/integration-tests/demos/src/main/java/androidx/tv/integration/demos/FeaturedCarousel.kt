@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
@@ -88,10 +89,10 @@ fun FeaturedCarouselContent() {
 }
 
 @Composable
-fun Modifier.drawBorderOnFocus(borderColor: Color = Color.White): Modifier {
+fun Modifier.drawBorderOnFocus(borderColor: Color = Color.White, width: Dp = 5.dp): Modifier {
     var isFocused by remember { mutableStateOf(false) }
     return this
-        .border(5.dp, borderColor.copy(alpha = if (isFocused) 1f else 0.2f))
+        .border(width, borderColor.copy(alpha = if (isFocused) 1f else 0.2f))
         .onFocusChanged { isFocused = it.isFocused }
 }
 
@@ -126,7 +127,7 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
             )
         }
     ) { itemIndex ->
-        CarouselItem(
+        CarouselSlide(
             background = {
                 Box(
                     modifier = Modifier

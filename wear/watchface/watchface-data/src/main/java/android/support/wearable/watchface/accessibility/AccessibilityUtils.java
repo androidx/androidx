@@ -30,7 +30,6 @@ import androidx.wear.watchface.data.R;
 /**
  * Utilities for making watch faces and complications accessible.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AccessibilityUtils {

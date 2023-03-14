@@ -41,7 +41,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.video.internal.BufferProvider;
-import androidx.camera.video.internal.SilentAudioStream;
 import androidx.camera.video.internal.encoder.InputBuffer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 

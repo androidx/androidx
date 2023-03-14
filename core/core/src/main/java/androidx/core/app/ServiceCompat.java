@@ -79,7 +79,6 @@ public final class ServiceCompat {
      */
     public static final int STOP_FOREGROUND_DETACH = 1<<1;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef(flag = true,
             value = {

@@ -600,7 +600,6 @@ import java.util.concurrent.Executor;
      */
     public static final int SEEK_CLOSEST          = 0x03;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "SEEK",*/ value = {
             SEEK_PREVIOUS_SYNC,
@@ -980,7 +979,6 @@ import java.util.concurrent.Executor;
      */
     public static final int PLAYER_STATE_ERROR = 1005;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @IntDef(flag = false, value = {
             PLAYER_STATE_IDLE,
@@ -1028,7 +1026,6 @@ import java.util.concurrent.Executor;
     public static final int MEDIA_ERROR_SYSTEM = -2147483648;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "MEDIA_ERROR",*/ value = {
@@ -1186,7 +1183,6 @@ import java.util.concurrent.Executor;
     public static final int MEDIA_INFO_SUBTITLE_TIMED_OUT = 902;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "MEDIA_INFO",*/ value = {
@@ -1344,7 +1340,6 @@ import java.util.concurrent.Executor;
             SEPARATE_CALL_COMPLETE_CALLBACK_START + 1;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "CALL_COMPLETED",*/ value = {
@@ -1416,7 +1411,6 @@ import java.util.concurrent.Executor;
     public static final int CALL_STATUS_SKIPPED = 5;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "CALL_STATUS",*/ value = {
@@ -1539,7 +1533,6 @@ import java.util.concurrent.Executor;
      */
     public static final int PREPARE_DRM_STATUS_RESOURCE_BUSY = 5;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "PREPARE_DRM_STATUS",*/ value = {
             PREPARE_DRM_STATUS_SUCCESS,

@@ -112,7 +112,6 @@ public class ObservableStateStore {
     /**
      * Gets state with the given key.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread

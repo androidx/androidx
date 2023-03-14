@@ -24,7 +24,6 @@ import com.google.gson.annotations.SerializedName
 /**
  * Data class that holds the schema information about a table Index.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class IndexBundle(
@@ -62,7 +61,6 @@ public open class IndexBundle(
     private constructor() : this("", false, emptyList(), emptyList(), "")
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public open fun create(tableName: String): String {

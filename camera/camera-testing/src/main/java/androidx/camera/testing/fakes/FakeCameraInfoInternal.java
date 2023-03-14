@@ -44,6 +44,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +58,12 @@ import java.util.concurrent.Executor;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeCameraInfoInternal implements CameraInfoInternal {
+    private static final List<Range<Integer>> FAKE_FPS_RANGES = Collections.unmodifiableList(
+            Arrays.asList(
+                    new Range<>(12, 30),
+                    new Range<>(30, 30),
+                    new Range<>(60, 60))
+    );
     private final String mCameraId;
     private final int mSensorRotation;
     @CameraSelector.LensFacing
@@ -64,6 +71,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
     private final MutableLiveData<ZoomState> mZoomLiveData;
     private final Map<Integer, List<Size>> mSupportedResolutionMap = new HashMap<>();
+    private final Map<Integer, List<Size>> mSupportedHighResolutionMap = new HashMap<>();
     private MutableLiveData<CameraState> mCameraStateLiveData;
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
 
@@ -191,6 +199,13 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return resolutions != null ? resolutions : Collections.emptyList();
     }
 
+    @NonNull
+    @Override
+    public List<Size> getSupportedHighResolutions(int format) {
+        List<Size> resolutions = mSupportedHighResolutionMap.get(format);
+        return resolutions != null ? resolutions : Collections.emptyList();
+    }
+
     @Override
     public void addSessionCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback callback) {
@@ -206,6 +221,12 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @Override
     public Quirks getCameraQuirks() {
         return new Quirks(mCameraQuirks);
+    }
+
+    @NonNull
+    @Override
+    public List<Range<Integer>> getSupportedFpsRanges() {
+        return FAKE_FPS_RANGES;
     }
 
     @Override
@@ -256,6 +277,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     /** Set the supported resolutions for testing */
     public void setSupportedResolutions(int format, @NonNull List<Size> resolutions) {
         mSupportedResolutionMap.put(format, resolutions);
+    }
+
+    /** Set the supported high resolutions for testing */
+    public void setSupportedHighResolutions(int format, @NonNull List<Size> resolutions) {
+        mSupportedHighResolutionMap.put(format, resolutions);
     }
 
     /** Set the isPrivateReprocessingSupported flag for testing */

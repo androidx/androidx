@@ -31,7 +31,6 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * The API [WatchFaceImpl] uses to communicate with the system.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface WatchFaceHostApi {

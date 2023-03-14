@@ -65,7 +65,6 @@ public final class Camera2CameraFactory implements CameraFactory {
             @NonNull CameraThreadConfig threadConfig,
             @Nullable CameraSelector availableCamerasSelector) throws InitializationException {
         mThreadConfig = threadConfig;
-        mCameraStateRegistry = new CameraStateRegistry(DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS);
         mCameraManager = CameraManagerCompat.from(context, mThreadConfig.getSchedulerHandler());
         mDisplayInfoManager = DisplayInfoManager.getInstance(context);
 
@@ -73,6 +72,9 @@ public final class Camera2CameraFactory implements CameraFactory {
                 this, availableCamerasSelector);
         mAvailableCameraIds = getBackwardCompatibleCameraIds(optimizedCameraIds);
         mCameraCoordinator = new Camera2CameraCoordinator(mCameraManager);
+        mCameraStateRegistry = new CameraStateRegistry(mCameraCoordinator,
+                DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS);
+        mCameraCoordinator.addListener(mCameraStateRegistry);
     }
 
     @Override
@@ -85,6 +87,7 @@ public final class Camera2CameraFactory implements CameraFactory {
         return new Camera2CameraImpl(mCameraManager,
                 cameraId,
                 getCameraInfo(cameraId),
+                mCameraCoordinator,
                 mCameraStateRegistry,
                 mThreadConfig.getCameraExecutor(),
                 mThreadConfig.getSchedulerHandler(),

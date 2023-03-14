@@ -2147,7 +2147,6 @@ public class ExifInterface {
     // TODO: Unhide this when it can be public.
     /**
      * @see #TAG_ORIENTATION
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TAG_THUMBNAIL_ORIENTATION = "ThumbnailOrientation";
@@ -2953,7 +2952,6 @@ public class ExifInterface {
      */
     public static final int STREAM_TYPE_EXIF_DATA_ONLY = 1;
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({STREAM_TYPE_FULL_IMAGE_DATA, STREAM_TYPE_EXIF_DATA_ONLY})
@@ -3752,7 +3750,6 @@ public class ExifInterface {
     // The following values are used for indicating pointers to the other Image File Directories.
 
     // Indices of Exif Ifd tag groups
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({IFD_TYPE_PRIMARY, IFD_TYPE_EXIF, IFD_TYPE_GPS, IFD_TYPE_INTEROPERABILITY,
@@ -5114,7 +5111,6 @@ public class ExifInterface {
      * Set the date time value.
      *
      * @param timeStamp number of milliseconds since Jan. 1, 1970, midnight local time.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setDateTime(@NonNull Long timeStamp) {
@@ -5144,7 +5140,6 @@ public class ExifInterface {
      *
      * @return null if date time information is unavailable or invalid.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
@@ -5163,7 +5158,6 @@ public class ExifInterface {
      *
      * @return null if digitized date time information is unavailable or invalid.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
@@ -5182,7 +5176,6 @@ public class ExifInterface {
      *
      * @return null if original date time information is unavailable or invalid.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
@@ -6909,9 +6902,11 @@ public class ExifInterface {
                 }
 
                 // Check if the next IFD offset
-                // 1. Is a non-negative value, and
+                // 1. Is a non-negative value (within the length of the input, if known), and
                 // 2. Does not point to a previously read IFD.
-                if (offset > 0L) {
+                if (offset > 0L
+                        && (dataInputStream.length() == ByteOrderedDataInputStream.LENGTH_UNSET
+                                || offset < dataInputStream.length())) {
                     if (!mAttributesOffsets.contains((int) offset)) {
                         dataInputStream.seek(offset);
                         readImageFileDirectory(dataInputStream, nextIfdType);
@@ -6923,7 +6918,12 @@ public class ExifInterface {
                     }
                 } else {
                     if (DEBUG) {
-                        Log.d(TAG, "Skip jump into the IFD since its offset is invalid: " + offset);
+                        String message =
+                                "Skip jump into the IFD since its offset is invalid: " + offset;
+                        if (dataInputStream.length() != ByteOrderedDataInputStream.LENGTH_UNSET) {
+                            message += " (total length: " + dataInputStream.length() + ")";
+                        }
+                        Log.d(TAG, message);
                     }
                 }
 
@@ -7483,6 +7483,11 @@ public class ExifInterface {
 
         switch (mMimeType) {
             case IMAGE_TYPE_JPEG:
+                if (totalSize > 0xFFFF) {
+                    throw new IllegalStateException(
+                            "Size of exif data (" + totalSize + " bytes) exceeds the max size of a "
+                            + "JPEG APP1 segment (65536 bytes)");
+                }
                 // Write JPEG specific data (APP1 size, APP1 identifier)
                 dataOutputStream.writeUnsignedShort(totalSize);
                 dataOutputStream.write(IDENTIFIER_EXIF_APP1);
@@ -7700,14 +7705,18 @@ public class ExifInterface {
 
     // An input stream class that can parse both little and big endian order data.
     private static class ByteOrderedDataInputStream extends InputStream implements DataInput {
+
+        public static final int LENGTH_UNSET = -1;
         protected final DataInputStream mDataInputStream;
         protected int mPosition;
 
         private ByteOrder mByteOrder;
         private byte[] mSkipBuffer;
+        private int mLength;
 
         ByteOrderedDataInputStream(byte[] bytes) throws IOException {
             this(new ByteArrayInputStream(bytes), BIG_ENDIAN);
+            this.mLength = bytes.length;
         }
 
         ByteOrderedDataInputStream(InputStream in) throws IOException {
@@ -7719,6 +7728,9 @@ public class ExifInterface {
             mDataInputStream.mark(0);
             mPosition = 0;
             mByteOrder = byteOrder;
+            this.mLength = in instanceof ByteOrderedDataInputStream
+                    ? ((ByteOrderedDataInputStream) in).length()
+                    : LENGTH_UNSET;
         }
 
         public void setByteOrder(ByteOrder byteOrder) {
@@ -7945,6 +7957,12 @@ public class ExifInterface {
         public void reset() {
             throw new UnsupportedOperationException("Reset is currently unsupported");
         }
+
+        /** Return the total length (in bytes) of the underlying stream if known, otherwise
+         *  {@link #LENGTH_UNSET}. */
+        public int length() {
+            return mLength;
+        }
     }
 
     // An output stream to write EXIF data area, which can be written in either little or big endian
@@ -8002,10 +8020,18 @@ public class ExifInterface {
         }
 
         public void writeUnsignedShort(int val) throws IOException {
+            if (val > 0xFFFF) {
+                throw new IllegalArgumentException("val is larger than the maximum value of a "
+                        + "16-bit unsigned integer");
+            }
             writeShort((short) val);
         }
 
         public void writeUnsignedInt(long val) throws IOException {
+            if (val > 0xFFFF_FFFFL) {
+                throw new IllegalArgumentException("val is larger than the maximum value of a "
+                        + "32-bit unsigned integer");
+            }
             writeInt((int) val);
         }
     }

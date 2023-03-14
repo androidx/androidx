@@ -54,7 +54,6 @@ public object ComplicationPersistencePolicies {
     public const val DO_NOT_PERSIST: Int = 1
 }
 
-/** @hide */
 @IntDef(
     flag = true, // This is a flag to allow for future expansion.
     value =
@@ -63,6 +62,7 @@ public object ComplicationPersistencePolicies {
             ComplicationPersistencePolicies.DO_NOT_PERSIST
         ]
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class ComplicationPersistencePolicy
 
 /** The policies that control when complications should be displayed. */
@@ -74,7 +74,6 @@ public object ComplicationDisplayPolicies {
     public const val DO_NOT_SHOW_WHEN_DEVICE_LOCKED: Int = 1
 }
 
-/** @hide */
 @IntDef(
     flag = true, // This is a flag to allow for future expansion.
     value =
@@ -83,6 +82,7 @@ public object ComplicationDisplayPolicies {
             ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED
         ]
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class ComplicationDisplayPolicy
 
 /**
@@ -133,7 +133,6 @@ constructor(
      *
      * This is only needed internally to convert to the underlying communication protocol.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun asWireComplicationData(): WireComplicationData {
@@ -190,8 +189,8 @@ constructor(
     /**
      * Builder for properties in common for most Complication Types.
      *
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public abstract class BaseBuilder<T : BaseBuilder<T, ReturnT>, ReturnT> {
         internal var cachedWireComplicationData: WireComplicationData? = null
         internal var dataSource: ComponentName? = null
@@ -877,7 +876,7 @@ internal constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val valueExpression: DynamicFloat? = valueExpression
 
-    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = [TYPE_UNDEFINED, TYPE_RATING, TYPE_PERCENTAGE])
     public annotation class RangedValueType
 
@@ -926,7 +925,6 @@ internal constructor(
          *   [TYPE_PERCENTAGE] this must be 0f.
          * @param contentDescription Localized description for use by screen readers. Please do not
          *   include the word 'complication' in the description.
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
@@ -1265,7 +1263,6 @@ internal constructor(
          * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
          * @param contentDescription Localized description for use by screen readers. Please do not
          *   include the word 'complication' in the description.
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
@@ -2356,7 +2353,6 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
     }
 }
 
-/** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("NewApi")
 public fun WireComplicationData.toApiComplicationData(): ComplicationData {

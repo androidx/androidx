@@ -484,7 +484,6 @@ public final class EmojiTextViewHelper {
          * initialized.
          *
          * @param processEmoji when true, this helper will process emoji
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         void setEnabledUnsafe(boolean processEmoji) {

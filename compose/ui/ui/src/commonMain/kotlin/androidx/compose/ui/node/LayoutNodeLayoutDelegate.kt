@@ -19,7 +19,6 @@ package androidx.compose.ui.node
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.layout.AlignmentLine
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.node.LayoutNode.LayoutState
@@ -645,9 +644,7 @@ internal class LayoutNodeLayoutDelegate(
      * [LookaheadPassDelegate] manages the measure/layout and alignmentLine related queries for
      * the lookahead pass.
      */
-    inner class LookaheadPassDelegate(
-        private val lookaheadScope: LookaheadScope,
-    ) : Placeable(), Measurable, AlignmentLinesOwner {
+    inner class LookaheadPassDelegate : Placeable(), Measurable, AlignmentLinesOwner {
 
         internal var duringAlignmentLinesQuery: Boolean = false
         private var placedOnce: Boolean = false
@@ -657,9 +654,7 @@ internal class LayoutNodeLayoutDelegate(
         private var lookaheadConstraints: Constraints? = null
         private var lastPosition: IntOffset = IntOffset.Zero
 
-        // isPlaced is set to true when created because the construction of LookaheadPassDelegate
-        // is triggered by [LayoutNode.attach]
-        override var isPlaced: Boolean = true
+        override var isPlaced: Boolean = false
         private var isPreviouslyPlaced: Boolean = false
         override val innerCoordinator: NodeCoordinator
             get() = layoutNode.innerCoordinator
@@ -987,9 +982,17 @@ internal class LayoutNodeLayoutDelegate(
                 }
                 when (intrinsicsUsageByParent) {
                     LayoutNode.UsageByParent.InMeasureBlock ->
-                        intrinsicsUsingParent.requestLookaheadRemeasure(forceRequest)
+                        if (intrinsicsUsingParent.lookaheadRoot != null) {
+                            intrinsicsUsingParent.requestLookaheadRemeasure(forceRequest)
+                        } else {
+                            intrinsicsUsingParent.requestRemeasure(forceRequest)
+                        }
                     LayoutNode.UsageByParent.InLayoutBlock ->
-                        intrinsicsUsingParent.requestLookaheadRelayout(forceRequest)
+                        if (intrinsicsUsingParent.lookaheadRoot != null) {
+                            intrinsicsUsingParent.requestLookaheadRelayout(forceRequest)
+                        } else {
+                            intrinsicsUsingParent.requestRelayout(forceRequest)
+                        }
                     else -> error("Intrinsics isn't used by the parent")
                 }
             }
@@ -1071,7 +1074,7 @@ internal class LayoutNodeLayoutDelegate(
      * has a lookahead root.
      */
     private fun LayoutNode.isOutMostLookaheadRoot(): Boolean =
-        mLookaheadScope?.root == this
+        lookaheadRoot != null && parent?.lookaheadRoot == null
 
     /**
      * Performs measure with the given constraints and perform necessary state mutations before
@@ -1119,9 +1122,9 @@ internal class LayoutNodeLayoutDelegate(
         layoutState = LayoutState.Idle
     }
 
-    internal fun onLookaheadScopeChanged(newScope: LookaheadScope?) {
-        lookaheadPassDelegate = newScope?.let {
-            LookaheadPassDelegate(it)
+    internal fun ensureLookaheadDelegateCreated() {
+        if (lookaheadPassDelegate == null) {
+            lookaheadPassDelegate = LookaheadPassDelegate()
         }
     }
 

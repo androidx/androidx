@@ -28,6 +28,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.performImeAction
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -90,7 +91,7 @@ class PlatformTextInputTestIntegrationTest {
         rule.runOnIdle {
             assertThat(testCommands).containsExactly(
                 "input(hello)",
-                "submit",
+                "performImeAction",
             ).inOrder()
         }
     }
@@ -140,6 +141,10 @@ class PlatformTextInputTestIntegrationTest {
                 .focusable()
                 .semantics {
                     setText { true }
+                    performImeAction {
+                        testCommands += "performImeAction"
+                        true
+                    }
                 }
         )
     }
@@ -172,10 +177,6 @@ class PlatformTextInputTestIntegrationTest {
 
         override fun inputTextForTest(text: String) {
             testCommands!! += "input($text)"
-        }
-
-        override fun submitTextForTest() {
-            testCommands!! += "submit"
         }
     }
 }

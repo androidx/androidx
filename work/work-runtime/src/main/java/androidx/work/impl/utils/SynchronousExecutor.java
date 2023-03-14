@@ -24,7 +24,6 @@ import java.util.concurrent.Executor;
 /**
  * An {@link Executor} that runs its commands right away on the current thread.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SynchronousExecutor implements Executor {

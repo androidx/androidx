@@ -32,7 +32,6 @@ public class Colors {
     /**
      * The default color used for primary elements (i.e. background color).
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt
@@ -41,7 +40,6 @@ public class Colors {
     /**
      * The default color used on primary elements (i.e. content color).
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt
@@ -50,7 +48,6 @@ public class Colors {
     /**
      * The default color used for secondary elements (i.e. background color).
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt
@@ -59,7 +56,6 @@ public class Colors {
     /**
      * The default color used on secondary elements (i.e. content color).
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ColorInt

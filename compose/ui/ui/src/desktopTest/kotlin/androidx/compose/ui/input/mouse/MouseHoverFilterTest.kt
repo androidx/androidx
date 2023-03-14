@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.TestComposeWindow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -130,6 +131,7 @@ class MouseHoverFilterTest {
         assertThat(moveCount).isEqualTo(0)
     }
 
+    @Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
     @Test
     fun `scroll should trigger enter and exit`() {
         val boxCount = 3

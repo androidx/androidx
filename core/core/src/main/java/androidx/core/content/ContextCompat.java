@@ -205,7 +205,6 @@ public class ContextCompat {
             ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION";
 
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(flag = true, value = {
             RECEIVER_VISIBLE_TO_INSTANT_APPS, RECEIVER_EXPORTED, RECEIVER_NOT_EXPORTED,

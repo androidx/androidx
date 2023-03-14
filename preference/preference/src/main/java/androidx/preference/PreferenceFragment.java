@@ -515,11 +515,9 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
         onUnbindPreferences();
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     protected void onBindPreferences() {}
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     protected void onUnbindPreferences() {}
 
@@ -648,7 +646,6 @@ public abstract class PreferenceFragment extends android.app.Fragment implements
      * A wrapper for getParentFragment which is v17+. Used by the leanback preference library.
      *
      * @return The {@link android.app.Fragment} to possibly use as a callback
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public android.app.Fragment getCallbackFragment() {

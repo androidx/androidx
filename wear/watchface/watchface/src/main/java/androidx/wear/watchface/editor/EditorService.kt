@@ -25,7 +25,6 @@ import androidx.wear.watchface.editor.data.EditorStateWireFormat
 /**
  * Implementation of [IEditorService], intended for use by EditorSession only.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EditorService : IEditorService.Stub() {

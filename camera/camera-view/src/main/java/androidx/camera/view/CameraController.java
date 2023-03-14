@@ -192,7 +192,6 @@ public abstract class CameraController {
     /**
      * Bitmask options to enable/disable use cases.
      *
-     * @hide
      */
     @OptIn(markerClass = ExperimentalVideo.class)
     @Retention(RetentionPolicy.SOURCE)
@@ -704,7 +703,6 @@ public abstract class CameraController {
      * <p> Mirror the output image if front camera is used and if the flag is not set explicitly by
      * the app.
      *
-     * @hide
      */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1983,7 +1981,6 @@ public abstract class CameraController {
      * <p> Preview is required. If it is null, then controller is not ready. Return null and ignore
      * other use cases.
      *
-     * @hide
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -2070,7 +2067,6 @@ public abstract class CameraController {
         /**
          * Possible value for {@link #getAspectRatio()}
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)

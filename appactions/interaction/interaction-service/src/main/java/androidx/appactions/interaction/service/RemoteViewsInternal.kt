@@ -21,9 +21,13 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService.RemoteViewsFactory
 import androidx.annotation.RestrictTo
 
-/** Holder for RemoteViews UI response. */
+/**
+ * Holder for RemoteViews UI response.
+ *
+ * @hide
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal data class RemoteViewsInternal(
+data class RemoteViewsInternal(
     val remoteViews: RemoteViews,
     val size: SizeF,
     val changedViewIds: HashSet<Int> = HashSet<Int>(),

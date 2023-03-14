@@ -1,7 +1,7 @@
 /*
  * Copyright 2023 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License")
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -16,14 +16,14 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.annotation.RestrictTo
+import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync.Companion.toActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.impl.SingleTurnCapabilityImpl
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
-import androidx.appactions.interaction.capabilities.core.task.impl.TaskCapabilityImpl
 import androidx.appactions.interaction.capabilities.core.task.impl.SessionBridge
-import com.google.common.util.concurrent.ListenableFuture
+import androidx.appactions.interaction.capabilities.core.task.impl.TaskCapabilityImpl
 import java.util.function.Supplier
-import androidx.annotation.RestrictTo
 
 /**
  * An abstract Builder class for ActionCapability.
@@ -49,8 +49,9 @@ abstract class CapabilityBuilderBase<
 ) {
     private var id: String? = null
     private var property: PropertyT? = null
-    private var actionExecutor: ActionExecutor<ArgumentT, OutputT>? = null
-    private var sessionBuilder: SessionBuilder<SessionT>? = null
+    private var actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>? = null
+    private var sessionFactory: SessionFactory<SessionT>? = null
+
     /**
      * The SessionBridge object, which is used to normalize Session instances to TaskHandler.
      * see SessionBridge documentation for more information.
@@ -59,6 +60,7 @@ abstract class CapabilityBuilderBase<
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected open val sessionBridge: SessionBridge<SessionT, ConfirmationT>? = null
+
     /** The supplier of SessionUpdaterT instances. */
     protected open val sessionUpdaterSupplier: Supplier<SessionUpdaterT>? = null
 
@@ -86,49 +88,61 @@ abstract class CapabilityBuilderBase<
     /**
      * Sets the ActionExecutor for this capability.
      *
-     * setSessionBuilder and setActionExecutor are mutually exclusive, so calling one will nullify the other.
+     * setSessionFactory and setExecutor are mutually exclusive, so calling one will nullify
+     * the other.
+     *
+     * This method accepts a coroutine-based ActionExecutor instance. There is also an overload
+     * which accepts the ActionExecutorAsync instead.
      */
-    fun setActionExecutor(actionExecutor: ActionExecutor<ArgumentT, OutputT>) = asBuilder().apply {
-        this.actionExecutor = actionExecutor
+    fun setExecutor(actionExecutor: ActionExecutor<ArgumentT, OutputT>) = asBuilder().apply {
+        this.actionExecutorAsync = actionExecutor.toActionExecutorAsync()
+    }
+
+    /**
+     * Sets the ActionExecutorAsync for this capability.
+     *
+     * setSessionFactory and setExecutor are mutually exclusive, so calling one will nullify
+     * the other.
+     *
+     * This method accepts the ActionExecutorAsync interface which returns a ListenableFuture.
+     */
+    fun setExecutor(
+        actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
+    ) = asBuilder().apply {
+        this.actionExecutorAsync = actionExecutorAsync
     }
 
     /**
      * Sets the SessionBuilder instance which is used to create Session instaces for this
      * capability.
      *
-     * setSessionBuilder and setActionExecutor are mutually exclusive, so calling one will nullify the other.
+     * setSessionFactory and setExecutor are mutually exclusive, so calling one will nullify the other.
      */
-    protected open fun setSessionBuilder(
-        sessionBuilder: SessionBuilder<SessionT>,
+    protected open fun setSessionFactory(
+        sessionFactory: SessionFactory<SessionT>,
     ): BuilderT = asBuilder().apply {
-        this.sessionBuilder = sessionBuilder
+        this.sessionFactory = sessionFactory
     }
 
     /** Builds and returns this ActionCapability. */
     open fun build(): ActionCapability {
+        val checkedId = requireNotNull(id, { "setId must be called before build" })
         val checkedProperty = requireNotNull(property, { "property must not be null." })
-        if (actionExecutor != null) {
+        if (actionExecutorAsync != null) {
             return SingleTurnCapabilityImpl(
-                id,
+                checkedId,
                 actionSpec,
                 checkedProperty,
-                {
-                    object : BaseSession<ArgumentT, OutputT> {
-                        override fun onFinishAsync(
-                            argument: ArgumentT,
-                        ): ListenableFuture<ExecutionResult<OutputT>> {
-                            return actionExecutor!!.executeAsync(argument!!)
-                        } }
-                },
+                actionExecutorAsync!!,
             )
         } else {
             return TaskCapabilityImpl(
-                id,
+                checkedId,
                 actionSpec,
                 checkedProperty,
                 requireNotNull(
-                    sessionBuilder,
-                    { "either setActionExecutor or setSessionBuilder must be called before build" },
+                    sessionFactory,
+                    { "either setExecutor or setSessionFactory must be called before build" },
                 ),
                 sessionBridge!!,
                 sessionUpdaterSupplier!!,

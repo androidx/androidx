@@ -69,7 +69,6 @@ import java.util.concurrent.ExecutionException;
  * A runnable that looks up the {@link WorkSpec} from the database for a given id, instantiates
  * its Worker, and then calls it.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkerWrapper implements Runnable {
@@ -366,7 +365,6 @@ public class WorkerWrapper implements Runnable {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void interrupt() {
@@ -613,7 +611,6 @@ public class WorkerWrapper implements Runnable {
 
     /**
      * Builder class for {@link WorkerWrapper}
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class Builder {

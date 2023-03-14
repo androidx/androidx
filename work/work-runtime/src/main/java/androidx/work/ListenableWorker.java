@@ -272,7 +272,6 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final void stop() {
@@ -296,7 +295,6 @@ public abstract class ListenableWorker {
     /**
      * @return {@code true} if this worker has already been marked as used
      * @see #setUsed()
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final boolean isUsed() {
@@ -307,7 +305,6 @@ public abstract class ListenableWorker {
      * Marks this worker as used to make sure we enforce the policy that workers can only be used
      * once and that WorkerFactories return a new instance each time.
      * @see #isUsed()
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final void setUsed() {
@@ -315,7 +312,6 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull Executor getBackgroundExecutor() {
@@ -323,7 +319,6 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull TaskExecutor getTaskExecutor() {
@@ -331,7 +326,6 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull WorkerFactory getWorkerFactory() {
@@ -420,7 +414,6 @@ public abstract class ListenableWorker {
         public abstract Data getOutputData();
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         Result() {
@@ -432,7 +425,6 @@ public abstract class ListenableWorker {
          * Used to indicate that the work completed successfully.  Any work that depends on this
          * can be executed as long as all of its other dependencies and constraints are met.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final class Success extends Result {
@@ -485,7 +477,6 @@ public abstract class ListenableWorker {
          * to run, you need to return {@link Result.Success}</b>; failure indicates a permanent
          * stoppage of the chain of work.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final class Failure extends Result {
@@ -537,7 +528,6 @@ public abstract class ListenableWorker {
          * backoff specified in
          * {@link WorkRequest.Builder#setBackoffCriteria(BackoffPolicy, long, TimeUnit)}.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final class Retry extends Result {

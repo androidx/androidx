@@ -19,10 +19,11 @@ package androidx.paging
 import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
+import kotlin.random.Random
 import kotlin.reflect.KClass
+import kotlin.time.Duration.Companion.seconds
 
 internal class GarbageCollectionTestHelper {
     private val queue = ReferenceQueue<Any>()
@@ -41,7 +42,7 @@ internal class GarbageCollectionTestHelper {
         thread {
             val leak: ArrayList<ByteArray> = ArrayList()
             do {
-                val arraySize = (Math.random() * 1000).toInt()
+                val arraySize = Random.nextInt(1000)
                 leak.add(ByteArray(arraySize))
                 System.gc()
             } while (continueTriggeringGc.get())
@@ -49,7 +50,7 @@ internal class GarbageCollectionTestHelper {
         var collectedItemCount = 0
         val expectedItemCount = size - expected.sumOf { it.second }
         while (collectedItemCount < expectedItemCount &&
-            queue.remove(TimeUnit.SECONDS.toMillis(10)) != null
+            queue.remove(10.seconds.inWholeMilliseconds) != null
         ) {
             collectedItemCount++
         }

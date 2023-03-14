@@ -31,7 +31,6 @@ import androidx.leanback.R;
 
 /**
  * The view displaying 3 animated peak meters next to each other when a media item is playing.
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class MediaNowPlayingView extends LinearLayout{

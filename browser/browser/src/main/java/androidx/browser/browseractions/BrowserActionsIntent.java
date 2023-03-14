@@ -124,7 +124,6 @@ public class BrowserActionsIntent {
     /**
      * Defines the types of url for Browser Actions menu.
      */
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({URL_TYPE_NONE, URL_TYPE_IMAGE, URL_TYPE_VIDEO, URL_TYPE_AUDIO, URL_TYPE_FILE,
             URL_TYPE_PLUGIN})
@@ -141,7 +140,6 @@ public class BrowserActionsIntent {
      * Defines the the ids of the browser specified menu items in Browser Actions.
      * TODO(ltian): A long term solution need, since other providers might have customized menus.
      */
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({ITEM_INVALID_ITEM, ITEM_OPEN_IN_NEW_TAB, ITEM_OPEN_IN_INCOGNITO, ITEM_DOWNLOAD,
             ITEM_COPY, ITEM_SHARE})
@@ -172,7 +170,6 @@ public class BrowserActionsIntent {
         this.mIntent = intent;
     }
 
-    /** @hide */
     @VisibleForTesting
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     interface BrowserActionsFallDialogListener {
@@ -345,7 +342,6 @@ public class BrowserActionsIntent {
         launchIntent(context, intent, handlers);
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
     @SuppressWarnings("deprecation")
@@ -378,7 +374,6 @@ public class BrowserActionsIntent {
      * BrowserActionsIntent}.
      * @param context The context requesting for a Browser Actions menu.
      * @return List of Browser Actions providers available to handle the intent.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @SuppressWarnings("deprecation")
@@ -398,7 +393,6 @@ public class BrowserActionsIntent {
         openFallbackBrowserActionsMenu(context, uri, items);
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
     static void setDialogShownListenter(BrowserActionsFallDialogListener dialogListener) {

@@ -32,9 +32,11 @@ internal object AidlTestHelper {
             ).that(it.isSuccess).isTrue()
         }
         val tmpDir = Files.createTempDirectory("aidlGenerationTest")
-        val aidlPath = System.getProperty("aidl_compiler_path")?.let(::Path)
+        val aidlCompilerPath = System.getProperty("aidl_compiler_path")?.let(::Path)
             ?: throw IllegalArgumentException("aidl_compiler_path flag not set.")
-        val aidlCompiler = AidlCompiler(aidlPath)
+        // TODO(b/269458005): Make this a required argument once the fallback is not needed
+        val frameworkAidlPath = System.getProperty("framework_aidl_path")?.let(::Path)
+        val aidlCompiler = AidlCompiler(aidlCompilerPath, frameworkAidlPath)
 
         val javaGeneratedSources = AidlGenerator.generate(aidlCompiler, api, tmpDir)
         assertCompiles(

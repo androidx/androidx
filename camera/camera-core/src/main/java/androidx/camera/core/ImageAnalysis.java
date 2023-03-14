@@ -178,7 +178,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
@@ -241,7 +240,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -360,7 +358,8 @@ public final class ImageAnalysis extends UseCase {
         imageReaderProxy.setOnImageAvailableListener(mImageAnalysisAbstractAnalyzer,
                 backgroundExecutor);
 
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
+                streamSpec.getResolution());
 
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
@@ -375,6 +374,8 @@ public final class ImageAnalysis extends UseCase {
                     }
                 },
                 CameraXExecutors.mainThreadExecutor());
+
+        sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
 
         sessionConfigBuilder.addSurface(mDeferrableSurface);
 
@@ -432,9 +433,10 @@ public final class ImageAnalysis extends UseCase {
      * <p>
      * The rotation can be set when constructing an {@link ImageAnalysis} instance using
      * {@link ImageAnalysis.Builder#setTargetRotation(int)}, or dynamically by calling
-     * {@link ImageAnalysis#setTargetRotation(int)}. If not set, the target rotation defaults to
-     * the value of {@link Display#getRotation()} of the default display at the time the use case
-     * is created. The use case is fully created once it has been attached to a camera.
+     * {@link ImageAnalysis#setTargetRotation(int)} or
+     * {@link ImageAnalysis#setTargetRotationDegrees(int)}. If not set, the target rotation
+     * defaults to the value of {@link Display#getRotation()} of the default display at the time
+     * the use case is created. The use case is fully created once it has been attached to a camera.
      * </p>
      *
      * @return The rotation of the intended target for images.
@@ -462,23 +464,20 @@ public final class ImageAnalysis extends UseCase {
      * which way is down for a given image.  This is important since display orientation may be
      * locked by device default, user setting, or app configuration, and some devices may not
      * transition to a reverse-portrait display orientation.  In these cases, use
-     * {@link ImageAnalysis#setTargetRotation} to set target rotation dynamically according to
-     * the {@link android.view.OrientationEventListener}, without re-creating the use case. Note
-     * the OrientationEventListener output of degrees in the range [0..359] should be converted to
-     * a surface rotation. The mapping values are listed as the following.
-     * <p>{@link android.view.OrientationEventListener#ORIENTATION_UNKNOWN}: orientation == -1
-     * <p>{@link Surface#ROTATION_0}: orientation >= 315 || orientation < 45
-     * <p>{@link Surface#ROTATION_90}: orientation >= 225 && orientation < 315
-     * <p>{@link Surface#ROTATION_180}: orientation >= 135 && orientation < 225
-     * <p>{@link Surface#ROTATION_270}: orientation >= 45 && orientation < 135
+     * {@link ImageAnalysis#setTargetRotationDegrees(int)} to set target rotation dynamically
+     * according to the {@link android.view.OrientationEventListener}, without re-creating the
+     * use case. See {@link #setTargetRotationDegrees} for more information.
      *
      * <p>When this function is called, value set by
      * {@link ImageAnalysis.Builder#setTargetResolution(Size)} will be updated automatically to
      * make sure the suitable resolution can be selected when the use case is bound.
      *
      * <p>If not set here or by configuration, the target rotation will default to the value of
-     * {@link Display#getRotation()} of the default display at the time the use case is created.
-     * The use case is fully created once it has been attached to a camera.
+     * {@link Display#getRotation()} of the default display at the time the use case is bound. To
+     * return to the default value, set the value to
+     * <pre>{@code
+     * context.getSystemService(WindowManager.class).getDefaultDisplay().getRotation();
+     * }</pre>
      *
      * @param rotation Target rotation of the output image, expressed as one of
      *                 {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
@@ -488,6 +487,74 @@ public final class ImageAnalysis extends UseCase {
         if (setTargetRotationInternal(rotation)) {
             tryUpdateRelativeRotation();
         }
+    }
+
+    /**
+     * Sets the target rotation in degrees.
+     *
+     * <p>In general, it is best to use an {@link  android.view.OrientationEventListener} to set
+     * the target rotation. This way, the rotation output will indicate which way is down for a
+     * given image. This is important since display orientation may be locked by device default,
+     * user setting, or app configuration, and some devices may not transition to a
+     * reverse-portrait display orientation. In these cases, use
+     * {@code setTargetRotationDegrees()} to set target rotation dynamically according
+     * to the {@link  android.view.OrientationEventListener}, without re-creating the use case.
+     * The sample code is as below:
+     * <pre>{@code
+     * public class CameraXActivity extends AppCompatActivity {
+     *
+     *     private OrientationEventListener mOrientationEventListener;
+     *
+     *     @Override
+     *     protected void onStart() {
+     *         super.onStart();
+     *         if (mOrientationEventListener == null) {
+     *             mOrientationEventListener = new OrientationEventListener(this) {
+     *                 @Override
+     *                 public void onOrientationChanged(int orientation) {
+     *                     if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
+     *                         return;
+     *                     }
+     *                     mImageAnalysis.setTargetRotationDegrees(orientation);
+     *                 }
+     *             };
+     *         }
+     *         mOrientationEventListener.enable();
+     *     }
+     *
+     *     @Override
+     *     protected void onStop() {
+     *         super.onStop();
+     *         mOrientationEventListener.disable();
+     *     }
+     * }
+     * }</pre>
+     *
+     * <p>{@code setTargetRotationDegrees()} cannot rotate the camera image to an arbitrary angle,
+     * instead it maps the angle to one of {@link Surface#ROTATION_0},
+     * {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180} and {@link Surface#ROTATION_270}
+     * as the input of {@link #setTargetRotation(int)}. The rule is as follows:
+     * <p>If the input degrees is not in the range [0..359], it will be converted to the equivalent
+     * degrees in the range [0..359]. And then take the following mapping based on the input
+     * degrees.
+     * <p>degrees >= 315 || degrees < 45 -> {@link Surface#ROTATION_0}
+     * <p>degrees >= 225 && degrees < 315 -> {@link Surface#ROTATION_90}
+     * <p>degrees >= 135 && degrees < 225 -> {@link Surface#ROTATION_180}
+     * <p>degrees >= 45 && degrees < 135 -> {@link Surface#ROTATION_270}
+     * <p>The rotation value can be obtained by {@link #getTargetRotation()}. This means the
+     * rotation previously set by {@link #setTargetRotation(int)} will be overridden by
+     * {@code setTargetRotationDegrees(int)}, and vice versa.
+     *
+     * <p>When this function is called, value set by
+     * {@link ImageAnalysis.Builder#setTargetResolution(Size)} will be updated automatically to
+     * make sure the suitable resolution can be selected when the use case is bound.
+     *
+     * @param degrees Desired rotation degree of the output image.
+     * @see #setTargetRotation(int)
+     * @see #getTargetRotation()
+     */
+    public void setTargetRotationDegrees(int degrees) {
+        setTargetRotation(orientationDegreesToSurfaceRotation(degrees));
     }
 
     /**
@@ -520,7 +587,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -532,7 +598,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -626,7 +691,6 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -666,7 +730,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -678,7 +741,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -700,7 +762,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -711,7 +772,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -723,7 +783,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      *
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -759,7 +818,6 @@ public final class ImageAnalysis extends UseCase {
      * by calling {@link ImageProxy#close()}. However, the image will only be valid when the
      * ImageAnalysis instance is bound to a camera.
      *
-     * @hide
      * @see Builder#setBackpressureStrategy(int)
      */
     @IntDef({STRATEGY_KEEP_ONLY_LATEST, STRATEGY_BLOCK_PRODUCER})
@@ -777,7 +835,6 @@ public final class ImageAnalysis extends UseCase {
      *
      * <p>By default, {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_YUV_420_888} will be used.
      *
-     * @hide
      * @see Builder#setOutputImageFormat(int)
      */
     @IntDef({OUTPUT_IMAGE_FORMAT_YUV_420_888, OUTPUT_IMAGE_FORMAT_RGBA_8888})
@@ -921,7 +978,6 @@ public final class ImageAnalysis extends UseCase {
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
@@ -982,7 +1038,6 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -995,7 +1050,6 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1107,7 +1161,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setOnePixelShiftEnabled(boolean onePixelShiftEnabled) {
@@ -1119,7 +1172,6 @@ public final class ImageAnalysis extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1131,7 +1183,6 @@ public final class ImageAnalysis extends UseCase {
         /**
          * {@inheritDoc}
          *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1157,7 +1208,6 @@ public final class ImageAnalysis extends UseCase {
 
         // Implementations of TargetConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1236,7 +1286,7 @@ public final class ImageAnalysis extends UseCase {
          *
          * <p>In general, it is best to additionally set the target rotation dynamically on the use
          * case.  See
-         * {@link androidx.camera.core.ImageAnalysis#setTargetRotation(int)} for additional
+         * {@link androidx.camera.core.ImageAnalysis#setTargetRotationDegrees(int)} for additional
          * documentation.
          *
          * <p>If not set, the target rotation will default to the value of
@@ -1246,6 +1296,7 @@ public final class ImageAnalysis extends UseCase {
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
          * @see androidx.camera.core.ImageAnalysis#setTargetRotation(int)
+         * @see androidx.camera.core.ImageAnalysis#setTargetRotationDegrees(int)
          * @see android.view.OrientationEventListener
          */
         @NonNull
@@ -1253,6 +1304,17 @@ public final class ImageAnalysis extends UseCase {
         public Builder setTargetRotation(@RotationValue int rotation) {
             getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
             return this;
+        }
+
+        /**
+         * setMirrorMode is not supported on ImageAnalysis.
+         *
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+            throw new UnsupportedOperationException("setMirrorMode is not supported.");
         }
 
         /**
@@ -1316,7 +1378,6 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param resolution The default resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1327,7 +1388,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1336,7 +1396,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1345,7 +1404,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1393,7 +1451,6 @@ public final class ImageAnalysis extends UseCase {
          * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
          * {@link #build()} is called to create the {@link ImageAnalysis} instance.
          *
-         * @hide
          **/
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1423,7 +1480,6 @@ public final class ImageAnalysis extends UseCase {
 
         // Implementations of UseCaseConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1432,7 +1488,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1441,7 +1496,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1451,7 +1505,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1461,7 +1514,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1470,7 +1522,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY)
         @Override
         @NonNull
@@ -1479,7 +1530,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1489,7 +1539,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setImageReaderProxyProvider(
@@ -1499,7 +1548,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1508,7 +1556,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override

@@ -18,8 +18,10 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
@@ -31,9 +33,11 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession
@@ -69,6 +73,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
@@ -166,6 +171,11 @@ class CapturePipelineTest {
         extras = emptyMap(),
         template = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
     )
+    private val fakeCameraProperties = FakeCameraProperties(
+        FakeCameraMetadata(
+            mapOf(CameraCharacteristics.FLASH_INFO_AVAILABLE to true),
+        )
+    )
     private var runningRepeatingStream: ScheduledFuture<*>? = null
         set(value) {
             runningRepeatingStream?.cancel(false)
@@ -175,18 +185,18 @@ class CapturePipelineTest {
     private lateinit var torchControl: TorchControl
     private lateinit var capturePipeline: CapturePipeline
 
+    private lateinit var fakeUseCaseCameraState: UseCaseCameraState
+
     @Before
     fun setUp() {
         val fakeUseCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
-        val fakeCameraProperties = FakeCameraProperties(
-            FakeCameraMetadata(
-                mapOf(CameraCharacteristics.FLASH_INFO_AVAILABLE to true),
-            )
-        )
 
         torchControl = TorchControl(
             fakeCameraProperties,
-            State3AControl(fakeCameraProperties).apply {
+            State3AControl(
+                fakeCameraProperties,
+                NoOpAutoFlashAEModeDisabler,
+            ).apply {
                 useCaseCamera = fakeUseCaseCamera
             },
             fakeUseCaseThreads,
@@ -200,15 +210,24 @@ class CapturePipelineTest {
             fakeRequestControl.torchUpdateEventList.clear()
         }
 
+        val fakeUseCaseGraphConfig = UseCaseGraphConfig(
+            graph = FakeCameraGraph(fakeCameraGraphSession = fakeCameraGraphSession),
+            surfaceToStreamMap = emptyMap(),
+            cameraStateAdapter = CameraStateAdapter(),
+        )
+
+        fakeUseCaseCameraState = UseCaseCameraState(
+            fakeUseCaseGraphConfig,
+            fakeUseCaseThreads
+        )
+
         capturePipeline = CapturePipelineImpl(
             torchControl = torchControl,
             threads = fakeUseCaseThreads,
             requestListener = comboRequestListener,
-            useCaseGraphConfig = UseCaseGraphConfig(
-                graph = FakeCameraGraph(fakeCameraGraphSession = fakeCameraGraphSession),
-                surfaceToStreamMap = emptyMap(),
-                cameraStateAdapter = CameraStateAdapter(),
-            ),
+            cameraProperties = fakeCameraProperties,
+            useCaseGraphConfig = fakeUseCaseGraphConfig,
+            useCaseCameraState = fakeUseCaseCameraState
         )
     }
 
@@ -586,6 +605,88 @@ class CapturePipelineTest {
         assertThat((exception.cause as ImageCaptureException).imageCaptureError).isEqualTo(
             ImageCapture.ERROR_CAMERA_CLOSED
         )
+    }
+
+    @Test
+    fun stillCaptureWithFlashStopRepeatingQuirk_shouldStopRepeatingTemporarily() = runBlocking {
+        // Arrange
+        ReflectionHelpers.setStaticField(Build::class.java, "MANUFACTURER", "SAMSUNG")
+        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-A716")
+
+        val submittedRequestList = mutableListOf<Request>()
+        fakeCameraGraphSession.requestHandler = { requests ->
+            submittedRequestList.addAll(requests)
+        }
+        fakeUseCaseCameraState.update(streams = setOf(StreamId(0)))
+
+        // Act.
+        capturePipeline.submitStillCaptures(
+            requests = listOf(Request(
+                streams = emptyList(),
+                parameters = mapOf(CONTROL_AE_MODE to CONTROL_AE_MODE_ON_ALWAYS_FLASH),
+                template = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE)
+            )),
+            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            flashMode = ImageCapture.FLASH_MODE_ON,
+            flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        )
+
+        // Assert, stopRepeating -> submit -> startRepeating flow should be used.
+        assertThat(
+            fakeCameraGraphSession.stopRepeatingSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+        ).isTrue()
+
+        assertThat(
+            fakeCameraGraphSession.submitSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+        ).isTrue()
+
+        // Completing the submitted capture request.
+        submittedRequestList.complete()
+
+        assertThat(
+            fakeCameraGraphSession.repeatingRequestSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+        ).isTrue()
+    }
+
+    @Test
+    fun stillCaptureWithFlashStopRepeatingQuirkNotEnabled_shouldNotStopRepeating() = runBlocking {
+        // Arrange
+        val submittedRequestList = mutableListOf<Request>()
+        fakeCameraGraphSession.requestHandler = { requests ->
+            submittedRequestList.addAll(requests)
+        }
+        fakeUseCaseCameraState.update(streams = setOf(StreamId(0)))
+
+        // Act.
+        capturePipeline.submitStillCaptures(
+            requests = listOf(Request(
+                streams = emptyList(),
+                parameters = mapOf(CONTROL_AE_MODE to CONTROL_AE_MODE_ON_ALWAYS_FLASH),
+                template = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE)
+            )),
+            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            flashMode = ImageCapture.FLASH_MODE_ON,
+            flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        )
+
+        // Assert, repeating should not be stopped when quirk not enabled.
+        assertThat(
+            fakeCameraGraphSession.stopRepeatingSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+        ).isFalse()
+
+        assertThat(
+            fakeCameraGraphSession.submitSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+        ).isTrue()
+
+        // Resetting repeatingRequestSemaphore because startRepeating can be called before
+        fakeCameraGraphSession.repeatingRequestSemaphore = Semaphore(0)
+
+        // Completing the submitted capture request.
+        submittedRequestList.complete()
+
+        assertThat(
+            fakeCameraGraphSession.repeatingRequestSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+        ).isFalse()
     }
 
     // TODO(wenhungteng@): Porting overrideAeModeForStillCapture_quirkAbsent_notOverride,

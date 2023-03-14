@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
  * A caching class for {@link CarPropertyResponse} and the {@link OnCarPropertyResponseListener}'s
  * that need those responses.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 final class PropertyResponseCache {

@@ -96,24 +96,34 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
     }
 
     /**
-     *      __________________________      __________
-     *     |  grandparent            |     |  other  |
-     *     |   ____________________  |     |_________|
-     *     |  |  parent           |  |
-     *     |  |   ______________  |  |
-     *     |  |  | focusedItem |  |  |
-     *     |  |  |_____________|  |  |
-     *     |  |___________________|  |
-     *     |_________________________|
+     *                         ________________
+     *                        |      top      |
+     *                        |_______________|
+     *                   __________________________
+     *                  |  grandparent            |
+     *                  |   ____________________  |
+     *                  |  |  parent           |  |
+     *     __________   |  |   ______________  |  |     __________
+     *    |   left  |   |  |  | focusedItem |  |  |    |  right  |
+     *    |_________|   |  |  |_____________|  |  |    |_________|
+     *                  |  |___________________|  |
+     *                  |_________________________|
+     *                         ________________         __________
+     *                        |      top      |        |  other  |
+     *                        |_______________|        |_________|
+     *
      */
     @Test
     fun implicitExit_deactivatedParentCanRedirectExit() {
         // Arrange.
         val (parent, grandparent, other) = List(3) { mutableStateOf(false) }
+        val (left, right, top, bottom) = List(4) { mutableStateOf(false) }
         val otherItem = FocusRequester()
         var receivedFocusDirection: FocusDirection? = null
         rule.setContentForTest {
-            FocusableBox(grandparent, 0, 0, 50, 50) {
+            FocusableBox(top, x = 40, y = 0, width = 10, height = 10)
+            FocusableBox(left, x = 0, y = 40, width = 10, height = 10, otherItem)
+            FocusableBox(grandparent, 20, 20, 50, 50) {
                 val customExit = Modifier.focusProperties {
                     exit = {
                         receivedFocusDirection = it
@@ -123,7 +133,9 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
                 FocusableBox(parent, 10, 10, 30, 30, deactivated = true, modifier = customExit) {
                     FocusableBox(focusedItem, 10, 10, 10, 10, initialFocus) }
             }
-            FocusableBox(other, x = 0, y = 60, width = 10, height = 10, otherItem)
+            FocusableBox(right, x = 80, y = 40, width = 10, height = 10)
+            FocusableBox(bottom, x = 40, y = 80, width = 10, height = 10)
+            FocusableBox(other, x = 80, y = 80, width = 10, height = 10, otherItem)
         }
 
         // Act.
@@ -137,6 +149,50 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
             assertThat(parent.value).isFalse()
             assertThat(grandparent.value).isFalse()
             assertThat(other.value).isTrue()
+        }
+    }
+
+    /**
+     *      __________________________
+     *     |  grandparent            |
+     *     |   ____________________  |
+     *     |  |  parent           |  |
+     *     |  |   ______________  |  |
+     *     |  |  | focusedItem |  |  |
+     *     |  |  |_____________|  |  |
+     *     |  |___________________|  |
+     *     |_________________________|
+     */
+    @Test
+    fun implicitExit_notTriggeredWhenThereIsNoDestination() {
+        // Arrange.
+        val (parent, grandparent, other) = List(3) { mutableStateOf(false) }
+        val otherItem = FocusRequester()
+        var receivedFocusDirection: FocusDirection? = null
+        rule.setContentForTest {
+            FocusableBox(grandparent, 0, 0, 50, 50, otherItem) {
+                val customExit = Modifier.focusProperties {
+                    exit = {
+                        receivedFocusDirection = it
+                        otherItem
+                    }
+                }
+                FocusableBox(parent, 10, 10, 30, 30, deactivated = true, modifier = customExit) {
+                    FocusableBox(focusedItem, 10, 10, 10, 10, initialFocus) }
+            }
+        }
+
+        // Act.
+        val movedFocusSuccessfully = rule.runOnIdle { focusManager.moveFocus(focusDirection) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(receivedFocusDirection).isNull()
+            assertThat(movedFocusSuccessfully).isFalse()
+            assertThat(focusedItem.value).isTrue()
+            assertThat(parent.value).isFalse()
+            assertThat(grandparent.value).isFalse()
+            assertThat(other.value).isFalse()
         }
     }
 

@@ -26,6 +26,7 @@ import androidx.glance.EmittableWithChildren
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -54,17 +55,18 @@ internal class SessionWorker(
         internal val defaultTimeout = 45.seconds
     }
 
-    override suspend fun doWork(): Result = withTimeoutOrNull(defaultTimeout) {
-        val frameClock = InteractiveFrameClock(this)
-        val key =
-            inputData.getString(sessionManager.keyParam)
-                ?: return@withTimeoutOrNull Result.failure()
-        val session = requireNotNull(sessionManager.getSession(key)) {
-            "No session available to key $key"
-        }
+    private val key = inputData.getString(sessionManager.keyParam)
+            ?: error("SessionWorker must be started with a key")
 
+    @Deprecated("Deprecated by super class, replacement in progress, see b/245353737")
+    @OptIn(ExperimentalStdlibApi::class)
+    override val coroutineContext = Dispatchers.Main
+
+    override suspend fun doWork(): Result = withTimeoutOrNull(defaultTimeout) {
+        val session = sessionManager.getSession(key) ?: error("No session available for key $key")
         if (DEBUG) Log.d(TAG, "Setting up composition for ${session.key}")
-        GlobalSnapshotManager.ensureStarted()
+        val frameClock = InteractiveFrameClock(this)
+        val snapshotMonitor = launch { globalSnapshotMonitor() }
         val root = session.createRootEmittable()
         val recomposer = Recomposer(coroutineContext)
         val composition = Composition(Applier(root), recomposer).apply {
@@ -109,6 +111,7 @@ internal class SessionWorker(
 
         composition.dispose()
         frameClock.stopInteractive()
+        snapshotMonitor.cancel()
         recomposer.close()
         recomposer.join()
         return@withTimeoutOrNull Result.success()

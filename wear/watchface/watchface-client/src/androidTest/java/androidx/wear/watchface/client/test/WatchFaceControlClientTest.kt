@@ -883,6 +883,27 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
         }
     }
 
+    @Ignore("b/273482617")
+    @Test
+    fun addWatchFaceReadyListener_alreadyReady() {
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService)
+
+        try {
+            // Perform an action that will block until watch face init has completed.
+            assertThat(interactiveInstance.complicationSlotsState).isNotEmpty()
+
+            val wfReady = CompletableDeferred<Unit>()
+            interactiveInstance.addOnWatchFaceReadyListener(
+                { runnable -> runnable.run() },
+                { wfReady.complete(Unit) }
+            )
+            assertThat(wfReady.isCompleted).isTrue()
+        } finally {
+            interactiveInstance.close()
+        }
+    }
+
     @Test
     fun isConnectionAlive_false_after_close() {
         val interactiveInstance = getOrCreateTestSubject()

@@ -62,6 +62,7 @@ import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
+import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
@@ -937,7 +938,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
 
         assertThat(resultCroppingRatio).isEqualTo(expectedCroppingRatio)
-        if (imageProperties.format == ImageFormat.JPEG) {
+        if (imageProperties.format == ImageFormat.JPEG && isRotationOptionSupportedDevice()) {
             assertThat(imageProperties.rotationDegrees).isEqualTo(imageProperties.exif!!.rotation)
         }
     }
@@ -978,7 +979,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             Rational(cropRect!!.width(), cropRect.height())
         }
 
-        if (imageProperties.format == ImageFormat.JPEG) {
+        if (imageProperties.format == ImageFormat.JPEG && isRotationOptionSupportedDevice()) {
             assertThat(imageProperties.rotationDegrees).isEqualTo(
                 imageProperties.exif!!.rotation
             )
@@ -1041,7 +1042,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             Rational(cropRect!!.width(), cropRect.height())
         }
 
-        if (imageProperties.format == ImageFormat.JPEG) {
+        if (imageProperties.format == ImageFormat.JPEG && isRotationOptionSupportedDevice()) {
             assertThat(imageProperties.rotationDegrees).isEqualTo(
                 imageProperties.exif!!.rotation
             )
@@ -1451,7 +1452,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val imageProperties = callback.results.first()
 
         // Check the output image rotation degrees value is correct.
-        assertThat(imageProperties.rotationDegrees).isEqualTo(imageProperties.exif!!.rotation)
+        if (isRotationOptionSupportedDevice()) {
+            assertThat(imageProperties.rotationDegrees).isEqualTo(imageProperties.exif!!.rotation)
+        }
 
         // Check the output format is correct.
         assertThat(imageProperties.format).isEqualTo(ImageFormat.JPEG)
@@ -1642,6 +1645,15 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             pictureFolder.mkdir()
         }
     }
+
+    /**
+     * See ImageCaptureRotationOptionQuirk. Some real devices or emulator do not support the
+     * capture rotation option correctly. The capture rotation option setting can't be correctly
+     * applied to the exif metadata of the captured images. Therefore, the exif rotation related
+     * verification in the tests needs to be ignored on these devices or emulator.
+     */
+    private fun isRotationOptionSupportedDevice() =
+        ExifRotationAvailability().isRotationOptionSupported
 
     private class ImageProperties(
         val size: Size? = null,

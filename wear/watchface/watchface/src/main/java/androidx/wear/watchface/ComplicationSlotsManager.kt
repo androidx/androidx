@@ -133,7 +133,6 @@ public class ComplicationSlotsManager(
     public var configExtrasChangeCallback: WatchFace.ComplicationSlotConfigExtrasChangeCallback? =
         null
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
     public constructor(
@@ -162,7 +161,6 @@ public class ComplicationSlotsManager(
         onComplicationsUpdated()
     }
 
-    /** @hide */
     @WorkerThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun listenForStyleChanges(coroutineScope: CoroutineScope) {
@@ -366,6 +364,12 @@ public class ComplicationSlotsManager(
                 loadDrawablesAsynchronous = true,
                 forceUpdate = false
             )
+        }
+
+        // selectComplicationDataForInstant may have changed the complication, if so we need to
+        // update the content description labels.
+        if (complicationSlots.isNotEmpty()) {
+            onComplicationsUpdated()
         }
     }
 

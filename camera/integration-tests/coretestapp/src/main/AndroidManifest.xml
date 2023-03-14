@@ -18,6 +18,17 @@ limitations under the License.
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".ConcurrentCameraActivity"
+            android:screenOrientation="sensorPortrait"
+            android:exported="true"
+            android:label="Concurrent Camera Test App"
+            android:taskAffinity="androidx.camera.integration.core.ConcurrentCameraActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".CameraXActivity"
             android:exported="true"
             android:label="Camera Core Test App"

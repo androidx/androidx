@@ -21,6 +21,7 @@ import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IM
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MIRROR_MODE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
@@ -70,6 +71,7 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
@@ -157,7 +159,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String SURFACE_UPDATE_KEY =
             "androidx.camera.video.VideoCapture.streamUpdate";
     private static final Defaults DEFAULT_CONFIG = new Defaults();
-    private static final boolean ENABLE_SURFACE_PROCESSING_BY_QUIRK;
+    @VisibleForTesting
+    static boolean sEnableSurfaceProcessingByQuirk;
     private static final boolean USE_TEMPLATE_PREVIEW_BY_QUIRK;
 
     static {
@@ -173,7 +176,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 DeviceQuirks.get(ExtraSupportedResolutionQuirk.class) != null;
         USE_TEMPLATE_PREVIEW_BY_QUIRK =
                 hasPreviewStretchQuirk || hasPreviewDelayQuirk || hasImageCaptureFailedQuirk;
-        ENABLE_SURFACE_PROCESSING_BY_QUIRK =
+        sEnableSurfaceProcessingByQuirk =
                 hasPreviewDelayQuirk || hasImageCaptureFailedQuirk
                         || hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
                         || hasExtraSupportedResolutionQuirk;
@@ -207,7 +210,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     @NonNull
     public static <T extends VideoOutput> VideoCapture<T> withOutput(@NonNull T videoOutput) {
-        return new VideoCapture.Builder<T>(Preconditions.checkNotNull(videoOutput)).build();
+        return new VideoCapture.Builder<>(Preconditions.checkNotNull(videoOutput)).build();
     }
 
     /**
@@ -234,15 +237,16 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * Returns the desired rotation of the output video.
      *
-     * <p>The rotation can be set by calling {@link VideoCapture#setTargetRotation(int)}. If not
-     * set, the target rotation defaults to the value of {@link Display#getRotation()} of the
-     * default display at the time the use case is created. The use case is fully created once it
-     * has been attached to a camera.
+     * <p>The rotation can be set prior to constructing a VideoCapture using
+     * {@link VideoCapture.Builder#setTargetRotation(int)} or dynamically by calling
+     * {@link VideoCapture#setTargetRotation(int)} or {@link #setTargetRotationDegrees(int)}.
+     * If not set, the target rotation defaults to the value of {@link Display#getRotation()} of
+     * the default display at the time the use case is bound.
      *
      * @return The rotation of the intended target.
-     * @hide
+     * @see VideoCapture#setTargetRotation(int)
+     * @see VideoCapture#setTargetRotationDegrees(int)
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @RotationValue
     public int getTargetRotation() {
         return getTargetRotationInternal();
@@ -251,18 +255,41 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * Sets the desired rotation of the output video.
      *
-     * <p>This is one of four valid values: {@link Surface#ROTATION_0},
-     * {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
+     * <p>Valid values include: {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     * {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
      * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
      *
-     * <p>If not set, the target rotation will default to the value of
-     * {@link Display#getRotation()} of the default display at the time the use case is
-     * created. The use case is fully created once it has been attached to a camera.
+     * <p>While rotation can also be set via {@link Builder#setTargetRotation(int)}, using
+     * {@code setTargetRotation(int)} allows the target rotation to be set dynamically.
      *
-     * @param rotation Desired rotation of the output video.
-     * @hide
+     * <p>In general, it is best to use an {@link android.view.OrientationEventListener} to set
+     * the target rotation. This way, the rotation output will indicate which way is down for a
+     * given video. This is important since display orientation may be locked by device default,
+     * user setting, or app configuration, and some devices may not transition to a
+     * reverse-portrait display orientation. In these cases, use
+     * {@link #setTargetRotationDegrees} to set target rotation dynamically according to the
+     * {@link android.view.OrientationEventListener}, without re-creating the use case.
+     * See {@link #setTargetRotationDegrees} for more information.
+     *
+     * <p>If not set, the target rotation will default to the value of
+     * {@link Display#getRotation()} of the default display at the time the use case is bound. To
+     * return to the default value, set the value to
+     * <pre>{@code
+     * context.getSystemService(WindowManager.class).getDefaultDisplay().getRotation();
+     * }</pre>
+     *
+     * <p>For a {@link Recorder} output, calling this method has no effect on the ongoing
+     * recording, but will affect recordings started after calling this method. The final
+     * rotation degrees of the video, including the degrees set by this method and the orientation
+     * of the camera sensor, will be reflected by several possibilities, 1) the rotation degrees is
+     * written into the video metadata, 2) the video content is directly rotated, 3) both, i.e.
+     * rotation metadata and rotated video content which combines to the target rotation. CameraX
+     * will choose a strategy according to the use case.
+     *
+     * @param rotation Desired rotation of the output video, expressed as one of
+     *                 {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                 {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public void setTargetRotation(@RotationValue int rotation) {
         if (setTargetRotationInternal(rotation)) {
             sendTransformationInfoIfReady();
@@ -270,9 +297,93 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
-     * {@inheritDoc}
+     * Sets the desired rotation of the output video in degrees.
      *
-     * @hide
+     * <p>In general, it is best to use an {@link  android.view.OrientationEventListener} to set
+     * the target rotation. This way, the rotation output will indicate which way is down for a
+     * given video. This is important since display orientation may be locked by device default,
+     * user setting, or app configuration, and some devices may not transition to a
+     * reverse-portrait display orientation. In these cases, use
+     * {@code setTargetRotationDegrees()} to set target rotation dynamically according
+     * to the {@link  android.view.OrientationEventListener}, without re-creating the use case.
+     * The sample code is as below:
+     * <pre>{@code
+     * public class CameraXActivity extends AppCompatActivity {
+     *
+     *     private OrientationEventListener mOrientationEventListener;
+     *
+     *     @Override
+     *     protected void onStart() {
+     *         super.onStart();
+     *         if (mOrientationEventListener == null) {
+     *             mOrientationEventListener = new OrientationEventListener(this) {
+     *                 @Override
+     *                 public void onOrientationChanged(int orientation) {
+     *                     if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
+     *                         return;
+     *                     }
+     *                     mVideoCapture.setTargetRotationDegrees(orientation);
+     *                 }
+     *             };
+     *         }
+     *         mOrientationEventListener.enable();
+     *     }
+     *
+     *     @Override
+     *     protected void onStop() {
+     *         super.onStop();
+     *         mOrientationEventListener.disable();
+     *     }
+     * }
+     * }</pre>
+     *
+     * <p>{@code setTargetRotationDegrees()} cannot rotate the camera image to an arbitrary angle,
+     * instead it maps the angle to one of {@link Surface#ROTATION_0},
+     * {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180} and {@link Surface#ROTATION_270}
+     * as the input of {@link #setTargetRotation(int)}. The rule is as follows:
+     * <p>If the input degrees is not in the range [0..359], it will be converted to the equivalent
+     * degrees in the range [0..359]. And then take the following mapping based on the input
+     * degrees.
+     * <p>degrees >= 315 || degrees < 45 -> {@link Surface#ROTATION_0}
+     * <p>degrees >= 225 && degrees < 315 -> {@link Surface#ROTATION_90}
+     * <p>degrees >= 135 && degrees < 225 -> {@link Surface#ROTATION_180}
+     * <p>degrees >= 45 && degrees < 135 -> {@link Surface#ROTATION_270}
+     * <p>The rotation value can be obtained by {@link #getTargetRotation()}. This means the
+     * rotation previously set by {@link #setTargetRotation(int)} will be overridden by
+     * {@code setTargetRotationDegrees(int)}, and vice versa.
+     *
+     * <p>For a {@link Recorder} output, calling this method has no effect on the ongoing
+     * recording, but will affect recordings started after calling this method. The final
+     * rotation degrees of the video, including the degrees set by this method and the orientation
+     * of the camera sensor, will be reflected by several possibilities, 1) the rotation degrees is
+     * written into the video metadata, 2) the video content is directly rotated, 3) both, i.e.
+     * rotation metadata and rotated video content which combines to the target rotation. CameraX
+     * will choose a strategy according to the use case.
+     *
+     * @param degrees Desired rotation degree of the output video.
+     */
+    public void setTargetRotationDegrees(int degrees) {
+        setTargetRotation(orientationDegreesToSurfaceRotation(degrees));
+    }
+
+    // TODO: to public API
+    /**
+     * Returns the mirror mode.
+     *
+     * <p>The mirror mode is set by {@link VideoCapture.Builder#setMirrorMode(int)}. If not set,
+     * it is defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
+     *
+     * @return The mirror mode of the intended target.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @MirrorMode.Mirror
+    public int getMirrorMode() {
+        return getMirrorModeInternal();
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -298,8 +409,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
-     * @hide
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -310,8 +419,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -338,8 +445,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -360,8 +465,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -376,8 +479,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -391,7 +492,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         SurfaceRequest surfaceRequest = mSurfaceRequest;
         Rect cropRect = mCropRect;
         if (cameraInternal != null && surfaceRequest != null && cropRect != null) {
-            int relativeRotation = getRelativeRotation(cameraInternal);
+            int relativeRotation = getRelativeRotation(cameraInternal,
+                    isMirroringRequired(cameraInternal));
             int targetRotation = getAppTargetRotation();
             if (mCameraEdge != null) {
                 mCameraEdge.setRotationDegrees(relativeRotation);
@@ -456,7 +558,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         VideoEncoderInfo videoEncoderInfo = getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
                 videoCapabilities, mediaSpec, resolution, targetFpsRange);
         mCropRect = calculateCropRect(resolution, videoEncoderInfo);
-        mNode = createNodeIfNeeded(isCropNeeded(mCropRect, resolution));
+        mNode = createNodeIfNeeded(camera, mCropRect, resolution);
         // Choose Timebase based on the whether the buffer is copied.
         Timebase timebase;
         if (mNode != null || !camera.getHasTransform()) {
@@ -479,8 +581,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     getSensorToBufferTransformMatrix(),
                     camera.getHasTransform(),
                     mCropRect,
-                    getRelativeRotation(camera),
-                    /*mirroring=*/false);
+                    getRelativeRotation(camera, isMirroringRequired(camera)),
+                    shouldMirror(camera));
             cameraEdge.addOnInvalidatedListener(onSurfaceInvalidated);
             mCameraEdge = cameraEdge;
             SurfaceProcessorNode.OutConfig outConfig =
@@ -514,7 +616,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // MediaCodec class instead.
         mDeferrableSurface.setContainerClass(MediaCodec.class);
 
-        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
+                streamSpec.getResolution());
+        sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
         sessionConfigBuilder.addErrorListener(
                 (sessionConfig, error) -> resetPipeline(cameraId, config, streamSpec));
         if (USE_TEMPLATE_PREVIEW_BY_QUIRK) {
@@ -578,7 +682,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
-     * @hide
      */
     @Nullable
     @RestrictTo(Scope.TESTS)
@@ -591,8 +694,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
-     *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<VideoCaptureConfig<?>> {
@@ -711,8 +812,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     @Nullable
-    private SurfaceProcessorNode createNodeIfNeeded(boolean isCropNeeded) {
-        if (getEffect() != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK || isCropNeeded) {
+    private SurfaceProcessorNode createNodeIfNeeded(@NonNull CameraInternal camera,
+            @NonNull Rect cropRect,
+            @NonNull Size resolution) {
+        if (getEffect() != null
+                || shouldEnableSurfaceProcessingByQuirk(camera)
+                || shouldCrop(cropRect, resolution)
+                || shouldMirror(camera)) {
             Logger.d(TAG, "Surface processing is enabled.");
             return new SurfaceProcessorNode(requireNonNull(getCamera()),
                     getEffect() != null ? getEffect().createSurfaceProcessorInternal() :
@@ -848,9 +954,21 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
     }
 
-    private static boolean isCropNeeded(@NonNull Rect cropRect, @NonNull Size resolution) {
+    private boolean shouldMirror(@NonNull CameraInternal camera) {
+        // Stream is always mirrored during buffer copy. If there has been a buffer copy, it
+        // means the input stream is already mirrored. Otherwise, mirror it as needed.
+        return camera.getHasTransform() && isMirroringRequired(camera);
+    }
+
+    private static boolean shouldCrop(@NonNull Rect cropRect, @NonNull Size resolution) {
         return resolution.getWidth() != cropRect.width()
                 || resolution.getHeight() != cropRect.height();
+    }
+
+    private static boolean shouldEnableSurfaceProcessingByQuirk(@NonNull CameraInternal camera) {
+        // If there has been a buffer copy, it means the surface processing is already enabled on
+        // input stream. Otherwise, enable it as needed.
+        return camera.getHasTransform() && sEnableSurfaceProcessingByQuirk;
     }
 
     private static int alignDown(int length, int alignment,
@@ -1114,7 +1232,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * @inheritDoc
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -1129,10 +1246,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      * Builder for a {@link VideoCapture}.
      *
      * @param <T> the type of VideoOutput
-     * @hide
      */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @SuppressWarnings("ObjectToString")
     public static final class Builder<T extends VideoOutput> implements
             UseCaseConfig.Builder<VideoCapture<T>, VideoCaptureConfig<T>, Builder<T>>,
@@ -1140,7 +1255,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         private final MutableOptionsBundle mMutableConfig;
 
         /** Creates a new Builder object. */
-        Builder(@NonNull T videoOutput) {
+        public Builder(@NonNull T videoOutput) {
             this(createInitialBundle(videoOutput));
         }
 
@@ -1165,7 +1280,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             setTargetClass((Class<VideoCapture<T>>) (Type) VideoCapture.class);
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         static Builder<? extends VideoOutput> fromConfig(@NonNull Config configuration) {
@@ -1178,6 +1292,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
          */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static <T extends VideoOutput> Builder<T> fromConfig(
                 @NonNull VideoCaptureConfig<T> configuration) {
@@ -1194,8 +1309,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1206,8 +1319,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1225,9 +1336,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
 
         /**
-         * Builds an immutable {@link VideoCaptureConfig} from the current state.
+         * Builds a {@link VideoCapture} from the current state.
          *
-         * @return A {@link VideoCaptureConfig} populated with the current state.
+         * @return A {@link VideoCapture} populated with the current state.
          */
         @Override
         @NonNull
@@ -1237,7 +1348,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         // Implementations of TargetConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1266,6 +1376,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          *                   configured.
          * @return the current Builder.
          */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
         public Builder<T> setTargetName(@NonNull String targetName) {
@@ -1279,8 +1390,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * setTargetAspectRatio is not supported on VideoCapture
          *
          * <p>To set aspect ratio, see {@link Recorder.Builder#setAspectRatio(int)}.
-         *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1292,16 +1401,29 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         /**
          * Sets the rotation of the intended target for images from this configuration.
          *
-         * <p>This is one of four valid values: {@link Surface#ROTATION_0}, {@link
-         * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
+         * <p>Valid values include: {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+         * {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
          * Rotation values are relative to the "natural" rotation, {@link Surface#ROTATION_0}.
          *
+         * <p>In general, it is best to additionally set the target rotation dynamically on the
+         * use case. See {@link VideoCapture#setTargetRotationDegrees(int)} for additional
+         * documentation.
+         *
          * <p>If not set, the target rotation will default to the value of
-         * {@link Display#getRotation()} of the default display at the time the use case is
-         * created. The use case is fully created once it has been attached to a camera.
+         * {@link Display#getRotation()} of the default display at the time the use case is bound.
+         *
+         * <p>For a {@link Recorder} output, the final rotation degrees of the video, including
+         * the degrees set by this method and the orientation of the camera sensor, will be
+         * reflected by several possibilities, 1) the rotation degrees is written into the video
+         * metadata, 2) the video content is directly rotated, 3) both, i.e. rotation metadata
+         * and rotated video content which combines to the target rotation. CameraX will choose a
+         * strategy according to the use case.
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
+         * @see VideoCapture#setTargetRotation(int)
+         * @see VideoCapture#setTargetRotationDegrees(int)
+         * @see android.view.OrientationEventListener
          */
         @NonNull
         @Override
@@ -1310,12 +1432,30 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
+        // TODO: to public API
+        /**
+         * Sets the mirror mode.
+         *
+         * <p>Valid values include: {@link MirrorMode#MIRROR_MODE_OFF},
+         * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_FRONT_ON}.
+         * If not set, it is defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
+         *
+         * @param mirrorMode The mirror mode of the intended target.
+         * @return The current Builder.
+         *
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder<T> setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+            getMutableConfig().insertOption(OPTION_MIRROR_MODE, mirrorMode);
+            return this;
+        }
+
         /**
          * setTargetResolution is not supported on VideoCapture
          *
          * <p>To set resolution, see {@link Recorder.Builder#setQualitySelector(QualitySelector)}.
-         *
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1329,7 +1469,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          *
          * @param resolution The default resolution to choose from supported output sizes list.
          * @return The current Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1339,7 +1478,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1348,7 +1486,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1358,7 +1495,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1367,7 +1503,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1386,7 +1521,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          *
          * @param executor The executor which will be used for background tasks.
          * @return the current Builder.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1398,7 +1532,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         // Implementations of UseCaseConfig.Builder default methods
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1407,7 +1540,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1416,7 +1548,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1426,7 +1557,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1436,7 +1566,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1445,7 +1574,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1454,7 +1582,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -1464,7 +1591,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override
@@ -1473,7 +1599,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         @Override

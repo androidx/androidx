@@ -28,7 +28,6 @@ import androidx.annotation.RestrictTo;
  * Interface which allows a {@link android.graphics.drawable.Drawable} to receive tinting calls
  * from {@code DrawableCompat}.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface TintAwareDrawable {

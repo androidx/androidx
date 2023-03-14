@@ -76,7 +76,6 @@ import java.util.Set;
  */
 public final class PreviewProgram extends BasePreviewProgram {
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String[] PROJECTION = getProjection();
@@ -148,7 +147,6 @@ public final class PreviewProgram extends BasePreviewProgram {
      * into the TV Input Framework database.
      *
      * @param includeProtectedFields Whether the fields protected by system is included or not.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override

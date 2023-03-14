@@ -26,7 +26,6 @@ import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.task.InventoryListResolver;
 import androidx.appactions.interaction.capabilities.core.task.InventoryResolver;
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult;
-import androidx.appactions.interaction.capabilities.core.task.ValueListListener;
 import androidx.appactions.interaction.capabilities.core.task.ValueListener;
 import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.InvalidResolverException;
 import androidx.appactions.interaction.capabilities.core.values.SearchAction;
@@ -55,7 +54,7 @@ public abstract class GenericResolverInternal<ValueTypeT> {
 
     @NonNull
     public static <ValueTypeT> GenericResolverInternal<ValueTypeT> fromValueListListener(
-            @NonNull ValueListListener<ValueTypeT> valueListListener) {
+            @NonNull ValueListener<List<ValueTypeT>> valueListListener) {
         return AutoOneOf_GenericResolverInternal.valueList(valueListListener);
     }
 
@@ -90,7 +89,7 @@ public abstract class GenericResolverInternal<ValueTypeT> {
 
     abstract ValueListener<ValueTypeT> value();
 
-    abstract ValueListListener<ValueTypeT> valueList();
+    abstract ValueListener<List<ValueTypeT>> valueList();
 
     abstract AppEntityResolver<ValueTypeT> appEntityResolver();
 
@@ -147,22 +146,24 @@ public abstract class GenericResolverInternal<ValueTypeT> {
             @NonNull ParamValueConverter<ValueTypeT> converter)
             throws StructConversionException {
         SlotTypeConverter<ValueTypeT> singularConverter = SlotTypeConverter.ofSingular(converter);
-        SlotTypeConverter<List<ValueTypeT>> repeatedConverter = SlotTypeConverter.ofRepeated(
-                converter);
+        SlotTypeConverter<List<ValueTypeT>> repeatedConverter =
+                SlotTypeConverter.ofRepeated(converter);
 
         switch (getKind()) {
             case VALUE:
-                return value().onReceived(singularConverter.convert(paramValues));
+                return value().onReceivedAsync(singularConverter.convert(paramValues));
             case VALUE_LIST:
-                return valueList().onReceived(repeatedConverter.convert(paramValues));
+                return valueList().onReceivedAsync(repeatedConverter.convert(paramValues));
             case APP_ENTITY_RESOLVER:
-                return appEntityResolver().onReceived(singularConverter.convert(paramValues));
+                return appEntityResolver().onReceivedAsync(singularConverter.convert(paramValues));
             case APP_ENTITY_LIST_RESOLVER:
-                return appEntityListResolver().onReceived(repeatedConverter.convert(paramValues));
+                return appEntityListResolver()
+                        .onReceivedAsync(repeatedConverter.convert(paramValues));
             case INVENTORY_RESOLVER:
-                return inventoryResolver().onReceived(singularConverter.convert(paramValues));
+                return inventoryResolver().onReceivedAsync(singularConverter.convert(paramValues));
             case INVENTORY_LIST_RESOLVER:
-                return inventoryListResolver().onReceived(repeatedConverter.convert(paramValues));
+                return inventoryListResolver()
+                        .onReceivedAsync(repeatedConverter.convert(paramValues));
         }
         throw new IllegalStateException("unreachable");
     }

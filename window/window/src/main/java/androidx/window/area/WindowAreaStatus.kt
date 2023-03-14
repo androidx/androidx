@@ -20,6 +20,9 @@ import androidx.window.core.ExperimentalWindowApi
 
 /**
  * Represents a window area status.
+ *
+ * @hide
+ *
  */
 @ExperimentalWindowApi
 class WindowAreaStatus private constructor(private val mDescription: String) {

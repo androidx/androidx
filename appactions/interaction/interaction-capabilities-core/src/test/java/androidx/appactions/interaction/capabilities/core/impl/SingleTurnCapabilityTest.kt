@@ -18,6 +18,9 @@ package androidx.appactions.interaction.capabilities.core.impl
 
 import android.util.SizeF
 import androidx.appactions.interaction.capabilities.core.ActionCapability
+import androidx.appactions.interaction.capabilities.core.ActionExecutor
+import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
+import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync.Companion.toActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
@@ -27,28 +30,36 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBui
 import androidx.appactions.interaction.capabilities.core.properties.EntityProperty
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty
 import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils
+import androidx.appactions.interaction.capabilities.core.testing.buildCallbackInternalWithChannel
+import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.CB_TIMEOUT
 import androidx.appactions.interaction.capabilities.core.testing.spec.Argument
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output
 import androidx.appactions.interaction.capabilities.core.testing.spec.Property
-import androidx.appactions.interaction.capabilities.core.testing.spec.Session
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput
 import androidx.appactions.interaction.proto.FulfillmentResponse.StructuredOutput.OutputValue
 import androidx.appactions.interaction.proto.ParamValue
-import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.verify
-import org.mockito.kotlin.mock
 
 @RunWith(JUnit4::class)
 class SingleTurnCapabilityTest {
-
-    val mockCalback: CallbackInternal = mock()
+    val hostProperties = HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build()
 
     @Test
     fun oneShotCapability_successWithOutput() {
+        val actionExecutor = object : ActionExecutor<Argument, Output> {
+            override suspend fun execute(argument: Argument): ExecutionResult<Output> =
+                ExecutionResult.Builder<Output>().setOutput(
+                    Output.builder().setOptionalStringField("stringOutput")
+                        .build(),
+                ).build()
+        }
         val capability: ActionCapability =
             SingleTurnCapabilityImpl<Property, Argument, Output>(
                 "capabilityId",
@@ -58,20 +69,7 @@ class SingleTurnCapabilityTest {
                 ).setOptionalStringField(
                     StringProperty.Builder().setProhibited(true).build(),
                 ).build(),
-                {
-                    object : Session {
-                        override fun onFinishAsync(
-                            argument: Argument,
-                        ): ListenableFuture<ExecutionResult<Output>> {
-                            return Futures.immediateFuture(
-                                ExecutionResult.Builder<Output>().setOutput(
-                                    Output.builder().setOptionalStringField("stringOutput")
-                                        .build(),
-                                ).build(),
-                            )
-                        }
-                    }
-                },
+                actionExecutor.toActionExecutorAsync(),
             )
         val expectedFulfillmentResponse: FulfillmentResponse =
             FulfillmentResponse.newBuilder().setExecutionOutput(
@@ -89,9 +87,8 @@ class SingleTurnCapabilityTest {
                     .build(),
             ).build()
 
-        val capabilitySession = capability.createSession(
-            HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build(),
-        )
+        val capabilitySession = capability.createSession(hostProperties)
+        val responseChannel = Channel<FulfillmentResponse>(1)
         capabilitySession.execute(
             ArgumentUtils.buildArgs(
                 mapOf(
@@ -100,10 +97,53 @@ class SingleTurnCapabilityTest {
                     ).build(),
                 ),
             ),
-            mockCalback,
+            buildCallbackInternalWithChannel(responseChannel, CB_TIMEOUT),
         )
 
-        verify(mockCalback).onSuccess(expectedFulfillmentResponse)
+        runBlocking {
+            withTimeout(CB_TIMEOUT) {
+                assertThat(
+                    responseChannel.receive(),
+                ).isEqualTo(expectedFulfillmentResponse)
+            }
+        }
+    }
+
+    @Test
+    fun oneShotSession_uiHandle_withActionExecutor() {
+        val actionExecutor =
+            ActionExecutor<Argument, Output> {
+                ExecutionResult.getDefaultInstance()
+            }
+        val capability: ActionCapability =
+            SingleTurnCapabilityImpl<Property, Argument, Output>(
+                "capabilityId",
+                ACTION_SPEC,
+                Property.newBuilder().setRequiredEntityField(
+                    EntityProperty.Builder().build(),
+                ).build(),
+                actionExecutor.toActionExecutorAsync(),
+            )
+        val session = capability.createSession(hostProperties)
+        assertThat(session.uiHandle).isSameInstanceAs(actionExecutor)
+    }
+
+    @Test
+    fun oneShotSession_uiHandle_withActionExecutorAsync() {
+        val actionExecutorAsync = ActionExecutorAsync<Argument, Output> {
+            Futures.immediateFuture(ExecutionResult.getDefaultInstance())
+        }
+        val capability: ActionCapability =
+            SingleTurnCapabilityImpl<Property, Argument, Output>(
+                "capabilityId",
+                ACTION_SPEC,
+                Property.newBuilder().setRequiredEntityField(
+                    EntityProperty.Builder().build(),
+                ).build(),
+                actionExecutorAsync,
+            )
+        val session = capability.createSession(hostProperties)
+        assertThat(session.uiHandle).isSameInstanceAs(actionExecutorAsync)
     }
 
     companion object {

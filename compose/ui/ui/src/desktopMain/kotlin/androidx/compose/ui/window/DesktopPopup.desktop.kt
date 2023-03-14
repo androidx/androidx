@@ -172,6 +172,7 @@ private fun PopupLayout(
             platformInputService = scene.platformInputService,
             component = scene.component,
             density = density,
+            coroutineContext = parentComposition.effectCoroutineContext,
             isPopup = true,
             isFocusable = focusable,
             onDismissRequest = onDismissRequest,

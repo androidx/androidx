@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -24,15 +23,16 @@ plugins {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    api(libs.autoValueAnnotations)
-    api(libs.kotlinStdlib)
+    api(project(path: ":appactions:interaction:interaction-proto", configuration: "shadowJar"))
+
     annotationProcessor(libs.autoValue)
-    implementation(libs.protobufLite)
+
+    api(libs.autoValueAnnotations)
     implementation(libs.guavaListenableFuture)
-    implementation(libs.kotlinCoroutinesGuava)
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.kotlinStdlib)
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation(project(":appactions:interaction:interaction-proto"))
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 
     testAnnotationProcessor(libs.autoValue)
     testImplementation(libs.junit)
@@ -58,8 +58,7 @@ android {
     }
 
     lintOptions {
-        // TODO(b/266849030): Remove when updating library.
-        disable("UnknownNullness", "SyntheticAccessor")
+        disable("UnknownNullness")
     }
 
     namespace "androidx.appactions.interaction.capabilities.core"
@@ -68,7 +67,6 @@ android {
 androidx {
     name = "androidx.appactions.interaction:interaction-capabilities-core"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.NONE
     inceptionYear = "2023"
     description = "App Interaction library core capabilities API and implementation."
     failOnDeprecationWarnings = false

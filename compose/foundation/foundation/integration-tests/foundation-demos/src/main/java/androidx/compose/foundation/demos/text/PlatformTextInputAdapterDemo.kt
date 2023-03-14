@@ -34,6 +34,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.demos.text.WackyTextInputPlugin.createAdapter
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.BasicText
@@ -68,7 +69,7 @@ private const val TAG = "WackyInput"
 
 @Composable
 fun PlatformTextInputAdapterDemo() {
-    Column {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row {
             var value by remember { mutableStateOf("") }
             Text("Standard text field: ")
@@ -344,10 +345,6 @@ private class WackyTextInputService(
             beginBatchEdit()
             commitText(text, 0)
             endBatchEdit()
-        }
-
-        override fun submitTextForTest() {
-            throw UnsupportedOperationException("just a test")
         }
 
         // endregion

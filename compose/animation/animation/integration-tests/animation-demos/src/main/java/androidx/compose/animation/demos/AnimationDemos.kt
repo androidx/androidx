@@ -38,7 +38,10 @@ import androidx.compose.animation.demos.layoutanimation.ShrineCartDemo
 import androidx.compose.animation.demos.lookahead.AnimateBoundsModifierDemo
 import androidx.compose.animation.demos.lookahead.CraneDemo
 import androidx.compose.animation.demos.lookahead.LookaheadLayoutWithAlignmentLinesDemo
+import androidx.compose.animation.demos.lookahead.LookaheadSamplesDemo
+import androidx.compose.animation.demos.lookahead.LookaheadWithDisappearingMovableContentDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithFlowRowDemo
+import androidx.compose.animation.demos.lookahead.LookaheadWithIntrinsicsDemo
 import androidx.compose.animation.demos.lookahead.LookaheadWithMovableContentDemo
 import androidx.compose.animation.demos.lookahead.ScreenSizeChangeDemo
 import androidx.compose.animation.demos.singlevalue.SingleValueAnimationDemo
@@ -105,13 +108,22 @@ val AnimationDemos = DemoCategory(
                 },
                 ComposableDemo("Crane Nested Shared Element") { CraneDemo() },
                 ComposableDemo("Screen Size Change Demo") { ScreenSizeChangeDemo() },
-                ComposableDemo("Lookahead With Movable Content") {
-                    LookaheadWithMovableContentDemo()
+                ComposableDemo("Lookahead Samples Demo") {
+                    LookaheadSamplesDemo()
                 },
                 ComposableDemo("Lookahead With Alignment Lines") {
                     LookaheadLayoutWithAlignmentLinesDemo()
                 },
-                ComposableDemo("Flow Row Lookahead") { LookaheadWithFlowRowDemo() },
+                ComposableDemo("Lookahead With Flow Row") { LookaheadWithFlowRowDemo() },
+                ComposableDemo("Lookahead With Intrinsics") {
+                    LookaheadWithIntrinsicsDemo()
+                },
+                ComposableDemo("Lookahead With Movable Content") {
+                    LookaheadWithMovableContentDemo()
+                },
+                ComposableDemo("Lookahead With Disappearing Movable Content") {
+                    LookaheadWithDisappearingMovableContentDemo()
+                },
             )
         ),
         DemoCategory(

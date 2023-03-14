@@ -37,11 +37,12 @@ class UiResponseTest {
     @Test
     fun uiResponse_remoteViewsBuilder_withFactory_success() {
         val views = RemoteViews(context.packageName, R.layout.remote_view)
-        val uiResponse: UiResponse = UiResponse.RemoteViewsUiBuilder()
-            .setRemoteViews(views, SizeF(10f, 15f))
-            .addRemoteViewsFactory(remoteViewsFactoryId, FakeRemoteViewsFactory())
-            .addViewIdForCollectionUpdate(changeViewId)
-            .build()
+        val uiResponse: UiResponse =
+            UiResponse.RemoteViewsUiBuilder()
+                .setRemoteViews(views, SizeF(10f, 15f))
+                .addRemoteViewsFactory(remoteViewsFactoryId, FakeRemoteViewsFactory())
+                .addViewIdForCollectionUpdate(changeViewId)
+                .build()
 
         assertThat(uiResponse.tileLayoutInternal).isNull()
         assertThat(uiResponse.remoteViewsInternal?.size?.width).isEqualTo(10)
@@ -50,16 +51,14 @@ class UiResponseTest {
             .isEqualTo(context.packageName)
         assertThat(uiResponse.remoteViewsInternal?.remoteViewsFactories)
             .containsKey(remoteViewsFactoryId)
-        assertThat(uiResponse.remoteViewsInternal?.changedViewIds)
-            .containsExactly(changeViewId)
+        assertThat(uiResponse.remoteViewsInternal?.changedViewIds).containsExactly(changeViewId)
     }
 
     @Test
     fun uiResponse_remoteViewsBuilder_withoutFactory_success() {
         val views = RemoteViews(context.packageName, R.layout.remote_view)
-        val uiResponse: UiResponse = UiResponse.RemoteViewsUiBuilder()
-            .setRemoteViews(views, SizeF(10f, 15f))
-            .build()
+        val uiResponse: UiResponse =
+            UiResponse.RemoteViewsUiBuilder().setRemoteViews(views, SizeF(10f, 15f)).build()
 
         assertThat(uiResponse.tileLayoutInternal).isNull()
         assertThat(uiResponse.remoteViewsInternal?.size?.width).isEqualTo(10)
@@ -71,41 +70,36 @@ class UiResponseTest {
 
     @Test
     fun uiResponse_remoteViewsBuilder_failure() {
-        assertThrows(
-            NullPointerException::class.java
-        ) { UiResponse.RemoteViewsUiBuilder().build() }
+        assertThrows(NullPointerException::class.java) { UiResponse.RemoteViewsUiBuilder().build() }
 
         // No remote views.
-        assertThrows(
-            NullPointerException::class.java
-        ) {
+        assertThrows(NullPointerException::class.java) {
             UiResponse.RemoteViewsUiBuilder()
                 .addRemoteViewsFactory(remoteViewsFactoryId, FakeRemoteViewsFactory())
-                .addViewIdForCollectionUpdate(changeViewId).build()
+                .addViewIdForCollectionUpdate(changeViewId)
+                .build()
         }
     }
 
     @Test
     fun uiResponse_tileLayoutBuilder_success() {
-        val layout = LayoutElementBuilders.Layout.Builder()
-            .setRoot(
-                LayoutElementBuilders.Box.Builder()
-                    .addContent(
-                        LayoutElementBuilders.Column.Builder()
-                            .addContent(
-                                LayoutElementBuilders.Text.Builder()
-                                    .setText("LA8JE92")
-                                    .build()
-                            )
-                            .build()
-                    )
-                    .build()
-            )
-            .build()
+        val layout =
+            LayoutElementBuilders.Layout.Builder()
+                .setRoot(
+                    LayoutElementBuilders.Box.Builder()
+                        .addContent(
+                            LayoutElementBuilders.Column.Builder()
+                                .addContent(
+                                    LayoutElementBuilders.Text.Builder().setText("LA8JE92").build()
+                                )
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
         val resources = ResourceBuilders.Resources.Builder().setVersion("1234").build()
-        val uiResponse: UiResponse = UiResponse.TileLayoutBuilder()
-            .setTileLayout(layout, resources)
-            .build()
+        val uiResponse: UiResponse =
+            UiResponse.TileLayoutBuilder().setTileLayout(layout, resources).build()
 
         assertThat(uiResponse.remoteViewsInternal).isNull()
         assertThat(uiResponse.tileLayoutInternal?.layout).isNotNull()
@@ -116,8 +110,6 @@ class UiResponseTest {
 
     @Test
     fun uiResponse_tileLayoutBuilder_failure() {
-        assertThrows(
-            NullPointerException::class.java
-        ) { UiResponse.TileLayoutBuilder().build() }
+        assertThrows(NullPointerException::class.java) { UiResponse.TileLayoutBuilder().build() }
     }
 }

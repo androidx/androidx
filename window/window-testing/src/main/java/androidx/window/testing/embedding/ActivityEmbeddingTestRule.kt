@@ -21,6 +21,8 @@ import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.EmbeddingBackend
 import androidx.window.embedding.RuleController
+import androidx.window.embedding.SplitController
+import androidx.window.embedding.SplitInfo
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -66,5 +68,26 @@ class ActivityEmbeddingTestRule : TestRule {
      */
     fun overrideIsActivityEmbedded(activity: Activity, isActivityEmbedded: Boolean) {
         stubEmbeddingBackend.overrideIsActivityEmbedded(activity, isActivityEmbedded)
+    }
+
+    /**
+     * Overrides the return value of [SplitController.splitSupportStatus].
+     *
+     * @param status the global [SplitController.SplitSupportStatus] that will be returned instead.
+     */
+    fun overrideSplitSupportStatus(status: SplitController.SplitSupportStatus) {
+        stubEmbeddingBackend.splitSupportStatus = status
+    }
+
+    /**
+     * Overrides current split info reported by [SplitController.splitInfoList]. The initial
+     * override value is set to an empty [List].
+     *
+     * @param activity the [Activity] corresponding to the [splitInfoList].
+     * @param splitInfoList a list of [SplitInfo] that will be emitted through
+     * [SplitController.splitInfoList].
+     */
+    fun overrideSplitInfo(activity: Activity, splitInfoList: List<SplitInfo>) {
+        stubEmbeddingBackend.overrideSplitInfo(activity, splitInfoList)
     }
 }

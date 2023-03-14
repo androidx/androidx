@@ -30,7 +30,6 @@ import java.util.List;
  * Utility functions to work with {@link androidx.car.app.hardware.info.AutomotiveCarInfo} and
  * {@link androidx.car.app.hardware.climate.AutomotiveCarClimate}
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class CarValueUtils {

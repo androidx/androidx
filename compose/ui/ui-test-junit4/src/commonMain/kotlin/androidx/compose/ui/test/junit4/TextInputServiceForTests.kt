@@ -75,17 +75,6 @@ internal class TextInputServiceForTests(
         performEditCommand(listOf(CommitTextCommand(text, 1)))
     }
 
-    override fun submitTextForTest() {
-        with(requireSession()) {
-            if (imeOptions.imeAction == ImeAction.Default) {
-                throw AssertionError(
-                    "Failed to perform IME action as current node does not specify any."
-                )
-            }
-            onImeActionPerformed(imeOptions.imeAction)
-        }
-    }
-
     private fun performEditCommand(commands: List<EditCommand>) {
         requireSession().onEditCommand(commands)
     }

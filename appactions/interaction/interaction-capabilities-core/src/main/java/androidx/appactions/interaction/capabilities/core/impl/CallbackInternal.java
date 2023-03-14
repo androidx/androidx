@@ -17,9 +17,11 @@
 package androidx.appactions.interaction.capabilities.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appactions.interaction.proto.FulfillmentResponse;
 
 /** An interface for receiving the result of action. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CallbackInternal {
 
     /** Invoke to set an action result upon success. */

@@ -328,7 +328,6 @@ public class Text implements LayoutElement {
         return new Text(textElement);
     }
 
-    /** @hide */
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)

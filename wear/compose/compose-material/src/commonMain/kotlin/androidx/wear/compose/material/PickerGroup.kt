@@ -320,7 +320,6 @@ private fun calculateHeight(constraints: Constraints, placeables: List<Placeable
     return maxChildrenHeight.coerceIn(constraints.minHeight, constraints.maxHeight)
 }
 
-@Suppress("ModifierInspectorInfo")
 internal fun Modifier.autoCenteringTarget() = this.then(
     object : ParentDataModifier {
         override fun Density.modifyParentData(parentData: Any?) = AutoCenteringRowParentData()

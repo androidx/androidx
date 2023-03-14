@@ -25,7 +25,6 @@ import androidx.camera.core.impl.MultiValueSet;
 /**
  * A fake implementation for {@link MultiValueSet}.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY_GROUP)

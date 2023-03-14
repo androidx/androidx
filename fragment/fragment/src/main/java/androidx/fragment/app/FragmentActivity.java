@@ -390,7 +390,7 @@ public class FragmentActivity extends ComponentActivity implements
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void supportInvalidateOptionsMenu() {
-        invalidateOptionsMenu();
+        invalidateMenu();
     }
 
     /**
@@ -753,7 +753,7 @@ public class FragmentActivity extends ComponentActivity implements
 
         @Override
         public void invalidateMenu() {
-            FragmentActivity.this.invalidateOptionsMenu();
+            FragmentActivity.this.invalidateMenu();
         }
     }
 

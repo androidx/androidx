@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.text.input
 
-import androidx.compose.ui.text.ExperimentalTextApi
-
 /**
  * Defines additional operations that can be performed on text editors by UI tests that aren't
  * available as semantics actions. Tests call these methods indirectly, by the various `perform*`
@@ -34,7 +32,6 @@ import androidx.compose.ui.text.ExperimentalTextApi
 // be given default implementations that throw UnsupportedOperationExceptions. This is not a concern
 // for backwards compatibility because it simply means that tests may not use new perform* methods
 // on older implementations that haven't linked against the newer version of Compose.
-@ExperimentalTextApi
 interface TextInputForTests {
 
     /**
@@ -44,13 +41,4 @@ interface TextInputForTests {
      * @param text Text to send.
      */
     fun inputTextForTest(text: String)
-
-    /**
-     * Performs the submit action configured on the current node, if any.
-     *
-     * On Android, this is the IME action.
-     */
-    // TODO(b/269633168, b/269633506) Remove and implement using semantics instead.
-    @ExperimentalTextApi
-    fun submitTextForTest()
 }

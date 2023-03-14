@@ -156,6 +156,15 @@ internal actual fun getString(string: Strings): String {
         Strings.BottomSheetDragHandleDescription -> resources.getString(
             androidx.compose.material3.R.string.bottom_sheet_drag_handle_description
         )
+        Strings.BottomSheetCollapseDescription -> resources.getString(
+            androidx.compose.material3.R.string.bottom_sheet_collapse_description
+        )
+        Strings.BottomSheetDismissDescription -> resources.getString(
+            androidx.compose.material3.R.string.bottom_sheet_dismiss_description
+        )
+        Strings.BottomSheetExpandDescription -> resources.getString(
+            androidx.compose.material3.R.string.bottom_sheet_expand_description
+        )
         Strings.TooltipLongPressLabel -> resources.getString(
             androidx.compose.material3.R.string.tooltip_long_press_label
         )

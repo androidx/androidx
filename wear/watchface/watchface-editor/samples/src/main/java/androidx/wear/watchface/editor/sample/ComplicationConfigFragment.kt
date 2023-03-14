@@ -62,7 +62,6 @@ internal class ComplicationConfigFragment : Fragment() {
 /**
  * Configuration view for watch faces with multiple complicationSlots.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings(

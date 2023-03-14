@@ -55,7 +55,6 @@ import java.util.concurrent.Executor
 /**
  * [ExerciseClient] implementation that is backed by Health Services.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class ServiceBackedExerciseClient(

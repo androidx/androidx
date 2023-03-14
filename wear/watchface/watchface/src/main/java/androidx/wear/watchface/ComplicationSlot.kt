@@ -226,7 +226,6 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
     ): Boolean = false
 }
 
-/** @hide */
 @IntDef(
     value =
         [
@@ -326,7 +325,6 @@ public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val t
         return result
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun toWireFormat() = BoundingArcWireFormat(startAngle, totalAngle, thickness)
 }
@@ -1025,6 +1023,11 @@ internal constructor(
         if (!forceUpdate && complicationData.value == best) return
         renderer.loadData(best, loadDrawablesAsynchronous)
         (complicationData as MutableStateFlow).value = best
+
+        // forceUpdate is used for screenshots, don't set the dirty flag for those.
+        if (!forceUpdate) {
+            dataDirty = true
+        }
     }
 
     /**
@@ -1128,7 +1131,6 @@ internal constructor(
      * @param complicationType The [ComplicationType] to use when looking up the slot's
      *   [ComplicationSlotBounds.perComplicationTypeBounds].
      * @param applyMargins Whether or not the margins should be applied to the computed [Rect].
-     * @hide
      */
     @JvmOverloads
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

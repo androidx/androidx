@@ -30,7 +30,6 @@ import java.util.WeakHashMap;
  *
  * @param <K> Key type
  * @param <V> Value type
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
@@ -318,7 +317,6 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public class IteratorWithAdditions extends SupportRemove<K, V>
@@ -359,7 +357,6 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
     }
 
     /**
-     * @hide
      *
      * @param <K>
      * @param <V>

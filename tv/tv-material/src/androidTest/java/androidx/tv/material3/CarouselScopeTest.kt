@@ -52,9 +52,9 @@ class CarouselScopeTest {
 
     @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
     @Test
-    fun carouselItem_parentContainerGainsFocused_onBackPress() {
+    fun carouselSlide_parentContainerGainsFocused_onBackPress() {
         val containerBoxTag = "container-box"
-        val carouselItemTag = "carousel-item"
+        val carouselSlideTag = "carousel-slide"
 
         rule.setContent {
             val carouselState = remember { CarouselState() }
@@ -68,8 +68,8 @@ class CarouselScopeTest {
                     .focusable()
             ) {
                 CarouselScope(carouselState = carouselState)
-                    .CarouselItem(
-                        modifier = Modifier.testTag(carouselItemTag),
+                    .CarouselSlide(
+                        modifier = Modifier.testTag(carouselSlideTag),
                         background = {
                             Box(
                                 modifier = Modifier
@@ -82,7 +82,7 @@ class CarouselScopeTest {
         }
 
         // Request focus for Carousel Item on start
-        rule.onNodeWithTag(carouselItemTag)
+        rule.onNodeWithTag(carouselSlideTag)
             .performSemanticsAction(SemanticsActions.RequestFocus)
         rule.waitForIdle()
 

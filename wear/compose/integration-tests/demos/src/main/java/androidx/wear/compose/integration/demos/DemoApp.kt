@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.integration.demos
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -185,7 +184,6 @@ internal fun swipeDismissStateWithNavigation(
 
 internal data class TimestampedDelta(val time: Long, val delta: Float)
 
-@SuppressLint("ModifierInspectorInfo")
 @OptIn(ExperimentalComposeUiApi::class)
 @Suppress("ComposableModifierFactory")
 @Composable

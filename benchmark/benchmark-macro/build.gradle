@@ -86,10 +86,13 @@ androidx {
     description = "Android Benchmark - Macrobenchmark"
 }
 
-// Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ['-opt-in=kotlin.RequiresOptIn']
+        // Enable using experimental APIs from within same version group
+        freeCompilerArgs += [
+                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi",
+                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi"
+        ]
     }
 }
 

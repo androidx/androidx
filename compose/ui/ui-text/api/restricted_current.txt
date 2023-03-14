@@ -444,6 +444,12 @@ package androidx.compose.ui.text {
     property public final long size;
   }
 
+  @androidx.compose.runtime.Immutable public final class TextMeasurer {
+    ctor public TextMeasurer(androidx.compose.ui.text.font.FontFamily.Resolver fallbackFontFamilyResolver, androidx.compose.ui.unit.Density fallbackDensity, androidx.compose.ui.unit.LayoutDirection fallbackLayoutDirection, optional int cacheSize);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.text.TextLayoutResult measure(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.text.TextStyle style, optional int overflow, optional boolean softWrap, optional int maxLines, optional java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>> placeholders, optional long constraints, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.text.font.FontFamily.Resolver fontFamilyResolver, optional boolean skipCache);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.text.TextLayoutResult measure(String text, optional androidx.compose.ui.text.TextStyle style, optional int overflow, optional boolean softWrap, optional int maxLines, optional long constraints, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.text.font.FontFamily.Resolver fontFamilyResolver, optional boolean skipCache);
+  }
+
   public final class TextPainter {
     method public void paint(androidx.compose.ui.graphics.Canvas canvas, androidx.compose.ui.text.TextLayoutResult textLayoutResult);
     field public static final androidx.compose.ui.text.TextPainter INSTANCE;
@@ -1006,6 +1012,26 @@ package androidx.compose.ui.text.input {
     property public final char mask;
   }
 
+  public sealed interface PlatformTextInput {
+    method public void releaseInputFocus();
+    method public void requestInputFocus();
+  }
+
+  public interface PlatformTextInputAdapter {
+    method public android.view.inputmethod.InputConnection? createInputConnection(android.view.inputmethod.EditorInfo outAttrs);
+    method public androidx.compose.ui.text.input.TextInputForTests? getInputForTests();
+    method public default void onDisposed();
+    property public abstract androidx.compose.ui.text.input.TextInputForTests? inputForTests;
+  }
+
+  @androidx.compose.runtime.Immutable public fun interface PlatformTextInputPlugin<T extends androidx.compose.ui.text.input.PlatformTextInputAdapter> {
+    method public T createAdapter(androidx.compose.ui.text.input.PlatformTextInput platformTextInput, android.view.View view);
+  }
+
+  @androidx.compose.runtime.Stable public sealed interface PlatformTextInputPluginRegistry {
+    method @androidx.compose.runtime.Composable public <T extends androidx.compose.ui.text.input.PlatformTextInputAdapter> T rememberAdapter(androidx.compose.ui.text.input.PlatformTextInputPlugin<T> plugin);
+  }
+
   public interface PlatformTextInputService {
     method public void hideSoftwareKeyboard();
     method public default void notifyFocusedRect(androidx.compose.ui.geometry.Rect rect);
@@ -1070,6 +1096,10 @@ package androidx.compose.ui.text.input {
     method public static androidx.compose.ui.text.AnnotatedString getSelectedText(androidx.compose.ui.text.input.TextFieldValue);
     method public static androidx.compose.ui.text.AnnotatedString getTextAfterSelection(androidx.compose.ui.text.input.TextFieldValue, int maxChars);
     method public static androidx.compose.ui.text.AnnotatedString getTextBeforeSelection(androidx.compose.ui.text.input.TextFieldValue, int maxChars);
+  }
+
+  public interface TextInputForTests {
+    method public void inputTextForTest(String text);
   }
 
   public class TextInputService {
@@ -1300,7 +1330,7 @@ package androidx.compose.ui.text.style {
   }
 
   public enum ResolvedTextDirection {
-    method public static androidx.compose.ui.text.style.ResolvedTextDirection valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.ui.text.style.ResolvedTextDirection valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
     method public static androidx.compose.ui.text.style.ResolvedTextDirection[] values();
     enum_constant public static final androidx.compose.ui.text.style.ResolvedTextDirection Ltr;
     enum_constant public static final androidx.compose.ui.text.style.ResolvedTextDirection Rtl;

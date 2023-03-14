@@ -161,7 +161,6 @@ public class AppCompatDialog extends ComponentDialog implements AppCompatCallbac
     }
 
     /**
-     * @hide
      */
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)

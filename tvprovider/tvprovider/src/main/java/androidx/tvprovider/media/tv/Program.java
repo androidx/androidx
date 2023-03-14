@@ -74,7 +74,6 @@ import androidx.tvprovider.media.tv.TvContractCompat.Programs.Genres.Genre;
  */
 public final class Program extends BaseProgram implements Comparable<Program> {
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String[] PROJECTION = getProjection();

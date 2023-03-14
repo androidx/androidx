@@ -38,7 +38,6 @@ import java.util.List;
 /**
  * Parameters for {@link IWatchFaceControlService#createPendingInteractiveWatchFace}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)

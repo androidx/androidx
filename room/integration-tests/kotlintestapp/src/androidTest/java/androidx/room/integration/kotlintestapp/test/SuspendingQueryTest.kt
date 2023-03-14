@@ -24,10 +24,10 @@ import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.androidx.room.integration.kotlintestapp.vo.Counter
 import androidx.room.integration.kotlintestapp.NewThreadDispatcher
 import androidx.room.integration.kotlintestapp.TestDatabase
 import androidx.room.integration.kotlintestapp.vo.Book
+import androidx.room.integration.kotlintestapp.vo.Counter
 import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
@@ -175,6 +175,32 @@ class SuspendingQueryTest : TestDatabaseTest() {
             runBlocking {
                 db.booksDao().getBooksSuspend()
                 delay(100) // let db auto-close
+                db.booksDao().getBooksSuspend()
+            }
+        }
+    }
+
+    @Test
+    fun allBookSuspend_closed() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        context.deleteDatabase("autoClose.db")
+        val db = Room.databaseBuilder(
+            context = context,
+            klass = TestDatabase::class.java,
+            name = "test.db"
+        ).build()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            StrictMode.setThreadPolicy(
+                ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .penaltyDeath()
+                    .build()
+            )
+            runBlocking {
+                // Opens DB, isOpen && inTransaction check should not cause violation
+                db.booksDao().getBooksSuspend()
+                // DB is open, isOpen && inTransaction check should not cause violation
                 db.booksDao().getBooksSuspend()
             }
         }

@@ -469,6 +469,7 @@ private fun SearchBarInputField(
 /**
  * Defaults used in [SearchBar] and [DockedSearchBar].
  */
+@ExperimentalMaterial3Api
 object SearchBarDefaults {
     /** Default elevation for a search bar. */
     val Elevation: Dp = SearchBarTokens.ContainerElevation
@@ -497,7 +498,6 @@ object SearchBarDefaults {
      * @param dividerColor the color of the divider between the input field and the search results
      * @param inputFieldColors the colors of the input field
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun colors(
         containerColor: Color = SearchBarTokens.ContainerColor.toColor(),
@@ -533,7 +533,6 @@ object SearchBarDefaults {
      * @param unfocusedPlaceholderColor the placeholder color for this input field when not focused
      * @param disabledPlaceholderColor the placeholder color for this input field when disabled
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun inputFieldColors(
         focusedTextColor: Color = SearchBarTokens.InputTextColor.toColor(),
@@ -573,7 +572,6 @@ object SearchBarDefaults {
         )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    @ExperimentalMaterial3Api
     @Composable
     fun inputFieldColors(
         textColor: Color = SearchBarTokens.InputTextColor.toColor(),
@@ -681,6 +679,7 @@ private class MutableWindowInsets(
 }
 
 // Measurement specs
+@OptIn(ExperimentalMaterial3Api::class)
 private val SearchBarCornerRadius: Dp = InputFieldHeight / 2
 internal val DockedActiveTableMinHeight: Dp = 240.dp
 private const val DockedActiveTableMaxHeightScreenRatio: Float = 2f / 3f

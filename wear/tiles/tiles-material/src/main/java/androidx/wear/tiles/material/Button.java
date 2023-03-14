@@ -116,7 +116,6 @@ public class Button implements LayoutElement {
 
         @NonNull static final Map<Integer, String> TYPE_TO_TAG = new HashMap<>();
 
-        /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef({NOT_SET, ICON, TEXT, IMAGE, CUSTOM_CONTENT})
@@ -549,7 +548,6 @@ public class Button implements LayoutElement {
         return new Button(boxElement);
     }
 
-    /** @hide */
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)

@@ -40,10 +40,9 @@ import androidx.appactions.interaction.capabilities.core.values.properties.Recip
 import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.FulfillmentResponse;
 import androidx.appactions.interaction.proto.ParamValue;
-
-import com.google.protobuf.ListValue;
-import com.google.protobuf.Struct;
-import com.google.protobuf.Value;
+import androidx.appactions.interaction.protobuf.ListValue;
+import androidx.appactions.interaction.protobuf.Struct;
+import androidx.appactions.interaction.protobuf.Value;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -647,7 +646,7 @@ public final class TypeConverters {
         return builder.setStructValue(Struct.newBuilder().putAllFields(fieldsMap).build()).build();
     }
 
-    private static String getStructType(Struct struct) throws StructConversionException {
+    static String getStructType(Struct struct) throws StructConversionException {
         Map<String, Value> fieldsMap = struct.getFieldsMap();
         if (!fieldsMap.containsKey(FIELD_NAME_TYPE)
                 || fieldsMap.get(FIELD_NAME_TYPE).getStringValue().isEmpty()) {

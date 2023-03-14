@@ -15,6 +15,7 @@ package androidx.privacysandbox.ui.client.view {
     ctor public SandboxedSdkView(android.content.Context context);
     method public void setAdapter(androidx.privacysandbox.ui.core.SandboxedUiAdapter sandboxedUiAdapter);
     method public void setSdkErrorConsumer(java.util.function.Consumer<java.lang.Throwable>? errorConsumer);
+    method public void setZOrderOnTopAndEnableUserInteraction(boolean setOnTop);
   }
 
 }

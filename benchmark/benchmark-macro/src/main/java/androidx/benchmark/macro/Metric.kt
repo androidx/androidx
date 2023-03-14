@@ -28,11 +28,11 @@ import androidx.benchmark.macro.perfetto.AudioUnderrunQuery
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
-import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.macro.perfetto.PowerQuery
-import androidx.benchmark.macro.perfetto.Slice
 import androidx.benchmark.macro.perfetto.StartupTimingQuery
 import androidx.benchmark.macro.perfetto.camelCase
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.Slice
 
 /**
  * Metric interface.
@@ -53,7 +53,7 @@ public sealed class Metric {
      */
     internal abstract fun getMetrics(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
+        session: PerfettoTraceProcessor.Session
     ): IterationResult
 
     internal data class CaptureInfo(
@@ -98,9 +98,9 @@ public class AudioUnderrunMetric : Metric() {
 
     internal override fun getMetrics(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
+        session: PerfettoTraceProcessor.Session
     ): IterationResult {
-        val subMetrics = AudioUnderrunQuery.getSubMetrics(perfettoTraceProcessor)
+        val subMetrics = AudioUnderrunQuery.getSubMetrics(session)
 
         return IterationResult(
             singleMetrics = mapOf(
@@ -135,10 +135,10 @@ public class FrameTimingMetric : Metric() {
     @SuppressLint("SyntheticAccessor")
     internal override fun getMetrics(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
+        session: PerfettoTraceProcessor.Session
     ): IterationResult {
         val subMetricsMsMap = FrameTimingQuery.getFrameSubMetrics(
-            perfettoTraceProcessor = perfettoTraceProcessor,
+            session = session,
             captureApiLevel = Build.VERSION.SDK_INT,
             packageName = captureInfo.targetPackageName
         )
@@ -188,10 +188,10 @@ public class StartupTimingMetric : Metric() {
     @SuppressLint("SyntheticAccessor")
     internal override fun getMetrics(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
+        session: PerfettoTraceProcessor.Session
     ): IterationResult {
         return StartupTimingQuery.getFrameSubMetrics(
-            perfettoTraceProcessor = perfettoTraceProcessor,
+            session = session,
             captureApiLevel = captureInfo.apiLevel,
             targetPackageName = captureInfo.targetPackageName,
 
@@ -230,11 +230,11 @@ public class StartupTimingLegacyMetric : Metric() {
 
     internal override fun getMetrics(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
+        session: PerfettoTraceProcessor.Session
     ): IterationResult {
 
         // Acquires perfetto metrics
-        val traceMetrics = perfettoTraceProcessor.getTraceMetrics("android_startup")
+        val traceMetrics = session.getTraceMetrics("android_startup")
         val androidStartup = traceMetrics.android_startup
             ?: throw IllegalStateException("No android_startup metric found.")
         val appStartup =
@@ -316,9 +316,9 @@ public class TraceSectionMetric(
     @SuppressLint("SyntheticAccessor")
     internal override fun getMetrics(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
+        session: PerfettoTraceProcessor.Session
     ): IterationResult {
-        val slices = perfettoTraceProcessor.querySlices(sectionName)
+        val slices = session.querySlices(sectionName)
 
         return when (mode) {
             Mode.First -> {
@@ -474,26 +474,26 @@ public class PowerMetric(
 
     internal override fun getMetrics(
         captureInfo: CaptureInfo,
-        perfettoTraceProcessor: PerfettoTraceProcessor
+        session: PerfettoTraceProcessor.Session
     ): IterationResult {
         // collect metrics between trace point flags
-        val slice = perfettoTraceProcessor.querySlices(MEASURE_BLOCK_SECTION_NAME)
+        val slice = session.querySlices(MEASURE_BLOCK_SECTION_NAME)
             .firstOrNull()
             ?: return IterationResult.EMPTY
 
         if (type is Type.Battery) {
-            return getBatteryDischargeMetrics(perfettoTraceProcessor, slice)
+            return getBatteryDischargeMetrics(session, slice)
         }
 
-        return getPowerMetrics(perfettoTraceProcessor, slice)
+        return getPowerMetrics(session, slice)
     }
 
     private fun getBatteryDischargeMetrics(
-        perfettoTraceProcessor: PerfettoTraceProcessor,
+        session: PerfettoTraceProcessor.Session,
         slice: Slice
     ): IterationResult {
         val metrics = BatteryDischargeQuery.getBatteryDischargeMetrics(
-            perfettoTraceProcessor,
+            session,
             slice
         )
 
@@ -508,10 +508,10 @@ public class PowerMetric(
     }
 
     private fun getPowerMetrics(
-        perfettoTraceProcessor: PerfettoTraceProcessor,
+        session: PerfettoTraceProcessor.Session,
         slice: Slice
     ): IterationResult {
-        val metrics = PowerQuery.getPowerMetrics(perfettoTraceProcessor, slice)
+        val metrics = PowerQuery.getPowerMetrics(session, slice)
 
         val metricMap: Map<String, Double> = getSpecifiedMetrics(metrics)
         if (metricMap.isEmpty()) {
