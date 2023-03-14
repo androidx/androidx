@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material.samples
+package androidx.wear.compose.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Spacer
@@ -25,15 +25,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.ExpandableItemsDefaults
+import androidx.wear.compose.foundation.expandableItem
+import androidx.wear.compose.foundation.expandableItems
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.rememberExpandableItemsState
 import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ExpandableItemsDefaults
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.OutlinedChip
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.expandableItem
-import androidx.wear.compose.material.expandableItems
-import androidx.wear.compose.material.rememberExpandableItemsState
 
 @Sampled
 @Composable

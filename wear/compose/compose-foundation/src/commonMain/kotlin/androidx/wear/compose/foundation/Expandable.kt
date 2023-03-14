@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material
+package androidx.wear.compose.foundation
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
@@ -45,10 +45,10 @@ import kotlinx.coroutines.launch
  * Create and [remember] an [ExpandableItemsState]
  *
  * Example of an expandable list:
- * @sample androidx.wear.compose.material.samples.ExpandableWithItemsSample
+ * @sample androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
  *
  * Example of an expandable text:
- * @sample androidx.wear.compose.material.samples.ExpandableTextSample
+ * @sample androidx.wear.compose.foundation.samples.ExpandableTextSample
  *
  * @param initiallyExpanded The initial value of the state.
  * @param expandAnimationSpec The [AnimationSpec] to use when showing the extra information.
@@ -70,7 +70,7 @@ public fun rememberExpandableItemsState(
  * Adds a series of items, that will be expanded/collapsed according to the [ExpandableItemsState]
  *
  * Example of an expandable list:
- * @sample androidx.wear.compose.material.samples.ExpandableWithItemsSample
+ * @sample androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
  *
  * @param state The [ExpandableItemsState] connected to these items to.
  * @param count The number of items
@@ -115,7 +115,7 @@ public fun ScalingLazyListScope.expandableItems(
  * Adds a single item, that will be expanded/collapsed according to the [ExpandableItemsState].
  *
  * Example of an expandable text:
- * @sample androidx.wear.compose.material.samples.ExpandableTextSample
+ * @sample androidx.wear.compose.foundation.samples.ExpandableTextSample
  *
  * The item should support two levels of information display (for example, a text showing a few
  * lines in the collapsed state, and more in the expanded state)
@@ -229,16 +229,16 @@ public object ExpandableItemsDefaults {
      *
      * @param progress The point in the animation we are displaying this chevron in. 0f means pointing
      * downward, 1f means pointing upward.
+     * @param color The color to draw this chevron on.
      * @param modifier Modifier to be applied to the AnimatableChevron. This can be used to provide a
      * content description for accessibility.
-     * @param color The color to draw this chevron on.
      * @param strokeWidth The stroke width used to draw this chevron.
      */
     @Composable
     public fun Chevron(
         progress: Float,
+        color: Color,
         modifier: Modifier = Modifier,
-        color: Color = MaterialTheme.colors.onBackground,
         strokeWidth: Dp = 3.dp
     ) {
         Box(

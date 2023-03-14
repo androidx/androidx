@@ -50,8 +50,6 @@ import androidx.wear.compose.material.samples.ConfirmationWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
 import androidx.wear.compose.material.samples.CurvedTextProviderDemo
 import androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
-import androidx.wear.compose.material.samples.ExpandableTextSample
-import androidx.wear.compose.material.samples.ExpandableWithItemsSample
 import androidx.wear.compose.material.samples.FixedFontSize
 import androidx.wear.compose.material.samples.HorizontalPageIndicatorSample
 import androidx.wear.compose.material.samples.IndeterminateCircularProgressIndicator
@@ -129,15 +127,6 @@ internal val SwipeToDismissDemos =
 val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
-        DemoCategory(
-            "Expandables",
-            listOf(
-                ComposableDemo("Items in SLC") { ExpandableListItems() },
-                ComposableDemo("Expandable Text") { ExpandableText() },
-                ComposableDemo("Items Sample") { ExpandableWithItemsSample() },
-                ComposableDemo("Text Sample") { ExpandableTextSample() },
-            )
-        ),
         DemoCategory(
             "ScrollAway",
             listOf(
