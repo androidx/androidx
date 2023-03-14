@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixelColor
@@ -90,6 +91,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
@@ -1410,6 +1412,88 @@ class GraphicsLayerTest {
 
         rule.runOnIdle {
             assertEquals(Rect(0f, 0f, 10f, 10f), coordinates.boundsInRoot())
+        }
+    }
+
+    @Test
+    fun invalidationAfterMovingMovableContentWithLayer() {
+        var moveContent by mutableStateOf(false)
+        var counter by mutableStateOf(0)
+        var counterReadInDrawing = -1
+        val content = movableContentOf {
+            Box(
+                Modifier
+                    .size(5.dp)
+                    .graphicsLayer()
+                    .drawBehind {
+                        counterReadInDrawing = counter
+                    })
+        }
+
+        rule.setContent {
+            if (moveContent) {
+                Box(Modifier.size(5.dp)) {
+                    content()
+                }
+            } else {
+                Box(Modifier.size(10.dp)) {
+                    content()
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            moveContent = true
+        }
+
+        rule.runOnIdle {
+            assertThat(counterReadInDrawing).isEqualTo(counter)
+            counter++
+        }
+
+        rule.runOnIdle {
+            assertThat(counterReadInDrawing).isEqualTo(counter)
+        }
+    }
+
+    @Test
+    fun updatingLayerPropertiesAfterMovingMovableContent() {
+        var moveContent by mutableStateOf(false)
+        var counter by mutableStateOf(0)
+        var counterReadInLayerBlock = -1
+        val content = movableContentOf {
+            Box(
+                Modifier
+                    .size(5.dp)
+                    .graphicsLayer {
+                        counterReadInLayerBlock = counter
+                    }
+            )
+        }
+
+        rule.setContent {
+            if (moveContent) {
+                Box(Modifier.size(5.dp)) {
+                    content()
+                }
+            } else {
+                Box(Modifier.size(10.dp)) {
+                    content()
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            moveContent = true
+        }
+
+        rule.runOnIdle {
+            assertThat(counterReadInLayerBlock).isEqualTo(counter)
+            counter++
+        }
+
+        rule.runOnIdle {
+            assertThat(counterReadInLayerBlock).isEqualTo(counter)
         }
     }
 }

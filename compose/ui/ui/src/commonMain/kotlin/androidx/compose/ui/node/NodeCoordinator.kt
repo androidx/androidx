@@ -308,7 +308,7 @@ internal abstract class NodeCoordinator(
         zIndex: Float,
         layerBlock: (GraphicsLayerScope.() -> Unit)?
     ) {
-        onLayerBlockUpdated(layerBlock)
+        updateLayerBlock(layerBlock)
         if (this.position != position) {
             this.position = position
             layoutNode.layoutDelegate.measurePassDelegate
@@ -380,20 +380,11 @@ internal abstract class NodeCoordinator(
 
     fun updateLayerBlock(
         layerBlock: (GraphicsLayerScope.() -> Unit)?,
-        forceLayerInvalidated: Boolean = false
+        forceUpdateLayerParameters: Boolean = false
     ) {
-        val layerInvalidated = this.layerBlock !== layerBlock || forceLayerInvalidated
-        this.layerBlock = layerBlock
-        onLayerBlockUpdated(layerBlock, forceLayerInvalidated = layerInvalidated)
-    }
-
-    private fun onLayerBlockUpdated(
-        layerBlock: (GraphicsLayerScope.() -> Unit)?,
-        forceLayerInvalidated: Boolean = false
-    ) {
-        val layerInvalidated = this.layerBlock !== layerBlock || layerDensity != layoutNode
+        val updateParameters = this.layerBlock !== layerBlock || layerDensity != layoutNode
             .density || layerLayoutDirection != layoutNode.layoutDirection ||
-            forceLayerInvalidated
+            forceUpdateLayerParameters
         this.layerBlock = layerBlock
         this.layerDensity = layoutNode.density
         this.layerLayoutDirection = layoutNode.layoutDirection
@@ -410,7 +401,7 @@ internal abstract class NodeCoordinator(
                 updateLayerParameters()
                 layoutNode.innerLayerCoordinatorIsDirty = true
                 invalidateParentLayer()
-            } else if (layerInvalidated) {
+            } else if (updateParameters) {
                 updateLayerParameters()
             }
         } else {
@@ -906,7 +897,10 @@ internal abstract class NodeCoordinator(
      * attached to the [Owner].
      */
     fun onLayoutNodeAttach() {
-        onLayerBlockUpdated(layerBlock)
+        // this call will update the parameters of the layer (alpha, scale, etc)
+        updateLayerBlock(layerBlock, forceUpdateLayerParameters = true)
+        // this call will invalidate the content of the layer
+        layer?.invalidate()
     }
 
     /**
@@ -916,7 +910,7 @@ internal abstract class NodeCoordinator(
     fun onRelease() {
         released = true
         if (layer != null) {
-            onLayerBlockUpdated(null)
+            updateLayerBlock(null)
         }
     }
 
