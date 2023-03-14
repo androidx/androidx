@@ -260,7 +260,7 @@ internal class QuadTextureRenderer {
             void main(void)
             {
                 gl_Position = $uVPMatrix * $aPosition;
-                $vTexCoord = vec2($tVPMatrix * vec4($aTexCoord, 1.0, 1.0));
+                $vTexCoord = vec2($tVPMatrix * vec4($aTexCoord.x, 1.0 - $aTexCoord.y, 1.0, 1.0));
             }
             """
 
