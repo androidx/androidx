@@ -161,19 +161,18 @@ open class BaseTest {
                 field = value
             }
 
-        fun runOnUiThreadSync(f: () -> Unit) {
+        fun <T> runOnUiThreadSync(f: () -> T): T {
             var thrownError: Throwable? = null
+            var result: T? = null
             activityTestRule.runOnUiThread {
                 try {
-                    f()
+                    result = f()
                 } catch (t: Throwable) {
                     thrownError = t
                 }
             }
-            val caughtError = thrownError
-            if (caughtError != null) {
-                throw caughtError
-            }
+            thrownError?.let { throw it }
+            return result!!
         }
 
         val viewPager: ViewPager2 get() = activity.findViewById(R.id.view_pager)
