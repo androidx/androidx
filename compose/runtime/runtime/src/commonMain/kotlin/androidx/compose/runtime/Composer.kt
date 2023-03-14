@@ -1479,6 +1479,7 @@ internal class ComposerImpl(
     }
 
     internal fun changesApplied() {
+        createFreshInsertTable()
         providerUpdates.clear()
     }
 
@@ -3516,7 +3517,11 @@ internal class ComposerImpl(
             val insertTable = insertTable
             recordSlotEditingOperation { _, slots, _ ->
                 slots.beginInsert()
-                slots.moveFrom(insertTable, anchor.toIndexFor(insertTable))
+                slots.moveFrom(
+                    table = insertTable,
+                    index = anchor.toIndexFor(insertTable),
+                    removeSourceGroup = false
+                )
                 slots.endInsert()
             }
         } else {
@@ -3532,7 +3537,11 @@ internal class ComposerImpl(
                     }
                 }
                 slots.beginInsert()
-                slots.moveFrom(insertTable, anchor.toIndexFor(insertTable))
+                slots.moveFrom(
+                    table = insertTable,
+                    index = anchor.toIndexFor(insertTable),
+                    removeSourceGroup = false
+                )
                 slots.endInsert()
             }
         }
