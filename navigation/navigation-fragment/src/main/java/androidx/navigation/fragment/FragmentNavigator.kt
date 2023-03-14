@@ -130,25 +130,20 @@ public open class FragmentNavigator(
                 val entry = (state.backStack.value + state.transitionsInProgress.value).lastOrNull {
                     it.id == fragment.tag
                 }
-                if (entry != null && fragmentWasPopped(fragment, entry)) {
-                    entriesToPop.remove(entry.id)
-                } else if (fragmentShouldBePopped(fragment, pop)) {
+                if (pop && entry != null) {
+                    // The entry has already been removed from the back stack so just remove it
+                    // from the list
+                    if (!state.backStack.value.contains(entry)) {
+                        // remove it so we don't falsely identify a direct call to popBackStack
+                        entriesToPop.remove(entry.id)
+                    }
                     // This is the case of system back where we will need to make the call to
                     // popBackStack. Otherwise, popBackStack was called directly and this should
                     // end up being a no-op.
-                    var entryToPop = state.backStack.value.last()
-                    popBackStack(entryToPop, false)
-                    // remove it so we don't falsely identify a direct call to popBackStack
-                    entriesToPop.remove(entryToPop.id)
+                    else if (entriesToPop.isEmpty() && fragment.isRemoving) {
+                        state.popWithTransition(entry, false)
+                    }
                 }
-            }
-
-            fun fragmentWasPopped(fragment: Fragment, entry: NavBackStackEntry): Boolean {
-                return fragment.view != null && entriesToPop.contains(entry.id)
-            }
-
-            fun fragmentShouldBePopped(fragment: Fragment, pop: Boolean): Boolean {
-                return pop && entriesToPop.isEmpty() && !fragment.isAdded
             }
         })
     }

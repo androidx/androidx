@@ -1894,14 +1894,23 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // such as push, push, pop, push are correctly considered a push
         boolean isPop = isRecordPop.get(endIndex - 1);
 
-        if (mBackStackChangeListeners != null) {
-            // we dispatch callbacks based on each record
+        if (mBackStackChangeListeners != null && !mBackStackChangeListeners.isEmpty()) {
+            ArrayList<Fragment> fragments = new ArrayList<>();
+            // Build a list of fragments based on the records
             for (BackStackRecord record : records) {
-                for (Fragment fragment : fragmentsFromRecord(record)) {
-                    // We give all fragment the back stack changed started signal first
-                    for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
-                        listener.onBackStackChangeStarted(fragment, isPop);
-                    }
+                fragments.addAll(fragmentsFromRecord(record));
+            }
+            // Dispatch to all of the fragments in the list
+            for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
+                // We give all fragment the back stack changed started signal first
+                for (Fragment fragment: fragments) {
+                    listener.onBackStackChangeStarted(fragment, isPop);
+                }
+            }
+            for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
+                // Then we give them all the committed signal
+                for (Fragment fragment: fragments) {
+                    listener.onBackStackChangeCommitted(fragment, isPop);
                 }
             }
         }
@@ -1952,17 +1961,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
         if (addToBackStack) {
             reportBackStackChanged();
-            if (mBackStackChangeListeners != null) {
-                // we dispatch callbacks based on each record
-                for (BackStackRecord record : records) {
-                    for (Fragment fragment : fragmentsFromRecord(record)) {
-                        // Then we give them all the committed signal
-                        for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
-                            listener.onBackStackChangeCommitted(fragment, isPop);
-                        }
-                    }
-                }
-            }
         }
     }
 
