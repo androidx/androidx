@@ -209,6 +209,7 @@ interface CameraGraph : AutoCloseable {
     enum class OperatingMode {
         NORMAL,
         HIGH_SPEED,
+        EXTENSION,
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

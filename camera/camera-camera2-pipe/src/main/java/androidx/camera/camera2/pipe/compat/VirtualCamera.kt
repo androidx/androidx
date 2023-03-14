@@ -19,8 +19,9 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCaptureSession.StateCallback
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraExtensionSession
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
@@ -251,7 +252,8 @@ internal class AndroidCameraState(
     private val cameraErrorListener: CameraErrorListener,
     private val camera2DeviceCloser: Camera2DeviceCloser,
     private val interopDeviceStateCallback: CameraDevice.StateCallback? = null,
-    private val interopSessionStateCallback: CameraCaptureSession.StateCallback? = null
+    private val interopSessionStateCallback: StateCallback? = null,
+    private val interopExtensionSessionStateCallback: CameraExtensionSession.StateCallback? = null
 ) : CameraDevice.StateCallback() {
     private val debugId = androidCameraDebugIds.incrementAndGet()
     private val lock = Any()
@@ -345,7 +347,8 @@ internal class AndroidCameraState(
                     cameraDevice,
                     cameraId,
                     cameraErrorListener,
-                    interopSessionStateCallback
+                    interopSessionStateCallback,
+                    interopExtensionSessionStateCallback
                 )
             )
 
