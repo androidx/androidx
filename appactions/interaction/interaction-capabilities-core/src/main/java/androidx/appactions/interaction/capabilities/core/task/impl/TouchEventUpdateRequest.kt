@@ -13,19 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.appactions.interaction.capabilities.core.task.impl
 
-import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.proto.ParamValue
 
-/**
- * Represents a fulfillment request coming from user tap.
- *
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-data class TouchEventUpdateRequest(val paramValuesMap: Map<String, List<ParamValue>>) {
+/** Represents a fulfillment request coming from user tap. */
+internal data class TouchEventUpdateRequest(val paramValuesMap: Map<String, List<ParamValue>>) {
     /**
      * merge two TouchEventUpdateRequest instances. Map entries in newRequest will take priority in
      * case of conflict.

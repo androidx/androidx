@@ -15,15 +15,8 @@
  */
 package androidx.appactions.interaction.capabilities.core.task.impl
 
-import androidx.annotation.RestrictTo
-
-/**
- * Contains either an AssistantUpdateRequest or a TouchEventUpdateRequest
- *
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-class UpdateRequest
+/** Contains either an [AssistantUpdateRequest] or a [TouchEventUpdateRequest] */
+internal class UpdateRequest
 private constructor(
     val assistantRequest: AssistantUpdateRequest?,
     val touchEventRequest: TouchEventUpdateRequest?,
