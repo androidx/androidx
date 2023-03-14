@@ -27,7 +27,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.resolveDefaults
-import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -64,8 +63,14 @@ internal class MultiParagraphLayoutCache(
     internal var density: Density? = null
         set(value) {
             val localField = field
-            if (value == null || localField == null) {
+            if (localField == null) {
                 field = value
+                return
+            }
+
+            if (value == null) {
+                field = value
+                markDirty()
                 return
             }
 
@@ -121,9 +126,6 @@ internal class MultiParagraphLayoutCache(
         constraints: Constraints,
         layoutDirection: LayoutDirection
     ): Boolean {
-        if (!layoutCache.newLayoutWillBeDifferent(constraints, layoutDirection)) {
-            return false
-        }
         val finalConstraints = if (maxLines != Int.MAX_VALUE || minLines > 1) {
             val localMinMax = MinMaxLinesCoercer.from(
                 minMaxLinesCoercer,
@@ -142,16 +144,28 @@ internal class MultiParagraphLayoutCache(
         } else {
             constraints
         }
+        if (!layoutCache.newLayoutWillBeDifferent(finalConstraints, layoutDirection)) {
+            if (finalConstraints == layoutCache!!.layoutInput.constraints) return false
+            // we need to regen the input, constraints aren't the same
+            layoutCache = textLayoutResult(
+                layoutDirection = layoutDirection,
+                finalConstraints = finalConstraints,
+                multiParagraph = layoutCache!!.multiParagraph
+            )
+            return true
+        }
         val multiParagraph = layoutText(finalConstraints, layoutDirection)
 
-        val size = finalConstraints.constrain(
-            IntSize(
-                multiParagraph.width.ceilToIntPx(),
-                multiParagraph.height.ceilToIntPx()
-            )
-        )
+        layoutCache = textLayoutResult(layoutDirection, finalConstraints, multiParagraph)
+        return true
+    }
 
-        layoutCache = TextLayoutResult(
+    private fun textLayoutResult(
+        layoutDirection: LayoutDirection,
+        finalConstraints: Constraints,
+        multiParagraph: MultiParagraph
+    ): TextLayoutResult {
+        return TextLayoutResult(
             TextLayoutInput(
                 text,
                 style,
@@ -165,9 +179,13 @@ internal class MultiParagraphLayoutCache(
                 finalConstraints
             ),
             multiParagraph,
-            size
+            finalConstraints.constrain(
+                IntSize(
+                    multiParagraph.width.ceilToIntPx(),
+                    multiParagraph.height.ceilToIntPx()
+                )
+            )
         )
-        return true
     }
 
     /**
@@ -250,51 +268,16 @@ internal class MultiParagraphLayoutCache(
     ): MultiParagraph {
         val localParagraphIntrinsics = setLayoutDirection(layoutDirection)
 
-        val minWidth = constraints.minWidth
-        val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
-        val maxWidth = if (widthMatters && constraints.hasBoundedWidth) {
-            constraints.maxWidth
-        } else {
-            Constraints.Infinity
-        }
-
-        // This is a fallback behavior because native text layout doesn't support multiple
-        // ellipsis in one text layout.
-        // When softWrap is turned off and overflow is ellipsis, it's expected that each line
-        // that exceeds maxWidth will be ellipsized.
-        // For example,
-        // input text:
-        //     "AAAA\nAAAA"
-        // maxWidth:
-        //     3 * fontSize that only allow 3 characters to be displayed each line.
-        // expected output:
-        //     AA…
-        //     AA…
-        // Here we assume there won't be any '\n' character when softWrap is false. And make
-        // maxLines 1 to implement the similar behavior.
-        val overwriteMaxLines = !softWrap && overflow == TextOverflow.Ellipsis
-        val finalMaxLines = if (overwriteMaxLines) 1 else maxLines.coerceAtLeast(1)
-
-        // if minWidth == maxWidth the width is fixed.
-        //    therefore we can pass that value to our paragraph and use it
-        // if minWidth != maxWidth there is a range
-        //    then we should check if the max intrinsic width is in this range to decide the
-        //    width to be passed to Paragraph
-        //        if max intrinsic width is between minWidth and maxWidth
-        //           we can use it to layout
-        //        else if max intrinsic width is greater than maxWidth, we can only use maxWidth
-        //        else if max intrinsic width is less than minWidth, we should use minWidth
-        val width = if (minWidth == maxWidth) {
-            maxWidth
-        } else {
-            localParagraphIntrinsics.maxIntrinsicWidth.ceilToIntPx().coerceIn(minWidth, maxWidth)
-        }
-
         return MultiParagraph(
             intrinsics = localParagraphIntrinsics,
-            constraints = Constraints(maxWidth = width, maxHeight = constraints.maxHeight),
+            constraints = finalConstraints(
+                constraints,
+                softWrap,
+                overflow,
+                localParagraphIntrinsics.maxIntrinsicWidth
+            ),
             // This is a fallback behavior for ellipsis. Native
-            maxLines = finalMaxLines,
+            maxLines = finalMaxLines(softWrap, overflow, maxLines),
             ellipsis = overflow == TextOverflow.Ellipsis
         )
     }
@@ -319,36 +302,15 @@ internal class MultiParagraphLayoutCache(
         // if we were passed identical constraints just skip more work
         if (constraints == layoutInput.constraints) return false
 
-        // only be clever if we can predict line break behavior exactly, which is only possible with
-        // simple geometry math for the greedy layout case
-        if (style.lineBreak != LineBreak.Simple) {
-            return true
-        }
-
-        // see if width would produce the same wraps (greedy wraps only)
-        val canWrap = softWrap && maxLines > 1
-        if (canWrap && size.width != multiParagraph.maxIntrinsicWidth.ceilToIntPx()) {
-            // some soft wrapping happened, check to see if we're between the previous measure and
-            // the next wrap
-            val prevActualMaxWidth = maxWidth(layoutInput.constraints)
-            val newMaxWidth = maxWidth(constraints)
-            if (newMaxWidth > prevActualMaxWidth) {
-                // we've grown the potential layout area, and may break longer lines
-                return true
-            }
-            if (newMaxWidth <= size.width) {
-                // it's possible to shrink this text (possible opt: check minIntrinsicWidth
-                return true
-            }
-        }
-
-        // check any constraint width changes for single line text
-        if (!canWrap &&
-            (constraints.maxWidth != layoutInput.constraints.maxWidth ||
-                (constraints.minWidth != layoutInput.constraints.minWidth))) {
-            // no soft wrap and width is different, always invalidate
-            return true
-        }
+        // see if width would produce the same wraps
+        if (canChangeBreaks(
+                canWrap = softWrap && maxLines > 1,
+                newConstraints = constraints,
+                oldConstraints = layoutInput.constraints,
+                maxIntrinsicWidth = this.multiParagraph.intrinsics.maxIntrinsicWidth,
+                softWrap = softWrap,
+                overflow = overflow
+            )) return true
 
         // if we get here width won't change, height may be clipped
         if (constraints.maxHeight < multiParagraph.height) {
@@ -365,20 +327,12 @@ internal class MultiParagraphLayoutCache(
      *
      * Falls back to [paragraphIntrinsics.maxIntrinsicWidth] when not exact constraints.
      */
-    private fun maxWidth(constraints: Constraints): Int {
-        val minWidth = constraints.minWidth
-        val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
-        val maxWidth = if (widthMatters && constraints.hasBoundedWidth) {
-            constraints.maxWidth
-        } else {
-            Constraints.Infinity
-        }
-        return if (minWidth == maxWidth) {
-            maxWidth
-        } else {
-            paragraphIntrinsics!!.maxIntrinsicWidth.ceilToIntPx().coerceIn(minWidth, maxWidth)
-        }
-    }
+    private fun maxWidth(constraints: Constraints): Int = finalMaxWidth(
+            constraints,
+            softWrap,
+            overflow,
+            paragraphIntrinsics!!.maxIntrinsicWidth
+        )
 
     private fun markDirty() {
         paragraphIntrinsics = null
