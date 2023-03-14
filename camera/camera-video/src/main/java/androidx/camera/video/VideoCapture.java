@@ -159,7 +159,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String SURFACE_UPDATE_KEY =
             "androidx.camera.video.VideoCapture.streamUpdate";
     private static final Defaults DEFAULT_CONFIG = new Defaults();
-    private static final boolean ENABLE_SURFACE_PROCESSING_BY_QUIRK;
+    @VisibleForTesting
+    static boolean sEnableSurfaceProcessingByQuirk;
     private static final boolean USE_TEMPLATE_PREVIEW_BY_QUIRK;
 
     static {
@@ -175,7 +176,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 DeviceQuirks.get(ExtraSupportedResolutionQuirk.class) != null;
         USE_TEMPLATE_PREVIEW_BY_QUIRK =
                 hasPreviewStretchQuirk || hasPreviewDelayQuirk || hasImageCaptureFailedQuirk;
-        ENABLE_SURFACE_PROCESSING_BY_QUIRK =
+        sEnableSurfaceProcessingByQuirk =
                 hasPreviewDelayQuirk || hasImageCaptureFailedQuirk
                         || hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
                         || hasExtraSupportedResolutionQuirk;
@@ -383,7 +384,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -409,7 +409,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -420,7 +419,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -447,7 +445,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -468,7 +465,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -483,7 +479,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -563,8 +558,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         VideoEncoderInfo videoEncoderInfo = getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
                 videoCapabilities, mediaSpec, resolution, targetFpsRange);
         mCropRect = calculateCropRect(resolution, videoEncoderInfo);
-        boolean shouldMirror = camera.getHasTransform() && isMirroringRequired(camera);
-        mNode = createNodeIfNeeded(isCropNeeded(mCropRect, resolution), shouldMirror);
+        mNode = createNodeIfNeeded(camera, mCropRect, resolution);
         // Choose Timebase based on the whether the buffer is copied.
         Timebase timebase;
         if (mNode != null || !camera.getHasTransform()) {
@@ -588,7 +582,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     camera.getHasTransform(),
                     mCropRect,
                     getRelativeRotation(camera, isMirroringRequired(camera)),
-                    shouldMirror);
+                    shouldMirror(camera));
             cameraEdge.addOnInvalidatedListener(onSurfaceInvalidated);
             mCameraEdge = cameraEdge;
             SurfaceProcessorNode.OutConfig outConfig =
@@ -700,7 +694,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<VideoCaptureConfig<?>> {
@@ -819,9 +812,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     @Nullable
-    private SurfaceProcessorNode createNodeIfNeeded(boolean isCropNeeded, boolean mirroring) {
-        if (getEffect() != null || ENABLE_SURFACE_PROCESSING_BY_QUIRK || isCropNeeded
-                || mirroring) {
+    private SurfaceProcessorNode createNodeIfNeeded(@NonNull CameraInternal camera,
+            @NonNull Rect cropRect,
+            @NonNull Size resolution) {
+        if (getEffect() != null
+                || shouldEnableSurfaceProcessingByQuirk(camera)
+                || shouldCrop(cropRect, resolution)
+                || shouldMirror(camera)) {
             Logger.d(TAG, "Surface processing is enabled.");
             return new SurfaceProcessorNode(requireNonNull(getCamera()),
                     getEffect() != null ? getEffect().createSurfaceProcessorInternal() :
@@ -957,9 +954,21 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
     }
 
-    private static boolean isCropNeeded(@NonNull Rect cropRect, @NonNull Size resolution) {
+    private boolean shouldMirror(@NonNull CameraInternal camera) {
+        // Stream is always mirrored during buffer copy. If there has been a buffer copy, it
+        // means the input stream is already mirrored. Otherwise, mirror it as needed.
+        return camera.getHasTransform() && isMirroringRequired(camera);
+    }
+
+    private static boolean shouldCrop(@NonNull Rect cropRect, @NonNull Size resolution) {
         return resolution.getWidth() != cropRect.width()
                 || resolution.getHeight() != cropRect.height();
+    }
+
+    private static boolean shouldEnableSurfaceProcessingByQuirk(@NonNull CameraInternal camera) {
+        // If there has been a buffer copy, it means the surface processing is already enabled on
+        // input stream. Otherwise, enable it as needed.
+        return camera.getHasTransform() && sEnableSurfaceProcessingByQuirk;
     }
 
     private static int alignDown(int length, int alignment,
@@ -1300,7 +1309,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1311,7 +1319,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1383,7 +1390,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * setTargetAspectRatio is not supported on VideoCapture
          *
          * <p>To set aspect ratio, see {@link Recorder.Builder#setAspectRatio(int)}.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1450,7 +1456,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * setTargetResolution is not supported on VideoCapture
          *
          * <p>To set resolution, see {@link Recorder.Builder#setQualitySelector(QualitySelector)}.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
