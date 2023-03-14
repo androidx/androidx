@@ -220,6 +220,7 @@ public final class Camera2InteropDeviceTest {
                 meteringRectangles);
     }
 
+    @SdkSuppress(minSdkVersion = 22) // b/272066193
     @Test
     public void canOverrideAwbRegion() {
         MeteringRectangle[] meteringRectangles = new MeteringRectangle[]{
