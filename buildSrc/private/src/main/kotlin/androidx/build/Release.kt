@@ -395,9 +395,10 @@ val AndroidXExtension.publishedArtifacts: List<Artifact>
 
 private val AndroidXExtension.publishPlatforms: List<String>
     get() {
-        val declaredTargets = project.multiplatformExtension?.targets?.asMap?.keys?.map {
+        val potentialTargets = project.multiplatformExtension?.targets?.asMap?.keys?.map {
             it.lowercase()
         } ?: emptySet()
+        val declaredTargets = potentialTargets.filter { it != "metadata" }
         return declaredTargets.toList()
     }
 
