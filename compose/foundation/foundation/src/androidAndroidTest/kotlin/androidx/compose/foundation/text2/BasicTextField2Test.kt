@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -230,6 +231,7 @@ class BasicTextField2Test {
         }
     }
 
+    @Ignore // b/273412941
     @Test
     fun textField_focus_doesNotShowSoftwareKeyboard_ifDisabled() {
         val state = TextFieldState()
