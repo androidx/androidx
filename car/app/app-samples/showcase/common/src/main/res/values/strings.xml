@@ -418,6 +418,10 @@
   <string name="sectioned_item_list_two_title">List 2</string>
   <string name="sectioned_item_list_subtext">Subtext under each list</string>
 
+  <!-- EmptyListDemoScreen -->
+  <string name="empty_list_demo_title">Empty List Demo</string>
+  <string name="empty_list_message">The list is empty</string>
+
   <!-- StartScreen -->
   <string name="misc_templates_demos_title">Misc Templates Demos</string>
   <string name="cal_api_level_prefix" translatable="false">CAL API Level: %d</string>
