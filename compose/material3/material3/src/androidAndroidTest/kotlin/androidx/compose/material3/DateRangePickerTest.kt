@@ -110,17 +110,21 @@ class DateRangePickerTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
     fun state_initWithEqualStartAndEndDates() {
+        lateinit var dateRangePickerState: DateRangePickerState
         rule.setMaterialContent(lightColorScheme()) {
-            // Expecting this to throw an exception when the start and end dates are the same.
-            rememberDateRangePickerState(
+            dateRangePickerState = rememberDateRangePickerState(
+                // 04/12/2022
+                initialSelectedStartDateMillis = 1649721600000L,
                 // 04/12/2022 + a few added milliseconds to ensure that the state is initialized
                 // with a canonical date.
-                initialSelectedStartDateMillis = 1649721600000L + 1000,
-                // 04/12/2022
-                initialSelectedEndDateMillis = 1649721600000L
+                initialSelectedEndDateMillis = 1649721600000L + 1000
             )
+        }
+        with(dateRangePickerState) {
+            // Start and end are expected to be equal.
+            assertThat(selectedStartDateMillis).isEqualTo(1649721600000L)
+            assertThat(selectedEndDateMillis).isEqualTo(1649721600000L)
         }
     }
 
@@ -268,6 +272,61 @@ class DateRangePickerTest {
                     year = 2019,
                     month = 3,
                     dayOfMonth = 12
+                )
+            )
+            assertThat(dateRangePickerState.selectedEndDateMillis).isNull()
+        }
+    }
+
+    /**
+     * Tests that clicking the same date twice creates a single-day range, and that clicking it
+     * a third time resets the end date.
+     */
+    @Test
+    fun dateSelection_sameDateForStartAndEnd() {
+        lateinit var dateRangePickerState: DateRangePickerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val monthInUtcMillis = dayInUtcMilliseconds(year = 2019, month = 3, dayOfMonth = 1)
+            dateRangePickerState = rememberDateRangePickerState(
+                initialDisplayedMonthMillis = monthInUtcMillis
+            )
+            DateRangePicker(state = dateRangePickerState)
+        }
+
+        val node = rule.onAllNodes(hasText("15", substring = true) and hasClickAction()).onFirst()
+        // First date selection: Select the 15th day of the first displayed month in the list.
+        node.performClick()
+        // Second date selection - click the same node.
+        node.performClick()
+
+        // Assert the state holds a valid start and end dates for the same date.
+        rule.runOnIdle {
+            assertThat(dateRangePickerState.selectedStartDateMillis).isEqualTo(
+                dayInUtcMilliseconds(
+                    year = 2019,
+                    month = 3,
+                    dayOfMonth = 15
+                )
+            )
+            assertThat(dateRangePickerState.selectedEndDateMillis).isEqualTo(
+                dayInUtcMilliseconds(
+                    year = 2019,
+                    month = 3,
+                    dayOfMonth = 15
+                )
+            )
+        }
+
+        // Click the node again to reset the end date.
+        node.performClick()
+
+        // Assert the state now holds just a start date.
+        rule.runOnIdle {
+            assertThat(dateRangePickerState.selectedStartDateMillis).isEqualTo(
+                dayInUtcMilliseconds(
+                    year = 2019,
+                    month = 3,
+                    dayOfMonth = 15
                 )
             )
             assertThat(dateRangePickerState.selectedEndDateMillis).isNull()

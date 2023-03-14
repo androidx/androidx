@@ -603,7 +603,7 @@ private fun updateDateSelection(
             // Reset the selection to "start" only.
             selectedStartDate.value = date
             selectedEndDate.value = null
-        } else if (currentStart != null && date > currentStart) {
+        } else if (currentStart != null && date >= currentStart) {
             selectedEndDate.value = date
         }
     }
