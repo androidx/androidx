@@ -59,6 +59,8 @@ public class AlwaysSupportedFeatures implements Features {
             case Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
                 // fall through
             case Features.SEARCH_SUGGESTION:
+                // fall through
+            case Features.SCHEMA_SET_DELETION_PROPAGATION:
                 return true;
             default:
                 return false;

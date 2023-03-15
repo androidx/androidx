@@ -564,7 +564,6 @@ public abstract class AppSearchSessionCtsTestBase {
                 ).addProperty(new StringPropertyConfig.Builder("requiredQualifiedIdStr")
                         .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
                         .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
-                        .setDeletionPropagation(true)
                         .build()
                 ).build();
 

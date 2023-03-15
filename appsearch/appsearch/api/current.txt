@@ -183,7 +183,7 @@ package androidx.appsearch.app {
     ctor public AppSearchSchema.StringPropertyConfig.Builder(String);
     method public androidx.appsearch.app.AppSearchSchema.StringPropertyConfig build();
     method public androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.Builder setCardinality(int);
-    method public androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.Builder setDeletionPropagation(boolean);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SCHEMA_SET_DELETION_PROPAGATION) public androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.Builder setDeletionPropagation(boolean);
     method public androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.Builder setIndexingType(int);
     method public androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.Builder setJoinableValueType(int);
     method public androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.Builder setTokenizerType(int);
@@ -221,6 +221,7 @@ package androidx.appsearch.app {
     field public static final String JOIN_SPEC_AND_QUALIFIED_ID = "JOIN_SPEC_AND_QUALIFIED_ID";
     field public static final String LIST_FILTER_QUERY_LANGUAGE = "LIST_FILTER_QUERY_LANGUAGE";
     field public static final String NUMERIC_SEARCH = "NUMERIC_SEARCH";
+    field public static final String SCHEMA_SET_DELETION_PROPAGATION = "SCHEMA_SET_DELETION_PROPAGATION";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
     field public static final String SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION = "SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION";
     field public static final String SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA = "SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA";

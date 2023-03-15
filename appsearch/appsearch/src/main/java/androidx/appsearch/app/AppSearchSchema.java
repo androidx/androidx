@@ -727,6 +727,11 @@ public final class AppSearchSchema {
              */
             @SuppressWarnings("MissingGetterMatchingBuilder")  // getDeletionPropagation
             @NonNull
+            // @exportToFramework:startStrip()
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_SET_DELETION_PROPAGATION)
+            // @exportToFramework:endStrip()
             public Builder setDeletionPropagation(boolean deletionPropagation) {
                 mDeletionPropagation = deletionPropagation;
                 return this;
