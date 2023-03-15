@@ -376,23 +376,24 @@ public fun TimePickerWith12HourClock(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-
+                    horizontalArrangement = Arrangement.End,
                     ) {
                     val doubleTapToNext =
                         { current: FocusableElement12Hour, next: FocusableElement12Hour ->
                             if (pickerGroupState.selectedIndex != current.index) {
-                                focusRequesterConfirmButton.requestFocus()
-                            } else if (next == FocusableElement12Hour.CONFIRM_BUTTON) {
                                 pickerGroupState.selectedIndex = current.index
+                            } else if (next == FocusableElement12Hour.CONFIRM_BUTTON) {
+                                focusRequesterConfirmButton.requestFocus()
+                                pickerGroupState.selectedIndex = next.index
                             } else {
                                 pickerGroupState.selectedIndex = next.index
                             }
                         }
+                    Spacer(Modifier.width(16.dp))
                     PickerGroup(
                         PickerGroupItem(
                             pickerState = hourState,
-                            modifier = Modifier.size(40.dp, 100.dp),
+                            modifier = Modifier.size(50.dp, 100.dp),
                             focusRequester = remember { FocusRequester() },
                             onSelected = {
                                 doubleTapToNext(
@@ -401,11 +402,11 @@ public fun TimePickerWith12HourClock(
                                 )
                             },
                             contentDescription = hoursContentDescription,
-                            option = pickerOption
+                            option = pickerTextOption(textStyle) { "%02d".format(it + 1) }
                         ),
                         PickerGroupItem(
                             pickerState = minuteState,
-                            modifier = Modifier.size(48.dp, 100.dp),
+                            modifier = Modifier.size(50.dp, 100.dp),
                             focusRequester = remember { FocusRequester() },
 
                             onSelected = {
@@ -446,7 +447,11 @@ public fun TimePickerWith12HourClock(
                         ),
                         autoCenter = false,
                         pickerGroupState = pickerGroupState,
-                        separator = { Separator(6.dp, textStyle) },
+                        separator = {
+                            if (it == 0) {
+                                Separator(0.dp, textStyle)
+                            }
+                        },
                     )
                 }
                 Spacer(
