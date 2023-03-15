@@ -179,10 +179,10 @@ public class StopLogicEngine implements StopEngine {
     private void setup(float velocity, float distance, float maxAcceleration, float maxVelocity,
             float maxTime) {
         mDone = false;
+        mStage3EndPosition = distance;
         if (velocity == 0) {
             velocity = 0.0001f;
         }
-        this.mStage1Velocity = velocity;
         float min_time_to_stop = velocity / maxAcceleration;
         float stopDistance = min_time_to_stop * velocity / 2;
 
