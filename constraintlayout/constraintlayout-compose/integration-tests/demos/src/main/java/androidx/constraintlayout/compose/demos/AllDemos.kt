@@ -53,7 +53,8 @@ data class ComposeDemo(val title: String, val content: @Composable () -> Unit)
 val AllComposeConstraintLayoutDemos: List<ComposeDemo> =
     listOf(
         ComposeDemo("CustomColorInKeyAttributes") { CustomColorInKeyAttributesDemo() },
-        ComposeDemo("SimpleOnSwipe") { SimpleOnSwipe() },
+        ComposeDemo("Simple OnSwipe") { SimpleOnSwipe() },
+        ComposeDemo("Multiple OnSwipe") { MultiSwipeDsl() },
         ComposeDemo("AnimatedChainOrientation") { ChainsAnimatedOrientationDemo() },
         ComposeDemo("CollapsibleToolbar w/ Column") { ToolBarDslDemo() },
         ComposeDemo("CollapsibleToolbar w/ LazyColumn") { ToolBarLazyDslDemo() },
