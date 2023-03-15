@@ -103,4 +103,8 @@
     <string name="time_picker_minute">Minute</string>
     <!-- Label for a textField that allows the user to the hour to set the time -->
     <string name="time_picker_hour">Hour</string>
+    <!-- A label for a textfield that allows the user to input minutes. It reads: Edit Box, for minutes -->
+    <string name="time_picker_minute_text_field">for minutes</string>
+    <!-- A label for a textfield that allows the user to input hours. It reads: Edit Box, for hour -->
+    <string name="time_picker_hour_text_field">for hour</string>
 </resources>

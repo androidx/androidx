@@ -84,6 +84,8 @@ internal actual fun getString(string: Strings): String {
         Strings.TimePicker24HourSuffix -> "%1$ hours"
         Strings.TimePickerMinute -> "Minute"
         Strings.TimePickerHour -> "Hour"
+        Strings.TimePickerMinuteTextField -> "for minutes"
+        Strings.TimePickerHourTextField -> "for hour"
         Strings.TooltipPaneDescription -> "Tooltip"
         else -> ""
     }
