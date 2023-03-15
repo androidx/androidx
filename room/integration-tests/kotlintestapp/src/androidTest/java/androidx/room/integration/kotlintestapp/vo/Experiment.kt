@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.room
+package androidx.room.androidx.room.integration.kotlintestapp.vo
 
-import androidx.room.compiler.processing.XProcessingEnvConfig
-import androidx.room.compiler.processing.XProcessingEnvironmentTestConfigProvider
+@JvmInline
+value class Schrodinger(val experiment: Experiment)
 
-class RoomTestEnvConfigProvider : XProcessingEnvironmentTestConfigProvider {
-    override fun configure(options: Map<String, String>): XProcessingEnvConfig {
-        return DatabaseProcessingStep.getEnvConfig(options)
-    }
-}
+@JvmInline
+value class Cat(val catStatus: CatStatus)
+
+data class Experiment(val isCatAlive: String)
+
+data class CatStatus(val isCatAlive: String)

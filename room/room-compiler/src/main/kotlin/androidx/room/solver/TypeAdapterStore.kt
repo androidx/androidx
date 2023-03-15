@@ -28,6 +28,7 @@ import androidx.room.ext.CollectionTypeNames.INT_SPARSE_ARRAY
 import androidx.room.ext.CollectionTypeNames.LONG_SPARSE_ARRAY
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaTypeNames
+import androidx.room.ext.getValueClassUnderlyingProperty
 import androidx.room.ext.isByteBuffer
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.isNotByte
@@ -115,6 +116,7 @@ import androidx.room.solver.types.StatementValueBinder
 import androidx.room.solver.types.StringColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.solver.types.UuidColumnTypeAdapter
+import androidx.room.solver.types.ValueClassConverterWrapper
 import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.MapInfo
 import androidx.room.vo.ShortcutQueryParameter
@@ -278,7 +280,7 @@ class TypeAdapterStore private constructor(
         if (adapterByTypeConverter != null) {
             return adapterByTypeConverter
         }
-        val defaultAdapter = createDefaultTypeAdapter(input)
+        val defaultAdapter = createDefaultTypeAdapter(input, affinity)
         if (defaultAdapter != null) {
             return defaultAdapter
         }
@@ -316,7 +318,7 @@ class TypeAdapterStore private constructor(
             return typeConverterAdapter
         }
 
-        val defaultAdapter = createDefaultTypeAdapter(output)
+        val defaultAdapter = createDefaultTypeAdapter(output, affinity)
         if (defaultAdapter != null) {
             return defaultAdapter
         }
@@ -361,7 +363,7 @@ class TypeAdapterStore private constructor(
         }
 
         if (!skipDefaultConverter) {
-            val defaultAdapter = createDefaultTypeAdapter(out)
+            val defaultAdapter = createDefaultTypeAdapter(out, affinity)
             if (defaultAdapter != null) {
                 return defaultAdapter
             }
@@ -369,8 +371,27 @@ class TypeAdapterStore private constructor(
         return null
     }
 
-    private fun createDefaultTypeAdapter(type: XType): ColumnTypeAdapter? {
+    private fun createDefaultTypeAdapter(
+        type: XType,
+        affinity: SQLTypeAffinity?
+    ): ColumnTypeAdapter? {
         val typeElement = type.typeElement
+        if (typeElement?.isValueClass() == true) {
+            // Extract the type value of the Value class element
+            val underlyingProperty = typeElement.getValueClassUnderlyingProperty()
+            val underlyingTypeColumnAdapter = findColumnTypeAdapter(
+                out = underlyingProperty.asMemberOf(type),
+                affinity = affinity,
+                skipDefaultConverter = false
+            ) ?: return null
+
+            return ValueClassConverterWrapper(
+                valueTypeColumnAdapter = underlyingTypeColumnAdapter,
+                affinity = underlyingTypeColumnAdapter.typeAffinity,
+                out = type,
+                valuePropertyName = underlyingProperty.name
+            )
+        }
         return when {
             builtInConverterFlags.enums.isEnabled() &&
                 typeElement?.isEnum() == true -> EnumColumnTypeAdapter(typeElement, type)

@@ -248,7 +248,9 @@ internal sealed class KspTypeElement(
     }
 
     override fun isValueClass(): Boolean {
-        return Modifier.INLINE in declaration.modifiers
+        // The inline modifier for inline classes is deprecated in Kotlin but we still include it
+        // in this check.
+        return Modifier.VALUE in declaration.modifiers || Modifier.INLINE in declaration.modifiers
     }
 
     override fun isFunctionalInterface(): Boolean {

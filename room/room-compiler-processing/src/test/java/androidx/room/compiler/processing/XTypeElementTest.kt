@@ -408,11 +408,7 @@ class XTypeElementTest(
             assertThat(getModifiers("DataClass"))
                 .containsExactly("public", "final", "class", "data")
             assertThat(getModifiers("InlineClass")).apply {
-                if (isPreCompiled && invocation.isKsp) {
-                    containsExactly("public", "final", "class")
-                } else {
-                    containsExactly("public", "final", "class", "value")
-                }
+                containsExactly("public", "final", "class", "value")
             }
             assertThat(getModifiers("FunInterface"))
                 .containsExactly("public", "abstract", "interface", "fun")
