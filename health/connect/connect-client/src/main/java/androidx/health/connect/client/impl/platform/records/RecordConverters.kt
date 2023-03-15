@@ -554,7 +554,7 @@ private fun ActiveCaloriesBurnedRecord.toPlatformActiveCaloriesBurnedRecord() =
             metadata.toPlatformMetadata(),
             startTime,
             endTime,
-            PlatformEnergy.fromJoules(energy.inJoules)
+            energy.toPlatformEnergy(),
         )
         .apply {
             startZoneOffset?.let { setStartZoneOffset(it) }
