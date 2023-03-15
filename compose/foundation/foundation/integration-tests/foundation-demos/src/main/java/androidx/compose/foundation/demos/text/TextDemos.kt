@@ -17,6 +17,7 @@
 package androidx.compose.foundation.demos.text
 
 import androidx.compose.foundation.demos.text2.BasicTextField2Demos
+import androidx.compose.foundation.demos.text2.DecorationBoxDemos
 import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
@@ -124,6 +125,9 @@ val TextDemos = DemoCategory(
                 },
                 ComposableDemo("Keyboard Options") {
                     KeyboardOptionsDemos()
+                },
+                ComposableDemo("Decoration Box") {
+                    DecorationBoxDemos()
                 }
             )
         ),

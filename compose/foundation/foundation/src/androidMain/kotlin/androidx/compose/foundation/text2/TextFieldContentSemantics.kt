@@ -23,18 +23,24 @@ import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.editableText
+import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldContentSemanticsElement(
-    private val state: TextFieldState
+    private val textFieldState: TextFieldState,
+    private val textLayoutState: TextLayoutState
 ) : ModifierNodeElement<TextFieldContentSemanticsNode>() {
-    override fun create(): TextFieldContentSemanticsNode = TextFieldContentSemanticsNode(state)
+    override fun create(): TextFieldContentSemanticsNode = TextFieldContentSemanticsNode(
+        textFieldState,
+        textLayoutState
+    )
 
     override fun update(node: TextFieldContentSemanticsNode): TextFieldContentSemanticsNode {
-        node.state = state
+        node.textFieldState = textFieldState
+        node.textLayoutState = textLayoutState
         return node
     }
 
@@ -42,13 +48,13 @@ internal class TextFieldContentSemanticsElement(
         if (this === other) return true
         if (other !is TextFieldContentSemanticsElement) return false
 
-        if (state != other.state) return false
+        if (textFieldState != other.textFieldState) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return state.hashCode()
+        return textFieldState.hashCode()
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -58,7 +64,8 @@ internal class TextFieldContentSemanticsElement(
 
 @OptIn(ExperimentalFoundationApi::class)
 internal data class TextFieldContentSemanticsNode(
-    var state: TextFieldState
+    var textFieldState: TextFieldState,
+    var textLayoutState: TextLayoutState
 ) : Modifier.Node(), SemanticsModifierNode {
 
     private var lastText: AnnotatedString? = null
@@ -72,17 +79,20 @@ internal data class TextFieldContentSemanticsNode(
     ): SemanticsConfiguration {
         lastText = text
         lastSelection = selection
-        return SemanticsConfiguration().also {
-            it.editableText = text
-            it.textSelectionRange = selection
-            _semanticsConfiguration = it
+        return SemanticsConfiguration().also { configuration ->
+            configuration.getTextLayoutResult {
+                textLayoutState.layoutResult?.let { result -> it.add(result) } ?: false
+            }
+            configuration.editableText = text
+            configuration.textSelectionRange = selection
+            _semanticsConfiguration = configuration
         }
     }
 
     override val semanticsConfiguration: SemanticsConfiguration
         get() {
             var localSemantics = _semanticsConfiguration
-            val value = state.value
+            val value = textFieldState.value
             if (localSemantics == null ||
                 lastText != value.annotatedString ||
                 lastSelection != value.selection
