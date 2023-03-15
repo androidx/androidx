@@ -19,29 +19,37 @@ package androidx.appactions.interaction.capabilities.core.testing
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.proto.FulfillmentResponse
-import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 
+/** A wrapper being used for testing [CallbackInternal] */
+class CallbackResponse
+constructor(val fulfillmentResponse: FulfillmentResponse?, val errorStatus: ErrorStatusInternal?)
+
 /**
- * Returns a CallbackInternal instance which will forward the FulfillmentResponse it receives
- * to a SendChannel and closes the channel afterwards.
+ * A fake CallbackInternal instance being used for testing to receive the [CallbackResponse]
+ * containing either [FulfillmentResponse] or [ErrorStatusInternal]
  */
-fun buildCallbackInternalWithChannel(
-    responseChannel: SendChannel<FulfillmentResponse>,
-    sendTimeoutMs: Long,
-): CallbackInternal = object : CallbackInternal {
-    override fun onSuccess(
-        fulfillmentResponse: FulfillmentResponse,
-    ) {
+class FakeCallbackInternal constructor(private val sendTimeoutMs: Long) : CallbackInternal {
+
+    private val channel = Channel<CallbackResponse>(1)
+
+    override fun onSuccess(fulfillmentResponse: FulfillmentResponse) {
         runBlocking {
-            withTimeout(sendTimeoutMs) {
-                responseChannel.send(fulfillmentResponse)
-            }
+            withTimeout(sendTimeoutMs) { channel.send(CallbackResponse(fulfillmentResponse, null)) }
         }
-        responseChannel.close()
+        channel.close()
     }
+
     override fun onError(errorStatus: ErrorStatusInternal) {
-        responseChannel.close()
+        runBlocking {
+            withTimeout(sendTimeoutMs) { channel.send(CallbackResponse(null, errorStatus)) }
+        }
+        channel.close()
+    }
+
+    fun receiveResponse(): CallbackResponse = runBlocking {
+        withTimeout(sendTimeoutMs) { channel.receive() }
     }
 }
