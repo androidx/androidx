@@ -42,6 +42,16 @@ public class DimensionBuildersTest {
             new DimensionBuilders.DpProp.Builder()
                     .setDynamicValue(DynamicBuilders.DynamicFloat.fromState(STATE_KEY));
 
+    private static final DimensionBuilders.DegreesProp DEGREES_PROP =
+            new DimensionBuilders.DegreesProp.Builder(3.14f)
+                    .setDynamicValue(DynamicBuilders.DynamicFloat.fromState(STATE_KEY))
+                    .build();
+
+    @SuppressWarnings("deprecation")
+    private static final DimensionBuilders.DegreesProp.Builder DEGREES_PROP_WITHOUT_STATIC_VALUE =
+            new DimensionBuilders.DegreesProp.Builder()
+                    .setDynamicValue(DynamicBuilders.DynamicFloat.fromState(STATE_KEY));
+
     @Test
     public void dpPropSupportsDynamicValue() {
         DimensionProto.DpProp dpPropProto = DP_PROP.toProto();
@@ -56,26 +66,41 @@ public class DimensionBuildersTest {
         assertThrows(IllegalStateException.class, DP_PROP_WITHOUT_STATIC_VALUE::build);
     }
 
+    public void degreesPropSupportsDynamicValue() {
+        DimensionProto.DegreesProp degreesPropProto = DEGREES_PROP.toProto();
+
+        assertThat(degreesPropProto.getValue()).isEqualTo(DEGREES_PROP.getValue());
+        assertThat(degreesPropProto.getDynamicValue().getStateSource().getSourceKey())
+                .isEqualTo(STATE_KEY);
+    }
+
+    @Test
+    public void degreesProp_withoutStaticValue_throws() {
+        assertThrows(IllegalStateException.class, DEGREES_PROP_WITHOUT_STATIC_VALUE::build);
+    }
+
     @Test
     public void expandedLayoutWeight() {
         TypeBuilders.FloatProp layoutWeight =
                 new TypeBuilders.FloatProp.Builder().setValue(3.14f).build();
         DimensionBuilders.ContainerDimension dimensionProp =
-                new DimensionBuilders.ExpandedDimensionProp.Builder().setLayoutWeight(layoutWeight)
+                new DimensionBuilders.ExpandedDimensionProp.Builder()
+                        .setLayoutWeight(layoutWeight)
                         .build();
 
         DimensionProto.ContainerDimension dimensionProto =
                 dimensionProp.toContainerDimensionProto();
         assertThat(dimensionProto.getExpandedDimension().getLayoutWeight().getValue())
-                .isWithin(.001f).of(layoutWeight.getValue());
+                .isWithin(.001f)
+                .of(layoutWeight.getValue());
     }
-
 
     @Test
     public void wrappedMinSize() {
         DimensionBuilders.DpProp minSize = dp(42);
         DimensionBuilders.ContainerDimension dimensionProp =
-                new DimensionBuilders.WrappedDimensionProp.Builder().setMinimumSize(minSize)
+                new DimensionBuilders.WrappedDimensionProp.Builder()
+                        .setMinimumSize(minSize)
                         .build();
 
         DimensionProto.ContainerDimension dimensionProto =
@@ -87,10 +112,13 @@ public class DimensionBuildersTest {
     @Test
     public void wrappedMinSize_throwsWhenSetToDynamicValue() {
         DimensionBuilders.DpProp minSizeDynamic =
-                new DimensionBuilders.DpProp.Builder(42).setDynamicValue(
-                        DynamicBuilders.DynamicFloat.fromState("some-state")).build();
-        assertThrows(IllegalArgumentException.class, () ->
-                new DimensionBuilders.WrappedDimensionProp.Builder().setMinimumSize(
-                        minSizeDynamic));
+                new DimensionBuilders.DpProp.Builder(42)
+                        .setDynamicValue(DynamicBuilders.DynamicFloat.fromState("some-state"))
+                        .build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        new DimensionBuilders.WrappedDimensionProp.Builder()
+                                .setMinimumSize(minSizeDynamic));
     }
 }

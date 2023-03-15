@@ -3684,6 +3684,58 @@ public final class LayoutElementBuilders {
      */
     public static final int ARC_ANCHOR_END = 3;
 
+    /**
+     * How to lay out components in a {@link androidx.wear.protolayout.LayoutElementBuilders.Arc}
+     * context when they are smaller than their container. This would be similar to {@code
+     * HorizontalAlignment} in a {@link androidx.wear.protolayout.LayoutElementBuilders.Box} or
+     * {@link androidx.wear.protolayout.LayoutElementBuilders.Column}.
+     *
+     * @since 1.2
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+        ANGULAR_ALIGNMENT_UNDEFINED,
+        ANGULAR_ALIGNMENT_START,
+        ANGULAR_ALIGNMENT_CENTER,
+        ANGULAR_ALIGNMENT_END
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AngularAlignment {}
+
+    /**
+     * Angular alignment is undefined.
+     *
+     * @since 1.2
+     */
+    public static final int ANGULAR_ALIGNMENT_UNDEFINED = 0;
+
+    /**
+     * Align to the start of the container. As an example, if the container starts at 90 degrees and
+     * has 180 degrees of sweep, the element within would draw from 90 degrees, clockwise.
+     *
+     * @since 1.2
+     */
+    public static final int ANGULAR_ALIGNMENT_START = 1;
+
+    /**
+     * Align to the center of the container. As an example, if the container starts at 90 degrees,
+     * and has 180 degrees of sweep, and the contained element has 90 degrees of sweep, the element
+     * would draw between 135 and 225 degrees.
+     *
+     * @since 1.2
+     */
+    public static final int ANGULAR_ALIGNMENT_CENTER = 2;
+
+    /**
+     * Align to the end of the container. As an example, if the container starts at 90 degrees and
+     * has 180 degrees of sweep, and the contained element has 90 degrees of sweep, the element
+     * would draw between 180 and 270 degrees.
+     *
+     * @since 1.2
+     */
+    public static final int ANGULAR_ALIGNMENT_END = 3;
+
     /** An extensible {@code HorizontalAlignment} property. */
     public static final class HorizontalAlignmentProp {
         private final AlignmentProto.HorizontalAlignmentProp mImpl;
