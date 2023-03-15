@@ -34,7 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.layoutId
@@ -173,15 +173,12 @@ fun PuzzlePiece(
 ) {
     Canvas(modifier.fillMaxSize()) {
         clipRect {
-            withTransform({
-                scale(scaleY = gridSize.toFloat(), scaleX = gridSize.toFloat())
-                translate(
-                    left = -(x - gridSize / 2) * size.width / gridSize,
-                    top = -(y - gridSize / 2) * size.height / gridSize
-                )
-            }) {
+            translate(
+                left = -x * size.width,
+                top = -y * size.height
+            ) {
                 with(painter) {
-                    draw(size)
+                    draw(size.times(gridSize.toFloat()))
                 }
             }
         }
