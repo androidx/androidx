@@ -327,6 +327,10 @@
     <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"তালিকা ১"</string>
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"তালিকা ২"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"প্রতিটি তালিকায় থাকা সাবটেক্সট"</string>
+    <!-- no translation found for empty_list_demo_title (5989013634820902455) -->
+    <skip />
+    <!-- no translation found for empty_list_message (5331395517560728138) -->
+    <skip />
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"অন্যান্য টেমপ্লেটের ডেমো"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ডেমো শোকেস করুন"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"টেমপ্লেট লেআউট সংক্রান্ত ডেমো"</string>
