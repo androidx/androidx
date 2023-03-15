@@ -19,6 +19,7 @@ package androidx.work.impl.utils;
 import static android.app.AlarmManager.RTC_WAKEUP;
 import static android.app.PendingIntent.FLAG_NO_CREATE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+import android.os.Build
 
 import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
@@ -125,7 +126,8 @@ public class ForceStopRunnable implements Runnable {
         // Cancelling of Jobs on force-stop was introduced in N-MR1 (SDK 25).
         // Even though API 23, 24 are probably safe, OEMs may choose to do
         // something different.
-        PendingIntent pendingIntent = getPendingIntent(mContext, FLAG_NO_CREATE);
+        PendingIntent pendingIntent = getPendingIntent(mContext,
+        Build.VERSION.SDK_INT >= 23? PendingIntent.FLAG_IMMUTABLE else FLAG_NO_CREATE);
         if (pendingIntent == null) {
             setAlarm(mContext);
             return true;
@@ -210,7 +212,8 @@ public class ForceStopRunnable implements Runnable {
     static void setAlarm(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         // Using FLAG_UPDATE_CURRENT, because we only ever want once instance of this alarm.
-        PendingIntent pendingIntent = getPendingIntent(context, FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = getPendingIntent(context,
+                Build.VERSION.SDK_INT >= 23? PendingIntent.FLAG_IMMUTABLE else FLAG_UPDATE_CURRENT);
         long triggerAt = System.currentTimeMillis() + TEN_YEARS;
         if (alarmManager != null) {
             if (Build.VERSION.SDK_INT >= 19) {
