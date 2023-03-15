@@ -15,19 +15,23 @@
  */
 package androidx.build
 
+import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Action
+import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import org.gradle.work.DisableCachingByDefault
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.Locale
 
 /**
@@ -51,6 +55,10 @@ data class Artifact(
 // See https://github.com/gradle/gradle/commit/7e5c5bc9b2c23d872e1c45c855f07ca223f6c270#diff-ce55b0f0cdcf2174eb47d333d348ff6fbd9dbe5cd8c3beeeaf633ea23b74ed9eR38
 open class GMavenZipTask : Zip() {
 
+    @Internal
+    @Transient
+    val verifyTask: TaskProvider<VerifyGMavenZipTask>
+
     init {
         // multiple artifacts in the same group might have the same maven-metadata.xml
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -70,12 +78,17 @@ open class GMavenZipTask : Zip() {
             }
         }
 
-        doLast {
-            val destFile = archiveFile.get().getAsFile()
-            if (!destFile.exists()) {
-                throw GradleException("Did not create $destFile")
+        val zipTask = this
+
+        verifyTask = project.maybeRegister(
+            name = "verify${zipTask.name}",
+            onConfigure = { verifierTask ->
+                verifierTask.addFile(zipTask.archiveFile.get().getAsFile())
+            },
+            onRegister = {
             }
-        }
+        )
+        finalizedBy(verifyTask)
     }
 
     /**
@@ -109,11 +122,7 @@ open class GMavenZipTask : Zip() {
                 include(inclusion)
             }
         }
-        doFirst {
-            if (!fromDir.exists()) {
-                throw GradleException("Cannot zip nonexistent $fromDir")
-            }
-        }
+        verifyTask.get().addFile(fromDir)
     }
     /**
      * Config action that configures the task when necessary.
@@ -365,6 +374,38 @@ object Release {
         }
         project.addToAnchorTask(taskProvider)
         return taskProvider
+    }
+}
+
+// b/273294710
+@DisableCachingByDefault(
+    because = "This task only checks the existence of files and isn't worth caching"
+)
+open class VerifyGMavenZipTask : DefaultTask() {
+    @Input
+    val filesToVerify = mutableListOf<File>()
+
+    init {
+        cacheEvenIfNoOutputs()
+    }
+
+    fun addFile(file: File) {
+        filesToVerify.add(file)
+    }
+
+    @TaskAction
+    fun execute() {
+        val missingFiles = mutableListOf<String>()
+        filesToVerify.forEach { file ->
+            if (!file.exists()) {
+                missingFiles.add(file.path)
+            }
+        }
+
+        if (missingFiles.isNotEmpty()) {
+            val missingFileString = missingFiles.reduce { acc, s -> "$acc, $s" }
+            throw FileNotFoundException("GMavenZip file missing: $missingFileString")
+        }
     }
 }
 
