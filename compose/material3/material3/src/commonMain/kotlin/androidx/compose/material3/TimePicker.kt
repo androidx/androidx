@@ -145,6 +145,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import java.text.NumberFormat
 import kotlin.math.PI
 import kotlin.math.abs
@@ -777,6 +778,7 @@ private fun PeriodToggle(
         ) { Text(text = getString(string = Strings.TimePickerAM)) }
         Spacer(
             Modifier
+                .zIndex(SeparatorZIndex)
                 .fillMaxWidth()
                 .height(TimePickerTokens.PeriodSelectorOutlineWidth)
                 .background(color = PeriodSelectorOutlineColor.toColor())
@@ -807,6 +809,7 @@ private fun ColumnScope.ToggleItem(
 
     TextButton(
         modifier = Modifier
+            .zIndex(if (checked) 0f else 1f)
             .weight(1f)
             .semantics { selected = checked },
         contentPadding = PaddingValues(0.dp),
@@ -1359,6 +1362,7 @@ private const val FullCircle: Float = (PI * 2).toFloat()
 private const val QuarterCircle = PI / 2
 private const val RadiansPerMinute: Float = FullCircle / 60
 private const val RadiansPerHour: Float = FullCircle / 12f
+private const val SeparatorZIndex = 2f
 
 private val OuterCircleSizeRadius = 101.dp
 private val InnerCircleRadius = 69.dp
