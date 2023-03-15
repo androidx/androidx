@@ -28,7 +28,6 @@ import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.InvalidResolverException
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.proto.ParamValue
-import androidx.concurrent.futures.await
 
 /**
  * A wrapper around all types of slot resolvers (value listeners + disambig resolvers).
@@ -54,9 +53,9 @@ private constructor(
         searchAction: SearchAction<ValueTypeT>
     ): EntitySearchResult<ValueTypeT> {
         return if (appEntityResolver != null) {
-            appEntityResolver.lookupAndRender(searchAction).await()
+            appEntityResolver.lookupAndRender(searchAction)
         } else if (appEntityListResolver != null) {
-            appEntityListResolver.lookupAndRender(searchAction).await()
+            appEntityListResolver.lookupAndRender(searchAction)
         } else {
             throw InvalidResolverException("invokeLookup is not supported on this resolver")
         }
@@ -69,9 +68,8 @@ private constructor(
     @Throws(InvalidResolverException::class)
     suspend fun invokeEntityRender(entityIds: List<String>) {
         if (inventoryResolver != null) {
-            inventoryResolver.renderChoices(entityIds).await()
-        } else if (inventoryListResolver != null)
-            (inventoryListResolver.renderChoices(entityIds).await())
+            inventoryResolver.renderChoices(entityIds)
+        } else if (inventoryListResolver != null) inventoryListResolver.renderChoices(entityIds)
         else {
             throw InvalidResolverException("invokeEntityRender is not supported on this resolver")
         }
@@ -89,18 +87,18 @@ private constructor(
         val singularConverter = SlotTypeConverter.ofSingular(converter)
         val repeatedConverter = SlotTypeConverter.ofRepeated(converter)
         return when {
-            value != null -> value.onReceivedAsync(singularConverter.convert(paramValues))
-            valueList != null -> valueList.onReceivedAsync(repeatedConverter.convert(paramValues))
+            value != null -> value.onReceived(singularConverter.convert(paramValues))
+            valueList != null -> valueList.onReceived(repeatedConverter.convert(paramValues))
             appEntityResolver != null ->
-                appEntityResolver.onReceivedAsync(singularConverter.convert(paramValues))
+                appEntityResolver.onReceived(singularConverter.convert(paramValues))
             appEntityListResolver != null ->
-                appEntityListResolver.onReceivedAsync(repeatedConverter.convert(paramValues))
+                appEntityListResolver.onReceived(repeatedConverter.convert(paramValues))
             inventoryResolver != null ->
-                inventoryResolver.onReceivedAsync(singularConverter.convert(paramValues))
+                inventoryResolver.onReceived(singularConverter.convert(paramValues))
             inventoryListResolver != null ->
-                inventoryListResolver.onReceivedAsync(repeatedConverter.convert(paramValues))
+                inventoryListResolver.onReceived(repeatedConverter.convert(paramValues))
             else -> throw IllegalStateException("unreachable")
-        }.await()
+        }
     }
 
     companion object {

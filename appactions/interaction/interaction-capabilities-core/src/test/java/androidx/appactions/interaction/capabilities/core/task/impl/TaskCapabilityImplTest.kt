@@ -523,7 +523,7 @@ class TaskCapabilityImplTest {
                             ExecutionResult.getDefaultInstance<Output>()
                         override fun getRequiredEntityListener() =
                             object : AppEntityResolver<EntityValue> {
-                                override fun lookupAndRender(
+                                override fun lookupAndRenderAsync(
                                     searchAction: SearchAction<EntityValue>,
                                 ): ListenableFuture<EntitySearchResult<EntityValue>> {
                                     val result = EntitySearchResult.Builder<EntityValue>()
@@ -689,7 +689,7 @@ class TaskCapabilityImplTest {
                                 return Futures.immediateFuture(ValidationResult.newAccepted())
                             }
 
-                            override fun lookupAndRender(
+                            override fun lookupAndRenderAsync(
                                 searchAction: SearchAction<ListItem>,
                             ): ListenableFuture<EntitySearchResult<ListItem>> =
                                 Futures.immediateFuture(
@@ -909,7 +909,7 @@ class TaskCapabilityImplTest {
 
         private val AUTO_ACCEPT_ENTITY_VALUE: AppEntityResolver<EntityValue> =
             object : AppEntityResolver<EntityValue> {
-                override fun lookupAndRender(
+                override fun lookupAndRenderAsync(
                     searchAction: SearchAction<EntityValue>,
                 ): ListenableFuture<EntitySearchResult<EntityValue>> {
                     val result: EntitySearchResult.Builder<EntityValue> =
@@ -927,7 +927,7 @@ class TaskCapabilityImplTest {
             }
         private val AUTO_REJECT_ENTITY_VALUE: AppEntityResolver<EntityValue> =
             object : AppEntityResolver<EntityValue> {
-                override fun lookupAndRender(
+                override fun lookupAndRenderAsync(
                     searchAction: SearchAction<EntityValue>,
                 ): ListenableFuture<EntitySearchResult<EntityValue>> {
                     val result: EntitySearchResult.Builder<EntityValue> =
