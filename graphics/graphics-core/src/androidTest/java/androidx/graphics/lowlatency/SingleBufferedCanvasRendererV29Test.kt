@@ -36,6 +36,8 @@ import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -231,10 +233,6 @@ class SingleBufferedCanvasRendererV29Test {
             renderer.render(Color.RED)
             assertTrue(initialDrawLatch.await(3000, TimeUnit.MILLISECONDS))
 
-            executor.execute {
-                waitForRequestLatch.await()
-            }
-
             drawCancelledRequestLatch = CountDownLatch(2)
             renderer.render(Color.GREEN)
             renderer.render(Color.YELLOW)
@@ -351,6 +349,46 @@ class SingleBufferedCanvasRendererV29Test {
                 latch.countDown()
             }
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testBatchedRenders() {
+        val transformer = BufferTransformer()
+        transformer.computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
+        val executor = Executors.newSingleThreadExecutor()
+        val renderCount = AtomicInteger(0)
+        val renderer = SingleBufferedCanvasRendererV29(
+            TEST_WIDTH,
+            TEST_HEIGHT,
+            transformer,
+            executor,
+            object : SingleBufferedCanvasRenderer.RenderCallbacks<Int> {
+                override fun render(canvas: Canvas, width: Int, height: Int, param: Int) {
+                    canvas.drawColor(param)
+                    renderCount.incrementAndGet()
+                }
+
+                override fun onBufferReady(
+                    hardwareBuffer: HardwareBuffer,
+                    syncFenceCompat: SyncFenceCompat?
+                ) {
+                    // NO-OP
+                }
+            })
+        try {
+            renderer.render(Color.RED)
+            renderer.render(Color.BLUE)
+            renderer.render(Color.YELLOW)
+        } finally {
+            val latch = CountDownLatch(1)
+            renderer.release(false) {
+                executor.shutdownNow()
+                latch.countDown()
+            }
+            assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
+            assertEquals(3, renderCount.get())
         }
     }
 
