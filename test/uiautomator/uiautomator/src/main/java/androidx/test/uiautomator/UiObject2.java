@@ -38,6 +38,7 @@ import android.widget.Checkable;
 import android.widget.TextView;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -59,6 +60,9 @@ public class UiObject2 implements Searchable {
 
     private static final String TAG = UiObject2.class.getSimpleName();
 
+    // default percentage of margins for gestures.
+    private static final float DEFAULT_GESTURE_MARGIN_PERCENT = 0.1f;
+
     // default percentage of each scroll in scrollUntil().
     private static final float DEFAULT_SCROLL_UNTIL_PERCENT = 0.8f;
 
@@ -78,12 +82,10 @@ public class UiObject2 implements Searchable {
     private final int mDisplayId;
     private final float mDisplayDensity;
     private AccessibilityNodeInfo mCachedNode;
-
-    // Margins used for gestures (avoids touching too close to the object's edge).
-    private int mMarginLeft = 5;
-    private int mMarginTop = 5;
-    private int mMarginRight = 5;
-    private int mMarginBottom = 5;
+    private Margins mMargins = new PercentMargins(DEFAULT_GESTURE_MARGIN_PERCENT,
+            DEFAULT_GESTURE_MARGIN_PERCENT,
+            DEFAULT_GESTURE_MARGIN_PERCENT,
+            DEFAULT_GESTURE_MARGIN_PERCENT);
 
     /** Package-private constructor. Used by {@link UiDevice#findObject(BySelector)}. */
     UiObject2(UiDevice device, BySelector selector, AccessibilityNodeInfo cachedNode) {
@@ -134,6 +136,36 @@ public class UiObject2 implements Searchable {
 
     // Settings
 
+    /**
+     * Sets the percentage of gestures' margins to avoid touching too close to the edges, e.g.
+     * when scrolling up, phone open quick settings instead if gesture is close to the top.
+     * The percentage is based on the object's visible size, e.g. to set 20% margins:
+     * <pre>mUiObject2.setGestureMarginPercent(0.2f);</pre>
+     *
+     * @Param percent Float between [0, 0.5] for four margins: left, top, right, and bottom.
+     */
+    public void setGestureMarginPercent(@FloatRange(from = 0f, to = 0.5f) float percent) {
+        setGestureMarginPercent(percent, percent, percent, percent);
+    }
+
+    /**
+     * Sets the percentage of gestures' margins to avoid touching too close to the edges, e.g.
+     * when scrolling up, phone open quick settings instead if gesture is close to the top.
+     * The percentage is based on the object's visible size, e.g. to set 20% bottom margin only:
+     * <pre>mUiObject2.setGestureMarginPercent(0f, 0f, 0f, 0.2f);</pre>
+     *
+     * @Param left Float between [0, 1] for left margin
+     * @Param top Float between [0, 1] for top margin
+     * @Param right Float between [0, 1] for right margin
+     * @Param bottom Float between [0, 1] for bottom margin
+     */
+    public void setGestureMarginPercent(@FloatRange(from = 0f, to = 1f) float left,
+            @FloatRange(from = 0f, to = 1f) float top,
+            @FloatRange(from = 0f, to = 1f) float right,
+            @FloatRange(from = 0f, to = 1f) float bottom) {
+        mMargins = new PercentMargins(left, top, right, bottom);
+    }
+
     /** Sets the margins used for gestures in pixels. */
     public void setGestureMargin(int margin) {
         setGestureMargins(margin, margin, margin, margin);
@@ -141,10 +173,7 @@ public class UiObject2 implements Searchable {
 
     /** Sets the margins used for gestures in pixels. */
     public void setGestureMargins(int left, int top, int right, int bottom) {
-        mMarginLeft = left;
-        mMarginTop = top;
-        mMarginRight = right;
-        mMarginBottom = bottom;
+        mMargins = new SimpleMargins(left, top, right, bottom);
     }
 
     // Wait functions
@@ -240,11 +269,7 @@ public class UiObject2 implements Searchable {
     /** Returns this object's visible bounds with the margins removed. */
     private Rect getVisibleBoundsForGestures() {
         Rect ret = getVisibleBounds();
-        ret.left = ret.left + mMarginLeft;
-        ret.top = ret.top + mMarginTop;
-        ret.right = ret.right - mMarginRight;
-        ret.bottom = ret.bottom - mMarginBottom;
-        return ret;
+        return mMargins.apply(ret);
     }
 
     /** Updates a {@code point} to ensure it is within this object's visible bounds. */
@@ -935,6 +960,46 @@ public class UiObject2 implements Searchable {
         @DoNotInline
         static int getDisplayId(AccessibilityWindowInfo accessibilityWindowInfo) {
             return accessibilityWindowInfo.getDisplayId();
+        }
+    }
+
+    private interface Margins {
+        Rect apply(Rect bounds);
+    }
+
+    private static class SimpleMargins implements Margins {
+        int mLeft, mTop, mRight, mBottom;
+        SimpleMargins(int left, int top, int right, int bottom) {
+            mLeft = left;
+            mTop = top;
+            mRight = right;
+            mBottom = bottom;
+        }
+
+        @Override
+        public Rect apply(Rect bounds) {
+            return new Rect(bounds.left + mLeft,
+                    bounds.top + mTop,
+                    bounds.right - mRight,
+                    bounds.bottom - mBottom);
+        }
+    }
+
+    private static class PercentMargins implements Margins {
+        float mLeft, mTop, mRight, mBottom;
+        PercentMargins(float left, float top, float right, float bottom) {
+            mLeft = left;
+            mTop = top;
+            mRight = right;
+            mBottom = bottom;
+        }
+
+        @Override
+        public Rect apply(Rect bounds) {
+            return new Rect(bounds.left + (int) (bounds.width() * mLeft),
+                    bounds.top + (int) (bounds.height() * mTop),
+                    bounds.right - (int) (bounds.width() * mRight),
+                    bounds.bottom - (int) (bounds.height() * mBottom));
         }
     }
 }
