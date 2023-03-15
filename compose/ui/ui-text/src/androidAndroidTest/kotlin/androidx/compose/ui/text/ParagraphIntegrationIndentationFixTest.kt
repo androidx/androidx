@@ -65,7 +65,7 @@ class ParagraphIntegrationIndentationFixTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/269193223
+    @SdkSuppress(minSdkVersion = 23) // b/266743243
     @Test
     fun getLineLeftAndGetLineRight_Ltr_TextIndent() {
         val paragraph = paragraph(
@@ -149,7 +149,7 @@ class ParagraphIntegrationIndentationFixTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/269193223
+    @SdkSuppress(minSdkVersion = 23) // b/266743243
     @Test
     fun getLineLeftAndGetLineRight_Ltr_TextIndent_sp_letterspacing() {
         val paragraph = paragraph(
