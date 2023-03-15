@@ -58,6 +58,7 @@ import androidx.testutils.withActivity
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
@@ -103,6 +104,22 @@ class NavControllerTest {
                 test("nested2.2")
             }
     }
+
+    private val NESTED_NAV_GRAPH_2 =
+        navController.createGraph(route = "graph", startDestination = "dest1") {
+            test("dest1")
+            navigation(route = "nested", startDestination = "dest2") {
+                argument("longArg") {
+                    type = NavType.LongType
+                }
+                test("dest2") {
+                    argument("longArg") {
+                        type = NavType.LongType
+                    }
+                }
+                test("dest3")
+            }
+        }
 
     @UiThreadTest
     @Test
@@ -1653,6 +1670,23 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithMissingNonNullableArg() {
+        val navController = createNavController()
+        navController.graph = NESTED_NAV_GRAPH_2
+        assertThat(navController.currentDestination?.route).isEqualTo("dest1")
+
+        val nestedId = ("android-app://androidx.navigation/nested").hashCode()
+
+        val expected = assertFailsWith<NullPointerException> {
+            navController.navigate(nestedId)
+        }
+        assertThat(expected.message).isEqualTo(
+            "null cannot be cast to non-null type kotlin.Long"
+        )
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateMultipleParentsOnHierarchy() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_root)
@@ -1666,6 +1700,34 @@ class NavControllerTest {
 
         navController.popBackStack()
         assertThat(navController.currentDestination?.id).isEqualTo(R.id.root_start)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testRebuildParentWithMissingNonNullableArg() {
+        val navController = createNavController()
+        navController.graph = NESTED_NAV_GRAPH_2
+        assertThat(navController.currentDestination?.route).isEqualTo("dest1")
+
+        val nestedId1 = ("android-app://androidx.navigation/nested").hashCode()
+
+        // navigate to nested graph first destination, provide non-nullable arg
+        navController.navigate(
+            nestedId1,
+            bundleOf("longArg" to 123L)
+        )
+        assertThat(navController.currentDestination?.route).isEqualTo("dest2")
+
+        val nestedId2 = ("android-app://androidx.navigation/dest3").hashCode()
+        // navigate to nested graph second destination after popping up to graph (inclusive)
+        // empty bundle to imitate navigating with NavDirections
+        navController.navigate(
+            nestedId2,
+            Bundle(),
+            NavOptions.Builder().setPopUpTo("nested", inclusive = true).build()
+        )
+        // [graph, dest1, nested, dest3]
+        assertThat(navController.currentBackStack.value.size).isEqualTo(4)
     }
 
     @UiThreadTest
