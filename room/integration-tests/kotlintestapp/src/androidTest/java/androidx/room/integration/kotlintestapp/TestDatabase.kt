@@ -18,31 +18,44 @@ package androidx.room.integration.kotlintestapp
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverter
 import androidx.room.integration.kotlintestapp.dao.AbstractDao
 import androidx.room.integration.kotlintestapp.dao.BooksDao
 import androidx.room.integration.kotlintestapp.dao.CounterDao
 import androidx.room.integration.kotlintestapp.dao.DependencyDao
 import androidx.room.integration.kotlintestapp.dao.DerivedDao
+import androidx.room.integration.kotlintestapp.dao.PetDao
+import androidx.room.integration.kotlintestapp.dao.ToyDao
 import androidx.room.integration.kotlintestapp.dao.UsersDao
 import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.integration.kotlintestapp.vo.BookAuthor
 import androidx.room.integration.kotlintestapp.vo.Counter
 import androidx.room.integration.kotlintestapp.vo.DataClassFromDependency
+import androidx.room.integration.kotlintestapp.vo.Day
 import androidx.room.integration.kotlintestapp.vo.EntityWithJavaPojoList
 import androidx.room.integration.kotlintestapp.vo.JavaEntity
 import androidx.room.integration.kotlintestapp.vo.NoArgClass
+import androidx.room.integration.kotlintestapp.vo.Pet
+import androidx.room.integration.kotlintestapp.vo.PetUser
+import androidx.room.integration.kotlintestapp.vo.PetWithUser
 import androidx.room.integration.kotlintestapp.vo.Publisher
+import androidx.room.integration.kotlintestapp.vo.Toy
 import androidx.room.integration.kotlintestapp.vo.User
+import java.nio.ByteBuffer
+import java.util.Date
+import java.util.UUID
 
 @Database(
     entities = [
         Book::class, Author::class, Publisher::class, BookAuthor::class,
         NoArgClass::class, DataClassFromDependency::class, JavaEntity::class,
-        EntityWithJavaPojoList::class, User::class, Counter::class
+        EntityWithJavaPojoList::class, User::class, Counter::class, Toy::class,
+        Pet::class, PetUser::class
     ],
     version = 1,
-    exportSchema = false
+    exportSchema = false,
+    views = [PetWithUser::class]
 )
 abstract class TestDatabase : RoomDatabase() {
 
@@ -57,4 +70,57 @@ abstract class TestDatabase : RoomDatabase() {
     abstract fun abstractDao(): AbstractDao
 
     abstract fun counterDao(): CounterDao
+
+    abstract fun toyDao(): ToyDao
+
+    abstract fun petDao(): PetDao
+
+    class Converters {
+        @TypeConverter
+        fun fromTimestamp(value: Long?): Date? {
+            return if (value == null) null else Date(value)
+        }
+
+        @TypeConverter
+        fun dateToTimestamp(date: Date?): Long? {
+            return date?.time
+        }
+
+        @TypeConverter
+        fun decomposeDays(flags: Int): Set<Day> {
+            val result: MutableSet<Day> =
+                HashSet()
+            for (day in Day.values()) {
+                if (flags and (1 shl day.ordinal) != 0) {
+                    result.add(day)
+                }
+            }
+            return result
+        }
+
+        @TypeConverter
+        fun composeDays(days: Set<Day>): Int {
+            var result = 0
+            for (day in days) {
+                result = result or (1 shl day.ordinal)
+            }
+            return result
+        }
+
+        @TypeConverter
+        fun asUuid(bytes: ByteArray): UUID {
+            val bb = ByteBuffer.wrap(bytes)
+            val firstLong = bb.long
+            val secondLong = bb.long
+            return UUID(firstLong, secondLong)
+        }
+
+        @TypeConverter
+        fun asBytes(uuid: UUID): ByteArray {
+            val bb = ByteBuffer.wrap(ByteArray(16))
+            bb.putLong(uuid.mostSignificantBits)
+            bb.putLong(uuid.leastSignificantBits)
+            return bb.array()
+        }
+    }
 }
