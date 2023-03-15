@@ -327,6 +327,10 @@
     <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"లిస్ట్ 1"</string>
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"లిస్ట్ 2"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ప్రతి లిస్ట్ కింద సబ్‌టెక్స్ట్"</string>
+    <!-- no translation found for empty_list_demo_title (5989013634820902455) -->
+    <skip />
+    <!-- no translation found for empty_list_message (5331395517560728138) -->
+    <skip />
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ఇతర టెంప్లేట్‌ల డెమోలు"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"డెమోలను ప్రదర్శించండి"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"టెంప్లేట్ లేఅవుట్ డెమోలు"</string>

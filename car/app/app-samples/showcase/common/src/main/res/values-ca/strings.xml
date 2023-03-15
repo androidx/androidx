@@ -327,6 +327,10 @@
     <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Llista 1"</string>
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Llista 2"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtext a sota de cada llista"</string>
+    <!-- no translation found for empty_list_demo_title (5989013634820902455) -->
+    <skip />
+    <!-- no translation found for empty_list_message (5331395517560728138) -->
+    <skip />
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demostracions de plantilles diverses"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demostracions de Showcase"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demostracions de dissenys de plantilles"</string>
@@ -334,7 +338,7 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Pantalla de demostració de Voice Access"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interaccions dels usuaris"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Demostracions de sol·licitud de permisos"</string>
-    <string name="application_overflow_title" msgid="396427940886169325">"Validador del menú addicional de l\'aplicació"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"Validador del menú de desbordament de l\'aplicació"</string>
     <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Prova les següents plantilles mentre canvies"</string>
     <string name="application_overflow_subtitle2" msgid="4385123036846369714">"el vehicle de l\'estat aparcat a mode de conducció"</string>
     <string name="perm_group" msgid="3834918337351876270">"Grup de permisos"</string>
