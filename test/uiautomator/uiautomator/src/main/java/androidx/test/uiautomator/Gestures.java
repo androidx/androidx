@@ -23,6 +23,10 @@ import android.view.ViewConfiguration;
 /** Factory methods for constructing {@link PointerGesture}s. */
 class Gestures {
 
+    // Duration of a long press (with multiplier to ensure detection).
+    private static final long LONG_PRESS_DURATION_MS =
+            (long) (ViewConfiguration.getLongPressTimeout() * 1.5f);
+
     // Constants used by pinch gestures
     private static final int INNER = 0;
     private static final int OUTER = 1;
@@ -68,7 +72,7 @@ class Gestures {
      */
     public static PointerGesture longClick(Point point, int displayId) {
         // A long click is a click with a duration that exceeds a certain threshold.
-        return click(point, ViewConfiguration.getLongPressTimeout(), displayId);
+        return click(point, LONG_PRESS_DURATION_MS, displayId);
     }
 
     /**
