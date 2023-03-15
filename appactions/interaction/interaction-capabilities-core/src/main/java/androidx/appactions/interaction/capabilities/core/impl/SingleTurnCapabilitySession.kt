@@ -19,13 +19,14 @@ package androidx.appactions.interaction.capabilities.core.impl
 import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
-import androidx.appactions.interaction.capabilities.core.impl.concurrent.FutureCallback
-import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
-import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.FulfillmentValue
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
+import androidx.concurrent.futures.await
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * ActionCapabilitySession implementation for executing single-turn fulfillment requests.
@@ -36,9 +37,10 @@ import androidx.appactions.interaction.proto.ParamValue
 internal class SingleTurnCapabilitySession<
     ArgumentT,
     OutputT,
-    >(
-    val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
-    val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
+>(
+    private val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
+    private val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) : ActionCapabilitySession {
     override val state: AppDialogState
         get() {
@@ -63,38 +65,25 @@ internal class SingleTurnCapabilitySession<
         callback: CallbackInternal,
     ) {
         val paramValuesMap: Map<String, List<ParamValue>> =
-            argumentsWrapper.paramValues.entries.associate {
-                    entry: Map.Entry<String, List<FulfillmentValue>> ->
-                Pair(
-                    entry.key,
-                    entry.value.mapNotNull { fulfillmentValue: FulfillmentValue ->
-                        fulfillmentValue.getValue()
-                    },
-                )
-            }
+            argumentsWrapper.paramValues.mapValues { entry -> entry.value.mapNotNull { it.value } }
         val argument = actionSpec.buildArgument(paramValuesMap)
-        Futures.addCallback(
-            actionExecutorAsync.execute(argument),
-            object : FutureCallback<ExecutionResult<OutputT>> {
-                override fun onSuccess(executionResult: ExecutionResult<OutputT>) {
-                    callback.onSuccess(convertToFulfillmentResponse(executionResult))
-                }
-
-                override fun onFailure(t: Throwable) {
-                    callback.onError(ErrorStatusInternal.CANCELLED)
-                }
-            },
-            Runnable::run,
-        )
+        scope.launch {
+            try {
+                val output = actionExecutorAsync.execute(argument).await()
+                callback.onSuccess(convertToFulfillmentResponse(output))
+            } catch (t: Throwable) {
+                callback.onError(ErrorStatusInternal.CANCELLED)
+            }
+        }
     }
 
     /** Converts typed {@link ExecutionResult} to {@link FulfillmentResponse} proto. */
-    internal fun convertToFulfillmentResponse(
+    private fun convertToFulfillmentResponse(
         executionResult: ExecutionResult<OutputT>,
     ): FulfillmentResponse {
         val fulfillmentResponseBuilder =
             FulfillmentResponse.newBuilder().setStartDictation(executionResult.startDictation)
-        executionResult.output?.let { it ->
+        executionResult.output?.let {
             fulfillmentResponseBuilder.setExecutionOutput(
                 actionSpec.convertOutputToProto(it),
             )
