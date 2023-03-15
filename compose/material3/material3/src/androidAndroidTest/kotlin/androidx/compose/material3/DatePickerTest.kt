@@ -312,8 +312,8 @@ class DatePickerTest {
         }
         with(datePickerState) {
             assertThat(selectedDateMillis).isEqualTo(1649721600000L)
-            assertThat(stateData.displayedMonth).isEqualTo(
-                stateData.calendarModel.getMonth(year = 2022, month = 4)
+            assertThat(displayedMonthMillis).isEqualTo(
+                CalendarModel.Default.getMonth(year = 2022, month = 4).startUtcTimeMillis
             )
         }
     }
@@ -330,8 +330,8 @@ class DatePickerTest {
             // Assert that the actual selectedDateMillis was rounded down to the start of day
             // timestamp
             assertThat(selectedDateMillis).isEqualTo(1649721600000L)
-            assertThat(stateData.displayedMonth).isEqualTo(
-                stateData.calendarModel.getMonth(year = 2022, month = 4)
+            assertThat(displayedMonthMillis).isEqualTo(
+                CalendarModel.Default.getMonth(year = 2022, month = 4).startUtcTimeMillis
             )
         }
     }
@@ -350,8 +350,9 @@ class DatePickerTest {
         with(datePickerState) {
             assertThat(selectedDateMillis).isEqualTo(1649721600000L)
             // Assert that the displayed month is the current month as of today.
-            assertThat(stateData.displayedMonth).isEqualTo(
-                stateData.calendarModel.getMonth(stateData.calendarModel.today.utcTimeMillis)
+            val calendarModel = CalendarModel.Default
+            assertThat(displayedMonthMillis).isEqualTo(
+                calendarModel.getMonth(calendarModel.today.utcTimeMillis).startUtcTimeMillis
             )
         }
     }
@@ -370,8 +371,9 @@ class DatePickerTest {
         with(datePickerState) {
             assertThat(selectedDateMillis).isNull()
             // Assert that the displayed month is the current month as of today.
-            assertThat(stateData.displayedMonth).isEqualTo(
-                stateData.calendarModel.getMonth(stateData.calendarModel.today.utcTimeMillis)
+            val calendarModel = CalendarModel.Default
+            assertThat(displayedMonthMillis).isEqualTo(
+                calendarModel.getMonth(calendarModel.today.utcTimeMillis).startUtcTimeMillis
             )
         }
     }
@@ -389,11 +391,11 @@ class DatePickerTest {
         rule.onNodeWithText("Apr 12, 2022").assertExists()
         with(datePickerState) {
             assertThat(selectedDateMillis).isEqualTo(1649721600000L)
-            assertThat(stateData.displayedMonth).isEqualTo(
-                stateData.calendarModel.getMonth(year = 2022, month = 4)
+            assertThat(displayedMonthMillis).isEqualTo(
+                CalendarModel.Default.getMonth(year = 2022, month = 4).startUtcTimeMillis
             )
             // Reset the selection
-            datePickerState.setSelection(null)
+            datePickerState.selectedDateMillis = null
             assertThat(selectedDateMillis).isNull()
             rule.onNodeWithText("Apr 12, 2022").assertDoesNotExist()
             rule.onNodeWithText(defaultHeadline).assertExists()
@@ -408,13 +410,13 @@ class DatePickerTest {
             datePickerState = rememberDatePickerState()
         }
 
+        val calendarModel = CalendarModel.Default
         with(datePickerState!!) {
-            val date =
-                stateData.calendarModel.getCanonicalDate(1649721600000L) // 04/12/2022
-            val displayedMonth = stateData.calendarModel.getMonth(date)
+            val date = calendarModel.getCanonicalDate(1649721600000L) // 04/12/2022
+            val displayedMonth = calendarModel.getMonth(date)
             rule.runOnIdle {
-                stateData.selectedStartDate.value = date
-                stateData.displayedMonth = displayedMonth
+                selectedDateMillis = date.utcTimeMillis
+                displayedMonthMillis = displayedMonth.startUtcTimeMillis
             }
 
             datePickerState = null
@@ -422,8 +424,8 @@ class DatePickerTest {
             restorationTester.emulateSavedInstanceStateRestore()
 
             rule.runOnIdle {
-                assertThat(stateData.selectedStartDate.value).isEqualTo(date)
-                assertThat(stateData.displayedMonth).isEqualTo(displayedMonth)
+                assertThat(selectedDateMillis).isEqualTo(date.utcTimeMillis)
+                assertThat(displayedMonthMillis).isEqualTo(displayedMonth.startUtcTimeMillis)
                 assertThat(datePickerState!!.selectedDateMillis).isEqualTo(1649721600000L)
             }
         }
@@ -437,12 +439,10 @@ class DatePickerTest {
         }
 
         // Setting the selection to a year that is out of range.
-        datePickerState.setSelection(
-            dayInUtcMilliseconds(
-                year = 1999,
-                month = 5,
-                dayOfMonth = 11
-            )
+        datePickerState.selectedDateMillis = dayInUtcMilliseconds(
+            year = 1999,
+            month = 5,
+            dayOfMonth = 11
         )
     }
 

@@ -30,13 +30,18 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DateRangeInputContent(
-    stateData: StateData,
-    dateFormatter: DatePickerFormatter
+    selectedStartDateMillis: Long?,
+    selectedEndDateMillis: Long?,
+    onDatesSelectionChange: (startDateMillis: Long?, endDateMillis: Long?) -> Unit,
+    calendarModel: CalendarModel,
+    yearRange: IntRange,
+    dateFormatter: DatePickerFormatter,
+    selectableDates: SelectableDates
 ) {
     // Obtain the DateInputFormat for the default Locale.
     val defaultLocale = defaultLocale()
     val dateInputFormat = remember(defaultLocale) {
-        stateData.calendarModel.getDateInputFormat(defaultLocale)
+        calendarModel.getDateInputFormat(defaultLocale)
     }
     val errorDatePattern = getString(Strings.DateInputInvalidForPattern)
     val errorDateOutOfYearRange = getString(Strings.DateInputInvalidYearRange)
@@ -44,7 +49,8 @@ internal fun DateRangeInputContent(
     val errorInvalidRange = getString(Strings.DateRangeInputInvalidRangeInput)
     val dateInputValidator = remember(dateInputFormat, dateFormatter) {
         DateInputValidator(
-            stateData = stateData,
+            yearRange = yearRange,
+            selectableDates = selectableDates,
             dateInputFormat = dateInputFormat,
             dateFormatter = dateFormatter,
             errorDatePattern = errorDatePattern,
@@ -52,6 +58,11 @@ internal fun DateRangeInputContent(
             errorInvalidNotAllowed = errorInvalidNotAllowed,
             errorInvalidRangeInput = errorInvalidRange
         )
+    }
+    // Apply both start and end dates for proper validation.
+    dateInputValidator.apply {
+        currentStartDateMillis = selectedStartDateMillis
+        currentEndDateMillis = selectedEndDateMillis
     }
     Row(
         modifier = Modifier.padding(paddingValues = InputTextFieldPadding),
@@ -61,6 +72,7 @@ internal fun DateRangeInputContent(
         val startRangeText = getString(string = Strings.DateRangePickerStartHeadline)
         DateInputTextField(
             modifier = Modifier.weight(0.5f),
+            calendarModel = calendarModel,
             label = {
                 Text(startRangeText,
                     modifier = Modifier.semantics {
@@ -68,9 +80,11 @@ internal fun DateRangeInputContent(
                     })
             },
             placeholder = { Text(pattern, modifier = Modifier.clearAndSetSemantics { }) },
-            stateData = stateData,
-            initialDate = stateData.selectedStartDate.value,
-            onDateChanged = { date -> stateData.selectedStartDate.value = date },
+            initialDateMillis = selectedStartDateMillis,
+            onDateSelectionChange = { startDateMillis ->
+                // Delegate to the onDatesSelectionChange and change just the start date.
+                onDatesSelectionChange(startDateMillis, selectedEndDateMillis)
+            },
             inputIdentifier = InputIdentifier.StartDateInput,
             dateInputValidator = dateInputValidator,
             dateInputFormat = dateInputFormat,
@@ -79,6 +93,7 @@ internal fun DateRangeInputContent(
         val endRangeText = getString(string = Strings.DateRangePickerEndHeadline)
         DateInputTextField(
             modifier = Modifier.weight(0.5f),
+            calendarModel = calendarModel,
             label = {
                 Text(endRangeText,
                     modifier = Modifier.semantics {
@@ -86,9 +101,11 @@ internal fun DateRangeInputContent(
                     })
             },
             placeholder = { Text(pattern, modifier = Modifier.clearAndSetSemantics { }) },
-            stateData = stateData,
-            initialDate = stateData.selectedEndDate.value,
-            onDateChanged = { date -> stateData.selectedEndDate.value = date },
+            initialDateMillis = selectedEndDateMillis,
+            onDateSelectionChange = { endDateMillis ->
+                // Delegate to the onDatesSelectionChange and change just the end date.
+                onDatesSelectionChange(selectedStartDateMillis, endDateMillis)
+            },
             inputIdentifier = InputIdentifier.EndDateInput,
             dateInputValidator = dateInputValidator,
             dateInputFormat = dateInputFormat,

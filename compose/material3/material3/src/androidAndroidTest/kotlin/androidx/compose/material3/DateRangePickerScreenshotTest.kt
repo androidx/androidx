@@ -183,7 +183,7 @@ class DateRangePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     // Returns the given date's day as milliseconds from epoch. The returned value is for the day's
-// start on midnight.
+    // start on midnight.
     private fun dayInUtcMilliseconds(year: Int, month: Int, dayOfMonth: Int): Long =
         LocalDate.of(year, month, dayOfMonth)
             .atTime(LocalTime.MIDNIGHT)
