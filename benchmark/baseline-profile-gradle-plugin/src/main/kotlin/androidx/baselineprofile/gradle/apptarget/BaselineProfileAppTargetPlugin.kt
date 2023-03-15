@@ -89,7 +89,7 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
         // They're named `<BUILD_TYPE_BASELINE_PROFILE_PREFIX><originalBuildTypeName>`.
         createExtendedBuildTypes(
             project = project,
-            extension = extension,
+            extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
             filterBlock = {
                 // Create baseline profile build types only for non debuggable builds.
