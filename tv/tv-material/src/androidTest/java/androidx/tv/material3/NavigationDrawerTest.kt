@@ -41,6 +41,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEqualTo
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -156,7 +157,12 @@ class NavigationDrawerTest {
                 NavigationDrawer(
                     drawerState = navigationDrawerValue,
                     drawerContent = {
-                        BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
+                        BasicText(
+                            text = if (it == DrawerValue.Open) "Opened" else "Closed",
+                            modifier = Modifier
+                                .focusable()
+                                .testTag("drawerItem")
+                        )
                     }) {
                     Box(
                         modifier = Modifier
@@ -174,6 +180,7 @@ class NavigationDrawerTest {
         rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
         rule.onRoot().performKeyInput { pressKey(Key.DirectionLeft) }
         rule.onAllNodesWithText("Opened").assertAnyAreDisplayed()
+        rule.onNodeWithTag("drawerItem").assertIsFocused()
     }
 
     @Test
