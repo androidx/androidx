@@ -431,9 +431,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
         val result = externalSession.onFinishAsync(actionSpec.buildArgument(finalArguments)).await()
         status = ActionCapabilitySession.Status.COMPLETED
         val fulfillmentResponse = FulfillmentResponse.newBuilder()
-        convertToExecutionOutput(result)?.let { value: FulfillmentResponse.StructuredOutput? ->
-            fulfillmentResponse.executionOutput = value
-        }
+        convertToExecutionOutput(result)?.let { fulfillmentResponse.executionOutput = it }
         return fulfillmentResponse.build()
     }
 
@@ -454,16 +452,16 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
         confirmationOutput: ConfirmationOutput<ConfirmationT>
     ): FulfillmentResponse.StructuredOutput? {
         val confirmation = confirmationOutput.confirmation ?: return null
-        val confirmationOutputBuilder = FulfillmentResponse.StructuredOutput.newBuilder()
-        for ((key, value) in taskHandler.confirmationDataBindings) {
-            confirmationOutputBuilder.addOutputValues(
-                FulfillmentResponse.StructuredOutput.OutputValue.newBuilder()
-                    .setName(key)
-                    .addAllValues(value.apply(confirmation))
-                    .build()
+        return FulfillmentResponse.StructuredOutput.newBuilder()
+            .addAllOutputValues(
+                taskHandler.confirmationDataBindings.entries.map {
+                    FulfillmentResponse.StructuredOutput.OutputValue.newBuilder()
+                        .setName(it.key)
+                        .addAllValues(it.value.apply(confirmation))
+                        .build()
+                }
             )
-        }
-        return confirmationOutputBuilder.build()
+            .build()
     }
 
     companion object {
