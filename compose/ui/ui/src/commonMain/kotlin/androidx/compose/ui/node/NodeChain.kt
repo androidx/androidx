@@ -213,7 +213,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             syncCoordinators()
         }
         if (attachNeeded && layoutNode.isAttached) {
-            attach(performInvalidations = true)
+            attach()
         }
     }
 
@@ -264,17 +264,15 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         outerCoordinator = coordinator
     }
 
-    fun attach(performInvalidations: Boolean) {
+    fun attach() {
         headToTail {
             if (!it.isAttached) {
                 it.attach()
-                if (performInvalidations) {
-                    if (it.insertedNodeAwaitingAttachForInvalidation) {
-                        autoInvalidateInsertedNode(it)
-                    }
-                    if (it.updatedNodeAwaitingAttachForInvalidation) {
-                        autoInvalidateUpdatedNode(it)
-                    }
+                if (it.insertedNodeAwaitingAttachForInvalidation) {
+                    autoInvalidateInsertedNode(it)
+                }
+                if (it.updatedNodeAwaitingAttachForInvalidation) {
+                    autoInvalidateUpdatedNode(it)
                 }
                 // when we attach with performInvalidations == false no separate
                 // invalidations needed as the whole LayoutNode is attached to the tree.

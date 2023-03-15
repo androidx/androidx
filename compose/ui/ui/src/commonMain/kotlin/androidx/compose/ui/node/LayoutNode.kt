@@ -463,7 +463,7 @@ internal class LayoutNode(
         // Update lookahead root when attached. For nested cases, we'll always use the
         // closest lookahead root
         updateLookaheadRoot()
-        nodes.attach(performInvalidations = false)
+        nodes.attach()
         _foldedChildren.forEach { child ->
             child.attach(owner)
         }
@@ -684,7 +684,12 @@ internal class LayoutNode(
             viewConfiguration = value[LocalViewConfiguration]
             @OptIn(ExperimentalComposeUiApi::class)
             nodes.headToTail(Nodes.CompositionLocalConsumer) { modifierNode ->
-                autoInvalidateUpdatedNode(modifierNode as Modifier.Node)
+                val delegatedNode = modifierNode.node
+                if (delegatedNode.isAttached) {
+                    autoInvalidateUpdatedNode(delegatedNode)
+                } else {
+                    delegatedNode.updatedNodeAwaitingAttachForInvalidation = true
+                }
             }
         }
 

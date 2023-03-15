@@ -17,6 +17,7 @@
 package androidx.compose.ui.node
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -183,6 +184,80 @@ class CompositionLocalModifierNodeTest {
         rule.runOnIdle {
             assertThat(readValue).isEqualTo(3)
             assertThat(node.getValue()).isEqualTo(3)
+        }
+    }
+
+    // Regression test for b/271875799
+    @Test
+    fun compositionLocalsUpdateWhenContentMoves() {
+        var readValue = -1
+        var providedValue by mutableStateOf(42)
+
+        var contentKey by mutableStateOf(1)
+        val modifier = modifierNodeElementOf {
+            object : Modifier.Node(), DrawModifierNode,
+                CompositionLocalConsumerModifierNode {
+                override fun ContentDrawScope.draw() {
+                    readValue = currentValueOf(localInt)
+                    drawContent()
+                }
+            }
+        }
+
+        rule.setContent {
+            CompositionLocalProvider(localInt provides providedValue) {
+                ReusableContent(contentKey) {
+                    Layout(modifier, EmptyBoxMeasurePolicy)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(readValue).isEqualTo(42)
+        }
+
+        contentKey++
+        providedValue = 86
+
+        rule.runOnIdle {
+            assertThat(readValue).isEqualTo(86)
+        }
+    }
+
+    // Regression test for b/271875799
+    @Test
+    fun staticCompositionLocalsUpdateWhenContentMoves() {
+        var readValue = -1
+        var providedValue by mutableStateOf(32)
+
+        var contentKey by mutableStateOf(1)
+        val modifier = modifierNodeElementOf {
+            object : Modifier.Node(), DrawModifierNode,
+                CompositionLocalConsumerModifierNode {
+                override fun ContentDrawScope.draw() {
+                    readValue = currentValueOf(staticLocalInt)
+                    drawContent()
+                }
+            }
+        }
+
+        rule.setContent {
+            CompositionLocalProvider(staticLocalInt provides providedValue) {
+                ReusableContent(contentKey) {
+                    Layout(modifier, EmptyBoxMeasurePolicy)
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(readValue).isEqualTo(32)
+        }
+
+        contentKey++
+        providedValue = 64
+
+        rule.runOnIdle {
+            assertThat(readValue).isEqualTo(64)
         }
     }
 
