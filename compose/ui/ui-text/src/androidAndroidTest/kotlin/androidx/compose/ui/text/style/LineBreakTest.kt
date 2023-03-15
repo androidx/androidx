@@ -215,7 +215,7 @@ class LineBreakTest : TextLineBreaker() {
         assertThat(brokenLines).isEqualTo(expectedBrokenLines)
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/269193836
+    @SdkSuppress(minSdkVersion = 23) // b/269193836
     @Test
     fun correct_lineBreak_paragraph_result() {
         val expectedBrokenLines = listOf(
@@ -233,7 +233,7 @@ class LineBreakTest : TextLineBreaker() {
         assertThat(brokenLines).isEqualTo(expectedBrokenLines)
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/269193836
+    @SdkSuppress(minSdkVersion = 23) // b/269193836
     @Test
     fun correct_lineBreak_heading_result() {
         val expectedBrokenLines = listOf(
