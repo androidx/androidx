@@ -42,7 +42,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Before
@@ -77,10 +76,7 @@ class HoverableTest {
             Truth.assertThat(modifier.nameFallback).isEqualTo("hoverable")
             Truth.assertThat(modifier.valueOverride).isNull()
             Truth.assertThat(modifier.inspectableElements.map { it.name }.asIterable())
-                .containsExactly(
-                    "interactionSource",
-                    "enabled",
-                )
+                .containsExactly("interactionSource")
         }
     }
 
