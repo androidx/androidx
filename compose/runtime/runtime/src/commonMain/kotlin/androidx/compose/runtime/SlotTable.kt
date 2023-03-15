@@ -599,6 +599,13 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
         return slots.toList().subList(start, end)
     }
 
+    internal fun slot(group: Int, slotIndex: Int): Any? {
+        val start = groups.slotAnchor(group)
+        val end = if (group + 1 < groupsSize) groups.dataAnchor(group + 1) else slots.size
+        val len = end - start
+        return if (slotIndex in 0 until len) return slots[start + slotIndex] else Composer.Empty
+    }
+
     override val compositionGroups: Iterable<CompositionGroup> get() = this
 
     override fun iterator(): Iterator<CompositionGroup> =
