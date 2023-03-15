@@ -167,6 +167,7 @@ public open class FragmentNavigator(
                     // Once the lifecycle reaches DESTROYED, we can mark the transition
                     // complete and remove the observer.
                     if (event == Lifecycle.Event.ON_DESTROY) {
+                        entriesToPop.remove(entry.id)
                         state.markTransitionComplete(entry)
                         viewLifecycle.removeObserver(this)
                     }
