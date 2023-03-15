@@ -36,6 +36,11 @@ internal class KspExecutableParameterElement(
 ) : KspElement(env, parameter),
     XExecutableParameterElement,
     XAnnotated by KspAnnotated.create(env, parameter, NO_USE_SITE_OR_METHOD_PARAMETER) {
+    override fun isContinuationParam() = false
+
+    override fun isReceiverParam() = false
+
+    override fun isKotlinPropertyParam() = false
 
     override val name: String
         get() = parameter.name?.asString() ?: "_no_param_name"
