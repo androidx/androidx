@@ -1,1 +1,66 @@
 // Signature format: 4.0
+package androidx.core.telecom {
+
+  public final class CallAttributes {
+    ctor public CallAttributes(String displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities);
+    method public android.net.Uri getAddress();
+    method public int getCallCapabilities();
+    method public int getCallType();
+    method public int getDirection();
+    method public String getDisplayName();
+    property public final android.net.Uri address;
+    property public final int callCapabilities;
+    property public final int callType;
+    property public final int direction;
+    property public final String displayName;
+    field public static final int AUDIO_CALL = 1; // 0x1
+    field public static final androidx.core.telecom.CallAttributes.Companion Companion;
+    field public static final int DIRECTION_INCOMING = 1; // 0x1
+    field public static final int DIRECTION_OUTGOING = 2; // 0x2
+    field public static final int SUPPORTS_SET_INACTIVE = 2; // 0x2
+    field public static final int SUPPORTS_STREAM = 4; // 0x4
+    field public static final int SUPPORTS_TRANSFER = 8; // 0x8
+    field public static final int VIDEO_CALL = 2; // 0x2
+  }
+
+  public static final class CallAttributes.Companion {
+  }
+
+  public interface CallControlCallback {
+    method public suspend Object? onAnswer(int callType, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? onDisconnect(android.telecom.DisconnectCause disconnectCause, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? onSetActive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? onSetInactive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+  }
+
+  public interface CallControlScope {
+    method public suspend Object? answer(int callType, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? disconnect(android.telecom.DisconnectCause disconnectCause, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<android.telecom.CallEndpoint>> getAvailableEndpoints();
+    method public android.os.ParcelUuid getCallId();
+    method public kotlinx.coroutines.flow.Flow<android.telecom.CallEndpoint> getCurrentCallEndpoint();
+    method public kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted();
+    method public suspend Object? requestEndpointChange(android.telecom.CallEndpoint endpoint, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public suspend Object? setActive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method public void setCallback(androidx.core.telecom.CallControlCallback callControlCallback);
+    method public suspend Object? setInactive(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    property public abstract kotlinx.coroutines.flow.Flow<java.util.List<android.telecom.CallEndpoint>> availableEndpoints;
+    property public abstract kotlinx.coroutines.flow.Flow<android.telecom.CallEndpoint> currentCallEndpoint;
+    property public abstract kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted;
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallsManager {
+    ctor public CallsManager(android.content.Context context);
+    method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public suspend Object? addCall(androidx.core.telecom.CallAttributes callAttributes, kotlin.jvm.functions.Function1<? super androidx.core.telecom.CallControlScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public void registerAppWithTelecom(int capabilities);
+    field public static final int CAPABILITY_BASELINE = 0; // 0x0
+    field public static final int CAPABILITY_SUPPORTS_CALL_STREAMING = 4; // 0x4
+    field public static final int CAPABILITY_SUPPORTS_VIDEO_CALLING = 2; // 0x2
+    field public static final androidx.core.telecom.CallsManager.Companion Companion;
+  }
+
+  public static final class CallsManager.Companion {
+  }
+
+}
+
