@@ -32,7 +32,7 @@ class Utilities {
 
         // outgoing attributes constants
         const val OUTGOING_NAME = "Darth Maul"
-        val OUTGOING_URI: Uri = Uri.fromParts(APP_SCHEME, "", "")
+        val OUTGOING_URI: Uri = Uri.parse("tel:6506958985")
         // Define the minimal set of properties to start an outgoing call
         var OUTGOING_CALL_ATTRIBUTES = CallAttributes(
             OUTGOING_NAME,
@@ -41,7 +41,7 @@ class Utilities {
 
         // incoming attributes constants
         const val INCOMING_NAME = "Sundar Pichai"
-        val INCOMING_URI: Uri = Uri.fromParts(APP_SCHEME, "", "")
+        val INCOMING_URI: Uri = Uri.parse("tel:6506958985")
         // Define all possible properties for CallAttributes
         val INCOMING_CALL_ATTRIBUTES =
             CallAttributes(

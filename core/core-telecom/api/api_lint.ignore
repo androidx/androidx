@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-DocumentExceptions: androidx.core.telecom.CallsManager#addCall(androidx.core.telecom.CallAttributes, kotlin.jvm.functions.Function1<? super androidx.core.telecom.CallControlScope,kotlin.Unit>, kotlin.coroutines.Continuation<? super kotlin.Unit>):
-    Method CallsManager.addCall appears to be throwing java.lang.Exception; this should be recorded with a @Throws annotation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.core.telecom.CallsManager#registerAppWithTelecom(int):
-    Method CallsManager.registerAppWithTelecom appears to be throwing java.lang.Exception; this should be recorded with a @Throws annotation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions

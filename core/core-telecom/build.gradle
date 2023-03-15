@@ -23,14 +23,23 @@ plugins {
 }
 
 dependencies {
+    // core-telecom dependencies
     api(libs.kotlinStdlib)
-    // Add dependencies here
     api(project(":core:core"))
     api(project(":annotation:annotation"))
     api(libs.guavaListenableFuture)
     implementation("androidx.core:core-ktx:1.8.0")
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesGuava)
+    // Test dependencies
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.multidex)
 }
 
 android {

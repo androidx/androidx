@@ -50,6 +50,7 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
         // Call Audio Buttons
         val earpieceButton: Button = itemView.findViewById(R.id.earpieceButton)
         val speakerButton: Button = itemView.findViewById(R.id.speakerButton)
+        val bluetoothButton: Button = itemView.findViewById(R.id.bluetoothButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -76,17 +77,19 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
             holder.callIdTextView.text = "ID=[" + ItemsViewModel.callObject.mTelecomCallId + "]"
 
             holder.activeButton.setOnClickListener {
-                CoroutineScope(Dispatchers.IO).launch {
-                    ItemsViewModel.callObject.mCallControl?.setActive()
+                CoroutineScope(Dispatchers.Main).launch {
+                    if (ItemsViewModel.callObject.mCallControl!!.setActive()) {
+                        holder.currentState.text = "CurrentState=[active]"
+                    }
                 }
-                holder.currentState.text = "CurrentState=[Active]"
             }
 
             holder.holdButton.setOnClickListener {
-                CoroutineScope(Dispatchers.IO).launch {
-                    ItemsViewModel.callObject.mCallControl?.setInactive()
+                CoroutineScope(Dispatchers.Main).launch {
+                    if (ItemsViewModel.callObject.mCallControl!!.setInactive()) {
+                        holder.currentState.text = "CurrentState=[onHold]"
+                    }
                 }
-                holder.currentState.text = "CurrentState=[onHold]"
             }
 
             holder.disconnectButton.setOnClickListener {
@@ -103,7 +106,7 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
             }
 
             holder.earpieceButton.setOnClickListener {
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(Dispatchers.Main).launch {
                     val earpieceEndpoint =
                         ItemsViewModel.callObject.getEndpointType(CallEndpoint.TYPE_EARPIECE)
                     if (earpieceEndpoint != null) {
@@ -114,7 +117,7 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
                 }
             }
             holder.speakerButton.setOnClickListener {
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(Dispatchers.Main).launch {
                     val speakerEndpoint = ItemsViewModel.callObject
                         .getEndpointType(CallEndpoint.TYPE_SPEAKER)
                     if (speakerEndpoint != null) {
@@ -123,6 +126,22 @@ class CallListAdapter(private var mList: ArrayList<CallRow>?) :
                         )
                         if (success == true) {
                             holder.currentEndpoint.text = "currentEndpoint=[speaker]"
+                        }
+                    }
+                }
+            }
+
+            holder.bluetoothButton.setOnClickListener {
+                CoroutineScope(Dispatchers.Main).launch {
+                    val bluetoothEndpoint = ItemsViewModel.callObject
+                        .getEndpointType(CallEndpoint.TYPE_BLUETOOTH)
+                    if (bluetoothEndpoint != null) {
+                        val success = ItemsViewModel.callObject.mCallControl?.requestEndpointChange(
+                            bluetoothEndpoint
+                        )
+                        if (success == true) {
+                            holder.currentEndpoint.text =
+                                "currentEndpoint=[BT:${bluetoothEndpoint.name}]"
                         }
                     }
                 }

@@ -16,12 +16,12 @@
 
 package androidx.core.telecom.test
 
-import android.telecom.CallEndpoint
 import android.telecom.DisconnectCause
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlCallback
 import androidx.core.telecom.CallControlScope
+import androidx.core.telecom.CallEndpoint
 
 @RequiresApi(34)
 class VoipCall {
@@ -68,7 +68,7 @@ class VoipCall {
     fun onCallEndpointChanged(endpoint: CallEndpoint) {
         Log.i(TAG, "onCallEndpointChanged: endpoint=$endpoint")
         mCurrentEndpoint = endpoint
-        mAdapter?.updateEndpoint(mTelecomCallId, endpoint.endpointName.toString())
+        mAdapter?.updateEndpoint(mTelecomCallId, endpoint.name.toString())
     }
 
     fun onAvailableCallEndpointsChanged(endpoints: List<CallEndpoint>) {
@@ -86,7 +86,7 @@ class VoipCall {
 
     fun getEndpointType(type: Int): CallEndpoint? {
         for (endpoint in mAvailableEndpoints!!) {
-            if (endpoint.endpointType == type) {
+            if (endpoint.type == type) {
                 return endpoint
             }
         }
