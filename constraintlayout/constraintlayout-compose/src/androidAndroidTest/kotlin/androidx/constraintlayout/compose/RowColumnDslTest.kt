@@ -63,8 +63,8 @@ class RowColumnDslTest {
         rule.setContent {
             ColumnComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = "",
-                gridSpans = "",
+                gridSkips = arrayOf(),
+                gridSpans = arrayOf(),
                 boxesCount = boxesCount,
                 vGap = 0,
                 gridRowWeights = intArrayOf(),
@@ -95,8 +95,8 @@ class RowColumnDslTest {
         rule.setContent {
             ColumnComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = "1:2",
-                gridSpans = "",
+                gridSkips = arrayOf(Skip(1, 2)),
+                gridSpans = arrayOf(),
                 boxesCount = boxesCount,
                 vGap = 0,
                 gridRowWeights = intArrayOf(),
@@ -129,8 +129,8 @@ class RowColumnDslTest {
         rule.setContent {
             ColumnComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = "",
-                gridSpans = "0:2",
+                gridSkips = arrayOf(),
+                gridSpans = arrayOf(Span(0, 2)),
                 boxesCount = boxesCount,
                 vGap = 0,
                 gridRowWeights = intArrayOf(),
@@ -161,8 +161,8 @@ class RowColumnDslTest {
         rule.setContent {
             RowComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = "",
-                gridSpans = "",
+                gridSkips = arrayOf(),
+                gridSpans = arrayOf(),
                 boxesCount = boxesCount,
                 hGap = 0,
                 gridColumnWeights = intArrayOf()
@@ -193,8 +193,8 @@ class RowColumnDslTest {
         rule.setContent {
             RowComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = "1:2",
-                gridSpans = "",
+                gridSkips = arrayOf(Skip(1, 2)),
+                gridSpans = arrayOf(),
                 boxesCount = boxesCount,
                 hGap = 0,
                 gridColumnWeights = intArrayOf()
@@ -227,8 +227,8 @@ class RowColumnDslTest {
         rule.setContent {
             RowComposableTest(
                 modifier = Modifier.size(rootSize),
-                gridSkips = "",
-                gridSpans = "0:2",
+                gridSkips = arrayOf(),
+                gridSpans = arrayOf(Span(0, 2)),
                 boxesCount = boxesCount,
                 hGap = 0,
                 gridColumnWeights = intArrayOf()
@@ -256,8 +256,8 @@ class RowColumnDslTest {
     @Composable
     private fun ColumnComposableTest(
         modifier: Modifier = Modifier,
-        gridSkips: String,
-        gridSpans: String,
+        gridSkips: Array<Skip>,
+        gridSpans: Array<Span>,
         gridRowWeights: IntArray,
         boxesCount: Int,
         vGap: Int,
@@ -300,8 +300,8 @@ class RowColumnDslTest {
     @Composable
     private fun RowComposableTest(
         modifier: Modifier = Modifier,
-        gridSkips: String,
-        gridSpans: String,
+        gridSkips: Array<Skip>,
+        gridSpans: Array<Span>,
         gridColumnWeights: IntArray,
         boxesCount: Int,
         hGap: Int,
