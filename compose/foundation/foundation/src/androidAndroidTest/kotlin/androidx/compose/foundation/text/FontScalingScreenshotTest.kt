@@ -37,6 +37,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.LineHeightStyle.Alignment
+import androidx.compose.ui.text.style.LineHeightStyle.Trim
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -94,6 +97,38 @@ class FontScalingScreenshotTest {
     }
 
     @Test
+    fun fontScaling1x_lineHeightStyleDoubleSp() {
+        AndroidFontScaleHelper.setSystemFontScale(1f, rule.activityRule.scenario)
+        rule.waitForIdle()
+
+        rule.setContent {
+            TestLayout(
+                lineHeight = 28.sp,
+                lineHeightStyle = LineHeightStyle(Alignment.Bottom, Trim.Both)
+            )
+        }
+        rule.onNodeWithTag(containerTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "fontScaling1x_lineHeightStyleDoubleSp")
+    }
+
+    @Test
+    fun fontScaling2x_lineHeightStyleDoubleSp() {
+        AndroidFontScaleHelper.setSystemFontScale(2f, rule.activityRule.scenario)
+        rule.waitForIdle()
+
+        rule.setContent {
+            TestLayout(
+                lineHeight = 28.sp,
+                lineHeightStyle = LineHeightStyle(Alignment.Bottom, Trim.Both)
+            )
+        }
+        rule.onNodeWithTag(containerTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "fontScaling2x_lineHeightStyleDoubleSp")
+    }
+
+    @Test
     fun fontScaling1x_lineHeightDoubleEm() {
         AndroidFontScaleHelper.setSystemFontScale(1f, rule.activityRule.scenario)
         rule.waitForIdle()
@@ -146,7 +181,10 @@ class FontScalingScreenshotTest {
     }
 
     @Composable
-    private fun TestLayout(lineHeight: TextUnit) {
+    private fun TestLayout(
+        lineHeight: TextUnit,
+        lineHeightStyle: LineHeightStyle = LineHeightStyle.Default
+    ) {
         Column(
             modifier = Modifier.testTag(containerTag),
         ) {
@@ -177,7 +215,8 @@ class FontScalingScreenshotTest {
                 style = TextStyle(
                     fontSize = 14.sp,
                     fontStyle = FontStyle.Italic,
-                    lineHeight = lineHeight
+                    lineHeight = lineHeight,
+                    lineHeightStyle = lineHeightStyle
                 )
             )
         }
