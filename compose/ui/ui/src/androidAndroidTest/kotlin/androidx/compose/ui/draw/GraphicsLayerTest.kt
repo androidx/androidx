@@ -1496,4 +1496,80 @@ class GraphicsLayerTest {
             assertThat(counterReadInLayerBlock).isEqualTo(counter)
         }
     }
+
+    @Test
+    fun updatingValueIsNotCausingRemeasureOrRelayout() {
+        var translationX by mutableStateOf(0f)
+        lateinit var coordinates: LayoutCoordinates
+        var remeasureCount = 0
+        var relayoutCount = 0
+        val layoutModifier = Modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            remeasureCount++
+            layout(placeable.width, placeable.height) {
+                relayoutCount++
+                placeable.place(0, 0)
+            }
+        }
+        rule.setContent {
+            Box(Modifier.graphicsLayer(translationX = translationX).then(layoutModifier)) {
+                Layout(Modifier.onGloballyPositioned { coordinates = it }) { _, _ ->
+                    layout(10, 10) {}
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(0f, coordinates.boundsInRoot().left)
+            // reset counters
+            remeasureCount = 0
+            relayoutCount = 0
+            // update translation
+            translationX = 10f
+        }
+
+        rule.runOnIdle {
+            assertEquals(10f, coordinates.boundsInRoot().left)
+            assertEquals(0, remeasureCount)
+            assertEquals(0, relayoutCount)
+        }
+    }
+
+    @Test
+    fun updatingLambdaIsNotCausingRemeasureOrRelayout() {
+        var lambda by mutableStateOf<GraphicsLayerScope.() -> Unit>({})
+        lateinit var coordinates: LayoutCoordinates
+        var remeasureCount = 0
+        var relayoutCount = 0
+        val layoutModifier = Modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            remeasureCount++
+            layout(placeable.width, placeable.height) {
+                relayoutCount++
+                placeable.place(0, 0)
+            }
+        }
+        rule.setContent {
+            Box(Modifier.graphicsLayer(lambda).then(layoutModifier)) {
+                Layout(Modifier.onGloballyPositioned { coordinates = it }) { _, _ ->
+                    layout(10, 10) {}
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(0f, coordinates.boundsInRoot().left)
+            // reset counters
+            remeasureCount = 0
+            relayoutCount = 0
+            // update lambda
+            lambda = { translationX = 10f }
+        }
+
+        rule.runOnIdle {
+            assertEquals(10f, coordinates.boundsInRoot().left)
+            assertEquals(0, remeasureCount)
+            assertEquals(0, relayoutCount)
+        }
+    }
 }
