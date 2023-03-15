@@ -106,12 +106,15 @@ private fun BoxScope.BoxDemo(
         is ActivityDemo<*> -> {
             /* should never get here as activity demos are not added to the backstack*/
         }
+
         is ComposableDemo -> {
             demo.content(DemoParameters(onNavigateBack, state))
         }
+
         is DemoCategory -> {
             DisplayDemoList(demo, onNavigateTo)
         }
+
         else -> {
         }
     }
@@ -190,7 +193,7 @@ internal data class TimestampedDelta(val time: Long, val delta: Float)
 fun Modifier.rsbScroll(
     scrollableState: ScrollableState,
     flingBehavior: FlingBehavior,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester? = null
 ): Modifier {
     val channel = remember {
         Channel<TimestampedDelta>(
@@ -247,9 +250,12 @@ fun Modifier.rsbScroll(
             channel.trySend(TimestampedDelta(it.uptimeMillis, it.verticalScrollPixels))
             rsbScrollInProgress = true
             true
+        }.let {
+            if (focusRequester != null) {
+                it.focusRequester(focusRequester)
+                    .focusable()
+            } else it
         }
-            .focusRequester(focusRequester)
-            .focusable()
     }
 }
 

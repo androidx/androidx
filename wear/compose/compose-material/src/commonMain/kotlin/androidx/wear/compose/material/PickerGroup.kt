@@ -21,6 +21,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -112,12 +113,16 @@ public fun PickerGroup(
             ),
         propagateMinConstraints = propagateMinConstraints
     ) {
+        // When no Picker is selected, provide an empty composable as a placeholder
+        // and tell the HierarchicalFocusCoordinator to clear the focus.
+        HierarchicalFocusCoordinator(requiresFocus = {
+            !pickers.indices.contains(pickerGroupState.selectedIndex)
+        }) {}
         pickers.forEachIndexed { index, pickerData ->
             val pickerSelected = index == pickerGroupState.selectedIndex
             val flingBehavior = PickerDefaults.flingBehavior(state = pickerData.pickerState)
             HierarchicalFocusCoordinator(requiresFocus = { pickerSelected }) {
-                val focusRequester =
-                    pickerData.focusRequester ?: rememberActiveFocusRequester()
+                val focusRequester = pickerData.focusRequester ?: rememberActiveFocusRequester()
                 Picker(
                     state = pickerData.pickerState,
                     contentDescription = pickerData.contentDescription,
@@ -129,7 +134,8 @@ public fun PickerGroup(
                             if (pickerSelected && autoCenter) Modifier.autoCenteringTarget()
                             else Modifier
                         )
-                        .focusRequester(focusRequester),
+                        .focusRequester(focusRequester)
+                        .focusable(),
                     readOnlyLabel = pickerData.readOnlyLabel,
                     flingBehavior = flingBehavior,
                     onSelected = pickerData.onSelected,
