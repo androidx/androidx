@@ -75,7 +75,6 @@ import androidx.navigation.plusAssign
  */
 public open class NavHostFragment : Fragment(), NavHost {
     private var navHostController: NavHostController? = null
-    private var isPrimaryBeforeOnCreate: Boolean? = null
     private var viewParent: View? = null
 
     // State that will be saved and restored
@@ -114,12 +113,6 @@ public open class NavHostFragment : Fragment(), NavHost {
         val context = requireContext()
         navHostController = NavHostController(context)
         navHostController!!.setLifecycleOwner(this)
-        // Set the default state - this will be updated whenever
-        // onPrimaryNavigationFragmentChanged() is called
-        navHostController!!.enableOnBackPressed(
-            isPrimaryBeforeOnCreate != null && isPrimaryBeforeOnCreate as Boolean
-        )
-        isPrimaryBeforeOnCreate = null
         navHostController!!.setViewModelStore(viewModelStore)
         onCreateNavHostController(navHostController!!)
         var navState: Bundle? = null
@@ -201,15 +194,6 @@ public open class NavHostFragment : Fragment(), NavHost {
         navController.navigatorProvider +=
             DialogFragmentNavigator(requireContext(), childFragmentManager)
         navController.navigatorProvider.addNavigator(createFragmentNavigator())
-    }
-
-    @CallSuper
-    public override fun onPrimaryNavigationFragmentChanged(isPrimaryNavigationFragment: Boolean) {
-        if (navHostController != null) {
-            navHostController?.enableOnBackPressed(isPrimaryNavigationFragment)
-        } else {
-            isPrimaryBeforeOnCreate = isPrimaryNavigationFragment
-        }
     }
 
     /**
