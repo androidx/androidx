@@ -55,12 +55,9 @@
     <string name="date_range_input_title" msgid="2366412111888449406">"ਤਾਰੀਖਾਂ ਦਾਖਲ ਕਰੋ"</string>
     <string name="date_range_input_invalid_range_input" msgid="1891592555781755601">"ਇਨਪੁੱਟ ਕੀਤੀ ਗਈ ਤਾਰੀਖ ਦੀ ਰੇਂਜ ਅਵੈਧ ਹੈ"</string>
     <string name="bottom_sheet_drag_handle_description" msgid="7772321844937772780">"ਘਸੀਟਣ ਵਾਲਾ ਹੈਂਡਲ"</string>
-    <!-- no translation found for bottom_sheet_collapse_description (6128938260108474660) -->
-    <skip />
-    <!-- no translation found for bottom_sheet_dismiss_description (1918297411568599192) -->
-    <skip />
-    <!-- no translation found for bottom_sheet_expand_description (4324434199045499117) -->
-    <skip />
+    <string name="bottom_sheet_collapse_description" msgid="6128938260108474660">"ਹੇਠਲੀ ਸ਼ੀਟ ਨੂੰ ਸਮੇਟੋ"</string>
+    <string name="bottom_sheet_dismiss_description" msgid="1918297411568599192">"ਹੇਠਲੀ ਸ਼ੀਟ ਨੂੰ ਖਾਰਜ ਕਰੋ"</string>
+    <string name="bottom_sheet_expand_description" msgid="4324434199045499117">"ਹੇਠਲੀ ਸ਼ੀਟ ਦਾ ਵਿਸਤਾਰ ਕਰੋ"</string>
     <string name="tooltip_pane_description" msgid="8191239805703103845">"ਟੂਲ-ਟਿੱਪ"</string>
     <string name="tooltip_long_press_label" msgid="2732804537909054941">"ਟੂਲ-ਟਿੱਪ ਦਿਖਾਓ"</string>
     <string name="time_picker_pm" msgid="2232702812657998674">"PM"</string>

@@ -55,12 +55,9 @@
     <string name="date_range_input_title" msgid="2366412111888449406">"தேதிகளை உள்ளிடுங்கள்"</string>
     <string name="date_range_input_invalid_range_input" msgid="1891592555781755601">"தவறான தேதி வரம்பை உள்ளிட்டுள்ளீர்கள்"</string>
     <string name="bottom_sheet_drag_handle_description" msgid="7772321844937772780">"இழுப்பதற்கான ஹேண்டில்"</string>
-    <!-- no translation found for bottom_sheet_collapse_description (6128938260108474660) -->
-    <skip />
-    <!-- no translation found for bottom_sheet_dismiss_description (1918297411568599192) -->
-    <skip />
-    <!-- no translation found for bottom_sheet_expand_description (4324434199045499117) -->
-    <skip />
+    <string name="bottom_sheet_collapse_description" msgid="6128938260108474660">"கீழ்ப்புறச் சீட்டைச் சுருக்கும்"</string>
+    <string name="bottom_sheet_dismiss_description" msgid="1918297411568599192">"கீழ்ப்புறச் சீட்டை நிராகரிக்கும்"</string>
+    <string name="bottom_sheet_expand_description" msgid="4324434199045499117">"கீழ்ப்புறச் சீட்டை விரிவாக்கும்"</string>
     <string name="tooltip_pane_description" msgid="8191239805703103845">"உதவிக்குறிப்பு"</string>
     <string name="tooltip_long_press_label" msgid="2732804537909054941">"உதவிக்குறிப்பைக் காட்டு"</string>
     <string name="time_picker_pm" msgid="2232702812657998674">"PM"</string>
