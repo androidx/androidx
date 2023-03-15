@@ -1189,13 +1189,24 @@ private fun TimePickerTextField(
             )
         }
 
+        val contentDescription = getString(
+            if (selection == Selection.Minute) {
+                Strings.TimePickerMinuteTextField
+            } else {
+                Strings.TimePickerHourTextField
+            }
+        )
+
         Box(Modifier.visible(selected)) {
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
                 modifier = Modifier
                     .focusRequester(focusRequester)
-                    .size(TimeFieldContainerWidth, TimeFieldContainerHeight),
+                    .size(TimeFieldContainerWidth, TimeFieldContainerHeight)
+                    .semantics {
+                        this.contentDescription = contentDescription
+                    },
                 interactionSource = interactionSource,
                 keyboardOptions = keyboardOptions,
                 keyboardActions = keyboardActions,
@@ -1234,7 +1245,9 @@ private fun TimePickerTextField(
         }
 
         Text(
-            modifier = Modifier.offset(y = SupportLabelTop),
+            modifier = Modifier
+                .offset(y = SupportLabelTop)
+                .clearAndSetSemantics {},
             text = getString(
                 if (selection == Selection.Hour) {
                     Strings.TimePickerHour

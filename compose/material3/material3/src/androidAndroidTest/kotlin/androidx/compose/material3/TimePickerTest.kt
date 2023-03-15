@@ -33,6 +33,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertAll
+import androidx.compose.ui.test.assertContentDescriptionContains
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsNotSelected
@@ -343,12 +344,17 @@ class TimePickerTest {
 
         rule.onNodeWithText("14")
             .assert(isFocusable())
+            .assertContentDescriptionContains("for hour")
             .assert(hasImeAction(ImeAction.Next))
             .assert(isFocused())
 
         rule.onAllNodesWithText("23")
             .filterToOne(isSelectable())
             .assert(isNotSelected())
+            .performClick()
+
+        rule.onNodeWithText("23")
+            .assertContentDescriptionContains("for minutes")
     }
 
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
