@@ -32,13 +32,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
-import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
  * Tiles component {@link TitleChip} that represents clickable object with the text.
@@ -71,7 +71,12 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
  *
  * @see  androidx.wear.tiles.material.layouts.PrimaryLayout.Builder#setContent if this TitleChip is
  * used inside of {@link androidx.wear.tiles.material.layouts.PrimaryLayout}.
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.TitleChip} which provides
+ *     the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class TitleChip implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a TitleChip. */
     static final String METADATA_TAG = "TTLCHP";

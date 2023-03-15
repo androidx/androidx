@@ -28,7 +28,12 @@ import androidx.wear.tiles.ColorBuilders.ColorProp;
  * <p>See {@link ChipDefaults#PRIMARY_COLORS} for the default colors used in a primary styled {@link
  * Chip}. See {@link ChipDefaults#SECONDARY_COLORS} for the default colors used in a secondary
  * styled {@link Chip}.
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.ChipColors} which
+ *     provides the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class ChipColors {
     @NonNull private final ColorProp mBackgroundColor;
     @NonNull private final ColorProp mIconColor;
