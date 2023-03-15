@@ -501,15 +501,15 @@ public class UiObjectTest extends BaseTest {
 
     @Test
     public void testIsLongClickable() throws Exception {
-        launchTestActivity(LongClickTestActivity.class);
+        launchTestActivity(IsLongClickableTestActivity.class);
 
-        UiObject button = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/button"));
-        UiObject expectedButton = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
-                + "/button").text("I've been long clicked!"));
+        UiObject longClickableButton = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/long_clickable_button"));
+        UiObject nonLongClickableButton = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/non_long_clickable_button"));
 
-        assertEquals("Long Click Me!", button.getText());
-        button.longClick();
-        assertTrue(expectedButton.waitForExists(TIMEOUT_MS));
+        assertTrue(longClickableButton.isLongClickable());
+        assertFalse(nonLongClickableButton.isLongClickable());
     }
 
     @Test
