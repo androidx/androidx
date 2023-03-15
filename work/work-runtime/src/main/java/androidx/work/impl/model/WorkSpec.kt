@@ -336,7 +336,7 @@ data class WorkSpec(
     )
 
     /**
-     * A POJO containing the ID, state, output, tags, and run attempt count of a WorkSpec.
+     * A POJO containing externally queryable info for the WorkSpec.
      */
     data class WorkInfoPojo(
         @ColumnInfo(name = "id")
@@ -356,6 +356,15 @@ data class WorkSpec(
 
         @Embedded
         val constraints: Constraints,
+
+        @ColumnInfo(name = "initial_delay")
+        val initialDelay: Long = 0,
+
+        @ColumnInfo(name = "interval_duration")
+        val intervalDuration: Long = 0,
+
+        @ColumnInfo(name = "flex_duration")
+        val flexDuration: Long = 0,
 
         @Relation(
             parentColumn = "id",
@@ -390,7 +399,13 @@ data class WorkSpec(
                 progress,
                 runAttemptCount,
                 generation,
-                constraints
+                constraints,
+                initialDelay,
+                if (intervalDuration == 0L) null else
+                    WorkInfo.PeriodicityInfo(
+                        intervalDuration,
+                        flexDuration
+                    )
             )
         }
     }
