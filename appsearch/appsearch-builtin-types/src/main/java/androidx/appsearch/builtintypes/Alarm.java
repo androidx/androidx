@@ -65,12 +65,13 @@ public class Alarm extends Thing {
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable List<String> alternateNames, @Nullable String description,
             @Nullable String image, @Nullable String url,
+            @NonNull List<PotentialAction> potentialActions,
             boolean enabled, @Nullable int[] daysOfWeek, int hour, int minute,
             @Nullable String blackoutPeriodStartDate, @Nullable String blackoutPeriodEndDate,
             @Nullable String ringtone, boolean shouldVibrate,
             @Nullable AlarmInstance previousInstance, @Nullable AlarmInstance nextInstance) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
-                alternateNames, description, image, url);
+                alternateNames, description, image, url, potentialActions);
         mEnabled = enabled;
         mDaysOfWeek = daysOfWeek;
         mHour = hour;
@@ -396,6 +397,7 @@ public class Alarm extends Thing {
         public Alarm build() {
             return new Alarm(mNamespace, mId, mDocumentScore, mCreationTimestampMillis,
                     mDocumentTtlMillis, mName, mAlternateNames, mDescription, mImage, mUrl,
+                    mPotentialActions,
                     mEnabled, mDaysOfWeek, mHour, mMinute, mBlackoutPeriodStartDate,
                     mBlackoutPeriodEndDate, mRingtone, mShouldVibrate, mPreviousInstance,
                     mNextInstance);

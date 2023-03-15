@@ -40,6 +40,7 @@ dependencies {
     implementation('androidx.core:core:1.7.0')
 
     androidTestAnnotationProcessor project(':appsearch:appsearch-compiler')
+    androidTestImplementation project(':appsearch:appsearch-builtin-types')
     androidTestImplementation project(':appsearch:appsearch-local-storage')
     androidTestImplementation project(':appsearch:appsearch-platform-storage')
     androidTestImplementation project(':appsearch:appsearch-test-util')

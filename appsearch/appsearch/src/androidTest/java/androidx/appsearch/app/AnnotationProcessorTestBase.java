@@ -21,6 +21,7 @@ import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.JOINAB
 import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN;
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
+import static androidx.appsearch.testutil.AppSearchTestUtils.doGet;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -30,6 +31,7 @@ import static org.junit.Assume.assumeTrue;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.builtintypes.PotentialAction;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.util.DocumentIdUtil;
@@ -563,5 +565,44 @@ public abstract class AnnotationProcessorTestBase {
                         .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).containsExactly(genericDocument);
+    }
+
+    @Test
+    public void testActionDocumentPutAndRetrieveHelper() throws Exception {
+        String namespace = "namespace";
+        String id = "docId";
+        String name = "View";
+        String uri = "package://view";
+        String description = "View action";
+        long creationMillis = 300;
+
+        GenericDocument genericDocAction = new GenericDocument.Builder<>(namespace, id,
+                "builtin:PotentialAction")
+                .setPropertyString("name", name)
+                .setPropertyString("uri", uri)
+                .setPropertyString("description", description)
+                .setCreationTimestampMillis(creationMillis)
+                .build();
+
+        mSession.setSchemaAsync(
+                new SetSchemaRequest.Builder().addDocumentClasses(PotentialAction.class)
+                        .setForceOverride(true).build()).get();
+        checkIsBatchResultSuccess(
+                mSession.putAsync(new PutDocumentsRequest.Builder().addGenericDocuments(
+                        genericDocAction).build()));
+
+        GetByDocumentIdRequest request = new GetByDocumentIdRequest.Builder(namespace)
+                .addIds(id)
+                .build();
+        List<GenericDocument> outDocuments = doGet(mSession, request);
+        assertThat(outDocuments).hasSize(1);
+        PotentialAction potentialAction =
+                outDocuments.get(0).toDocumentClass(PotentialAction.class);
+
+        assertThat(potentialAction.getNamespace()).isEqualTo(namespace);
+        assertThat(potentialAction.getId()).isEqualTo(id);
+        assertThat(potentialAction.getName()).isEqualTo(name);
+        assertThat(potentialAction.getUri()).isEqualTo(uri);
+        assertThat(potentialAction.getDescription()).isEqualTo(description);
     }
 }
