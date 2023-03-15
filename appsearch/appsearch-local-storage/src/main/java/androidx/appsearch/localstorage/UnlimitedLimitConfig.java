@@ -40,4 +40,14 @@ public class UnlimitedLimitConfig implements LimitConfig {
     public int getMaxSuggestionCount() {
         return Integer.MAX_VALUE;
     }
+
+    @Override
+    public boolean getDocumentStoreNamespaceIdFingerprint() {
+        return true;
+    }
+
+    @Override
+    public float getOptimizeRebuildIndexThreshold() {
+        return (float) 0.9;
+    }
 }
