@@ -125,9 +125,7 @@ class SurfaceOutputImplTest {
     @Test
     fun updateMatrixWithoutCameraTransform_noCameraTransform() {
         // Arrange.
-        val cameraInfo = FakeCameraInfoInternal(180, LENS_FACING_FRONT)
-        val camera = FakeCamera(null, cameraInfo).apply { hasTransform = false }
-        val surfaceOut = createFakeSurfaceOutputImpl(camera)
+        val surfaceOut = createFakeSurfaceOutputImpl(null)
         val input = FloatArray(16).also {
             Matrix.setIdentityM(it, 0)
         }
@@ -179,7 +177,7 @@ class SurfaceOutputImplTest {
         assertThat(hasRequestedClose).isFalse()
     }
 
-    private fun createFakeSurfaceOutputImpl(camera: FakeCamera = FakeCamera()) = SurfaceOutputImpl(
+    private fun createFakeSurfaceOutputImpl(camera: FakeCamera? = FakeCamera()) = SurfaceOutputImpl(
         fakeSurface,
         TARGET,
         INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
