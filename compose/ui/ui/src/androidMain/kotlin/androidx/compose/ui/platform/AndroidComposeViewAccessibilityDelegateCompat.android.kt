@@ -651,11 +651,27 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         rowGroupings.fastForEach { row ->
             // Sort each individual row's parent nodes
             row.second.sortWith(semanticComparator(layoutIsRtl))
-            row.second.fastForEach { node ->
-                // If a parent node is a container, then add its children
-                // Otherwise, simply add the parent node
-                returnList.addAll(containerChildrenMapping[node.id] ?: mutableListOf(node))
+            returnList.addAll(row.second)
+        }
+
+        // Kotlin `sortWith` should just pull out the highest traversal indices, but keep everything
+        // else in place
+        returnList.sortWith(compareBy { it.getTraversalIndex })
+
+        var i = 0
+        // Afterwards, go in and add the containers' children.
+        while (i <= returnList.lastIndex) {
+            val currNodeId = returnList[i].id
+            // If a parent node is a container, then add its children.
+            // Add all container's children after the container itself.
+            // Because we've already recursed on the containers children, the children should
+            // also be sorted by their traversal index
+            containerChildrenMapping[currNodeId]?.let {
+                returnList.removeAt(i) // Container is removed
+                returnList.addAll(i, it) // and its children are added
             }
+            // Move pointer to end of children if they exist, otherwise, += 1
+            i += containerChildrenMapping[currNodeId]?.size ?: 1
         }
 
         return returnList
@@ -678,8 +694,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val geometryList = mutableListOf<SemanticsNode>()
 
         fun depthFirstSearch(currNode: SemanticsNode) {
-            // Add this node to the list we will eventually sort
-            geometryList.add(currNode)
+            // We only want to add children that are either traversalGroups or are
+            // screen reader focusable.
+            if (currNode.isTraversalGroup == true ||
+                isScreenReaderFocusable(currNode)) {
+                geometryList.add(currNode)
+            }
             if (currNode.isTraversalGroup == true) {
                 // Recurse and record the container's children, sorted
                 containerMapToChildren[currNode.id] = subtreeSortedByGeometryGrouping(
@@ -711,7 +731,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val layoutIsRtl = hostSemanticsNode.isRtl
 
         val semanticsOrderList = subtreeSortedByGeometryGrouping(
-            layoutIsRtl, hostSemanticsNode.children.toMutableList()
+            layoutIsRtl, mutableListOf(hostSemanticsNode)
         )
 
         // Iterate through our ordered list, and creating a mapping of current node to next node ID
@@ -3258,6 +3278,14 @@ private val SemanticsNode.isTextField get() = this.unmergedConfig.contains(Seman
 private val SemanticsNode.isRtl get() = layoutInfo.layoutDirection == LayoutDirection.Rtl
 private val SemanticsNode.isTraversalGroup get() =
     config.getOrNull(SemanticsProperties.IsTraversalGroup)
+private val SemanticsNode.getTraversalIndex: Float
+    get() {
+        if (this.config.contains(SemanticsProperties.TraversalIndex)) {
+            return config[SemanticsProperties.TraversalIndex]
+        }
+        // If the traversal index has not been set, default to zero
+        return 0f
+    }
 
 private val SemanticsNode.infoContentDescriptionOrNull get() = this.unmergedConfig.getOrNull(
     SemanticsProperties.ContentDescription)?.firstOrNull()

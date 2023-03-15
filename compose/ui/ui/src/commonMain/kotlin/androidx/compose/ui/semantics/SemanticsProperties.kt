@@ -120,6 +120,17 @@ object SemanticsProperties {
     )
 
     /**
+     * @see SemanticsPropertyReceiver.traversalIndex
+     */
+    val TraversalIndex = SemanticsPropertyKey<Float>(
+        name = "TraversalIndex",
+        mergePolicy = { parentValue, _ ->
+            // Never merge traversal indices
+            parentValue
+        }
+    )
+
+    /**
      * @see SemanticsPropertyReceiver.horizontalScrollAxisRange
      */
     val HorizontalScrollAxisRange =
@@ -819,6 +830,24 @@ var SemanticsPropertyReceiver.isTraversalGroup by SemanticsProperties.IsTraversa
 fun SemanticsPropertyReceiver.invisibleToUser() {
     this[SemanticsProperties.InvisibleToUser] = Unit
 }
+
+/**
+ * A value to manually control screenreader traversal order.
+ *
+ * This API can be used to customize TalkBack traversal order. When the `traversalIndex` property is
+ * set on a traversalGroup or on a screenreader-focusable node, then the sorting algorithm will
+ * prioritize nodes with smaller `traversalIndex`s earlier. The default traversalIndex value is
+ * zero, and traversalIndices are compared at a peer level.
+ *
+ * For example,` traversalIndex = -1f` can be used to force a top bar to be ordered earlier, and
+ * `traversalIndex = 1f` to make a bottom bar ordered last, in the edge cases where this does not
+ * happen by default.  As another example, if you need to reorder two Buttons within a Row, then
+ * you can set `isTraversalGroup = true` on the Row, and set `traversalIndex` on one of the Buttons.
+ *
+ * Note that if `traversalIndex` seems to have no effect, be sure to set `isTraversalGroup = true`
+ * as well.
+ */
+var SemanticsPropertyReceiver.traversalIndex by SemanticsProperties.TraversalIndex
 
 /**
  * The horizontal scroll state of this node if this node is scrollable.

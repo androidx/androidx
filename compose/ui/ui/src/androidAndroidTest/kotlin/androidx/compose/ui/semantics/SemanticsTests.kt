@@ -137,6 +137,42 @@ class SemanticsTests {
     }
 
     @Test
+    fun traversalIndexProperty() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .semantics { traversalIndex = 0f }
+                    .testTag(TestTag)
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TestTag)
+            .assert(SemanticsMatcher.expectValue(
+                SemanticsProperties.TraversalIndex, 0f))
+    }
+
+    @Test
+    fun traversalIndexPropertyNull() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .testTag(TestTag)
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        // If traversalIndex is not explicitly set, the default value is zero, but
+        // only considered so when sorting in the DelegateCompat file
+        rule.onNodeWithTag(TestTag)
+            .assertDoesNotHaveProperty(SemanticsProperties.TraversalIndex)
+    }
+
+    @Test
     fun depthFirstPropertyConcat() {
         val root = "root"
         val child1 = "child1"

@@ -17,6 +17,7 @@
 package androidx.compose.ui.demos
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -43,6 +44,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -234,6 +236,117 @@ fun ScrollingColumnDemo() {
         TopAppBar()
         repeat(100) {
             Text(sampleText + counter++)
+        }
+    }
+}
+
+@Preview
+@Composable
+fun OverlaidNodeTraversalIndexDemo() {
+    LastElementOverLaidColumn(
+        Modifier
+            .semantics { isTraversalGroup = true }
+            .padding(8.dp)) {
+        Row {
+            Column(modifier = Modifier.testTag("Text1")) {
+                Row { Text("text1\n") }
+                Row { Text("text2\n") }
+                Row { Text("text3\n") }
+            }
+        }
+        // Since default traversalIndex is 0, `traversalIndex = -1f` here means that the overlaid
+        // node is read first, even though visually it's below the other text.
+        // Container needs to be true, otherwise we only read/register significant
+        Row(Modifier.semantics { isTraversalGroup = true; traversalIndex = -1f }) {
+            Text("overlaid node")
+        }
+    }
+}
+
+@Composable
+fun FloatingBox() {
+    Box(modifier = Modifier.semantics { isTraversalGroup = true; traversalIndex = -1f }) {
+        FloatingActionButton(onClick = {}) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
+        }
+    }
+}
+
+@Composable
+fun ContentColumn(padding: PaddingValues) {
+    var counter = 0
+    var sampleText = "Sample text in column"
+    Column(
+        Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(padding)
+            .testTag("Test Tag")
+    ) {
+        // every other value has an explicitly set `traversalIndex`
+        Text(text = sampleText + counter++)
+        Text(text = sampleText + counter++,
+            modifier = Modifier.semantics { traversalIndex = 1f })
+        Text(text = sampleText + counter++)
+        Text(text = sampleText + counter++,
+            modifier = Modifier.semantics { traversalIndex = 1f })
+        Text(text = sampleText + counter++)
+        Text(text = sampleText + counter++,
+            modifier = Modifier.semantics { traversalIndex = 1f })
+        Text(text = sampleText + counter++)
+    }
+}
+
+/**
+ * Example of how `traversalIndex` and traversal groups can be used to customize TalkBack
+ * ordering. The example below puts the FAB into a box (with `isTraversalGroup = true` and a
+ * custom traversal index) to have it appear first when TalkBack is turned on. The
+ * text in the column also has been modified. See go/traversal-index-changes for more detail
+ */
+@Preview
+@Composable
+fun NestedTraversalIndexInheritanceDemo() {
+    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = { TopAppBar() },
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = { FloatingBox() },
+        drawerContent = { Text(text = "Drawer Menu 1") },
+        content = { padding -> ContentColumn(padding = padding) },
+        bottomBar = { BottomAppBar(backgroundColor = MaterialTheme.colors.primary) {
+            Text("Bottom App Bar") } }
+    )
+}
+
+@Preview
+@Composable
+fun NestedAndPeerTraversalIndexDemo() {
+    Column(
+        Modifier
+            // Having a traversal index here as 8f shouldn't affect anything; this column
+            // has no other peers that its compared to
+            .semantics { traversalIndex = 8f; isTraversalGroup = true }
+            .padding(8.dp)
+    ) {
+        Row(
+            Modifier.semantics { traversalIndex = 3f; isTraversalGroup = true }
+        ) {
+            Column(modifier = Modifier.testTag("Text1")) {
+                Row { Text("text 3\n") }
+                Row {
+                    Text(text = "text 5\n", modifier = Modifier.semantics { traversalIndex = 1f })
+                }
+                Row { Text("text 4\n") }
+            }
+        }
+        Row {
+            Text(text = "text 2\n", modifier = Modifier.semantics { traversalIndex = 2f })
+        }
+        Row {
+            Text(text = "text 1\n", modifier = Modifier.semantics { traversalIndex = 1f })
+        }
+        Row {
+            Text(text = "text 0\n")
         }
     }
 }

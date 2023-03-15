@@ -128,6 +128,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.textSelectionRange
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assert
@@ -744,6 +745,55 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    fun testSortedAccessibilityNodeInfo_peerTraversalGroups_traversalIndex() {
+        var topSampleText = "Top text in column "
+        var bottomSampleText = "Bottom text in column "
+        container.setContent {
+            Column(
+                Modifier
+                    .testTag("Test Tag")
+                    .semantics { isTraversalGroup = false }
+            ) {
+                Row() { Modifier.semantics { isTraversalGroup = false }
+                    CardRow(
+                        // Setting a bigger traversalIndex here means that this CardRow will be
+                        // read second, even though it is visually to the left of the other CardRow
+                        Modifier
+                            .semantics { isTraversalGroup = true }
+                            .semantics { traversalIndex = 1f },
+                        1,
+                        topSampleText,
+                        bottomSampleText)
+                    CardRow(
+                        Modifier.semantics { isTraversalGroup = true },
+                        2,
+                        topSampleText,
+                        bottomSampleText)
+                }
+            }
+        }
+
+        val topText1 = rule.onNodeWithText(topSampleText + 1).fetchSemanticsNode()
+        val topText2 = rule.onNodeWithText(topSampleText + 2).fetchSemanticsNode()
+        val bottomText1 = rule.onNodeWithText(bottomSampleText + 1).fetchSemanticsNode()
+        val bottomText2 = rule.onNodeWithText(bottomSampleText + 2).fetchSemanticsNode()
+
+        val topText1ANI = provider.createAccessibilityNodeInfo(topText1.id)
+        val topText2ANI = provider.createAccessibilityNodeInfo(topText2.id)
+        val bottomText2ANI = provider.createAccessibilityNodeInfo(bottomText2.id)
+
+        val topText1Before = topText1ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val topText2Before = topText2ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val bottomText2Before = bottomText2ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+
+        // Expected behavior: "Top text in column 2" -> "Bottom text in column 2" ->
+        // "Top text in column 1" -> "Bottom text in column 1"
+        assertThat(topText2Before).isAtMost(bottomText2.id)
+        assertThat(bottomText2Before).isAtMost(topText1.id)
+        assertThat(topText1Before).isAtMost(bottomText1.id)
+    }
+
+    @Test
     fun testSortedAccessibilityNodeInfo_nestedTraversalGroups_outerFalse() {
         var topSampleText = "Top text in column "
         var bottomSampleText = "Bottom text in column "
@@ -779,53 +829,13 @@ class AndroidAccessibilityTest {
         val topText1Before = topText1ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
         val topText2Before = topText2ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
 
-        // Here we have the following hierarchy of traversal groups:
+        // Here we have the following hierarchy of containers:
         // `isTraversalGroup = false`
         //    `isTraversalGroup = false`
         //       `isTraversalGroup = true`
         //       `isTraversalGroup = true`
-        // meaning the behavior should be as if the first two `isTraversalGroup = false` are not present
-        // and all of column 1 should be read before column 2.
-        assertEquals(topText1Before, bottomText1.id)
-        assertEquals(topText2Before, bottomText2.id)
-    }
-
-    @Test
-    fun testSortedAccessibilityNodeInfo_nestedContainers_outerFalse() {
-        var topSampleText = "Top text in column "
-        var bottomSampleText = "Bottom text in column "
-        container.setContent {
-            Column(
-                Modifier
-                    .testTag("Test Tag")
-                    .semantics { isTraversalGroup = false }
-            ) {
-                Row() { Modifier.semantics { isTraversalGroup = false }
-                    CardRow(
-                        Modifier.semantics { isTraversalGroup = true },
-                        1,
-                        topSampleText,
-                        bottomSampleText)
-                    CardRow(
-                        Modifier.semantics { isTraversalGroup = true },
-                        2,
-                        topSampleText,
-                        bottomSampleText)
-                }
-            }
-        }
-
-        val topText1 = rule.onNodeWithText(topSampleText + 1).fetchSemanticsNode()
-        val topText2 = rule.onNodeWithText(topSampleText + 2).fetchSemanticsNode()
-        val bottomText1 = rule.onNodeWithText(bottomSampleText + 1).fetchSemanticsNode()
-        val bottomText2 = rule.onNodeWithText(bottomSampleText + 2).fetchSemanticsNode()
-
-        val topText1ANI = provider.createAccessibilityNodeInfo(topText1.id)
-        val topText2ANI = provider.createAccessibilityNodeInfo(topText2.id)
-
-        val topText1Before = topText1ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
-        val topText2Before = topText2ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
-
+        // meaning the behavior should be as if the first two `isTraversalGroup = false` are not
+        // present and all of column 1 should be read before column 2.
         assertEquals(topText1Before, bottomText1.id)
         assertEquals(topText2Before, bottomText2.id)
     }
@@ -960,6 +970,201 @@ class AndroidAccessibilityTest {
 
         // In this case, we expect all the top text to be read first, then all the bottom text
         assertThat(bottomText1Before).isAtMost(bottomText2.id)
+    }
+
+    @Test
+    fun testSortedAccessibilityNodeInfo_traversalIndex() {
+        val overlaidText = "Overlaid node text"
+        val text1 = "Text 1\n"
+        val text2 = "Text 2\n"
+        val text3 = "Text 3\n"
+        container.setContent {
+            LastElementOverLaidColumn(
+                // None of the elements below should inherit `traversalIndex = 5f`
+                modifier = Modifier.padding(8.dp).semantics { traversalIndex = 5f }
+            ) {
+                Row {
+                    Column {
+                        Row { Text(text1) }
+                        Row { Text(text2) }
+                        Row { Text(text3) }
+                    }
+                }
+                // Since default traversalIndex is 0, `traversalIndex = -1f` here means that the
+                // overlaid node is read first, even though visually it's below the other text.
+                Row {
+                    Text(
+                        text = overlaidText,
+                        modifier = Modifier.semantics { traversalIndex = -1f }
+                    )
+                }
+            }
+        }
+
+        val node1 = rule.onNodeWithText(text1).fetchSemanticsNode()
+        val overlaidNode = rule.onNodeWithText(overlaidText).fetchSemanticsNode()
+
+        val overlaidANI = provider.createAccessibilityNodeInfo(overlaidNode.id)
+        val overlaidTraversalBefore =
+            overlaidANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+
+        // Because the overlaid node has a smaller traversal index, it should be read before node 1
+        assertThat(overlaidTraversalBefore).isAtMost(node1.id)
+    }
+
+    @Test
+    fun testSortedAccessibilityNodeInfo_nestedAndPeerTraversalIndex() {
+        val text0 = "Text 0\n"
+        val text1 = "Text 1\n"
+        val text2 = "Text 2\n"
+        val text3 = "Text 3\n"
+        val text4 = "Text 4\n"
+        val text5 = "Text 5\n"
+        container.setContent {
+            Column(
+                Modifier
+                    // Having a traversal index here as 8f shouldn't affect anything; this column
+                    // has no other peers that its compared to
+                    .semantics { traversalIndex = 8f; isTraversalGroup = true }
+                    .padding(8.dp)
+            ) {
+                Row(
+                    Modifier.semantics { traversalIndex = 3f; isTraversalGroup = true }
+                ) {
+                    Column(modifier = Modifier.testTag("Tag1")) {
+                        Row { Text(text3) }
+                        Row { Text(
+                            text = text5, modifier = Modifier.semantics { traversalIndex = 1f })
+                        }
+                        Row { Text(text4) }
+                    }
+                }
+                Row {
+                    Text(text = text2, modifier = Modifier.semantics { traversalIndex = 2f })
+                }
+                Row {
+                    Text(text = text1, modifier = Modifier.semantics { traversalIndex = 1f })
+                }
+                Row {
+                    Text(text = text0)
+                }
+            }
+        }
+
+        val node0 = rule.onNodeWithText(text0).fetchSemanticsNode()
+        val node1 = rule.onNodeWithText(text1).fetchSemanticsNode()
+        val node2 = rule.onNodeWithText(text2).fetchSemanticsNode()
+        val node3 = rule.onNodeWithText(text3).fetchSemanticsNode()
+        val node4 = rule.onNodeWithText(text4).fetchSemanticsNode()
+        val node5 = rule.onNodeWithText(text5).fetchSemanticsNode()
+
+        val ANI0 = provider.createAccessibilityNodeInfo(node0.id)
+        val ANI1 = provider.createAccessibilityNodeInfo(node1.id)
+        val ANI2 = provider.createAccessibilityNodeInfo(node2.id)
+        val ANI3 = provider.createAccessibilityNodeInfo(node3.id)
+        val ANI4 = provider.createAccessibilityNodeInfo(node4.id)
+
+        val traverseBefore0 =
+            ANI0?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val traverseBefore1 =
+            ANI1?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val traverseBefore2 =
+            ANI2?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val traverseBefore3 =
+            ANI3?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+        val traverseBefore4 =
+            ANI4?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+
+        // We want to read the texts in order: 0 -> 1 -> 2 -> 3 -> 4 -> 5
+        assertThat(traverseBefore0).isAtMost(node1.id)
+        assertThat(traverseBefore1).isAtMost(node2.id)
+        assertThat(traverseBefore2).isAtMost(node3.id)
+        assertThat(traverseBefore3).isAtMost(node4.id)
+        assertThat(traverseBefore4).isAtMost(node5.id)
+    }
+
+    @Test
+    fun testSortedAccessibilityNodeInfo_traversalIndexInherited_indexFirst() {
+        val overlaidText = "Overlaid node text"
+        val text1 = "Text 1\n"
+        val text2 = "Text 2\n"
+        val text3 = "Text 3\n"
+        container.setContent {
+            LastElementOverLaidColumn(
+                modifier = Modifier
+                    .semantics { traversalIndex = -1f }
+                    .semantics { isTraversalGroup = true }
+            ) {
+                Row {
+                    Column {
+                        Row { Text(text1) }
+                        Row { Text(text2) }
+                        Row { Text(text3) }
+                    }
+                }
+                Row {
+                    Text(
+                        text = overlaidText,
+                        modifier = Modifier
+                            .semantics { traversalIndex = 1f }
+                            .semantics { isTraversalGroup = true }
+                    )
+                }
+            }
+        }
+
+        val node3 = rule.onNodeWithText(text3).fetchSemanticsNode()
+        val overlaidNode = rule.onNodeWithText(overlaidText).fetchSemanticsNode()
+
+        val node3ANI = provider.createAccessibilityNodeInfo(node3.id)
+        val node3TraverseBefore =
+            node3ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+
+        // Nodes 1 through 3 are read, and then overlaid node is read last
+        assertThat(node3TraverseBefore).isAtMost(overlaidNode.id)
+    }
+
+    @Test
+    fun testSortedAccessibilityNodeInfo_traversalIndexInherited_indexSecond() {
+        val overlaidText = "Overlaid node text"
+        val text1 = "Text 1\n"
+        val text2 = "Text 2\n"
+        val text3 = "Text 3\n"
+        // This test is identical to the one above, except with `isTraversalGroup` coming first in
+        // the modifier chain. Behavior-wise, this shouldn't change anything.
+        container.setContent {
+            LastElementOverLaidColumn(
+                modifier = Modifier
+                    .semantics { isTraversalGroup = true }
+                    .semantics { traversalIndex = -1f }
+            ) {
+                Row {
+                    Column {
+                        Row { Text(text1) }
+                        Row { Text(text2) }
+                        Row { Text(text3) }
+                    }
+                }
+                Row {
+                    Text(
+                        text = overlaidText,
+                        modifier = Modifier
+                            .semantics { isTraversalGroup = true }
+                            .semantics { traversalIndex = 1f }
+                    )
+                }
+            }
+        }
+
+        val node3 = rule.onNodeWithText(text3).fetchSemanticsNode()
+        val overlaidNode = rule.onNodeWithText(overlaidText).fetchSemanticsNode()
+
+        val node3ANI = provider.createAccessibilityNodeInfo(node3.id)
+        val node3TraverseBefore =
+            node3ANI?.extras?.getInt(EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL)
+
+        // Nodes 1 through 3 are read, and then overlaid node is read last
+        assertThat(node3TraverseBefore).isAtMost(overlaidNode.id)
     }
 
     @Test
@@ -1295,17 +1500,21 @@ class AndroidAccessibilityTest {
             Box(
                 Modifier.testTag(rootTag)
             ) {
+                // Layouts need to have `.clickable` on them in order to make the nodes
+                // speakable and therefore sortable
                 SimpleTestLayout(
                     Modifier
                         .requiredSize(50.dp)
                         .offset(x = 20.dp, y = 0.dp)
                         .testTag(childTag1)
+                        .clickable(onClick = {})
                 ) {}
                 SimpleTestLayout(
                     Modifier
                         .requiredSize(50.dp)
                         .offset(x = 0.dp, y = 20.dp)
                         .testTag(childTag2)
+                        .clickable(onClick = {})
                 ) {}
             }
         }
