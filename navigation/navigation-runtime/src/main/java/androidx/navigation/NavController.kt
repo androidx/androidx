@@ -2045,10 +2045,11 @@ public open class NavController(
         while (destination != null && findDestination(destination.id) !== destination) {
             val parent = destination.parent
             if (parent != null) {
+                val args = if (finalArgs?.isEmpty == true) null else finalArgs
                 val entry = restoredEntries.lastOrNull { restoredEntry ->
                     restoredEntry.destination == parent
                 } ?: NavBackStackEntry.create(
-                    context, parent, parent.addInDefaultArgs(finalArgs), hostLifecycleState,
+                    context, parent, parent.addInDefaultArgs(args), hostLifecycleState,
                     viewModel
                 )
                 hierarchy.addFirst(entry)
