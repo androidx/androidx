@@ -22,6 +22,7 @@ import android.view.WindowManager;
 
 abstract class BaseTestActivity extends Activity {
     @Override
+    @SuppressWarnings("deprecation")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(0, 0);
@@ -34,6 +35,7 @@ abstract class BaseTestActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void finish() {
         super.finish();
