@@ -752,6 +752,9 @@ abstract class MergeMultiplatformMetadataTask() : DefaultTask() {
 private fun Project.getPrebuiltsExternalPath() =
     File(project.getCheckoutRoot(), "prebuilts/androidx/external/")
 
+private val PLATFORMS =
+    listOf("linuxx64", "macosarm64", "macosx64", "iosx64", "iossimulatorarm64", "iosarm64")
+
 private fun Project.getExtraCommonDependencies(): FileCollection = files(
     arrayOf(
         File(
@@ -763,8 +766,13 @@ private fun Project.getExtraCommonDependencies(): FileCollection = files(
             "org/jetbrains/kotlinx/atomicfu/0.17.0/atomicfu-0.17.0.jar"
         ),
         File(
-           getPrebuiltsExternalPath(),
+            getPrebuiltsExternalPath(),
             "com/squareup/okio/okio-jvm/3.1.0/okio-jvm-3.1.0.jar"
         )
-    )
+    ) + PLATFORMS.map {
+        File(
+            getPrebuiltsExternalPath(),
+            "com/squareup/okio/okio-$it/3.1.0/okio-$it-3.1.0.klib"
+        )
+    }
 )
