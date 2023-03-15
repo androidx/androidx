@@ -17,11 +17,14 @@
 package androidx.compose.material3
 
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.text.format.DateFormat
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -83,6 +86,30 @@ class TimePickerTest {
 
     @get:Rule
     val rule = createComposeRule()
+
+    @Test
+    fun timePicker_vertical_layout() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val newConfiguration = Configuration(LocalConfiguration.current)
+            newConfiguration.screenHeightDp = 800
+            newConfiguration.screenWidthDp = 500
+            CompositionLocalProvider(LocalConfiguration provides newConfiguration) {
+                assertThat(defaultTimePickerLayoutType).isEqualTo(TimePickerLayoutType.Vertical)
+            }
+        }
+    }
+
+    @Test
+    fun timePicker_horizontal_layout() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val newConfiguration = Configuration(LocalConfiguration.current)
+            newConfiguration.screenHeightDp = 500
+            newConfiguration.screenWidthDp = 800
+            CompositionLocalProvider(LocalConfiguration provides newConfiguration) {
+                assertThat(defaultTimePickerLayoutType).isEqualTo(TimePickerLayoutType.Horizontal)
+            }
+        }
+    }
 
     @Test
     fun timePicker_initialState() {
