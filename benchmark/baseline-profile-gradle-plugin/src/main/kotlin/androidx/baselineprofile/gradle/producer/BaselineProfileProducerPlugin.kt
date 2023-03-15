@@ -136,7 +136,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
         // flavors, so that the same variant names are created.
         createExtendedBuildTypes(
             project = project,
-            extension = extension,
+            extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
             extendedBuildTypeToOriginalBuildTypeMapping = extendedTypeToOriginalTypeMapping,
             configureBlock = configureBlock,
@@ -149,7 +149,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
         )
         createBuildTypeIfNotExists(
             project = project,
-            extension = extension,
+            extensionBuildTypes = extension.buildTypes,
             buildTypeName = nonObfuscatedReleaseName,
             configureBlock = configureBlock
         )
