@@ -1043,7 +1043,11 @@ internal fun DateEntryContainer(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (headline != null) {
-                        ProvideTextStyle(value = headlineTextStyle, content = headline)
+                        ProvideTextStyle(value = headlineTextStyle) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                headline()
+                            }
+                        }
                     }
                     modeToggleButton?.invoke()
                 }
