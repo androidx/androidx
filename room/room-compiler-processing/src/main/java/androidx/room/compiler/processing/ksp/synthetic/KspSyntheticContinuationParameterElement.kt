@@ -48,6 +48,11 @@ internal class KspSyntheticContinuationParameterElement(
         delegate = null, // does not matter, this is synthetic and has no annotations.
         filter = NO_USE_SITE
     ) {
+    override fun isContinuationParam() = true
+
+    override fun isReceiverParam() = false
+
+    override fun isKotlinPropertyParam() = false
 
     override val name: String by lazy {
         // KAPT uses `continuation` but it doesn't check for conflicts, we do.
