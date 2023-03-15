@@ -274,8 +274,16 @@ class Context private constructor(
             return getInputValue(processingEnv) ?: defaultValue
         }
 
+        fun getValue(options: Map<String, String>): Boolean {
+            return getInputValue(options) ?: defaultValue
+        }
+
         fun getInputValue(processingEnv: XProcessingEnv): Boolean? {
-            return processingEnv.options[argName]?.takeIf {
+            return getInputValue(processingEnv.options)
+        }
+
+        private fun getInputValue(options: Map<String, String>): Boolean? {
+            return options[argName]?.takeIf {
                 it.isNotBlank()
             }?.toBoolean()
         }

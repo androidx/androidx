@@ -255,6 +255,9 @@ object ProcessorErrors {
     val CANNOT_FIND_COLUMN_TYPE_ADAPTER = "Cannot figure out how to save this field into" +
         " database. You can consider adding a type converter for it."
 
+    val VALUE_CLASS_ONLY_SUPPORTED_IN_KSP = "Kotlin value classes are only supported " +
+        "in Room using KSP and generating Kotlin (room.generateKotlin=true)."
+
     val CANNOT_FIND_STMT_BINDER = "Cannot figure out how to bind this field into a statement."
 
     val CANNOT_FIND_CURSOR_READER = "Cannot figure out how to read this field from a cursor."

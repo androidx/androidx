@@ -2145,4 +2145,46 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             expectedFilePath = getTestGoldenPath(testName)
         )
     }
+
+    @Test
+    fun valueClassConverter() {
+        val testName = object {}.javaClass.enclosingMethod!!.name
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+            import java.util.UUID
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              fun getEntity(): MyEntity
+
+              @Insert
+              fun addEntity(item: MyEntity)
+            }
+
+            @JvmInline
+            value class LongValueClass(val data: Long)
+
+            @JvmInline
+            value class UUIDValueClass(val data: UUID)
+
+            @JvmInline
+            value class GenericValueClass<T>(val password: T)
+
+            @Entity
+            data class MyEntity (
+                @PrimaryKey
+                val pk: LongValueClass,
+                val uuidData: UUIDValueClass,
+                val genericData: GenericValueClass<String>
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName)
+        )
+    }
 }
