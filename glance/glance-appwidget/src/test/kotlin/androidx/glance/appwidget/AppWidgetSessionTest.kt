@@ -24,6 +24,7 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.Emittable
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LambdaAction
@@ -44,7 +45,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -81,10 +81,14 @@ class AppWidgetSessionTest {
         assertThat(widget.provideGlanceCalled.get()).isTrue()
     }
 
-    @Ignore // b/266518169
     @Test
     fun provideGlanceEmitsIgnoreResultForNullContent() = runTest {
-        // The session starts out with null content, so we can check that here.
+        // Create a widget that never calls provideContent, which means the session never produces
+        // a valid result.
+        val widget = object : GlanceAppWidget() {
+            override suspend fun provideGlance(context: Context, id: GlanceId) {}
+        }
+        val session = AppWidgetSession(widget, id, defaultOptions, testState)
         val root = runCompositionUntil(
             { state, _ -> state == Recomposer.State.Idle },
             session.provideGlance(context)
