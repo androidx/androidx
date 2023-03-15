@@ -296,7 +296,14 @@ public final class AppSearchImpl implements Closeable {
             // We synchronize here because we don't want to call IcingSearchEngine.initialize() more
             // than once. It's unnecessary and can be a costly operation.
             IcingSearchEngineOptions options = IcingSearchEngineOptions.newBuilder()
-                    .setBaseDir(icingDir.getAbsolutePath()).build();
+                    .setBaseDir(icingDir.getAbsolutePath())
+                    .setDocumentStoreNamespaceIdFingerprint(
+                            mLimitConfig.getDocumentStoreNamespaceIdFingerprint()
+                    )
+                    .setOptimizeRebuildIndexThreshold(
+                            mLimitConfig.getOptimizeRebuildIndexThreshold()
+                    )
+                    .build();
             LogUtil.piiTrace(TAG, "Constructing IcingSearchEngine, request", options);
             mIcingSearchEngineLocked = new IcingSearchEngine(options);
             LogUtil.piiTrace(
