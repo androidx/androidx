@@ -17,6 +17,7 @@
 package androidx.health.connect.client.impl.platform.records
 
 import android.annotation.TargetApi
+import android.health.connect.LocalTimeRangeFilter
 import android.health.connect.TimeInstantRangeFilter
 import android.health.connect.datatypes.DataOrigin as PlatformDataOrigin
 import android.health.connect.datatypes.HeartRateRecord as PlatformHeartRateRecord
@@ -43,6 +44,8 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.Month
 import java.time.Period
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,38 +64,50 @@ class RequestConvertersTest {
             ReadRecordsRequest(
                 StepsRecord::class,
                 TimeRangeFilter.between(Instant.ofEpochMilli(123L), Instant.ofEpochMilli(456L)),
-                setOf(DataOrigin("package1"), DataOrigin("package2")))
+                setOf(DataOrigin("package1"), DataOrigin("package2"))
+            )
 
         with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
             assertThat(recordType).isAssignableTo(PlatformStepsRecord::class.java)
             assertThat(dataOrigins)
                 .containsExactly(
                     PlatformDataOrigin.Builder().setPackageName("package1").build(),
-                    PlatformDataOrigin.Builder().setPackageName("package2").build())
+                    PlatformDataOrigin.Builder().setPackageName("package2").build()
+                )
         }
     }
 
     @Test
-    fun timeRangeFilter_fromSdkToPlatform() {
+    fun timeRangeFilter_instant_fromSdkToPlatform() {
         val sdkFilter =
             TimeRangeFilter.between(Instant.ofEpochMilli(123L), Instant.ofEpochMilli(456L))
 
-        with(sdkFilter.toPlatformTimeRangeFilter(SystemDefaultTimeSource)) {
-            assertThat(startTime).isEqualTo(Instant.ofEpochMilli(123L))
+        with(
+            sdkFilter.toPlatformTimeRangeFilter(SystemDefaultTimeSource) as TimeInstantRangeFilter
+        ) {
             assertThat(endTime).isEqualTo(Instant.ofEpochMilli(456L))
         }
     }
 
     @Test
+    fun timeRangeFilter_localDateTime_fromSdkToPlatform() {
+        val sdkFilter = TimeRangeFilter.before(LocalDateTime.of(2023, Month.MARCH, 10, 17, 30))
+
+        with(sdkFilter.toPlatformTimeRangeFilter(SystemDefaultTimeSource) as LocalTimeRangeFilter) {
+            assertThat(endTime).isEqualTo(LocalDateTime.of(2023, Month.MARCH, 10, 17, 30))
+        }
+    }
+
+    @Test
     fun timeRangeFilter_fromSdkToPlatform_none() {
-        val timeSource = FakeTimeSource()
-        timeSource.now = Instant.ofEpochMilli(123L)
 
         val sdkFilter = TimeRangeFilter.none()
+        val fakeTimeSource = FakeTimeSource()
+        fakeTimeSource.now = Instant.ofEpochMilli(123L)
 
-        with(sdkFilter.toPlatformTimeRangeFilter(timeSource)) {
+        with(sdkFilter.toPlatformTimeRangeFilter(fakeTimeSource) as TimeInstantRangeFilter) {
             assertThat(startTime).isEqualTo(Instant.EPOCH)
-            assertThat(endTime).isEqualTo(Instant.ofEpochMilli(123L))
+            assertThat(endTime).isEqualTo(fakeTimeSource.now)
         }
     }
 
@@ -101,16 +116,20 @@ class RequestConvertersTest {
         val sdkRequest =
             ChangesTokenRequest(
                 setOf(StepsRecord::class, HeartRateRecord::class),
-                setOf(DataOrigin("package1"), DataOrigin("package2")))
+                setOf(DataOrigin("package1"), DataOrigin("package2"))
+            )
 
         with(sdkRequest.toPlatformRequest()) {
             assertThat(recordTypes)
                 .containsExactly(
-                    PlatformStepsRecord::class.java, PlatformHeartRateRecord::class.java)
+                    PlatformStepsRecord::class.java,
+                    PlatformHeartRateRecord::class.java
+                )
             assertThat(dataOriginFilters)
                 .containsExactly(
                     PlatformDataOrigin.Builder().setPackageName("package1").build(),
-                    PlatformDataOrigin.Builder().setPackageName("package2").build())
+                    PlatformDataOrigin.Builder().setPackageName("package2").build()
+                )
         }
     }
 
@@ -120,7 +139,8 @@ class RequestConvertersTest {
             AggregateRequest(
                 setOf(StepsRecord.COUNT_TOTAL, NutritionRecord.CAFFEINE_TOTAL),
                 TimeRangeFilter.between(Instant.ofEpochMilli(123L), Instant.ofEpochMilli(456L)),
-                setOf(DataOrigin("package1")))
+                setOf(DataOrigin("package1"))
+            )
 
         with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
             with(timeRangeFilter as TimeInstantRangeFilter) {
@@ -129,7 +149,9 @@ class RequestConvertersTest {
             }
             assertThat(aggregationTypes)
                 .containsExactly(
-                    PlatformStepsRecord.STEPS_COUNT_TOTAL, PlatformNutritionRecord.CAFFEINE_TOTAL)
+                    PlatformStepsRecord.STEPS_COUNT_TOTAL,
+                    PlatformNutritionRecord.CAFFEINE_TOTAL
+                )
             assertThat(dataOriginsFilters)
                 .containsExactly(PlatformDataOrigin.Builder().setPackageName("package1").build())
         }
@@ -142,7 +164,8 @@ class RequestConvertersTest {
                 setOf(NutritionRecord.ENERGY_TOTAL),
                 TimeRangeFilter.between(Instant.ofEpochMilli(123L), Instant.ofEpochMilli(456L)),
                 Duration.ofDays(1),
-                setOf(DataOrigin("package1"), DataOrigin("package2")))
+                setOf(DataOrigin("package1"), DataOrigin("package2"))
+            )
 
         with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
             with(timeRangeFilter as TimeInstantRangeFilter) {
@@ -153,7 +176,8 @@ class RequestConvertersTest {
             assertThat(dataOriginsFilters)
                 .containsExactly(
                     PlatformDataOrigin.Builder().setPackageName("package1").build(),
-                    PlatformDataOrigin.Builder().setPackageName("package2").build())
+                    PlatformDataOrigin.Builder().setPackageName("package2").build()
+                )
         }
     }
 
@@ -164,7 +188,8 @@ class RequestConvertersTest {
                 setOf(HeartRateRecord.BPM_MAX, HeartRateRecord.BPM_MIN, HeartRateRecord.BPM_AVG),
                 TimeRangeFilter.between(Instant.ofEpochMilli(123L), Instant.ofEpochMilli(456L)),
                 Period.ofDays(1),
-                setOf(DataOrigin("package1"), DataOrigin("package2"), DataOrigin("package3")))
+                setOf(DataOrigin("package1"), DataOrigin("package2"), DataOrigin("package3"))
+            )
 
         with(sdkRequest.toPlatformRequest(SystemDefaultTimeSource)) {
             with(timeRangeFilter as TimeInstantRangeFilter) {
@@ -175,12 +200,14 @@ class RequestConvertersTest {
                 .containsExactly(
                     PlatformHeartRateRecord.BPM_MAX,
                     PlatformHeartRateRecord.BPM_MIN,
-                    PlatformHeartRateRecord.BPM_AVG)
+                    PlatformHeartRateRecord.BPM_AVG
+                )
             assertThat(dataOriginsFilters)
                 .containsExactly(
                     PlatformDataOrigin.Builder().setPackageName("package1").build(),
                     PlatformDataOrigin.Builder().setPackageName("package2").build(),
-                    PlatformDataOrigin.Builder().setPackageName("package3").build())
+                    PlatformDataOrigin.Builder().setPackageName("package3").build()
+                )
         }
     }
 

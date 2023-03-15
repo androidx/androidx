@@ -20,8 +20,10 @@
 package androidx.health.connect.client.impl.platform.records
 
 import android.health.connect.AggregateRecordsRequest
+import android.health.connect.LocalTimeRangeFilter
 import android.health.connect.ReadRecordsRequestUsingFilters
 import android.health.connect.TimeInstantRangeFilter
+import android.health.connect.TimeRangeFilter as PlatformTimeRangeFilter
 import android.health.connect.changelog.ChangeLogTokenRequest
 import android.health.connect.datatypes.AggregationType
 import android.health.connect.datatypes.Record as PlatformRecord
@@ -37,23 +39,42 @@ import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 fun ReadRecordsRequest<out Record>.toPlatformRequest(
     timeSource: TimeSource
 ): ReadRecordsRequestUsingFilters<out PlatformRecord> {
     return ReadRecordsRequestUsingFilters.Builder(recordType.toPlatformRecordClass())
         .setTimeRangeFilter(timeRangeFilter.toPlatformTimeRangeFilter(timeSource))
-        .apply { dataOriginFilter.forEach { addDataOrigins(it.toPlatformDataOrigin()) } }
+        .setAscending(ascendingOrder)
+        .setPageSize(pageSize)
+        .apply {
+            dataOriginFilter.forEach { addDataOrigins(it.toPlatformDataOrigin()) }
+            pageToken?.let { setPageToken(pageToken.toLong()) }
+        }
         .build()
 }
 
-fun TimeRangeFilter.toPlatformTimeRangeFilter(timeSource: TimeSource): TimeInstantRangeFilter {
-    // TODO(b/262571990): pass nullable Instant start/end
-    // TODO(b/262571990): pass nullable LocalDateTime start/end
-    return TimeInstantRangeFilter.Builder()
-        .setStartTime(startTime ?: Instant.EPOCH)
-        .setEndTime(endTime ?: timeSource.now)
-        .build()
+fun TimeRangeFilter.toPlatformTimeRangeFilter(timeSource: TimeSource): PlatformTimeRangeFilter {
+    // TODO(b/272760519): Remove handling for nullable fields in the first two branches. Needed as
+    // the values used in the underlining implementation cause long overflow
+    return if (startTime != null || endTime != null) {
+        TimeInstantRangeFilter.Builder()
+            .setStartTime(startTime ?: Instant.EPOCH)
+            .setEndTime(endTime ?: timeSource.now)
+            .build()
+    } else if (localStartTime != null || localEndTime != null) {
+        LocalTimeRangeFilter.Builder()
+            .setStartTime(localStartTime ?: LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.MIN))
+            .setEndTime(localEndTime ?: LocalDateTime.ofInstant(timeSource.now, ZoneOffset.MAX))
+            .build()
+    } else {
+        TimeInstantRangeFilter.Builder()
+            .setStartTime(Instant.EPOCH)
+            .setEndTime(timeSource.now)
+            .build()
+    }
 }
 
 fun ChangesTokenRequest.toPlatformRequest(): ChangeLogTokenRequest {
