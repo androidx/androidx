@@ -41,6 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
@@ -62,7 +63,6 @@ import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.ModifiersBuilders.Semantics;
 import androidx.wear.tiles.material.Typography.TypographyName;
-import androidx.wear.protolayout.proto.LayoutElementProto;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -102,7 +102,12 @@ import java.util.Map;
  *
  * @see  androidx.wear.tiles.material.layouts.PrimaryLayout.Builder#setContent if this Chip is used
  * inside of {@link androidx.wear.tiles.material.layouts.PrimaryLayout}.
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.Chip} which provides
+ *     the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class Chip implements LayoutElement {
     /**
      * Tool tag for Metadata in Modifiers, so we know that Box is actually a Chip with only text.

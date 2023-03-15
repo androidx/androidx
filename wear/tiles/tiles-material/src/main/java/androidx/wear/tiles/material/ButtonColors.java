@@ -28,7 +28,12 @@ import androidx.wear.tiles.ColorBuilders.ColorProp;
  * <p>See {@link ButtonDefaults#PRIMARY_COLORS} for the default colors used in a primary styled
  * {@link Button}. See {@link ButtonDefaults#SECONDARY_COLORS} for the default colors used in a
  * secondary styled {@link Button}.
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.ButtonColors} which
+ *     provides the same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class ButtonColors {
     @NonNull private final ColorProp mBackgroundColor;
     @NonNull private final ColorProp mContentColor;

@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.DimensionBuilders.SpacerDimension;
 import androidx.wear.tiles.LayoutElementBuilders;
@@ -41,7 +42,6 @@ import androidx.wear.tiles.LayoutElementBuilders.Row;
 import androidx.wear.tiles.LayoutElementBuilders.Spacer;
 import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
-import androidx.wear.protolayout.proto.LayoutElementProto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +75,13 @@ import java.util.List;
  * <pre>{@code
  * MultiSlotLayout myMsl = MultiSlotLayout.fromLayoutElement(box.getContents().get(0));
  * }</pre>
+ *
+ * @deprecated Use the new class
+ *     {@link androidx.wear.protolayout.material.layouts.MultiSlotLayout} which provides the
+ *     same API and functionality.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class MultiSlotLayout implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Row is actually a MultiSlotLayout. */
     static final String METADATA_TAG = "MSL";

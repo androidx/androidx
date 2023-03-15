@@ -23,7 +23,14 @@ import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 
-/** Contains the default values used by button Tiles components. */
+/**
+ * Contains the default values used by button Tiles components.
+ *
+ * @deprecated Use the new class {@link androidx.wear.protolayout.material.ButtonDefaults} which
+ *     provides the same API and functionality.
+ */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class ButtonDefaults {
     private ButtonDefaults() {}
 

@@ -52,6 +52,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class TextTest {
 
     public static final int NUM_OF_FONT_STYLE_CONST = 12;
