@@ -221,9 +221,8 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
                                     ERROR_NO_ACTION_CAPABILITY)));
             return;
         }
-        String sessionId = selectedFulfillment.getSessionInfo().getSessionIdentifier();
-        ActionCapabilitySession currentSession =
-                SessionManager.INSTANCE.getSession(sessionId);
+        String sessionId = request.getSessionIdentifier();
+        ActionCapabilitySession currentSession = SessionManager.INSTANCE.getSession(sessionId);
         if (currentSession == null) {
             responseObserver.onError(
                     new StatusRuntimeException(
@@ -245,8 +244,7 @@ final class AppInteractionServiceGrpcImpl extends AppInteractionServiceImplBase 
                         Response.Builder responseBuilder =
                                 convertFulfillmentResponse(fulfillmentResponse, capability.get())
                                         .toBuilder();
-                        UiCache uiCache = UiSessions.INSTANCE.getUiCacheOrNull(
-                                sessionId);
+                        UiCache uiCache = UiSessions.INSTANCE.getUiCacheOrNull(sessionId);
                         if (uiCache != null && uiCache.hasUnreadUiResponse()) {
                             responseBuilder.setUiUpdate(UiUpdate.getDefaultInstance());
                             if (!uiCache.getCachedChangedViewIds().isEmpty()) {
