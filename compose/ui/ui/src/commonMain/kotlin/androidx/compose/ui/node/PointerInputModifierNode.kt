@@ -19,6 +19,7 @@ package androidx.compose.ui.node
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.IntSize
 
@@ -28,7 +29,7 @@ import androidx.compose.ui.unit.IntSize
  * [PointerInputModifierNode]s don't also react to them.
  *
  * This is the [androidx.compose.ui.Modifier.Node] equivalent of
- * [androidx.compose.ui.input.pointer.PointerInputModifier]
+ * [androidx.compose.ui.input.pointer.PointerInputFilter].
  *
  * @sample androidx.compose.ui.samples.PointerInputModifierNodeSample
  */

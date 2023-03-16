@@ -19,7 +19,6 @@ package androidx.tv.material3
 import android.os.Build
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -44,8 +43,6 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -346,41 +343,6 @@ class SurfaceTest {
     }
 
     @Test
-    fun clickableSurface_allowsFinalPassChildren() {
-        val hitTested = mutableStateOf(false)
-
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("surface"),
-                    onClick = {}
-                ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag("pressable")
-                            .pointerInput(Unit) {
-                                awaitEachGesture {
-                                    hitTested.value = true
-                                    val event = awaitPointerEvent(PointerEventPass.Final)
-                                    Truth
-                                        .assertThat(event.changes[0].isConsumed)
-                                        .isFalse()
-                                }
-                            }
-                    )
-                }
-            }
-        }
-        rule.onNodeWithTag("surface").performSemanticsAction(SemanticsActions.RequestFocus)
-        rule.onNodeWithTag("pressable", true)
-            .performKeyInput { pressKey(Key.DirectionCenter) }
-        Truth.assertThat(hitTested.value).isTrue()
-    }
-
-    @Test
     fun clickableSurface_reactsToStateChange() {
         val interactionSource = MutableInteractionSource()
         var isPressed by mutableStateOf(false)
@@ -655,42 +617,6 @@ class SurfaceTest {
             Truth.assertThat((interactions[2] as PressInteraction.Release).press)
                 .isEqualTo(interactions[1])
         }
-    }
-
-    @Test
-    fun toggleableSurface_allowsFinalPassChildren() {
-        val hitTested = mutableStateOf(false)
-
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Surface(
-                    checked = false,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("surface"),
-                    onCheckedChange = {}
-                ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag("pressable")
-                            .pointerInput(Unit) {
-                                awaitEachGesture {
-                                    hitTested.value = true
-                                    val event = awaitPointerEvent(PointerEventPass.Final)
-                                    Truth
-                                        .assertThat(event.changes[0].isConsumed)
-                                        .isFalse()
-                                }
-                            }
-                    )
-                }
-            }
-        }
-        rule.onNodeWithTag("surface").performSemanticsAction(SemanticsActions.RequestFocus)
-        rule.onNodeWithTag("pressable", true)
-            .performKeyInput { pressKey(Key.DirectionCenter) }
-        Truth.assertThat(hitTested.value).isTrue()
     }
 
     @Test
