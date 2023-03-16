@@ -176,6 +176,40 @@ class SubjectTest {
     }
 
     @Test
+    fun isEqualToNestedArrays() {
+        fun getArray(): Array<*> =
+            arrayOf(
+                intArrayOf(1, 2, 3),
+                arrayOf(
+                    intArrayOf(1, 2, 3),
+                    arrayOf("a", null, "b"),
+                ),
+                listOf(1, 2, 3),
+                "a",
+            )
+
+        assertThat(getArray()).isEqualTo(getArray())
+    }
+
+    @Test
+    fun isEqualToNestedArraysFailsNotEqual() {
+        fun getArray(arg: Int): Array<*> =
+            arrayOf(
+                intArrayOf(1, 2, 3),
+                arrayOf(
+                    intArrayOf(1, arg, 3),
+                    arrayOf("a", null, "b"),
+                ),
+                listOf(1, 2, 3),
+                "a",
+            )
+
+        assertFailsWith<AssertionError> {
+            assertThat(getArray(arg = 10)).isEqualTo(getArray(arg = 20))
+        }
+    }
+
+    @Test
     fun isNotEqualToWithNulls() {
         val o: Any? = null
         assertThat(o).isNotEqualTo("a")
