@@ -16,17 +16,17 @@
 
 package androidx.appactions.interaction.capabilities.core.properties
 
-/** The property which describes a entity parameter for {@code ActionCapability}. */
-class EntityProperty internal constructor(
-    override val possibleValues: List<Entity>,
+/** The property which describes a complex type. */
+class TypeProperty<T> internal constructor(
+    override val possibleValues: List<T>,
     override val isRequired: Boolean,
     override val isValueMatchRequired: Boolean,
     override val isProhibited: Boolean,
-) : ParamProperty<Entity> {
+) : ParamProperty<T> {
     /** Builder for {@link EntityProperty}. */
-    class Builder {
+    class Builder<T> {
 
-        private val possibleEntities = mutableListOf<Entity>()
+        private val possibleEntities = mutableListOf<T>()
         private var isRequired = false
         private var isValueMatchRequired = false
         private var isProhibited = false
@@ -36,7 +36,7 @@ class EntityProperty internal constructor(
          *
          * @param entities the possible entities.
          */
-        fun addPossibleEntities(vararg entities: Entity) = apply {
+        fun addPossibleEntities(vararg entities: T) = apply {
             this.possibleEntities.addAll(entities)
         }
 
@@ -64,7 +64,7 @@ class EntityProperty internal constructor(
         }
 
         /** Builds the property for this entity parameter. */
-        fun build() = EntityProperty(
+        fun build() = TypeProperty(
             this.possibleEntities.toList(),
             this.isRequired,
             this.isValueMatchRequired,

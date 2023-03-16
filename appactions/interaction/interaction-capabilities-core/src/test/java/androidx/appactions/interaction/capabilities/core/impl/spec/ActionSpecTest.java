@@ -20,11 +20,13 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
+import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
 import androidx.appactions.interaction.capabilities.core.properties.EntityProperty;
 import androidx.appactions.interaction.capabilities.core.properties.EnumProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 import androidx.appactions.interaction.proto.AppActionsContext.AppAction;
@@ -41,6 +43,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @RunWith(JUnit4.class)
 public final class ActionSpecTest {
@@ -88,6 +91,93 @@ public final class ActionSpecTest {
                             Output::repeatedStringField,
                             TypeConverters::toParamValue)
                     .build();
+    private static final ParamValueConverter<String> STRING_PARAM_VALUE_CONVERTER = (paramValue) ->
+            "test";
+    private static final Function<String, androidx.appactions.interaction.proto.Entity>
+            STRING_ENTITY_CONVERTER =
+                    (theString) ->
+                            androidx.appactions.interaction.proto.Entity.newBuilder()
+                                    .setIdentifier(theString)
+                                    .setName(theString)
+                                    .build();
+
+    private static final ActionSpec<GenericEntityProperty, GenericEntityArgument, Output>
+            GENERIC_TYPES_ACTION_SPEC =
+                    ActionSpecBuilder.ofCapabilityNamed("actions.intent.TEST")
+                            .setDescriptor(GenericEntityProperty.class)
+                            .setArgument(
+                                    GenericEntityArgument.class, GenericEntityArgument::newBuilder)
+                            .setOutput(Output.class)
+                            .bindRequiredGenericParameter(
+                                    "requiredEntity",
+                                    GenericEntityProperty::singularField,
+                                    GenericEntityArgument.Builder::setSingularField,
+                                    STRING_PARAM_VALUE_CONVERTER,
+                                    STRING_ENTITY_CONVERTER)
+                            .bindOptionalGenericParameter("optionalEntity",
+                                    GenericEntityProperty::optionalField,
+                                    GenericEntityArgument.Builder::setOptionalField,
+                                    STRING_PARAM_VALUE_CONVERTER,
+                                    STRING_ENTITY_CONVERTER)
+                            .bindRepeatedGenericParameter("repeatedEntities",
+                                    GenericEntityProperty::repeatedField,
+                                    GenericEntityArgument.Builder::setRepeatedField,
+                                    STRING_PARAM_VALUE_CONVERTER,
+                                    STRING_ENTITY_CONVERTER)
+                            .build();
+
+    @Test
+    public void getAppAction_genericParameters() {
+        GenericEntityProperty property =
+                GenericEntityProperty.create(
+                        new TypeProperty.Builder<String>()
+                                .setRequired(true)
+                                .addPossibleEntities("one")
+                                .build(),
+                        Optional.of(
+                                new TypeProperty.Builder<String>()
+                                        .setRequired(true)
+                                        .addPossibleEntities("two")
+                                        .build()),
+                        Optional.of(
+                                new TypeProperty.Builder<String>()
+                                        .setRequired(true)
+                                        .addPossibleEntities("three")
+                                        .build()));
+
+        assertThat(GENERIC_TYPES_ACTION_SPEC.convertPropertyToProto(property))
+                .isEqualTo(
+                        AppAction.newBuilder()
+                                .setName("actions.intent.TEST")
+                                .addParams(
+                                        IntentParameter.newBuilder()
+                                                .setName("requiredEntity")
+                                                .setIsRequired(true)
+                                                .addPossibleEntities(
+                                                        androidx.appactions.interaction.proto.Entity
+                                                                .newBuilder()
+                                                                .setIdentifier("one")
+                                                                .setName("one")))
+                                .addParams(
+                                        IntentParameter.newBuilder()
+                                                .setName("optionalEntity")
+                                                .setIsRequired(true)
+                                                .addPossibleEntities(
+                                                        androidx.appactions.interaction.proto.Entity
+                                                                .newBuilder()
+                                                                .setIdentifier("two")
+                                                                .setName("two")))
+                                .addParams(
+                                        IntentParameter.newBuilder()
+                                                .setName("repeatedEntities")
+                                                .setIsRequired(true)
+                                                .addPossibleEntities(
+                                                        androidx.appactions.interaction.proto.Entity
+                                                                .newBuilder()
+                                                                .setIdentifier("three")
+                                                                .setName("three")))
+                                .build());
+    }
 
     @Test
     public void getAppAction_onlyRequiredProperty() {
@@ -247,7 +337,6 @@ public final class ActionSpecTest {
     }
 
     @Test
-    @SuppressWarnings("JdkImmutableCollections")
     public void convertOutputToProto_string() {
         Output output =
                 Output.builder()
@@ -286,7 +375,6 @@ public final class ActionSpecTest {
     }
 
     @Test
-    @SuppressWarnings("JdkImmutableCollections")
     public void convertOutputToProto_emptyOutput() {
         Output output = Output.builder().setRepeatedStringField(List.of("test3", "test4")).build();
         // No optionalStringOutput since it is not in the output above.
@@ -407,5 +495,51 @@ public final class ActionSpecTest {
         abstract Optional<StringProperty> optionalStringField();
 
         abstract Optional<StringProperty> repeatedStringField();
+    }
+
+    @AutoValue
+    abstract static class GenericEntityArgument {
+
+        static Builder newBuilder() {
+            return new AutoValue_ActionSpecTest_GenericEntityArgument.Builder();
+        }
+
+        abstract String singularField();
+
+        abstract String optionalField();
+
+        abstract List<String> repeatedField();
+
+        @AutoValue.Builder
+        abstract static class Builder implements BuilderOf<GenericEntityArgument> {
+
+            abstract Builder setSingularField(String value);
+
+            abstract Builder setOptionalField(String value);
+
+            abstract Builder setRepeatedField(List<String> value);
+
+            @NonNull
+            @Override
+            public abstract GenericEntityArgument build();
+        }
+    }
+
+    @AutoValue
+    abstract static class GenericEntityProperty {
+
+        static GenericEntityProperty create(
+                TypeProperty<String> singularField,
+                Optional<TypeProperty<String>> optionalField,
+                Optional<TypeProperty<String>> repeatedField) {
+            return new AutoValue_ActionSpecTest_GenericEntityProperty(
+                    singularField, optionalField, repeatedField);
+        }
+
+        abstract TypeProperty<String> singularField();
+
+        abstract Optional<TypeProperty<String>> optionalField();
+
+        abstract Optional<TypeProperty<String>> repeatedField();
     }
 }
