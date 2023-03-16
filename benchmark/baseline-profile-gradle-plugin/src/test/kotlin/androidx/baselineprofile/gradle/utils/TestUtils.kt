@@ -26,6 +26,14 @@ internal val GRADLE_CODE_PRINT_TASK = """
         @TaskAction void exec() { println(getText().get()) }
     }
 
+    androidComponents {
+        def agpVersion = pluginVersion.major + "." + pluginVersion.minor + "." + pluginVersion.micro
+        if (pluginVersion.previewType != null) {
+            agpVersion += "-" + pluginVersion.previewType + pluginVersion.preview
+        }
+        println("agpVersion=" + agpVersion)
+    }
+
     """.trimIndent()
 
 internal fun GradleRunner.build(vararg arguments: String, block: (String) -> (Unit)) {

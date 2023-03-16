@@ -36,7 +36,9 @@ internal const val ANDROID_APPLICATION_PLUGIN = "com.android.application"
 internal const val ANDROID_LIBRARY_PLUGIN = "com.android.library"
 internal const val ANDROID_TEST_PLUGIN = "com.android.test"
 
-class BaselineProfileProjectSetupRule : ExternalResource() {
+class BaselineProfileProjectSetupRule(
+    private val forceAgpVersion: String? = null
+) : ExternalResource() {
 
     /**
      * Root folder for the project setup that contains 3 modules.
@@ -116,6 +118,40 @@ class BaselineProfileProjectSetupRule : ExternalResource() {
             """.trimIndent()
             )
 
+            val repositoriesBlock = """
+                repositories {
+                    ${producerSetupRule.allRepositoryPaths.joinToString("\n") { """ maven { url "$it" } """ }}
+                }
+            """.trimIndent()
+
+            val agpDependency = if (forceAgpVersion == null) {
+                """"${appTargetSetupRule.props.agpDependency}""""
+            } else {
+                """("com.android.tools.build:gradle") { version { strictly "$forceAgpVersion" } }"""
+            }
+            rootFolder.newFile("build.gradle").writeText(
+                """
+                buildscript {
+                    $repositoriesBlock
+                    dependencies {
+
+                        // Specifies agp dependency
+                        classpath $agpDependency
+
+                        // Specifies plugin dependency
+                        classpath "androidx.baselineprofile.consumer:androidx.baselineprofile.consumer.gradle.plugin:+"
+                        classpath "androidx.baselineprofile.producer:androidx.baselineprofile.producer.gradle.plugin:+"
+                        classpath "androidx.baselineprofile.apptarget:androidx.baselineprofile.apptarget.gradle.plugin:+"
+                    }
+                }
+
+                allprojects {
+                    $repositoriesBlock
+                }
+
+            """.trimIndent()
+            )
+
             // Copies test project data
             mapOf(
                 "app-target" to appTargetSetupRule,
@@ -147,7 +183,7 @@ interface Module {
     val rootDir: File
         get() = rule.rootDir
     val gradleRunner: GradleRunner
-        get() = GradleRunner.create().withProjectDir(rule.rootDir).withPluginClasspath()
+        get() = GradleRunner.create().withProjectDir(rule.rootDir)
 
     fun setBuildGradle(buildGradleContent: String) =
         rule.writeDefaultBuildGradle(
