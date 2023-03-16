@@ -403,8 +403,15 @@ open class VerifyGMavenZipTask : DefaultTask() {
         }
 
         if (missingFiles.isNotEmpty()) {
+            val checkedFilesString = filesToVerify.map {
+                it -> it.toString()
+            }.reduce {
+                acc, s -> "$acc, $s"
+            }
             val missingFileString = missingFiles.reduce { acc, s -> "$acc, $s" }
-            throw FileNotFoundException("GMavenZip file missing: $missingFileString")
+            throw FileNotFoundException(
+                "GMavenZip file missing: $missingFileString. Checked files: $checkedFilesString"
+            )
         }
     }
 }
