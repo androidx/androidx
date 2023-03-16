@@ -63,7 +63,7 @@ class PlatformTextInputTestIntegrationTest {
     fun whenNoFieldFocused() {
         val testCommands = mutableListOf<String>()
         rule.setContent {
-            TestTextField(testCommands, Modifier.testTag("field"))
+            TestTextField(testCommands, Modifier.testTag("field"), startInputOnFocus = false)
         }
 
         val error = assertFailsWith<IllegalStateException> {
@@ -121,7 +121,8 @@ class PlatformTextInputTestIntegrationTest {
     @Composable
     private fun TestTextField(
         testCommands: MutableList<String>,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        startInputOnFocus: Boolean = true
     ) {
         val adapter = LocalPlatformTextInputPluginRegistry.current
             .rememberAdapter(TestPlugin)
@@ -130,13 +131,12 @@ class PlatformTextInputTestIntegrationTest {
             modifier
                 .size(1.dp)
                 .onFocusChanged {
-                    if (it.isFocused) {
+                    if (it.isFocused && startInputOnFocus) {
                         adapter.startInput(testCommands)
                     } else {
                         adapter.endInput()
                     }
                 }
-                .focusable()
                 .semantics {
                     setText { true }
                     performImeAction {
@@ -144,6 +144,7 @@ class PlatformTextInputTestIntegrationTest {
                         true
                     }
                 }
+                .focusable()
         )
     }
 
