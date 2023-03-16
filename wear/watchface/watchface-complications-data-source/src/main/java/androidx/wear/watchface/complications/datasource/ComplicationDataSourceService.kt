@@ -22,12 +22,12 @@ import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.RemoteException
 import android.support.wearable.complications.ComplicationData as WireComplicationData
-import android.os.Bundle
 import android.support.wearable.complications.ComplicationProviderInfo
 import android.support.wearable.complications.IComplicationManager
 import android.support.wearable.complications.IComplicationProvider
@@ -441,12 +441,7 @@ public abstract class ComplicationDataSourceService : Service() {
     private inner class IComplicationProviderWrapper : IComplicationProvider.Stub() {
         @SuppressLint("SyntheticAccessor")
         override fun onUpdate(complicationInstanceId: Int, type: Int, manager: IBinder) {
-            onUpdate2(
-                complicationInstanceId,
-                type,
-                manager,
-                bundle = null
-            )
+            onUpdate2(complicationInstanceId, type, manager, bundle = null)
         }
 
         @SuppressLint("SyntheticAccessor")
@@ -456,10 +451,12 @@ public abstract class ComplicationDataSourceService : Service() {
             manager: IBinder,
             bundle: Bundle?
         ) {
-            val isForSafeWatchFace = bundle?.getInt(
-                IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
-                TargetWatchFaceSafety.UNKNOWN
-            ) ?: TargetWatchFaceSafety.UNKNOWN
+            val isForSafeWatchFace =
+                bundle?.getInt(
+                    IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
+                    TargetWatchFaceSafety.UNKNOWN
+                )
+                    ?: TargetWatchFaceSafety.UNKNOWN
             val expectedDataType = fromWireType(type)
             val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
             mainThreadHandler.post {
@@ -573,7 +570,6 @@ public abstract class ComplicationDataSourceService : Service() {
                             }
                             lastExpressionEvaluator =
                                 ComplicationDataExpressionEvaluator(this).apply {
-                                    init()
                                     listenAndUpdateManager(
                                         iComplicationManager,
                                         complicationInstanceId,
@@ -590,12 +586,14 @@ public abstract class ComplicationDataSourceService : Service() {
             complicationInstanceId: Int,
         ) {
             mainThreadCoroutineScope.launch {
-                // Doing one-off evaluation, the service will be re-invoked.
-                iComplicationManager.updateComplicationData(
-                    complicationInstanceId,
-                    data.filterNotNull().first()
-                )
-                close()
+                use {
+                    init()
+                    // Doing one-off evaluation, the service will be re-invoked.
+                    iComplicationManager.updateComplicationData(
+                        complicationInstanceId,
+                        data.filterNotNull().first()
+                    )
+                }
             }
         }
 
@@ -664,21 +662,19 @@ public abstract class ComplicationDataSourceService : Service() {
         }
 
         override fun onSynchronousComplicationRequest(complicationInstanceId: Int, type: Int) =
-            onSynchronousComplicationRequest2(
-                complicationInstanceId,
-                type,
-                bundle = null
-            )
+            onSynchronousComplicationRequest2(complicationInstanceId, type, bundle = null)
 
         override fun onSynchronousComplicationRequest2(
             complicationInstanceId: Int,
             type: Int,
             bundle: Bundle?
         ): android.support.wearable.complications.ComplicationData? {
-            val isForSafeWatchFace = bundle?.getInt(
-                IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
-                TargetWatchFaceSafety.UNKNOWN
-            ) ?: TargetWatchFaceSafety.UNKNOWN
+            val isForSafeWatchFace =
+                bundle?.getInt(
+                    IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
+                    TargetWatchFaceSafety.UNKNOWN
+                )
+                    ?: TargetWatchFaceSafety.UNKNOWN
             val expectedDataType = fromWireType(type)
             val complicationType = fromWireType(type)
             val latch = CountDownLatch(1)
