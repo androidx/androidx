@@ -120,7 +120,7 @@ interface WorkSpecDao {
      * @param enqueueTime The time when the period started.
      */
     @Query("UPDATE workspec SET last_enqueue_time=:enqueueTime WHERE id=:id")
-    fun setLastEnqueuedTime(id: String, enqueueTime: Long)
+    fun setLastEnqueueTime(id: String, enqueueTime: Long)
 
     /**
      * Increment run attempt count of a [WorkSpec].
