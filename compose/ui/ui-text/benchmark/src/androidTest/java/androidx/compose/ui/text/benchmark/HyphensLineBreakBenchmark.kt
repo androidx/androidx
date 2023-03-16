@@ -22,7 +22,6 @@ import android.os.Build
 import android.text.TextPaint
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.LayoutCompat
 import androidx.compose.ui.text.android.TextLayout
@@ -36,7 +35,7 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@OptIn(ExperimentalTextApi::class, InternalPlatformTextApi::class)
+@OptIn(InternalPlatformTextApi::class)
 class HyphensLineBreakBenchmark(
     private val textLength: Int,
     private val hyphensString: String,

@@ -177,7 +177,6 @@ class ParagraphFillBoundingBoxesTest {
         ).isEqualToWithTolerance(ltrCharacterBoundariesForTestFont(text))
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun singleCharacterLineHeight_includeFontPaddingIsFalse() {
         val lineHeight = fontSize * 2
@@ -208,7 +207,6 @@ class ParagraphFillBoundingBoxesTest {
         )
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun multiLineCharacterLineHeight() {
         val lineHeight = fontSize * 2

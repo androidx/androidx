@@ -152,7 +152,6 @@ fun MultiParagraph.bitmap(
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 internal fun UncachedFontFamilyResolver(
     context: Context
 ): FontFamily.Resolver = UncachedFontFamilyResolver(
@@ -160,7 +159,6 @@ internal fun UncachedFontFamilyResolver(
     AndroidFontResolveInterceptor(context)
 )
 
-@OptIn(ExperimentalTextApi::class)
 internal fun UncachedFontFamilyResolver(
     platformFontLoader: PlatformFontLoader,
     platformResolveInterceptor: PlatformResolveInterceptor

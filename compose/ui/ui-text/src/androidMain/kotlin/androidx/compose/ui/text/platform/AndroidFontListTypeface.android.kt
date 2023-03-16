@@ -48,7 +48,6 @@ import androidx.core.content.res.ResourcesCompat
  * An implementation of [AndroidTypeface] for [FontListFontFamily]
  */
 // internal constructor for injecting FontMatcher for testing purpose
-@OptIn(ExperimentalTextApi::class)
 @Suppress("DEPRECATION")
 @Deprecated("This is not supported after downloadable fonts.")
 internal class AndroidFontListTypeface(

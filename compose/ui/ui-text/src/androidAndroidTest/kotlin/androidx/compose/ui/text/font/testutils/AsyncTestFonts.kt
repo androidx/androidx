@@ -133,7 +133,6 @@ class AsyncTestTypefaceLoader : AndroidFont.TypefaceLoader {
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 class AsyncFauxFont(
     typefaceLoader: AsyncTestTypefaceLoader,
     override val weight: FontWeight = FontWeight.Normal,
@@ -145,7 +144,6 @@ class AsyncFauxFont(
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 class OptionalFauxFont(
     typefaceLoader: AsyncTestTypefaceLoader,
     internal val typeface: Typeface?,

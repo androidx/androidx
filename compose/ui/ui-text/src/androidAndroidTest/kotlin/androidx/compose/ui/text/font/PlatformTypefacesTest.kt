@@ -17,7 +17,6 @@
 package androidx.compose.ui.text.font
 
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -129,7 +128,6 @@ class PlatformTypefacesTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun assertOptionalOnDeviceFontFamilyByName_returnsPlatformFallback_SansSerif_allWeights() {
         val subject = PlatformTypefaces()
@@ -150,7 +148,6 @@ class PlatformTypefacesTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun assertOptionalOnDeviceFontFamilyByName_returnsPlatformFallback_Serif_allWeights() {
         val subject = PlatformTypefaces()
@@ -171,7 +168,6 @@ class PlatformTypefacesTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun assertOptionalOnDeviceFontFamilyByName_returnsPlatformFallback_Monospace_allWeights() {
         val subject = PlatformTypefaces()
@@ -192,7 +188,6 @@ class PlatformTypefacesTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun assertOptionalOnDeviceFontFamilyByName_returnsPlatformFallback_Cursive_allWeights() {
         val subject = PlatformTypefaces()
