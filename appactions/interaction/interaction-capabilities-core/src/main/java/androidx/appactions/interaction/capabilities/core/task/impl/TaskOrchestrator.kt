@@ -25,6 +25,7 @@ import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.FulfillmentResult
 import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback
+import androidx.appactions.interaction.capabilities.core.impl.UiHandleRegistry
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.utils.CapabilityLogger
@@ -54,6 +55,7 @@ import kotlin.jvm.Throws
  * Only one request can be processed at a time.
  */
 internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
+    private val sessionId: String,
     private val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
     private val appAction: AppActionsContext.AppAction,
     private val taskHandler: TaskHandler<ConfirmationT>,
@@ -147,11 +149,20 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
         }
     }
 
+    private suspend fun <T> withUiHandleRegistered(block: suspend () -> T): T {
+        UiHandleRegistry.registerUiHandle(externalSession, sessionId)
+        try {
+            return block()
+        } finally {
+            UiHandleRegistry.unregisterUiHandle(externalSession)
+        }
+    }
+
     /** Processes an assistant update request. */
     @Suppress("DEPRECATION")
     private suspend fun processAssistantUpdateRequest(
         assistantUpdateRequest: AssistantUpdateRequest,
-    ) {
+    ) = withUiHandleRegistered {
         val argumentsWrapper = assistantUpdateRequest.argumentsWrapper
         val callback = assistantUpdateRequest.callbackInternal
         val fulfillmentResult: FulfillmentResult
@@ -179,14 +190,14 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
 
     private suspend fun processTouchEventUpdateRequest(
         touchEventUpdateRequest: TouchEventUpdateRequest,
-    ) {
+    ) = withUiHandleRegistered {
         val paramValuesMap = touchEventUpdateRequest.paramValuesMap
         if (
             mTouchEventCallback == null ||
             paramValuesMap.isEmpty() ||
             status !== CapabilitySession.Status.IN_PROGRESS
         ) {
-            return
+            return@withUiHandleRegistered
         }
         valuesMapLock.write {
             for ((argName, value) in paramValuesMap) {

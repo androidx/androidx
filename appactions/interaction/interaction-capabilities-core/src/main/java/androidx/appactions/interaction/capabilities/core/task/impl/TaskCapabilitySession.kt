@@ -68,6 +68,7 @@ internal class TaskCapabilitySession<
             ConfirmationT,
         > =
         TaskOrchestrator(
+            sessionId,
             actionSpec,
             appAction,
             taskHandler,

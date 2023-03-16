@@ -28,6 +28,7 @@ import androidx.appactions.interaction.capabilities.core.ValidationResult
 import androidx.appactions.interaction.capabilities.core.ValueListener
 import androidx.appactions.interaction.capabilities.core.impl.CapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
+import androidx.appactions.interaction.capabilities.core.impl.UiHandleRegistry
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
@@ -72,6 +73,8 @@ import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -217,6 +220,42 @@ class TaskCapabilityImplTest {
                 "waiting for setValidationResult"
             }
         }
+    }
+
+    @Test
+    fun duringExecution_uiHandleRegistered(): Unit = runBlocking {
+        val onFinishReached = CompletableDeferred<Unit>()
+        val onFinishResult = CompletableDeferred<ExecutionResult<Output>>()
+        val externalSession = object : Session {
+            override suspend fun onFinish(argument: Argument): ExecutionResult<Output> {
+                onFinishReached.complete(Unit)
+                return onFinishResult.await()
+            }
+        }
+        val capability: Capability = createCapability(
+            SINGLE_REQUIRED_FIELD_PROPERTY,
+            sessionFactory = SessionFactory { externalSession },
+            sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
+            sessionUpdaterSupplier = ::RequiredTaskUpdater,
+        )
+        val session = capability.createSession("mySessionId", hostProperties)
+        val callback = FakeCallbackInternal()
+        session.execute(
+            buildRequestArgs(
+                SYNC,
+                "required",
+                "hello",
+            ),
+            callback,
+        )
+        onFinishReached.await()
+        assertThat(UiHandleRegistry.getSessionIdFromUiHandle(externalSession)).isEqualTo(
+            "mySessionId",
+        )
+
+        onFinishResult.complete(ExecutionResult.getDefaultInstance<Output>())
+        assertThat(callback.receiveResponse().fulfillmentResponse).isNotNull()
+        assertThat(UiHandleRegistry.getSessionIdFromUiHandle(externalSession)).isNull()
     }
 
     @Test
@@ -615,8 +654,7 @@ class TaskCapabilityImplTest {
                                             ),
                                     ),
                             ),
-                    )
-                    .build(),
+                    ).build(),
             )
 
         // TURN 2.

@@ -27,6 +27,7 @@ import androidx.concurrent.futures.await
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 
 /**
  * CapabilitySession implementation for executing single-turn fulfillment requests.
@@ -41,6 +42,7 @@ internal class SingleTurnCapabilitySession<
     override val sessionId: String,
     private val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
     private val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
+    private val mutex: Mutex,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
 ) : CapabilitySession {
     override val state: AppDialogState
@@ -70,10 +72,15 @@ internal class SingleTurnCapabilitySession<
         val argument = actionSpec.buildArgument(paramValuesMap)
         scope.launch {
             try {
+                mutex.lock(owner = this@SingleTurnCapabilitySession)
+                UiHandleRegistry.registerUiHandle(uiHandle, sessionId)
                 val output = actionExecutorAsync.execute(argument).await()
                 callback.onSuccess(convertToFulfillmentResponse(output))
             } catch (t: Throwable) {
                 callback.onError(ErrorStatusInternal.CANCELLED)
+            } finally {
+                UiHandleRegistry.unregisterUiHandle(uiHandle)
+                mutex.unlock(owner = this@SingleTurnCapabilitySession)
             }
         }
     }
