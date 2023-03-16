@@ -269,7 +269,9 @@ public final class DimensionBuilders {
         }
 
         /**
-         * Gets the fixed value to reserve the space when used on a layout-changing data bind.
+         * Gets the value to use when laying out components which can have a dynamic value.
+         * Constrains the layout so that components are not changing size or location regardless
+         * of the dynamic value that is being provided.
          *
          * @since 1.2
          */
@@ -286,6 +288,13 @@ public final class DimensionBuilders {
             return mFingerprint;
         }
 
+        @SuppressWarnings("Unused")
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DimensionProto.SpacerDimension toSpacerDimensionProto() {
+            return DimensionProto.SpacerDimension.newBuilder().setLinearDimension(mImpl).build();
+        }
+
         /** Builder for {@link DpPropLayoutConstraint}. */
         protected static class Builder {
             protected final DimensionProto.DpProp.Builder mImpl =
@@ -295,8 +304,10 @@ public final class DimensionBuilders {
             /**
              * Creates a new builder for {@link DpPropLayoutConstraint}.
              *
-             * @param value Sets the fixed value to reserve the space when used on a layout-changing
-             *     data bind.
+             * @param value Sets the value to use when laying out components which can have a
+             *              dynamic value. Constrains the layout so that components are not
+             *              changing size or location regardless of the dynamic value that is
+             *              being provided.
              * @since 1.2
              */
             protected Builder(@Dimension(unit = DP) float value) {
@@ -304,7 +315,9 @@ public final class DimensionBuilders {
             }
 
             /**
-             * Sets the fixed value to reserve the space when used on a layout-changing data bind.
+             * Sets the value to use when laying out components which can have a dynamic value.
+             * Constrains the layout so that components are not changing size or location
+             * regardless of the dynamic value that is being provided.
              *
              * @since 1.2
              */
@@ -338,13 +351,20 @@ public final class DimensionBuilders {
             return mImpl.getHorizontalAlignmentForLayoutValue();
         }
 
+        @NonNull
+        static HorizontalLayoutConstraint fromProto(@NonNull DimensionProto.DpProp proto) {
+            return new HorizontalLayoutConstraint(proto, null);
+        }
+
         /** Builder for {@link HorizontalLayoutConstraint}. */
         public static final class Builder extends DpPropLayoutConstraint.Builder {
             /**
              * Creates a new builder for {@link HorizontalLayoutConstraint}.
              *
-             * @param value Sets the fixed value to reserve the space when used on a layout-changing
-             *     data bind.
+             * @param value Sets the value to use when laying out components which can have a
+             *              dynamic value. Constrains the layout so that components are not
+             *              changing size or location regardless of the dynamic value that is
+             *              being provided.
              * @since 1.2
              */
             public Builder(@Dimension(unit = DP) float value) {
@@ -394,13 +414,20 @@ public final class DimensionBuilders {
             return mImpl.getVerticalAlignmentForLayoutValue();
         }
 
+        @NonNull
+        static VerticalLayoutConstraint fromProto(@NonNull DimensionProto.DpProp proto) {
+            return new VerticalLayoutConstraint(proto, null);
+        }
+
         /** Builder for {@link VerticalLayoutConstraint}. */
         public static final class Builder extends DpPropLayoutConstraint.Builder {
             /**
              * Creates a new builder for {@link VerticalLayoutConstraint}.
              *
-             * @param value Sets the fixed value to reserve the space when used on a layout-changing
-             *     data bind.
+             * @param value Sets the value to use when laying out components which can have a
+             *              dynamic value. Constrains the layout so that components are not
+             *              changing size or location regardless of the dynamic value that is
+             *              being provided.
              * @since 1.2
              */
             public Builder(@Dimension(unit = DP) float value) {
@@ -750,7 +777,8 @@ public final class DimensionBuilders {
         }
 
         /**
-         * Gets the fixed value to reserve the space when used on a layout-changing data bind.
+         * Gets the fixed value to reserve the space when used on a layout-changing data bind. If
+         * not set defaults to the static value of the associated {@link DegreesProp} field.
          *
          * @since 1.2
          */
@@ -773,6 +801,17 @@ public final class DimensionBuilders {
         @Nullable
         public Fingerprint getFingerprint() {
             return mFingerprint;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DimensionProto.DegreesProp toProto() {
+            return mImpl;
+        }
+
+        @NonNull
+        static AngularLayoutConstraint fromProto(@NonNull DimensionProto.DegreesProp proto) {
+            return new AngularLayoutConstraint(proto, null);
         }
 
         /** Builder for {@link AngularLayoutConstraint}. */

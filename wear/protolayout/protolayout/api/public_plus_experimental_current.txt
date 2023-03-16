@@ -363,6 +363,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getAnchorAngle();
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcAnchorTypeProp? getAnchorType();
     method public java.util.List<androidx.wear.protolayout.LayoutElementBuilders.ArcLayoutElement!> getContents();
+    method public androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint? getLayoutConstraintsForDynamicAnchorAngle();
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.protolayout.LayoutElementBuilders.VerticalAlignmentProp? getVerticalAlign();
   }
@@ -374,6 +375,7 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setAnchorAngle(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setAnchorType(androidx.wear.protolayout.LayoutElementBuilders.ArcAnchorTypeProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setAnchorType(int);
+    method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setLayoutConstraintsForDynamicAnchorAngle(androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint);
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setVerticalAlign(androidx.wear.protolayout.LayoutElementBuilders.VerticalAlignmentProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.Arc.Builder setVerticalAlign(int);
@@ -411,6 +413,7 @@ package androidx.wear.protolayout {
 
   public static final class LayoutElementBuilders.ArcLine implements androidx.wear.protolayout.LayoutElementBuilders.ArcLayoutElement {
     method public androidx.wear.protolayout.ColorBuilders.ColorProp? getColor();
+    method public androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint? getLayoutConstraintsForDynamicLength();
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp? getLength();
     method public androidx.wear.protolayout.ModifiersBuilders.ArcModifiers? getModifiers();
     method public androidx.wear.protolayout.DimensionBuilders.DpProp? getThickness();
@@ -420,6 +423,7 @@ package androidx.wear.protolayout {
     ctor public LayoutElementBuilders.ArcLine.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine build();
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setColor(androidx.wear.protolayout.ColorBuilders.ColorProp);
+    method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setLayoutConstraintsForDynamicLength(androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint);
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setLength(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.ArcModifiers);
     method public androidx.wear.protolayout.LayoutElementBuilders.ArcLine.Builder setThickness(androidx.wear.protolayout.DimensionBuilders.DpProp);
@@ -648,6 +652,8 @@ package androidx.wear.protolayout {
 
   public static final class LayoutElementBuilders.Spacer implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
     method public androidx.wear.protolayout.DimensionBuilders.SpacerDimension? getHeight();
+    method public androidx.wear.protolayout.DimensionBuilders.VerticalLayoutConstraint? getLayoutConstraintsForDynamicHeight();
+    method public androidx.wear.protolayout.DimensionBuilders.HorizontalLayoutConstraint? getLayoutConstraintsForDynamicWidth();
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers? getModifiers();
     method public androidx.wear.protolayout.DimensionBuilders.SpacerDimension? getWidth();
   }
@@ -656,6 +662,8 @@ package androidx.wear.protolayout {
     ctor public LayoutElementBuilders.Spacer.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.Spacer build();
     method public androidx.wear.protolayout.LayoutElementBuilders.Spacer.Builder setHeight(androidx.wear.protolayout.DimensionBuilders.SpacerDimension);
+    method public androidx.wear.protolayout.LayoutElementBuilders.Spacer.Builder setLayoutConstraintsForDynamicHeight(androidx.wear.protolayout.DimensionBuilders.VerticalLayoutConstraint);
+    method public androidx.wear.protolayout.LayoutElementBuilders.Spacer.Builder setLayoutConstraintsForDynamicWidth(androidx.wear.protolayout.DimensionBuilders.HorizontalLayoutConstraint);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spacer.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
     method public androidx.wear.protolayout.LayoutElementBuilders.Spacer.Builder setWidth(androidx.wear.protolayout.DimensionBuilders.SpacerDimension);
   }
@@ -737,6 +745,7 @@ package androidx.wear.protolayout {
 
   public static final class LayoutElementBuilders.Text implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
     method public androidx.wear.protolayout.LayoutElementBuilders.FontStyle? getFontStyle();
+    method public androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint? getLayoutConstraintsForDynamicText();
     method public androidx.wear.protolayout.DimensionBuilders.SpProp? getLineHeight();
     method public androidx.wear.protolayout.TypeBuilders.Int32Prop? getMaxLines();
     method public androidx.wear.protolayout.ModifiersBuilders.Modifiers? getModifiers();
@@ -749,6 +758,7 @@ package androidx.wear.protolayout {
     ctor public LayoutElementBuilders.Text.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.Text build();
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setFontStyle(androidx.wear.protolayout.LayoutElementBuilders.FontStyle);
+    method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setLayoutConstraintsForDynamicText(androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setLineHeight(androidx.wear.protolayout.DimensionBuilders.SpProp);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setMaxLines(androidx.wear.protolayout.TypeBuilders.Int32Prop);
     method public androidx.wear.protolayout.LayoutElementBuilders.Text.Builder setMaxLines(@IntRange(from=1) int);

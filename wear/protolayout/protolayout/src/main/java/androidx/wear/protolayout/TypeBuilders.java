@@ -232,8 +232,7 @@ public final class TypeBuilders {
 
         /**
          * Gets the text string to use as the pattern for the largest text that can be laid out.
-         * Used to ensure that the layout is of a known size during the layout pass. If
-         * not set defaults to the static value of the associated {@link StringProp} field.
+         * Used to ensure that the layout is of a known size during the layout pass.
          *
          * @since 1.2
          */
@@ -300,7 +299,7 @@ public final class TypeBuilders {
             }
 
             /**
-             * Sets alignment of the actual text within the space reserved by patternForMeasurement.
+             * Sets alignment of the actual text within the space reserved by patternForLayout.
              * If not specified, defaults to center alignment.
              *
              * @since 1.2
