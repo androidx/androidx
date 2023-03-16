@@ -88,7 +88,9 @@ open class GMavenZipTask : Zip() {
             onRegister = {
             }
         )
-        finalizedBy(verifyTask)
+        if (!isPresubmitBuild()) {
+            finalizedBy(verifyTask)
+        }
     }
 
     /**
