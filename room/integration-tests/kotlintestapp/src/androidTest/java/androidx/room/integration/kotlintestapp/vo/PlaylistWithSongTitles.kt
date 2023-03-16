@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,4 +15,21 @@
  */
 package androidx.room.integration.kotlintestapp.vo
 
-data class ReleasedAlbum(val mReleaseYear: Int, val mAlbumName: String?)
+import androidx.room.Embedded
+import androidx.room.Junction
+import androidx.room.Relation
+
+data class PlaylistWithSongTitles(
+    @Embedded
+    var playlist: Playlist,
+    @Relation(
+        parentColumn = "mPlaylistId",
+        entity = Song::class,
+        entityColumn = "mSongId",
+        associateBy = Junction(
+            PlaylistSongXRef::class
+        ),
+        projection = ["mTitle"]
+    )
+    var titles: List<String>
+)

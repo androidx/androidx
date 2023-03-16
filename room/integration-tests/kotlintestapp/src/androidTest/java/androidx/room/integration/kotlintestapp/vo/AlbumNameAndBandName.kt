@@ -15,4 +15,4 @@
  */
 package androidx.room.integration.kotlintestapp.vo
 
-data class AlbumNameAndBandName(val albumName: String?, val bandName: String?)
+data class AlbumNameAndBandName(val mAlbumName: String?, val mBandName: String?)

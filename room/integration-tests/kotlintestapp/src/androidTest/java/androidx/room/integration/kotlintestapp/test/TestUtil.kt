@@ -33,12 +33,12 @@ import java.util.concurrent.FutureTask
 class TestUtil {
 
     companion object {
-        fun observeOnMainThread(
-            liveData: LiveData<Book>,
+        fun <T> observeOnMainThread(
+            liveData: LiveData<T>,
             provider: LifecycleOwner,
-            observer: Observer<Book>
+            observer: Observer<T>
         ) {
-            val futureTask = FutureTask<Unit> {
+            val futureTask = FutureTask {
                 liveData.observe(provider, observer)
             }
             ArchTaskExecutor.getInstance().executeOnMainThread(futureTask)

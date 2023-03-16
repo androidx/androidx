@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,4 +15,11 @@
  */
 package androidx.room.integration.kotlintestapp.vo
 
-data class ReleasedAlbum(val mReleaseYear: Int, val mAlbumName: String?)
+import androidx.room.DatabaseView
+
+// View of join table with playlists with more than 1 song
+@DatabaseView(
+    "SELECT * FROM PlaylistSongXRef WHERE mPlaylistId IN (SELECT mPlaylistId FROM" +
+        " PlaylistSongXRef GROUP BY mPlaylistId HAVING COUNT(mSongId) > 1)"
+)
+class PlaylistMultiSongXRefView(val mPlaylistId: Int, val mSongId: Int)
