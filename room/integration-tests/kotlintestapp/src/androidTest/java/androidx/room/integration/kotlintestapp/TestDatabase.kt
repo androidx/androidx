@@ -19,44 +19,53 @@ package androidx.room.integration.kotlintestapp
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import androidx.room.integration.kotlintestapp.dao.AbstractDao
 import androidx.room.integration.kotlintestapp.dao.BooksDao
 import androidx.room.integration.kotlintestapp.dao.CounterDao
 import androidx.room.integration.kotlintestapp.dao.DependencyDao
 import androidx.room.integration.kotlintestapp.dao.DerivedDao
+import androidx.room.integration.kotlintestapp.dao.MusicDao
 import androidx.room.integration.kotlintestapp.dao.PetDao
 import androidx.room.integration.kotlintestapp.dao.ToyDao
 import androidx.room.integration.kotlintestapp.dao.UsersDao
+import androidx.room.integration.kotlintestapp.vo.Album
+import androidx.room.integration.kotlintestapp.vo.Artist
 import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.integration.kotlintestapp.vo.BookAuthor
 import androidx.room.integration.kotlintestapp.vo.Counter
 import androidx.room.integration.kotlintestapp.vo.DataClassFromDependency
-import androidx.room.integration.kotlintestapp.vo.Day
 import androidx.room.integration.kotlintestapp.vo.EntityWithJavaPojoList
+import androidx.room.integration.kotlintestapp.vo.Image
 import androidx.room.integration.kotlintestapp.vo.JavaEntity
 import androidx.room.integration.kotlintestapp.vo.NoArgClass
 import androidx.room.integration.kotlintestapp.vo.Pet
 import androidx.room.integration.kotlintestapp.vo.PetUser
 import androidx.room.integration.kotlintestapp.vo.PetWithUser
+import androidx.room.integration.kotlintestapp.vo.Playlist
+import androidx.room.integration.kotlintestapp.vo.PlaylistSongXRef
 import androidx.room.integration.kotlintestapp.vo.Publisher
-import androidx.room.integration.kotlintestapp.vo.Toy
-import androidx.room.integration.kotlintestapp.vo.User
+import androidx.room.integration.kotlintestapp.vo.Song
 import java.nio.ByteBuffer
 import java.util.Date
 import java.util.UUID
+import androidx.room.integration.kotlintestapp.vo.Toy
+import androidx.room.integration.kotlintestapp.vo.User
 
 @Database(
     entities = [
         Book::class, Author::class, Publisher::class, BookAuthor::class,
         NoArgClass::class, DataClassFromDependency::class, JavaEntity::class,
         EntityWithJavaPojoList::class, User::class, Counter::class, Toy::class,
-        Pet::class, PetUser::class
+        Pet::class, PetUser::class, Song::class, Playlist::class, PlaylistSongXRef::class,
+        Artist::class, Album::class, Image::class
     ],
+    views = [PetWithUser::class],
     version = 1,
     exportSchema = false,
-    views = [PetWithUser::class]
 )
+@TypeConverters(TestDatabase.Converters::class)
 abstract class TestDatabase : RoomDatabase() {
 
     abstract fun usersDao(): UsersDao
@@ -75,22 +84,24 @@ abstract class TestDatabase : RoomDatabase() {
 
     abstract fun petDao(): PetDao
 
+    abstract fun musicDao(): MusicDao
+
     class Converters {
         @TypeConverter
-        fun fromTimestamp(value: Long?): Date? {
-            return if (value == null) null else Date(value)
+        fun fromTimestamp(value: Long): Date {
+            return Date(value)
         }
 
         @TypeConverter
-        fun dateToTimestamp(date: Date?): Long? {
-            return date?.time
+        fun dateToTimestamp(date: Date): Long {
+            return date.time
         }
 
         @TypeConverter
-        fun decomposeDays(flags: Int): Set<Day> {
-            val result: MutableSet<Day> =
+        fun decomposeDays(flags: Int): Set<androidx.room.integration.kotlintestapp.vo.Day> {
+            val result: MutableSet<androidx.room.integration.kotlintestapp.vo.Day> =
                 HashSet()
-            for (day in Day.values()) {
+            for (day in androidx.room.integration.kotlintestapp.vo.Day.values()) {
                 if (flags and (1 shl day.ordinal) != 0) {
                     result.add(day)
                 }
@@ -99,7 +110,7 @@ abstract class TestDatabase : RoomDatabase() {
         }
 
         @TypeConverter
-        fun composeDays(days: Set<Day>): Int {
+        fun composeDays(days: Set<androidx.room.integration.kotlintestapp.vo.Day>): Int {
             var result = 0
             for (day in days) {
                 result = result or (1 shl day.ordinal)
