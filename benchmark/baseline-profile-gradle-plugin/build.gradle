@@ -74,3 +74,5 @@ tasks {
         enableStricterValidation.set(true)
     }
 }
+
+afterEvaluate { tasks.named("test") { it.dependsOn(tasks.named("publish")) } }
