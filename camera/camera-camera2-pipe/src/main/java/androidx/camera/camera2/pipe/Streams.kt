@@ -83,6 +83,7 @@ internal constructor(val id: StreamId, val outputs: List<OutputStream>) {
                 timestampBase: OutputStream.TimestampBase? = null,
                 dynamicRangeProfile: OutputStream.DynamicRangeProfile? = null,
                 streamUseCase: OutputStream.StreamUseCase? = null,
+                streamUseHint: OutputStream.StreamUseHint? = null
             ): Config =
                 create(
                     OutputStream.Config.create(
@@ -94,6 +95,7 @@ internal constructor(val id: StreamId, val outputs: List<OutputStream>) {
                         timestampBase,
                         dynamicRangeProfile,
                         streamUseCase,
+                        streamUseHint
                     )
                 )
 
@@ -140,6 +142,7 @@ interface OutputStream {
     val dynamicRangeProfile: DynamicRangeProfile?
     val streamUseCase: StreamUseCase?
     val outputType: OutputType?
+    val streamUseHint: StreamUseHint?
 
     // TODO: Consider adding sensor mode and/or other metadata
 
@@ -155,6 +158,7 @@ interface OutputStream {
         val timestampBase: TimestampBase?,
         val dynamicRangeProfile: DynamicRangeProfile?,
         val streamUseCase: StreamUseCase?,
+        val streamUseHint: StreamUseHint?
     ) {
         companion object {
             fun create(
@@ -166,6 +170,7 @@ interface OutputStream {
                 timestampBase: TimestampBase? = null,
                 dynamicRangeProfile: DynamicRangeProfile? = null,
                 streamUseCase: StreamUseCase? = null,
+                streamUseHint: StreamUseHint? = null
             ): Config =
                 if (outputType == OutputType.SURFACE_TEXTURE ||
                     outputType == OutputType.SURFACE_VIEW
@@ -178,7 +183,8 @@ interface OutputStream {
                         mirrorMode,
                         timestampBase,
                         dynamicRangeProfile,
-                        streamUseCase
+                        streamUseCase,
+                        streamUseHint
                     )
                 } else {
                     check(outputType == OutputType.SURFACE)
@@ -190,6 +196,7 @@ interface OutputStream {
                         timestampBase,
                         dynamicRangeProfile,
                         streamUseCase,
+                        streamUseHint
                     )
                 }
 
@@ -199,9 +206,16 @@ interface OutputStream {
                 size: Size,
                 format: StreamFormat,
                 camera: CameraId? = null,
-                externalOutputConfig: OutputConfiguration
+                externalOutputConfig: OutputConfiguration,
+                streamUseHint: StreamUseHint?
             ): Config {
-                return ExternalOutputConfig(size, format, camera, output = externalOutputConfig)
+                return ExternalOutputConfig(
+                    size,
+                    format,
+                    camera,
+                    output = externalOutputConfig,
+                    streamUseHint
+                )
             }
         }
 
@@ -214,6 +228,7 @@ interface OutputStream {
             timestampBase: TimestampBase?,
             dynamicRangeProfile: DynamicRangeProfile?,
             streamUseCase: StreamUseCase?,
+            streamUseHint: StreamUseHint?
         ) :
             Config(
                 size,
@@ -222,7 +237,8 @@ interface OutputStream {
                 mirrorMode,
                 timestampBase,
                 dynamicRangeProfile,
-                streamUseCase
+                streamUseCase,
+                streamUseHint
             )
 
         /**
@@ -243,6 +259,7 @@ interface OutputStream {
             timestampBase: TimestampBase?,
             dynamicRangeProfile: DynamicRangeProfile?,
             streamUseCase: StreamUseCase?,
+            streamUseHint: StreamUseHint?
         ) :
             Config(
                 size,
@@ -252,6 +269,7 @@ interface OutputStream {
                 timestampBase,
                 dynamicRangeProfile,
                 streamUseCase,
+                streamUseHint
             )
 
         /**
@@ -270,6 +288,7 @@ interface OutputStream {
             format: StreamFormat,
             camera: CameraId?,
             val output: OutputConfiguration,
+            streamUseHint: StreamUseHint?
         ) :
             Config(
                 size,
@@ -279,6 +298,7 @@ interface OutputStream {
                 TimestampBase(Api33Compat.getTimestampBase(output)),
                 DynamicRangeProfile(Api33Compat.getDynamicRangeProfile(output)),
                 StreamUseCase(Api33Compat.getStreamUseCase(output)),
+                streamUseHint
             )
     }
 
@@ -347,6 +367,20 @@ interface OutputStream {
             val DOLBY_VISION_8B_HDR_OEM = DynamicRangeProfile(1024)
             val DOLBY_VISION_8B_HDR_OEM_PO = DynamicRangeProfile(2048)
             val PUBLIC_MAX = DynamicRangeProfile(4096)
+        }
+    }
+
+    /**
+     * Until all devices can support StreamUseCases and edge cases are resolved, [StreamUseHint]
+     * can temporarily be used to give a hint on the purpose of the stream.
+     *
+     */
+    @JvmInline
+    value class StreamUseHint(val value: Long) {
+
+        companion object {
+            val DEFAULT = StreamUseHint(0)
+            val VIDEO_RECORD = StreamUseHint(1)
         }
     }
 
