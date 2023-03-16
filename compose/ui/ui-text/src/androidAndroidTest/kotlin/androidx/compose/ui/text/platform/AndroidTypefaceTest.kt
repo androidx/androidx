@@ -464,7 +464,6 @@ class AndroidTypefaceTest {
     }
 
     @Test(expected = IllegalStateException::class)
-    @OptIn(ExperimentalTextApi::class)
     fun throwsExceptionIfFontIsNotIncludedInTheApp() {
         val fontFamily = FontFamily(Font(-1))
         androidTypefaceFromFontFamily(context, fontFamily)

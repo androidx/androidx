@@ -96,7 +96,6 @@ AndroidParagraphTest {
     private val defaultDensity = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun draw_with_newline_and_line_break_default_values() {
         with(defaultDensity) {
@@ -1012,7 +1011,6 @@ AndroidParagraphTest {
         assertThat(paragraph.textPaint.typeface).isNull()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     @MediumTest
     fun testEmptyFontFamily_withBoldFontWeightSelection() {
@@ -1030,7 +1028,6 @@ AndroidParagraphTest {
         assertThat(typeface.isItalic).isFalse()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     @MediumTest
     fun testEmptyFontFamily_withFontStyleSelection() {
@@ -1049,7 +1046,6 @@ AndroidParagraphTest {
         assertThat(typeface.isItalic).isTrue()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     @MediumTest
     fun testFontFamily_withGenericFamilyName() {
@@ -1069,7 +1065,6 @@ AndroidParagraphTest {
         assertThat(typeface.isItalic).isFalse()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     @MediumTest
     fun testFontFamily_withCustomFont() {
@@ -1931,7 +1926,6 @@ AndroidParagraphTest {
         assertThat(paragraph.textLocale.toLanguageTag()).isEqualTo("ja")
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun withIncludeFontPadding() {
         val text = "A"

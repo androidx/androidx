@@ -41,7 +41,6 @@ import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
@@ -347,7 +346,6 @@ class ModifierLocalConsumerEntityTest {
             get() = TODO("Not yet implemented")
         override val textInputService: TextInputService
             get() = TODO("Not yet implemented")
-        @OptIn(ExperimentalTextApi::class)
         override val platformTextInputPluginRegistry: PlatformTextInputPluginRegistry
             get() = TODO("Not yet implemented")
         override val pointerIconService: PointerIconService

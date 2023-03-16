@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.junit4
 
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
@@ -34,7 +33,6 @@ import androidx.compose.ui.text.input.TextInputSession
  * accept input from the IME. Here we grab that callback so we can fetch it commands the same
  * way IME would do.
  */
-@OptIn(ExperimentalTextApi::class)
 internal class TextInputServiceForTests(
     platformTextInputService: PlatformTextInputService
 ) : TextInputService(platformTextInputService), TextInputForTests {

@@ -19,7 +19,6 @@ package androidx.compose.ui.text.font
 import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.FontTestData
 import androidx.compose.ui.text.UncachedFontFamilyResolver
 import androidx.compose.ui.text.font.testutils.AsyncFauxFont
@@ -45,7 +44,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTextApi::class)
 @ExperimentalCoroutinesApi
 class FontFamilyResolverImplTest {
     private lateinit var scope: TestScope

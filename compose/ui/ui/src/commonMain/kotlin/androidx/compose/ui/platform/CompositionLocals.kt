@@ -29,7 +29,6 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.pointer.PointerIconService
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.node.Owner
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
@@ -144,7 +143,6 @@ val LocalTextInputService = staticCompositionLocalOf<TextInputService?> { null }
  * Higher-level text input APIs in the Foundation library are more appropriate for most cases.
  */
 // Experimental in desktop.
-@OptIn(ExperimentalTextApi::class)
 val LocalPlatformTextInputPluginRegistry =
     staticCompositionLocalOf<PlatformTextInputPluginRegistry> {
         error("No PlatformTextInputPluginRegistry provided")
@@ -182,7 +180,6 @@ internal val LocalPointerIconService = staticCompositionLocalOf<PointerIconServi
     null
 }
 
-@OptIn(ExperimentalTextApi::class)
 @ExperimentalComposeUiApi
 @Composable
 internal fun ProvideCommonCompositionLocals(
