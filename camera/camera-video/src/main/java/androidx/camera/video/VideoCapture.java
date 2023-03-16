@@ -17,7 +17,9 @@
 package androidx.camera.video;
 
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
+import static androidx.camera.core.DynamicRange.SDR;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
@@ -40,6 +42,7 @@ import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.video.QualitySelector.getQualityToResolutionMap;
 import static androidx.camera.video.StreamInfo.STREAM_ID_ERROR;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_ENCODER_INFO_FINDER;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
@@ -69,7 +72,9 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.AspectRatio;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MirrorMode;
@@ -579,10 +584,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             expectedFrameRate = Defaults.DEFAULT_FPS_RANGE;
         }
         MediaSpec mediaSpec = requireNonNull(getMediaSpec());
-        LegacyVideoCapabilities videoCapabilities = LegacyVideoCapabilities.from(
-                camera.getCameraInfo());
+        VideoCapabilities videoCapabilities = getVideoCapabilities(camera.getCameraInfo());
+        DynamicRange dynamicRange = streamSpec.getDynamicRange();
         VideoEncoderInfo videoEncoderInfo = getVideoEncoderInfo(config.getVideoEncoderInfoFinder(),
-                videoCapabilities, mediaSpec, resolution, expectedFrameRate);
+                videoCapabilities, dynamicRange, mediaSpec, resolution, expectedFrameRate);
         mCropRect = calculateCropRect(resolution, videoEncoderInfo);
         mNode = createNodeIfNeeded(camera, mCropRect, resolution);
         // Choose Timebase based on the whether the buffer is copied.
@@ -637,7 +642,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             mSurfaceRequest = new SurfaceRequest(
                     resolution,
                     camera,
-                    streamSpec.getDynamicRange(),
+                    dynamicRange,
                     expectedFrameRate,
                     onSurfaceInvalidated);
             mDeferrableSurface = mSurfaceRequest.getDeferrableSurface();
@@ -775,6 +780,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Nullable
     private MediaSpec getMediaSpec() {
         return fetchObservableValue(getOutput().getMediaSpec(), null);
+    }
+
+    @NonNull
+    private VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo) {
+        return getOutput().getMediaCapabilities(cameraInfo);
     }
 
     private final Observer<StreamInfo> mStreamInfoObserver = new Observer<StreamInfo>() {
@@ -942,7 +952,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return cropRect;
         }
 
-        // New width/height should be multiple of 2 since LegacyVideoCapabilities.get*Alignment()
+        // New width/height should be multiple of 2 since VideoCapabilities.get*Alignment()
         // returns power of 2. This ensures width/2 and height/2 are not rounded off.
         // New width/height smaller than resolution ensures calculated cropRect never exceeds
         // the resolution.
@@ -1037,7 +1047,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Nullable
     private VideoEncoderInfo getVideoEncoderInfo(
             @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder,
-            @NonNull LegacyVideoCapabilities videoCapabilities,
+            @NonNull VideoCapabilities videoCapabilities,
+            @NonNull DynamicRange dynamicRange,
             @NonNull MediaSpec mediaSpec,
             @NonNull Size resolution,
             @NonNull Range<Integer> expectedFrameRate) {
@@ -1047,7 +1058,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         // Find the nearest EncoderProfiles
         VideoValidatedEncoderProfilesProxy encoderProfiles =
-                videoCapabilities.findHighestSupportedEncoderProfilesFor(resolution);
+                videoCapabilities.findHighestSupportedEncoderProfilesFor(resolution, dynamicRange);
         VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder,
                 encoderProfiles, mediaSpec, resolution, expectedFrameRate);
         if (videoEncoderInfo == null) {
@@ -1178,7 +1189,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Preconditions.checkArgument(mediaSpec != null,
                 "Unable to update target resolution by null MediaSpec.");
 
-        List<Quality> supportedQualities = QualitySelector.getSupportedQualities(cameraInfo);
+        DynamicRange dynamicRange = Preconditions.checkNotNull(
+                builder.getMutableConfig().retrieveOption(OPTION_INPUT_DYNAMIC_RANGE, SDR));
+        VideoCapabilities videoCapabilities = getVideoCapabilities(cameraInfo);
+
+        // Get supported qualities.
+        List<Quality> supportedQualities = videoCapabilities.getSupportedQualities(dynamicRange);
         if (supportedQualities.isEmpty()) {
             // When the device does not have any supported quality, even the most flexible
             // QualitySelector such as QualitySelector.from(Quality.HIGHEST), still cannot
@@ -1189,20 +1205,22 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return;
         }
 
-        QualitySelector qualitySelector = mediaSpec.getVideoSpec().getQualitySelector();
-
-        List<Quality> selectedQualities = qualitySelector.getPrioritizedQualities(cameraInfo);
-        Logger.d(TAG,
-                "Found selectedQualities " + selectedQualities + " by " + qualitySelector);
+        // Get selected qualities.
+        VideoSpec videoSpec = mediaSpec.getVideoSpec();
+        QualitySelector qualitySelector = videoSpec.getQualitySelector();
+        List<Quality> selectedQualities = qualitySelector.getPrioritizedQualities(
+                supportedQualities);
+        Logger.d(TAG, "Found selectedQualities " + selectedQualities + " by " + qualitySelector);
         if (selectedQualities.isEmpty()) {
             throw new IllegalArgumentException(
                     "Unable to find supported quality by QualitySelector");
         }
 
-        int aspectRatio = mediaSpec.getVideoSpec().getAspectRatio();
-        Map<Quality, Size> qualityToSizeMap = QualitySelector.getQualityToResolutionMap(cameraInfo);
+        // Get corresponded resolutions for the target aspect ratio.
+        int aspectRatio = videoSpec.getAspectRatio();
+        Map<Quality, Size> sizeMap = getQualityToResolutionMap(videoCapabilities, dynamicRange);
         QualityRatioToResolutionsTable qualityRatioTable = new QualityRatioToResolutionsTable(
-                cameraInfo.getSupportedResolutions(getImageFormat()), qualityToSizeMap);
+                cameraInfo.getSupportedResolutions(getImageFormat()), sizeMap);
         List<Size> supportedResolutions = new ArrayList<>();
         for (Quality selectedQuality : selectedQualities) {
             supportedResolutions.addAll(

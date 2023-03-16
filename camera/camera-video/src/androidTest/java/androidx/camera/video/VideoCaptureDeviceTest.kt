@@ -19,12 +19,14 @@ package androidx.camera.video
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.os.Build
+import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.MutableStateObservable
 import androidx.camera.core.impl.Observable
@@ -32,8 +34,13 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_2160P
+import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_720P
+import androidx.camera.testing.EncoderProfilesUtil.createFakeEncoderProfilesProxy
 import androidx.camera.testing.GLUtil
+import androidx.camera.testing.fakes.FakeVideoEncoderInfo
 import androidx.camera.video.VideoOutput.SourceState
+import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -108,6 +115,16 @@ class VideoCaptureDeviceTest(
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    // TODO(b/278168212): Only SDR is checked by now. Need to extend to HDR dynamic ranges.
+    private val dynamicRange = DynamicRange.SDR
+    private val supportedResolutionMap = mapOf(
+        DynamicRange.SDR to linkedMapOf(
+            Quality.HIGHEST to RESOLUTION_2160P,
+            Quality.UHD to RESOLUTION_2160P,
+            Quality.HD to RESOLUTION_720P,
+            Quality.LOWEST to RESOLUTION_720P
+        )
+    )
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
     private lateinit var cameraInfo: CameraInfo
@@ -142,7 +159,7 @@ class VideoCaptureDeviceTest(
     @Test
     fun addUseCases_canReceiveFrame(): Unit = runBlocking {
         // Arrange.
-        val videoOutput = TestVideoOutput()
+        val videoOutput = createTestVideoOutput()
         val videoCapture = VideoCapture.withOutput(videoOutput)
 
         // Act.
@@ -163,7 +180,7 @@ class VideoCaptureDeviceTest(
     fun changeStreamState_canReceiveFrame(): Unit = runBlocking {
         // Arrange.
         val videoOutput =
-            TestVideoOutput(
+            createTestVideoOutput(
                 streamInfo = StreamInfo.of(
                     StreamInfo.STREAM_ID_ANY,
                     StreamInfo.StreamState.INACTIVE
@@ -205,20 +222,27 @@ class VideoCaptureDeviceTest(
 
     @Test
     fun addUseCases_setSupportedQuality_getCorrectResolution() = runBlocking {
-        assumeTrue(QualitySelector.getSupportedQualities(cameraInfo).isNotEmpty())
+        val videoCapabilities = createFakeVideoCapabilities(supportedResolutionMap)
+        assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
         // Cuttlefish API 29 has inconsistent resolution issue. See b/184015059.
         assumeFalse(Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29)
 
         // Arrange.
-        val qualityList = QualitySelector.getSupportedQualities(cameraInfo)
+        val qualityList = videoCapabilities.getSupportedQualities(dynamicRange)
         qualityList.forEach loop@{ quality ->
-            val targetResolution = QualitySelector.getResolution(cameraInfo, quality)!!
-            val videoOutput = TestVideoOutput(
+            val profile = videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
+            val targetResolution = Size(profile.width, profile.height)
+            val videoOutput = createTestVideoOutput(
                 mediaSpec = MediaSpec.builder().configureVideo {
                     it.setQualitySelector(QualitySelector.from(quality))
-                }.build()
+                }.build(),
+                videoCapabilities = videoCapabilities
             )
-            val videoCapture = VideoCapture.withOutput(videoOutput)
+
+            // Use custom VideoEncoderInfoFinder which always returns default FakeVideoEncoderInfo,
+            // which tolerance typical resolutions.
+            val videoCapture = VideoCapture.Builder(videoOutput)
+                .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }.build()
 
             // Act.
             if (!cameraUseCaseAdapter.isUseCasesCombinationSupported(videoCapture)) {
@@ -244,7 +268,7 @@ class VideoCaptureDeviceTest(
     @Test
     fun useCaseCanBeReused(): Unit = runBlocking {
         // Arrange.
-        val videoOutput = TestVideoOutput()
+        val videoOutput = createTestVideoOutput()
         val videoCapture = VideoCapture.withOutput(videoOutput)
 
         // Act.
@@ -282,7 +306,7 @@ class VideoCaptureDeviceTest(
     fun activeStreamingVideoCaptureStaysInactive_afterUnbind(): Unit = runBlocking {
         // Arrange.
         val videoOutput =
-            TestVideoOutput(
+            createTestVideoOutput(
                 streamInfo = StreamInfo.of(1, StreamInfo.StreamState.ACTIVE)
             )
         val videoCapture = VideoCapture.withOutput(videoOutput)
@@ -350,12 +374,60 @@ class VideoCaptureDeviceTest(
         } ?: fail("Timed out waiting for INACTIVE state. Waited $timeout.")
     }
 
-    private class TestVideoOutput(
+    private fun createTestVideoOutput(
         streamInfo: StreamInfo = StreamInfo.of(
             StreamInfo.STREAM_ID_ANY,
             StreamInfo.StreamState.ACTIVE
         ),
-        mediaSpec: MediaSpec = MediaSpec.builder().build()
+        mediaSpec: MediaSpec = MediaSpec.builder().build(),
+        videoCapabilities: VideoCapabilities = createFakeVideoCapabilities(supportedResolutionMap)
+    ): TestVideoOutput {
+        return TestVideoOutput(streamInfo, mediaSpec, videoCapabilities)
+    }
+
+    /**
+     * Create a fake VideoCapabilities.
+     */
+    private fun createFakeVideoCapabilities(
+        resolutionMap: Map<DynamicRange, LinkedHashMap<Quality, Size>>
+    ): VideoCapabilities {
+        return object : VideoCapabilities {
+
+            override fun getSupportedDynamicRanges(): MutableSet<DynamicRange> {
+                return resolutionMap.keys.toMutableSet()
+            }
+
+            override fun getSupportedQualities(
+                dynamicRange: DynamicRange
+            ): MutableList<Quality> {
+                return resolutionMap[dynamicRange]?.keys
+                    ?.filter { it != Quality.HIGHEST && it != Quality.LOWEST }
+                    ?.toMutableList() ?: mutableListOf()
+            }
+
+            override fun isQualitySupported(
+                quality: Quality,
+                dynamicRange: DynamicRange
+            ): Boolean {
+                return resolutionMap[dynamicRange]?.contains(quality) ?: false
+            }
+
+            override fun getProfiles(
+                quality: Quality,
+                dynamicRange: DynamicRange
+            ): VideoValidatedEncoderProfilesProxy? {
+                val size = resolutionMap[dynamicRange]?.get(quality) ?: return null
+
+                val profiles = createFakeEncoderProfilesProxy(size.width, size.height)
+                return VideoValidatedEncoderProfilesProxy.from(profiles)
+            }
+        }
+    }
+
+    private class TestVideoOutput(
+        streamInfo: StreamInfo,
+        mediaSpec: MediaSpec,
+        private val videoCapabilities: VideoCapabilities
     ) : VideoOutput {
         private val surfaceRequests = ArrayBlockingQueue<SurfaceRequest>(10)
 
@@ -379,6 +451,10 @@ class VideoCaptureDeviceTest(
         override fun getStreamInfo(): Observable<StreamInfo> = streamInfoObservable
 
         override fun getMediaSpec(): Observable<MediaSpec> = mediaSpecObservable
+
+        override fun getMediaCapabilities(cameraInfo: CameraInfo): VideoCapabilities {
+            return videoCapabilities
+        }
 
         override fun onSourceStateChanged(sourceState: SourceState) {
             for (listener in sourceStateListeners) {
