@@ -101,6 +101,7 @@ class TaskCapabilityImplTest {
                 SizeF(300f, 500f),
             )
             .build()
+    val fakeSessionId = "fakeSessionId"
 
     @Test
     fun getAppAction_smokeTest() {
@@ -129,7 +130,7 @@ class TaskCapabilityImplTest {
                 { TaskHandler.Builder<Confirmation>().build() },
                 ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
         assertThat(session.uiHandle).isSameInstanceAs(externalSession)
     }
 
@@ -155,7 +156,7 @@ class TaskCapabilityImplTest {
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
         // TURN 1.
         val callback = FakeCallbackInternal()
@@ -236,7 +237,7 @@ class TaskCapabilityImplTest {
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
                 sessionUpdaterSupplier = ::RequiredTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
         assertThat(capability.getAppAction())
             .isEqualTo(
@@ -311,7 +312,7 @@ class TaskCapabilityImplTest {
                 ::EmptyTaskUpdater,
             )
 
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
         assertThat(session.status).isEqualTo(CapabilitySession.Status.UNINITIATED)
 
         // turn 1
@@ -408,7 +409,7 @@ class TaskCapabilityImplTest {
                 sessionBridge,
                 ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
         // TURN 1.
         val callback = FakeCallbackInternal()
@@ -470,7 +471,7 @@ class TaskCapabilityImplTest {
                 sessionBridge = SessionBridge { TaskHandler.Builder<Confirmation>().build() },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
         // TURN 1.
         val callback = FakeCallbackInternal()
@@ -568,7 +569,7 @@ class TaskCapabilityImplTest {
                 },
                 sessionUpdaterSupplier = ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
         // TURN 1.
         val callback = FakeCallbackInternal()
@@ -731,7 +732,7 @@ class TaskCapabilityImplTest {
                 sessionBridge,
                 ::EmptyTaskUpdater,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
 
         // first sync request
         val callback = FakeCallbackInternal()
@@ -835,7 +836,7 @@ class TaskCapabilityImplTest {
             }
         val capability =
             CapabilityBuilder().setId("fakeId").setSessionFactory(sessionFactory).build()
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
         val callback = FakeCallbackInternal()
         val expectedOutput: StructuredOutput =
             StructuredOutput.newBuilder()

@@ -38,6 +38,7 @@ internal class SingleTurnCapabilitySession<
     ArgumentT,
     OutputT,
 >(
+    override val sessionId: String,
     private val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
     private val actionExecutorAsync: ActionExecutorAsync<ArgumentT, OutputT>,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),

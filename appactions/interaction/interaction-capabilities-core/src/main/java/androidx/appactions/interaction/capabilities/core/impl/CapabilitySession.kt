@@ -26,6 +26,9 @@ import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CapabilitySession {
+    /** The id of this ActionCapabilitySession instance. */
+    val sessionId: String
+
     /**
      * Executes the action and returns the result of execution.
      *

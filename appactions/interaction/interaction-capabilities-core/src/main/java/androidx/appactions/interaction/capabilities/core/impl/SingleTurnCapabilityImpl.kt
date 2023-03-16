@@ -45,8 +45,12 @@ internal class SingleTurnCapabilityImpl<
             .build()
     }
 
-    override fun createSession(hostProperties: HostProperties): CapabilitySession {
+    override fun createSession(
+        sessionId: String,
+        hostProperties: HostProperties,
+    ): CapabilitySession {
         return SingleTurnCapabilitySession(
+            sessionId,
             actionSpec,
             actionExecutorAsync,
         )

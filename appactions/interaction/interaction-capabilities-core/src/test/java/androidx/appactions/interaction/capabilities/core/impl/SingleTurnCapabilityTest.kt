@@ -48,6 +48,7 @@ import org.junit.runners.JUnit4
 class SingleTurnCapabilityTest {
     private val hostProperties =
         HostProperties.Builder().setMaxHostSizeDp(SizeF(300f, 500f)).build()
+    private val fakeSessionId = "fakeSessionId"
 
     @Test
     fun oneShotCapability_successWithOutput() {
@@ -75,7 +76,9 @@ class SingleTurnCapabilityTest {
                 actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
             )
 
-        val capabilitySession = capability.createSession(hostProperties)
+        val capabilitySession = capability.createSession(fakeSessionId, hostProperties)
+        assertThat(capabilitySession.sessionId).isEqualTo(fakeSessionId)
+
         val callbackInternal = FakeCallbackInternal(CB_TIMEOUT)
         capabilitySession.execute(
             ArgumentUtils.buildArgs(
@@ -128,7 +131,7 @@ class SingleTurnCapabilityTest {
                 actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
             )
 
-        val capabilitySession = capability.createSession(hostProperties)
+        val capabilitySession = capability.createSession(fakeSessionId, hostProperties)
         val callbackInternal = FakeCallbackInternal(CB_TIMEOUT)
         capabilitySession.execute(
             ArgumentUtils.buildArgs(
@@ -161,7 +164,7 @@ class SingleTurnCapabilityTest {
                         .build(),
                 actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
         assertThat(session.uiHandle).isSameInstanceAs(actionExecutor)
     }
 
@@ -183,7 +186,7 @@ class SingleTurnCapabilityTest {
                         .build(),
                 actionExecutorAsync = actionExecutorAsync,
             )
-        val session = capability.createSession(hostProperties)
+        val session = capability.createSession(fakeSessionId, hostProperties)
         assertThat(session.uiHandle).isSameInstanceAs(actionExecutorAsync)
     }
 
