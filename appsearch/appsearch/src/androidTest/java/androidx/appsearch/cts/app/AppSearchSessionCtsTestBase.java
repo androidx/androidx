@@ -4163,6 +4163,25 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testRfc822_unsupportedFeature_throwsException() {
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(Features.TOKENIZER_TYPE_RFC822));
+
+        AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("address")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_RFC822)
+                        .build()
+                ).build();
+
+        Exception e = assertThrows(IllegalArgumentException.class, () ->
+                mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                        .setForceOverride(true).addSchemas(emailSchema).build()).get());
+        assertThat(e.getMessage()).isEqualTo("tokenizerType is out of range of [0, 1] (too high)");
+    }
+
+
+    @Test
     public void testQuery_verbatimSearch() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.VERBATIM_SEARCH));
         AppSearchSchema verbatimSchema = new AppSearchSchema.Builder("VerbatimSchema")
