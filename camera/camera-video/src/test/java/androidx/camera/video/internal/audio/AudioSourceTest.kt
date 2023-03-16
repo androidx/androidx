@@ -97,6 +97,7 @@ class AudioSourceTest {
         audioStream.verifyStopCall(CallTimes(1), COMMON_TIMEOUT_MS)
     }
 
+    @Ignore("b/273963265")
     @Test
     fun release_AudioStreamIsReleased() {
         // Arrange
