@@ -24,15 +24,18 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TestUtil {
     private Instrumentation mInstrumentation;
     private String mTag;
     // Used to get the package name. Copied over from com.android.adservices.AdServicesCommon
     private static final String TOPICS_SERVICE_NAME = "android.adservices.TOPICS_SERVICE";
+    private static final String EXT_SERVICES_PACKAGE_NAME = "ext.adservices";
     // The JobId of the Epoch Computation.
     private static final int EPOCH_JOB_ID = 2;
 
@@ -220,9 +223,17 @@ public class TestUtil {
     // Used to get the package name. Copied over from com.android.adservices.AndroidServiceBinder
     public String getAdServicesPackageName() {
         final Intent intent = new Intent(TOPICS_SERVICE_NAME);
-        final List<ResolveInfo> resolveInfos = ApplicationProvider.getApplicationContext()
+        List<ResolveInfo> resolveInfos = ApplicationProvider.getApplicationContext()
                 .getPackageManager()
                 .queryIntentServices(intent, PackageManager.MATCH_SYSTEM_ONLY);
+
+        // TODO: b/271866693 avoid hardcoding package names
+        if (resolveInfos != null && BuildCompat.isAtLeastT()) {
+            resolveInfos = resolveInfos.stream()
+                    .filter(info ->
+                            !info.serviceInfo.packageName.contains(EXT_SERVICES_PACKAGE_NAME))
+                    .collect(Collectors.toList());
+        }
 
         if (resolveInfos == null || resolveInfos.isEmpty()) {
             Log.e(mTag, "Failed to find resolveInfo for adServices service. Intent action: "
