@@ -141,15 +141,15 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      */
     public DynamicTypeEvaluator(
             boolean platformDataSourcesInitiallyEnabled,
-            @Nullable SensorGateway sensorGateway,
-            @NonNull ObservableStateStore stateStore) {
+            @NonNull ObservableStateStore stateStore,
+            @Nullable SensorGateway sensorGateway) {
         // Build pipeline with quota that doesn't allow any animations.
         this(
                 platformDataSourcesInitiallyEnabled,
-                sensorGateway,
                 stateStore,
                 /* enableAnimations= */ false,
-                DISABLED_ANIMATIONS_QUOTA_MANAGER);
+                DISABLED_ANIMATIONS_QUOTA_MANAGER,
+                sensorGateway);
     }
 
     /**
@@ -170,15 +170,15 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      */
     public DynamicTypeEvaluator(
             boolean platformDataSourcesInitiallyEnabled,
-            @Nullable SensorGateway sensorGateway,
             @NonNull ObservableStateStore stateStore,
-            @NonNull QuotaManager animationQuotaManager) {
+            @NonNull QuotaManager animationQuotaManager,
+            @Nullable SensorGateway sensorGateway) {
         this(
                 platformDataSourcesInitiallyEnabled,
-                sensorGateway,
                 stateStore,
                 /* enableAnimations= */ true,
-                animationQuotaManager);
+                animationQuotaManager,
+                sensorGateway);
     }
 
     /**
@@ -196,10 +196,10 @@ public class DynamicTypeEvaluator implements AutoCloseable {
      */
     private DynamicTypeEvaluator(
             boolean platformDataSourcesInitiallyEnabled,
-            @Nullable SensorGateway sensorGateway,
             @NonNull ObservableStateStore stateStore,
             boolean enableAnimations,
-            @NonNull QuotaManager animationQuotaManager) {
+            @NonNull QuotaManager animationQuotaManager,
+            @Nullable SensorGateway sensorGateway) {
         this.mSensorGateway = sensorGateway;
         Handler uiHandler = new Handler(Looper.getMainLooper());
         MainThreadExecutor uiExecutor = new MainThreadExecutor(uiHandler);

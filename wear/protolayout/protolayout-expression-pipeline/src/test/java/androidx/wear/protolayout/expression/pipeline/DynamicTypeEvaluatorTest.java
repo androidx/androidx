@@ -273,9 +273,9 @@ public class DynamicTypeEvaluatorTest {
         DynamicTypeEvaluator evaluator =
                 new DynamicTypeEvaluator(
                         /* platformDataSourcesInitiallyEnabled= */ true,
-                        /* sensorGateway= */ null,
                         stateStore,
-                        new FixedQuotaManagerImpl(MAX_VALUE));
+                        new FixedQuotaManagerImpl(MAX_VALUE),
+                        /* sensorGateway= */ null);
 
         mTestCase.runTest(evaluator);
     }
