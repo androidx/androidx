@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
+import androidx.camera.camera2.pipe.integration.compat.workaround.getSafely
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.core.CameraInfo
 import androidx.core.util.Preconditions
@@ -45,9 +46,9 @@ class Camera2CameraInfo private constructor(
      * @return the value of the characteristic.
     </T> */
     fun <T> getCameraCharacteristic(
-        @Suppress("UNUSED_PARAMETER") key: CameraCharacteristics.Key<T>
+        key: CameraCharacteristics.Key<T>
     ): T? {
-        return cameraProperties.metadata[key]
+        return cameraProperties.metadata.getSafely(key)
     }
 
     /**
