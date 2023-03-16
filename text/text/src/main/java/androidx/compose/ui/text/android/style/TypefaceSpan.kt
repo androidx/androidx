@@ -32,7 +32,7 @@ import androidx.compose.ui.text.android.InternalPlatformTextApi
  * @suppress
  */
 @InternalPlatformTextApi
-class TypefaceSpan(val typeface: Typeface) : MetricAffectingSpan() {
+internal class TypefaceSpan(val typeface: Typeface) : MetricAffectingSpan() {
     override fun updateDrawState(ds: TextPaint) {
         updateTypeface(ds)
     }
