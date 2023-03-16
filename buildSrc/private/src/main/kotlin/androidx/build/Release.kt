@@ -122,7 +122,7 @@ open class GMavenZipTask : Zip() {
                 include(inclusion)
             }
         }
-        verifyTask.get().addFile(fromDir)
+        verifyTask.get().addFile(File(fromDir, "${artifact.version}"))
     }
     /**
      * Config action that configures the task when necessary.
@@ -396,21 +396,27 @@ open class VerifyGMavenZipTask : DefaultTask() {
     @TaskAction
     fun execute() {
         val missingFiles = mutableListOf<String>()
+        val emptyDirs = mutableListOf<String>()
         filesToVerify.forEach { file ->
             if (!file.exists()) {
                 missingFiles.add(file.path)
+            } else {
+                if (file.isDirectory) {
+                    if (file.listFiles().isEmpty()) {
+                        emptyDirs.add(file.path)
+                    }
+                }
             }
         }
 
-        if (missingFiles.isNotEmpty()) {
-            val checkedFilesString = filesToVerify.map {
-                it -> it.toString()
-            }.reduce {
-                acc, s -> "$acc, $s"
-            }
-            val missingFileString = missingFiles.reduce { acc, s -> "$acc, $s" }
+        if (missingFiles.isNotEmpty() || emptyDirs.isNotEmpty()) {
+            val checkedFilesString = filesToVerify.toString()
+            val missingFileString = missingFiles.toString()
+            val emptyDirsString = emptyDirs.toString()
             throw FileNotFoundException(
-                "GMavenZip file missing: $missingFileString. Checked files: $checkedFilesString"
+                "GMavenZip ${missingFiles.size} missing files: $missingFileString, " +
+                    "${emptyDirs.size} empty dirs: $emptyDirsString. " +
+                    "Checked files: $checkedFilesString"
             )
         }
     }
