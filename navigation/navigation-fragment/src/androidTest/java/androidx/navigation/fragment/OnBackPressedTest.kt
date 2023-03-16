@@ -28,10 +28,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.TimeUnit
 
 @Suppress("DEPRECATION")
 @MediumTest
@@ -95,6 +95,37 @@ class OnBackPressedTest(
                 assertWithMessage("onBackPressed() should trigger NavController.popBackStack()")
                     .that(navController.currentDestination?.id)
                     .isEqualTo(R.id.start_fragment)
+            }
+        }
+    }
+
+    @Test
+    fun testOnBackPressedAfterNavigatePopUpTo() {
+        with(ActivityScenario.launch(activityClass)) {
+            withActivity {
+                navController.setGraph(R.navigation.nav_simple)
+
+                val navigator = navController.navigatorProvider.getNavigator(
+                    FragmentNavigator::class.java
+                )
+                val fragment = supportFragmentManager.findFragmentById(R.id.nav_host)
+                navController.navigate(R.id.empty_fragment)
+                fragment?.childFragmentManager?.executePendingTransactions()
+
+                navController.navigate(R.id.empty_fragment_2, null,
+                    navOptions { popUpTo(R.id.empty_fragment) { inclusive = true } }
+                )
+                fragment?.childFragmentManager?.executePendingTransactions()
+
+                onBackPressed()
+                fragment?.childFragmentManager?.executePendingTransactions()
+
+                assertWithMessage("onBackPressed() should trigger NavController.popBackStack()")
+                    .that(navController.currentDestination?.id)
+                    .isEqualTo(R.id.start_fragment)
+                assertWithMessage("navigator back stack should contain 1 entry")
+                    .that(navigator.backStack.value.size)
+                    .isEqualTo(1)
             }
         }
     }
