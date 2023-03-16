@@ -32,6 +32,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -47,7 +49,7 @@ class PointerInputDensityTest {
     @get:Rule
     val rule = createComposeRule()
 
-    val tag = "Tagged Layout"
+    private val tag = "Tagged Layout"
 
     @Test
     fun sendNotANumberDensityInPointerEvents() {
@@ -211,15 +213,35 @@ class PointerInputDensityTest {
                             awaitPointerEvent()
                         }
                     }
-                })
+                }.testTag(tag)
+                )
             }
         }
+
+        // Because the pointer input coroutine scope is created lazily, that is, it won't be
+        // created/triggered until there is a event(tap), we must trigger a tap to instantiate the
+        // pointer input block of code.
+        rule.waitForIdle()
+        rule.onNodeWithTag(tag)
+            .performTouchInput {
+                down(Offset.Zero)
+                moveBy(Offset(1f, 1f))
+                up()
+            }
 
         rule.runOnIdle {
             assertThat(pointerInputDensities.size).isEqualTo(1)
             assertThat(pointerInputDensities.last()).isEqualTo(5f)
             density = 9f
         }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(tag)
+            .performTouchInput {
+                down(Offset.Zero)
+                moveBy(Offset(1f, 1f))
+                up()
+            }
 
         rule.runOnIdle {
             assertThat(pointerInputDensities.size).isEqualTo(2)

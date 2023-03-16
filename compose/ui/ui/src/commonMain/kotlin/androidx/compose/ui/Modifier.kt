@@ -169,7 +169,6 @@ interface Modifier {
             private set
 
         private var scope: CoroutineScope? = null
-        // CoroutineScope(baseContext + Job(parent = baseContext[Job]))
         val coroutineScope: CoroutineScope
             get() = scope ?: CoroutineScope(
                 requireOwner().coroutineContext +
