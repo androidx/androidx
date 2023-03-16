@@ -364,10 +364,7 @@ internal class LayoutNodeLayoutDelegate(
                 check(
                     measuredByParent == LayoutNode.UsageByParent.NotUsed ||
                         @Suppress("DEPRECATION") canMultiMeasure
-                ) {
-                    "measure() may not be called multiple times on the same Measurable. Current " +
-                        "state $measuredByParent. Parent state ${parent.layoutState}."
-                }
+                ) { MeasuredTwiceErrorMessage }
                 measuredByParent = when (parent.layoutState) {
                     LayoutState.Measuring ->
                         LayoutNode.UsageByParent.InMeasureBlock
@@ -829,10 +826,7 @@ internal class LayoutNodeLayoutDelegate(
                 check(
                     measuredByParentInLookahead == LayoutNode.UsageByParent.NotUsed ||
                         @Suppress("DEPRECATION") canMultiMeasure
-                ) {
-                    "measure() may not be called multiple times on the same Measurable. Current " +
-                        "state $measuredByParentInLookahead. Parent state ${parent.layoutState}."
-                }
+                ) { MeasuredTwiceErrorMessage }
                 measuredByParentInLookahead = when (parent.layoutState) {
                     LayoutState.LookaheadMeasuring, LayoutState.Measuring ->
                         LayoutNode.UsageByParent.InMeasureBlock
@@ -1173,6 +1167,12 @@ private fun LayoutNode.updateChildMeasurables(
         destination.size
     )
 }
+
+private val MeasuredTwiceErrorMessage: String =
+    "measure() may not be called multiple times on the same Measurable. If you want to " +
+        "get the content size of the Measurable before calculating the final constraints, " +
+        "please use methods like minIntrinsicWidth()/maxIntrinsicWidth() and " +
+        "minIntrinsicHeight()/maxIntrinsicHeight()"
 
 /**
  * AlignmentLinesOwner defines APIs that are needed to respond to alignment line changes, and to
