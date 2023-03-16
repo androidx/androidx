@@ -306,16 +306,16 @@ abstract class WorkRequest internal constructor(
         }
 
         /**
-         * Sets the period start time for this work. Used in testing only.
+         * Sets the enqueue time for this work. Used in testing only.
          *
-         * @param periodStartTime the period start time in `timeUnit` units
+         * @param lastEnqueueTime The enqueue time in `timeUnit` units
          * @param timeUnit The [TimeUnit] for `periodStartTime`
          * @return The current [Builder]
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        fun setLastEnqueueTime(periodStartTime: Long, timeUnit: TimeUnit): B {
-            workSpec.lastEnqueueTime = timeUnit.toMillis(periodStartTime)
+        fun setLastEnqueueTime(lastEnqueueTime: Long, timeUnit: TimeUnit): B {
+            workSpec.lastEnqueueTime = timeUnit.toMillis(lastEnqueueTime)
             return thisObject
         }
 

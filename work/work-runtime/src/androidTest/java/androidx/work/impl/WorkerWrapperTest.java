@@ -520,7 +520,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         mDatabase.beginTransaction();
         try {
             mWorkSpecDao.insertWorkSpec(retryWork.getWorkSpec());
-            mWorkSpecDao.setLastEnqueuedTime(retryWork.getStringId(), future);
+            mWorkSpecDao.setLastEnqueueTime(retryWork.getStringId(), future);
             mWorkSpecDao.incrementWorkSpecRunAttemptCount(retryWork.getStringId());
             mDatabase.setTransactionSuccessful();
         } finally {
