@@ -49,38 +49,26 @@ final class FeaturesImpl implements Features {
             // Android U Features
             case Features.JOIN_SPEC_AND_QUALIFIED_ID:
                 // fall through
-            case Features.SEARCH_SUGGESTION:
-                return BuildCompat.isAtLeastU();
-            case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
-                // TODO(b/203700301) : Update to reflect support in Android U+ once this feature is
-                // synced over into service-appsearch.
-                // fall through
-            case Features.TOKENIZER_TYPE_RFC822:
-                // TODO(b/259294369) : Update to reflect support in Android U+ once this feature is
-                // synced over into service-appsearch.
+            case Features.LIST_FILTER_QUERY_LANGUAGE:
                 // fall through
             case Features.NUMERIC_SEARCH:
-                // TODO(b/259744228) : Update to reflect support in Android U+ once this feature is
-                // synced over into service-appsearch.
                 // fall through
-            case SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
-                // TODO(b/261474063) : Update to reflect support in Android U+ once advanced
-                //  ranking becomes available.
+            case Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
+                // fall through
+            case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
+                // fall through
+            case Features.SEARCH_SUGGESTION:
+                // fall through
+            case Features.TOKENIZER_TYPE_RFC822:
                 // fall through
             case Features.VERBATIM_SEARCH:
-                // TODO(b/204333391) : Update to reflect support in Android U+ once this feature is
-                // synced over into service-appsearch.
-                // fall through
-            case Features.LIST_FILTER_QUERY_LANGUAGE:
-                // TODO(b/208654892) : Update to reflect support in Android U+ once this feature is
-                // synced over into service-appsearch.
-                // fall through
+                return BuildCompat.isAtLeastU();
+
+            // Beyond Android U features
             case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
                 // TODO(b/258715421) : Update to reflect support in Android U+ once this feature is
                 // synced over into service-appsearch.
-                return false;
-
-            // Beyond Android U features
+                // fall through
             case Features.SCHEMA_SET_DELETION_PROPAGATION:
                 // TODO(b/268521214) : Update when feature is ready in service-appsearch.
                 return false;
