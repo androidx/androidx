@@ -30,6 +30,7 @@ import androidx.compose.foundation.text2.TextFieldState
 import androidx.compose.foundation.text2.input.CommitTextCommand
 import androidx.compose.foundation.text2.input.EditCommand
 import androidx.compose.foundation.text2.input.EditProcessor
+import androidx.compose.foundation.text2.input.FinishComposingTextCommand
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -62,7 +63,9 @@ internal class AndroidTextInputAdapter constructor(
 
         override fun inputTextForTest(text: String) {
             requireSession().requestEdits(
-                listOf(CommitTextCommand(text, 1))
+                // Finish composing text first because when the field is focused the IME might set
+                // composition.
+                listOf(FinishComposingTextCommand, CommitTextCommand(text, 1))
             )
         }
     }

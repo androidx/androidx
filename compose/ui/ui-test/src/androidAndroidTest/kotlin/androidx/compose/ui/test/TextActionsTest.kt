@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.performImeAction
+import androidx.compose.ui.semantics.requestFocus
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -33,7 +33,6 @@ import androidx.compose.ui.test.util.BoundaryNode
 import androidx.compose.ui.test.util.expectErrorMessageStartsWith
 import androidx.compose.ui.text.input.ImeAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -50,7 +49,6 @@ class TextActionsTest {
     val rule = createComposeRule()
 
     @Composable
-    @OptIn(ExperimentalFoundationApi::class)
     fun TextFieldUi(
         imeAction: ImeAction = ImeAction.Default,
         keyboardActions: KeyboardActions = KeyboardActions.Default,
@@ -67,6 +65,24 @@ class TextActionsTest {
                 textCallback(it)
             }
         )
+    }
+
+    @Test
+    fun sendText_requestFocusNotSupported_shouldFail() {
+        rule.setContent {
+            BoundaryNode(testTag = "node", Modifier.semantics {
+                setText { true }
+            })
+        }
+
+        expectErrorMessageStartsWith(
+            "Failed to perform text input.\n" +
+                "Failed to assert the following: (RequestFocus is defined)\n" +
+                "Semantics of the node:"
+        ) {
+            rule.onNodeWithTag("node")
+                .performTextInput("hello")
+        }
     }
 
     @Test
@@ -93,29 +109,8 @@ class TextActionsTest {
         }
     }
 
-    @FlakyTest(bugId = 215584831)
     @Test
-    fun sendTextTwice_shouldAppend() {
-        var lastSeenText = ""
-        rule.setContent {
-            TextFieldUi {
-                lastSeenText = it
-            }
-        }
-
-        rule.onNodeWithTag(fieldTag)
-            .performTextInput("Hello ")
-
-        rule.onNodeWithTag(fieldTag)
-            .performTextInput("world!")
-
-        rule.runOnIdle {
-            assertThat(lastSeenText).isEqualTo("Hello world!")
-        }
-    }
-
-    // @Test - not always appends, seems to be flaky
-    fun sendTextTwice_shouldAppend_ver2() {
+    fun sendTextRepeatedly_shouldAppend() {
         var lastSeenText = ""
         rule.setContent {
             TextFieldUi {
@@ -126,11 +121,11 @@ class TextActionsTest {
         rule.onNodeWithTag(fieldTag)
             .performTextInput("Hello")
 
-        // This helps. So there must be some timing issue.
-        // Thread.sleep(3000)
-
-        rule.onNodeWithTag(fieldTag)
-            .performTextInput(" world!")
+        // "Type" one character at a time.
+        " world!".forEach {
+            rule.onNodeWithTag(fieldTag)
+                .performTextInput(it.toString())
+        }
 
         rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello world!")
@@ -206,6 +201,7 @@ class TextActionsTest {
         rule.setContent {
             BoundaryNode(testTag = "node", Modifier.semantics {
                 setText { true }
+                requestFocus { true }
                 performImeAction { false }
             })
         }
@@ -228,6 +224,25 @@ class TextActionsTest {
         expectErrorMessageStartsWith(
             "Failed to perform IME action.\n" +
                 "Failed to assert the following: (PerformImeAction is defined)\n" +
+                "Semantics of the node:"
+        ) {
+            rule.onNodeWithTag("node")
+                .performImeAction()
+        }
+    }
+
+    @Test
+    fun performImeAction_focusNotSupported_shouldFail() {
+        rule.setContent {
+            BoundaryNode(testTag = "node", Modifier.semantics {
+                setText { true }
+                performImeAction { true }
+            })
+        }
+
+        expectErrorMessageStartsWith(
+                "Failed to perform IME action.\n" +
+                "Failed to assert the following: (RequestFocus is defined)\n" +
                 "Semantics of the node:"
         ) {
             rule.onNodeWithTag("node")

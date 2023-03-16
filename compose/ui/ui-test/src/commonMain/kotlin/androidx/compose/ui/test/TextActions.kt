@@ -114,10 +114,11 @@ private fun SemanticsNodeInteraction.getNodeAndFocus(
 ): SemanticsNode {
     val node = fetchSemanticsNode(errorOnFail)
     assert(hasSetTextAction()) { errorOnFail }
+    assert(hasRequestFocusAction()) { errorOnFail }
 
     if (!isFocused().matches(node)) {
         // Get focus
-        performClick()
+        performSemanticsAction(SemanticsActions.RequestFocus)
     }
 
     return node
