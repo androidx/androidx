@@ -89,6 +89,9 @@ import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.Node;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -534,6 +537,18 @@ public final class Preview extends UseCase {
         return super.getResolutionInfo();
     }
 
+    /**
+     * Returns the resolution selector setting.
+     *
+     * <p>This setting is set when constructing an ImageCapture using
+     * {@link Builder#setResolutionSelector(ResolutionSelector)}.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public ResolutionSelector getResolutionSelector() {
+        return ((ImageOutputConfig) getCurrentConfig()).getResolutionSelector(null);
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -572,20 +587,6 @@ public final class Preview extends UseCase {
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
         builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                 INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
-
-        // Merges Preview's default max resolution setting when resolution selector is used
-        ResolutionSelector resolutionSelector =
-                builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR, null);
-        if (resolutionSelector != null && resolutionSelector.getMaxResolution() == null) {
-            Size maxResolution = builder.getMutableConfig().retrieveOption(OPTION_MAX_RESOLUTION);
-            if (maxResolution != null) {
-                ResolutionSelector.Builder resolutionSelectorBuilder =
-                        ResolutionSelector.Builder.fromSelector(resolutionSelector);
-                resolutionSelectorBuilder.setMaxResolution(maxResolution);
-                builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
-                        resolutionSelectorBuilder.build());
-            }
-        }
 
         return builder.getUseCaseConfig();
     }
@@ -738,11 +739,18 @@ public final class Preview extends UseCase {
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
         private static final int DEFAULT_MIRROR_MODE = MIRROR_MODE_FRONT_ON;
 
+        private static final ResolutionSelector DEFAULT_RESOLUTION_SELECTOR =
+                new ResolutionSelector.Builder().setAspectRatioStrategy(
+                        AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY).setResolutionStrategy(
+                        ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY).build();
+
         private static final PreviewConfig DEFAULT_CONFIG;
 
         static {
-            Builder builder = new Builder().setSurfaceOccupancyPriority(
-                    DEFAULT_SURFACE_OCCUPANCY_PRIORITY).setTargetAspectRatio(DEFAULT_ASPECT_RATIO);
+            Builder builder = new Builder()
+                    .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
+                    .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
+                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR);
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
@@ -1061,21 +1069,23 @@ public final class Preview extends UseCase {
          * size match to the device's screen resolution, or to 1080p (1920x1080), whichever is
          * smaller. See the
          * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
-         * section in {@link android.hardware.camera2.CameraDevice}'. If the
-         * {@link ResolutionSelector} contains the max resolution setting larger than the {@code
-         * PREVIEW} size, a size larger than the device's screen resolution or 1080p can be
-         * selected to use for {@link Preview}.
+         * section in {@link android.hardware.camera2.CameraDevice}'. {@link Preview} has a
+         * default {@link ResolutionStrategy} with the {@code PREVIEW} bound size and
+         * {@link ResolutionStrategy#FALLBACK_RULE_CLOSEST_LOWER} to achieve this. Applications
+         * can override this default strategy with a different resolution strategy.
          *
          * <p>Note that due to compatibility reasons, CameraX may select a resolution that is
          * larger than the default screen resolution on certain devices.
          *
          * <p>The existing {@link #setTargetResolution(Size)} and
          * {@link #setTargetAspectRatio(int)} APIs are deprecated and are not compatible with
-         * {@link ResolutionSelector}. Calling any of these APIs together with
-         * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
-         * {@link #build()} is called to create the {@link Preview} instance.
+         * {@link #setResolutionSelector(ResolutionSelector)}. Calling either of these APIs
+         * together with {@link #setResolutionSelector(ResolutionSelector)} will result in an
+         * {@link IllegalArgumentException} being thrown when you attempt to build the
+         * {@link Preview} instance.
          *
-         **/
+         * @return The current Builder.
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull

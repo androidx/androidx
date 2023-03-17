@@ -26,41 +26,58 @@ import android.graphics.ImageFormat;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
-import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.AspectRatioUtil;
+import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
-import androidx.camera.core.internal.utils.SizeUtil;
-import androidx.core.util.Preconditions;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
+import androidx.camera.core.resolutionselector.ResolutionFilter;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * A class used to sort the supported output sizes according to the use case configs
+ * The supported output sizes collector to help collect the available resolution candidate list
+ * according to the use case config and the following settings in {@link ResolutionSelector}:
+ *
+ * <ul>
+ *   <li>Aspect ratio strategy
+ *   <li>Resolution strategy
+ *   <li>Custom resolution filter
+ *   <li>High resolution enabled flags
+ * </ul>
  */
 @RequiresApi(21)
 public class SupportedOutputSizesSorter {
     private static final String TAG = "SupportedOutputSizesCollector";
     private final CameraInfoInternal mCameraInfoInternal;
+    private final int mSensorOrientation;
+    private final int mLensFacing;
     private final Rational mFullFovRatio;
     private final boolean mIsSensorLandscapeResolution;
     private final SupportedOutputSizesSorterLegacy mSupportedOutputSizesSorterLegacy;
 
     public SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal) {
         mCameraInfoInternal = cameraInfoInternal;
+        mSensorOrientation = mCameraInfoInternal.getSensorRotationDegrees();
+        mLensFacing = mCameraInfoInternal.getLensFacing();
         mFullFovRatio = calculateFullFovRatio(mCameraInfoInternal);
         // Determines the sensor resolution orientation info by the full FOV ratio.
         mIsSensorLandscapeResolution = mFullFovRatio != null ? mFullFovRatio.getNumerator()
@@ -86,6 +103,13 @@ public class SupportedOutputSizesSorter {
         return new Rational(maxSize.getWidth(), maxSize.getHeight());
     }
 
+    /**
+     * Returns the sorted output sizes according to the use case config.
+     *
+     * <p>If ResolutionSelector is specified in the use case config, the output sizes will be
+     * sorted according to the ResolutionSelector setting and logic. Otherwise, the output sizes
+     * will be sorted according to the legacy resolution API settings and logic.
+     */
     @NonNull
     public List<Size> getSortedSupportedOutputSizes(@NonNull UseCaseConfig<?> useCaseConfig) {
         ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCaseConfig;
@@ -96,48 +120,14 @@ public class SupportedOutputSizesSorter {
             return customOrderedResolutions;
         }
 
-        // Retrieves the resolution candidate list according to the use case config if
-        List<Size> resolutionCandidateList = getResolutionCandidateList(useCaseConfig);
-
         ResolutionSelector resolutionSelector = imageOutputConfig.getResolutionSelector(null);
 
         if (resolutionSelector == null) {
             return mSupportedOutputSizesSorterLegacy.sortSupportedOutputSizes(
-                    resolutionCandidateList, useCaseConfig);
+                    getResolutionCandidateList(useCaseConfig), useCaseConfig);
         } else {
-            Size miniBoundingSize = resolutionSelector.getPreferredResolution();
-            if (miniBoundingSize == null) {
-                miniBoundingSize = imageOutputConfig.getDefaultResolution(null);
-            }
-            return sortSupportedOutputSizesByResolutionSelector(resolutionCandidateList,
-                    resolutionSelector, miniBoundingSize);
+            return sortSupportedOutputSizesByResolutionSelector(useCaseConfig);
         }
-    }
-
-    @NonNull
-    private List<Size> getResolutionCandidateList(@NonNull UseCaseConfig<?> useCaseConfig) {
-        int imageFormat = useCaseConfig.getInputFormat();
-        ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCaseConfig;
-        // Tries to get the custom supported resolutions list if it is set
-        List<Size> resolutionCandidateList = getCustomizedSupportedResolutionsFromConfig(
-                imageFormat, imageOutputConfig);
-
-        // Tries to get the supported output sizes from the CameraInfoInternal if both custom
-        // ordered and supported resolutions lists are not set.
-        if (resolutionCandidateList == null) {
-            resolutionCandidateList = mCameraInfoInternal.getSupportedResolutions(imageFormat);
-        }
-
-        // Appends high resolution output sizes if high resolution is enabled by ResolutionSelector
-        if (imageOutputConfig.getResolutionSelector(null) != null
-                && imageOutputConfig.getResolutionSelector().isHighResolutionEnabled()) {
-            List<Size> allSizesList = new ArrayList<>();
-            allSizesList.addAll(resolutionCandidateList);
-            allSizesList.addAll(mCameraInfoInternal.getSupportedHighResolutions(imageFormat));
-            return allSizesList;
-        }
-
-        return resolutionCandidateList;
     }
 
     /**
@@ -171,148 +161,56 @@ public class SupportedOutputSizesSorter {
     }
 
     /**
-     * Sorts the resolution candidate list by the following steps:
+     * Sorts the resolution candidate list according to the ResolutionSelector API logic.
      *
-     * 1. Filters out the candidate list according to the max resolution.
-     * 2. Sorts the candidate list according to ResolutionSelector strategies.
+     * <ol>
+     *   <li>Collects the output sizes
+     *     <ul>
+     *       <li>Applies the high resolution settings
+     *     </ul>
+     *   <li>Applies the aspect ratio strategy
+     *     <ul>
+     *       <li>Applies the aspect ratio strategy fallback rule
+     *     </ul>
+     *   <li>Applies the resolution strategy
+     *     <ul>
+     *       <li>Applies the resolution strategy fallback rule
+     *     </ul>
+     *   <li>Applies the resolution filter
+     * </ol>
+     *
+     * @return a size list which has been filtered and sorted by the specified resolution
+     * selector settings.
+     * @throws IllegalArgumentException if the specified resolution filter returns any size which
+     *                                  is not included in the provided supported size list.
      */
     @NonNull
     private List<Size> sortSupportedOutputSizesByResolutionSelector(
-            @NonNull List<Size> resolutionCandidateList,
-            @NonNull ResolutionSelector resolutionSelector,
-            @Nullable Size miniBoundingSize) {
-        if (resolutionCandidateList.isEmpty()) {
-            return resolutionCandidateList;
+            @NonNull UseCaseConfig<?> useCaseConfig) {
+        ResolutionSelector resolutionSelector =
+                ((ImageOutputConfig) useCaseConfig).getResolutionSelector();
+
+        // Retrieves the normal supported output sizes.
+        List<Size> resolutionCandidateList = getResolutionCandidateList(useCaseConfig);
+
+        // Applies the high resolution settings onto the resolution candidate list.
+        if (!useCaseConfig.isHigResolutionDisabled(false)) {
+            resolutionCandidateList = applyHighResolutionSettings(resolutionCandidateList,
+                    resolutionSelector, useCaseConfig.getInputFormat());
         }
 
-        List<Size> descendingSizeList = new ArrayList<>(resolutionCandidateList);
+        // Applies the aspect ratio strategy onto the resolution candidate list.
+        LinkedHashMap<Rational, List<Size>> aspectRatioSizeListMap =
+                applyAspectRatioStrategy(resolutionCandidateList,
+                        resolutionSelector.getAspectRatioStrategy());
 
-        // Sort the result sizes. The Comparator result must be reversed to have a descending
-        // order result.
-        Collections.sort(descendingSizeList, new CompareSizesByArea(true));
+        // Applies the resolution strategy onto the resolution candidate list.
+        applyResolutionStrategy(aspectRatioSizeListMap, resolutionSelector.getResolutionStrategy());
 
-        // 1. Filters out the candidate list according to the min size bound and max resolution.
-        List<Size> filteredSizeList = filterOutResolutionCandidateListByMaxResolutionSetting(
-                descendingSizeList, resolutionSelector);
-
-        // 2. Sorts the candidate list according to the rules of new Resolution API.
-        return sortResolutionCandidateListByTargetAspectRatioAndResolutionSettings(
-                filteredSizeList, resolutionSelector, miniBoundingSize);
-
-    }
-
-    /**
-     * Filters out the resolution candidate list by the max resolution setting.
-     *
-     * The input size list should have been sorted in descending order.
-     */
-    private static List<Size> filterOutResolutionCandidateListByMaxResolutionSetting(
-            @NonNull List<Size> resolutionCandidateList,
-            @NonNull ResolutionSelector resolutionSelector) {
-        // Retrieves the max resolution setting. When ResolutionSelector is used, all resolution
-        // selection logic should depend on ResolutionSelector's settings.
-        Size maxResolution = resolutionSelector.getMaxResolution();
-
-        if (maxResolution == null) {
-            return resolutionCandidateList;
-        }
-
-        // Filter out the resolution candidate list by the max resolution. Sizes that any edge
-        // exceeds the max resolution will be filtered out.
+        // Collects all sizes from the sorted aspect ratio size groups into the final sorted list.
         List<Size> resultList = new ArrayList<>();
-        for (Size outputSize : resolutionCandidateList) {
-            if (!SizeUtil.isLongerInAnyEdge(outputSize, maxResolution)) {
-                resultList.add(outputSize);
-            }
-        }
-
-        if (resultList.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Resolution candidate list is empty after filtering out by the settings!");
-        }
-
-        return resultList;
-    }
-
-    /**
-     * Sorts the resolution candidate list according to the new ResolutionSelector API logic.
-     *
-     * The list will be sorted by the following order:
-     * 1. size of preferred resolution
-     * 2. a resolution with preferred aspect ratio, is not smaller than, and is closest to the
-     * preferred resolution.
-     * 3. resolutions with preferred aspect ratio and is smaller than the preferred resolution
-     * size in descending order of resolution area size.
-     * 4. Other sizes sorted by CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace and
-     * area size.
-     */
-    @NonNull
-    private List<Size> sortResolutionCandidateListByTargetAspectRatioAndResolutionSettings(
-            @NonNull List<Size> resolutionCandidateList,
-            @NonNull ResolutionSelector resolutionSelector,
-            @Nullable Size miniBoundingSize) {
-        Rational aspectRatio = getTargetAspectRatioRationalValue(
-                resolutionSelector.getPreferredAspectRatio(), mIsSensorLandscapeResolution);
-        Preconditions.checkNotNull(aspectRatio, "ResolutionSelector should also have aspect ratio"
-                + " value.");
-
-        Size targetSize = resolutionSelector.getPreferredResolution();
-        List<Size> resultList = sortResolutionCandidateListByTargetAspectRatioAndSize(
-                resolutionCandidateList, aspectRatio, miniBoundingSize);
-
-        // Moves the target size to the first position if it exists in the resolution candidate
-        // list.
-        if (resultList.contains(targetSize)) {
-            resultList.remove(targetSize);
-            resultList.add(0, targetSize);
-        }
-
-        return resultList;
-    }
-
-    /**
-     * Sorts the resolution candidate list according to the target aspect ratio and size settings.
-     *
-     * 1. The resolution candidate list will be grouped by aspect ratio.
-     * 2. Moves the smallest size larger than the mini bounding size to the first position for each
-     * aspect ratio sizes group.
-     * 3. The aspect ratios of groups will be sorted against to the target aspect ratio setting by
-     * CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace.
-     * 4. Concatenate all sizes as the result list
-     */
-    @NonNull
-    private List<Size> sortResolutionCandidateListByTargetAspectRatioAndSize(
-            @NonNull List<Size> resolutionCandidateList, @NonNull Rational aspectRatio,
-            @Nullable Size miniBoundingSize) {
-        // Rearrange the supported size to put the ones with the same aspect ratio in the front
-        // of the list and put others in the end from large to small. Some low end devices may
-        // not able to get an supported resolution that match the preferred aspect ratio.
-
-        // Group output sizes by aspect ratio.
-        Map<Rational, List<Size>> aspectRatioSizeListMap =
-                groupSizesByAspectRatio(resolutionCandidateList);
-
-        // If the target resolution is set, use it to remove unnecessary larger sizes.
-        if (miniBoundingSize != null) {
-            // Sorts sizes from each aspect ratio size list
-            for (Rational key : aspectRatioSizeListMap.keySet()) {
-                List<Size> sortedResult = sortSupportedSizesByMiniBoundingSize(
-                        aspectRatioSizeListMap.get(key), miniBoundingSize);
-                aspectRatioSizeListMap.put(key, sortedResult);
-            }
-        }
-
-        // Sort the aspect ratio key set by the target aspect ratio.
-        List<Rational> aspectRatios = new ArrayList<>(aspectRatioSizeListMap.keySet());
-        Collections.sort(aspectRatios,
-                new AspectRatioUtil.CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
-                        aspectRatio, mFullFovRatio));
-
-        List<Size> resultList = new ArrayList<>();
-
-        // Put available sizes into final result list by aspect ratio distance to target ratio.
-        for (Rational rational : aspectRatios) {
-            for (Size size : aspectRatioSizeListMap.get(rational)) {
+        for (List<Size> sortedSizes : aspectRatioSizeListMap.values()) {
+            for (Size size : sortedSizes) {
                 // A size may exist in multiple groups in mod16 condition. Keep only one in
                 // the final list.
                 if (!resultList.contains(size)) {
@@ -321,7 +219,322 @@ public class SupportedOutputSizesSorter {
             }
         }
 
-        return resultList;
+        // Applies the resolution filter onto the resolution candidate list.
+        return applyResolutionFilter(resultList, resolutionSelector.getResolutionFilter(),
+                ((ImageOutputConfig) useCaseConfig).getTargetRotation(Surface.ROTATION_0));
+    }
+
+    /**
+     * Returns the normal supported output sizes.
+     *
+     * <p>When using camera-camera2 implementation, the output sizes are retrieved via
+     * StreamConfigurationMap#getOutputSizes().
+     *
+     * @return the resolution candidate list sorted in descending order.
+     */
+    @NonNull
+    private List<Size> getResolutionCandidateList(@NonNull UseCaseConfig<?> useCaseConfig) {
+        int imageFormat = useCaseConfig.getInputFormat();
+        ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCaseConfig;
+        // Tries to get the custom supported resolutions list if it is set
+        List<Size> resolutionCandidateList = getCustomizedSupportedResolutionsFromConfig(
+                imageFormat, imageOutputConfig);
+
+        // Tries to get the supported output sizes from the CameraInfoInternal if both custom
+        // ordered and supported resolutions lists are not set.
+        if (resolutionCandidateList == null) {
+            resolutionCandidateList = mCameraInfoInternal.getSupportedResolutions(imageFormat);
+        }
+
+        Collections.sort(resolutionCandidateList, new CompareSizesByArea(true));
+
+        return resolutionCandidateList;
+    }
+
+    /**
+     * Appends the high resolution supported output sizes according to the high resolution settings.
+     *
+     * <p>When using camera-camera2 implementation, the output sizes are retrieved via
+     * StreamConfigurationMap#getHighResolutionOutputSizes().
+     *
+     * @param resolutionCandidateList the supported size list which contains only normal output
+     *                                sizes.
+     * @param resolutionSelector      the specified resolution selector.
+     * @param imageFormat             the desired image format for the target use case.
+     * @return the resolution candidate list including the high resolution output sizes sorted in
+     * descending order.
+     */
+    @NonNull
+    private List<Size> applyHighResolutionSettings(@NonNull List<Size> resolutionCandidateList,
+            @NonNull ResolutionSelector resolutionSelector, int imageFormat) {
+        // Appends high resolution output sizes if high resolution is enabled by ResolutionSelector
+        if (resolutionSelector.getHighResolutionEnabledFlags() != 0) {
+            List<Size> allSizesList = new ArrayList<>();
+            allSizesList.addAll(resolutionCandidateList);
+            allSizesList.addAll(mCameraInfoInternal.getSupportedHighResolutions(imageFormat));
+            Collections.sort(allSizesList, new CompareSizesByArea(true));
+            return allSizesList;
+        }
+
+        return resolutionCandidateList;
+    }
+
+    /**
+     * Applies the aspect ratio strategy onto the input resolution candidate list.
+     *
+     * @param resolutionCandidateList the supported sizes list which has been sorted in
+     *                                descending order.
+     * @param aspectRatioStrategy     the specified aspect ratio strategy.
+     * @return an aspect ratio to size list linked hash map which the aspect ratio fallback rule
+     * is applied and is sorted against the preferred aspect ratio.
+     */
+    @NonNull
+    private LinkedHashMap<Rational, List<Size>> applyAspectRatioStrategy(
+            @NonNull List<Size> resolutionCandidateList,
+            @NonNull AspectRatioStrategy aspectRatioStrategy) {
+        // Group output sizes by aspect ratio.
+        Map<Rational, List<Size>> aspectRatioSizeListMap =
+                groupSizesByAspectRatio(resolutionCandidateList);
+
+        // Applies the aspect ratio fallback rule
+        return applyAspectRatioStrategyFallbackRule(aspectRatioSizeListMap, aspectRatioStrategy);
+    }
+
+    /**
+     * Applies the aspect ratio strategy fallback rule to the aspect ratio to size list map.
+     *
+     * @param sizeGroupsMap       the aspect ratio to size list map. The size list should have been
+     *                            sorted in descending order.
+     * @param aspectRatioStrategy the specified aspect ratio strategy.
+     * @return an aspect ratio to size list linked hash map which the aspect ratio fallback rule
+     * is applied and is sorted against the preferred aspect ratio.
+     */
+    private LinkedHashMap<Rational, List<Size>> applyAspectRatioStrategyFallbackRule(
+            @NonNull Map<Rational, List<Size>> sizeGroupsMap,
+            @NonNull AspectRatioStrategy aspectRatioStrategy) {
+        Rational aspectRatio = getTargetAspectRatioRationalValue(
+                aspectRatioStrategy.getPreferredAspectRatio(), mIsSensorLandscapeResolution);
+
+        // Remove items of all other aspect ratios if the fallback rule is AspectRatioStrategy
+        // .FALLBACK_RULE_NONE
+        if (aspectRatioStrategy.getFallbackRule() == AspectRatioStrategy.FALLBACK_RULE_NONE) {
+            Rational preferredAspectRatio = getTargetAspectRatioRationalValue(
+                    aspectRatioStrategy.getPreferredAspectRatio(), mIsSensorLandscapeResolution);
+            for (Rational ratio : new ArrayList<>(sizeGroupsMap.keySet())) {
+                if (!ratio.equals(preferredAspectRatio)) {
+                    sizeGroupsMap.remove(ratio);
+                }
+            }
+        }
+
+        // Sorts the aspect ratio key set by the preferred aspect ratio.
+        List<Rational> aspectRatios = new ArrayList<>(sizeGroupsMap.keySet());
+        Collections.sort(aspectRatios,
+                new AspectRatioUtil.CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
+                        aspectRatio, mFullFovRatio));
+
+        // Stores the size groups into LinkedHashMap to keep the order
+        LinkedHashMap<Rational, List<Size>> sortedAspectRatioSizeListMap = new LinkedHashMap<>();
+        for (Rational ratio : aspectRatios) {
+            sortedAspectRatioSizeListMap.put(ratio, sizeGroupsMap.get(ratio));
+        }
+
+        return sortedAspectRatioSizeListMap;
+    }
+
+    /**
+     * Applies the resolution strategy onto the aspect ratio to size list linked hash map.
+     *
+     * <p>The resolution fallback rule is applied to filter out and sort the sizes in the
+     * underlying size list.
+     *
+     * @param sortedAspectRatioSizeListMap the aspect ratio to size list linked hash map. The
+     *                                     entries order should not be changed.
+     * @param resolutionStrategy           the resolution strategy to sort the candidate
+     *                                     resolutions.
+     */
+    private static void applyResolutionStrategy(
+            @NonNull LinkedHashMap<Rational, List<Size>> sortedAspectRatioSizeListMap,
+            @Nullable ResolutionStrategy resolutionStrategy) {
+        if (resolutionStrategy == null) {
+            return;
+        }
+
+        // Applies the resolution strategy with the specified fallback rule
+        for (Rational key : sortedAspectRatioSizeListMap.keySet()) {
+            applyResolutionStrategyFallbackRule(sortedAspectRatioSizeListMap.get(key),
+                    resolutionStrategy);
+        }
+    }
+
+    /**
+     * Applies the resolution strategy fallback rule to the size list.
+     *
+     * @param supportedSizesList the supported sizes list which has been sorted in descending order.
+     * @param resolutionStrategy the resolution strategy to sort the candidate resolutions.
+     */
+    private static void applyResolutionStrategyFallbackRule(
+            @NonNull List<Size> supportedSizesList,
+            @NonNull ResolutionStrategy resolutionStrategy) {
+        if (supportedSizesList.isEmpty()) {
+            return;
+        }
+        Integer fallbackRule = resolutionStrategy.getFallbackRule();
+
+        if (fallbackRule == null) {
+            // Do nothing for HIGHEST_AVAILABLE_STRATEGY case.
+            return;
+        }
+
+        Size boundSize = resolutionStrategy.getBoundSize();
+
+        switch (fallbackRule) {
+            case ResolutionStrategy.FALLBACK_RULE_NONE:
+                sortSupportedSizesByFallbackRuleNone(supportedSizesList, boundSize);
+                break;
+            case ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER:
+                sortSupportedSizesByFallbackRuleClosestHigherThenLower(supportedSizesList,
+                        boundSize, true);
+                break;
+            case ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER:
+                sortSupportedSizesByFallbackRuleClosestHigherThenLower(supportedSizesList,
+                        boundSize, false);
+                break;
+            case ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER:
+                sortSupportedSizesByFallbackRuleClosestLowerThenHigher(supportedSizesList,
+                        boundSize, true);
+                break;
+            case ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER:
+                sortSupportedSizesByFallbackRuleClosestLowerThenHigher(supportedSizesList,
+                        boundSize, false);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Applies the resolution filtered to the sorted output size list.
+     *
+     * @param sizeList         the supported size list which has been filtered and sorted by the
+     *                         specified aspect ratio, resolution strategies.
+     * @param resolutionFilter the specified resolution filter.
+     * @param targetRotation   the use case target rotation info
+     * @return the result size list applied the specified resolution filter.
+     * @throws IllegalArgumentException if the specified resolution filter returns any size which
+     *                                  is not included in the provided supported size list.
+     */
+    @NonNull
+    private List<Size> applyResolutionFilter(@NonNull List<Size> sizeList,
+            @Nullable ResolutionFilter resolutionFilter,
+            @ImageOutputConfig.RotationValue int targetRotation) {
+        if (resolutionFilter == null) {
+            return sizeList;
+        }
+
+        // Invokes ResolutionFilter#filter() to filter/sort and return the result if it is
+        // specified.
+        int destRotationDegrees = CameraOrientationUtil.surfaceRotationToDegrees(
+                targetRotation);
+        int rotationDegrees =
+                CameraOrientationUtil.getRelativeImageRotation(destRotationDegrees,
+                        mSensorOrientation,
+                        mLensFacing == CameraSelector.LENS_FACING_BACK);
+        List<Size> filteredResultList = resolutionFilter.filter(new ArrayList<>(sizeList),
+                rotationDegrees);
+        if (sizeList.containsAll(filteredResultList)) {
+            return filteredResultList;
+        } else {
+            throw new IllegalArgumentException("The returned sizes list of the resolution "
+                    + "filter must be a subset of the provided sizes list.");
+        }
+    }
+
+    /**
+     * Sorts the size list for {@link ResolutionStrategy#FALLBACK_RULE_NONE}.
+     *
+     * @param supportedSizesList the supported sizes list which has been sorted in descending order.
+     * @param boundSize          the resolution strategy bound size.
+     */
+    private static void sortSupportedSizesByFallbackRuleNone(
+            @NonNull List<Size> supportedSizesList, @NonNull Size boundSize) {
+        boolean containsBoundSize = supportedSizesList.contains(boundSize);
+        supportedSizesList.clear();
+        if (containsBoundSize) {
+            supportedSizesList.add(boundSize);
+        }
+    }
+
+    /**
+     * Sorts the size list for {@link ResolutionStrategy#FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER}
+     * or {@link ResolutionStrategy#FALLBACK_RULE_CLOSEST_HIGHER}.
+     *
+     * @param supportedSizesList the supported sizes list which has been sorted in descending order.
+     * @param boundSize          the resolution strategy bound size.
+     * @param keepLowerSizes     keeps the sizes lower than the bound size in the result list if
+     *                           this is {@code true}.
+     */
+    static void sortSupportedSizesByFallbackRuleClosestHigherThenLower(
+            @NonNull List<Size> supportedSizesList, @NonNull Size boundSize,
+            boolean keepLowerSizes) {
+        List<Size> lowerSizes = new ArrayList<>();
+
+        for (int i = supportedSizesList.size() - 1; i >= 0; i--) {
+            Size outputSize = supportedSizesList.get(i);
+            if (outputSize.getWidth() < boundSize.getWidth()
+                    || outputSize.getHeight() < boundSize.getHeight()) {
+                // The supportedSizesList is in descending order. Checking and put the
+                // bounding-below size at position 0 so that the largest smaller resolution
+                // will be put in the first position finally.
+                lowerSizes.add(0, outputSize);
+            } else {
+                break;
+            }
+        }
+        // Removes the lower sizes from the list
+        supportedSizesList.removeAll(lowerSizes);
+        // Reverses the list so that the smallest larger resolution will be put in the first
+        // position.
+        Collections.reverse(supportedSizesList);
+        if (keepLowerSizes) {
+            // Appends the lower sizes to the tail
+            supportedSizesList.addAll(lowerSizes);
+        }
+    }
+
+    /**
+     * Sorts the size list for {@link ResolutionStrategy#FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER}
+     * or {@link ResolutionStrategy#FALLBACK_RULE_CLOSEST_LOWER}.
+     *
+     * @param supportedSizesList the supported sizes list which has been sorted in descending order.
+     * @param boundSize          the resolution strategy bound size.
+     * @param keepHigherSizes    keeps the sizes higher than the bound size in the result list if
+     *                           this is {@code true}.
+     */
+    private static void sortSupportedSizesByFallbackRuleClosestLowerThenHigher(
+            @NonNull List<Size> supportedSizesList, @NonNull Size boundSize,
+            boolean keepHigherSizes) {
+        List<Size> higherSizes = new ArrayList<>();
+
+        for (int i = 0; i < supportedSizesList.size(); i++) {
+            Size outputSize = supportedSizesList.get(i);
+            if (outputSize.getWidth() > boundSize.getWidth()
+                    || outputSize.getHeight() > boundSize.getHeight()) {
+                // The supportedSizesList is in descending order. Checking and put the
+                // bounding-above size at position 0 so that the smallest larger resolution
+                // will be put in the first position finally.
+                higherSizes.add(0, outputSize);
+            } else {
+                // Breaks the for-loop to keep the equal-to or lower sizes in the list.
+                break;
+            }
+        }
+        // Removes the higher sizes from the list
+        supportedSizesList.removeAll(higherSizes);
+        if (keepHigherSizes) {
+            // Appends the higher sizes to the tail
+            supportedSizesList.addAll(higherSizes);
+        }
     }
 
     /**
@@ -391,42 +604,8 @@ public class SupportedOutputSizesSorter {
     }
 
     /**
-     * Removes unnecessary sizes by target size.
-     *
-     * <p>If the target resolution is set, a size that is equal to or closest to the target
-     * resolution will be selected. If the list includes more than one size equal to or larger
-     * than the target resolution, only one closest size needs to be kept. The other larger sizes
-     * can be removed so that they won't be selected to use.
-     *
-     * @param supportedSizesList The list should have been sorted in descending order.
-     * @param miniBoundingSize   The target size used to remove unnecessary sizes.
+     * Groups the input sizes into an aspect ratio to size list map.
      */
-    static List<Size> sortSupportedSizesByMiniBoundingSize(@NonNull List<Size> supportedSizesList,
-            @NonNull Size miniBoundingSize) {
-        if (supportedSizesList.isEmpty()) {
-            return supportedSizesList;
-        }
-
-        List<Size> resultList = new ArrayList<>();
-
-        // Get the index of the item that is equal to or closest to the target size.
-        for (int i = 0; i < supportedSizesList.size(); i++) {
-            Size outputSize = supportedSizesList.get(i);
-            if (outputSize.getWidth() >= miniBoundingSize.getWidth()
-                    && outputSize.getHeight() >= miniBoundingSize.getHeight()) {
-                // The supportedSizesList is in descending order. Checking and put the
-                // mini-bounding-above size at position 0 so that the smallest larger resolution
-                // will be put in the first position finally.
-                resultList.add(0, outputSize);
-            } else {
-                // Appends the remaining smaller sizes in descending order.
-                resultList.add(outputSize);
-            }
-        }
-
-        return resultList;
-    }
-
     static Map<Rational, List<Size>> groupSizesByAspectRatio(@NonNull List<Size> sizes) {
         Map<Rational, List<Size>> aspectRatioSizeListMap = new HashMap<>();
 

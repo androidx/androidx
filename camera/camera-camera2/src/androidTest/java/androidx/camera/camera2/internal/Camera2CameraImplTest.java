@@ -56,7 +56,6 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.InitializationException;
-import androidx.camera.core.ResolutionSelector;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -69,6 +68,8 @@ import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.resolutionselector.HighResolution;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -965,7 +966,8 @@ public final class Camera2CameraImplTest {
 
         // Creates a test use case with high resolution enabled.
         ResolutionSelector highResolutionSelector =
-                new ResolutionSelector.Builder().setHighResolutionEnabled(true).build();
+                new ResolutionSelector.Builder().setHighResolutionEnabledFlags(
+                        HighResolution.FLAG_DEFAULT_MODE_ON).build();
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
                         new Camera2SessionOptionUnpacker()).setTargetName(
