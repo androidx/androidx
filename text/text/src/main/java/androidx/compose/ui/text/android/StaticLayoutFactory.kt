@@ -39,8 +39,12 @@ import java.lang.reflect.InvocationTargetException
 
 private const val TAG = "StaticLayoutFactory"
 
+/**
+* @suppress
+*/
 @OptIn(InternalPlatformTextApi::class)
-internal object StaticLayoutFactory {
+@InternalPlatformTextApi
+object StaticLayoutFactory {
 
     private val delegate: StaticLayoutFactoryImpl = if (Build.VERSION.SDK_INT >= 23) {
         StaticLayoutFactory23()

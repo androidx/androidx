@@ -36,7 +36,7 @@ import java.util.Locale
  * @suppress
  */
 @InternalPlatformTextApi
-class WordBoundary(
+internal class WordBoundary(
     locale: Locale,
     text: CharSequence
 ) {

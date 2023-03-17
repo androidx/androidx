@@ -112,7 +112,7 @@ private val SharedTextAndroidCanvas: TextAndroidCanvas = TextAndroidCanvas()
  */
 @OptIn(InternalPlatformTextApi::class)
 @InternalPlatformTextApi
-class TextLayout constructor(
+internal class TextLayout constructor(
     charSequence: CharSequence,
     width: Float,
     textPaint: TextPaint,
@@ -137,31 +137,6 @@ class TextLayout constructor(
         textDirectionHeuristic
     )
 ) {
-    companion object {
-        // This is used for benchmarks in HyphensLineBreakBenchmark.kt
-        @VisibleForTesting
-        fun constructStaticLayout(
-            charSequence: CharSequence,
-            width: Int,
-            textPaint: TextPaint,
-            hyphenationFrequency: Int,
-            lineBreakStyle: Int,
-            breakStrategy: Int,
-            lineBreakWordStyle: Int
-        ): StaticLayout {
-            val layout = StaticLayoutFactory.create(
-                text = charSequence,
-                paint = textPaint,
-                width = width,
-                hyphenationFrequency = hyphenationFrequency,
-                lineBreakStyle = lineBreakStyle,
-                breakStrategy = breakStrategy,
-                lineBreakWordStyle = lineBreakWordStyle
-            )
-            return layout
-        }
-    }
-
     val maxIntrinsicWidth: Float
         get() = layoutIntrinsics.maxIntrinsicWidth
 

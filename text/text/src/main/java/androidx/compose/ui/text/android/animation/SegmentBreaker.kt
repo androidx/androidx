@@ -43,7 +43,7 @@ import kotlin.math.min
  * @suppress
  */
 @InternalPlatformTextApi
-data class Segment(
+internal data class Segment(
     val startOffset: Int,
     val endOffset: Int,
     val left: Int,
@@ -57,7 +57,7 @@ data class Segment(
  * @suppress
  */
 @InternalPlatformTextApi
-object SegmentBreaker {
+internal object SegmentBreaker {
     private fun breakInWords(layoutHelper: LayoutHelper): List<Int> {
         val text = layoutHelper.layout.text
         val words = breakWithBreakIterator(text, BreakIterator.getLineInstance(Locale.getDefault()))

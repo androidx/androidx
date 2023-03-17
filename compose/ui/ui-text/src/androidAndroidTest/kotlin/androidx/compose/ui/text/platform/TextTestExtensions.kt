@@ -35,7 +35,7 @@ fun Layout.bitmap(): Bitmap {
 }
 
 @OptIn(InternalPlatformTextApi::class)
-fun TextLayout.bitmap(): Bitmap {
+internal fun TextLayout.bitmap(): Bitmap {
     return layout.bitmap()
 }
 
