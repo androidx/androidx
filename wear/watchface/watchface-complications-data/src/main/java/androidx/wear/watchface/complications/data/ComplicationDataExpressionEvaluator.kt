@@ -29,12 +29,10 @@ import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway
 import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -96,9 +94,10 @@ class ComplicationDataExpressionEvaluator(
 
         /**
          * @see ComplicationDataExpressionEvaluator.init, [executor] is used in place of
-         *   `coroutineScope`.
+         *   `coroutineScope`, and defaults to an immediate main-thread [Executor].
          */
-        fun init(executor: Executor) {
+        @JvmOverloads
+        fun init(executor: Executor = CoroutineScope(Dispatchers.Main.immediate).asExecutor()) {
             evaluator.init(CoroutineScope(executor.asCoroutineDispatcher()))
             evaluator.data
                 .filterNotNull()
@@ -129,9 +128,9 @@ class ComplicationDataExpressionEvaluator(
      *
      * This needs to be called exactly once.
      *
-     * @param coroutineScope used for background evaluation
+     * @param coroutineScope used for background evaluation, must be single threaded
      */
-    fun init(coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)) {
+    fun init(coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main.immediate)) {
         // Add all the receivers before we start binding them because binding can synchronously
         // trigger the receiver, which would update the data before all the fields are evaluated.
         Initializer(coroutineScope).init()
@@ -167,9 +166,7 @@ class ComplicationDataExpressionEvaluator(
                     ?.let { receivers += it }
             }
             if (unevaluatedData.hasLongText()) {
-                unevaluatedData.longText
-                    ?.buildReceiver { setLongText(it) }
-                    ?.let { receivers += it }
+                unevaluatedData.longText?.buildReceiver { setLongText(it) }?.let { receivers += it }
             }
             if (unevaluatedData.hasLongTitle()) {
                 unevaluatedData.longTitle
@@ -205,11 +202,7 @@ class ComplicationDataExpressionEvaluator(
                     setter(this, it)
                 },
                 binder = { receiver ->
-                    evaluator.bind(
-                        this@buildReceiver,
-                        coroutineScope.coroutineContext.asExecutor(),
-                        receiver
-                    )
+                    evaluator.bind(this@buildReceiver, coroutineScope.asExecutor(), receiver)
                 },
             )
 
@@ -232,7 +225,7 @@ class ComplicationDataExpressionEvaluator(
                         evaluator.bind(
                             expression,
                             ULocale.getDefault(),
-                            coroutineScope.coroutineContext.asExecutor(),
+                            coroutineScope.asExecutor(),
                             receiver
                         )
                     },
@@ -363,5 +356,15 @@ class ComplicationDataExpressionEvaluator(
     }
 }
 
-internal fun CoroutineContext.asExecutor(): Executor =
-    (get(ContinuationInterceptor) as CoroutineDispatcher).asExecutor()
+/**
+ * Replacement for CoroutineDispatcher.asExecutor extension due to
+ * https://github.com/Kotlin/kotlinx.coroutines/pull/3683.
+ */
+internal fun CoroutineScope.asExecutor() = Executor { runnable ->
+    val dispatcher = coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
+    if (dispatcher.isDispatchNeeded(coroutineContext)) {
+        dispatcher.dispatch(coroutineContext, runnable)
+    } else {
+        runnable.run()
+    }
+}
