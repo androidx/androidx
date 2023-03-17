@@ -26,20 +26,26 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -54,10 +60,10 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import java.util.concurrent.CountDownLatch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -139,6 +145,52 @@ class SelectionContainerFocusTest {
         }
     }
 
+    @Test
+    fun leavingComposition_hidesTextToolbar() {
+        // null -> nothing got called, true -> show, false -> hide
+        var lastShowCalled: Boolean? = null
+        val fakeTextToolbar = FakeTextToolbar(
+            onShowMenu = { _, _, _, _, _ -> lastShowCalled = true },
+            onHideMenu = { lastShowCalled = false }
+        )
+
+        val tag = "SelectionContainer"
+
+        var inComposition by mutableStateOf(true)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalTextToolbar provides fakeTextToolbar
+            ) {
+                if (inComposition) {
+                    SelectionContainer(modifier = Modifier.testTag("SelectionContainer")) {
+                        BasicText(
+                            AnnotatedString(textContent),
+                            Modifier.fillMaxWidth(),
+                            style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
+                            softWrap = true,
+                            overflow = TextOverflow.Clip,
+                            maxLines = Int.MAX_VALUE,
+                            inlineContent = mapOf(),
+                            onTextLayout = {}
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput { longClick() }
+        rule.runOnIdle {
+            assertThat(lastShowCalled).isTrue()
+        }
+
+        inComposition = false
+
+        rule.runOnIdle {
+            assertThat(lastShowCalled).isFalse()
+        }
+    }
+
     private fun createSelectionContainer(isRtl: Boolean = false) {
         val measureLatch = CountDownLatch(1)
 
@@ -151,9 +203,11 @@ class SelectionContainerFocusTest {
             ) {
                 Column {
                     SelectionContainer(
-                        modifier = Modifier.onGloballyPositioned {
-                            measureLatch.countDown()
-                        }.testTag("selectionContainer1"),
+                        modifier = Modifier
+                            .onGloballyPositioned {
+                                measureLatch.countDown()
+                            }
+                            .testTag("selectionContainer1"),
                         selection = selection1.value,
                         onSelectionChange = {
                             selection1.value = it
@@ -170,14 +224,19 @@ class SelectionContainerFocusTest {
                                 inlineContent = mapOf(),
                                 onTextLayout = {}
                             )
-                            Box(Modifier.size(boxSize, boxSize).testTag("box"))
+                            Box(
+                                Modifier
+                                    .size(boxSize, boxSize)
+                                    .testTag("box"))
                         }
                     }
 
                     SelectionContainer(
-                        modifier = Modifier.onGloballyPositioned {
-                            measureLatch.countDown()
-                        }.testTag("selectionContainer2"),
+                        modifier = Modifier
+                            .onGloballyPositioned {
+                                measureLatch.countDown()
+                            }
+                            .testTag("selectionContainer2"),
                         selection = selection2.value,
                         onSelectionChange = {
                             selection2.value = it
@@ -200,5 +259,45 @@ class SelectionContainerFocusTest {
         rule.activityRule.scenario.onActivity {
             view = it.findViewById<ViewGroup>(android.R.id.content)
         }
+    }
+}
+
+internal fun FakeTextToolbar(
+    onShowMenu: (
+        rect: Rect,
+        onCopyRequested: (() -> Unit)?,
+        onPasteRequested: (() -> Unit)?,
+        onCutRequested: (() -> Unit)?,
+        onSelectAllRequested: (() -> Unit)?
+    ) -> Unit,
+    onHideMenu: () -> Unit
+): TextToolbar {
+    return object : TextToolbar {
+        private var _status: TextToolbarStatus = TextToolbarStatus.Hidden
+
+        override fun showMenu(
+            rect: Rect,
+            onCopyRequested: (() -> Unit)?,
+            onPasteRequested: (() -> Unit)?,
+            onCutRequested: (() -> Unit)?,
+            onSelectAllRequested: (() -> Unit)?
+        ) {
+            onShowMenu(
+                rect,
+                onCopyRequested,
+                onPasteRequested,
+                onCutRequested,
+                onSelectAllRequested
+            )
+            _status = TextToolbarStatus.Shown
+        }
+
+        override fun hide() {
+            onHideMenu()
+            _status = TextToolbarStatus.Hidden
+        }
+
+        override val status: TextToolbarStatus
+            get() = _status
     }
 }
