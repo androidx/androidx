@@ -17,6 +17,9 @@ package androidx.room.integration.kotlintestapp.test
 
 import android.content.Context
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
+import androidx.collection.ArrayMap
+import androidx.collection.LongSparseArray
+import androidx.collection.SparseArrayCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.testing.TestLifecycleOwner
@@ -1078,6 +1081,55 @@ class MultimapQueryTest {
         )
         val map: Map<Artist, Album> = mMusicDao.artistToAlbumLeftJoin()
         assertThat(map.containsKey(mGlassAnimals)).isFalse()
+    }
+
+    @Test
+    fun testImageYearToArtistLongSparseArray() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover)
+        val imageToArtistsMap: LongSparseArray<Artist> =
+            mMusicDao.allAlbumCoverYearToArtistsWithLongSparseArray()
+        assertThat(imageToArtistsMap.size()).isEqualTo(2)
+        assertThat(imageToArtistsMap[2006L]).isEqualTo(mRhcp)
+    }
+
+    @Test
+    fun testImageYearToArtistSparseArrayCompat() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover)
+        val imageToArtistsMap: SparseArrayCompat<Artist> =
+            mMusicDao.allAlbumCoverYearToArtistsWithIntSparseArray()
+        assertThat(imageToArtistsMap.size()).isEqualTo(2)
+        assertThat(imageToArtistsMap[2006]).isEqualTo(mRhcp)
+        assertThat(imageToArtistsMap[1973]).isEqualTo(mPinkFloyd)
+    }
+
+    @Test
+    fun testImageYearToArtistRawQueryArrayMap() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover)
+        val imageToArtistsMap: ArrayMap<Long, Artist> =
+            mMusicDao.getAllAlbumCoverYearToArtistsWithRawQueryArrayMap(
+                SimpleSQLiteQuery(
+                    "SELECT * FROM Image JOIN Artist ON Artist.mArtistName = Image" +
+                        ".mArtistInImage"
+                )
+            )
+        assertThat(imageToArtistsMap[2006L]).isEqualTo(mRhcp)
+        assertThat(
+            imageToArtistsMap.keys
+        ).containsExactlyElementsIn(
+            listOf(2006L, 1973L)
+        )
+    }
+
+    @Test
+    fun testArtistToImageYearArrayMap() {
+        mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
+        mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover)
+        val artistNameToImagesMap: ArrayMap<Artist, Long> =
+            mMusicDao.allArtistsWithAlbumCoverYearArrayMap()
+        assertThat(artistNameToImagesMap[mRhcp]).isEqualTo(2006L)
     }
 
     /**
