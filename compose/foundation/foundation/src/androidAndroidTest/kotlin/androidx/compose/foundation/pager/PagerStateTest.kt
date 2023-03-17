@@ -34,6 +34,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -464,7 +465,7 @@ internal class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
         // Act
         // Moving more than threshold
         val backwardDelta = scrollForwardSign.toFloat() * with(rule.density) {
-                -DefaultPositionThreshold.toPx() / 2
+            -DefaultPositionThreshold.toPx() / 2
         }
 
         previousTargetPage = state.targetPage
@@ -619,6 +620,48 @@ internal class PagerStateTest(val config: ParamConfig) : BasePagerTest(config) {
 
         rule.mainClock.autoAdvance = true
         rule.runOnIdle { assertThat(state.targetPage).isEqualTo(state.currentPage) }
+    }
+
+    @Test
+    fun settledPage_shouldChangeOnScrollFinished() {
+        // Arrange
+        val state = PagerState()
+        var settledPageChanges = 0
+        createPager(
+            state = state,
+            modifier = Modifier.fillMaxSize(),
+            effects = {
+                LaunchedEffect(key1 = state.settledPage) {
+                    settledPageChanges++
+                }
+            }
+        )
+        rule.runOnIdle {
+            assertThat(state.settledPage).isEqualTo(state.currentPage)
+            assertTrue { settledPageChanges == 1 }
+        }
+
+        settledPageChanges = 0
+        val previousSettled = state.settledPage
+        rule.mainClock.autoAdvance = false
+        // Act
+        // Moving forward
+        rule.runOnIdle {
+            scope.launch {
+                state.animateScrollToPage(DefaultPageCount - 1)
+            }
+        }
+
+        assertTrue { state.isScrollInProgress }
+        assertTrue { settledPageChanges == 0 }
+        assertThat(state.settledPage).isEqualTo(previousSettled)
+
+        rule.mainClock.advanceTimeUntil { settledPageChanges != 0 }
+
+        rule.runOnIdle {
+            assertTrue { !state.isScrollInProgress }
+            assertThat(state.settledPage).isEqualTo(state.currentPage)
+        }
     }
 
     @Test
