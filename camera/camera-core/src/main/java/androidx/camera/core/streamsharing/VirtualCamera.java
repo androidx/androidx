@@ -22,11 +22,13 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
+import static androidx.camera.core.streamsharing.ResolutionUtils.getMergedResolutions;
 import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Objects.requireNonNull;
 
 import android.os.Build;
+import android.util.Size;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -50,6 +52,7 @@ import androidx.camera.core.processing.SurfaceProcessorNode.OutConfig;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,8 +87,6 @@ class VirtualCamera implements CameraInternal {
     // The callback that receives the parent camera's metadata.
     @NonNull
     private final CameraCaptureCallback mParentMetadataCallback = createCameraCaptureCallback();
-    @NonNull
-    private final ResolutionMerger mResolutionMerger;
 
     /**
      * @param parentCamera         the parent {@link CameraInternal} instance. For example, the
@@ -99,7 +100,6 @@ class VirtualCamera implements CameraInternal {
         mParentCamera = parentCamera;
         mUseCaseConfigFactory = useCaseConfigFactory;
         mChildren = children;
-        mResolutionMerger = new ResolutionMerger(parentCamera);
         // Set children state to inactive by default.
         for (UseCase child : children) {
             mChildrenActiveState.put(child, false);
@@ -116,8 +116,13 @@ class VirtualCamera implements CameraInternal {
         }
 
         // Merge resolution configs.
+        List<Size> supportedResolutions =
+                new ArrayList<>(mParentCamera.getCameraInfoInternal().getSupportedResolutions(
+                        INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE));
+        Size sensorSize = rectToSize(mParentCamera.getCameraControlInternal().getSensorRect());
         mutableConfig.insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS,
-                mResolutionMerger.getMergedResolutions(childrenConfigs));
+                getMergedResolutions(supportedResolutions, sensorSize,
+                        childrenConfigs));
 
         // Merge Surface occupancy priority.
         mutableConfig.insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY,
