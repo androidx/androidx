@@ -26,6 +26,7 @@ import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
 import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
+import androidx.wear.protolayout.expression.pipeline.TimeGateway
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway
 import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
@@ -53,6 +54,7 @@ import kotlinx.coroutines.launch
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationDataExpressionEvaluator(
     private val stateStore: ObservableStateStore? = null,
+    private val timeGateway: TimeGateway? = null,
     private val sensorGateway: SensorGateway? = null,
     private val keepExpression: Boolean = false,
 ) {
@@ -210,6 +212,7 @@ class ComplicationDataExpressionEvaluator(
                     DynamicTypeEvaluator.Config.Builder()
                         .setPlatformDataSourcesInitiallyEnabled(true)
                         .apply { stateStore?.let { setStateStore(it) } }
+                        .apply { timeGateway?.let { setTimeGateway(it) } }
                         .apply { sensorGateway?.let { setSensorGateway(it) } }
                         .build()
                 )

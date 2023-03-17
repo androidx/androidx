@@ -17,30 +17,30 @@
 package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
 
 import java.util.concurrent.Executor;
 
 /**
- * A gateway to Time data sources. This should call any provided callbacks every second.
+ * Controls evaluation triggering of time-related expressions.
  *
- * <p>Implementations of this class should track a few things:
- *
- * <ul>
- *   <li>Surface lifecycle. Implementations should keep track of registered consumers, and
- *       deregister them all when the surface is no longer available.
- *   <li>Device state. Implementations should react to device state (i.e. ambient mode), and
- *       activity state (i.e. is the surface in the foreground), and enable/disable updates
- *       accordingly.
- * </ul>
+ * <p>Can be optionally provided to {@link DynamicTypeEvaluator} in order to have fine control of
+ * how time-related expressions are triggered for re-evaluation.
  */
-interface TimeGateway {
-    /** Callback for time notifications. */
+public interface TimeGateway {
+    /** Callback for {@link TimeGateway} triggers. */
     interface TimeCallback {
         /**
          * Called just before an update happens. All onPreUpdate calls will be made before any
          * onUpdate calls fire.
          *
          * <p>Will be called on the same executor passed to {@link TimeGateway#registerForUpdates}.
+         *
+         * <p>It is up to the caller to ensure synchronization between {@link #onPreUpdate()} and
+         * {@link #onData()} calls (both called on the {@link Executor} provided to {@link
+         * #registerForUpdates}), e.g. by providing a single-threaded ordered {@link Executor}. If
+         * not synchronized, it's possible that {@link #onData()} will be invoked before {@link
+         * #onPreUpdate()} on the same time tick.
          */
         void onPreUpdate();
 
@@ -48,11 +48,25 @@ interface TimeGateway {
          * Notifies that the current time has changed.
          *
          * <p>Will be called on the same executor passed to {@link TimeGateway#registerForUpdates}.
+         *
+         * <p>It is up to the caller to ensure synchronization between {@link #onPreUpdate()} and
+         * {@link #onData()} calls (both called on the {@link Executor} provided to {@link
+         * #registerForUpdates}), e.g. by providing a single-threaded ordered {@link Executor}. If
+         * not synchronized, it's possible that {@link #onData()} will be invoked before {@link
+         * #onPreUpdate()} on the same time tick.
          */
         void onData();
     }
 
-    /** Register for time updates. All callbacks will be called on the provided executor. */
+    /**
+     * Register for time updates. All callbacks will be called on the provided executor.
+     *
+     * <p>It is up to the caller to ensure synchronization between {@link
+     * TimeCallback#onPreUpdate()} and {@link TimeCallback#onData()} calls (both called on the
+     * provided {@link Executor}), e.g. by providing a single-threaded ordered {@link Executor}. If
+     * not synchronized, it's possible that {@link TimeCallback#onData()} will be invoked before
+     * {@link TimeCallback#onPreUpdate()} on the same time tick.
+     */
     void registerForUpdates(@NonNull Executor executor, @NonNull TimeCallback callback);
 
     /** Unregister for time updates. */

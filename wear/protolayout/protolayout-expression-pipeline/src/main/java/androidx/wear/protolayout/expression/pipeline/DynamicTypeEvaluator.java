@@ -129,25 +129,28 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     @NonNull private final Config mConfig;
     @NonNull private final ObservableStateStore mStateStore;
     @NonNull private final QuotaManager mAnimationQuotaManager;
-    @NonNull private final TimeGatewayImpl mTimeGateway;
-    @Nullable private final SensorGatewayPlatformDataSource mSensorGatewayDataSource;
+    @NonNull private final TimeGateway mTimeGateway;
     @Nullable private final EpochTimePlatformDataSource mTimeDataSource;
+    @Nullable private final SensorGatewayPlatformDataSource mSensorGatewayDataSource;
 
     /** Configuration for {@link #DynamicTypeEvaluator(Config)}. */
     public static final class Config {
         private final boolean mPlatformDataSourcesInitiallyEnabled;
         @Nullable private final ObservableStateStore mStateStore;
         @Nullable private final QuotaManager mAnimationQuotaManager;
+        @Nullable private final TimeGateway mTimeGateway;
         @Nullable private final SensorGateway mSensorGateway;
 
         Config(
                 boolean platformDataSourcesInitiallyEnabled,
                 @Nullable ObservableStateStore stateStore,
                 @Nullable QuotaManager animationQuotaManager,
+                @Nullable TimeGateway timeGateway,
                 @Nullable SensorGateway sensorGateway) {
             this.mPlatformDataSourcesInitiallyEnabled = platformDataSourcesInitiallyEnabled;
             this.mStateStore = stateStore;
             this.mAnimationQuotaManager = animationQuotaManager;
+            this.mTimeGateway = timeGateway;
             this.mSensorGateway = sensorGateway;
         }
 
@@ -156,6 +159,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             private boolean mPlatformDataSourcesInitiallyEnabled = false;
             @Nullable private ObservableStateStore mStateStore = null;
             @Nullable private QuotaManager mAnimationQuotaManager = null;
+            @Nullable private TimeGateway mTimeGateway = null;
             @Nullable private SensorGateway mSensorGateway = null;
 
             /**
@@ -198,6 +202,18 @@ public class DynamicTypeEvaluator implements AutoCloseable {
             }
 
             /**
+             * Sets the gateway used for time data.
+             *
+             * <p>If not set, a default 1hz {@link TimeGateway} implementation that utilizes a
+             * main-thread {@code Handler} to trigger is used.
+             */
+            @NonNull
+            public Builder setTimeGateway(@NonNull TimeGateway value) {
+                mTimeGateway = value;
+                return this;
+            }
+
+            /**
              * Sets the gateway used for sensor data.
              *
              * <p>If not set, sensor data will not be available (sensor bindings will trigger {@link
@@ -215,6 +231,7 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                         mPlatformDataSourcesInitiallyEnabled,
                         mStateStore,
                         mAnimationQuotaManager,
+                        mTimeGateway,
                         mSensorGateway);
             }
         }
@@ -256,6 +273,15 @@ public class DynamicTypeEvaluator implements AutoCloseable {
         public SensorGateway getSensorGateway() {
             return mSensorGateway;
         }
+
+        /**
+         * Gets the gateway used for time data, or {@code null} if a default 1hz {@link TimeGateway}
+         * that utilizes a main-thread {@code Handler} to trigger is used.
+         */
+        @Nullable
+        public TimeGateway getTimeGateway() {
+            return mTimeGateway;
+        }
     }
 
     /** Constructs a {@link DynamicTypeEvaluator}. */
@@ -269,6 +295,15 @@ public class DynamicTypeEvaluator implements AutoCloseable {
                         : DISABLED_ANIMATIONS_QUOTA_MANAGER;
         Handler uiHandler = new Handler(Looper.getMainLooper());
         MainThreadExecutor uiExecutor = new MainThreadExecutor(uiHandler);
+        this.mTimeGateway =
+                config.getTimeGateway() != null
+                        ? config.getTimeGateway()
+                        : new TimeGatewayImpl(uiHandler);
+        this.mTimeDataSource = new EpochTimePlatformDataSource(uiExecutor, mTimeGateway);
+        if (config.isPlatformDataSourcesInitiallyEnabled()
+                && this.mTimeGateway instanceof TimeGatewayImpl) {
+            ((TimeGatewayImpl) this.mTimeGateway).enableUpdates();
+        }
         if (config.getSensorGateway() != null) {
             if (config.isPlatformDataSourcesInitiallyEnabled()) {
                 config.getSensorGateway().enableUpdates();
@@ -280,10 +315,6 @@ public class DynamicTypeEvaluator implements AutoCloseable {
         } else {
             this.mSensorGatewayDataSource = null;
         }
-
-        this.mTimeGateway =
-                new TimeGatewayImpl(uiHandler, config.isPlatformDataSourcesInitiallyEnabled());
-        this.mTimeDataSource = new EpochTimePlatformDataSource(uiExecutor, mTimeGateway);
     }
 
     /**
@@ -1296,31 +1327,40 @@ public class DynamicTypeEvaluator implements AutoCloseable {
     /** Enables sending updates on sensor and time. */
     @UiThread
     public void enablePlatformDataSources() {
+        if (this.mTimeGateway instanceof TimeGatewayImpl) {
+            ((TimeGatewayImpl) mTimeGateway).enableUpdates();
+        }
         if (mConfig.getSensorGateway() != null) {
             mConfig.getSensorGateway().enableUpdates();
         }
-
-        mTimeGateway.enableUpdates();
     }
 
     /** Disables sending updates on sensor and time. */
     @UiThread
     public void disablePlatformDataSources() {
+        if (this.mTimeGateway instanceof TimeGatewayImpl) {
+            ((TimeGatewayImpl) mTimeGateway).disableUpdates();
+        }
         if (mConfig.getSensorGateway() != null) {
             mConfig.getSensorGateway().disableUpdates();
         }
-
-        mTimeGateway.disableUpdates();
     }
 
-    /** Closes existing time gateway. */
+    /**
+     * Closes resources owned by this {@link DynamicTypeEvaluator}.
+     *
+     * <p>This will not close provided resources, like the {@link TimeGateway} or {@link
+     * SensorGateway}.
+     */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void close() {
-        try {
-            mTimeGateway.close();
-        } catch (RuntimeException ex) {
-            Log.e(TAG, "Error while cleaning up time gateway", ex);
+        if (mTimeGateway instanceof TimeGatewayImpl) {
+            try {
+                ((TimeGatewayImpl) mTimeGateway).close();
+            } catch (RuntimeException ex) {
+                Log.e(TAG, "Error while cleaning up time gateway", ex);
+            }
         }
     }
 

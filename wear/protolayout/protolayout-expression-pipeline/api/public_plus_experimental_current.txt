@@ -24,6 +24,7 @@ package androidx.wear.protolayout.expression.pipeline {
     method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getAnimationQuotaManager();
     method public androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway? getSensorGateway();
     method public androidx.wear.protolayout.expression.pipeline.ObservableStateStore? getStateStore();
+    method public androidx.wear.protolayout.expression.pipeline.TimeGateway? getTimeGateway();
     method public boolean isPlatformDataSourcesInitiallyEnabled();
   }
 
@@ -34,6 +35,7 @@ package androidx.wear.protolayout.expression.pipeline {
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setPlatformDataSourcesInitiallyEnabled(boolean);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setSensorGateway(androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setStateStore(androidx.wear.protolayout.expression.pipeline.ObservableStateStore);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setTimeGateway(androidx.wear.protolayout.expression.pipeline.TimeGateway);
   }
 
   public interface DynamicTypeValueReceiver<T> {
@@ -49,6 +51,16 @@ package androidx.wear.protolayout.expression.pipeline {
   public interface QuotaManager {
     method public void releaseQuota(int);
     method public boolean tryAcquireQuota(int);
+  }
+
+  public interface TimeGateway {
+    method public void registerForUpdates(java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.TimeGateway.TimeCallback);
+    method public void unregisterForUpdates(androidx.wear.protolayout.expression.pipeline.TimeGateway.TimeCallback);
+  }
+
+  public static interface TimeGateway.TimeCallback {
+    method public void onData();
+    method public void onPreUpdate();
   }
 
 }
