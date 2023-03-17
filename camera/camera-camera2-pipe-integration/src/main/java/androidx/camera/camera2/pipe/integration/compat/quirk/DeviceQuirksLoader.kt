@@ -55,8 +55,17 @@ object DeviceQuirksLoader {
         if (ExcludedSupportedSizesQuirk.load()) {
             quirks.add(ExcludedSupportedSizesQuirk())
         }
+        if (ExtraCroppingQuirk.load()) {
+            quirks.add(ExtraCroppingQuirk())
+        }
         if (ExtraSupportedOutputSizeQuirk.load()) {
             quirks.add(ExtraSupportedOutputSizeQuirk())
+        }
+        if (ExtraSupportedSurfaceCombinationsQuirk.load()) {
+            quirks.add(ExtraSupportedSurfaceCombinationsQuirk())
+        }
+        if (Nexus4AndroidLTargetAspectRatioQuirk.load()) {
+            quirks.add(Nexus4AndroidLTargetAspectRatioQuirk())
         }
         if (PreviewPixelHDRnetQuirk.isEnabled()) {
             quirks.add(PreviewPixelHDRnetQuirk())

@@ -60,7 +60,7 @@ class StreamConfigurationMapCompatTest {
         streamConfigurationMapCompat =
             StreamConfigurationMapCompat(
                 builder.build(),
-            OutputSizesCorrector(FakeCameraMetadata())
+                OutputSizesCorrector(FakeCameraMetadata(), builder.build())
             )
     }
 

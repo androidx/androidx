@@ -100,7 +100,7 @@ object FakeCameraInfoAdapterCreator {
         }
         val fakeStreamConfigurationMap = StreamConfigurationMapCompat(
             streamConfigurationMap,
-            OutputSizesCorrector(cameraProperties.metadata)
+            OutputSizesCorrector(cameraProperties.metadata, streamConfigurationMap)
         )
         val fakeCameraQuirks = CameraQuirks(
             cameraProperties.metadata,

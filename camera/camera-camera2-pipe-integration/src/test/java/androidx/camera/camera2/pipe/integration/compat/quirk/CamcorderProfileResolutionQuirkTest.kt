@@ -74,7 +74,10 @@ class CamcorderProfileResolutionQuirkTest {
         val quirk = CamcorderProfileResolutionQuirk(
             StreamConfigurationMapCompat(
                 cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!,
-                OutputSizesCorrector(cameraMetadata)
+                OutputSizesCorrector(
+                    cameraMetadata,
+                    cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
+                )
             )
         )
 
