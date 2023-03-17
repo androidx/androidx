@@ -124,6 +124,7 @@ dependencies {
     androidTestImplementation(libs.rxjava2)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.mockitoCore4)
+    androidTestImplementation("androidx.collection:collection")
 }
 
 class RoomSchemaArgProvider implements CommandLineArgumentProvider {

@@ -15,6 +15,9 @@
  */
 package androidx.room.integration.kotlintestapp.dao
 
+import androidx.collection.ArrayMap
+import androidx.collection.LongSparseArray
+import androidx.collection.SparseArrayCompat
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
@@ -274,4 +277,25 @@ interface MusicDao {
 
     @Query("SELECT * FROM Album LEFT JOIN Artist ON Artist.mArtistName = Album.mAlbumArtist")
     fun artistToAlbumLeftJoin(): Map<Artist, Album>
+
+    @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+    @MapInfo(valueColumn = "mImageYear")
+    @RewriteQueriesToDropUnusedColumns
+    fun allArtistsWithAlbumCoverYearArrayMap(): ArrayMap<Artist, Long>
+
+    @MapInfo(keyColumn = "mImageYear")
+    @RawQuery
+    fun getAllAlbumCoverYearToArtistsWithRawQueryArrayMap(
+        query: SupportSQLiteQuery
+    ): ArrayMap<Long, Artist>
+
+    @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+    @MapInfo(keyColumn = "mImageYear")
+    @RewriteQueriesToDropUnusedColumns
+    fun allAlbumCoverYearToArtistsWithLongSparseArray(): LongSparseArray<Artist>
+
+    @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+    @MapInfo(keyColumn = "mImageYear")
+    @RewriteQueriesToDropUnusedColumns
+    fun allAlbumCoverYearToArtistsWithIntSparseArray(): SparseArrayCompat<Artist>
 }
