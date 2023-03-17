@@ -45,5 +45,7 @@ fun interface TextEditFilter {
 
 @OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldState.deselect() {
-    editProcessor.reset(value.copy(selection = TextRange.Zero, composition = TextRange.Zero))
+    if (!value.selection.collapsed) {
+        editProcessor.reset(value.copy(selection = TextRange.Zero, composition = TextRange.Zero))
+    }
 }
