@@ -24,9 +24,9 @@ import androidx.appactions.interaction.capabilities.core.properties.EnumProperty
 import androidx.appactions.interaction.capabilities.core.properties.IntegerProperty;
 import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty;
-import androidx.appactions.interaction.capabilities.core.properties.StringOrEnumProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty.PossibleValue;
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
 import androidx.appactions.interaction.proto.Entity;
 
@@ -42,16 +42,6 @@ public final class PropertyConverter {
     @NonNull
     public static IntentParameter getIntentParameter(
             @NonNull String paramName, @NonNull StringProperty property) {
-        IntentParameter.Builder builder = newIntentParameterBuilder(paramName, property);
-        extractPossibleValues(property, PropertyConverter::possibleValueToProto).stream()
-                .forEach(builder::addPossibleEntities);
-        return builder.build();
-    }
-
-    /** Create IntentParameter proto from a StringOrEnumProperty. */
-    @NonNull
-    public static <EnumT extends Enum<EnumT>> IntentParameter getIntentParameter(
-            @NonNull String paramName, @NonNull StringOrEnumProperty<EnumT> property) {
         IntentParameter.Builder builder = newIntentParameterBuilder(paramName, property);
         extractPossibleValues(property, PropertyConverter::possibleValueToProto).stream()
                 .forEach(builder::addPossibleEntities);
@@ -90,6 +80,17 @@ public final class PropertyConverter {
     public static IntentParameter getIntentParameter(
             @NonNull String paramName, @NonNull SimpleProperty property) {
         return newIntentParameterBuilder(paramName, property).build();
+    }
+
+    /** Create IntentParameter proto from a TypeProperty. */
+    @NonNull
+    public static <T> IntentParameter getIntentParameter(
+            @NonNull String paramName, @NonNull TypeProperty<T> property,
+            @NonNull Function<T, Entity> entityConverter) {
+        IntentParameter.Builder builder = newIntentParameterBuilder(paramName, property);
+        extractPossibleValues(property, entityConverter).stream()
+                .forEach(builder::addPossibleEntities);
+        return builder.build();
     }
 
     /** Create IntentParameter.Builder from a generic ParamProperty, fills in the common fields. */
@@ -131,23 +132,6 @@ public final class PropertyConverter {
                 .setName(possibleValue.getName())
                 .addAllAlternateNames(possibleValue.getAlternateNames())
                 .build();
-    }
-
-    /**
-     * Converts a capabilities library StringOrEnumProperty.PossibleValue to a appactions Entity
-     * proto.
-     */
-    @NonNull
-    public static <EnumT extends Enum<EnumT>> Entity possibleValueToProto(
-            @NonNull StringOrEnumProperty.PossibleValue<EnumT> possibleValue) {
-
-        switch (possibleValue.getKind()) {
-            case STRING_VALUE:
-                return possibleValueToProto(possibleValue.getStringValue());
-            case ENUM_VALUE:
-                return enumToProto(possibleValue.getEnumValue());
-        }
-        throw new IllegalStateException("unreachable");
     }
 
     @NonNull
