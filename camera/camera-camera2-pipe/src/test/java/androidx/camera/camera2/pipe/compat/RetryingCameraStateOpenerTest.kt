@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_DISABLED
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_DISCONNECTED
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_IN_USE
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_LIMIT_EXCEEDED
+import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_DO_NOT_DISTURB_ENABLED
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_ILLEGAL_ARGUMENT_EXCEPTION
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_SECURITY_EXCEPTION
 import androidx.camera.camera2.pipe.CameraId
@@ -434,6 +435,23 @@ class RetryingCameraStateOpenerTest {
     }
 
     @Test
+    fun testShouldNotRetryDoNotDisturbModeEnabled() {
+        val firstAttemptTimestamp = TimestampNs(0L)
+        fakeTimeSource.currentTimestamp = TimestampNs(1_000_000_000L) // 1 second
+
+        assertThat(
+            RetryingCameraStateOpener.shouldRetry(
+                ERROR_DO_NOT_DISTURB_ENABLED,
+                1,
+                firstAttemptTimestamp,
+                fakeTimeSource,
+                false
+            )
+        )
+            .isFalse()
+    }
+
+    @Test
     fun cameraStateOpenerReturnsCorrectError() = runTest {
         cameraOpener.toThrow = CameraAccessException(CameraAccessException.CAMERA_IN_USE)
         val result = cameraStateOpener.tryOpenCamera(
@@ -443,6 +461,38 @@ class RetryingCameraStateOpenerTest {
         )
 
         assertThat(result.errorCode).isEqualTo(ERROR_CAMERA_IN_USE)
+    }
+
+    @Test
+    fun cameraStateOpenerReturnsCorrectErrorWhenDoNotDisturbModeEnabledOnApi28() = runTest {
+        val throwable = RuntimeException("Camera is being used after Camera.release() was called")
+        throwable.stackTrace = arrayOf(
+            StackTraceElement(
+                "android.hardware.Camera",
+                "_enableShutterSound",
+                "Native Method",
+                0
+            ),
+            StackTraceElement(
+                "android.hardware.Camera",
+                "updateAppOpsPlayAudio",
+                "Camera.java",
+                1770
+            )
+        )
+        cameraOpener.toThrow = throwable
+
+        try {
+            val result = cameraStateOpener.tryOpenCamera(
+                cameraId0,
+                1,
+                Timestamps.now(fakeTimeSource),
+            )
+            assertThat(result.errorCode).isEqualTo(ERROR_DO_NOT_DISTURB_ENABLED)
+        } catch (throwable: Throwable) {
+            // Only non-28 SDK levels should throw an exception.
+            assertThat(Build.VERSION.SDK_INT).isNotEqualTo(28)
+        }
     }
 
     @Test

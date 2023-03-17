@@ -333,6 +333,15 @@ constructor(
                 CameraError.ERROR_CAMERA_DISCONNECTED -> true
                 CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION -> true
                 CameraError.ERROR_SECURITY_EXCEPTION -> attempts <= 1
+                CameraError.ERROR_DO_NOT_DISTURB_ENABLED ->
+                    // The error indicates that a RuntimeException was encountered when opening the
+                    // camera while Do Not Disturb mode is on. This can happen on legacy devices on
+                    // API level 28 [1]. Retries will always fail and should not be attempted.
+                    //
+                    // [1] b/149413835 - Crash during CameraX initialization when Do Not Disturb
+                    //                   is on.
+                    false
+
                 else -> {
                     Log.error { "Unexpected CameraError: $this" }
                     false
