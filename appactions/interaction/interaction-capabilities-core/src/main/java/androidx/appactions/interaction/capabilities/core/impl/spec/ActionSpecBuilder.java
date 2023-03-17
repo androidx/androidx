@@ -29,11 +29,11 @@ import androidx.appactions.interaction.capabilities.core.properties.EntityProper
 import androidx.appactions.interaction.capabilities.core.properties.EnumProperty;
 import androidx.appactions.interaction.capabilities.core.properties.IntegerProperty;
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty;
-import androidx.appactions.interaction.capabilities.core.properties.StringOrEnumProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
-import androidx.appactions.interaction.capabilities.core.values.StringOrEnumValue;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
+import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.ParamValue;
 
 import java.util.ArrayList;
@@ -180,7 +180,7 @@ public final class ActionSpecBuilder<
     }
 
     /**
-     * This is similar to {@link ActionSpectBuilder#bindOptionalEntityParameter} but for setting a
+     * This is similar to {@link ActionSpecBuilder#bindOptionalEntityParameter} but for setting a
      * list of entities instead.
      *
      * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
@@ -221,6 +221,140 @@ public final class ActionSpecBuilder<
                         paramConsumer.accept(
                                 argBuilder,
                                 SlotTypeConverter.ofSingular(TypeConverters::toEntityValue)
+                                        .convert(paramList));
+                    }
+                });
+    }
+
+    /**
+     * Binds the parameter name, getter, and setter for a {@link TypeProperty}.
+     *
+     * <p>This parameter is required for any capability built from the generated {@link ActionSpec}.
+     *
+     * @param paramName the name of this action' parameter.
+     * @param propertyGetter a getter of the TypeProperty from the property, which must be able to
+     *     fetch a non-null {@code TypeProperty} from {@code PropertyT}.
+     * @param paramConsumer a setter to set the string value in the argument builder.
+     * @param paramValueConverter converter FROM assistant ParamValue proto
+     * @param entityConverter converter TO assistant Entity proto
+     * @return the builder itself.
+     */
+    @NonNull
+    public <T, PossibleValueT>
+            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
+                    bindRequiredGenericParameter(
+                            @NonNull String paramName,
+                            @NonNull
+                                    Function<? super PropertyT, TypeProperty<PossibleValueT>>
+                                            propertyGetter,
+                            @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
+                            @NonNull ParamValueConverter<T> paramValueConverter,
+                            @NonNull Function<PossibleValueT, Entity> entityConverter) {
+        return bindGenericParameter(
+                paramName,
+                property ->
+                        Optional.of(
+                                PropertyConverter.getIntentParameter(
+                                        paramName,
+                                        propertyGetter.apply(property),
+                                        entityConverter)),
+                paramConsumer,
+                paramValueConverter);
+    }
+
+    /**
+     * Binds the parameter name, getter, and setter for a {@link TypeProperty}.
+     *
+     * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
+     * If the Property Optional is not set, this parameter will not exist in the parameter
+     * definition of the capability.
+     *
+     * @param paramName the name of this action' parameter.
+     * @param optionalPropertyGetter an optional getter of the TypeProperty from the property, which
+     *     may be able to fetch a non-null {@code TypeProperty} from {@code PropertyT}, or get
+     *     {@link Optional#empty}.
+     * @param paramConsumer a setter to set the string value in the argument builder.
+     * @param paramValueConverter converter FROM assistant ParamValue proto
+     * @param entityConverter converter TO assistant Entity proto
+     * @return the builder itself.
+     */
+    @NonNull
+    public <T, PossibleValueT>
+            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
+                    bindOptionalGenericParameter(
+                            @NonNull String paramName,
+                            @NonNull
+                                    Function<
+                                                    ? super PropertyT,
+                                                    Optional<TypeProperty<PossibleValueT>>>
+                                            optionalPropertyGetter,
+                            @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
+                            @NonNull ParamValueConverter<T> paramValueConverter,
+                            @NonNull Function<PossibleValueT, Entity> entityConverter) {
+        return bindGenericParameter(
+                paramName,
+                property ->
+                        optionalPropertyGetter
+                                .apply(property)
+                                .map(
+                                        p ->
+                                                PropertyConverter.getIntentParameter(
+                                                        paramName, p, entityConverter)),
+                paramConsumer,
+                paramValueConverter);
+    }
+
+    /**
+     * This is similar to {@link ActionSpecBuilder#bindOptionalEntityParameter} but for setting a
+     * list of entities instead.
+     *
+     * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
+     * If the Property Optional is not set, this parameter will not exist in the parameter
+     * definition of the capability.
+     */
+    @NonNull
+    public <T, PossibleValueT>
+            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
+                    bindRepeatedGenericParameter(
+                            @NonNull String paramName,
+                            @NonNull
+                                    Function<
+                                                    ? super PropertyT,
+                                                    Optional<TypeProperty<PossibleValueT>>>
+                                            optionalPropertyGetter,
+                            @NonNull BiConsumer<? super ArgumentBuilderT, List<T>> paramConsumer,
+                            @NonNull ParamValueConverter<T> paramValueConverter,
+                            @NonNull Function<PossibleValueT, Entity> entityConverter) {
+        return bindParameter(
+                paramName,
+                property ->
+                        optionalPropertyGetter
+                                .apply(property)
+                                .map(
+                                        p ->
+                                                PropertyConverter.getIntentParameter(
+                                                        paramName, p, entityConverter)),
+                (argBuilder, paramList) ->
+                        paramConsumer.accept(
+                                argBuilder,
+                                SlotTypeConverter.ofRepeated(paramValueConverter)
+                                        .convert(paramList)));
+    }
+
+    private <T>
+            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT> bindGenericParameter(
+                    @NonNull String paramName,
+                    @NonNull Function<? super PropertyT, Optional<IntentParameter>> propertyGetter,
+                    @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
+                    @NonNull ParamValueConverter<T> paramValueConverter) {
+        return bindParameter(
+                paramName,
+                propertyGetter,
+                (argBuilder, paramList) -> {
+                    if (!paramList.isEmpty()) {
+                        paramConsumer.accept(
+                                argBuilder,
+                                SlotTypeConverter.ofSingular(paramValueConverter)
                                         .convert(paramList));
                     }
                 });
@@ -365,7 +499,7 @@ public final class ActionSpecBuilder<
      *
      * @param paramName the name of this action parameter.
      * @param enumType
-     * @param optionalPropertyGetter an optional getter of the EntityProperty from the property,
+     * @param optionalPropertyGetter an optional getter of the EnumProperty from the property,
      *     which may be able to fetch a non-null {@code EnumProperty} from {@code PropertyT}, or get
      *     {@link Optional#empty}.
      * @param paramConsumer a setter to set the enum value in the argument builder.
@@ -420,65 +554,6 @@ public final class ActionSpecBuilder<
                 });
     }
 
-    @NonNull
-    public <EnumT extends Enum<EnumT>>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
-                    bindRequiredStringOrEnumParameter(
-                            @NonNull String paramName,
-                            @NonNull Class<EnumT> enumType,
-                            @NonNull
-                                    Function<? super PropertyT, StringOrEnumProperty<EnumT>>
-                                            propertyGetter,
-                            @NonNull
-                                    BiConsumer<? super ArgumentBuilderT, StringOrEnumValue<EnumT>>
-                                            paramConsumer) {
-        return bindStringOrEnumParameter(
-                paramName,
-                enumType,
-                property ->
-                        Optional.of(
-                                PropertyConverter.getIntentParameter(
-                                        paramName, propertyGetter.apply(property))),
-                paramConsumer);
-    }
-
-    private <EnumT extends Enum<EnumT>>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
-                    bindStringOrEnumParameter(
-                            String paramName,
-                            Class<EnumT> enumType,
-                            Function<? super PropertyT, Optional<IntentParameter>> propertyGetter,
-                            BiConsumer<? super ArgumentBuilderT, StringOrEnumValue<EnumT>>
-                                    paramConsumer) {
-        return bindParameter(
-                paramName,
-                propertyGetter,
-                (argBuilder, paramList) -> {
-                    if (!paramList.isEmpty()) {
-                        ParamValue param = paramList.get(0);
-                        if (param.hasIdentifier()) {
-                            Optional<EnumT> enumValue =
-                                    EnumSet.allOf(enumType).stream()
-                                            .filter(
-                                                    element ->
-                                                            element.toString()
-                                                                    .equals(param.getIdentifier()))
-                                            .findFirst();
-                            if (enumValue.isPresent()) {
-                                paramConsumer.accept(
-                                        argBuilder, StringOrEnumValue.ofEnumValue(enumValue.get()));
-                                return;
-                            }
-                        }
-                        paramConsumer.accept(
-                                argBuilder,
-                                StringOrEnumValue.ofStringValue(
-                                        SlotTypeConverter.ofSingular(TypeConverters::toStringValue)
-                                                .convert(paramList)));
-                    }
-                });
-    }
-
     /**
      * Binds the integer parameter name and setter for a {@link IntegerProperty}.
      *
@@ -524,7 +599,7 @@ public final class ActionSpecBuilder<
      *
      * @param paramName the name of this action' parameter.
      * @param paramConsumer a setter to set the boolean value in the argument builder.
-     * @param optionalPropertyGetter an optional getter of the EntityProperty from the property,
+     * @param optionalPropertyGetter an optional getter of the SimpleProperty from the property,
      *     which may be able to fetch a non-null {@code SimpleProperty} from {@code PropertyT}, or
      *     get {@link Optional#empty}.
      * @return the builder itself.
