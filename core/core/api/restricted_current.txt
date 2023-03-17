@@ -887,6 +887,7 @@ package androidx.core.app {
     method public void deleteNotificationChannelGroup(String);
     method public void deleteUnlistedNotificationChannels(java.util.Collection<java.lang.String!>);
     method public static androidx.core.app.NotificationManagerCompat from(android.content.Context);
+    method public java.util.List<android.service.notification.StatusBarNotification!> getActiveNotifications();
     method public static java.util.Set<java.lang.String!> getEnabledListenerPackages(android.content.Context);
     method public int getImportance();
     method public android.app.NotificationChannel? getNotificationChannel(String);
