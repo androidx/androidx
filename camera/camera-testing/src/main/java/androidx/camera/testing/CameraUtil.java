@@ -1040,6 +1040,7 @@ public final class CameraUtil {
     public static TestRule grantCameraPermissionAndPreTest(@Nullable PreTestCamera cameraTestRule,
             @Nullable PreTestCameraIdList cameraIdListTestRule) {
         RuleChain rule = RuleChain.outerRule(GrantPermissionRule.grant(Manifest.permission.CAMERA));
+        rule = rule.around(new IgnoreProblematicDeviceRule());
         if (cameraIdListTestRule != null) {
             rule = rule.around(cameraIdListTestRule);
         }
