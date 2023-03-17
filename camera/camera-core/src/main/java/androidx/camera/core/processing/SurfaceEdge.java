@@ -315,7 +315,7 @@ public class SurfaceEdge {
     @NonNull
     public ListenableFuture<SurfaceOutput> createSurfaceOutputFuture(@NonNull Size inputSize,
             @CameraEffect.Formats int format, @NonNull Rect cropRect, int rotationDegrees,
-            boolean mirroring, @NonNull CameraInternal cameraInternal) {
+            boolean mirroring, @Nullable CameraInternal cameraInternal) {
         checkMainThread();
         checkNotClosed();
         checkAndSetHasConsumer();
