@@ -23,6 +23,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
@@ -59,11 +60,22 @@ open class GMavenZipTask : Zip() {
     @Transient
     val verifyTask: TaskProvider<VerifyGMavenZipTask>
 
+    /**
+     * Whether this build adds automatic constraints between projects in the same group
+     */
+    @get:Input
+    val shouldAddGroupConstraints: Provider<Boolean>
+
     init {
         // multiple artifacts in the same group might have the same maven-metadata.xml
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        if (!project.shouldAddGroupConstraints() && !isSnapshotBuild()) {
-            doFirst {
+
+        shouldAddGroupConstraints = project.shouldAddGroupConstraints()
+
+        val zipTask = this
+
+        zipTask.doFirst {
+            if (!zipTask.shouldAddGroupConstraints.get() && !isSnapshotBuild()) {
                 throw GradleException(
                     """
                     Cannot publish artifacts without setting -P$ADD_GROUP_CONSTRAINTS=true
@@ -78,8 +90,6 @@ open class GMavenZipTask : Zip() {
             }
         }
 
-        val zipTask = this
-
         verifyTask = project.maybeRegister(
             name = "verify${zipTask.name}",
             onConfigure = { verifierTask ->
@@ -89,7 +99,7 @@ open class GMavenZipTask : Zip() {
             }
         )
         if (!isPresubmitBuild()) {
-            finalizedBy(verifyTask)
+            zipTask.finalizedBy(verifyTask)
         }
     }
 
