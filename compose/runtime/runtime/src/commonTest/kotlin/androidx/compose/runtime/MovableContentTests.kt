@@ -32,10 +32,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @Stable
-@OptIn(ExperimentalCoroutinesApi::class)
 class MovableContentTests {
 
     @Test
@@ -779,7 +777,6 @@ class MovableContentTests {
     }
 
     @Test
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun validateRecomposeScopesDoNotGetLost() = compositionTest {
         var isHorizontal by mutableStateOf(false)
         val displayValue = mutableStateOf(0)
@@ -809,7 +806,7 @@ class MovableContentTests {
 
         isHorizontal = true
         Snapshot.sendApplyNotifications()
-        testCoroutineScheduler.advanceTimeBy(10)
+        advanceTimeBy(10)
 
         displayValue.value++
         expectChanges()
@@ -1493,7 +1490,7 @@ class MovableContentTests {
             }
         }
 
-        testCoroutineScheduler.advanceTimeBy(5_000)
+        advanceTimeBy(5_000)
 
         assertEquals(state, lastSeen)
 
@@ -1504,6 +1501,45 @@ class MovableContentTests {
 
             assertEquals(state, lastSeen, "Failed in iteration $it")
         }
+    }
+
+    @Test
+    fun stateChangesWhilePendingMove() = compositionTest {
+        var state = 0
+        var lastSeen: Int? = null
+        var deferred by mutableStateOf(false)
+        var scope: RecomposeScope? = null
+
+        val content = movableContentOf {
+            Container {
+                lastSeen = state
+                scope = currentRecomposeScope
+            }
+        }
+
+        compose {
+            if (deferred) {
+                DeferredSubcompose {
+                    content()
+                }
+                SideEffect {
+                    state++
+                    scope?.invalidate()
+                }
+            } else {
+                content()
+            }
+        }
+
+        advanceTimeBy(5_000)
+
+        assertEquals(state, lastSeen)
+
+        deferred = true
+
+        advance()
+
+        assertEquals(state, lastSeen)
     }
 }
 
