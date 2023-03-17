@@ -32,7 +32,7 @@ import androidx.compose.ui.util.fastAny
  * @see SemanticsProperties.Disabled
  */
 fun isEnabled(): SemanticsMatcher =
-    !hasKey(SemanticsProperties.Disabled)
+    SemanticsMatcher("is enabled") { SemanticsProperties.Disabled !in it.config }
 
 /**
  * Returns whether the node is not enabled.
@@ -40,7 +40,7 @@ fun isEnabled(): SemanticsMatcher =
  * @see SemanticsProperties.Disabled
  */
 fun isNotEnabled(): SemanticsMatcher =
-    hasKey(SemanticsProperties.Disabled)
+    SemanticsMatcher("is not enabled") { SemanticsProperties.Disabled in it.config }
 
 /**
  * Return whether the node is checkable.
