@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.testutils.TestDispatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
@@ -48,6 +47,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertFalse
 import org.junit.Ignore
 import org.junit.Rule
@@ -890,10 +890,9 @@ class LazyPagingItemsTest {
             TestPagingSource(items = items, loadDelay = 0)
         }
 
-        val context = TestDispatcher()
+        val context = StandardTestDispatcher()
         lateinit var lazyPagingItems: LazyPagingItems<Int>
         rule.setContent {
-            assertThat(context.queue).isEmpty()
             lazyPagingItems = pager.flow.collectAsLazyPagingItems(context)
         }
 
@@ -904,11 +903,11 @@ class LazyPagingItemsTest {
         }
 
         // start LaunchedEffects
-        context.executeAll()
+        context.scheduler.advanceUntilIdle()
 
         rule.runOnIdle {
             // continue with pagingDataDiffer collections
-            context.executeAll()
+            context.scheduler.advanceUntilIdle()
         }
         rule.waitUntil {
             lazyPagingItems.itemCount == items.size
