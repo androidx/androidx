@@ -395,7 +395,7 @@ package androidx.camera.core {
     ctor public SurfaceOrientedMeteringPointFactory(float, float, androidx.camera.core.UseCase);
   }
 
-  public interface SurfaceOutput {
+  public interface SurfaceOutput extends java.io.Closeable {
     method public void close();
     method public android.util.Size getSize();
     method public android.view.Surface getSurface(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.core.SurfaceOutput.Event!>);
@@ -404,7 +404,6 @@ package androidx.camera.core {
   }
 
   @com.google.auto.value.AutoValue public abstract static class SurfaceOutput.Event {
-    ctor public SurfaceOutput.Event();
     method public abstract int getEventCode();
     method public abstract androidx.camera.core.SurfaceOutput getSurfaceOutput();
     field public static final int EVENT_REQUEST_CLOSE = 0; // 0x0
