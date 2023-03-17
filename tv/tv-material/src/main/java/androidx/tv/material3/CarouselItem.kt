@@ -48,10 +48,10 @@ import androidx.tv.material3.KeyEventPropagation.ContinuePropagation
  * - a [background] layer that is rendered as soon as the composable is visible.
  * - a [content] layer that is rendered on top of the [background]
  *
- * @param background composable defining the background of the slide
- * @param slideIndex current active slide index of the carousel
- * @param modifier modifier applied to the CarouselSlide
- * @param contentTransform content transform to be applied to the content of the slide when
+ * @param background composable defining the background of the item
+ * @param itemIndex current active item index of the carousel
+ * @param modifier modifier applied to the CarouselItem
+ * @param contentTransform content transform to be applied to the content of the item when
  * scrolling
  * @param content composable defining the content displayed on top of the background
  */
@@ -59,12 +59,12 @@ import androidx.tv.material3.KeyEventPropagation.ContinuePropagation
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterial3Api
 @Composable
-internal fun CarouselSlide(
-    slideIndex: Int,
+internal fun CarouselItem(
+    itemIndex: Int,
     modifier: Modifier = Modifier,
     background: @Composable () -> Unit = {},
     contentTransform: ContentTransform =
-        CarouselSlideDefaults.contentTransformForward,
+        CarouselItemDefaults.contentTransformStartToEnd,
     content: @Composable () -> Unit,
 ) {
     var containerBoxFocusState: FocusState? by remember { mutableStateOf(null) }
@@ -73,7 +73,7 @@ internal fun CarouselSlide(
 
     var isVisible by remember { mutableStateOf(false) }
 
-    DisposableEffect(slideIndex) {
+    DisposableEffect(itemIndex) {
         isVisible = true
         onDispose { isVisible = false }
     }
@@ -112,13 +112,11 @@ internal fun CarouselSlide(
 }
 
 @ExperimentalTvMaterial3Api
-object CarouselSlideDefaults {
+object CarouselItemDefaults {
     /**
      * Transform the content from right to left
      */
     // Keeping this as public so that users can access it directly without the isLTR helper
-    @Suppress("IllegalExperimentalApiUsage")
-    @OptIn(ExperimentalAnimationApi::class)
     val contentTransformRightToLeft: ContentTransform
         @Composable get() =
             slideInHorizontally { it * 4 }
@@ -128,8 +126,6 @@ object CarouselSlideDefaults {
      * Transform the content from left to right
      */
     // Keeping this as public so that users can access it directly without the isLTR helper
-    @Suppress("IllegalExperimentalApiUsage")
-    @OptIn(ExperimentalAnimationApi::class)
     val contentTransformLeftToRight: ContentTransform
         @Composable get() =
             slideInHorizontally()
@@ -138,9 +134,7 @@ object CarouselSlideDefaults {
     /**
      * Content transform applied when moving forward taking isLTR into account
      */
-    @Suppress("IllegalExperimentalApiUsage")
-    @OptIn(ExperimentalAnimationApi::class)
-    val contentTransformForward
+    val contentTransformStartToEnd
         @Composable get() =
             if (isLtr())
                 contentTransformRightToLeft
@@ -150,9 +144,7 @@ object CarouselSlideDefaults {
     /**
      * Content transform applied when moving backward taking isLTR into account
      */
-    @Suppress("IllegalExperimentalApiUsage")
-    @OptIn(ExperimentalAnimationApi::class)
-    val contentTransformBackward
+    val contentTransformEndToStart
         @Composable get() =
             if (isLtr())
                 contentTransformLeftToRight

@@ -78,34 +78,33 @@ import kotlinx.coroutines.yield
  * @sample androidx.tv.samples.CarouselIndicatorWithRectangleShape
  *
  * @param modifier Modifier applied to the Carousel.
- * @param slideCount total number of slides present in the carousel.
+ * @param itemCount total number of items present in the carousel.
  * @param carouselState state associated with this carousel.
- * @param autoScrollDurationMillis duration for which slide should be visible before moving to
- * the next slide.
- * @param contentTransformForward animation transform applied when we are moving forward in the
- * carousel while scrolling
- * @param contentTransformBackward animation transform applied when we are moving backward in the
- * carousel while scrolling
- * in the next slide
- * @param carouselIndicator indicator showing the position of the current slide among all slides.
- * @param content defines the slides for a given index.
+ * @param autoScrollDurationMillis duration for which item should be visible before moving to
+ * the next item.
+ * @param contentTransformStartToEnd animation transform applied when we are moving from start to
+ * end in the carousel while scrolling to the next item
+ * @param contentTransformEndToStart animation transform applied when we are moving from end to
+ * start in the carousel while scrolling to the next item
+ * @param carouselIndicator indicator showing the position of the current item among all items.
+ * @param content defines the items for a given index.
  */
 @Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterial3Api
 @Composable
 fun Carousel(
-    slideCount: Int,
+    itemCount: Int,
     modifier: Modifier = Modifier,
     carouselState: CarouselState = remember { CarouselState() },
-    autoScrollDurationMillis: Long = CarouselDefaults.TimeToDisplaySlideMillis,
-    contentTransformForward: ContentTransform = CarouselDefaults.contentTransform,
-    contentTransformBackward: ContentTransform = CarouselDefaults.contentTransform,
+    autoScrollDurationMillis: Long = CarouselDefaults.TimeToDisplayItemMillis,
+    contentTransformStartToEnd: ContentTransform = CarouselDefaults.contentTransform,
+    contentTransformEndToStart: ContentTransform = CarouselDefaults.contentTransform,
     carouselIndicator:
     @Composable BoxScope.() -> Unit = {
         CarouselDefaults.IndicatorRow(
-            slideCount = slideCount,
-            activeSlideIndex = carouselState.activeSlideIndex,
+            itemCount = itemCount,
+            activeItemIndex = carouselState.activeItemIndex,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
@@ -113,7 +112,7 @@ fun Carousel(
     },
     content: @Composable CarouselScope.(index: Int) -> Unit
 ) {
-    CarouselStateUpdater(carouselState, slideCount)
+    CarouselStateUpdater(carouselState, itemCount)
     var focusState: FocusState? by remember { mutableStateOf(null) }
     val focusManager = LocalFocusManager.current
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
@@ -122,7 +121,7 @@ fun Carousel(
 
     AutoScrollSideEffect(
         autoScrollDurationMillis = autoScrollDurationMillis,
-        slideCount = slideCount,
+        itemCount = itemCount,
         carouselState = carouselState,
         doAutoScroll = shouldPerformAutoScroll(focusState),
         onAutoScrollChange = { isAutoScrollActive = it })
@@ -142,21 +141,21 @@ fun Carousel(
             carouselState = carouselState,
             outerBoxFocusRequester = carouselOuterBoxFocusRequester,
             focusManager = focusManager,
-            slideCount = slideCount,
+            itemCount = itemCount,
             isLtr = isLtr,
         )
         .focusable()
     ) {
         AnimatedContent(
-            targetState = carouselState.activeSlideIndex,
+            targetState = carouselState.activeItemIndex,
             transitionSpec = {
                 if (carouselState.isMovingBackward) {
-                    contentTransformBackward
+                    contentTransformEndToStart
                 } else {
-                    contentTransformForward
+                    contentTransformStartToEnd
                 }
             }
-        ) { activeSlideIndex ->
+        ) { activeItemIndex ->
             LaunchedEffect(Unit) {
                 this@AnimatedContent.onAnimationCompletion {
                     // Outer box is focused
@@ -166,13 +165,13 @@ fun Carousel(
                     }
                 }
             }
-            // it is possible for the slideCount to have changed during the transition.
-            // This can cause the slideIndex to be greater than or equal to slideCount and cause
-            // IndexOutOfBoundsException. Guarding against this by checking against slideCount
+            // it is possible for the itemCount to have changed during the transition.
+            // This can cause the itemIndex to be greater than or equal to itemCount and cause
+            // IndexOutOfBoundsException. Guarding against this by checking against itemCount
             // before invoking.
-            if (slideCount > 0) {
+            if (itemCount > 0) {
                 CarouselScope(carouselState = carouselState)
-                    .content(if (activeSlideIndex < slideCount) activeSlideIndex else 0)
+                    .content(if (activeItemIndex < itemCount) activeItemIndex else 0)
             }
         }
         this.carouselIndicator()
@@ -197,13 +196,13 @@ private suspend fun AnimatedVisibilityScope.onAnimationCompletion(action: suspen
 @Composable
 private fun AutoScrollSideEffect(
     autoScrollDurationMillis: Long,
-    slideCount: Int,
+    itemCount: Int,
     carouselState: CarouselState,
     doAutoScroll: Boolean,
     onAutoScrollChange: (isAutoScrollActive: Boolean) -> Unit = {},
 ) {
-    // Needed to ensure that the code within LaunchedEffect receives updates to the slideCount.
-    val updatedSlideCount by rememberUpdatedState(newValue = slideCount)
+    // Needed to ensure that the code within LaunchedEffect receives updates to the itemCount.
+    val updatedItemCount by rememberUpdatedState(newValue = itemCount)
     if (doAutoScroll) {
         LaunchedEffect(carouselState) {
             while (true) {
@@ -213,7 +212,7 @@ private fun AutoScrollSideEffect(
                     snapshotFlow { carouselState.activePauseHandlesCount }
                         .first { pauseHandleCount -> pauseHandleCount == 0 }
                 }
-                carouselState.moveToNextSlide(updatedSlideCount)
+                carouselState.moveToNextItem(updatedItemCount)
             }
         }
     }
@@ -226,7 +225,7 @@ private fun Modifier.handleKeyEvents(
     carouselState: CarouselState,
     outerBoxFocusRequester: FocusRequester,
     focusManager: FocusManager,
-    slideCount: Int,
+    itemCount: Int,
     isLtr: Boolean
 ): Modifier = onKeyEvent {
     // Ignore KeyUp action type
@@ -234,20 +233,20 @@ private fun Modifier.handleKeyEvents(
         return@onKeyEvent KeyEventPropagation.ContinuePropagation
     }
 
-    val showPreviousSlideAndGetKeyEventPropagation = {
-        if (carouselState.isFirstSlide()) {
+    val showPreviousItemAndGetKeyEventPropagation = {
+        if (carouselState.isFirstItem()) {
             KeyEventPropagation.ContinuePropagation
         } else {
-            carouselState.moveToPreviousSlide(slideCount)
+            carouselState.moveToPreviousItem(itemCount)
             outerBoxFocusRequester.requestFocus()
             KeyEventPropagation.StopPropagation
         }
     }
-    val showNextSlideAndGetKeyEventPropagation = {
-        if (carouselState.isLastSlide(slideCount)) {
+    val showNextItemAndGetKeyEventPropagation = {
+        if (carouselState.isLastItem(itemCount)) {
             KeyEventPropagation.ContinuePropagation
         } else {
-            carouselState.moveToNextSlide(slideCount)
+            carouselState.moveToNextItem(itemCount)
             outerBoxFocusRequester.requestFocus()
             KeyEventPropagation.StopPropagation
         }
@@ -266,9 +265,9 @@ private fun Modifier.handleKeyEvents(
             }
 
             if (isLtr) {
-                showPreviousSlideAndGetKeyEventPropagation()
+                showPreviousItemAndGetKeyEventPropagation()
             } else {
-                showNextSlideAndGetKeyEventPropagation()
+                showNextItemAndGetKeyEventPropagation()
             }
         }
 
@@ -279,9 +278,9 @@ private fun Modifier.handleKeyEvents(
             }
 
             if (isLtr) {
-                showNextSlideAndGetKeyEventPropagation()
+                showNextItemAndGetKeyEventPropagation()
             } else {
-                showPreviousSlideAndGetKeyEventPropagation()
+                showPreviousItemAndGetKeyEventPropagation()
             }
         }
 
@@ -291,31 +290,31 @@ private fun Modifier.handleKeyEvents(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun CarouselStateUpdater(carouselState: CarouselState, slideCount: Int) {
-    LaunchedEffect(carouselState, slideCount) {
-        if (slideCount != 0) {
-            carouselState.activeSlideIndex = floorMod(carouselState.activeSlideIndex, slideCount)
+private fun CarouselStateUpdater(carouselState: CarouselState, itemCount: Int) {
+    LaunchedEffect(carouselState, itemCount) {
+        if (itemCount != 0) {
+            carouselState.activeItemIndex = floorMod(carouselState.activeItemIndex, itemCount)
         }
     }
 }
 
 /**
- * State of the Carousel which allows the user to specify the first slide that is shown when the
+ * State of the Carousel which allows the user to specify the first item that is shown when the
  * Carousel is instantiated in the constructor.
  *
  * It also provides the user with support to pause and resume the auto-scroll behaviour of the
  * Carousel.
- * @param initialActiveSlideIndex the index of the first active slide
+ * @param initialActiveItemIndex the index of the first active item
  */
 @Stable
 @ExperimentalTvMaterial3Api
-class CarouselState(initialActiveSlideIndex: Int = 0) {
+class CarouselState(initialActiveItemIndex: Int = 0) {
     internal var activePauseHandlesCount by mutableStateOf(0)
 
     /**
-     * The index of the slide that is currently displayed by the carousel
+     * The index of the item that is currently displayed by the carousel
      */
-    var activeSlideIndex by mutableStateOf(initialActiveSlideIndex)
+    var activeItemIndex by mutableStateOf(initialActiveItemIndex)
         internal set
 
     /**
@@ -327,38 +326,38 @@ class CarouselState(initialActiveSlideIndex: Int = 0) {
 
     /**
      * Pauses the auto-scrolling behaviour of Carousel.
-     * The pause request is ignored if [slideIndex] is not the current slide that is visible.
+     * The pause request is ignored if [itemIndex] is not the current item that is visible.
      * Returns a [ScrollPauseHandle] that can be used to resume
      */
-    fun pauseAutoScroll(slideIndex: Int): ScrollPauseHandle {
-        if (this.activeSlideIndex != slideIndex) {
+    fun pauseAutoScroll(itemIndex: Int): ScrollPauseHandle {
+        if (this.activeItemIndex != itemIndex) {
             return NoOpScrollPauseHandle
         }
         return ScrollPauseHandleImpl(this)
     }
 
-    internal fun isFirstSlide() = activeSlideIndex == 0
+    internal fun isFirstItem() = activeItemIndex == 0
 
-    internal fun isLastSlide(slideCount: Int) = activeSlideIndex == slideCount - 1
+    internal fun isLastItem(itemCount: Int) = activeItemIndex == itemCount - 1
 
-    internal fun moveToPreviousSlide(slideCount: Int) {
-        // No slides available for carousel
-        if (slideCount == 0) return
+    internal fun moveToPreviousItem(itemCount: Int) {
+        // No items available for carousel
+        if (itemCount == 0) return
 
         isMovingBackward = true
 
-        // Go to previous slide
-        activeSlideIndex = floorMod(activeSlideIndex - 1, slideCount)
+        // Go to previous item
+        activeItemIndex = floorMod(activeItemIndex - 1, itemCount)
     }
 
-    internal fun moveToNextSlide(slideCount: Int) {
-        // No slides available for carousel
-        if (slideCount == 0) return
+    internal fun moveToNextItem(itemCount: Int) {
+        // No items available for carousel
+        if (itemCount == 0) return
 
         isMovingBackward = false
 
-        // Go to next slide
-        activeSlideIndex = floorMod(activeSlideIndex + 1, slideCount)
+        // Go to next item
+        activeItemIndex = floorMod(activeItemIndex + 1, itemCount)
     }
 }
 
@@ -403,34 +402,33 @@ internal class ScrollPauseHandleImpl(private val carouselState: CarouselState) :
 @ExperimentalTvMaterial3Api
 object CarouselDefaults {
     /**
-     * Default time for which the slide is visible to the user.
+     * Default time for which the item is visible to the user.
      */
-    const val TimeToDisplaySlideMillis: Long = 5000
+    const val TimeToDisplayItemMillis: Long = 5000
 
     /**
      * Transition applied when bringing it into view and removing it from the view
      */
-    @OptIn(ExperimentalAnimationApi::class)
     val contentTransform: ContentTransform
     @Composable get() =
         fadeIn(animationSpec = tween(100))
             .with(fadeOut(animationSpec = tween(100)))
 
     /**
-     * An indicator showing the position of the current active slide among the slides of the
+     * An indicator showing the position of the current active item among the items of the
      * carousel.
      *
-     * @param slideCount total number of slides in the carousel
-     * @param activeSlideIndex the current active slide index
+     * @param itemCount total number of items in the carousel
+     * @param activeItemIndex the current active item index
      * @param modifier Modifier applied to the indicators' container
      * @param spacing spacing between the indicator dots
-     * @param indicator indicator dot representing each slide in the carousel
+     * @param indicator indicator dot representing each item in the carousel
      */
     @ExperimentalTvMaterial3Api
     @Composable
     fun IndicatorRow(
-        slideCount: Int,
-        activeSlideIndex: Int,
+        itemCount: Int,
+        activeItemIndex: Int,
         modifier: Modifier = Modifier,
         spacing: Dp = 8.dp,
         indicator: @Composable (isActive: Boolean) -> Unit = { isActive ->
@@ -451,8 +449,8 @@ object CarouselDefaults {
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier,
         ) {
-            repeat(slideCount) {
-                val isActive = it == activeSlideIndex
+            repeat(itemCount) {
+                val isActive = it == activeItemIndex
                 indicator(isActive = isActive)
             }
         }
