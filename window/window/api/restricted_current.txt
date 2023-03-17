@@ -9,6 +9,103 @@ package androidx.window {
 
 }
 
+package androidx.window.area {
+
+  public final class WindowAreaCapability {
+    method public androidx.window.area.WindowAreaCapability.Operation getOperation();
+    method public androidx.window.area.WindowAreaCapability.Status getStatus();
+    property public final androidx.window.area.WindowAreaCapability.Operation operation;
+    property public final androidx.window.area.WindowAreaCapability.Status status;
+  }
+
+  public static final class WindowAreaCapability.Operation {
+    field public static final androidx.window.area.WindowAreaCapability.Operation.Companion Companion;
+    field public static final androidx.window.area.WindowAreaCapability.Operation OPERATION_PRESENT_ON_AREA;
+    field public static final androidx.window.area.WindowAreaCapability.Operation OPERATION_TRANSFER_ACTIVITY_TO_AREA;
+  }
+
+  public static final class WindowAreaCapability.Operation.Companion {
+  }
+
+  public static final class WindowAreaCapability.Status {
+    field public static final androidx.window.area.WindowAreaCapability.Status.Companion Companion;
+    field public static final androidx.window.area.WindowAreaCapability.Status WINDOW_AREA_STATUS_ACTIVE;
+    field public static final androidx.window.area.WindowAreaCapability.Status WINDOW_AREA_STATUS_AVAILABLE;
+    field public static final androidx.window.area.WindowAreaCapability.Status WINDOW_AREA_STATUS_UNAVAILABLE;
+    field public static final androidx.window.area.WindowAreaCapability.Status WINDOW_AREA_STATUS_UNSUPPORTED;
+  }
+
+  public static final class WindowAreaCapability.Status.Companion {
+  }
+
+  public interface WindowAreaController {
+    method public default static androidx.window.area.WindowAreaController getOrCreate();
+    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> getWindowAreaInfos();
+    method public void presentContentOnWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaPresentationSessionCallback windowAreaPresentationSessionCallback);
+    method @Deprecated public void rearDisplayMode(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaSessionCallback windowAreaSessionCallback);
+    method @Deprecated public kotlinx.coroutines.flow.Flow<androidx.window.area.WindowAreaStatus> rearDisplayStatus();
+    method public void transferActivityToWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaSessionCallback windowAreaSessionCallback);
+    property public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> windowAreaInfos;
+    field public static final androidx.window.area.WindowAreaController.Companion Companion;
+  }
+
+  public static final class WindowAreaController.Companion {
+    method public androidx.window.area.WindowAreaController getOrCreate();
+  }
+
+  public final class WindowAreaInfo {
+    method public androidx.window.area.WindowAreaSession? getActiveSession(androidx.window.area.WindowAreaCapability.Operation operation);
+    method public androidx.window.area.WindowAreaCapability? getCapability(androidx.window.area.WindowAreaCapability.Operation operation);
+    method public androidx.window.layout.WindowMetrics getMetrics();
+    method public android.os.Binder getToken();
+    method public androidx.window.area.WindowAreaInfo.Type getType();
+    method public void setMetrics(androidx.window.layout.WindowMetrics);
+    property public final androidx.window.layout.WindowMetrics metrics;
+    property public final android.os.Binder token;
+    property public final androidx.window.area.WindowAreaInfo.Type type;
+  }
+
+  public static final class WindowAreaInfo.Type {
+    field public static final androidx.window.area.WindowAreaInfo.Type.Companion Companion;
+    field public static final androidx.window.area.WindowAreaInfo.Type TYPE_REAR_FACING;
+  }
+
+  public static final class WindowAreaInfo.Type.Companion {
+  }
+
+  public interface WindowAreaPresentationSessionCallback {
+    method public void onContainerVisibilityChanged(boolean isVisible);
+    method public void onSessionEnded(Throwable? t);
+    method public void onSessionStarted(androidx.window.area.WindowAreaSessionPresenter session);
+  }
+
+  public interface WindowAreaSession {
+    method public void close();
+  }
+
+  public interface WindowAreaSessionCallback {
+    method public void onSessionEnded(Throwable? t);
+    method public void onSessionStarted(androidx.window.area.WindowAreaSession session);
+  }
+
+  public interface WindowAreaSessionPresenter extends androidx.window.area.WindowAreaSession {
+    method public android.content.Context getContext();
+    method public void setContentView(android.view.View view);
+    property public abstract android.content.Context context;
+  }
+
+  @Deprecated public final class WindowAreaStatus {
+    field @Deprecated public static final androidx.window.area.WindowAreaStatus AVAILABLE;
+    field @Deprecated public static final androidx.window.area.WindowAreaStatus.Companion Companion;
+    field @Deprecated public static final androidx.window.area.WindowAreaStatus UNAVAILABLE;
+    field @Deprecated public static final androidx.window.area.WindowAreaStatus UNSUPPORTED;
+  }
+
+  @Deprecated public static final class WindowAreaStatus.Companion {
+  }
+
+}
+
 package androidx.window.embedding {
 
   public final class ActivityEmbeddingController {

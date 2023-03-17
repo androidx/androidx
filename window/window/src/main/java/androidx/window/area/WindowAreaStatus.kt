@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,18 @@
 
 package androidx.window.area
 
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.WindowAreaComponent
 
 /**
  * Represents a window area status.
- *
- * @hide
- *
  */
-@ExperimentalWindowApi
+@Deprecated("Removed in favor of Capability.Status")
 class WindowAreaStatus private constructor(private val mDescription: String) {
     override fun toString(): String {
         return mDescription
     }
 
+    @Suppress("DEPRECATION")
     companion object {
         /**
          * Status representing that the WindowArea feature is not a supported

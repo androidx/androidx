@@ -23,9 +23,6 @@ import androidx.core.util.Consumer
 import androidx.window.area.WindowAreaController
 import androidx.window.area.WindowAreaSessionCallback
 import androidx.window.area.WindowAreaSession
-import androidx.window.area.WindowAreaStatus
-import androidx.window.core.ExperimentalWindowApi
-import androidx.window.java.area.WindowAreaControllerJavaAdapter
 import androidx.window.demo.databinding.ActivityRearDisplayBinding
 import androidx.window.demo.common.infolog.InfoLogAdapter
 import java.text.SimpleDateFormat
@@ -40,20 +37,22 @@ import java.util.concurrent.Executor
  *
  * This Activity overrides configuration changes for simplicity.
  */
-@OptIn(ExperimentalWindowApi::class)
+@Suppress("DEPRECATION")
 class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionCallback {
 
-    private lateinit var windowAreaController: WindowAreaControllerJavaAdapter
+    private lateinit var windowAreaController:
+        androidx.window.java.area.WindowAreaControllerJavaAdapter
     private var rearDisplaySession: WindowAreaSession? = null
     private val infoLogAdapter = InfoLogAdapter()
     private lateinit var binding: ActivityRearDisplayBinding
     private lateinit var executor: Executor
 
-    private val rearDisplayStatusListener = Consumer<WindowAreaStatus> { status ->
-        infoLogAdapter.append(getCurrentTimeString(), status.toString())
-        infoLogAdapter.notifyDataSetChanged()
-        updateRearDisplayButton(status)
-    }
+    private val rearDisplayStatusListener =
+        Consumer<androidx.window.area.WindowAreaStatus> { status ->
+            infoLogAdapter.append(getCurrentTimeString(), status.toString())
+            infoLogAdapter.notifyDataSetChanged()
+            updateRearDisplayButton(status)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +60,9 @@ class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionC
         setContentView(binding.root)
 
         executor = ContextCompat.getMainExecutor(this)
-        windowAreaController = WindowAreaControllerJavaAdapter(WindowAreaController.getOrCreate())
+        windowAreaController = androidx.window.java.area.WindowAreaControllerJavaAdapter(
+            WindowAreaController.getOrCreate()
+        )
 
         binding.rearStatusRecyclerView.adapter = infoLogAdapter
 
@@ -96,28 +97,28 @@ class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionC
         infoLogAdapter.notifyDataSetChanged()
     }
 
-    override fun onSessionEnded() {
+    override fun onSessionEnded(t: Throwable?) {
         rearDisplaySession = null
         infoLogAdapter.append(getCurrentTimeString(), "RearDisplay Session has ended")
         infoLogAdapter.notifyDataSetChanged()
     }
 
-    private fun updateRearDisplayButton(status: WindowAreaStatus) {
+    private fun updateRearDisplayButton(status: androidx.window.area.WindowAreaStatus) {
         if (rearDisplaySession != null) {
             binding.rearDisplayButton.isEnabled = true
             binding.rearDisplayButton.text = "Disable RearDisplay Mode"
             return
         }
         when (status) {
-            WindowAreaStatus.UNSUPPORTED -> {
+            androidx.window.area.WindowAreaStatus.UNSUPPORTED -> {
                 binding.rearDisplayButton.isEnabled = false
                 binding.rearDisplayButton.text = "RearDisplay is not supported on this device"
             }
-            WindowAreaStatus.UNAVAILABLE -> {
+            androidx.window.area.WindowAreaStatus.UNAVAILABLE -> {
                 binding.rearDisplayButton.isEnabled = false
                 binding.rearDisplayButton.text = "RearDisplay is not currently available"
             }
-            WindowAreaStatus.AVAILABLE -> {
+            androidx.window.area.WindowAreaStatus.AVAILABLE -> {
                 binding.rearDisplayButton.isEnabled = true
                 binding.rearDisplayButton.text = "Enable RearDisplay Mode"
             }

@@ -18,27 +18,28 @@ package androidx.window.java.area
 
 import android.app.Activity
 import androidx.core.util.Consumer
-import androidx.window.area.WindowAreaSessionCallback
-import androidx.window.area.WindowAreaStatus
 import androidx.window.area.WindowAreaController
-import androidx.window.core.ExperimentalWindowApi
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import androidx.window.area.WindowAreaSessionCallback
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 
 /**
  * An adapted interface for [WindowAreaController] that provides the information and
  * functionality around RearDisplay Mode via a callback shaped API.
  *
- * @hide
+ * TODO(b/272053105): Remove after 1P apps have migrated
  *
+ * @hide
  */
-@ExperimentalWindowApi
+@Deprecated(
+    "Class was renamed to WindowAreaControllerCallbackAdapter",
+    replaceWith = ReplaceWith("WindowAreaControllerCallbackAdapter")
+)
 class WindowAreaControllerJavaAdapter(
     private val controller: WindowAreaController
 ) : WindowAreaController by controller {
@@ -64,9 +65,10 @@ class WindowAreaControllerJavaAdapter(
      *
      * @see WindowAreaController.rearDisplayStatus
      */
+    @Suppress("DEPRECATION")
     fun addRearDisplayStatusListener(
         executor: Executor,
-        consumer: Consumer<WindowAreaStatus>
+        consumer: Consumer<androidx.window.area.WindowAreaStatus>
     ) {
         val statusFlow = controller.rearDisplayStatus()
         lock.withLock {
@@ -83,7 +85,8 @@ class WindowAreaControllerJavaAdapter(
      * Removes a listener of [WindowAreaStatus] values
      * @see WindowAreaController.rearDisplayStatus
      */
-    fun removeRearDisplayStatusListener(consumer: Consumer<WindowAreaStatus>) {
+    @Suppress("DEPRECATION")
+    fun removeRearDisplayStatusListener(consumer: Consumer<androidx.window.area.WindowAreaStatus>) {
         lock.withLock {
             consumerToJobMap[consumer]?.cancel()
             consumerToJobMap.remove(consumer)
@@ -118,6 +121,7 @@ class WindowAreaControllerJavaAdapter(
      * your [WindowAreaController.rearDisplayStatus] does not return a value of
      * [WindowAreaStatus.AVAILABLE]
      */
+    @Suppress("DEPRECATION")
     fun startRearDisplayModeSession(
         activity: Activity,
         executor: Executor,

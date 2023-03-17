@@ -1,0 +1,54 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.window.area
+
+import android.util.DisplayMetrics
+import androidx.core.view.WindowInsetsCompat
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
+import androidx.window.core.Bounds
+import androidx.window.extensions.area.WindowAreaComponent
+import androidx.window.extensions.area.WindowAreaComponent.STATUS_AVAILABLE
+import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNAVAILABLE
+import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNSUPPORTED
+import androidx.window.layout.WindowMetrics
+
+/**
+ * Adapter object to assist in translating values received from [WindowAreaComponent]
+ * to developer friendly values in [WindowAreaController]
+ */
+internal object WindowAreaAdapter {
+
+    internal fun translate(displayMetrics: DisplayMetrics): WindowMetrics {
+        return WindowMetrics(
+            Bounds(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels),
+            WindowInsetsCompat.Builder().build()
+        )
+    }
+
+    internal fun translate(
+        status: @WindowAreaComponent.WindowAreaStatus Int
+    ): WindowAreaCapability.Status {
+        return when (status) {
+            STATUS_UNSUPPORTED -> WINDOW_AREA_STATUS_UNSUPPORTED
+            STATUS_UNAVAILABLE -> WINDOW_AREA_STATUS_UNAVAILABLE
+            STATUS_AVAILABLE -> WINDOW_AREA_STATUS_AVAILABLE
+            else -> WINDOW_AREA_STATUS_UNSUPPORTED
+        }
+    }
+}
