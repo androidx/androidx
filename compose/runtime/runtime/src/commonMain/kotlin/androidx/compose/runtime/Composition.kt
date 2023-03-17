@@ -348,7 +348,7 @@ internal class CompositionImpl(
     private val applier: Applier<*>,
 
     recomposeContext: CoroutineContext? = null
-) : ControlledComposition {
+) : ControlledComposition, RecomposeScopeOwner {
     /**
      * `null` if a composition isn't pending to apply.
      * `Set<Any>` or `Array<Set<Any>>` if there are modifications to record
@@ -928,7 +928,7 @@ internal class CompositionImpl(
         } else block()
     }
 
-    fun invalidate(scope: RecomposeScopeImpl, instance: Any?): InvalidationResult {
+    override fun invalidate(scope: RecomposeScopeImpl, instance: Any?): InvalidationResult {
         if (scope.defaultsInScope) {
             scope.defaultsInvalid = true
         }
@@ -946,6 +946,10 @@ internal class CompositionImpl(
         if (!scope.canRecompose)
             return InvalidationResult.IGNORED // The scope isn't able to be recomposed/invalidated
         return invalidateChecked(scope, anchor, instance)
+    }
+
+    override fun recomposeScopeReleased(scope: RecomposeScopeImpl) {
+        pendingInvalidScopes = true
     }
 
     private fun tryImminentInvalidation(scope: RecomposeScopeImpl, instance: Any?): Boolean =
