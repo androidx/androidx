@@ -909,8 +909,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             info.isHeading = true
         }
         info.isPassword = semanticsNode.isPassword
-        // Note editable is not added to semantics properties api.
-        info.isEditable = semanticsNode.isTextField
+        info.isEditable = semanticsNode.isEditable
         info.isEnabled = semanticsNode.enabled()
         info.isFocusable = semanticsNode.unmergedConfig.contains(SemanticsProperties.Focused)
         if (info.isFocusable) {
@@ -3573,7 +3572,8 @@ private inline val SemanticsNode.isPassword: Boolean get() =
     config.contains(SemanticsProperties.Password)
 private inline val SemanticsNode.isTextField get() =
     unmergedConfig.contains(SemanticsActions.SetText)
-private inline val SemanticsNode.isRtl get() = layoutInfo.layoutDirection == LayoutDirection.Rtl
+private inline val SemanticsNode.isEditable get() = config.contains(SemanticsProperties.Editable)
+private val SemanticsNode.isRtl get() = layoutInfo.layoutDirection == LayoutDirection.Rtl
 private inline val SemanticsNode.isTraversalGroup get() =
     config.getOrElse(SemanticsProperties.IsTraversalGroup) { false }
 private inline val SemanticsNode.traversalIndex get() =

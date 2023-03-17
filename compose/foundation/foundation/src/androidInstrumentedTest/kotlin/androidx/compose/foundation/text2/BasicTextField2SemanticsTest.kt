@@ -32,6 +32,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasImeAction
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isEditable
 import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.isNotEnabled
@@ -79,6 +80,7 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag)
             .assertEditableTextEquals("")
             .assertTextEquals("label", includeEditableText = false)
+            .assert(isEditable())
             .assertHasClickAction()
             .assert(hasSetTextAction())
             .assert(hasImeAction(ImeAction.Default))
@@ -674,6 +676,39 @@ class BasicTextField2SemanticsTest : FocusedWindowTest {
         rule.waitForIdle()
 
         rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CutText))
+    }
+
+    @Test
+    fun semantics_isNotEditable_whenDisabledOrReadOnly() {
+        val state = TextFieldState()
+        var enabled by mutableStateOf(true)
+        var readOnly by mutableStateOf(false)
+        rule.setContent {
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                enabled = enabled,
+                readOnly = readOnly
+            )
+        }
+        rule.onNodeWithTag(Tag).assert(isEditable())
+
+        enabled = true
+        readOnly = true
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Editable))
+
+        enabled = false
+        readOnly = false
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Editable))
+
+        enabled = false
+        readOnly = true
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Editable))
+
+        // Make editable again.
+        enabled = true
+        readOnly = false
+        rule.onNodeWithTag(Tag).assert(isEditable())
     }
 
     private fun SemanticsNodeInteraction.assertSelection(expected: TextRange) {
