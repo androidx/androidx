@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.lazy.layout
+package androidx.compose.foundation.pager.lazy
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
 import androidx.compose.ui.semantics.CollectionInfo
 
+@OptIn(ExperimentalFoundationApi::class)
 internal fun LazyLayoutSemanticState(
-    state: LazyListState,
+    state: PagerState,
     isVertical: Boolean
 ): LazyLayoutSemanticState = object : LazyLayoutSemanticState {
 
     override val currentPosition: Float
-        get() = state.firstVisibleItemIndex + state.firstVisibleItemScrollOffset / 100_000f
+        get() = state.firstVisiblePage + state.firstVisiblePageOffset / 100_000f
     override val canScrollForward: Boolean
         get() = state.canScrollForward
 
@@ -35,7 +37,7 @@ internal fun LazyLayoutSemanticState(
     }
 
     override suspend fun scrollToItem(index: Int) {
-        state.scrollToItem(index)
+        state.scrollToPage(index)
     }
 
     override fun collectionInfo(): CollectionInfo =
