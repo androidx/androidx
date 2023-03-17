@@ -15,6 +15,7 @@
  */
 package androidx.glance.appwidget
 
+import android.os.Build
 import android.util.Log
 import androidx.compose.ui.unit.dp
 import androidx.glance.BackgroundModifier
@@ -28,12 +29,13 @@ import androidx.glance.action.ActionModifier
 import androidx.glance.action.LambdaAction
 import androidx.glance.appwidget.action.CompoundButtonAction
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
-import androidx.glance.background
 import androidx.glance.extractModifier
 import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.ContentScale
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.HeightModifier
+import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
 import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
@@ -192,13 +194,13 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
     val shouldWrapTargetInABox = target.modifier.any {
         // Background images (i.e. BitMap or drawable resources) are emulated by placing the image
         // before the target in the wrapper box. This allows us to support content scale as well as
-        // additional image features (e.g. color filters) on background images.
+        // can help support additional processing on background images. Note: Button's don't support
+        // bg image modifier.
         (it is BackgroundModifier && it.imageProvider != null) ||
-            // Ripples are implemented by placing a drawable after the target in the wrapper box.
-            (it is ActionModifier && !hasBuiltinRipple()) ||
-            // Buttons are implemented using a background drawable with rounded corners and an
-            // EmittableText.
-            isButton
+        // R- buttons are implemented using box, images and text.
+        (isButton && Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) ||
+         // Ripples are implemented by placing a drawable after the target in the wrapper box.
+        (it is ActionModifier && !hasBuiltinRipple())
     }
     if (!shouldWrapTargetInABox) return target
 
@@ -209,19 +211,39 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
     var backgroundImage: EmittableImage? = null
     var rippleImage: EmittableImage? = null
 
-    // bgModifier.imageProvider is converted to an actual image but bgModifier.colorProvider is
-    // applied back to the target. Note: We could have hoisted the bg color to box instead of
-    // adding it back to the target, but for buttons, we also add an outline background to the box.
     val (bgModifier, targetModifiersMinusBg) = target.modifier.extractModifier<BackgroundModifier>()
     if (bgModifier != null) {
-        if (bgModifier.imageProvider != null) {
+        if (isButton) {
+            // Emulate rounded corners (fixed radius) using a drawable and apply background colors
+            // to it. Note: Currently, button doesn't support bg image modifier, but only button
+            // colors.
             backgroundImage = EmittableImage().apply {
                 modifier = GlanceModifier.fillMaxSize()
-                provider = bgModifier.imageProvider
-                contentScale = bgModifier.contentScale
+                provider = ImageProvider(R.drawable.glance_button_outline)
+                // Without setting alpha, if this drawable's base was transparent, solid color won't
+                // be applied as the default blending mode uses alpha from base. And if this
+                // drawable's base was white/none, applying transparent tint will lead to black
+                // color. This shouldn't be issue for icon type drawables, but in this case we are
+                // emulating colored outline. So, we apply tint as well as alpha.
+                bgModifier.colorProvider?.let {
+                    colorFilterParams = TintAndAlphaColorFilterParams(it)
+                }
+                contentScale = ContentScale.FillBounds
             }
-        } else { // is a background color modifier
-            targetModifiers += bgModifier
+        } else {
+            // bgModifier.imageProvider is converted to an actual image but bgModifier.colorProvider
+            // is applied back to the target. Note: We could have hoisted the bg color to box
+            // instead of adding it back to the target, but for buttons, we also add an outline
+            // background to the box.
+            if (bgModifier.imageProvider != null) {
+                backgroundImage = EmittableImage().apply {
+                    modifier = GlanceModifier.fillMaxSize()
+                    provider = bgModifier.imageProvider
+                    contentScale = bgModifier.contentScale
+                }
+            } else { // is a background color modifier
+                targetModifiers += bgModifier
+            }
         }
     }
 
@@ -232,9 +254,12 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
         targetModifiersMinusBg.extractModifier<ActionModifier>()
     boxModifiers += actionModifier
     if (actionModifier != null && !hasBuiltinRipple()) {
+        val rippleImageProvider =
+            if (isButton) ImageProvider(R.drawable.glance_button_ripple)
+            else ImageProvider(R.drawable.glance_ripple)
         rippleImage = EmittableImage().apply {
             modifier = GlanceModifier.fillMaxSize()
-            provider = ImageProvider(R.drawable.glance_ripple)
+            provider = rippleImageProvider
         }
     }
 
@@ -245,14 +270,12 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
     boxModifiers += sizeAndCornerModifiers
     targetModifiers += targetModifiersMinusSizeAndCornerRadius.fillMaxSize()
 
-    // If this is a button, set the necessary modifiers on the wrapping Box.
     if (target is EmittableButton) {
-        boxModifiers += GlanceModifier
-            .clipToOutline(true)
-            .enabled(target.enabled)
-            .background(ImageProvider(R.drawable.glance_button_outline))
+        boxModifiers += GlanceModifier.enabled(target.enabled)
         target = target.toEmittableText()
-        targetModifiers += GlanceModifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        if (target.modifier.findModifier<PaddingModifier>() == null) {
+            targetModifiers += GlanceModifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        }
     }
 
     return EmittableBox().apply {
@@ -268,7 +291,11 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
 private fun Emittable.hasBuiltinRipple() =
     this is EmittableSwitch ||
     this is EmittableRadioButton ||
-    this is EmittableCheckBox
+    this is EmittableCheckBox ||
+     // S+ versions use a native button with fixed rounded corners and matching ripple set in
+     // layout xml. In R- versions, buttons are implemented using a background drawable with
+     // rounded corners and an EmittableText in R- versions.
+    (this is EmittableButton && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
 
 private data class ExtractedSizeModifiers(
     val sizeModifiers: GlanceModifier = GlanceModifier,

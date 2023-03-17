@@ -20,6 +20,7 @@ import android.app.Activity
 import android.os.Build
 import android.view.Gravity
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ListView
 import android.widget.TextView
@@ -323,6 +324,7 @@ class LazyColumnTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 31)
     fun clickable_addsClickHandlers() {
         TestGlanceAppWidget.uiDefinition = {
             LazyColumn {
@@ -344,8 +346,40 @@ class LazyColumnTest {
         mHostRule.waitForListViewChildren { list ->
             val row = list.getUnboxedListItem<FrameLayout>(0)
             val (rowItem0, rowItem1) = row.notGoneChildren.toList()
-            // All items with actions are wrapped in FrameLayout
+            // Clickable text items are wrapped in a FrameLayout.
             assertIs<FrameLayout>(rowItem0)
+            assertIs<Button>(rowItem1)
+            assertThat(rowItem0.hasOnClickListeners()).isTrue()
+            assertThat(rowItem1.hasOnClickListeners()).isTrue()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 30)
+    fun clickable_backportButton_addsClickHandlers() {
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn {
+                item {
+                    Text(
+                        "Text",
+                        modifier = GlanceModifier.clickable(actionStartActivity<Activity>())
+                    )
+                    Button(
+                        "Button",
+                        onClick = actionStartActivity<Activity>()
+                    )
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.waitForListViewChildren { list ->
+            val row = list.getUnboxedListItem<FrameLayout>(0)
+            val (rowItem0, rowItem1) = row.notGoneChildren.toList()
+            // Clickable text items are wrapped in a FrameLayout.
+            assertIs<FrameLayout>(rowItem0)
+            // backport buttons are implemented using FrameLayout.
             assertIs<FrameLayout>(rowItem1)
             assertThat(rowItem0.hasOnClickListeners()).isTrue()
             assertThat(rowItem1.hasOnClickListeners()).isTrue()
@@ -354,7 +388,44 @@ class LazyColumnTest {
 
     @OptIn(FlowPreview::class)
     @Test
+    @SdkSuppress(minSdkVersion = 31)
     fun clickTriggersOnlyOneLambda() = runBlocking {
+        val received = MutableStateFlow(-1)
+        TestGlanceAppWidget.uiDefinition = {
+            LazyColumn {
+                items((0..4).toList()) {
+                    Button(
+                        "$it",
+                        onClick = {
+                            launch { received.emit(it) }
+                        }
+                    )
+                }
+            }
+        }
+
+        mHostRule.startHost()
+
+        val buttons = arrayOfNulls<Button>(5)
+        mHostRule.waitForListViewChildren { list ->
+            for (it in 0..4) {
+                val button = list.getUnboxedListItem<Button>(it)
+                buttons[it] = button
+            }
+        }
+        (0..4).shuffled().forEach { index ->
+            mHostRule.onHostActivity {
+                buttons[index]!!.performClick()
+            }
+            val lastClicked = received.debounce(500.milliseconds).first()
+            assertThat(lastClicked).isEqualTo(index)
+        }
+    }
+
+    @OptIn(FlowPreview::class)
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 30)
+    fun clickTriggersOnlyOneLambda_backportButton() = runBlocking {
         val received = MutableStateFlow(-1)
         TestGlanceAppWidget.uiDefinition = {
             LazyColumn {

@@ -34,11 +34,11 @@ import androidx.core.widget.RemoteViewsCompat.setLinearLayoutGravity
 import androidx.glance.Emittable
 import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
-import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.lazy.EmittableLazyColumn
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.appwidget.lazy.EmittableLazyVerticalGrid
 import androidx.glance.appwidget.lazy.EmittableLazyVerticalGridListItem
+import androidx.glance.appwidget.translators.setText
 import androidx.glance.appwidget.translators.translateEmittableCheckBox
 import androidx.glance.appwidget.translators.translateEmittableCircularProgressIndicator
 import androidx.glance.appwidget.translators.translateEmittableImage
@@ -50,12 +50,13 @@ import androidx.glance.appwidget.translators.translateEmittableLinearProgressInd
 import androidx.glance.appwidget.translators.translateEmittableRadioButton
 import androidx.glance.appwidget.translators.translateEmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableText
+import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.layout.EmittableRow
 import androidx.glance.layout.EmittableSpacer
-import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.padding
 import androidx.glance.text.EmittableText
 import java.util.concurrent.atomic.AtomicBoolean
@@ -405,21 +406,28 @@ private fun RemoteViews.translateEmittableButton(
     translationContext: TranslationContext,
     element: EmittableButton
 ) {
-    // Separate the button into a wrapper and the text, this allows us to set the color of the text
-    // background, while maintaining the ripple for the click indicator.
-    // TODO: add Image button
-    val content = EmittableText().apply {
-        text = element.text
-        style = element.style
-        maxLines = element.maxLines
-        modifier =
-            GlanceModifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+    check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        "Buttons in Android R and below are emulated using a EmittableBox containing the text."
     }
-    translateEmittableText(translationContext, content)
-}
+    val viewDef = insertView(translationContext, LayoutType.Button, element.modifier)
+    setText(
+        translationContext,
+        viewDef.mainViewId,
+        element.text,
+        element.style,
+        maxLines = element.maxLines,
+        verticalTextGravity = Gravity.CENTER_VERTICAL,
+    )
 
+    // Adjust appWidget specific modifiers.
+    element.modifier = element.modifier
+        .enabled(element.enabled)
+        .cornerRadius(16.dp)
+    if (element.modifier.findModifier<PaddingModifier>() == null) {
+        element.modifier = element.modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    }
+    applyModifiers(translationContext, this, element.modifier, viewDef)
+}
 private fun RemoteViews.translateEmittableSpacer(
     translationContext: TranslationContext,
     element: EmittableSpacer

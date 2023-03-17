@@ -20,6 +20,7 @@ import android.os.Build
 import android.os.StrictMode
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -156,7 +157,8 @@ class StrictModeTest {
         mHostRule.waitForListViewChildren { list ->
             val row = list.getUnboxedListItem<FrameLayout>(0)
             val (_, rowItem1) = row.notGoneChildren.toList()
-            assertIs<FrameLayout>(rowItem1)
+            // S+ buttons are implemented using native buttons.
+            assertIs<Button>(rowItem1)
             Truth.assertThat(rowItem1.hasOnClickListeners()).isTrue()
             allowUnsafeIntentLaunch { rowItem1.performClick() }
         }
