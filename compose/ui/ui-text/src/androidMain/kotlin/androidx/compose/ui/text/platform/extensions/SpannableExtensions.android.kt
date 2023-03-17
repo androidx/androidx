@@ -45,6 +45,7 @@ import androidx.compose.ui.text.android.style.BaselineShiftSpan
 import androidx.compose.ui.text.android.style.FontFeatureSpan
 import androidx.compose.ui.text.android.style.LetterSpacingSpanEm
 import androidx.compose.ui.text.android.style.LetterSpacingSpanPx
+import androidx.compose.ui.text.android.style.LineHeightSpan
 import androidx.compose.ui.text.android.style.LineHeightStyleSpan
 import androidx.compose.ui.text.android.style.ShadowSpan
 import androidx.compose.ui.text.android.style.SkewXSpan
@@ -133,6 +134,22 @@ internal fun Spannable.setLineHeight(
                 trimLastLineBottom = lineHeightStyle.trim.isTrimLastLineBottom(),
                 topRatio = lineHeightStyle.alignment.topRatio
             ),
+            start = 0,
+            end = length
+        )
+    }
+}
+
+@OptIn(InternalPlatformTextApi::class)
+internal fun Spannable.setLineHeight(
+    lineHeight: TextUnit,
+    contextFontSize: Float,
+    density: Density
+) {
+    val resolvedLineHeight = resolveLineHeightInPx(lineHeight, contextFontSize, density)
+    if (!resolvedLineHeight.isNaN()) {
+        setSpan(
+            span = LineHeightSpan(lineHeight = resolvedLineHeight),
             start = 0,
             end = length
         )
