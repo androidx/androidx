@@ -16,8 +16,8 @@
 
 package androidx.room
 
+import androidx.kruth.assertThat
 import androidx.sqlite.db.SupportSQLiteOpenHelper
-import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -56,11 +56,11 @@ class CoroutinesRoomTest {
         }
         yield(); yield() // yield for async and flow
 
-        assertThat(invalidationTracker.observers.size).isEqualTo(1)
+        assertThat(invalidationTracker.observers).hasSize(1)
         assertThat(callableExecuted).isTrue()
 
         assertThat(job.await()).isEqualTo(expectedResult)
-        assertThat(invalidationTracker.observers.isEmpty()).isTrue()
+        assertThat(invalidationTracker.observers).isEmpty()
     }
 
     // Use runBlocking dispatcher as query dispatchers, keeps the tests consistent.

@@ -21,11 +21,11 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteTransactionListener
 import android.os.CancellationSignal
 import android.util.Pair
+import androidx.kruth.assertThat
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteStatement
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
