@@ -2090,12 +2090,10 @@ class PagingDataDifferTest(
             }
         }
 
-        scope.run {
-            try {
-                block(differ, loadDispatcher, pagingSources, uiReceivers, hintReceivers)
-            } finally {
-                collection.cancel()
-            }
+        try {
+            block(differ, loadDispatcher, pagingSources, uiReceivers, hintReceivers)
+        } finally {
+            collection.cancel()
         }
     }
 
