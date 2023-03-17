@@ -32,6 +32,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
@@ -323,6 +324,46 @@ internal class Controller3AUnlock3ATest {
         val result = controller3A.unlock3A(af = true).await()
         assertThat(result.status).isEqualTo(Result3A.Status.OK)
         assertThat(result.frameMetadata).isEqualTo(null)
+    }
+
+    @Test
+    fun testUnlockNeverConverge_frameLimitedReached() = runTest {
+        // Arrange. Launch a task to repeatedly invoke AE Locked info.
+        val frameLimit = 100
+        val repeatingJob = launch {
+            var frameNumber = 101L
+            while (true) {
+                listener3A.onRequestSequenceCreated(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
+                listener3A.onPartialCaptureResult(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                    FrameNumber(frameNumber),
+                    FakeFrameMetadata(
+                        frameNumber = FrameNumber(frameNumber++),
+                        resultMetadata = mapOf(
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_LOCKED
+                        )
+                    )
+                )
+                delay(FRAME_RATE_MS)
+            }
+        }
+
+        // Act. Unlock AE
+        val result3ADeferred = controller3A.unlock3A(ae = true, frameLimit = frameLimit)
+        advanceTimeBy(FRAME_RATE_MS * frameLimit)
+        result3ADeferred.await()
+
+        // Assert. Result of unlock3A call should be completed with timeout result.
+        assertThat(result3ADeferred.isCompleted).isTrue()
+        val result = result3ADeferred.getCompleted()
+        assertThat(result.status).isEqualTo(Result3A.Status.FRAME_LIMIT_REACHED)
+
+        // Clean up
+        repeatingJob.cancel()
+        repeatingJob.join()
     }
 
     companion object {

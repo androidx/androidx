@@ -96,7 +96,13 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         throw NotImplementedError("Not used in testing")
     }
 
-    override suspend fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<Result3A> {
+    override suspend fun unlock3A(
+        ae: Boolean?,
+        af: Boolean?,
+        awb: Boolean?,
+        frameLimit: Int,
+        timeLimitNs: Long
+    ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
 
