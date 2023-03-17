@@ -32,6 +32,7 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.ImageView.ScaleType
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
@@ -488,8 +489,14 @@ class GlanceAppWidgetReceiverTest {
 
         mHostRule.startHost()
 
-        mHostRule.onUnboxedHostView<TextView> { textView ->
-            assertThat(textView.background).isNotNull()
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
+            assertThat(box.notGoneChildCount).isEqualTo(2)
+            val (boxedImage, boxedText) = box.notGoneChildren.toList()
+            val image = boxedImage.getTargetView<ImageView>()
+            val text = boxedText.getTargetView<TextView>()
+            assertThat(image.drawable).isNotNull()
+            assertThat(image.scaleType).isEqualTo(ScaleType.FIT_XY)
+            assertThat(text.background).isNull()
         }
     }
 
@@ -511,6 +518,30 @@ class GlanceAppWidgetReceiverTest {
             val image = boxedImage.getTargetView<ImageView>()
             val text = boxedText.getTargetView<TextView>()
             assertThat(image.drawable).isNotNull()
+            assertThat(image.scaleType).isEqualTo(ScaleType.FIT_CENTER)
+            assertThat(text.background).isNull()
+        }
+    }
+
+    @Test
+    fun drawableCropBackground() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text(
+                "Some useful text",
+                modifier = GlanceModifier.fillMaxWidth().height(220.dp)
+                    .background(ImageProvider(R.drawable.oval), contentScale = ContentScale.Crop)
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<FrameLayout> { box ->
+            assertThat(box.notGoneChildCount).isEqualTo(2)
+            val (boxedImage, boxedText) = box.notGoneChildren.toList()
+            val image = boxedImage.getTargetView<ImageView>()
+            val text = boxedText.getTargetView<TextView>()
+            assertThat(image.drawable).isNotNull()
+            assertThat(image.scaleType).isEqualTo(ScaleType.CENTER_CROP)
             assertThat(text.background).isNull()
         }
     }
