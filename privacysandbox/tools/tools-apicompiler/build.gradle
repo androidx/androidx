@@ -58,6 +58,7 @@ test {
     inputs.files(frameworkAidlPath)
             .withPropertyName("framework_aidl_path")
             .withPathSensitivity(PathSensitivity.NAME_ONLY)
+    inputs.dir("src/test/test-data").withPathSensitivity(PathSensitivity.RELATIVE)
     doFirst {
         systemProperty "aidl_compiler_path", aidlCompilerPath
         systemProperty "framework_aidl_path", frameworkAidlPath
