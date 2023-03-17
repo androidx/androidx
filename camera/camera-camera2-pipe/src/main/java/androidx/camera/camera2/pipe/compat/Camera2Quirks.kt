@@ -17,8 +17,10 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCharacteristics
+import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,6 +45,27 @@ internal class Camera2Quirks @Inject constructor(
 
         // Then we verify whether we need this quirk based on hardware level.
         val level = metadataProvider.awaitCameraMetadata(graphConfig.camera)[
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
+        return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+    }
+
+    /**
+     * A quirk that creates a blank capture session before closing the camera. This is an issue in
+     * the Android camera framework where it doesn't disconnect the current Surfaces when the camera
+     * device is closed. For this reason, we create a blank capture session, and during which, the
+     * camera framework would disconnect the Surfaces. Another key thing to note is we also need to
+     * wait for the capture session to be configured, since the Surface disconnect calls are done
+     * almost at the very end of session configuration.
+     *
+     * - Bug(s): b/128600230, b/267559562
+     * - Device(s): Camera devices on hardware level LEGACY
+     * - API levels: 24 (N) – 28 (P)
+     */
+    internal fun shouldCreateCaptureSessionBeforeClosing(cameraId: CameraId): Boolean {
+        if (Build.VERSION.SDK_INT !in (Build.VERSION_CODES.N..Build.VERSION_CODES.P)) {
+            return false
+        }
+        val level = metadataProvider.awaitCameraMetadata(cameraId)[
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
         return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
     }

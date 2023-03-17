@@ -214,6 +214,7 @@ internal class AndroidCameraState(
     private val attemptTimestampNanos: TimestampNs,
     private val timeSource: TimeSource,
     private val cameraErrorListener: CameraErrorListener,
+    private val camera2DeviceCloser: Camera2DeviceCloser,
     private val interopDeviceStateCallback: CameraDevice.StateCallback? = null,
     private val interopSessionStateCallback: CameraCaptureSession.StateCallback? = null
 ) : CameraDevice.StateCallback() {
@@ -291,7 +292,7 @@ internal class AndroidCameraState(
         }
         interopDeviceStateCallback?.onOpened(cameraDevice)
         if (closeCamera) {
-            cameraDevice.close()
+            camera2DeviceCloser.closeCamera(cameraDevice = cameraDevice)
             return
         }
 
@@ -316,7 +317,7 @@ internal class AndroidCameraState(
             }
         if (closeInfo != null) {
             _state.value = CameraStateClosing(closeInfo.errorCode)
-            cameraDevice.closeWithTrace()
+            camera2DeviceCloser.closeCamera(cameraDevice = cameraDevice)
             _state.value = computeClosedState(closeInfo)
         }
         Debug.traceStop()
@@ -416,8 +417,7 @@ internal class AndroidCameraState(
             }
             _state.value = CameraStateClosing(closeInfo.errorCode)
 
-            cameraDeviceWrapper.closeWithTrace()
-            cameraDevice.closeWithTrace()
+            camera2DeviceCloser.closeCamera(cameraDeviceWrapper, cameraDevice)
             _state.value = computeClosedState(closeInfo)
         }
     }
