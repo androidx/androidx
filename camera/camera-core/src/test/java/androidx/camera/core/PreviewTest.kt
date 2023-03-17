@@ -44,6 +44,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.utils.SizeUtil
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig

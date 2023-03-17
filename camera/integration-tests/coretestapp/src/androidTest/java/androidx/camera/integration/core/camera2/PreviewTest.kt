@@ -29,11 +29,12 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
-import androidx.camera.core.ResolutionSelector
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.resolutionselector.HighResolution
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
@@ -111,7 +112,9 @@ class PreviewTest(
         CameraXUtil.initialize(context!!, cameraConfig).get()
 
         // init CameraX before creating Preview to get preview size with CameraX's context
-        defaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.config)
+        defaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.config).also {
+            it.mutableConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)
+        }
         surfaceFutureSemaphore = Semaphore( /*permits=*/0)
         safeToReleaseSemaphore = Semaphore( /*permits=*/0)
     }
@@ -548,9 +551,10 @@ class PreviewTest(
         // Arrange.
         val resolutionSelector =
             ResolutionSelector.Builder()
-                .setMaxResolution(maxHighResolutionOutputSize!!)
-                .setPreferredResolution(maxHighResolutionOutputSize)
-                .setHighResolutionEnabled(true)
+                .setHighResolutionEnabledFlags(HighResolution.FLAG_DEFAULT_MODE_ON)
+                .setResolutionFilter { _, _ ->
+                    listOf(maxHighResolutionOutputSize)
+                }
                 .build()
         val preview = Preview.Builder().setResolutionSelector(resolutionSelector).build()
 

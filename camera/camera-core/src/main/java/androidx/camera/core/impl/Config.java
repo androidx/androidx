@@ -19,9 +19,12 @@ package androidx.camera.core.impl;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.utils.ResolutionSelectorUtil;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 import com.google.auto.value.AutoValue;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -321,11 +324,23 @@ public interface Config {
             // just copy over all options.
             for (Config.Option<?> opt : extendedConfig.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
-                        Config.Option<Object> objectOpt = (Config.Option<Object>) opt;
+                Config.Option<Object> objectOpt = (Config.Option<Object>) opt;
 
-                mergedConfig.insertOption(objectOpt,
-                        extendedConfig.getOptionPriority(opt),
-                        extendedConfig.retrieveOption(objectOpt));
+                // ResolutionSelector needs special handling to merge the underlying settings.
+                if (Objects.equals(objectOpt, ImageOutputConfig.OPTION_RESOLUTION_SELECTOR)) {
+                    ResolutionSelector resolutionSelectorToOverride =
+                            (ResolutionSelector) extendedConfig.retrieveOption(objectOpt);
+                    ResolutionSelector baseResolutionSelector =
+                            (ResolutionSelector) baseConfig.retrieveOption(objectOpt);
+                    mergedConfig.insertOption(objectOpt,
+                            extendedConfig.getOptionPriority(opt),
+                            ResolutionSelectorUtil.overrideResolutionSelectors(
+                                    baseResolutionSelector, resolutionSelectorToOverride));
+                } else {
+                    mergedConfig.insertOption(objectOpt,
+                            extendedConfig.getOptionPriority(opt),
+                            extendedConfig.retrieveOption(objectOpt));
+                }
             }
         }
 

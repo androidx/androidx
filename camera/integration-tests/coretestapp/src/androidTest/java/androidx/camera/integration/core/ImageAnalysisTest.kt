@@ -32,9 +32,10 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.BackpressureStrategy
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
-import androidx.camera.core.ResolutionSelector
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.resolutionselector.HighResolution
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
@@ -428,9 +429,11 @@ internal class ImageAnalysisTest(
         assumeTrue(maxHighResolutionOutputSize != null)
 
         val resolutionSelector = ResolutionSelector.Builder()
-                .setPreferredResolution(maxHighResolutionOutputSize!!)
-                .setHighResolutionEnabled(true)
-                .build()
+            .setHighResolutionEnabledFlags(HighResolution.FLAG_DEFAULT_MODE_ON)
+            .setResolutionFilter { _, _ ->
+                listOf(maxHighResolutionOutputSize)
+            }
+            .build()
 
         val imageAnalysis = ImageAnalysis.Builder()
             .setResolutionSelector(resolutionSelector)

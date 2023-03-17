@@ -42,6 +42,9 @@ import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.utils.SizeUtil;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;
@@ -197,7 +200,7 @@ public class ImageAnalysisTest {
     public void setAnalyzerWithResolution_doesNotOverridesUseCaseResolution_resolutionSelector() {
         ImageAnalysisConfig config = getMergedImageAnalysisConfig(APP_RESOLUTION,
                 ANALYZER_RESOLUTION, -1, true);
-        assertThat(config.getResolutionSelector().getPreferredResolution()).isEqualTo(
+        assertThat(config.getResolutionSelector().getResolutionStrategy().getBoundSize()).isEqualTo(
                 APP_RESOLUTION);
     }
 
@@ -212,8 +215,8 @@ public class ImageAnalysisTest {
     public void setAnalyzerWithResolution_usedAsDefaultUseCaseResolution_resolutionSelector() {
         ImageAnalysisConfig config = getMergedImageAnalysisConfig(null,
                 ANALYZER_RESOLUTION, -1, true);
-        assertThat(config.getResolutionSelector().getPreferredResolution()).isEqualTo(
-                ANALYZER_RESOLUTION);
+        assertThat(config.getResolutionSelector().getResolutionStrategy().getBoundSize()).isEqualTo(
+                FLIPPED_ANALYZER_RESOLUTION);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -232,11 +235,15 @@ public class ImageAnalysisTest {
 
         // Sets preferred resolution by ResolutionSelector or legacy API
         if (useResolutionSelector) {
-            ResolutionSelector.Builder resolutionSelectorBuilder = new ResolutionSelector.Builder();
+            ResolutionSelector.Builder selectorBuilder = new ResolutionSelector.Builder();
             if (appResolution != null) {
-                resolutionSelectorBuilder.setPreferredResolution(appResolution);
+                selectorBuilder.setResolutionStrategy(ResolutionStrategy.create(appResolution,
+                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER));
+            } else {
+                selectorBuilder.setAspectRatioStrategy(
+                        AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY);
             }
-            builder.setResolutionSelector(resolutionSelectorBuilder.build());
+            builder.setResolutionSelector(selectorBuilder.build());
         } else {
             if (appResolution != null) {
                 builder.setTargetResolution(appResolution);

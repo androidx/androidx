@@ -23,6 +23,7 @@ import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_ONE_PIXEL_SHI
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_FORMAT;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_OUTPUT_IMAGE_ROTATION_ENABLED;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
@@ -82,6 +83,10 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk;
+import androidx.camera.core.internal.utils.SizeUtil;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -265,35 +270,38 @@ public final class ImageAnalysis extends UseCase {
                     ? mSubscribedAnalyzer.getDefaultTargetResolution() : null;
         }
 
-        if (analyzerResolution != null) {
-            if (!builder.getMutableConfig().containsOption(OPTION_RESOLUTION_SELECTOR)) {
-                int targetRotation = builder.getMutableConfig().retrieveOption(
-                        OPTION_TARGET_ROTATION, Surface.ROTATION_0);
-                // analyzerResolution is a size in the sensor coordinate system, but the legacy
-                // target resolution setting is in the view coordinate system. Flips the
-                // analyzerResolution according to the sensor rotation degrees.
-                if (cameraInfo.getSensorRotationDegrees(targetRotation) % 180 == 90) {
-                    analyzerResolution = new Size(/* width= */ analyzerResolution.getHeight(),
-                            /* height= */ analyzerResolution.getWidth());
-                }
+        if (analyzerResolution == null) {
+            return builder.getUseCaseConfig();
+        }
 
-                if (!builder.getUseCaseConfig().containsOption(OPTION_TARGET_RESOLUTION)) {
-                    builder.getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION,
-                            analyzerResolution);
-                }
-            } else {
-                // Merges analyzerResolution or default resolution to ResolutionSelector.
-                ResolutionSelector resolutionSelector =
-                        builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR);
+        int targetRotation = builder.getMutableConfig().retrieveOption(
+                OPTION_TARGET_ROTATION, Surface.ROTATION_0);
+        // analyzerResolution is a size in the sensor coordinate system, but the legacy
+        // target resolution setting is in the view coordinate system. Flips the
+        // analyzerResolution according to the sensor rotation degrees.
+        if (cameraInfo.getSensorRotationDegrees(targetRotation) % 180 == 90) {
+            analyzerResolution = new Size(/* width= */ analyzerResolution.getHeight(),
+                    /* height= */ analyzerResolution.getWidth());
+        }
 
-                if (resolutionSelector.getPreferredResolution() == null) {
-                    ResolutionSelector.Builder resolutionSelectorBuilder =
-                            ResolutionSelector.Builder.fromSelector(resolutionSelector);
-                    resolutionSelectorBuilder.setPreferredResolution(analyzerResolution);
-                    builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
-                            resolutionSelectorBuilder.build());
-                }
-            }
+        // Merges the analyzerResolution as legacy target resolution setting so that it can take
+        // effect when running the legacy resolution selection logic flow.
+        if (!builder.getUseCaseConfig().containsOption(OPTION_TARGET_RESOLUTION)) {
+            builder.getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION,
+                    analyzerResolution);
+        }
+
+        // Merges the analyzerResolution to ResolutionSelector.
+        ResolutionSelector resolutionSelector =
+                builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR, null);
+        if (resolutionSelector != null && resolutionSelector.getResolutionStrategy() == null) {
+            ResolutionSelector.Builder resolutionSelectorBuilder =
+                    ResolutionSelector.Builder.fromResolutionSelector(resolutionSelector);
+            resolutionSelectorBuilder.setResolutionStrategy(
+                    ResolutionStrategy.create(analyzerResolution,
+                            ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER));
+            builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
+                    resolutionSelectorBuilder.build());
         }
 
         return builder.getUseCaseConfig();
@@ -721,6 +729,18 @@ public final class ImageAnalysis extends UseCase {
         return super.getResolutionInfo();
     }
 
+    /**
+     * Returns the resolution selector setting.
+     *
+     * <p>This setting is set when constructing an ImageCapture using
+     * {@link Builder#setResolutionSelector(ResolutionSelector)}.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public ResolutionSelector getResolutionSelector() {
+        return ((ImageOutputConfig) getCurrentConfig()).getResolutionSelector(null);
+    }
+
     @Override
     @NonNull
     public String toString() {
@@ -985,13 +1005,21 @@ public final class ImageAnalysis extends UseCase {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 1;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
 
+        private static final ResolutionSelector DEFAULT_RESOLUTION_SELECTOR =
+                new ResolutionSelector.Builder().setAspectRatioStrategy(
+                        AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY).setResolutionStrategy(
+                        ResolutionStrategy.create(SizeUtil.RESOLUTION_VGA,
+                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
+                        .build();
+
         private static final ImageAnalysisConfig DEFAULT_CONFIG;
 
         static {
             Builder builder = new Builder()
                     .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
-                    .setTargetAspectRatio(DEFAULT_ASPECT_RATIO);
+                    .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
+                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -1383,7 +1411,7 @@ public final class ImageAnalysis extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public Builder setDefaultResolution(@NonNull Size resolution) {
-            getMutableConfig().insertOption(ImageOutputConfig.OPTION_DEFAULT_RESOLUTION,
+            getMutableConfig().insertOption(OPTION_DEFAULT_RESOLUTION,
                     resolution);
             return this;
         }
@@ -1415,14 +1443,14 @@ public final class ImageAnalysis extends UseCase {
         /**
          * Sets the resolution selector to select the preferred supported resolution.
          *
-         * <p>ImageAnalysis has a default minimal bounding size as 640x480. The input
-         * {@link ResolutionSelector}'s' preferred resolution can override the minimal bounding
-         * size to find the best resolution.
+         * <p>ImageAnalysis has a default {@link ResolutionStrategy} with bound size as 640x480
+         * and fallback rule of {@link ResolutionStrategy#FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER}.
+         * Applications can override this default strategy with a different resolution strategy.
          *
-         * <p>When using the {@code camera-camera2} CameraX implementation, which resolution will
-         * be finally selected will depend on the camera device's hardware level, capabilities
-         * and the bound use cases combination. The device hardware level and capabilities
-         * information can be retrieved via the interop class
+         * <p>When using the {@code camera-camera2} CameraX implementation, which resolution is
+         * finally selected depends on the camera device's hardware level, capabilities and the
+         * bound use cases combination. The device hardware level and capabilities information
+         * can be retrieved via the interop class
          * {@link androidx.camera.camera2.interop.Camera2CameraInfo#getCameraCharacteristic(android.hardware.camera2.CameraCharacteristics.Key)}
          * with
          * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL} and
@@ -1431,13 +1459,14 @@ public final class ImageAnalysis extends UseCase {
          * <p>A {@code LIMITED-level} above device can support a {@code RECORD} size resolution
          * for {@link ImageAnalysis} when it is bound together with {@link Preview} and
          * {@link ImageCapture}. The trade-off is the selected resolution for the
-         * {@link ImageCapture} will also be restricted by the {@code RECORD} size. To
-         * successfully select a {@code RECORD} size resolution for {@link ImageAnalysis}, a
-         * {@code RECORD} size preferred resolution should be set on both {@link ImageCapture} and
-         * {@link ImageAnalysis}. This indicates that the application clearly understand the
-         * trade-off and prefer the {@link ImageAnalysis} to have a larger resolution rather than
-         * the {@link ImageCapture} to have a {@code MAXIMUM} size resolution. For the
-         * definitions of {@code RECORD}, {@code MAXIMUM} sizes and more details see the
+         * {@link ImageCapture} is also restricted by the {@code RECORD} size. To successfully
+         * select a {@code RECORD} size resolution for {@link ImageAnalysis}, a
+         * {@link ResolutionStrategy} of selecting {@code RECORD} size resolution should be set
+         * on both {@link ImageCapture} and {@link ImageAnalysis}. This indicates that the
+         * application clearly understand the trade-off and prefer the {@link ImageAnalysis} to
+         * have a larger resolution rather than the {@link ImageCapture} to have a {@code MAXIMUM
+         * } size resolution. For the definitions of {@code RECORD}, {@code MAXIMUM} sizes and
+         * more details see the
          * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture">Regular capture</a>
          * section in {@link android.hardware.camera2.CameraDevice}'s. The {@code RECORD} size
          * refers to the camera device's maximum supported recording resolution, as determined by
@@ -1447,11 +1476,13 @@ public final class ImageAnalysis extends UseCase {
          *
          * <p>The existing {@link #setTargetResolution(Size)} and
          * {@link #setTargetAspectRatio(int)} APIs are deprecated and are not compatible with
-         * {@link ResolutionSelector}. Calling any of these APIs together with
-         * {@link ResolutionSelector} will throw an {@link IllegalArgumentException} while
-         * {@link #build()} is called to create the {@link ImageAnalysis} instance.
+         * {@link #setResolutionSelector(ResolutionSelector)}. Calling either of these APIs
+         * together with {@link #setResolutionSelector(ResolutionSelector)} will result in an
+         * {@link IllegalArgumentException} being thrown when you attempt to build the
+         * {@link ImageAnalysis} instance.
          *
-         **/
+         * @return The current Builder.
+         */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
