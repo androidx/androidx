@@ -547,6 +547,37 @@ class FragmentNavigatorTest {
             .containsExactly(entry)
     }
 
+    @UiThreadTest
+    @Test
+    fun testNavigateAndAddIndependentFragment() {
+        val entry = createBackStackEntry()
+
+        fragmentNavigator.navigate(listOf(entry), null, null)
+        assertThat(navigatorState.backStack.value)
+            .containsExactly(entry)
+        fragmentManager.executePendingTransactions()
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+        assertWithMessage("Fragment should be the correct type")
+            .that(fragment)
+            .isInstanceOf(EmptyFragment::class.java)
+        assertWithMessage("Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(fragment)
+
+        val independentFragment = EmptyFragment()
+        fragmentManager.beginTransaction()
+            .replace(R.id.container, independentFragment)
+            .commit()
+        fragmentManager.executePendingTransactions()
+
+        assertWithMessage("Independent fragment should be added")
+            .that(fragmentManager.findFragmentById(R.id.container))
+            .isEqualTo(independentFragment)
+    }
+
     @LargeTest
     @UiThreadTest
     @Test

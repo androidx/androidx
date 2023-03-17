@@ -92,21 +92,22 @@ public open class FragmentNavigator(
         super.onAttach(state)
 
         fragmentManager.addFragmentOnAttachListener { _, fragment ->
-            fragment.viewLifecycleOwnerLiveData.observe(fragment) {
-                // attach observer unless it was already popped at this point
-                if (!entriesToPop.contains(fragment.tag)) {
-                    val entry = state.backStack.value.last { it.id == fragment.tag }
-                    attachObserver(entry, fragment)
-                }
-            }
-            fragment.lifecycle.addObserver(fragmentObserver)
-            // We need to ensure that if the fragment has its state saved and then that state
-            // later cleared without the restoring the fragment that we also clear the state
-            // of the associated entry.
-            val viewModel = ViewModelProvider(fragment)[ClearEntryStateViewModel::class.java]
             val entry = state.backStack.value.lastOrNull { it.id == fragment.tag }
-            viewModel.completeTransition =
-                WeakReference { entry?.let { state.markTransitionComplete(it) } }
+            if (entry != null) {
+                fragment.viewLifecycleOwnerLiveData.observe(fragment) {
+                    // attach observer unless it was already popped at this point
+                    if (!entriesToPop.contains(fragment.tag)) {
+                        attachObserver(entry, fragment)
+                    }
+                }
+                fragment.lifecycle.addObserver(fragmentObserver)
+                // We need to ensure that if the fragment has its state saved and then that state
+                // later cleared without the restoring the fragment that we also clear the state
+                // of the associated entry.
+                val viewModel = ViewModelProvider(fragment)[ClearEntryStateViewModel::class.java]
+                viewModel.completeTransition =
+                    WeakReference { entry.let { state.markTransitionComplete(it) } }
+            }
         }
 
         fragmentManager.addOnBackStackChangedListener(object : OnBackStackChangedListener {
