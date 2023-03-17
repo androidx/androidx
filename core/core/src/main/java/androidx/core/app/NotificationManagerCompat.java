@@ -42,6 +42,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.service.notification.NotificationListenerService;
+import android.service.notification.StatusBarNotification;
 import android.support.v4.app.INotificationSideChannel;
 import android.util.Log;
 
@@ -59,6 +60,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -280,6 +282,36 @@ public final class NotificationManagerCompat {
 
         public NotificationWithIdAndTag(int id, @NonNull Notification notification) {
             this(null, id, notification);
+        }
+    }
+
+    /**
+     * Recover a list of active notifications: ones that have been posted by the calling app that
+     * have not yet been dismissed by the user or {@link #cancel(String, int)}ed by the app.
+     *
+     * <p><Each notification is embedded in a {@link StatusBarNotification} object, including the
+     * original <code>tag</code> and <code>id</code> supplied to
+     * {@link #notify(String, int, Notification) notify()}
+     * (via {@link StatusBarNotification#getTag() getTag()} and
+     * {@link StatusBarNotification#getId() getId()}) as well as a copy of the original
+     * {@link Notification} object (via {@link StatusBarNotification#getNotification()}).
+     * </p>
+     * <p>From {@link Build.VERSION_CODES#Q}, will also return notifications you've posted as an
+     * app's notification delegate via
+     * {@link NotificationManager#notifyAsPackage(String, String, int, Notification)}.
+     * </p>
+     * <p>
+     *     Returns an empty list on {@link Build.VERSION_CODES#LOLLIPOP_MR1} and earlier.
+     * </p>
+     *
+     * @return A list of {@link StatusBarNotification}.
+     */
+    @NonNull
+    public List<StatusBarNotification> getActiveNotifications() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.getActiveNotifications(mNotificationManager);
+        } else {
+            return new ArrayList<>();
         }
     }
 
@@ -1111,7 +1143,27 @@ public final class NotificationManagerCompat {
     }
 
     /**
-     * A class for wrapping calls to {@link Notification.Builder} methods which
+     * A class for wrapping calls to {@link NotificationManager} methods which
+     * were added in API 23; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() { }
+
+        @DoNotInline
+        static List<StatusBarNotification> getActiveNotifications(
+                NotificationManager notificationManager) {
+            StatusBarNotification[] notifs = notificationManager.getActiveNotifications();
+            if (notifs == null) {
+                return new ArrayList<>();
+            }
+            return Arrays.asList(notifs);
+        }
+    }
+
+    /**
+     * A class for wrapping calls to {@link NotificationManager} methods which
      * were added in API 24; these calls must be wrapped to avoid performance issues.
      * See the UnsafeNewApiCall lint rule for more details.
      */
