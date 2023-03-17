@@ -58,7 +58,7 @@ class DisplayInfoManagerTest {
     @Test
     fun previewSizeAreaIsWithinMaxPreviewArea() {
         // Act & Assert
-        val previewSize = displayInfoManager.previewSize
+        val previewSize = displayInfoManager.getPreviewSize()
         assertTrue("$previewSize has larger area than 1920 * 1080",
             previewSize.width * previewSize.height <= 1920 * 1080)
     }

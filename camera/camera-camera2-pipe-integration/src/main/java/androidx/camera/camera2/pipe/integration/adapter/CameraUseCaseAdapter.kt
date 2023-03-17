@@ -129,7 +129,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         if (captureType == CaptureType.PREVIEW) {
             mutableConfig.insertOption(
                 ImageOutputConfig.OPTION_MAX_RESOLUTION,
-                displayInfoManager.previewSize
+                displayInfoManager.getPreviewSize()
             )
         }
 

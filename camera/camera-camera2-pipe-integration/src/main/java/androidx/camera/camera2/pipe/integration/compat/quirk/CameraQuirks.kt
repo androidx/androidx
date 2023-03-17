@@ -45,6 +45,9 @@ class CameraQuirks @Inject constructor(
         if (AfRegionFlipHorizontallyQuirk.isEnabled(cameraMetadata)) {
             quirks.add(AfRegionFlipHorizontallyQuirk())
         }
+        if (AspectRatioLegacyApi21Quirk.load(cameraMetadata)) {
+            quirks.add(AspectRatioLegacyApi21Quirk())
+        }
         if (CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)) {
             quirks.add(CamcorderProfileResolutionQuirk(streamConfigurationMapCompat))
         }

@@ -180,7 +180,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isTrue()
         }
     }
@@ -194,7 +195,8 @@ class SupportedSurfaceCombinationTest {
         )
         val combinationList = getLegacySupportedCombinationList()
         val isSupported = isAllSubConfigListSupported(
-            false, supportedSurfaceCombination, combinationList)
+            false, supportedSurfaceCombination, combinationList
+        )
         assertThat(isSupported).isTrue()
     }
 
@@ -209,7 +211,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isFalse()
         }
     }
@@ -225,7 +228,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isFalse()
         }
     }
@@ -241,7 +245,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isFalse()
         }
     }
@@ -257,7 +262,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isTrue()
         }
     }
@@ -271,7 +277,8 @@ class SupportedSurfaceCombinationTest {
         )
         val combinationList = getLimitedSupportedCombinationList()
         val isSupported = isAllSubConfigListSupported(
-            false, supportedSurfaceCombination, combinationList)
+            false, supportedSurfaceCombination, combinationList
+        )
         assertThat(isSupported).isTrue()
     }
 
@@ -286,7 +293,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isFalse()
         }
     }
@@ -302,7 +310,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isFalse()
         }
     }
@@ -318,7 +327,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isTrue()
         }
     }
@@ -332,7 +342,8 @@ class SupportedSurfaceCombinationTest {
         )
         val combinationList = getFullSupportedCombinationList()
         val isSupported = isAllSubConfigListSupported(
-            false, supportedSurfaceCombination, combinationList)
+            false, supportedSurfaceCombination, combinationList
+        )
         assertThat(isSupported).isTrue()
     }
 
@@ -347,7 +358,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isFalse()
         }
     }
@@ -367,7 +379,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isTrue()
         }
     }
@@ -387,7 +400,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isTrue()
         }
     }
@@ -407,7 +421,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isTrue()
         }
     }
@@ -427,7 +442,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isTrue()
         }
     }
@@ -443,7 +459,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    false, combination.surfaceConfigList)
+                    false, combination.surfaceConfigList
+                )
             assertThat(isSupported).isTrue()
         }
     }
@@ -457,14 +474,16 @@ class SupportedSurfaceCombinationTest {
         )
         val combinationList = getLevel3SupportedCombinationList()
         val isSupported = isAllSubConfigListSupported(
-            false, supportedSurfaceCombination, combinationList)
+            false, supportedSurfaceCombination, combinationList
+        )
         assertThat(isSupported).isTrue()
     }
 
     @Test
     fun checkConcurrentSurfaceCombinationSupportedInConcurrentCameraMode() {
         Shadows.shadowOf(context.packageManager).setSystemFeature(
-            PackageManager.FEATURE_CAMERA_CONCURRENT, true)
+            PackageManager.FEATURE_CAMERA_CONCURRENT, true
+        )
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
@@ -474,7 +493,8 @@ class SupportedSurfaceCombinationTest {
         for (combination in combinationList) {
             val isSupported =
                 supportedSurfaceCombination.checkSupported(
-                    true, combination.surfaceConfigList)
+                    true, combination.surfaceConfigList
+                )
             assertThat(isSupported).isTrue()
         }
     }
@@ -482,7 +502,8 @@ class SupportedSurfaceCombinationTest {
     @Test
     fun checkConcurrentSurfaceCombinationSubListSupportedInConcurrentCameraMode() {
         Shadows.shadowOf(context.packageManager).setSystemFeature(
-            PackageManager.FEATURE_CAMERA_CONCURRENT, true)
+            PackageManager.FEATURE_CAMERA_CONCURRENT, true
+        )
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3)
         val supportedSurfaceCombination = SupportedSurfaceCombination(
             context, fakeCameraMetadata,
@@ -490,7 +511,8 @@ class SupportedSurfaceCombinationTest {
         )
         val combinationList = getConcurrentSupportedCombinationList()
         val isSupported = isAllSubConfigListSupported(
-            true, supportedSurfaceCombination, combinationList)
+            true, supportedSurfaceCombination, combinationList
+        )
         assertThat(isSupported).isTrue()
     }
 
@@ -1666,7 +1688,8 @@ class SupportedSurfaceCombinationTest {
                 val subConfigurationList: MutableList<SurfaceConfig> = ArrayList(configList)
                 subConfigurationList.removeAt(index)
                 val isSupported = supportedSurfaceCombination.checkSupported(
-                    isConcurrentCameraModeOn, subConfigurationList)
+                    isConcurrentCameraModeOn, subConfigurationList
+                )
                 if (!isSupported) {
                     return false
                 }
@@ -1679,11 +1702,13 @@ class SupportedSurfaceCombinationTest {
         captureType: UseCaseConfigFactory.CaptureType,
         targetFrameRate: Range<Int>? = null
     ): UseCase {
-        val builder = FakeUseCaseConfig.Builder(captureType, when (captureType) {
-            UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE -> ImageFormat.JPEG
-            UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS -> ImageFormat.YUV_420_888
-            else -> ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-        })
+        val builder = FakeUseCaseConfig.Builder(
+            captureType, when (captureType) {
+                UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE -> ImageFormat.JPEG
+                UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS -> ImageFormat.YUV_420_888
+                else -> ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+            }
+        )
         targetFrameRate?.let {
             builder.mutableConfig.insertOption(UseCaseConfig.OPTION_TARGET_FRAME_RATE, it)
         }

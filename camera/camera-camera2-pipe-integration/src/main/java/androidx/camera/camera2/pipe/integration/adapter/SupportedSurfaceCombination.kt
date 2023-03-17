@@ -30,7 +30,10 @@ import android.view.Display
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
+import androidx.camera.camera2.pipe.integration.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
+import androidx.camera.camera2.pipe.integration.compat.workaround.ResolutionCorrector
+import androidx.camera.camera2.pipe.integration.impl.DisplayInfoManager
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.ImageFormatConstants
@@ -76,6 +79,10 @@ class SupportedSurfaceCombination(
     private val displayManager: DisplayManager =
         (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
     private val streamConfigurationMapCompat = getStreamConfigurationMapCompat()
+    private val extraSupportedSurfaceCombinationsContainer =
+        ExtraSupportedSurfaceCombinationsContainer()
+    private val displayInfoManager = DisplayInfoManager(context)
+    private val resolutionCorrector = ResolutionCorrector()
 
     init {
         checkCapabilities()
@@ -124,8 +131,10 @@ class SupportedSurfaceCombination(
     ): SurfaceConfig {
         val maxOutputSizeForConcurrentMode = if (isConcurrentCameraModeOn)
             getMaxOutputSizeByFormat(imageFormat) else null
-        return SurfaceConfig.transformSurfaceConfig(isConcurrentCameraModeOn,
-            imageFormat, size, surfaceSizeDefinition, maxOutputSizeForConcurrentMode)
+        return SurfaceConfig.transformSurfaceConfig(
+            isConcurrentCameraModeOn,
+            imageFormat, size, surfaceSizeDefinition, maxOutputSizeForConcurrentMode
+        )
     }
 
     /**
@@ -182,8 +191,12 @@ class SupportedSurfaceCombination(
 
         // Collect supported output sizes for all use cases
         for (index in useCasesPriorityOrder) {
-            val supportedOutputSizes: List<Size> =
+            var supportedOutputSizes: List<Size> =
                 newUseCaseConfigsSupportedSizeMap[newUseCaseConfigs[index]]!!
+            supportedOutputSizes = resolutionCorrector.insertOrPrioritize(
+                SurfaceConfig.getConfigType(newUseCaseConfigs[index].inputFormat),
+                supportedOutputSizes
+            )
             supportedOutputSizesList.add(supportedOutputSizes)
         }
         // Get all possible size arrangements
@@ -223,9 +236,11 @@ class SupportedSurfaceCombination(
                 for (useCaseConfig in newUseCaseConfigs) {
                     suggestedStreamSpecMap.put(
                         useCaseConfig,
-                        StreamSpec.builder(possibleSizeList[useCasesPriorityOrder.indexOf(
-                            newUseCaseConfigs.indexOf(useCaseConfig)
-                        )]).build()
+                        StreamSpec.builder(
+                            possibleSizeList[useCasesPriorityOrder.indexOf(
+                                newUseCaseConfigs.indexOf(useCaseConfig)
+                            )]
+                        ).build()
                     )
                 }
                 break
@@ -250,14 +265,19 @@ class SupportedSurfaceCombination(
      * Refresh Preview Size based on current display configurations.
      */
     private fun refreshPreviewSize() {
-        val previewSize: Size = calculatePreviewSize()
-        surfaceSizeDefinition = SurfaceSizeDefinition.create(
-            surfaceSizeDefinition.analysisSize,
-            surfaceSizeDefinition.s720pSize,
-            previewSize,
-            surfaceSizeDefinition.s1440pSize,
-            surfaceSizeDefinition.recordSize
-        )
+        displayInfoManager.refresh()
+        if (!::surfaceSizeDefinition.isInitialized) {
+            generateSurfaceSizeDefinition()
+        } else {
+            val previewSize: Size = displayInfoManager.getPreviewSize()
+            surfaceSizeDefinition = SurfaceSizeDefinition.create(
+                surfaceSizeDefinition.analysisSize,
+                surfaceSizeDefinition.s720pSize,
+                previewSize,
+                surfaceSizeDefinition.s1440pSize,
+                surfaceSizeDefinition.recordSize
+            )
+        }
     }
 
     /**
@@ -284,13 +304,15 @@ class SupportedSurfaceCombination(
                 isRawSupported, isBurstCaptureSupported
             )
         )
-        // TODO(b/246609101): ExtraSupportedSurfaceCombinationsQuirk is supposed to be here to add additional
-        //  surface combinations to the list
+        surfaceCombinations.addAll(
+            extraSupportedSurfaceCombinationsContainer[cameraId, hardwareLevel]
+        )
     }
 
     private fun generateConcurrentSupportedCombinationList() {
         concurrentSurfaceCombinations.addAll(
-            GuaranteedConfigurationsUtil.generateConcurrentSupportedCombinationList())
+            GuaranteedConfigurationsUtil.generateConcurrentSupportedCombinationList()
+        )
     }
 
     /**
@@ -304,10 +326,12 @@ class SupportedSurfaceCombination(
         // Same for s1440p.
         val s720pSize = Size(1280, 720)
         val s1440pSize = Size(1920, 1440)
-        val previewSize: Size = calculatePreviewSize()
+        val previewSize: Size = displayInfoManager.getPreviewSize()
         val recordSize: Size = getRecordSize()
-        surfaceSizeDefinition = SurfaceSizeDefinition.create(vgaSize, s720pSize, previewSize,
-            s1440pSize, recordSize)
+        surfaceSizeDefinition = SurfaceSizeDefinition.create(
+            vgaSize, s720pSize, previewSize,
+            s1440pSize, recordSize
+        )
     }
 
     /**
@@ -337,7 +361,7 @@ class SupportedSurfaceCombination(
     private fun getStreamConfigurationMapCompat(): StreamConfigurationMapCompat {
         val map = cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
             ?: throw IllegalArgumentException("Cannot retrieve SCALER_STREAM_CONFIGURATION_MAP")
-        return StreamConfigurationMapCompat(map, OutputSizesCorrector(cameraMetadata))
+        return StreamConfigurationMapCompat(map, OutputSizesCorrector(cameraMetadata, map))
     }
 
     /**
@@ -347,7 +371,9 @@ class SupportedSurfaceCombination(
      * @return Maximum supported video size.
      */
     private fun getRecordSizeFromStreamConfigurationMapCompat(): Size {
-        val videoSizeArr = streamConfigurationMapCompat.getOutputSizes(
+        val map: StreamConfigurationMap =
+            streamConfigurationMapCompat.toStreamConfigurationMap()
+        val videoSizeArr = map.getOutputSizes(
             MediaRecorder::class.java
         ) ?: return RESOLUTION_480P
         Arrays.sort(videoSizeArr, CompareSizesByArea(true))
@@ -391,31 +417,6 @@ class SupportedSurfaceCombination(
             recordSize = Size(profiles.videoProfiles[0].width, profiles.videoProfiles[0].height)
         }
         return recordSize
-    }
-
-    /**
-     * Calculates the size for preview. If the max size is larger than 1080p, use 1080p.
-     */
-    @SuppressWarnings("deprecation")
-    /* getRealSize */
-    private fun calculatePreviewSize(): Size {
-        val displaySize = Point()
-        val display: Display = getMaxSizeDisplay()
-        display.getRealSize(displaySize)
-        var displayViewSize: Size
-        displayViewSize = if (displaySize.x > displaySize.y) {
-            Size(displaySize.x, displaySize.y)
-        } else {
-            Size(displaySize.y, displaySize.x)
-        }
-        if (displayViewSize.width * displayViewSize.height
-            > RESOLUTION_1080P.width * RESOLUTION_1080P.height
-        ) {
-            displayViewSize = RESOLUTION_1080P
-        }
-        // TODO(b/245619094): Use ExtraCroppingQuirk to potentially override this with select
-        //  resolution
-        return displayViewSize
     }
 
     /**

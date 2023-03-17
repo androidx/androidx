@@ -1272,11 +1272,13 @@ class FocusMeteringControlTest {
         // camera 5 supports 1 AF and 0 AE/AWB regions
         focusMeteringControl = initFocusMeteringControl(cameraId = CAMERA_ID_5)
 
-        startFocusMeteringAndAwait(FocusMeteringAction.Builder(
-            point1,
-            FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE or
-                FocusMeteringAction.FLAG_AWB
-        ).build())
+        startFocusMeteringAndAwait(
+            FocusMeteringAction.Builder(
+                point1,
+                FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE or
+                    FocusMeteringAction.FLAG_AWB
+            ).build()
+        )
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
             assertWithMessage("Wrong number of AE regions").that(aeRegions).isNull()
@@ -1398,7 +1400,10 @@ class FocusMeteringControlTest {
                 cameraPropertiesMap[cameraId]!!.metadata,
                 StreamConfigurationMapCompat(
                     StreamConfigurationMapBuilder.newBuilder().build(),
-                    OutputSizesCorrector(cameraPropertiesMap[cameraId]!!.metadata)
+                    OutputSizesCorrector(
+                        cameraPropertiesMap[cameraId]!!.metadata,
+                        StreamConfigurationMapBuilder.newBuilder().build()
+                    ),
                 )
             )
         ),
