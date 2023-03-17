@@ -19,6 +19,7 @@ package androidx.build
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 
 /**
  * Whether to enable constraints for projects in same-version groups
@@ -185,8 +186,7 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
  * Whether to enable constraints for projects in same-version groups
  * See the property definition for more details
  */
-fun Project.shouldAddGroupConstraints(): Boolean =
-    findBooleanProperty(ADD_GROUP_CONSTRAINTS) ?: false
+fun Project.shouldAddGroupConstraints() = booleanPropertyProvider(ADD_GROUP_CONSTRAINTS)
 
 /**
  * Returns alternative project url that will be used as "url" property
@@ -280,3 +280,9 @@ fun Project.isCustomCompileSdkAllowed(): Boolean =
     findBooleanProperty(ALLOW_CUSTOM_COMPILE_SDK) ?: true
 
 fun Project.findBooleanProperty(propName: String) = (findProperty(propName) as? String)?.toBoolean()
+
+fun Project.booleanPropertyProvider(propName: String): Provider<Boolean> {
+    return project.providers.gradleProperty(propName).map { s ->
+        s.toBoolean()
+    }.orElse(false)
+}

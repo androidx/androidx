@@ -872,7 +872,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
     private fun Project.configureConstraintsWithinGroup(
         extension: AndroidXExtension
     ) {
-        if (!project.shouldAddGroupConstraints()) {
+        if (!project.shouldAddGroupConstraints().get()) {
             return
         }
         project.afterEvaluate {
