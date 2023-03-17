@@ -14,9 +14,6 @@
 * limitations under the License.
 */
 
-// TODO(b/160821157): Replace FocusState with FocusState2.isFocused
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.foundation.textfield
 
 import android.os.Build
@@ -1373,8 +1370,8 @@ class TextFieldTest {
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
-        textNode.performTouchInput { longClick() }
-        textNode.performTextInputSelection(TextRange(0, 4))
+        textNode.performSemanticsAction(SemanticsActions.RequestFocus)
+        textNode.performTextInputSelection(TextRange(0, 5))
         textNode.performKeyPress(
             KeyEvent(
                 NativeKeyEvent(
@@ -1392,14 +1389,18 @@ class TextFieldTest {
             )
         )
 
+        rule.waitForIdle()
+        textNode.assertTextEquals("")
+        val selection = textNode.fetchSemanticsNode().config
+            .getOrNull(SemanticsProperties.TextSelectionRange)
+        assertThat(selection).isEqualTo(TextRange(0))
+
         textFieldValue.value = "Hello"
 
         rule.waitForIdle()
-
-        val expected = TextRange(0, 0)
         val actual = textNode.fetchSemanticsNode().config
             .getOrNull(SemanticsProperties.TextSelectionRange)
-        assertThat(actual).isEqualTo(expected)
+        assertThat(actual).isEqualTo(TextRange(0))
     }
 
     @Test
