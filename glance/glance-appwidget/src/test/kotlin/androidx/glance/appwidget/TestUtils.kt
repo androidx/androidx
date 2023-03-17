@@ -111,7 +111,11 @@ internal suspend fun Context.runAndTranslate(
     appWidgetId: Int = 0,
     content: @Composable () -> Unit
 ): RemoteViews {
-    val root = runTestingComposition(content)
+    val originalRoot = runTestingComposition(content)
+
+    // Copy makes a deep copy of the emittable tree, so will exercise the copy methods
+    // of all of the emmitables the test checks too.
+    val root = originalRoot.copy() as RemoteViewsRoot
     normalizeCompositionTree(root)
     return translateComposition(
         this,
