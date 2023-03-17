@@ -16,6 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.core.task.impl
 
+import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.impl.converters.DisambigEntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
@@ -25,59 +26,55 @@ import androidx.appactions.interaction.capabilities.core.task.InventoryListResol
 import androidx.appactions.interaction.capabilities.core.task.InventoryResolver
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.proto.ParamValue
-import java.util.function.Function
 
-import androidx.annotation.RestrictTo
-
-/**
- * Container of multi-turn Task related function references.
- *
- */
+/** Container of multi-turn Task related function references. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class TaskHandler<ConfirmationT> (
-    val taskParamMap: Map<String, TaskParamBinding<*>>,
-    val confirmationType: ConfirmationType,
-    val confirmationDataBindings: Map<String, Function<ConfirmationT, List<ParamValue>>>,
-    val onReadyToConfirmListener: OnReadyToConfirmListenerInternal<ConfirmationT>?,
+data class TaskHandler<ConfirmationT>
+internal constructor(
+    internal val taskParamMap: Map<String, TaskParamBinding<*>>,
+    internal val confirmationType: ConfirmationType,
+    internal val confirmationDataBindings: Map<String, (ConfirmationT) -> List<ParamValue>>,
+    internal val onReadyToConfirmListener: OnReadyToConfirmListenerInternal<ConfirmationT>?,
 ) {
     class Builder<ConfirmationT>(
-        val confirmationType: ConfirmationType = ConfirmationType.NOT_SUPPORTED,
+        private val confirmationType: ConfirmationType = ConfirmationType.NOT_SUPPORTED,
     ) {
-        val mutableTaskParamMap = mutableMapOf<String, TaskParamBinding<*>>()
-        val confirmationDataBindings: MutableMap<
-            String, Function<ConfirmationT, List<ParamValue>>,> = mutableMapOf()
-        var onReadyToConfirmListener: OnReadyToConfirmListenerInternal<ConfirmationT>? = null
+        private val mutableTaskParamMap = mutableMapOf<String, TaskParamBinding<*>>()
+        private val confirmationDataBindings =
+            mutableMapOf<String, (ConfirmationT) -> List<ParamValue>>()
+        private var onReadyToConfirmListener: OnReadyToConfirmListenerInternal<ConfirmationT>? =
+            null
 
         fun <ValueTypeT> registerInventoryTaskParam(
             paramName: String,
             listener: InventoryResolver<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
-        ): Builder<ConfirmationT> {
-            mutableTaskParamMap[paramName] = TaskParamBinding(
-                paramName,
-                GROUND_IF_NO_IDENTIFIER,
-                GenericResolverInternal.fromInventoryResolver(listener),
-                converter,
-                null,
-                null,
-            )
-            return this
+        ): Builder<ConfirmationT> = apply {
+            mutableTaskParamMap[paramName] =
+                TaskParamBinding(
+                    paramName,
+                    GROUND_IF_NO_IDENTIFIER,
+                    GenericResolverInternal.fromInventoryResolver(listener),
+                    converter,
+                    null,
+                    null,
+                )
         }
 
         fun <ValueTypeT> registerInventoryListTaskParam(
             paramName: String,
             listener: InventoryListResolver<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
-        ): Builder<ConfirmationT> {
-            mutableTaskParamMap[paramName] = TaskParamBinding(
-                paramName,
-                GROUND_IF_NO_IDENTIFIER,
-                GenericResolverInternal.fromInventoryListResolver(listener),
-                converter,
-                null,
-                null,
-            )
-            return this
+        ): Builder<ConfirmationT> = apply {
+            mutableTaskParamMap[paramName] =
+                TaskParamBinding(
+                    paramName,
+                    GROUND_IF_NO_IDENTIFIER,
+                    GenericResolverInternal.fromInventoryListResolver(listener),
+                    converter,
+                    null,
+                    null,
+                )
         }
 
         fun <ValueTypeT> registerAppEntityTaskParam(
@@ -86,16 +83,16 @@ data class TaskHandler<ConfirmationT> (
             converter: ParamValueConverter<ValueTypeT>,
             entityConverter: DisambigEntityConverter<ValueTypeT>,
             searchActionConverter: SearchActionConverter<ValueTypeT>,
-        ): Builder<ConfirmationT> {
-            mutableTaskParamMap[paramName] = TaskParamBinding(
-                paramName,
-                GROUND_IF_NO_IDENTIFIER,
-                GenericResolverInternal.fromAppEntityResolver(listener),
-                converter,
-                entityConverter,
-                searchActionConverter,
-            )
-            return this
+        ): Builder<ConfirmationT> = apply {
+            mutableTaskParamMap[paramName] =
+                TaskParamBinding(
+                    paramName,
+                    GROUND_IF_NO_IDENTIFIER,
+                    GenericResolverInternal.fromAppEntityResolver(listener),
+                    converter,
+                    entityConverter,
+                    searchActionConverter,
+                )
         }
 
         fun <ValueTypeT> registerAppEntityListTaskParam(
@@ -104,77 +101,73 @@ data class TaskHandler<ConfirmationT> (
             converter: ParamValueConverter<ValueTypeT>,
             entityConverter: DisambigEntityConverter<ValueTypeT>,
             searchActionConverter: SearchActionConverter<ValueTypeT>,
-        ): Builder<ConfirmationT> {
-            mutableTaskParamMap[paramName] = TaskParamBinding(
-                paramName,
-                GROUND_IF_NO_IDENTIFIER,
-                GenericResolverInternal.fromAppEntityListResolver(listener),
-                converter,
-                entityConverter,
-                searchActionConverter,
-            )
-            return this
+        ): Builder<ConfirmationT> = apply {
+            mutableTaskParamMap[paramName] =
+                TaskParamBinding(
+                    paramName,
+                    GROUND_IF_NO_IDENTIFIER,
+                    GenericResolverInternal.fromAppEntityListResolver(listener),
+                    converter,
+                    entityConverter,
+                    searchActionConverter,
+                )
         }
 
         fun <ValueTypeT> registerValueTaskParam(
             paramName: String,
             listener: ValueListener<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
-        ): Builder<ConfirmationT> {
-            mutableTaskParamMap[paramName] = TaskParamBinding(
-                paramName,
-                GROUND_NEVER,
-                GenericResolverInternal.fromValueListener(listener),
-                converter,
-                null,
-                null,
-            )
-            return this
+        ): Builder<ConfirmationT> = apply {
+            mutableTaskParamMap[paramName] =
+                TaskParamBinding(
+                    paramName,
+                    GROUND_NEVER,
+                    GenericResolverInternal.fromValueListener(listener),
+                    converter,
+                    null,
+                    null,
+                )
         }
 
         fun <ValueTypeT> registerValueListTaskParam(
             paramName: String,
             listener: ValueListener<List<ValueTypeT>>,
             converter: ParamValueConverter<ValueTypeT>,
-        ): Builder<ConfirmationT> {
-            mutableTaskParamMap[paramName] = TaskParamBinding(
-                paramName,
-                GROUND_NEVER,
-                GenericResolverInternal.fromValueListListener(listener),
-                converter,
-                null,
-                null,
-            )
-            return this
+        ): Builder<ConfirmationT> = apply {
+            mutableTaskParamMap[paramName] =
+                TaskParamBinding(
+                    paramName,
+                    GROUND_NEVER,
+                    GenericResolverInternal.fromValueListListener(listener),
+                    converter,
+                    null,
+                    null,
+                )
         }
 
         /**
          * Registers an optional, non-repeated confirmation data.
          *
-         * @param paramName          the BIC confirmation data slot name of this parameter.
-         * @param confirmationGetter a getter of the confirmation data from the {@code ConfirmationT}
-         *                           instance.
-         * @param converter          a converter from confirmation data to a ParamValue.
+         * @param paramName the BIC confirmation data slot name of this parameter.
+         * @param confirmationGetter a getter of the confirmation data from the {@code
+         *   ConfirmationT} instance.
+         * @param converter a converter from confirmation data to a ParamValue.
          */
         fun <T> registerConfirmationOutput(
             paramName: String,
             confirmationGetter: (ConfirmationT) -> T?,
             converter: (T) -> ParamValue,
-        ): Builder<ConfirmationT> {
-            confirmationDataBindings.put(
-                paramName,
-            ) { output: ConfirmationT ->
+        ): Builder<ConfirmationT> = apply {
+            confirmationDataBindings[paramName] = { output: ConfirmationT ->
                 listOfNotNull(confirmationGetter(output)).map(converter)
             }
-            return this
         }
 
         /** Sets the onReadyToConfirmListener for this capability. */
         fun setOnReadyToConfirmListenerInternal(
             onReadyToConfirmListener: OnReadyToConfirmListenerInternal<ConfirmationT>,
-        ): Builder<ConfirmationT> {
+        ): Builder<ConfirmationT> = apply {
             this.onReadyToConfirmListener = onReadyToConfirmListener
-            return this
         }
 
         fun build(): TaskHandler<ConfirmationT> {

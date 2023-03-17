@@ -15,7 +15,6 @@
  */
 package androidx.appactions.interaction.capabilities.core.task.impl
 
-import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.impl.converters.DisambigEntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
@@ -24,10 +23,10 @@ import androidx.appactions.interaction.proto.ParamValue
 /**
  * A binding between a parameter and its Property converter / Argument setter.
  *
- *
-</ValueTypeT> */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-data class TaskParamBinding<ValueTypeT> internal constructor(
+ * </ValueTypeT>
+ */
+internal data class TaskParamBinding<ValueTypeT>
+constructor(
     val name: String,
     val groundingPredicate: (ParamValue) -> Boolean,
     val resolver: GenericResolverInternal<ValueTypeT>,
