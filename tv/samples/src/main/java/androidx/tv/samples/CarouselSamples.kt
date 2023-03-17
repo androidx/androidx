@@ -17,7 +17,6 @@
 package androidx.tv.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -45,7 +44,7 @@ import androidx.tv.material3.CarouselDefaults
 import androidx.tv.material3.CarouselState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Sampled
 @Composable
 fun SimpleCarousel() {
@@ -56,12 +55,12 @@ fun SimpleCarousel() {
     )
 
     Carousel(
-        slideCount = backgrounds.size,
+        itemCount = backgrounds.size,
         modifier = Modifier
             .height(300.dp)
             .fillMaxWidth(),
     ) { itemIndex ->
-        CarouselSlide(
+        CarouselItem(
             background = {
                 Box(
                     modifier = Modifier
@@ -91,7 +90,7 @@ fun SimpleCarousel() {
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Sampled
 @Composable
 fun CarouselIndicatorWithRectangleShape() {
@@ -103,15 +102,15 @@ fun CarouselIndicatorWithRectangleShape() {
     val carouselState = remember { CarouselState() }
 
     Carousel(
-        slideCount = backgrounds.size,
+        itemCount = backgrounds.size,
         modifier = Modifier
             .height(300.dp)
             .fillMaxWidth(),
         carouselState = carouselState,
         carouselIndicator = {
             CarouselDefaults.IndicatorRow(
-                slideCount = backgrounds.size,
-                activeSlideIndex = carouselState.activeSlideIndex,
+                itemCount = backgrounds.size,
+                activeItemIndex = carouselState.activeItemIndex,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
@@ -130,7 +129,7 @@ fun CarouselIndicatorWithRectangleShape() {
             )
         }
     ) { itemIndex ->
-        CarouselSlide(
+        CarouselItem(
             background = {
                 Box(
                     modifier = Modifier
