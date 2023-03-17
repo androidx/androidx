@@ -1263,15 +1263,20 @@ package androidx.compose.ui.text.intl {
 
 }
 
+package androidx.compose.ui.text.platform {
+
+  @androidx.compose.ui.text.InternalTextApi public final class URLSpanCache {
+    ctor public URLSpanCache();
+    method public android.text.style.URLSpan toURLSpan(androidx.compose.ui.text.UrlAnnotation urlAnnotation);
+  }
+
+}
+
 package androidx.compose.ui.text.platform.extensions {
 
   public final class TtsAnnotationExtensions_androidKt {
     method public static android.text.style.TtsSpan toSpan(androidx.compose.ui.text.TtsAnnotation);
     method public static android.text.style.TtsSpan toSpan(androidx.compose.ui.text.VerbatimTtsAnnotation);
-  }
-
-  public final class UrlAnnotationExtensions_androidKt {
-    method @androidx.compose.ui.text.ExperimentalTextApi public static android.text.style.URLSpan toSpan(androidx.compose.ui.text.UrlAnnotation);
   }
 
 }
