@@ -25,38 +25,38 @@ package androidx.tv.material3 {
   }
 
   @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselDefaults {
-    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public void IndicatorRow(int slideCount, int activeSlideIndex, optional androidx.compose.ui.Modifier modifier, optional float spacing, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> indicator);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public void IndicatorRow(int itemCount, int activeItemIndex, optional androidx.compose.ui.Modifier modifier, optional float spacing, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> indicator);
     method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransform();
     property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransform;
     field public static final androidx.tv.material3.CarouselDefaults INSTANCE;
-    field public static final long TimeToDisplaySlideMillis = 5000L; // 0x1388L
+    field public static final long TimeToDisplayItemMillis = 5000L; // 0x1388L
+  }
+
+  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselItemDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformEndToStart();
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformLeftToRight();
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformRightToLeft();
+    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformStartToEnd();
+    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformEndToStart;
+    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformLeftToRight;
+    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformRightToLeft;
+    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformStartToEnd;
+    field public static final androidx.tv.material3.CarouselItemDefaults INSTANCE;
   }
 
   public final class CarouselKt {
-    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Carousel(int slideCount, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.CarouselState carouselState, optional long autoScrollDurationMillis, optional androidx.compose.animation.ContentTransform contentTransformForward, optional androidx.compose.animation.ContentTransform contentTransformBackward, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> carouselIndicator, kotlin.jvm.functions.Function2<? super androidx.tv.material3.CarouselScope,? super java.lang.Integer,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public static void Carousel(int itemCount, optional androidx.compose.ui.Modifier modifier, optional androidx.tv.material3.CarouselState carouselState, optional long autoScrollDurationMillis, optional androidx.compose.animation.ContentTransform contentTransformStartToEnd, optional androidx.compose.animation.ContentTransform contentTransformEndToStart, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> carouselIndicator, kotlin.jvm.functions.Function2<? super androidx.tv.material3.CarouselScope,? super java.lang.Integer,kotlin.Unit> content);
   }
 
   @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselScope {
-    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public void CarouselSlide(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> background, optional androidx.compose.animation.ContentTransform contentTransformForward, optional androidx.compose.animation.ContentTransform contentTransformBackward, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-  }
-
-  @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselSlideDefaults {
-    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformBackward();
-    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformForward();
-    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformLeftToRight();
-    method @androidx.compose.runtime.Composable public androidx.compose.animation.ContentTransform getContentTransformRightToLeft();
-    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformBackward;
-    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformForward;
-    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformLeftToRight;
-    property @androidx.compose.runtime.Composable public final androidx.compose.animation.ContentTransform contentTransformRightToLeft;
-    field public static final androidx.tv.material3.CarouselSlideDefaults INSTANCE;
+    method @androidx.compose.runtime.Composable @androidx.tv.material3.ExperimentalTvMaterial3Api public void CarouselItem(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> background, optional androidx.compose.animation.ContentTransform contentTransformStartToEnd, optional androidx.compose.animation.ContentTransform contentTransformEndToStart, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselState {
-    ctor public CarouselState(optional int initialActiveSlideIndex);
-    method public int getActiveSlideIndex();
-    method public androidx.tv.material3.ScrollPauseHandle pauseAutoScroll(int slideIndex);
-    property public final int activeSlideIndex;
+    ctor public CarouselState(optional int initialActiveItemIndex);
+    method public int getActiveItemIndex();
+    method public androidx.tv.material3.ScrollPauseHandle pauseAutoScroll(int itemIndex);
+    property public final int activeItemIndex;
   }
 
   @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class ClickableSurfaceBorder {

@@ -112,22 +112,22 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
 
     val carouselState = remember { CarouselState() }
     Carousel(
-        slideCount = backgrounds.size,
+        itemCount = backgrounds.size,
         carouselState = carouselState,
         modifier = modifier
             .height(300.dp)
             .fillMaxWidth(),
         carouselIndicator = {
             CarouselDefaults.IndicatorRow(
-                slideCount = backgrounds.size,
-                activeSlideIndex = carouselState.activeSlideIndex,
+                itemCount = backgrounds.size,
+                activeItemIndex = carouselState.activeItemIndex,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
             )
         }
     ) { itemIndex ->
-        CarouselSlide(
+        CarouselItem(
             background = {
                 Box(
                     modifier = Modifier
