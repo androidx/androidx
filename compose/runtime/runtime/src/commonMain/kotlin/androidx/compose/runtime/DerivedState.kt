@@ -20,7 +20,6 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.StateObject
 import androidx.compose.runtime.snapshots.StateRecord
@@ -303,39 +302,50 @@ fun <T> derivedStateOf(
     calculation: () -> T,
 ): State<T> = DerivedSnapshotState(calculation, policy)
 
-private typealias DerivedStateObservers = Pair<(DerivedState<*>) -> Unit, (DerivedState<*>) -> Unit>
+/**
+ * Observe the recalculations performed by derived states.
+ */
+internal interface DerivedStateObserver {
+    /**
+     * Called before a calculation starts.
+     */
+    fun start(derivedState: DerivedState<*>)
 
-private val derivedStateObservers = SnapshotThreadLocal<MutableVector<DerivedStateObservers>>()
+    /**
+     * Called after the started calculation is complete.
+     */
+    fun done(derivedState: DerivedState<*>)
+}
+
+private val derivedStateObservers = SnapshotThreadLocal<MutableVector<DerivedStateObserver>>()
+
+internal fun derivedStateObservers(): MutableVector<DerivedStateObserver> =
+    derivedStateObservers.get() ?: MutableVector<DerivedStateObserver>(0).also {
+        derivedStateObservers.set(it)
+    }
 
 private inline fun <R> notifyObservers(derivedState: DerivedState<*>, block: () -> R): R {
-    val observers = derivedStateObservers.get() ?: MutableVector(0)
-    observers.forEach { (start, _) -> start(derivedState) }
+    val observers = derivedStateObservers()
+    observers.forEach { it.start(derivedState) }
     return try {
         block()
     } finally {
-        observers.forEach { (_, done) -> done(derivedState) }
+        observers.forEach { it.done(derivedState) }
     }
 }
 
 /**
  * Observe the recalculations performed by any derived state that is recalculated during the
- * execution of [block]. [start] is called before a calculation starts and [done] is called
- * after the started calculation is complete.
+ * execution of [block].
  *
- * @param start a lambda called before every calculation of a derived state is in [block].
- * @param done a lambda that is called after the state passed to [start] is recalculated.
+ * @param observer called for every calculation of a derived state in the [block].
  * @param block the block of code to observe.
  */
-internal fun <R> observeDerivedStateRecalculations(
-    start: (derivedState: State<*>) -> Unit,
-    done: (derivedState: State<*>) -> Unit,
+internal inline fun <R> observeDerivedStateRecalculations(
+    observer: DerivedStateObserver,
     block: () -> R
 ) {
-    val observers = derivedStateObservers.get() ?: mutableVectorOf<DerivedStateObservers>().also {
-        derivedStateObservers.set(it)
-    }
-
-    val observer = start to done
+    val observers = derivedStateObservers()
     try {
         observers.add(observer)
         block()

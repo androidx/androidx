@@ -18,7 +18,7 @@ package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.AtomicReference
 import androidx.compose.runtime.DerivedState
-import androidx.compose.runtime.State
+import androidx.compose.runtime.DerivedStateObserver
 import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.collection.IdentityArrayIntMap
 import androidx.compose.runtime.collection.IdentityArrayMap
@@ -226,14 +226,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
             isPaused = false
             currentMap = scopeMap
 
-            scopeMap.observe(scope) {
-                observeDerivedStateRecalculations(
-                    start = scopeMap.derivedStateEnterObserver,
-                    done = scopeMap.derivedStateExitObserver
-                ) {
-                    Snapshot.observe(readObserver, null, block)
-                }
-            }
+            scopeMap.observe(scope, readObserver, block)
         } finally {
             currentMap = oldMap
             isPaused = oldPaused
@@ -371,14 +364,17 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         // derived state handling
 
         /**
-         * Start observer for derived state recalculation
+         * Observer for derived state recalculation
          */
-        val derivedStateEnterObserver: (State<*>) -> Unit = { deriveStateScopeCount++ }
+        val derivedStateObserver = object : DerivedStateObserver {
+            override fun start(derivedState: DerivedState<*>) {
+                deriveStateScopeCount++
+            }
 
-        /**
-         * Exit observer for derived state recalculation
-         */
-        val derivedStateExitObserver: (State<*>) -> Unit = { deriveStateScopeCount-- }
+            override fun done(derivedState: DerivedState<*>) {
+                deriveStateScopeCount--
+            }
+        }
 
         /**
          * Counter for skipping reads inside derived states. If count is > 0, read happens inside
@@ -432,7 +428,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         /**
          * Setup new scope for state read observation, observe them, and cleanup afterwards
          */
-        inline fun observe(scope: Any, block: () -> Unit) {
+        fun observe(scope: Any, readObserver: (Any) -> Unit, block: () -> Unit) {
             val previousScope = currentScope
             val previousReads = currentScopeReads
             val previousToken = currentToken
@@ -443,7 +439,9 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
                 currentToken = currentSnapshot().id
             }
 
-            block()
+            observeDerivedStateRecalculations(derivedStateObserver) {
+                Snapshot.observe(readObserver, null, block)
+            }
 
             clearObsoleteStateReads(currentScope!!)
 
