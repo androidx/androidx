@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,7 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.performImeAction
 import androidx.compose.ui.semantics.requestFocus
 import androidx.compose.ui.semantics.semantics
@@ -32,6 +35,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.util.BoundaryNode
 import androidx.compose.ui.test.util.expectErrorMessageStartsWith
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -56,7 +60,9 @@ class TextActionsTest {
     ) {
         val state = remember { mutableStateOf("") }
         BasicTextField(
-            modifier = Modifier.testTag(fieldTag),
+            modifier = Modifier
+                .testTag(fieldTag)
+                .border(0.dp, Color.Black),
             value = state.value,
             keyboardOptions = KeyboardOptions(imeAction = imeAction),
             keyboardActions = keyboardActions,
@@ -82,6 +88,43 @@ class TextActionsTest {
         ) {
             rule.onNodeWithTag("node")
                 .performTextInput("hello")
+        }
+    }
+
+    @Test
+    fun performTextInput_setTextNotSupported_shouldFail() {
+        rule.setContent {
+            BoundaryNode(fieldTag, Modifier.semantics {
+                insertTextAtCursor { true }
+            })
+        }
+
+        expectErrorMessageStartsWith(
+            "Failed to perform text input.\n" +
+                "Failed to assert the following: (SetText is defined)\n" +
+                "Semantics of the node:"
+        ) {
+            rule.onNodeWithTag(fieldTag)
+                .performTextInput("")
+        }
+    }
+
+    @Test
+    fun performTextInput_insertTextAtCursorNotSupported_shouldFail() {
+        rule.setContent {
+            BoundaryNode(fieldTag, Modifier.semantics {
+                setText { true }
+                requestFocus { true }
+            })
+        }
+
+        expectErrorMessageStartsWith(
+            "Failed to perform text input.\n" +
+                "Failed to assert the following: (InsertTextAtCursor is defined)\n" +
+                "Semantics of the node:"
+        ) {
+            rule.onNodeWithTag(fieldTag)
+                .performTextInput("")
         }
     }
 
@@ -199,9 +242,10 @@ class TextActionsTest {
     @Test
     fun performImeAction_actionReturnsFalse_shouldFail() {
         rule.setContent {
-            BoundaryNode(testTag = "node", Modifier.semantics {
+            BoundaryNode(fieldTag, Modifier.semantics {
                 setText { true }
                 requestFocus { true }
+                insertTextAtCursor { true }
                 performImeAction { false }
             })
         }
@@ -210,7 +254,7 @@ class TextActionsTest {
             "Failed to perform IME action, handler returned false.\n" +
                 "Semantics of the node:"
         ) {
-            rule.onNodeWithTag("node")
+            rule.onNodeWithTag(fieldTag)
                 .performImeAction()
         }
     }
@@ -218,7 +262,7 @@ class TextActionsTest {
     @Test
     fun performImeAction_inputNotSupported_shouldFail() {
         rule.setContent {
-            BoundaryNode(testTag = "node")
+            BoundaryNode(fieldTag)
         }
 
         expectErrorMessageStartsWith(
@@ -226,7 +270,7 @@ class TextActionsTest {
                 "Failed to assert the following: (PerformImeAction is defined)\n" +
                 "Semantics of the node:"
         ) {
-            rule.onNodeWithTag("node")
+            rule.onNodeWithTag(fieldTag)
                 .performImeAction()
         }
     }

@@ -61,8 +61,6 @@ actual fun interface PlatformTextInputPlugin<T : PlatformTextInputAdapter> {
  *  [PlatformTextInputPlugin] when they are ready to begin processing text input. Platform APIs will
  *  not be delegated to an adapter unless it holds input focus.
  * - Implement [createInputConnection] to create an [InputConnection] that talks to the IME.
- * - Return a [TextInputForTests] instance from [inputForTests] that implements text operations
- *  defined by the Compose UI testing framework.
  * - Optionally implement [onDisposed] to clean up any resources when the adapter is no longer used
  *  in the composition and will be removed from the [PlatformTextInputPluginRegistry]'s cache.
  *
@@ -73,12 +71,6 @@ actual fun interface PlatformTextInputPlugin<T : PlatformTextInputAdapter> {
 actual interface PlatformTextInputAdapter {
     // TODO(b/267235947) When fleshing out the desktop actual, we might want to pull some of these
     //  members up into the expect interface (e.g. maybe inputForTests).
-
-    /**
-     * The [TextInputForTests] used to inject text editing commands by the testing framework.
-     * This should only be called from tests, never in production.
-     */
-    val inputForTests: TextInputForTests?
 
     /** Delegate for [View.onCreateInputConnection]. */
     fun createInputConnection(outAttrs: EditorInfo): InputConnection?

@@ -132,8 +132,6 @@ class PlatformTextInputViewIntegrationTest {
         val actionLabel = "test connection!"
         val inputConnection = TestInputConnection(view)
 
-        override val inputForTests: TextInputForTests = NoopInputForTests
-
         override fun createInputConnection(outAttrs: EditorInfo): InputConnection {
             outAttrs.actionLabel = actionLabel
             return inputConnection
@@ -146,8 +144,4 @@ class PlatformTextInputViewIntegrationTest {
     }
 
     private class TestInputConnection(view: View) : BaseInputConnection(view, false)
-
-    private object NoopInputForTests : TextInputForTests {
-        override fun inputTextForTest(text: String) = TODO("Not implemented for test")
-    }
 }
