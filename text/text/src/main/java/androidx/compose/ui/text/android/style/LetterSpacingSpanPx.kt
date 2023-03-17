@@ -11,7 +11,7 @@ import androidx.compose.ui.text.android.InternalPlatformTextApi
  * @suppress
  */
 @InternalPlatformTextApi
-class LetterSpacingSpanPx(@Px val letterSpacing: Float) : MetricAffectingSpan() {
+internal class LetterSpacingSpanPx(@Px val letterSpacing: Float) : MetricAffectingSpan() {
     private fun TextPaint.updatePaint() {
         // In framework, 1em letterSpacing equals to textSize * textScaleX pixels.
         val emWidth = textSize * textScaleX

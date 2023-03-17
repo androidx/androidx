@@ -34,6 +34,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlin.math.floor
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(InternalPlatformTextApi::class)
 @SmallTest
 class StaticLayoutFactoryTest {
     private var sampleFont: Typeface? = null

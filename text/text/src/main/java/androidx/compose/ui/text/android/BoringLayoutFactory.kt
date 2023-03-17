@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.text.android
 
+import android.os.Build
 import android.text.BoringLayout
 import android.text.BoringLayout.Metrics
 import android.text.Layout.Alignment
@@ -88,7 +89,7 @@ internal object BoringLayoutFactory {
         require(width >= 0)
         require(ellipsizedWidth >= 0)
 
-        return if (BuildCompat.isAtLeastT()) {
+        return if (Build.VERSION.SDK_INT >= 33) {
             BoringLayoutFactory33.create(
                 text,
                 paint,
@@ -162,7 +163,7 @@ private object BoringLayoutFactory33 {
         ellipsize: TruncateAt? = null,
         ellipsizedWidth: Int = width
     ): BoringLayout {
-        return BoringLayoutConstructor33.create(
+        return BoringLayout(
             text,
             paint,
             width,
