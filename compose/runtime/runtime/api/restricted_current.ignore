@@ -3,3 +3,7 @@ AddedAbstractMethod: androidx.compose.runtime.Composer#getCurrentCompositionLoca
     Added method androidx.compose.runtime.Composer.getCurrentCompositionLocalMap()
 AddedAbstractMethod: androidx.compose.runtime.CompositionContext#getEffectCoroutineContext():
     Added method androidx.compose.runtime.CompositionContext.getEffectCoroutineContext()
+
+
+RemovedClass: androidx.compose.runtime.SnapshotStateKt:
+    Removed class androidx.compose.runtime.SnapshotStateKt
