@@ -82,6 +82,7 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsMatcher hasContentDescription(String value, optional boolean substring, optional boolean ignoreCase);
     method public static androidx.compose.ui.test.SemanticsMatcher hasContentDescriptionExactly(java.lang.String... values);
     method public static androidx.compose.ui.test.SemanticsMatcher hasImeAction(int actionType);
+    method public static androidx.compose.ui.test.SemanticsMatcher hasInsertTextAtCursorAction();
     method public static androidx.compose.ui.test.SemanticsMatcher hasNoClickAction();
     method public static androidx.compose.ui.test.SemanticsMatcher hasNoScrollAction();
     method public static androidx.compose.ui.test.SemanticsMatcher hasParent(androidx.compose.ui.test.SemanticsMatcher matcher);
@@ -436,7 +437,6 @@ package androidx.compose.ui.test {
   @androidx.compose.ui.test.InternalTestApi public interface TestOwner {
     method public androidx.compose.ui.test.MainTestClock getMainClock();
     method public java.util.Set<androidx.compose.ui.node.RootForTest> getRoots(boolean atLeastOneRootExpected);
-    method public void performTextInput(androidx.compose.ui.semantics.SemanticsNode node, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.input.TextInputForTests,kotlin.Unit> action);
     method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     property public abstract androidx.compose.ui.test.MainTestClock mainClock;
   }

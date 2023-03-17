@@ -19,7 +19,6 @@ package androidx.compose.ui.test
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.getAllSemanticsNodes
-import androidx.compose.ui.text.input.TextInputForTests
 
 /**
  * Provides necessary services to facilitate testing.
@@ -32,12 +31,6 @@ interface TestOwner {
      * Clock that drives frames and recompositions in compose tests.
      */
     val mainClock: MainTestClock
-
-    /**
-     * Runs [action] on the main thread to perform text input via the [TextInputForTests] for the
-     * active text input service for the given semantics node.
-     */
-    fun performTextInput(node: SemanticsNode, action: TextInputForTests.() -> Unit)
 
     /**
      * Runs the given [action] on the ui thread.
