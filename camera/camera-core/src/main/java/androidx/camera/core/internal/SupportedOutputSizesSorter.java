@@ -65,7 +65,7 @@ import java.util.Map;
  * </ul>
  */
 @RequiresApi(21)
-public class SupportedOutputSizesSorter {
+class SupportedOutputSizesSorter {
     private static final String TAG = "SupportedOutputSizesCollector";
     private final CameraInfoInternal mCameraInfoInternal;
     private final int mSensorOrientation;
@@ -74,7 +74,7 @@ public class SupportedOutputSizesSorter {
     private final boolean mIsSensorLandscapeResolution;
     private final SupportedOutputSizesSorterLegacy mSupportedOutputSizesSorterLegacy;
 
-    public SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal) {
+    SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal) {
         mCameraInfoInternal = cameraInfoInternal;
         mSensorOrientation = mCameraInfoInternal.getSensorRotationDegrees();
         mLensFacing = mCameraInfoInternal.getLensFacing();
@@ -111,7 +111,7 @@ public class SupportedOutputSizesSorter {
      * will be sorted according to the legacy resolution API settings and logic.
      */
     @NonNull
-    public List<Size> getSortedSupportedOutputSizes(@NonNull UseCaseConfig<?> useCaseConfig) {
+    List<Size> getSortedSupportedOutputSizes(@NonNull UseCaseConfig<?> useCaseConfig) {
         ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCaseConfig;
         List<Size> customOrderedResolutions = imageOutputConfig.getCustomOrderedResolutions(null);
 
