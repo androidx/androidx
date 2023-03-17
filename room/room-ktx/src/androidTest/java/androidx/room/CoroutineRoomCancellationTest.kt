@@ -18,10 +18,10 @@ package androidx.room
 
 import android.database.sqlite.SQLiteException
 import android.os.CancellationSignal
+import androidx.kruth.assertThat
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,7 +32,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
-import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import java.util.concurrent.Callable
@@ -135,7 +134,7 @@ class CoroutineRoomCancellationTest {
                     }
                 )
             } catch (exception: Throwable) {
-                assertTrue(exception is SQLiteException)
+                assertThat(exception).isInstanceOf<SQLiteException>()
             }
         }
 
