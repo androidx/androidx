@@ -472,6 +472,13 @@ internal class SlotTable : CompositionData, Iterable<CompositionGroup> {
             }
         }
 
+        // Verify that slot gap contains all nulls
+        for (index in slotsSize until slots.size) {
+            check(slots[index] == null) {
+                "Non null value in the slot gap at index $index"
+            }
+        }
+
         // Verify anchors are well-formed
         var lastLocation = -1
         anchors.fastForEach { anchor ->
@@ -1332,6 +1339,7 @@ internal class SlotWriter(
             // Only reset the writer if it closes normally.
             moveGroupGapTo(size)
             moveSlotGapTo(slots.size - slotsGapLen, groupGapStart)
+            clearSlotGap()
             recalculateMarks()
         }
         table.close(
@@ -2495,9 +2503,6 @@ internal class SlotWriter(
                     endIndex = index + gapLen
                 )
             }
-
-            // Clear the gap in the data array
-            slots.fill(null, index, index + gapLen)
         }
 
         // Update the data anchors affected by the move
@@ -2533,6 +2538,12 @@ internal class SlotWriter(
             this.slotsGapOwner = newSlotsGapOwner
         }
         this.slotsGapStart = index
+    }
+
+    private fun clearSlotGap() {
+        val slotsGapStart = slotsGapStart
+        val slotsGapEnd = slotsGapStart + slotsGapLen
+        slots.fill(null, slotsGapStart, slotsGapEnd)
     }
 
     /**
