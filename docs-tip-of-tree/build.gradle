@@ -23,6 +23,7 @@ dependencies {
     docs(project(":appactions:interaction:interaction-capabilities-productivity"))
     docs(project(":appactions:interaction:interaction-capabilities-safety"))
     docs(project(":appactions:interaction:interaction-capabilities-fitness"))
+    docs(project(":appactions:interaction:interaction-capabilities-testing"))
     docs(project(":appactions:interaction:interaction-proto"))
     docs(project(":appactions:interaction:interaction-service"))
     docs(project(":appactions:interaction:interaction-service-proto"))
