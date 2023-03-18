@@ -23,8 +23,8 @@ import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.EnumProperty
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.Call
 import androidx.appactions.interaction.capabilities.core.values.Call.CallFormat
@@ -43,11 +43,16 @@ private val ACTION_SPEC =
         .setDescriptor(CreateCall.Property::class.java)
         .setArgument(CreateCall.Argument::class.java, CreateCall.Argument::Builder)
         .setOutput(CreateCall.Output::class.java)
-        .bindOptionalEnumParameter(
+        .bindOptionalGenericParameter(
             "call.callFormat",
-            CallFormat::class.java,
             { property -> Optional.ofNullable(property.callFormat) },
-            CreateCall.Argument.Builder::setCallFormat
+            CreateCall.Argument.Builder::setCallFormat,
+            TypeConverters::toCallFormat,
+            {
+                androidx.appactions.interaction.proto.Entity.newBuilder()
+                    .setIdentifier(it.toString())
+                    .build()
+            },
         )
         .bindRepeatedStructParameter(
             "call.participant",
@@ -72,7 +77,7 @@ class CreateCall private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
             CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
-            >(ACTION_SPEC) {
+        >(ACTION_SPEC) {
         override fun build(): ActionCapability {
             super.setProperty(Property.Builder().build())
             // TODO(b/268369632): No-op remove empty property builder after Property is removed.
@@ -82,8 +87,9 @@ class CreateCall private constructor() {
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor(
-        val callFormat: EnumProperty<CallFormat>?,
+    class Property
+    internal constructor(
+        val callFormat: TypeProperty<CallFormat>?,
         val participant: SimpleProperty?
     ) {
         override fun toString(): String {
@@ -109,24 +115,20 @@ class CreateCall private constructor() {
         }
 
         class Builder {
-            private var callFormat: EnumProperty<CallFormat>? = null
+            private var callFormat: TypeProperty<CallFormat>? = null
 
             private var participant: SimpleProperty? = null
 
-            fun setDuration(callFormat: EnumProperty<CallFormat>): Builder =
-                apply { this.callFormat = callFormat }
-
-            fun setCheckInTime(participant: SimpleProperty): Builder =
-                apply { this.participant = participant }
+            fun setCallFormat(callFormat: TypeProperty<CallFormat>): Builder = apply {
+                this.callFormat = callFormat
+            }
 
             fun build(): Property = Property(callFormat, participant)
         }
     }
 
-    class Argument internal constructor(
-        val callFormat: CallFormat?,
-        val participantList: List<Participant>
-    ) {
+    class Argument
+    internal constructor(val callFormat: CallFormat?, val participantList: List<Participant>) {
         override fun toString(): String {
             return "Argument(callFormat=$callFormat, participantList=$participantList)"
         }
@@ -153,20 +155,19 @@ class CreateCall private constructor() {
             private var callFormat: CallFormat? = null
             private var participantList: List<Participant> = mutableListOf()
 
-            fun setCallFormat(callFormat: CallFormat): Builder =
-                apply { this.callFormat = callFormat }
+            fun setCallFormat(callFormat: CallFormat): Builder = apply {
+                this.callFormat = callFormat
+            }
 
-            fun setParticipantList(participantList: List<Participant>): Builder =
-                apply { this.participantList = participantList }
+            fun setParticipantList(participantList: List<Participant>): Builder = apply {
+                this.participantList = participantList
+            }
 
             override fun build(): Argument = Argument(callFormat, participantList)
         }
     }
 
-    class Output internal constructor(
-        val call: Call?,
-        val executionStatus: ExecutionStatus?
-    ) {
+    class Output internal constructor(val call: Call?, val executionStatus: ExecutionStatus?) {
         override fun toString(): String {
             return "Output(call=$call, executionStatus=$executionStatus)"
         }
@@ -193,9 +194,7 @@ class CreateCall private constructor() {
             private var call: Call? = null
             private var executionStatus: ExecutionStatus? = null
 
-            fun setCall(call: Call): Builder = apply {
-                this.call = call
-            }
+            fun setCall(call: Call): Builder = apply { this.call = call }
 
             fun setExecutionStatus(executionStatus: ExecutionStatus): Builder = apply {
                 this.executionStatus = executionStatus
@@ -228,9 +227,7 @@ class CreateCall private constructor() {
             val value: Value = Value.newBuilder().setStringValue(status).build()
             return ParamValue.newBuilder()
                 .setStructValue(
-                    Struct.newBuilder()
-                        .putFields(TypeConverters.FIELD_NAME_TYPE, value)
-                        .build()
+                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build()
                 )
                 .build()
         }

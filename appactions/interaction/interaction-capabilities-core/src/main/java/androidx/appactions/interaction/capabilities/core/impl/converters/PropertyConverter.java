@@ -19,9 +19,6 @@ package androidx.appactions.interaction.capabilities.core.impl.converters;
 import static androidx.appactions.interaction.capabilities.core.impl.utils.ImmutableCollectors.toImmutableList;
 
 import androidx.annotation.NonNull;
-import androidx.appactions.interaction.capabilities.core.properties.EntityProperty;
-import androidx.appactions.interaction.capabilities.core.properties.EnumProperty;
-import androidx.appactions.interaction.capabilities.core.properties.IntegerProperty;
 import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
@@ -46,33 +43,6 @@ public final class PropertyConverter {
         extractPossibleValues(property, PropertyConverter::possibleValueToProto).stream()
                 .forEach(builder::addPossibleEntities);
         return builder.build();
-    }
-
-    /** Create IntentParameter proto from a EntityProperty. */
-    @NonNull
-    public static IntentParameter getIntentParameter(
-            @NonNull String paramName, @NonNull EntityProperty property) {
-        IntentParameter.Builder builder = newIntentParameterBuilder(paramName, property);
-        extractPossibleValues(property, PropertyConverter::entityToProto).stream()
-                .forEach(builder::addPossibleEntities);
-        return builder.build();
-    }
-
-    /** Create IntentParameter proto from a EnumProperty. */
-    @NonNull
-    public static <EnumT extends Enum<EnumT>> IntentParameter getIntentParameter(
-            @NonNull String paramName, @NonNull EnumProperty<EnumT> property) {
-        IntentParameter.Builder builder = newIntentParameterBuilder(paramName, property);
-        extractPossibleValues(property, PropertyConverter::enumToProto).stream()
-                .forEach(builder::addPossibleEntities);
-        return builder.build();
-    }
-
-    /** Create IntentParameter proto from a IntegerProperty. */
-    @NonNull
-    public static IntentParameter getIntentParameter(
-            @NonNull String paramName, @NonNull IntegerProperty property) {
-        return newIntentParameterBuilder(paramName, property).build();
     }
 
     /** Create IntentParameter proto from a SimpleProperty. */
@@ -131,13 +101,6 @@ public final class PropertyConverter {
                 .setIdentifier(possibleValue.getName())
                 .setName(possibleValue.getName())
                 .addAllAlternateNames(possibleValue.getAlternateNames())
-                .build();
-    }
-
-    @NonNull
-    public static <EnumT extends Enum<EnumT>> Entity enumToProto(EnumT enumValue) {
-        return androidx.appactions.interaction.proto.Entity.newBuilder()
-                .setIdentifier(enumValue.toString())
                 .build();
     }
 }

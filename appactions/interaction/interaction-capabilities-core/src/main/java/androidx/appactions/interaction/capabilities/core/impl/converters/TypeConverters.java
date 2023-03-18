@@ -168,6 +168,22 @@ public final class TypeConverters {
      * @return
      */
     @NonNull
+    public static Call.CallFormat toCallFormat(@NonNull ParamValue paramValue)
+            throws StructConversionException {
+        String identifier = paramValue.getIdentifier();
+        if (identifier.equals(Call.CallFormat.AUDIO.toString())) {
+            return Call.CallFormat.AUDIO;
+        } else if (identifier.equals(Call.CallFormat.VIDEO.toString())) {
+            return Call.CallFormat.VIDEO;
+        }
+        throw new StructConversionException(String.format("Unknown enum format '%s'.", identifier));
+    }
+
+    /**
+     * @param paramValue
+     * @return
+     */
+    @NonNull
     public static EntityValue toEntityValue(@NonNull ParamValue paramValue) {
         EntityValue.Builder value = EntityValue.newBuilder();
         if (paramValue.hasIdentifier()) {

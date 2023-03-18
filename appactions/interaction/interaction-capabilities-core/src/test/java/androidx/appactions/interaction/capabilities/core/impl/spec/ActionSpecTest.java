@@ -23,8 +23,6 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
-import androidx.appactions.interaction.capabilities.core.properties.EntityProperty;
-import androidx.appactions.interaction.capabilities.core.properties.EnumProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output;
@@ -61,11 +59,6 @@ public final class ActionSpecTest {
                             "optionalEntity",
                             Property::optionalEntityField,
                             Argument.Builder::setOptionalEntityField)
-                    .bindOptionalEnumParameter(
-                            "optionalEnum",
-                            TestEnum.class,
-                            Property::optionalEnumField,
-                            Argument.Builder::setOptionalEnumField)
                     .bindRepeatedEntityParameter(
                             "repeatedEntity",
                             Property::repeatedEntityField,
@@ -183,7 +176,7 @@ public final class ActionSpecTest {
     public void getAppAction_onlyRequiredProperty() {
         Property property =
                 Property.create(
-                        new EntityProperty.Builder()
+                        new TypeProperty.Builder<Entity>()
                                 .addPossibleEntities(
                                         new Entity.Builder()
                                                 .setId("contact_2")
@@ -218,7 +211,7 @@ public final class ActionSpecTest {
     public void getAppAction_allProperties() {
         Property property =
                 Property.create(
-                        new EntityProperty.Builder()
+                        new TypeProperty.Builder<Entity>()
                                 .addPossibleEntities(
                                         new Entity.Builder()
                                                 .setId("contact_2")
@@ -227,7 +220,7 @@ public final class ActionSpecTest {
                                                 .build())
                                 .build(),
                         Optional.of(
-                                new EntityProperty.Builder()
+                                new TypeProperty.Builder<Entity>()
                                         .addPossibleEntities(
                                                 new Entity.Builder()
                                                         .setId("entity1")
@@ -236,12 +229,12 @@ public final class ActionSpecTest {
                                         .setRequired(true)
                                         .build()),
                         Optional.of(
-                                new EnumProperty.Builder<TestEnum>(TestEnum.class)
-                                        .addSupportedEnumValues(TestEnum.VALUE_1)
+                                new TypeProperty.Builder<TestEnum>()
+                                        .addPossibleEntities(TestEnum.VALUE_1)
                                         .setRequired(true)
                                         .build()),
                         Optional.of(
-                                new EntityProperty.Builder()
+                                new TypeProperty.Builder<Entity>()
                                         .addPossibleEntities(
                                                 new Entity.Builder()
                                                         .setId("entity1")
@@ -289,17 +282,6 @@ public final class ActionSpecTest {
                                                                 .build())
                                                 .setIsRequired(true)
                                                 .setEntityMatchRequired(false))
-                                .addParams(
-                                        IntentParameter.newBuilder()
-                                                .setName("optionalEnum")
-                                                .addPossibleEntities(
-                                                        androidx.appactions.interaction.proto.Entity
-                                                                .newBuilder()
-                                                                .setIdentifier(
-                                                                        TestEnum.VALUE_1.toString())
-                                                                .build())
-                                                .setIsRequired(true)
-                                                .setEntityMatchRequired(true))
                                 .addParams(
                                         IntentParameter.newBuilder()
                                                 .setName("repeatedEntity")
@@ -416,8 +398,6 @@ public final class ActionSpecTest {
 
         abstract EntityValue optionalEntityField();
 
-        abstract TestEnum optionalEnumField();
-
         abstract List<EntityValue> repeatedEntityField();
 
         abstract String requiredStringField();
@@ -432,8 +412,6 @@ public final class ActionSpecTest {
             abstract Builder setRequiredEntityField(EntityValue value);
 
             abstract Builder setOptionalEntityField(EntityValue value);
-
-            abstract Builder setOptionalEnumField(TestEnum value);
 
             abstract Builder setRepeatedEntityField(List<EntityValue> repeated);
 
@@ -453,10 +431,10 @@ public final class ActionSpecTest {
     abstract static class Property {
 
         static Property create(
-                EntityProperty requiredEntityField,
-                Optional<EntityProperty> optionalEntityField,
-                Optional<EnumProperty<TestEnum>> optionalEnumField,
-                Optional<EntityProperty> repeatedEntityField,
+                TypeProperty<Entity> requiredEntityField,
+                Optional<TypeProperty<Entity>> optionalEntityField,
+                Optional<TypeProperty<TestEnum>> optionalEnumField,
+                Optional<TypeProperty<Entity>> repeatedEntityField,
                 StringProperty requiredStringField,
                 Optional<StringProperty> optionalStringField,
                 Optional<StringProperty> repeatedStringField) {
@@ -471,7 +449,7 @@ public final class ActionSpecTest {
         }
 
         static Property create(
-                EntityProperty requiredEntityField, StringProperty requiredStringField) {
+                TypeProperty<Entity> requiredEntityField, StringProperty requiredStringField) {
             return create(
                     requiredEntityField,
                     Optional.empty(),
@@ -482,13 +460,13 @@ public final class ActionSpecTest {
                     Optional.empty());
         }
 
-        abstract EntityProperty requiredEntityField();
+        abstract TypeProperty<Entity> requiredEntityField();
 
-        abstract Optional<EntityProperty> optionalEntityField();
+        abstract Optional<TypeProperty<Entity>> optionalEntityField();
 
-        abstract Optional<EnumProperty<TestEnum>> optionalEnumField();
+        abstract Optional<TypeProperty<TestEnum>> optionalEnumField();
 
-        abstract Optional<EntityProperty> repeatedEntityField();
+        abstract Optional<TypeProperty<Entity>> repeatedEntityField();
 
         abstract StringProperty requiredStringField();
 
