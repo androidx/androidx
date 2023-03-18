@@ -67,7 +67,6 @@ public class CreateEntryJavaTest {
         CreateEntry entry = constructEntryWithRequiredParams();
 
         assertNotNull(entry);
-        assertNotNull(entry.getSlice());
         assertEntryWithRequiredParams(entry);
         assertNull(entry.getIcon());
         assertNull(entry.getLastUsedTime());
@@ -84,7 +83,6 @@ public class CreateEntryJavaTest {
         CreateEntry entry = constructEntryWithAllParams();
 
         assertNotNull(entry);
-        assertNotNull(entry.getSlice());
         assertEntryWithAllParams(entry);
     }
 
@@ -127,7 +125,7 @@ public class CreateEntryJavaTest {
         CreateEntry originalEntry = constructEntryWithRequiredParams();
 
         CreateEntry entry = CreateEntry.fromSlice(
-                originalEntry.getSlice());
+                CreateEntry.toSlice(originalEntry));
 
         assertNotNull(entry);
         assertEntryWithRequiredParams(entry);
@@ -141,7 +139,7 @@ public class CreateEntryJavaTest {
         CreateEntry originalEntry = constructEntryWithAllParams();
 
         CreateEntry entry = CreateEntry.fromSlice(
-                originalEntry.getSlice());
+                CreateEntry.toSlice(originalEntry));
 
         assertNotNull(entry);
         assertEntryWithAllParams(entry);

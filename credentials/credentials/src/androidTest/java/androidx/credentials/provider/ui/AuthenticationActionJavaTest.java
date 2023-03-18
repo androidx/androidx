@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
 import android.app.PendingIntent;
+import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 
@@ -71,8 +72,9 @@ public class AuthenticationActionJavaTest {
             return;
         }
         AuthenticationAction originalAction = new AuthenticationAction(TITLE, mPendingIntent);
+        Slice slice = AuthenticationAction.toSlice(originalAction);
 
-        AuthenticationAction fromSlice = AuthenticationAction.fromSlice(originalAction.getSlice());
+        AuthenticationAction fromSlice = AuthenticationAction.fromSlice(slice);
 
         assertNotNull(fromSlice);
         assertThat(fromSlice.getPendingIntent()).isEqualTo(mPendingIntent);

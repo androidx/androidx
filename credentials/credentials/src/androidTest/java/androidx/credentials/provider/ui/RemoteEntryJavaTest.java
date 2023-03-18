@@ -53,7 +53,6 @@ public class RemoteEntryJavaTest {
         RemoteEntry entry = new RemoteEntry(mPendingIntent);
 
         assertNotNull(entry);
-        assertNotNull(entry.getSlice());
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
     }
 
@@ -74,7 +73,7 @@ public class RemoteEntryJavaTest {
         }
         RemoteEntry originalEntry = new RemoteEntry(mPendingIntent);
 
-        RemoteEntry fromSlice = RemoteEntry.fromSlice(originalEntry.getSlice());
+        RemoteEntry fromSlice = RemoteEntry.fromSlice(RemoteEntry.toSlice(originalEntry));
 
         assertThat(fromSlice).isNotNull();
         assertThat(fromSlice.getPendingIntent()).isEqualTo(mPendingIntent);

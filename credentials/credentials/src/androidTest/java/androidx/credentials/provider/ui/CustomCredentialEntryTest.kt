@@ -21,7 +21,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
-import android.service.credentials.BeginGetCredentialOption
+import androidx.credentials.provider.BeginGetCredentialOption
 import androidx.core.os.BuildCompat
 import androidx.credentials.R
 import androidx.credentials.equals

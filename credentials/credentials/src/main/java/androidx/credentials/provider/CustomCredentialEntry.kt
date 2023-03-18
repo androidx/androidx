@@ -23,11 +23,7 @@ import android.content.Context
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
-import android.service.credentials.BeginGetCredentialOption
 import android.util.Log
-import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.CredentialOption
@@ -56,9 +52,9 @@ import java.util.Collections
  * to true does not guarantee this behavior. The developer must also set this
  * to true, and the framework must determine that only one entry is present
  */
-@RequiresApi(34)
+@RequiresApi(28)
 class CustomCredentialEntry internal constructor(
-    type: String,
+    override val type: String,
     val title: CharSequence,
     val pendingIntent: PendingIntent,
     @get:Suppress("AutoBoxing")
@@ -72,7 +68,8 @@ class CustomCredentialEntry internal constructor(
     val autoSelectAllowedFromOption: Boolean = false,
     /** @hide */
     val isDefaultIcon: Boolean = false
-    ) : android.service.credentials.CredentialEntry(
+) : CredentialEntry(
+    type,
     beginGetCredentialOption,
     toSlice(
         type,
@@ -90,6 +87,7 @@ class CustomCredentialEntry internal constructor(
         require(type.isNotEmpty()) { "type must not be empty" }
         require(title.isNotEmpty()) { "title must not be empty" }
     }
+
     constructor(
         context: Context,
         title: CharSequence,
@@ -113,56 +111,60 @@ class CustomCredentialEntry internal constructor(
         beginGetCredentialOption
     )
 
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-    }
-
+    /** @hide **/
     @Suppress("AcronymName")
-    @RequiresApi(34)
     companion object {
         private const val TAG = "CredentialEntry"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_TYPE_DISPLAY_NAME =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_TITLE =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_USER_NAME"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_SUBTITLE =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_ICON =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_PROFILE_ICON"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_OPTION_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_DEFAULT_ICON_RES_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_TRUE_STRING = "true"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_FALSE_STRING = "false"
 
         /** @hide */
         @JvmStatic
-        internal fun toSlice(
+        fun toSlice(
             type: String,
             title: CharSequence,
             subtitle: CharSequence?,
@@ -179,23 +181,36 @@ class CustomCredentialEntry internal constructor(
             } else {
                 AUTO_SELECT_FALSE_STRING
             }
-            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(
-                type, 1))
-                .addText(typeDisplayName, /*subType=*/null,
-                    listOf(SLICE_HINT_TYPE_DISPLAY_NAME))
-                .addText(title, /*subType=*/null,
-                    listOf(SLICE_HINT_TITLE))
-                .addText(subtitle, /*subType=*/null,
-                    listOf(SLICE_HINT_SUBTITLE))
-                .addText(autoSelectAllowed, /*subType=*/null,
-                    listOf(SLICE_HINT_AUTO_ALLOWED))
+            val sliceBuilder = Slice.Builder(
+                Uri.EMPTY, SliceSpec(
+                    type, 1
+                )
+            )
+                .addText(
+                    typeDisplayName, /*subType=*/null,
+                    listOf(SLICE_HINT_TYPE_DISPLAY_NAME)
+                )
+                .addText(
+                    title, /*subType=*/null,
+                    listOf(SLICE_HINT_TITLE)
+                )
+                .addText(
+                    subtitle, /*subType=*/null,
+                    listOf(SLICE_HINT_SUBTITLE)
+                )
+                .addText(
+                    autoSelectAllowed, /*subType=*/null,
+                    listOf(SLICE_HINT_AUTO_ALLOWED)
+                )
                 .addText(
                     beginGetCredentialOption.id,
                     /*subType=*/null,
                     listOf(SLICE_HINT_OPTION_ID)
                 )
-                .addIcon(icon, /*subType=*/null,
-                    listOf(SLICE_HINT_ICON))
+                .addIcon(
+                    icon, /*subType=*/null,
+                    listOf(SLICE_HINT_ICON)
+                )
 
             try {
                 if (icon.resId == R.drawable.ic_other_sign_in) {
@@ -205,10 +220,13 @@ class CustomCredentialEntry internal constructor(
                         listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
                     )
                 }
-            } catch (_: IllegalStateException) {}
+            } catch (_: IllegalStateException) {
+            }
 
             if (CredentialOption.extractAutoSelectValue(
-                    beginGetCredentialOption.candidateQueryData)) {
+                    beginGetCredentialOption.candidateQueryData
+                )
+            ) {
                 sliceBuilder.addInt(
                     /*true=*/1,
                     /*subType=*/null,
@@ -216,15 +234,19 @@ class CustomCredentialEntry internal constructor(
                 )
             }
             if (lastUsedTime != null) {
-                sliceBuilder.addLong(lastUsedTime.toEpochMilli(),
+                sliceBuilder.addLong(
+                    lastUsedTime.toEpochMilli(),
                     /*subType=*/null,
-                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS))
+                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS)
+                )
             }
-            sliceBuilder.addAction(pendingIntent,
+            sliceBuilder.addAction(
+                pendingIntent,
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
-                /*subType=*/null)
+                /*subType=*/null
+            )
             return sliceBuilder.build()
         }
 
@@ -298,20 +320,6 @@ class CustomCredentialEntry internal constructor(
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
-            }
-        }
-
-        @JvmField val CREATOR: Parcelable.Creator<CustomCredentialEntry> = object :
-            Parcelable.Creator<CustomCredentialEntry> {
-            override fun createFromParcel(p0: Parcel?): CustomCredentialEntry? {
-                val baseEntry =
-                    android.service.credentials.CredentialEntry.CREATOR.createFromParcel(p0)
-                return fromSlice(baseEntry.slice)
-            }
-
-            @Suppress("ArrayReturn")
-            override fun newArray(size: Int): Array<CustomCredentialEntry?> {
-                return arrayOfNulls(size)
             }
         }
     }

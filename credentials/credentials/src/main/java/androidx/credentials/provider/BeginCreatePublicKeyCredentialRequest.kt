@@ -19,12 +19,7 @@ package androidx.credentials.provider
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
-import android.service.credentials.BeginCreateCredentialRequest
 import android.service.credentials.CallingAppInfo
-import androidx.annotation.NonNull
-import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CreatePublicKeyCredentialRequest.Companion.BUNDLE_KEY_REQUEST_JSON
 import androidx.credentials.PublicKeyCredential
@@ -48,7 +43,6 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-@RequiresApi(34)
 class BeginCreatePublicKeyCredentialRequest constructor(
     val json: String,
     callingAppInfo: CallingAppInfo?,
@@ -65,14 +59,7 @@ class BeginCreatePublicKeyCredentialRequest constructor(
         require(json.isNotEmpty()) { "json must not be empty" }
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-    }
-
+    /** @hide **/
     @Suppress("AcronymName")
     companion object {
         /** @hide */
@@ -107,18 +94,5 @@ class BeginCreatePublicKeyCredentialRequest constructor(
                 throw FrameworkClassParsingException()
             }
         }
-
-        @JvmField val CREATOR: Parcelable.Creator<BeginCreatePublicKeyCredentialRequest> = object :
-            Parcelable.Creator<BeginCreatePublicKeyCredentialRequest> {
-                override fun createFromParcel(p0: Parcel?): BeginCreatePublicKeyCredentialRequest {
-                    val baseRequest = BeginCreateCredentialRequest.CREATOR.createFromParcel(p0)
-                    return createFrom(baseRequest.data, baseRequest.callingAppInfo)
-                }
-
-                @Suppress("ArrayReturn")
-                override fun newArray(size: Int): Array<BeginCreatePublicKeyCredentialRequest?> {
-                    return arrayOfNulls(size)
-                }
-            }
     }
 }

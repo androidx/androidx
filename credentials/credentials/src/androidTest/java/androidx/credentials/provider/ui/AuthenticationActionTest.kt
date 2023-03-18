@@ -54,8 +54,9 @@ class AuthenticationActionTest {
             return
         }
         val originalAction = AuthenticationAction(TITLE, mPendingIntent)
+        val slice = AuthenticationAction.toSlice(originalAction)
 
-        val fromSlice = fromSlice(originalAction.slice)
+        val fromSlice = fromSlice(slice)
 
         assertNotNull(fromSlice)
         fromSlice?.let {

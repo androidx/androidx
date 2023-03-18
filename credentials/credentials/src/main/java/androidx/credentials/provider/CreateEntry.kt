@@ -22,10 +22,7 @@ import android.app.slice.SliceSpec
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.Log
-import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.CredentialManager
@@ -44,7 +41,6 @@ import java.util.Collections
  *
  * @throws IllegalArgumentException If [accountName] is empty
  */
-@RequiresApi(34)
 class CreateEntry internal constructor(
     val accountName: CharSequence,
     val pendingIntent: PendingIntent,
@@ -52,14 +48,6 @@ class CreateEntry internal constructor(
     val description: CharSequence?,
     val lastUsedTime: Instant?,
     private val credentialCountInformationMap: MutableMap<String, Int?>
-    ) : android.service.credentials.CreateEntry(
-    toSlice(
-        accountName,
-        icon,
-        description,
-        lastUsedTime,
-        credentialCountInformationMap,
-        pendingIntent)
 ) {
 
     /**
@@ -134,14 +122,6 @@ class CreateEntry internal constructor(
     @Suppress("AutoBoxing")
     fun getTotalCredentialCount(): Int? {
         return credentialCountInformationMap[TYPE_TOTAL_CREDENTIAL]
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
     }
 
     /**
@@ -248,15 +228,19 @@ class CreateEntry internal constructor(
         }
     }
 
+    /** @hide **/
     @Suppress("AcronymName")
     companion object {
         private const val TAG = "CreateEntry"
         private const val DESCRIPTION_MAX_CHAR_LIMIT = 300
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val TYPE_TOTAL_CREDENTIAL = "TOTAL_CREDENTIAL_COUNT_TYPE"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_ACCOUNT_NAME =
             "androidx.credentials.provider.createEntry.SLICE_HINT_USER_PROVIDER_ACCOUNT_NAME"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_NOTE =
             "androidx.credentials.provider.createEntry.SLICE_HINT_NOTE"
@@ -278,15 +262,17 @@ class CreateEntry internal constructor(
             "androidx.credentials.provider.createEntry.SLICE_HINT_PENDING_INTENT"
 
         /** @hide **/
+        @RequiresApi(28)
         @JvmStatic
         fun toSlice(
-            accountName: CharSequence,
-            icon: Icon?,
-            description: CharSequence?,
-            lastUsedTime: Instant?,
-            credentialCountInformationMap: Map<String, Int?>,
-            pendingIntent: PendingIntent
+            createEntry: CreateEntry
         ): Slice {
+            val accountName = createEntry.accountName
+            val icon = createEntry.icon
+            val description = createEntry.description
+            val lastUsedTime = createEntry.lastUsedTime
+            val credentialCountInformationMap = createEntry.credentialCountInformationMap
+            val pendingIntent = createEntry.pendingIntent
             // TODO("Use the right type and revision")
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
             sliceBuilder.addText(
@@ -296,11 +282,15 @@ class CreateEntry internal constructor(
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(
                     lastUsedTime.toEpochMilli(), /*subType=*/null, listOf(
-                        SLICE_HINT_LAST_USED_TIME_MILLIS))
+                        SLICE_HINT_LAST_USED_TIME_MILLIS
+                    )
+                )
             }
             if (description != null) {
-                sliceBuilder.addText(description, null,
-                    listOf(SLICE_HINT_NOTE))
+                sliceBuilder.addText(
+                    description, null,
+                    listOf(SLICE_HINT_NOTE)
+                )
             }
             if (icon != null) {
                 sliceBuilder.addIcon(
@@ -337,6 +327,7 @@ class CreateEntry internal constructor(
          *
          * @hide
          */
+        @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): CreateEntry? {
@@ -410,19 +401,5 @@ class CreateEntry internal constructor(
             }
             return bundle
         }
-
-        @JvmField val CREATOR: Parcelable.Creator<CreateEntry> =
-            object : Parcelable.Creator<CreateEntry> {
-                override fun createFromParcel(p0: Parcel?): CreateEntry? {
-                    val createEntry = android.service.credentials.CreateEntry
-                        .CREATOR.createFromParcel(p0)
-                    return fromSlice(createEntry.slice)
-                }
-
-                @Suppress("ArrayReturn")
-                override fun newArray(size: Int): Array<CreateEntry?> {
-                    return arrayOfNulls(size)
-                }
-            }
     }
-    }
+}

@@ -27,11 +27,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
-import android.service.credentials.BeginGetCredentialOption;
 
 import androidx.core.os.BuildCompat;
 import androidx.credentials.R;
 import androidx.credentials.TestUtilsKt;
+import androidx.credentials.provider.BeginGetCredentialOption;
 import androidx.credentials.provider.CustomCredentialEntry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -100,6 +100,7 @@ public class CustomCredentialEntryJavaTest {
                         mContext, TYPE, null, mPendingIntent, mBeginCredentialOption
                 ));
     }
+
     @Test
     public void build_nullContext_throwsNPE() {
         if (!BuildCompat.isAtLeastU()) {

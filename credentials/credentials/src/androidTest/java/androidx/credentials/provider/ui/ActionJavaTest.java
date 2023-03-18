@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
 import android.app.PendingIntent;
+import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 
@@ -56,7 +57,6 @@ public class ActionJavaTest {
         Action action = new Action(TITLE, mPendingIntent, SUBTITLE);
 
         assertNotNull(action);
-        assertNotNull(action.getSlice());
         assertThat(TITLE.equals(action.getTitle()));
         assertThat(SUBTITLE.equals(action.getSubtitle()));
         assertThat(mPendingIntent == action.getPendingIntent());
@@ -98,9 +98,11 @@ public class ActionJavaTest {
             return;
         }
         Action originalAction = new Action(TITLE, mPendingIntent, SUBTITLE);
+        Slice slice = Action.toSlice(originalAction);
 
-        Action fromSlice = Action.fromSlice(originalAction.getSlice());
+        Action fromSlice = Action.fromSlice(slice);
 
+        assertNotNull(fromSlice);
         assertThat(fromSlice.getTitle()).isEqualTo(TITLE);
         assertThat(fromSlice.getSubtitle()).isEqualTo(SUBTITLE);
         assertThat(fromSlice.getPendingIntent()).isEqualTo(mPendingIntent);

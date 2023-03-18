@@ -32,7 +32,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import junit.framework.TestCase.assertFalse
@@ -61,7 +60,7 @@ class PasswordCredentialEntryTest {
 
         assertNotNull(entry)
         assertNotNull(entry.slice)
-        Truth.assertThat(entry.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
+        assertThat(entry.type).isEqualTo(PasswordCredential.TYPE_PASSWORD_CREDENTIAL)
         assertEntryWithRequiredParamsOnly(entry)
     }
 
@@ -101,7 +100,7 @@ class PasswordCredentialEntryTest {
         val entry = PasswordCredentialEntry.Builder(
             mContext, USERNAME, mPendingIntent, BEGIN_OPTION).build()
 
-        Truth.assertThat(
+        assertThat(
             equals(
                 entry.icon,
                 Icon.createWithResource(mContext, R.drawable.ic_password)
@@ -117,7 +116,7 @@ class PasswordCredentialEntryTest {
         val entry = PasswordCredentialEntry(
             mContext, USERNAME, mPendingIntent, BEGIN_OPTION)
 
-        Truth.assertThat(entry.typeDisplayName).isEqualTo(
+        assertThat(entry.typeDisplayName).isEqualTo(
             mContext.getString(
                 R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL
             )

@@ -16,14 +16,16 @@
 
 package androidx.credentials.provider.utils
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import android.service.credentials.BeginGetCredentialOption
-import android.service.credentials.BeginGetCredentialRequest
+import androidx.credentials.provider.BeginGetCredentialOption
+import androidx.credentials.provider.BeginGetCredentialRequest
 import androidx.annotation.RequiresApi
-import androidx.credentials.PasswordCredential
-import androidx.credentials.PublicKeyCredential
-import androidx.credentials.provider.BeginGetPasswordOption
-import androidx.credentials.provider.BeginGetPublicKeyCredentialOption
+import androidx.credentials.provider.Action
+import androidx.credentials.provider.AuthenticationAction
+import androidx.credentials.provider.BeginGetCredentialResponse
+import androidx.credentials.provider.CredentialEntry
+import androidx.credentials.provider.RemoteEntry
 
 /**
  * @hide
@@ -32,38 +34,88 @@ import androidx.credentials.provider.BeginGetPublicKeyCredentialOption
 class BeginGetCredentialUtil {
     companion object {
         @JvmStatic
-        internal fun convertToStructuredRequest(request: BeginGetCredentialRequest):
-            BeginGetCredentialRequest {
+        internal fun convertToJetpackRequest(
+            request: android.service.credentials.BeginGetCredentialRequest
+        ): BeginGetCredentialRequest {
             val beginGetCredentialOptions: MutableList<BeginGetCredentialOption> =
                 mutableListOf()
             request.beginGetCredentialOptions.forEach {
-                beginGetCredentialOptions.add(convertRequestOption(
-                    it.type,
-                    it.candidateQueryData, it.id)
+                beginGetCredentialOptions.add(
+                    BeginGetCredentialOption.createFrom(
+                        it.id, it.type, it.candidateQueryData
+                    )
                 )
             }
-            return BeginGetCredentialRequest.Builder()
-                .setCallingAppInfo(request.callingAppInfo)
-                .setBeginGetCredentialOptions(beginGetCredentialOptions)
-                .build()
+            return BeginGetCredentialRequest(
+                callingAppInfo = request.callingAppInfo,
+                beginGetCredentialOptions = beginGetCredentialOptions
+            )
         }
-        @JvmStatic
-        internal fun convertRequestOption(
-            type: String,
-            candidateQueryData: Bundle,
-            id: String
-        ):
-            BeginGetCredentialOption {
-            return when (type) {
-                PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {
-                    BeginGetPasswordOption(candidateQueryData, id)
-                }
-                PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {
-                    BeginGetPublicKeyCredentialOption.createFrom(candidateQueryData, id)
-                }
-                else -> {
-                    BeginGetCredentialOption(id, type, candidateQueryData)
-                }
+
+        fun convertJetpackResponseToFrameworkResponse(response: BeginGetCredentialResponse):
+            android.service.credentials.BeginGetCredentialResponse {
+            val frameworkBuilder = android.service.credentials.BeginGetCredentialResponse.Builder()
+            populateCredentialEntries(frameworkBuilder, response.credentialEntries)
+            populateActionEntries(frameworkBuilder, response.actions)
+            populateAuthenticationEntries(frameworkBuilder, response.authenticationActions)
+            populateRemoteEntry(frameworkBuilder, response.remoteEntry)
+            return frameworkBuilder.build()
+        }
+
+        @SuppressLint("MissingPermission")
+        private fun populateRemoteEntry(
+            frameworkBuilder: android.service.credentials.BeginGetCredentialResponse.Builder,
+            remoteEntry: RemoteEntry?
+        ) {
+            if (remoteEntry == null) {
+                return
+            }
+            frameworkBuilder.setRemoteCredentialEntry(
+                android.service.credentials.RemoteEntry(RemoteEntry.toSlice(remoteEntry))
+            )
+        }
+
+        private fun populateAuthenticationEntries(
+            frameworkBuilder: android.service.credentials.BeginGetCredentialResponse.Builder,
+            authenticationActions: List<AuthenticationAction>
+        ) {
+            authenticationActions.forEach {
+                frameworkBuilder.addAuthenticationAction(
+                    android.service.credentials.Action(
+                        AuthenticationAction.toSlice(it)
+                    )
+                )
+            }
+        }
+
+        private fun populateActionEntries(
+            builder: android.service.credentials.BeginGetCredentialResponse.Builder,
+            actionEntries: List<Action>
+        ) {
+            actionEntries.forEach {
+                builder.addAction(
+                    android.service.credentials.Action(
+                        Action.toSlice(it)
+                    )
+                )
+            }
+        }
+
+        private fun populateCredentialEntries(
+            builder: android.service.credentials.BeginGetCredentialResponse.Builder,
+            credentialEntries: List<CredentialEntry>
+        ) {
+            credentialEntries.forEach {
+                builder.addCredentialEntry(
+                    android.service.credentials.CredentialEntry(
+                        android.service.credentials.BeginGetCredentialOption(
+                            it.beginGetCredentialOption.id,
+                            it.type,
+                            Bundle.EMPTY
+                        ),
+                        it.slice
+                    )
+                )
             }
         }
     }

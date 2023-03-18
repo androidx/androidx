@@ -17,7 +17,6 @@
 package androidx.credentials.provider
 
 import android.service.credentials.CallingAppInfo
-import androidx.annotation.RequiresApi
 import androidx.credentials.CreateCredentialRequest
 
 /**
@@ -38,7 +37,6 @@ import androidx.credentials.CreateCredentialRequest
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-@RequiresApi(34)
 class ProviderCreateCredentialRequest constructor(
     val callingRequest: CreateCredentialRequest,
     val callingAppInfo: CallingAppInfo

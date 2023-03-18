@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 package androidx.credentials.provider
+
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.net.Uri
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.Log
-import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import java.util.Collections
@@ -52,43 +50,45 @@ import java.util.Collections
  *
  * @throws NullPointerException If the [pendingIntent] is null
  */
-@RequiresApi(34)
 class AuthenticationAction constructor(
     val title: CharSequence,
     val pendingIntent: PendingIntent,
-) : android.service.credentials.Action(
-    toSlice(title, pendingIntent)) {
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-    }
+) {
+    /** @hide **/
     @Suppress("AcronymName")
     companion object {
         private const val TAG = "AuthenticationAction"
         private const val SLICE_SPEC_REVISION = 0
         private const val SLICE_SPEC_TYPE = "AuthenticationAction"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_TITLE =
             "androidx.credentials.provider.authenticationAction.SLICE_HINT_TITLE"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.authenticationAction.SLICE_HINT_PENDING_INTENT"
 
         /** @hide **/
+        @RequiresApi(28)
         @JvmStatic
-        fun toSlice(title: CharSequence, pendingIntent: PendingIntent): Slice {
-            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(SLICE_SPEC_TYPE,
-                SLICE_SPEC_REVISION))
+        fun toSlice(authenticationAction: AuthenticationAction): Slice {
+            val title = authenticationAction.title
+            val pendingIntent = authenticationAction.pendingIntent
+            val sliceBuilder = Slice.Builder(
+                Uri.EMPTY, SliceSpec(
+                    SLICE_SPEC_TYPE,
+                    SLICE_SPEC_REVISION
+                )
+            )
             sliceBuilder
-                .addAction(pendingIntent,
+                .addAction(
+                    pendingIntent,
                     Slice.Builder(sliceBuilder)
                         .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                         .build(),
-                    /*subType=*/null)
+                    /*subType=*/null
+                )
                 .addText(title, /*subType=*/null, listOf(SLICE_HINT_TITLE))
             return sliceBuilder.build()
         }
@@ -101,6 +101,7 @@ class AuthenticationAction constructor(
          *
          * @hide
          */
+        @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): AuthenticationAction? {
@@ -119,20 +120,6 @@ class AuthenticationAction constructor(
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
-            }
-        }
-
-        @JvmField val CREATOR: Parcelable.Creator<AuthenticationAction> = object :
-        Parcelable.Creator<AuthenticationAction> {
-            override fun createFromParcel(p0: Parcel?): AuthenticationAction? {
-                val authAction =
-                    android.service.credentials.Action.CREATOR.createFromParcel(p0)
-                return fromSlice(authAction.slice)
-            }
-
-            @Suppress("ArrayReturn")
-            override fun newArray(size: Int): Array<AuthenticationAction?> {
-                return arrayOfNulls(size)
             }
         }
     }

@@ -47,7 +47,6 @@ class RemoteEntryTest {
         val entry = RemoteEntry(mPendingIntent)
 
         assertNotNull(entry)
-        assertNotNull(entry.slice)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
     }
 
@@ -58,7 +57,7 @@ class RemoteEntryTest {
         }
         val originalEntry = RemoteEntry(mPendingIntent)
 
-        val fromSlice = fromSlice(originalEntry.slice)
+        val fromSlice = fromSlice(RemoteEntry.toSlice(originalEntry))
 
         assertThat(fromSlice).isNotNull()
         if (fromSlice != null) {
