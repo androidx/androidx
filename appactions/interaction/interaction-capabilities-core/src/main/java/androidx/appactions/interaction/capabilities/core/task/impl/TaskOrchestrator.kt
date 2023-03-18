@@ -22,7 +22,7 @@ import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.InitArg
 import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
-import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
+import androidx.appactions.interaction.capabilities.core.impl.FulfillmentResult
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
@@ -58,7 +58,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     private val actionSpec: ActionSpec<*, ArgumentT, OutputT>,
     private val appAction: AppActionsContext.AppAction,
     private val taskHandler: TaskHandler<ConfirmationT>,
-    private val externalSession: BaseSession<ArgumentT, OutputT>
+    private val externalSession: BaseSession<ArgumentT, OutputT>,
 ) {
     /**
      * A [reader-writer lock](https://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock) to protect
@@ -90,7 +90,8 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
 
     private val inProgressLock = Any()
 
-    @GuardedBy("inProgressLock") private var inProgress = false
+    @GuardedBy("inProgressLock")
+    private var inProgress = false
 
     /** Returns whether or not a request is currently being processed */
     internal fun isIdle(): Boolean = synchronized(inProgressLock) { !inProgress }
@@ -109,7 +110,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
                             }
                             dialogParameterBuilder.build()
                         }
-                    }
+                    },
                 )
                 .setFulfillmentIdentifier(appAction.identifier)
                 .build()
@@ -129,7 +130,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
             if (inProgress) {
                 throw IllegalStateException(
                     "processUpdateRequest should never be called when the task orchestrator" +
-                        " isn't idle."
+                        " isn't idle.",
                 )
             }
             inProgress = true
@@ -150,36 +151,40 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     /** Processes an assistant update request. */
     @Suppress("DEPRECATION")
     private suspend fun processAssistantUpdateRequest(
-        assistantUpdateRequest: AssistantUpdateRequest
+        assistantUpdateRequest: AssistantUpdateRequest,
     ) {
         val argumentsWrapper = assistantUpdateRequest.argumentsWrapper
         val callback = assistantUpdateRequest.callbackInternal
+        var fulfillmentResult: FulfillmentResult
         if (argumentsWrapper.requestMetadata == null) {
-            callback.onError(ErrorStatusInternal.INVALID_REQUEST_TYPE)
-            return
-        }
-        when (argumentsWrapper.requestMetadata.requestType()) {
-            FulfillmentRequest.Fulfillment.Type.UNRECOGNIZED,
-            FulfillmentRequest.Fulfillment.Type.UNKNOWN_TYPE ->
-                callback.onError(ErrorStatusInternal.INVALID_REQUEST_TYPE)
-            FulfillmentRequest.Fulfillment.Type.SYNC -> handleSync(argumentsWrapper, callback)
-            FulfillmentRequest.Fulfillment.Type.CONFIRM -> handleConfirm(callback)
-            FulfillmentRequest.Fulfillment.Type.CANCEL,
-            FulfillmentRequest.Fulfillment.Type.TERMINATE -> {
-                terminate()
-                callback.onSuccess(FulfillmentResponse.getDefaultInstance())
+            fulfillmentResult = FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST_TYPE)
+        } else {
+            fulfillmentResult = when (argumentsWrapper.requestMetadata.requestType()) {
+                FulfillmentRequest.Fulfillment.Type.UNRECOGNIZED,
+                FulfillmentRequest.Fulfillment.Type.UNKNOWN_TYPE,
+                ->
+                    FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST_TYPE)
+                FulfillmentRequest.Fulfillment.Type.SYNC -> handleSync(argumentsWrapper)
+                FulfillmentRequest.Fulfillment.Type.CONFIRM -> handleConfirm()
+                FulfillmentRequest.Fulfillment.Type.CANCEL,
+                FulfillmentRequest.Fulfillment.Type.TERMINATE,
+                -> {
+                    terminate()
+                    FulfillmentResult(FulfillmentResponse.getDefaultInstance())
+                }
             }
         }
+        fulfillmentResult.applyToCallback(callback)
     }
 
     private suspend fun processTouchEventUpdateRequest(
-        touchEventUpdateRequest: TouchEventUpdateRequest
+        touchEventUpdateRequest: TouchEventUpdateRequest,
     ) {
         val paramValuesMap = touchEventUpdateRequest.paramValuesMap
         if (
             mTouchEventCallback == null ||
-                paramValuesMap.isEmpty() ||
-                status !== ActionCapabilitySession.Status.IN_PROGRESS
+            paramValuesMap.isEmpty() ||
+            status !== ActionCapabilitySession.Status.IN_PROGRESS
         ) {
             return
         }
@@ -196,7 +201,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
             if (!anyParamsOfStatus(CurrentValue.Status.DISAMBIG)) {
                 val fulfillmentValuesMap =
                     TaskCapabilityUtils.paramValuesMapToFulfillmentValuesMap(
-                        getCurrentPendingArguments()
+                        getCurrentPendingArguments(),
                     )
                 processFulfillmentValues(fulfillmentValuesMap)
             }
@@ -205,13 +210,13 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
             if (mTouchEventCallback != null) {
                 mTouchEventCallback!!.onSuccess(
                     fulfillmentResponse,
-                    TouchEventMetadata.getDefaultInstance()
+                    TouchEventMetadata.getDefaultInstance(),
                 )
             } else {
                 LoggerInternal.log(
                     CapabilityLogger.LogLevel.ERROR,
                     LOG_TAG,
-                    "Manual input null callback"
+                    "Manual input null callback",
                 )
             }
         } catch (t: Throwable) {
@@ -222,7 +227,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
                 LoggerInternal.log(
                     CapabilityLogger.LogLevel.ERROR,
                     LOG_TAG,
-                    "Manual input null callback"
+                    "Manual input null callback",
                 )
             }
         }
@@ -244,13 +249,15 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
         val finalArguments = getCurrentAcceptedArguments()
         if (
             anyParamsOfStatus(CurrentValue.Status.REJECTED) ||
-                !TaskCapabilityUtils.isSlotFillingComplete(finalArguments, appAction.paramsList)
+            !TaskCapabilityUtils.isSlotFillingComplete(finalArguments, appAction.paramsList)
         ) {
             return FulfillmentResponse.getDefaultInstance()
         }
-        return if (taskHandler.onReadyToConfirmListener != null)
+        return if (taskHandler.onReadyToConfirmListener != null) {
             getFulfillmentResponseForConfirmation(finalArguments)
-        else getFulfillmentResponseForExecution(finalArguments)
+        } else {
+            getFulfillmentResponseForExecution(finalArguments)
+        }
     }
 
     private fun maybeInitializeTask() {
@@ -266,17 +273,17 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
      * Control-flow logic for a single task turn. Note, a task may start and finish in the same
      * turn, so the logic should include onEnter, arg validation, and onExit.
      */
-    private suspend fun handleSync(argumentsWrapper: ArgumentsWrapper, callback: CallbackInternal) {
+    private suspend fun handleSync(argumentsWrapper: ArgumentsWrapper): FulfillmentResult {
         maybeInitializeTask()
         clearMissingArgs(argumentsWrapper)
         try {
             processFulfillmentValues(argumentsWrapper.paramValues)
             val fulfillmentResponse = maybeConfirmOrFinish()
             LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task sync success")
-            callback.onSuccess(fulfillmentResponse)
+            return FulfillmentResult(fulfillmentResponse)
         } catch (t: Throwable) {
             LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG, "Task sync fail", t)
-            callback.onError(ErrorStatusInternal.SYNC_REQUEST_FAILURE)
+            return FulfillmentResult(ErrorStatusInternal.SYNC_REQUEST_FAILURE)
         }
     }
 
@@ -284,15 +291,15 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
      * Control-flow logic for a single task turn in which the user has confirmed in the previous
      * turn.
      */
-    private suspend fun handleConfirm(callback: CallbackInternal) {
+    private suspend fun handleConfirm(): FulfillmentResult {
         val finalArguments = getCurrentAcceptedArguments()
         try {
             val fulfillmentResponse = getFulfillmentResponseForExecution(finalArguments)
             LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task confirm success")
-            callback.onSuccess(fulfillmentResponse)
+            return FulfillmentResult(fulfillmentResponse)
         } catch (t: Throwable) {
             LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG, "Task confirm fail")
-            callback.onError(ErrorStatusInternal.CONFIRMATION_REQUEST_FAILURE)
+            return FulfillmentResult(ErrorStatusInternal.CONFIRMATION_REQUEST_FAILURE)
         }
     }
 
@@ -320,7 +327,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
         InvalidResolverException::class,
     )
     private suspend fun processFulfillmentValues(
-        fulfillmentValuesMap: Map<String, List<FulfillmentRequest.Fulfillment.FulfillmentValue>>
+        fulfillmentValuesMap: Map<String, List<FulfillmentRequest.Fulfillment.FulfillmentValue>>,
     ) {
         var currentResult = SlotProcessingResult(true, emptyList())
         for ((name, fulfillmentValues) in fulfillmentValuesMap) {
@@ -338,7 +345,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     private suspend fun maybeProcessSlotAndUpdateCurrentValues(
         previousResult: SlotProcessingResult,
         slotKey: String,
-        newSlotValues: List<FulfillmentRequest.Fulfillment.FulfillmentValue>
+        newSlotValues: List<FulfillmentRequest.Fulfillment.FulfillmentValue>,
     ): SlotProcessingResult {
         val currentSlotValues =
             valuesMapLock.read { currentValuesMap.getOrDefault(slotKey, emptyList()) }
@@ -350,7 +357,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
         val pendingArgs =
             TaskCapabilityUtils.fulfillmentValuesToCurrentValues(
                 modifiedSlotValues,
-                CurrentValue.Status.PENDING
+                CurrentValue.Status.PENDING,
             )
         val currentResult = processSlot(slotKey, previousResult, pendingArgs)
         valuesMapLock.write { currentValuesMap[slotKey] = currentResult.processedValues }
@@ -372,10 +379,13 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     private suspend fun processSlot(
         name: String,
         previousResult: SlotProcessingResult,
-        pendingArgs: List<CurrentValue>
+        pendingArgs: List<CurrentValue>,
     ): SlotProcessingResult {
-        return if (!previousResult.isSuccessful) SlotProcessingResult(false, pendingArgs)
-        else TaskSlotProcessor.processSlot(name, pendingArgs, taskHandler.taskParamMap)
+        return if (!previousResult.isSuccessful) {
+            SlotProcessingResult(false, pendingArgs)
+        } else {
+            TaskSlotProcessor.processSlot(name, pendingArgs, taskHandler.taskParamMap)
+        }
     }
 
     /**
@@ -416,7 +426,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
 
     @Throws(StructConversionException::class, MissingRequiredArgException::class)
     private suspend fun getFulfillmentResponseForConfirmation(
-        finalArguments: Map<String, List<ParamValue>>
+        finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
         val result = taskHandler.onReadyToConfirmListener!!.onReadyToConfirm(finalArguments).await()
         val fulfillmentResponse = FulfillmentResponse.newBuilder()
@@ -426,7 +436,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
 
     @Throws(StructConversionException::class)
     private suspend fun getFulfillmentResponseForExecution(
-        finalArguments: Map<String, List<ParamValue>>
+        finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
         val result = externalSession.onFinishAsync(actionSpec.buildArgument(finalArguments)).await()
         status = ActionCapabilitySession.Status.COMPLETED
@@ -440,7 +450,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
      * proto.
      */
     private fun convertToExecutionOutput(
-        executionResult: ExecutionResult<OutputT>
+        executionResult: ExecutionResult<OutputT>,
     ): FulfillmentResponse.StructuredOutput? =
         executionResult.output?.let { actionSpec.convertOutputToProto(it) }
 
@@ -449,7 +459,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
      * proto.
      */
     private fun convertToConfirmationOutput(
-        confirmationOutput: ConfirmationOutput<ConfirmationT>
+        confirmationOutput: ConfirmationOutput<ConfirmationT>,
     ): FulfillmentResponse.StructuredOutput? {
         val confirmation = confirmationOutput.confirmation ?: return null
         return FulfillmentResponse.StructuredOutput.newBuilder()
@@ -459,7 +469,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
                         .setName(it.key)
                         .addAllValues(it.value.apply(confirmation))
                         .build()
-                }
+                },
             )
             .build()
     }

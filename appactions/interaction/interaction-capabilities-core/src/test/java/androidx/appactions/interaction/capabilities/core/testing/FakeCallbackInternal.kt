@@ -17,39 +17,30 @@
 package androidx.appactions.interaction.capabilities.core.testing
 
 import androidx.appactions.interaction.capabilities.core.impl.CallbackInternal
+import androidx.appactions.interaction.capabilities.core.impl.FulfillmentResult
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.proto.FulfillmentResponse
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 
-/** A wrapper being used for testing [CallbackInternal] */
-class CallbackResponse
-constructor(val fulfillmentResponse: FulfillmentResponse?, val errorStatus: ErrorStatusInternal?)
-
 /**
- * A fake CallbackInternal instance being used for testing to receive the [CallbackResponse]
+ * A fake CallbackInternal instance being used for testing to receive the [FulfillmentResult]
  * containing either [FulfillmentResponse] or [ErrorStatusInternal]
  */
-class FakeCallbackInternal constructor(private val sendTimeoutMs: Long) : CallbackInternal {
+class FakeCallbackInternal constructor(private val timeoutMs: Long) : CallbackInternal {
 
-    private val channel = Channel<CallbackResponse>(1)
+    private val completer = CompletableDeferred<FulfillmentResult>()
 
     override fun onSuccess(fulfillmentResponse: FulfillmentResponse) {
-        runBlocking {
-            withTimeout(sendTimeoutMs) { channel.send(CallbackResponse(fulfillmentResponse, null)) }
-        }
-        channel.close()
+        completer.complete(FulfillmentResult(fulfillmentResponse))
     }
 
     override fun onError(errorStatus: ErrorStatusInternal) {
-        runBlocking {
-            withTimeout(sendTimeoutMs) { channel.send(CallbackResponse(null, errorStatus)) }
-        }
-        channel.close()
+        completer.complete(FulfillmentResult(errorStatus))
     }
 
-    fun receiveResponse(): CallbackResponse = runBlocking {
-        withTimeout(sendTimeoutMs) { channel.receive() }
+    fun receiveResponse(): FulfillmentResult = runBlocking {
+        withTimeout(timeoutMs) { completer.await() }
     }
 }
