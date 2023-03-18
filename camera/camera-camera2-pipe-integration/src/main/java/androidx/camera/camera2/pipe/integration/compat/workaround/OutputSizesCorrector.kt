@@ -42,8 +42,8 @@ import javax.inject.Inject
 @CameraScope
 @RequiresApi(21)
 class OutputSizesCorrector @Inject constructor(
-    private val cameraMetadata: CameraMetadata,
-    private val streamConfigurationMap: StreamConfigurationMap
+    private val cameraMetadata: CameraMetadata?,
+    private val streamConfigurationMap: StreamConfigurationMap?
 ) {
     private val excludedSupportedSizesQuirk: ExcludedSupportedSizesQuirk? =
         DeviceQuirks[ExcludedSupportedSizesQuirk::class.java]
@@ -107,7 +107,7 @@ class OutputSizesCorrector @Inject constructor(
         sizes: Array<Size>?,
         format: Int
     ): Array<Size>? {
-        if (sizes == null || excludedSupportedSizesQuirk == null) {
+        if (sizes == null || cameraMetadata == null || excludedSupportedSizesQuirk == null) {
             return sizes
         }
         val excludedSizes: List<Size> =
@@ -126,7 +126,7 @@ class OutputSizesCorrector @Inject constructor(
         sizes: Array<Size>?,
         klass: Class<T>
     ): Array<Size>? {
-        if (sizes == null || excludedSupportedSizesQuirk == null) {
+        if (sizes == null || cameraMetadata == null || excludedSupportedSizesQuirk == null) {
             return sizes
         }
         val excludedSizes: List<Size> =
@@ -141,7 +141,7 @@ class OutputSizesCorrector @Inject constructor(
      * Excludes output sizes by TargetAspectRatio.
      */
     private fun excludeOutputSizesByTargetAspectRatioWorkaround(sizes: Array<Size>?): Array<Size>? {
-        if (sizes == null) {
+        if (sizes == null || cameraMetadata == null) {
             return null
         }
 

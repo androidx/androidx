@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.impl.Quirk
@@ -29,7 +30,7 @@ import javax.inject.Inject
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @CameraScope
 class CameraQuirks @Inject constructor(
-    private val cameraMetadata: CameraMetadata,
+    private val cameraMetadata: CameraMetadata?,
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat
 ) {
 
@@ -39,6 +40,10 @@ class CameraQuirks @Inject constructor(
      */
     val quirks: Quirks by lazy {
         val quirks: MutableList<Quirk> = mutableListOf()
+        if (cameraMetadata == null) {
+            Log.error { "Failed to enable quirks: camera metadata injection failed" }
+            return@lazy Quirks(quirks)
+        }
 
         // Go through all defined camera quirks in lexicographical order,
         // and add them to `quirks` if they should be loaded
