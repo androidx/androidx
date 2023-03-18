@@ -1,9 +1,6 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.text2
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InternalFoundationTextApi
@@ -48,6 +45,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class BasicTextField2SemanticsTest {
@@ -144,10 +142,9 @@ class BasicTextField2SemanticsTest {
     fun contentSemanticsAreSet_inTheFirstComposition() {
         val state = TextFieldState(TextFieldValue("hello"))
         rule.setContent {
-            Box(
-                modifier = Modifier
-                    .testTag(Tag)
-                    .then(TextFieldContentSemanticsElement(state, textLayoutState))
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag)
             )
         }
 
@@ -158,10 +155,9 @@ class BasicTextField2SemanticsTest {
     fun contentSemanticsAreSet_afterRecomposition() {
         val state = TextFieldState(TextFieldValue("hello"))
         rule.setContent {
-            Box(
-                modifier = Modifier
-                    .testTag(Tag)
-                    .then(TextFieldContentSemanticsElement(state, textLayoutState))
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag)
             )
         }
 
@@ -176,10 +172,9 @@ class BasicTextField2SemanticsTest {
     fun selectionSemanticsAreSet_inTheFirstComposition() {
         val state = TextFieldState(TextFieldValue("hello", selection = TextRange(2)))
         rule.setContent {
-            Box(
-                modifier = Modifier
-                    .testTag(Tag)
-                    .then(TextFieldContentSemanticsElement(state, textLayoutState))
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag)
             )
         }
 
@@ -193,10 +188,9 @@ class BasicTextField2SemanticsTest {
     fun selectionSemanticsAreSet_afterRecomposition() {
         val state = TextFieldState(TextFieldValue("hello"))
         rule.setContent {
-            Box(
-                modifier = Modifier
-                    .testTag(Tag)
-                    .then(TextFieldContentSemanticsElement(state, textLayoutState))
+            BasicTextField2(
+                state = state,
+                modifier = Modifier.testTag(Tag)
             )
         }
 
@@ -252,15 +246,9 @@ class BasicTextField2SemanticsTest {
         val state2 = TextFieldState(TextFieldValue("world", TextRange(2)))
         var chosenState by mutableStateOf(true)
         rule.setContent {
-            Box(
-                modifier = Modifier
-                    .testTag(Tag)
-                    .then(
-                        TextFieldContentSemanticsElement(
-                            if (chosenState) state1 else state2,
-                            textLayoutState
-                        )
-                    )
+            BasicTextField2(
+                state = if (chosenState) state1 else state2,
+                modifier = Modifier.testTag(Tag)
             )
         }
 
