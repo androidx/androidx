@@ -50,9 +50,10 @@ class ComplicationDataExpressionEvaluatorTest {
 
     @Test
     fun evaluate_noExpression_returnsUnevaluated() = runBlocking {
-        ComplicationDataExpressionEvaluator(DATA_WITH_NO_EXPRESSION).use { evaluator ->
-            assertThat(evaluator.evaluate().firstOrNull()).isEqualTo(DATA_WITH_NO_EXPRESSION)
-        }
+        val evaluator = ComplicationDataExpressionEvaluator()
+
+        assertThat(evaluator.evaluate(DATA_WITH_NO_EXPRESSION).firstOrNull())
+            .isEqualTo(DATA_WITH_NO_EXPRESSION)
     }
 
     /**
@@ -194,25 +195,24 @@ class ComplicationDataExpressionEvaluatorTest {
             // Defensive copy due to in-place evaluation.
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
             val stateStore = ObservableStateStore(mapOf())
-            ComplicationDataExpressionEvaluator(expressed, stateStore).use { evaluator ->
-                val allEvaluations =
-                    evaluator
-                        .evaluate()
-                        .shareIn(
-                            CoroutineScope(Dispatchers.Main.immediate),
-                            SharingStarted.Eagerly,
-                            replay = 10,
-                        )
+            val evaluator = ComplicationDataExpressionEvaluator(stateStore)
+            val allEvaluations =
+                evaluator
+                    .evaluate(expressed)
+                    .shareIn(
+                        CoroutineScope(Dispatchers.Main.immediate),
+                        SharingStarted.Eagerly,
+                        replay = 10,
+                    )
 
-                for (state in scenario.states) {
-                    stateStore.setStateEntryValues(state)
-                }
-
-                expect
-                    .withMessage(scenario.name)
-                    .that(allEvaluations.replayCache)
-                    .isEqualTo(scenario.evaluated)
+            for (state in scenario.states) {
+                stateStore.setStateEntryValues(state)
             }
+
+            expect
+                .withMessage(scenario.name)
+                .that(allEvaluations.replayCache)
+                .isEqualTo(scenario.evaluated)
         }
     }
 
@@ -227,36 +227,30 @@ class ComplicationDataExpressionEvaluatorTest {
                 .setShortTitle(WireComplicationText(DynamicString.constant("Short Title")))
                 .setContentDescription(WireComplicationText(DynamicString.constant("Description")))
                 .build()
-        ComplicationDataExpressionEvaluator(expressed, keepExpression = true).use { evaluator ->
-            assertThat(evaluator.evaluate().firstOrNull())
-                .isEqualTo(
-                    WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                        .setRangedValue(1f)
-                        .setRangedValueExpression(DynamicFloat.constant(1f))
-                        .setLongText(
-                            WireComplicationText("Long Text", DynamicString.constant("Long Text"))
-                        )
-                        .setLongTitle(
-                            WireComplicationText("Long Title", DynamicString.constant("Long Title"))
-                        )
-                        .setShortText(
-                            WireComplicationText("Short Text", DynamicString.constant("Short Text"))
-                        )
-                        .setShortTitle(
-                            WireComplicationText(
-                                "Short Title",
-                                DynamicString.constant("Short Title")
-                            )
-                        )
-                        .setContentDescription(
-                            WireComplicationText(
-                                "Description",
-                                DynamicString.constant("Description")
-                            )
-                        )
-                        .build()
-                )
-        }
+        val evaluator = ComplicationDataExpressionEvaluator(keepExpression = true)
+
+        assertThat(evaluator.evaluate(expressed).firstOrNull())
+            .isEqualTo(
+                WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                    .setRangedValue(1f)
+                    .setRangedValueExpression(DynamicFloat.constant(1f))
+                    .setLongText(
+                        WireComplicationText("Long Text", DynamicString.constant("Long Text"))
+                    )
+                    .setLongTitle(
+                        WireComplicationText("Long Title", DynamicString.constant("Long Title"))
+                    )
+                    .setShortText(
+                        WireComplicationText("Short Text", DynamicString.constant("Short Text"))
+                    )
+                    .setShortTitle(
+                        WireComplicationText("Short Title", DynamicString.constant("Short Title"))
+                    )
+                    .setContentDescription(
+                        WireComplicationText("Description", DynamicString.constant("Description"))
+                    )
+                    .build()
+            )
     }
 
     enum class HasExpressionDataWithExpressionScenario(val data: WireComplicationData) {
