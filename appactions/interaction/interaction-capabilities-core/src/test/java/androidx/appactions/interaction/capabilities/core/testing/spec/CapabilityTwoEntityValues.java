@@ -21,7 +21,8 @@ import androidx.appactions.interaction.capabilities.core.BaseSession;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
-import androidx.appactions.interaction.capabilities.core.properties.EntityProperty;
+import androidx.appactions.interaction.capabilities.core.properties.Entity;
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 
 import com.google.auto.value.AutoValue;
@@ -58,11 +59,10 @@ public final class CapabilityTwoEntityValues {
         @AutoValue.Builder
         public abstract static class Builder implements BuilderOf<Argument> {
 
-            public abstract Builder setSlotA(@NonNull EntityValue value);
+            public abstract Builder setSlotA(EntityValue value);
 
-            public abstract Builder setSlotB(@NonNull EntityValue value);
+            public abstract Builder setSlotB(EntityValue value);
 
-            @NonNull
             @Override
             public abstract Argument build();
         }
@@ -76,19 +76,19 @@ public final class CapabilityTwoEntityValues {
             return new AutoValue_CapabilityTwoEntityValues_Property.Builder();
         }
 
-        public abstract Optional<EntityProperty> slotA();
+        public abstract Optional<TypeProperty<Entity>> slotA();
 
-        public abstract Optional<EntityProperty> slotB();
+        public abstract Optional<TypeProperty<Entity>> slotB();
 
         /** Builder for {@link Property} */
         @AutoValue.Builder
         public abstract static class Builder {
 
             @NonNull
-            public abstract Builder setSlotA(@NonNull EntityProperty value);
+            public abstract Builder setSlotA(@NonNull TypeProperty<Entity> value);
 
             @NonNull
-            public abstract Builder setSlotB(@NonNull EntityProperty value);
+            public abstract Builder setSlotB(@NonNull TypeProperty<Entity> value);
 
             @NonNull
             public abstract Property build();

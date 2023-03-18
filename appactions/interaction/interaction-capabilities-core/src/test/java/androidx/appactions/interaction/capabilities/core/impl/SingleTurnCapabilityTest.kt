@@ -26,8 +26,9 @@ import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.EntityProperty
+import androidx.appactions.interaction.capabilities.core.properties.Entity
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils
 import androidx.appactions.interaction.capabilities.core.testing.FakeCallbackInternal
 import androidx.appactions.interaction.capabilities.core.testing.TestingUtils.CB_TIMEOUT
@@ -65,7 +66,7 @@ class SingleTurnCapabilityTest {
                 property =
                     Property.newBuilder()
                         .setRequiredEntityField(
-                            EntityProperty.Builder().build(),
+                            TypeProperty.Builder<Entity>().build(),
                         )
                         .setOptionalStringField(
                             StringProperty.Builder().setProhibited(true).build(),
@@ -118,7 +119,7 @@ class SingleTurnCapabilityTest {
                 property =
                     Property.newBuilder()
                         .setRequiredEntityField(
-                            EntityProperty.Builder().build(),
+                            TypeProperty.Builder<Entity>().build(),
                         )
                         .setOptionalStringField(
                             StringProperty.Builder().setProhibited(true).build(),
@@ -155,7 +156,7 @@ class SingleTurnCapabilityTest {
                 property =
                     Property.newBuilder()
                         .setRequiredEntityField(
-                            EntityProperty.Builder().build(),
+                            TypeProperty.Builder<Entity>().build(),
                         )
                         .build(),
                 actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
@@ -177,7 +178,7 @@ class SingleTurnCapabilityTest {
                 property =
                     Property.newBuilder()
                         .setRequiredEntityField(
-                            EntityProperty.Builder().build(),
+                            TypeProperty.Builder<Entity>().build(),
                         )
                         .build(),
                 actionExecutorAsync = actionExecutorAsync,

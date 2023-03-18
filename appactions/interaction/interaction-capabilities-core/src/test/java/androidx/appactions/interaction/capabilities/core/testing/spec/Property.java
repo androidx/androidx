@@ -18,9 +18,9 @@ package androidx.appactions.interaction.capabilities.core.testing.spec;
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
-import androidx.appactions.interaction.capabilities.core.properties.EntityProperty;
-import androidx.appactions.interaction.capabilities.core.properties.EnumProperty;
+import androidx.appactions.interaction.capabilities.core.properties.Entity;
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 
 import com.google.auto.value.AutoValue;
 
@@ -34,11 +34,11 @@ public abstract class Property {
         return new AutoValue_Property.Builder();
     }
 
-    public abstract EntityProperty requiredEntityField();
+    public abstract TypeProperty<Entity> requiredEntityField();
 
     public abstract Optional<StringProperty> optionalStringField();
 
-    public abstract Optional<EnumProperty<TestEnum>> enumField();
+    public abstract Optional<TypeProperty<TestEnum>> enumField();
 
     public abstract Optional<StringProperty> repeatedStringField();
 
@@ -46,11 +46,11 @@ public abstract class Property {
     @AutoValue.Builder
     public abstract static class Builder implements BuilderOf<Property> {
 
-        public abstract Builder setRequiredEntityField(EntityProperty property);
+        public abstract Builder setRequiredEntityField(TypeProperty<Entity> property);
 
         public abstract Builder setOptionalStringField(StringProperty property);
 
-        public abstract Builder setEnumField(EnumProperty<TestEnum> property);
+        public abstract Builder setEnumField(TypeProperty<TestEnum> property);
 
         public abstract Builder setRepeatedStringField(StringProperty property);
 
