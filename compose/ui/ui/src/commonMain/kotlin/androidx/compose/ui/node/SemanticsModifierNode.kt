@@ -17,11 +17,7 @@
 package androidx.compose.ui.node
 
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
-import androidx.compose.ui.semantics.getOrNull
 
 /**
  * A [Modifier.Node] that adds semantics key/value for use in testing,
@@ -49,18 +45,4 @@ fun SemanticsModifierNode.collapsedSemanticsConfiguration(): SemanticsConfigurat
     val config = semanticsConfiguration.copy()
     config.collapsePeer(next.collapsedSemanticsConfiguration())
     return config
-}
-
-internal val SemanticsModifierNode.useMinimumTouchTarget: Boolean
-    get() = semanticsConfiguration.getOrNull(SemanticsActions.OnClick) != null
-
-internal fun SemanticsModifierNode.touchBoundsInRoot(): Rect {
-    if (!node.isAttached) {
-        return Rect.Zero
-    }
-    if (!useMinimumTouchTarget) {
-        return requireCoordinator(Nodes.Semantics).boundsInRoot()
-    }
-
-    return requireCoordinator(Nodes.Semantics).touchBoundsInRoot()
 }
