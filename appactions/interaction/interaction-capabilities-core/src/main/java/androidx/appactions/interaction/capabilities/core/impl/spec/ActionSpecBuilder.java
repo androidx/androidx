@@ -25,9 +25,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.Propert
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ParamBinding.ArgumentSetter;
-import androidx.appactions.interaction.capabilities.core.properties.EntityProperty;
-import androidx.appactions.interaction.capabilities.core.properties.EnumProperty;
-import androidx.appactions.interaction.capabilities.core.properties.IntegerProperty;
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
@@ -38,7 +35,6 @@ import androidx.appactions.interaction.proto.ParamValue;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +119,8 @@ public final class ActionSpecBuilder<
     }
 
     /**
-     * Binds the parameter name, getter, and setter for a {@link EntityProperty}.
+     * Binds the parameter name, getter, and setter for a {@link
+     * androidx.appactions.interaction.capabilities .core.properties.Entity} property.
      *
      * <p>This parameter is required for any capability built from the generated {@link ActionSpec}.
      *
@@ -137,19 +134,28 @@ public final class ActionSpecBuilder<
     public ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
             bindRequiredEntityParameter(
                     @NonNull String paramName,
-                    @NonNull Function<? super PropertyT, EntityProperty> propertyGetter,
+                    @NonNull
+                            Function<
+                                            ? super PropertyT,
+                                            TypeProperty<
+                                                    androidx.appactions.interaction.capabilities
+                                                            .core.properties.Entity>>
+                                    propertyGetter,
                     @NonNull BiConsumer<? super ArgumentBuilderT, EntityValue> paramConsumer) {
         return bindEntityParameter(
                 paramName,
                 property ->
                         Optional.of(
                                 PropertyConverter.getIntentParameter(
-                                        paramName, propertyGetter.apply(property))),
+                                        paramName,
+                                        propertyGetter.apply(property),
+                                        PropertyConverter::entityToProto)),
                 paramConsumer);
     }
 
     /**
-     * Binds the parameter name, getter, and setter for a {@link EntityProperty}.
+     * Binds the parameter name, getter, and setter for a {@link
+     *  androidx.appactions.interaction.capabilities .core.properties.Entity} property.
      *
      * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
      * If the Property Optional is not set, this parameter will not exist in the parameter
@@ -167,7 +173,13 @@ public final class ActionSpecBuilder<
             bindOptionalEntityParameter(
                     @NonNull String paramName,
                     @NonNull
-                            Function<? super PropertyT, Optional<EntityProperty>>
+                            Function<
+                                            ? super PropertyT,
+                                            Optional<
+                                                    TypeProperty<
+                                                            androidx.appactions.interaction
+                                                                    .capabilities.core.properties
+                                                                    .Entity>>>
                                     optionalPropertyGetter,
                     @NonNull BiConsumer<? super ArgumentBuilderT, EntityValue> paramConsumer) {
         return bindEntityParameter(
@@ -175,7 +187,12 @@ public final class ActionSpecBuilder<
                 property ->
                         optionalPropertyGetter
                                 .apply(property)
-                                .map(p -> PropertyConverter.getIntentParameter(paramName, p)),
+                                .map(
+                                        p ->
+                                                PropertyConverter.getIntentParameter(
+                                                        paramName,
+                                                        p,
+                                                        PropertyConverter::entityToProto)),
                 paramConsumer);
     }
 
@@ -192,7 +209,13 @@ public final class ActionSpecBuilder<
             bindRepeatedEntityParameter(
                     @NonNull String paramName,
                     @NonNull
-                            Function<? super PropertyT, Optional<EntityProperty>>
+                            Function<
+                                            ? super PropertyT,
+                                            Optional<
+                                                    TypeProperty<
+                                                            androidx.appactions.interaction
+                                                                    .capabilities.core.properties
+                                                                    .Entity>>>
                                     optionalPropertyGetter,
                     @NonNull
                             BiConsumer<? super ArgumentBuilderT, List<EntityValue>> paramConsumer) {
@@ -201,7 +224,12 @@ public final class ActionSpecBuilder<
                 property ->
                         optionalPropertyGetter
                                 .apply(property)
-                                .map(p -> PropertyConverter.getIntentParameter(paramName, p)),
+                                .map(
+                                        p ->
+                                                PropertyConverter.getIntentParameter(
+                                                        paramName,
+                                                        p,
+                                                        PropertyConverter::entityToProto)),
                 (argBuilder, paramList) ->
                         paramConsumer.accept(
                                 argBuilder,
@@ -491,71 +519,7 @@ public final class ActionSpecBuilder<
     }
 
     /**
-     * Binds the parameter name, getter, and setter for a {@link EnumProperty}.
-     *
-     * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
-     * If the Property Optional is not set, this parameter will not exist in the parameter
-     * definition of the capability.
-     *
-     * @param paramName the name of this action parameter.
-     * @param enumType
-     * @param optionalPropertyGetter an optional getter of the EnumProperty from the property,
-     *     which may be able to fetch a non-null {@code EnumProperty} from {@code PropertyT}, or get
-     *     {@link Optional#empty}.
-     * @param paramConsumer a setter to set the enum value in the argument builder.
-     * @return the builder itself.
-     * @param <EnumT>
-     */
-    @NonNull
-    public <EnumT extends Enum<EnumT>>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
-                    bindOptionalEnumParameter(
-                            @NonNull String paramName,
-                            @NonNull Class<EnumT> enumType,
-                            @NonNull
-                                    Function<? super PropertyT, Optional<EnumProperty<EnumT>>>
-                                            optionalPropertyGetter,
-                            @NonNull BiConsumer<? super ArgumentBuilderT, EnumT> paramConsumer) {
-        return bindEnumParameter(
-                paramName,
-                enumType,
-                property ->
-                        optionalPropertyGetter
-                                .apply(property)
-                                .map(e -> PropertyConverter.getIntentParameter(paramName, e)),
-                paramConsumer);
-    }
-
-    private <EnumT extends Enum<EnumT>>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT> bindEnumParameter(
-                    String paramName,
-                    Class<EnumT> enumType,
-                    Function<? super PropertyT, Optional<IntentParameter>> enumParamGetter,
-                    BiConsumer<? super ArgumentBuilderT, EnumT> paramConsumer) {
-        return bindParameter(
-                paramName,
-                enumParamGetter,
-                (argBuilder, paramList) -> {
-                    if (!paramList.isEmpty()) {
-                        Optional<EnumT> enumValue =
-                                EnumSet.allOf(enumType).stream()
-                                        .filter(
-                                                element ->
-                                                        element.toString()
-                                                                .equals(
-                                                                        paramList
-                                                                                .get(0)
-                                                                                .getIdentifier()))
-                                        .findFirst();
-                        if (enumValue.isPresent()) {
-                            paramConsumer.accept(argBuilder, enumValue.get());
-                        }
-                    }
-                });
-    }
-
-    /**
-     * Binds the integer parameter name and setter for a {@link IntegerProperty}.
+     * Binds the integer parameter name and setter.
      *
      * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
      * If the Property Optional is not set, this parameter will not exist in the parameter
@@ -571,7 +535,7 @@ public final class ActionSpecBuilder<
             bindOptionalIntegerParameter(
                     @NonNull String paramName,
                     @NonNull
-                            Function<? super PropertyT, Optional<IntegerProperty>>
+                            Function<? super PropertyT, Optional<SimpleProperty>>
                                     optionalPropertyGetter,
                     @NonNull BiConsumer<? super ArgumentBuilderT, Integer> paramConsumer) {
         return bindParameter(
