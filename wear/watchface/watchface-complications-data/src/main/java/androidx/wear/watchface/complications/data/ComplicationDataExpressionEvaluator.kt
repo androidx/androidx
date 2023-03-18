@@ -28,14 +28,15 @@ import androidx.wear.protolayout.expression.pipeline.ObservableStateStore
 import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway
 import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.update
 
 /**
@@ -51,150 +52,128 @@ class ComplicationDataExpressionEvaluator(
     private val sensorGateway: SensorGateway? = null,
     private val keepExpression: Boolean = false,
 ) : AutoCloseable {
-    private val _data = MutableStateFlow<WireComplicationData?>(null)
-
-    /**
-     * The evaluated data, or `null` if it wasn't evaluated yet, or [NoDataComplicationData] if it
-     * wasn't possible to evaluate the [unevaluatedData].
-     */
-    val data: StateFlow<WireComplicationData?> = _data.asStateFlow()
-
     @Volatile // In case init() and close() are called on different threads.
     private lateinit var evaluator: DynamicTypeEvaluator
     private val state = MutableStateFlow(State(unevaluatedData))
 
     /**
-     * Parses the expression and starts blocking evaluation.
+     * Returns a [Flow] that provides the evaluated [WireComplicationData].
      *
-     * This needs to be called exactly once.
-     *
-     * @param coroutineScope used for background evaluation, must be single threaded
+     * Must be called and collected exactly once.
      */
-    fun init(coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main.immediate)) {
-        // Add all the receivers before we start binding them because binding can synchronously
-        // trigger the receiver, which would update the data before all the fields are evaluated.
-        Initializer(coroutineScope).init()
-    }
+    fun evaluate() =
+        flow<WireComplicationData> {
+            // Add all the receivers before we start binding them because binding can synchronously
+            // trigger the receiver, which would update the data before all the fields are
+            // evaluated.
+            initStateReceivers()
+            initEvaluator()
+            val evaluatedData: Flow<WireComplicationData> =
+                state
+                    .mapNotNull {
+                        when {
+                            // Emitting INVALID_DATA if there's an invalid receiver.
+                            it.invalid.isNotEmpty() -> INVALID_DATA
+                            // Emitting the data if all pending receivers are done and all
+                            // pre-updates are satisfied.
+                            it.pending.isEmpty() && it.preUpdateCount == 0 -> it.data
+                            // Skipping states that are not ready for be emitted.
+                            else -> null
+                        }
+                    }
+                    .distinctUntilChanged()
+            emitAll(evaluatedData)
+        }
 
     /**
      * Stops evaluation.
      *
-     * [data] will not change after this is called.
+     * The [Flow] returned by [evaluate] will not emit after this is called.
      */
     override fun close() {
         for (receiver in state.value.all) receiver.close()
         if (this::evaluator.isInitialized) evaluator.close()
     }
 
-    private inner class Initializer(val coroutineScope: CoroutineScope) {
-        fun init() {
-            initStateReceivers()
-            initEvaluator()
-            monitorState()
+    /** Adds [ComplicationEvaluationResultReceiver]s to [state]. */
+    private suspend fun initStateReceivers() {
+        val receivers = mutableSetOf<ComplicationEvaluationResultReceiver<out Any>>()
+
+        if (unevaluatedData.hasRangedValueExpression()) {
+            unevaluatedData.rangedValueExpression
+                ?.buildReceiver(
+                    expressionTrimmer = { setRangedValueExpression(null) },
+                    setter = { setRangedValue(it) },
+                )
+                ?.let { receivers += it }
+        }
+        if (unevaluatedData.hasLongText()) {
+            unevaluatedData.longText?.buildReceiver { setLongText(it) }?.let { receivers += it }
+        }
+        if (unevaluatedData.hasLongTitle()) {
+            unevaluatedData.longTitle?.buildReceiver { setLongTitle(it) }?.let { receivers += it }
+        }
+        if (unevaluatedData.hasShortText()) {
+            unevaluatedData.shortText?.buildReceiver { setShortText(it) }?.let { receivers += it }
+        }
+        if (unevaluatedData.hasShortTitle()) {
+            unevaluatedData.shortTitle?.buildReceiver { setShortTitle(it) }?.let { receivers += it }
+        }
+        if (unevaluatedData.hasContentDescription()) {
+            unevaluatedData.contentDescription
+                ?.buildReceiver { setContentDescription(it) }
+                ?.let { receivers += it }
         }
 
-        /** Adds [ComplicationEvaluationResultReceiver]s to [state]. */
-        private fun initStateReceivers() {
-            val receivers = mutableSetOf<ComplicationEvaluationResultReceiver<out Any>>()
+        state.value = State(unevaluatedData, receivers)
+    }
 
-            if (unevaluatedData.hasRangedValueExpression()) {
-                unevaluatedData.rangedValueExpression
-                    ?.buildReceiver(
-                        expressionTrimmer = { setRangedValueExpression(null) },
-                        setter = { setRangedValue(it) },
-                    )
-                    ?.let { receivers += it }
-            }
-            if (unevaluatedData.hasLongText()) {
-                unevaluatedData.longText?.buildReceiver { setLongText(it) }?.let { receivers += it }
-            }
-            if (unevaluatedData.hasLongTitle()) {
-                unevaluatedData.longTitle
-                    ?.buildReceiver { setLongTitle(it) }
-                    ?.let { receivers += it }
-            }
-            if (unevaluatedData.hasShortText()) {
-                unevaluatedData.shortText
-                    ?.buildReceiver { setShortText(it) }
-                    ?.let { receivers += it }
-            }
-            if (unevaluatedData.hasShortTitle()) {
-                unevaluatedData.shortTitle
-                    ?.buildReceiver { setShortTitle(it) }
-                    ?.let { receivers += it }
-            }
-            if (unevaluatedData.hasContentDescription()) {
-                unevaluatedData.contentDescription
-                    ?.buildReceiver { setContentDescription(it) }
-                    ?.let { receivers += it }
-            }
+    private suspend fun DynamicFloat.buildReceiver(
+        expressionTrimmer: WireComplicationData.Builder.() -> WireComplicationData.Builder,
+        setter: WireComplicationData.Builder.(Float) -> WireComplicationData.Builder,
+    ): ComplicationEvaluationResultReceiver<Float> {
+        val executor = currentCoroutineContext().asExecutor()
+        return ComplicationEvaluationResultReceiver(
+            setter = {
+                if (!keepExpression) expressionTrimmer(this)
+                setter(this, it)
+            },
+            binder = { evaluator.bind(this@buildReceiver, executor, it) },
+        )
+    }
 
-            state.value = State(unevaluatedData, receivers)
-        }
-
-        private fun DynamicFloat.buildReceiver(
-            expressionTrimmer: WireComplicationData.Builder.() -> WireComplicationData.Builder,
-            setter: WireComplicationData.Builder.(Float) -> WireComplicationData.Builder,
-        ) =
+    private suspend fun WireComplicationText.buildReceiver(
+        setter: WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder,
+    ): ComplicationEvaluationResultReceiver<String>? {
+        val executor = currentCoroutineContext().asExecutor()
+        return expression?.let { expression ->
             ComplicationEvaluationResultReceiver(
                 setter = {
-                    if (!keepExpression) expressionTrimmer(this)
-                    setter(this, it)
+                    setter(
+                        if (keepExpression) {
+                            WireComplicationText(it, expression)
+                        } else {
+                            WireComplicationText(it)
+                        }
+                    )
                 },
-                binder = { receiver ->
-                    evaluator.bind(this@buildReceiver, coroutineScope.asExecutor(), receiver)
-                },
+                binder = { evaluator.bind(expression, ULocale.getDefault(), executor, it) },
             )
-
-        private fun WireComplicationText.buildReceiver(
-            setter:
-                WireComplicationData.Builder.(WireComplicationText) -> WireComplicationData.Builder,
-        ) =
-            expression?.let { expression ->
-                ComplicationEvaluationResultReceiver<String>(
-                    setter = {
-                        setter(
-                            if (keepExpression) {
-                                WireComplicationText(it, expression)
-                            } else {
-                                WireComplicationText(it)
-                            }
-                        )
-                    },
-                    binder = { receiver ->
-                        evaluator.bind(
-                            expression,
-                            ULocale.getDefault(),
-                            coroutineScope.asExecutor(),
-                            receiver
-                        )
-                    },
-                )
-            }
-
-        /** Initializes the internal [DynamicTypeEvaluator] if there are pending receivers. */
-        private fun initEvaluator() {
-            if (state.value.pending.isEmpty()) return
-            evaluator =
-                DynamicTypeEvaluator(
-                    /* platformDataSourcesInitiallyEnabled = */ true,
-                    stateStore,
-                    sensorGateway,
-                )
-            for (receiver in state.value.pending) receiver.bind()
-            for (receiver in state.value.pending) receiver.startEvaluation()
-            evaluator.enablePlatformDataSources()
         }
+    }
 
-        /** Monitors [state] changes and updates [data]. */
-        private fun monitorState() {
-            state
-                .onEach {
-                    if (it.invalid.isNotEmpty()) _data.value = INVALID_DATA
-                    else if (it.pending.isEmpty() && it.preUpdateCount == 0) _data.value = it.data
-                }
-                .launchIn(coroutineScope)
-        }
+    /** Initializes the internal [DynamicTypeEvaluator] if there are pending receivers. */
+    private fun initEvaluator() {
+        if (state.value.pending.isEmpty()) return
+        evaluator =
+            DynamicTypeEvaluator(
+                /* platformDataSourcesInitiallyEnabled = */ true,
+                stateStore,
+                sensorGateway,
+            )
+        for (receiver in state.value.pending) receiver.bind()
+        for (receiver in state.value.pending) receiver.startEvaluation()
+        evaluator.enablePlatformDataSources()
     }
 
     /**
@@ -234,7 +213,7 @@ class ComplicationDataExpressionEvaluator(
                 preUpdateCount - 1,
             )
 
-        fun withUpdate(
+        fun withUpdated(
             data: WireComplicationData,
             receiver: ComplicationEvaluationResultReceiver<out Any>,
         ) =
@@ -272,7 +251,7 @@ class ComplicationDataExpressionEvaluator(
 
         override fun onData(newData: T) {
             state.update {
-                it.withUpdate(setter(WireComplicationData.Builder(it.data), newData).build(), this)
+                it.withUpdated(setter(WireComplicationData.Builder(it.data), newData).build(), this)
             }
         }
 
@@ -300,10 +279,10 @@ class ComplicationDataExpressionEvaluator(
  * Replacement for CoroutineDispatcher.asExecutor extension due to
  * https://github.com/Kotlin/kotlinx.coroutines/pull/3683.
  */
-internal fun CoroutineScope.asExecutor() = Executor { runnable ->
-    val dispatcher = coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
-    if (dispatcher.isDispatchNeeded(coroutineContext)) {
-        dispatcher.dispatch(coroutineContext, runnable)
+internal fun CoroutineContext.asExecutor() = Executor { runnable ->
+    val dispatcher = get(ContinuationInterceptor) as CoroutineDispatcher
+    if (dispatcher.isDispatchNeeded(this)) {
+        dispatcher.dispatch(this, runnable)
     } else {
         runnable.run()
     }

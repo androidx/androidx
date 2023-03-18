@@ -48,7 +48,6 @@ import androidx.wear.watchface.complications.datasource.ComplicationDataSourceSe
 import java.util.concurrent.CountDownLatch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -587,11 +586,10 @@ public abstract class ComplicationDataSourceService : Service() {
         ) {
             mainThreadCoroutineScope.launch {
                 use {
-                    init()
                     // Doing one-off evaluation, the service will be re-invoked.
                     iComplicationManager.updateComplicationData(
                         complicationInstanceId,
-                        data.filterNotNull().first()
+                        evaluate().first()
                     )
                 }
             }

@@ -30,8 +30,9 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,18 +49,9 @@ class ComplicationDataExpressionEvaluatorTest {
     }
 
     @Test
-    fun data_notInitialized_setToNull() {
+    fun evaluate_noExpression_returnsUnevaluated() = runBlocking {
         ComplicationDataExpressionEvaluator(DATA_WITH_NO_EXPRESSION).use { evaluator ->
-            assertThat(evaluator.data.value).isNull()
-        }
-    }
-
-    @Test
-    fun data_noExpression_setToUnevaluated() {
-        ComplicationDataExpressionEvaluator(DATA_WITH_NO_EXPRESSION).use { evaluator ->
-            evaluator.init()
-
-            assertThat(evaluator.data.value).isEqualTo(DATA_WITH_NO_EXPRESSION)
+            assertThat(evaluator.evaluate().firstOrNull()).isEqualTo(DATA_WITH_NO_EXPRESSION)
         }
     }
 
@@ -197,21 +189,20 @@ class ComplicationDataExpressionEvaluatorTest {
     }
 
     @Test
-    fun data_withExpression_setToEvaluated() {
+    fun evaluate_withExpression_returnsEvaluated() = runBlocking {
         for (scenario in DataWithExpressionScenario.values()) {
             // Defensive copy due to in-place evaluation.
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
             val stateStore = ObservableStateStore(mapOf())
             ComplicationDataExpressionEvaluator(expressed, stateStore).use { evaluator ->
                 val allEvaluations =
-                    evaluator.data
-                        .filterNotNull()
+                    evaluator
+                        .evaluate()
                         .shareIn(
                             CoroutineScope(Dispatchers.Main.immediate),
                             SharingStarted.Eagerly,
                             replay = 10,
                         )
-                evaluator.init()
 
                 for (state in scenario.states) {
                     stateStore.setStateEntryValues(state)
@@ -226,7 +217,7 @@ class ComplicationDataExpressionEvaluatorTest {
     }
 
     @Test
-    fun data_keepExpression_doesNotTrimUnevaluatedExpression() {
+    fun evaluate_keepExpression_doesNotTrimUnevaluatedExpression() = runBlocking {
         val expressed =
             WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
                 .setRangedValueExpression(DynamicFloat.constant(1f))
@@ -237,9 +228,7 @@ class ComplicationDataExpressionEvaluatorTest {
                 .setContentDescription(WireComplicationText(DynamicString.constant("Description")))
                 .build()
         ComplicationDataExpressionEvaluator(expressed, keepExpression = true).use { evaluator ->
-            evaluator.init()
-
-            assertThat(evaluator.data.value)
+            assertThat(evaluator.evaluate().firstOrNull())
                 .isEqualTo(
                     WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
                         .setRangedValue(1f)
