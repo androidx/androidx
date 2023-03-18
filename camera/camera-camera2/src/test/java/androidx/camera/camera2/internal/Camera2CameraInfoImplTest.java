@@ -661,9 +661,9 @@ public class Camera2CameraInfoImplTest {
     public void cameraInfo_canReturnSupportedFpsRanges() throws CameraAccessExceptionCompat {
         init(/* hasAvailableCapabilities = */ false);
 
-        final Camera2CameraInfoImpl cameraInfo0 = new Camera2CameraInfoImpl(CAMERA0_ID,
+        CameraInfo cameraInfo0 = new Camera2CameraInfoImpl(CAMERA0_ID,
                 mCameraManagerCompat);
-        final Camera2CameraInfoImpl cameraInfo2 = new Camera2CameraInfoImpl(CAMERA2_ID,
+        CameraInfo cameraInfo2 = new Camera2CameraInfoImpl(CAMERA2_ID,
                 mCameraManagerCompat);
 
         List<Range<Integer>> resultFpsRanges0 = cameraInfo0.getSupportedFrameRateRanges();
@@ -678,7 +678,7 @@ public class Camera2CameraInfoImplTest {
             throws CameraAccessExceptionCompat {
         init(/* hasAvailableCapabilities = */ false);
 
-        final Camera2CameraInfoImpl cameraInfo1 = new Camera2CameraInfoImpl(CAMERA1_ID,
+        CameraInfo cameraInfo1 = new Camera2CameraInfoImpl(CAMERA1_ID,
                 mCameraManagerCompat);
 
         List<Range<Integer>> resultFpsRanges1 = cameraInfo1.getSupportedFrameRateRanges();

@@ -18,7 +18,6 @@ package androidx.camera.core.impl;
 
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
-import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -67,17 +66,6 @@ public interface CameraInfoInternal extends CameraInfo {
     /** Returns a list of quirks related to the camera. */
     @NonNull
     Quirks getCameraQuirks();
-
-    /**
-     * Returns a list of the frame rate ranges supported by this device's AE algorithm.
-     *
-     * <p>These are the frame rate ranges that the AE algorithm on the device can support. There is
-     * no guarantee that these ranges will work for every size surface or combination of use cases.
-     *
-     * @return The list of frame rate ranges supported by the device's AE algorithm
-     */
-    @NonNull
-    List<Range<Integer>> getSupportedFrameRateRanges();
 
     /** Returns the {@link EncoderProfilesProvider} associated with this camera. */
     @NonNull
