@@ -17,10 +17,10 @@
 package androidx.compose.foundation.text2
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.InternalFoundationTextApi
@@ -30,22 +30,11 @@ import androidx.compose.foundation.text.heightInLines
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.SimpleLayout
 import androidx.compose.foundation.text.textFieldMinSize
-import androidx.compose.foundation.text2.input.CommitTextCommand
-import androidx.compose.foundation.text2.input.DeleteAllCommand
-import androidx.compose.foundation.text2.input.FinishComposingTextCommand
 import androidx.compose.foundation.text2.service.AndroidTextInputPlugin
-import androidx.compose.foundation.text2.service.TextInputSession
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -57,12 +46,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
-import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.imeAction
-import androidx.compose.ui.semantics.insertTextAtCursor
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextStyle
@@ -130,12 +113,13 @@ fun BasicTextField2(
     val textInputAdapter = LocalPlatformTextInputPluginRegistry.takeIf { enabled && !readOnly }
         ?.current?.rememberAdapter(AndroidTextInputPlugin)
 
-    val focusRequester = remember { FocusRequester() }
-
     val fontFamilyResolver = LocalFontFamilyResolver.current
     val density = LocalDensity.current
     val selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
     val singleLine = minLines == 1 && maxLines == 1
+    // We're using this to communicate focus state to cursor for now.
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
 
     val textLayoutState = remember {
         TextLayoutState(
@@ -148,64 +132,6 @@ fun BasicTextField2(
                 placeholders = emptyList()
             )
         )
-    }
-
-    var isFocused by remember { mutableStateOf(false) }
-
-    val textInputSessionState = remember { mutableStateOf<TextInputSession?>(null) }
-
-    // Hide the keyboard if made disabled or read-only while focused (b/237308379).
-    if (enabled && !readOnly) {
-        // TODO(b/230536793) This is a workaround since we don't get an explicit focus blur event
-        //  when the text field is removed from the composition entirely.
-        DisposableEffect(state) {
-            if (isFocused) {
-                textInputSessionState.value = textInputAdapter?.startInputSession(
-                    state,
-                    keyboardOptions.toImeOptions(singleLine)
-                )
-            }
-            onDispose {
-                if (isFocused) {
-                    textInputSessionState.value?.dispose()
-                    textInputSessionState.value = null
-                }
-            }
-        }
-    }
-
-    val semanticsModifier = Modifier.semantics {
-        this.imeAction = keyboardOptions.imeAction
-        if (!enabled) this.disabled()
-
-        setText { text ->
-            state.editProcessor.update(
-                listOf(
-                    DeleteAllCommand,
-                    CommitTextCommand(text, 1)
-                )
-            )
-            true
-        }
-        insertTextAtCursor { text ->
-            state.editProcessor.update(
-                listOf(
-                    // Finish composing text first because when the field is focused the IME
-                    // might set composition.
-                    FinishComposingTextCommand,
-                    CommitTextCommand(text, 1)
-                )
-            )
-            true
-        }
-        onClick {
-            // according to the documentation, we still need to provide proper semantics actions
-            // even if the state is 'disabled'
-            if (!isFocused) {
-                focusRequester.requestFocus()
-            }
-            true
-        }
     }
 
     val drawModifier = Modifier.drawBehind {
@@ -227,44 +153,28 @@ fun BasicTextField2(
         }
     }
 
-    val focusModifier = Modifier
-        .focusRequester(focusRequester)
-        .onFocusChanged {
-            if (isFocused == it.isFocused) {
-                return@onFocusChanged
-            }
-            isFocused = it.isFocused
-
-            if (it.isFocused) {
-                textInputSessionState.value = textInputAdapter?.startInputSession(
-                    state,
-                    keyboardOptions.toImeOptions(singleLine)
-                )
-                // TODO(halilibo): bringIntoView
-            } else {
-                state.deselect()
-            }
-        }
-        .focusable(interactionSource = interactionSource, enabled = enabled)
-
     val cursorModifier = Modifier.cursor(
         textLayoutState = textLayoutState,
-        isFocused = isFocused,
+        isFocused = interactionSource.collectIsFocusedAsState().value,
         state = state,
         cursorBrush = cursorBrush,
         enabled = enabled && !readOnly
     )
 
     val decorationModifiers = modifier
-        .then(focusModifier)
-        .then(semanticsModifier)
-        .then(TextFieldContentSemanticsElement(state, textLayoutState))
-        .clickable {
-            focusRequester.requestFocus()
-        }
-        .onGloballyPositioned {
-            textLayoutState.proxy?.decorationBoxCoordinates = it
-        }
+        .then(
+            // semantics + some focus + input session + touch to focus
+            TextFieldDecoratorModifierElement(
+                textFieldState = state,
+                textLayoutState = textLayoutState,
+                textInputAdapter = textInputAdapter,
+                enabled = enabled,
+                readOnly = readOnly,
+                keyboardOptions = keyboardOptions,
+                singleLine = singleLine
+            )
+        )
+        .focusable(interactionSource = interactionSource, enabled = enabled)
 
     Box(decorationModifiers) {
         decorationBox(innerTextField = {

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.text2
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -54,6 +52,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class BasicTextField2Test {
@@ -267,7 +266,7 @@ class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                enabled = false,
+                enabled = true,
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag(Tag)
@@ -288,7 +287,7 @@ class BasicTextField2Test {
         rule.setContent {
             BasicTextField2(
                 state = state,
-                enabled = false,
+                enabled = true,
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag(Tag)
