@@ -16,13 +16,17 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
+
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.proto.AlignmentProto;
 import androidx.wear.protolayout.proto.TypesProto;
 
 /** Builders for extensible primitive types used by layout elements. */
@@ -111,13 +115,27 @@ public final class TypeBuilders {
         }
 
         /**
-         * Gets the value.
+         * Gets the static value.
          *
          * @since 1.0
          */
         @NonNull
         public String getValue() {
             return mImpl.getValue();
+        }
+
+        /**
+         * Gets the dynamic value.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public DynamicBuilders.DynamicString getDynamicValue() {
+            if (mImpl.hasDynamicValue()) {
+                return DynamicBuilders.dynamicStringFromProto(mImpl.getDynamicValue());
+            } else {
+                return null;
+            }
         }
 
         /** Get the fingerprint for this object, or null if unknown. */
@@ -142,10 +160,26 @@ public final class TypeBuilders {
             private final TypesProto.StringProp.Builder mImpl = TypesProto.StringProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(327834307);
 
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * @deprecated use {@link Builder(String)}
+             */
+            @Deprecated
             public Builder() {}
 
             /**
-             * Sets the value.
+             * Creates an instance of {@link Builder}.
+             *
+             * @param staticValue the static value.
+             */
+            public Builder(@NonNull String staticValue) {
+                setValue(staticValue);
+            }
+
+            /**
+             * Sets the static value. If a dynamic value is also set and the renderer supports
+             * dynamic values for the corresponding field, this static value will be ignored.
              *
              * @since 1.0
              */
@@ -156,10 +190,132 @@ public final class TypeBuilders {
                 return this;
             }
 
+            /**
+             * Sets the dynamic value. Note that when setting this value, the static value is still
+             * required to be set to support older renderers that only read the static value.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setDynamicValue(@NonNull DynamicBuilders.DynamicString dynamicValue) {
+                mImpl.setDynamicValue(dynamicValue.toDynamicStringProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(dynamicValue.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
             /** Builds an instance from accumulated values. */
             @NonNull
             public StringProp build() {
+                if (mImpl.hasDynamicValue() && !mImpl.hasValue()) {
+                    throw new IllegalStateException("Static value is missing.");
+                }
                 return new StringProp(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * A type for specifying layout constraints when using {@link StringProp} on a data bindable
+     * layout element.
+     *
+     * @since 1.2
+     */
+    public static final class StringLayoutConstraint {
+        private final TypesProto.StringProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        StringLayoutConstraint(TypesProto.StringProp impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the text string to use as the pattern for the largest text that can be laid out.
+         * Used to ensure that the layout is of a known size during the layout pass. If
+         * not set defaults to the static value of the associated {@link StringProp} field.
+         *
+         * @since 1.2
+         */
+        @NonNull
+        public String getPatternForLayout() {
+            return mImpl.getValueForLayout();
+        }
+
+        /**
+         * Gets angular alignment of the actual content within the space reserved by value.
+         *
+         * @since 1.2
+         */
+        @LayoutElementBuilders.TextAlignment
+        public int getAlignment() {
+            return mImpl.getTextAlignmentForLayoutValue();
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public TypesProto.StringProp toProto() {
+            return mImpl;
+        }
+
+        @NonNull
+        static StringLayoutConstraint fromProto(@NonNull TypesProto.StringProp proto) {
+            return new StringLayoutConstraint(proto, null);
+        }
+
+        /** Builder for {@link StringLayoutConstraint}. */
+        public static final class Builder {
+            private final TypesProto.StringProp.Builder mImpl = TypesProto.StringProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1927567664);
+
+            /**
+             * Creates a new builder for {@link StringLayoutConstraint}.
+             *
+             * @param patternForLayout Sets the text string to use as the pattern for the largest
+             *                        text that can be laid out. Used to ensure that the layout
+             *                        is of a known size during the layout pass.
+             * @since 1.2
+             */
+            public Builder(@NonNull String patternForLayout) {
+                setValue(patternForLayout);
+            }
+
+            /**
+             * Sets the text string to use as the pattern for the largest text that can be laid out.
+             * Used to ensure that the layout is of a known size during the layout pass.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            private Builder setValue(@NonNull String patternForLayout) {
+                mImpl.setValueForLayout(patternForLayout);
+                mFingerprint.recordPropertyUpdate(3, patternForLayout.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets alignment of the actual text within the space reserved by patternForMeasurement.
+             * If not specified, defaults to center alignment.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setAlignment(@LayoutElementBuilders.TextAlignment int alignment) {
+                mImpl.setTextAlignmentForLayout(AlignmentProto.TextAlignment.forNumber(alignment));
+                mFingerprint.recordPropertyUpdate(4, alignment);
+                return this;
+            }
+
+            /** Builds an instance of {@link StringLayoutConstraint}. */
+            @NonNull
+            public StringLayoutConstraint build() {
+                return new StringLayoutConstraint(mImpl.build(), mFingerprint);
             }
         }
     }

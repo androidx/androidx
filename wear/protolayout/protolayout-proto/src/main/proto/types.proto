@@ -20,8 +20,11 @@ message Int32Prop {
 
 // A string type.
 message StringProp {
-  // The value.
-  string value = 1;
+
+  oneof optional_value {
+    // The value.
+    string value = 1;
+  }
 
   // The dynamic value.
   androidx.wear.protolayout.expression.proto.DynamicString dynamic_value = 2;
