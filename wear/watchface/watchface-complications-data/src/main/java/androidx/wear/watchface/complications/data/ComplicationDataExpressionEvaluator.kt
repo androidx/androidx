@@ -222,7 +222,6 @@ class ComplicationDataExpressionEvaluator(
                 Dispatchers.Main.immediate.invoke {
                     // These need to be called on the main thread.
                     for (receiver in pendingReceivers) receiver.startEvaluation()
-                    evaluator.enablePlatformDataSources()
                 }
             } catch (e: Throwable) {
                 // Cleanup on initialization failure.
