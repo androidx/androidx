@@ -56,10 +56,6 @@ data class Artifact(
 // See https://github.com/gradle/gradle/commit/7e5c5bc9b2c23d872e1c45c855f07ca223f6c270#diff-ce55b0f0cdcf2174eb47d333d348ff6fbd9dbe5cd8c3beeeaf633ea23b74ed9eR38
 open class GMavenZipTask : Zip() {
 
-    @Internal
-    @Transient
-    val verifyTask: TaskProvider<VerifyGMavenZipTask>
-
     /**
      * Whether this build adds automatic constraints between projects in the same group
      */
@@ -88,18 +84,6 @@ open class GMavenZipTask : Zip() {
                     """.trimIndent()
                 )
             }
-        }
-
-        verifyTask = project.maybeRegister(
-            name = "verify${zipTask.name}",
-            onConfigure = { verifierTask ->
-                verifierTask.addFile(zipTask.archiveFile.get().getAsFile())
-            },
-            onRegister = {
-            }
-        )
-        if (!isPresubmitBuild()) {
-            zipTask.finalizedBy(verifyTask)
         }
     }
 
@@ -134,7 +118,6 @@ open class GMavenZipTask : Zip() {
                 include(inclusion)
             }
         }
-        verifyTask.get().addFile(File(fromDir, "${artifact.version}"))
     }
     /**
      * Config action that configures the task when necessary.
@@ -238,8 +221,9 @@ object Release {
         }
         val version = project.version
 
+        val projectZipTask = getProjectZipTask(project)
         val zipTasks = listOf(
-            getProjectZipTask(project),
+            projectZipTask,
             getGroupReleaseZipTask(project, mavenGroup),
             getGlobalFullZipTask(project)
         )
@@ -267,6 +251,29 @@ object Release {
 
                 zipTask.dependsOn(publishTask)
             }
+        }
+
+        val verifyInputs = getVerifyProjectZipInputsTask(project)
+        verifyInputs.configure { verifyTask ->
+            verifyTask.dependsOn(publishTask)
+            artifacts.forEach { artifact ->
+                verifyTask.addCandidate(artifact)
+            }
+        }
+        val verifyOutputs = getVerifyProjectZipOutputsTask(project)
+        verifyOutputs.configure { verifyTask ->
+            verifyTask.dependsOn(projectZipTask)
+            artifacts.forEach { artifact ->
+                verifyTask.addCandidate(artifact)
+            }
+        }
+        projectZipTask.configure { zipTask ->
+            if (!isPresubmitBuild()) {
+                zipTask.dependsOn(verifyInputs)
+                zipTask.finalizedBy(verifyOutputs)
+            }
+            val verifyOutputsTask = verifyOutputs.get()
+            verifyOutputsTask.addFile(zipTask.archiveFile.get().getAsFile())
         }
     }
 
@@ -387,6 +394,26 @@ object Release {
         project.addToAnchorTask(taskProvider)
         return taskProvider
     }
+
+    private fun getVerifyProjectZipInputsTask(
+        project: Project
+    ): TaskProvider<VerifyGMavenZipTask> {
+        val taskProvider = project.tasks.register(
+            "verifyInputs" + PROJECT_ARCHIVE_ZIP_TASK_NAME,
+            VerifyGMavenZipTask::class.java
+        )
+        return taskProvider
+    }
+
+    private fun getVerifyProjectZipOutputsTask(
+        project: Project
+    ): TaskProvider<VerifyGMavenZipTask> {
+        val taskProvider = project.tasks.register(
+            "verifyOutputs" + PROJECT_ARCHIVE_ZIP_TASK_NAME,
+            VerifyGMavenZipTask::class.java
+        )
+        return taskProvider
+    }
 }
 
 // b/273294710
@@ -403,6 +430,14 @@ open class VerifyGMavenZipTask : DefaultTask() {
 
     fun addFile(file: File) {
         filesToVerify.add(file)
+    }
+
+    fun addCandidate(artifact: Artifact) {
+        val groupSubdir = artifact.mavenGroup.replace('.', '/')
+        val projectSubdir = File("$groupSubdir/${artifact.projectName}")
+        val androidxRepoOut = project.getRepositoryDirectory()
+        val fromDir = project.file("$androidxRepoOut/$projectSubdir")
+        addFile(File(fromDir, "${artifact.version}"))
     }
 
     @TaskAction
