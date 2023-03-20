@@ -25,7 +25,6 @@ import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.Mi
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.DisambiguationData
 import androidx.appactions.interaction.proto.ParamValue
-import androidx.concurrent.futures.await
 import kotlin.IllegalStateException
 import kotlin.String
 import kotlin.Throws
@@ -166,7 +165,7 @@ internal object TaskSlotProcessor {
         updatedValue: List<ParamValue>,
         binding: TaskParamBinding<T>
     ): ValidationResult {
-        return binding.resolver.notifyValueChange(updatedValue, binding.converter).await()
+        return binding.resolver.notifyValueChange(updatedValue, binding.converter)
     }
 
     @Throws(InvalidResolverException::class)
@@ -175,7 +174,7 @@ internal object TaskSlotProcessor {
         binding: TaskParamBinding<*>
     ) {
         val entityIds = disambiguationData.entitiesList.map { it.identifier }
-        binding.resolver.invokeEntityRender(entityIds).await()
+        binding.resolver.invokeEntityRender(entityIds)
     }
 
     /**
@@ -237,12 +236,8 @@ internal object TaskSlotProcessor {
         val entityConverter = binding.entityConverter
         val searchActionConverter = binding.searchActionConverter
         val searchAction = searchActionConverter.toSearchAction(ungroundedParamValue)
-        val entitySearchResult = binding.resolver.invokeLookup(searchAction).await()
-        return processEntitySearchResult<T>(
-            entitySearchResult,
-            entityConverter,
-            ungroundedParamValue
-        )
+        val entitySearchResult = binding.resolver.invokeLookup(searchAction)
+        return processEntitySearchResult(entitySearchResult, entityConverter, ungroundedParamValue)
     }
 
     /**
