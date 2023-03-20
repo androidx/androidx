@@ -467,7 +467,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
                 taskHandler.confirmationDataBindings.entries.map {
                     FulfillmentResponse.StructuredOutput.OutputValue.newBuilder()
                         .setName(it.key)
-                        .addAllValues(it.value.apply(confirmation))
+                        .addAllValues(it.value.invoke(confirmation))
                         .build()
                 },
             )
