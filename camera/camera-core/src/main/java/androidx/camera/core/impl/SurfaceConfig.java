@@ -103,7 +103,7 @@ public abstract class SurfaceConfig {
     /**
      * Transform to a SurfaceConfig object with image format and size info
      *
-     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
+     * @param cameraMode            the working camera mode.
      * @param imageFormat           the image format info for the surface configuration object
      * @param size                  the size info for the surface configuration object
      * @param surfaceSizeDefinition the surface definition for the surface configuration object
@@ -111,7 +111,7 @@ public abstract class SurfaceConfig {
      */
     @NonNull
     public static SurfaceConfig transformSurfaceConfig(
-            boolean isConcurrentCameraModeOn,
+            @CameraMode.Mode int cameraMode,
             int imageFormat,
             @NonNull Size size,
             @NonNull SurfaceSizeDefinition surfaceSizeDefinition) {
@@ -122,7 +122,7 @@ public abstract class SurfaceConfig {
         // Compare with surface size definition to determine the surface configuration size
         int sizeArea = SizeUtil.getArea(size);
 
-        if (isConcurrentCameraModeOn) {
+        if (cameraMode == CameraMode.CONCURRENT_CAMERA) {
             if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getS720pSize(imageFormat))) {
                 configSize = ConfigSize.s720p;
             } else if (sizeArea <= SizeUtil.getArea(surfaceSizeDefinition.getS1440pSize(

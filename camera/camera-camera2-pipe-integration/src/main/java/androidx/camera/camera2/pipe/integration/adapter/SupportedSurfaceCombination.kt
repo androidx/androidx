@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCor
 import androidx.camera.camera2.pipe.integration.compat.workaround.ResolutionCorrector
 import androidx.camera.camera2.pipe.integration.impl.DisplayInfoManager
 import androidx.camera.core.impl.AttachedSurfaceInfo
+import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.StreamSpec
@@ -76,9 +77,11 @@ class SupportedSurfaceCombination(
     private val hardwareLevel =
         cameraMetadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
             ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-    private val concurrentSurfaceCombinations: MutableList<SurfaceCombination> = ArrayList()
-    private val surfaceCombinations: MutableList<SurfaceCombination> = ArrayList()
-    private val outputSizesCache: MutableMap<Int, Array<Size>> = HashMap()
+    private val concurrentSurfaceCombinations: MutableList<SurfaceCombination> = mutableListOf()
+    private val surfaceCombinations: MutableList<SurfaceCombination> = mutableListOf()
+    private val ultraHighSurfaceCombinations: MutableList<SurfaceCombination> = mutableListOf()
+    private val cameraModeToSupportedCombinationsMap: MutableMap<Int, List<SurfaceCombination>> =
+        mutableMapOf()
     private var isRawSupported = false
     private var isBurstCaptureSupported = false
     private var isConcurrentCameraModeSupported = false
@@ -99,6 +102,9 @@ class SupportedSurfaceCombination(
     init {
         checkCapabilities()
         generateSupportedCombinationList()
+        if (isUltraHighResolutionSensorSupported) {
+            generateUltraHighResolutionSupportedCombinationList()
+        }
         isConcurrentCameraModeSupported =
             context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)
         if (isConcurrentCameraModeSupported) {
@@ -118,17 +124,16 @@ class SupportedSurfaceCombination(
      * Check whether the input surface configuration list is under the capability of any combination
      * of this object.
      *
-     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
+     * @param cameraMode        the working camera mode.
      * @param surfaceConfigList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
     fun checkSupported(
-        isConcurrentCameraModeOn: Boolean,
+        cameraMode: Int,
         surfaceConfigList: List<SurfaceConfig>
     ): Boolean {
         // TODO(b/262772650): camera-pipe support for concurrent camera
-        val targetSurfaceCombinations = if (isConcurrentCameraModeOn)
-            concurrentSurfaceCombinations else surfaceCombinations
+        val targetSurfaceCombinations = getSurfaceCombinationsByCameraMode(cameraMode)
         for (surfaceCombination in targetSurfaceCombinations) {
             if (surfaceCombination.isSupported(surfaceConfigList)) {
                 return true
@@ -138,26 +143,51 @@ class SupportedSurfaceCombination(
     }
 
     /**
+     * Returns the supported surface combinations according to the specified camera mode.
+     */
+    private fun getSurfaceCombinationsByCameraMode(
+        @CameraMode.Mode cameraMode: Int
+    ): List<SurfaceCombination> {
+        if (cameraModeToSupportedCombinationsMap.containsKey(cameraMode)) {
+            return cameraModeToSupportedCombinationsMap[cameraMode]!!
+        }
+        var supportedSurfaceCombinations: MutableList<SurfaceCombination> = mutableListOf()
+        when (cameraMode) {
+            CameraMode.CONCURRENT_CAMERA -> supportedSurfaceCombinations =
+                concurrentSurfaceCombinations
+
+            CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA -> {
+                supportedSurfaceCombinations.addAll(ultraHighSurfaceCombinations)
+                supportedSurfaceCombinations.addAll(surfaceCombinations)
+            }
+
+            else -> supportedSurfaceCombinations.addAll(surfaceCombinations)
+        }
+        cameraModeToSupportedCombinationsMap[cameraMode] = supportedSurfaceCombinations
+        return supportedSurfaceCombinations
+    }
+
+    /**
      * Transform to a SurfaceConfig object with image format and size info
      *
-     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
+     * @param cameraMode  the working camera mode.
      * @param imageFormat the image format info for the surface configuration object
      * @param size        the size info for the surface configuration object
      * @return new [SurfaceConfig] object
      */
     fun transformSurfaceConfig(
-        isConcurrentCameraModeOn: Boolean,
+        cameraMode: Int,
         imageFormat: Int,
         size: Size
     ): SurfaceConfig {
-        return SurfaceConfig.transformSurfaceConfig(isConcurrentCameraModeOn,
+        return SurfaceConfig.transformSurfaceConfig(cameraMode,
             imageFormat, size, surfaceSizeDefinition)
     }
 
     /**
      * Finds the suggested stream specification of the newly added UseCaseConfig.
      *
-     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
+     * @param cameraMode        the working camera mode.
      * @param existingSurfaces  the existing surfaces.
      * @param newUseCaseConfigsSupportedSizeMap newly added UseCaseConfig to supported output sizes
      * map.
@@ -167,7 +197,7 @@ class SupportedSurfaceCombination(
      * found. This may be due to no available output size or no available surface combination.
      */
     fun getSuggestedStreamSpecifications(
-        isConcurrentCameraModeOn: Boolean,
+        cameraMode: Int,
         existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>
     ): Map<UseCaseConfig<*>, StreamSpec> {
@@ -182,7 +212,7 @@ class SupportedSurfaceCombination(
         for (useCaseConfig in newUseCaseConfigs) {
             surfaceConfigs.add(
                 SurfaceConfig.transformSurfaceConfig(
-                    isConcurrentCameraModeOn,
+                    cameraMode,
                     useCaseConfig.inputFormat,
                     RESOLUTION_VGA,
                     surfaceSizeDefinition
@@ -190,7 +220,7 @@ class SupportedSurfaceCombination(
             )
         }
 
-        if (!checkSupported(isConcurrentCameraModeOn, surfaceConfigs)) {
+        if (!checkSupported(cameraMode, surfaceConfigs)) {
             throw java.lang.IllegalArgumentException(
                 "No supported surface combination is found for camera device - Id : " + cameraId +
                     ".  May be attempting to bind too many use cases. " + "Existing surfaces: " +
@@ -233,7 +263,7 @@ class SupportedSurfaceCombination(
                 val newUseCase = newUseCaseConfigs[useCasesPriorityOrder[i]]
                 surfaceConfigList.add(
                     SurfaceConfig.transformSurfaceConfig(
-                        isConcurrentCameraModeOn,
+                        cameraMode,
                         newUseCase.inputFormat,
                         size,
                         surfaceSizeDefinition
@@ -242,7 +272,7 @@ class SupportedSurfaceCombination(
             }
 
             // Check whether the SurfaceConfig combination can be supported
-            if (checkSupported(isConcurrentCameraModeOn, surfaceConfigList)) {
+            if (checkSupported(cameraMode, surfaceConfigList)) {
                 suggestedStreamSpecMap = HashMap()
                 for (useCaseConfig in newUseCaseConfigs) {
                     suggestedStreamSpecMap.put(
@@ -323,6 +353,12 @@ class SupportedSurfaceCombination(
         )
         surfaceCombinations.addAll(
             extraSupportedSurfaceCombinationsContainer[cameraId, hardwareLevel]
+        )
+    }
+
+    private fun generateUltraHighResolutionSupportedCombinationList() {
+        ultraHighSurfaceCombinations.addAll(
+            GuaranteedConfigurationsUtil.getUltraHighResolutionSupportedCombinationList()
         )
     }
 
