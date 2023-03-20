@@ -338,7 +338,7 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     override suspend fun onPreFling(available: Velocity): Velocity {
         val toFling = available.toFloat()
         val currentOffset = sheetState.requireOffset()
-        return if (toFling < 0 && currentOffset > sheetState.swipeableState.minBound) {
+        return if (toFling < 0 && currentOffset > sheetState.swipeableState.minOffset) {
             onFling(toFling)
             // since we go to the anchor with tween settling, consume all for the best UX
             available
