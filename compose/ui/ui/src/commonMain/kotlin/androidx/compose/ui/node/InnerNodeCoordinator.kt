@@ -106,7 +106,7 @@ internal class InnerNodeCoordinator(
             measure(layoutNode.childMeasurables, constraints)
         }
         onMeasured()
-        return this
+        this
     }
 
     override fun minIntrinsicWidth(height: Int) =
