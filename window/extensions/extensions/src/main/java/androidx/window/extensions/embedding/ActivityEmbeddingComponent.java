@@ -163,8 +163,11 @@ public interface ActivityEmbeddingComponent {
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     @NonNull
-    ActivityOptions setLaunchingActivityStack(@NonNull ActivityOptions options,
-            @NonNull IBinder token);
+    default ActivityOptions setLaunchingActivityStack(@NonNull ActivityOptions options,
+            @NonNull IBinder token) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 
     /**
      * Finishes a set of {@link ActivityStack}s. When an {@link ActivityStack} that was in an active
@@ -175,7 +178,10 @@ public interface ActivityEmbeddingComponent {
      *                            finished.
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
-    void finishActivityStacks(@NonNull Set<IBinder> activityStackTokens);
+    default void finishActivityStacks(@NonNull Set<IBinder> activityStackTokens) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 
     /**
      * Triggers an update of the split attributes for the top split if there is one visible by
@@ -186,7 +192,10 @@ public interface ActivityEmbeddingComponent {
      * @see #setSplitAttributesCalculator(Function)
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
-    void invalidateTopVisibleSplitAttributes();
+    default void invalidateTopVisibleSplitAttributes() {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 
     /**
      * Updates the {@link SplitAttributes} of a split pair. This is an alternative to using
@@ -196,6 +205,9 @@ public interface ActivityEmbeddingComponent {
      * @param splitAttributes The {@link SplitAttributes} to apply to the split pair.
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
-    void updateSplitAttributes(@NonNull IBinder splitInfoToken,
-            @NonNull SplitAttributes splitAttributes);
+    default void updateSplitAttributes(@NonNull IBinder splitInfoToken,
+            @NonNull SplitAttributes splitAttributes) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 }

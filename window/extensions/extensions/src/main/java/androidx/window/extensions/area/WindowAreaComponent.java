@@ -252,8 +252,11 @@ public interface WindowAreaComponent {
      * @param consumer interested in receiving updates to {@link ExtensionWindowAreaStatus}.
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
-    void addRearDisplayPresentationStatusListener(
-            @NonNull Consumer<ExtensionWindowAreaStatus> consumer);
+    default void addRearDisplayPresentationStatusListener(
+            @NonNull Consumer<ExtensionWindowAreaStatus> consumer) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 
     /**
      * Removes a listener no longer interested in receiving updates.
@@ -261,8 +264,11 @@ public interface WindowAreaComponent {
      * @param consumer no longer interested in receiving updates to WindowAreaStatus
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
-    void removeRearDisplayPresentationStatusListener(
-            @NonNull Consumer<ExtensionWindowAreaStatus> consumer);
+    default void removeRearDisplayPresentationStatusListener(
+            @NonNull Consumer<ExtensionWindowAreaStatus> consumer) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 
     /**
      * Creates and starts a rear display presentation session and sends state updates to the
@@ -288,8 +294,11 @@ public interface WindowAreaComponent {
      * another process is currently in this mode.
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
-    void startRearDisplayPresentationSession(@NonNull Activity activity,
-            @NonNull Consumer<@WindowAreaSessionState Integer> consumer);
+    default void startRearDisplayPresentationSession(@NonNull Activity activity,
+            @NonNull Consumer<@WindowAreaSessionState Integer> consumer) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 
     /**
      * Ends the current rear display presentation session and provides updates to the
@@ -300,7 +309,10 @@ public interface WindowAreaComponent {
      *
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
-    void endRearDisplayPresentationSession();
+    default void endRearDisplayPresentationSession() {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 
     /**
      * Returns the {@link ExtensionWindowAreaPresentation} connected to the active
@@ -310,6 +322,8 @@ public interface WindowAreaComponent {
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     @Nullable
-    ExtensionWindowAreaPresentation getRearDisplayPresentation();
-
+    default ExtensionWindowAreaPresentation getRearDisplayPresentation() {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 }
