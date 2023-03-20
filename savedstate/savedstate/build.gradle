@@ -14,7 +14,6 @@ android {
 }
 
 dependencies {
-
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.arch.core:core-common:2.1.0")
     implementation("androidx.lifecycle:lifecycle-common:2.6.1")
