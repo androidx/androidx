@@ -23,7 +23,6 @@ plugins {
 }
 
 dependencies {
-
     api(project(":savedstate:savedstate"))
     api(libs.kotlinStdlib)
 

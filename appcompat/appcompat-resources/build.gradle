@@ -23,11 +23,6 @@ plugins {
 }
 
 dependencies {
-    // Atomic group
-    constraints {
-        implementation(project(":appcompat:appcompat"))
-    }
-
     api("androidx.annotation:annotation:1.2.0")
     api("androidx.core:core:1.6.0")
     implementation("androidx.collection:collection:1.0.0")
