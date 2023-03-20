@@ -20,7 +20,6 @@ import android.icu.util.ULocale
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import androidx.annotation.RestrictTo
-import androidx.core.util.Consumer
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator
@@ -32,11 +31,9 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -54,63 +51,6 @@ class ComplicationDataExpressionEvaluator(
     private val sensorGateway: SensorGateway? = null,
     private val keepExpression: Boolean = false,
 ) : AutoCloseable {
-    /**
-     * Java compatibility class for [ComplicationDataExpressionEvaluator].
-     *
-     * Unlike [data], [listener] is not invoked until there is a value (until [data] is non-null).
-     */
-    class Compat
-    internal constructor(
-        val unevaluatedData: WireComplicationData,
-        private val listener: Consumer<WireComplicationData>,
-        stateStore: ObservableStateStore,
-        sensorGateway: SensorGateway?,
-        keepExpression: Boolean,
-    ) : AutoCloseable {
-        private val evaluator =
-            ComplicationDataExpressionEvaluator(
-                unevaluatedData,
-                stateStore,
-                sensorGateway,
-                keepExpression,
-            )
-
-        /** Builder for [ComplicationDataExpressionEvaluator.Compat]. */
-        class Builder(
-            private val unevaluatedData: WireComplicationData,
-            private val listener: Consumer<WireComplicationData>,
-        ) {
-            private var stateStore: ObservableStateStore = ObservableStateStore(emptyMap())
-            private var sensorGateway: SensorGateway? = null
-            private var keepExpression: Boolean = false
-
-            fun setStateStore(value: ObservableStateStore) = apply { stateStore = value }
-            fun setSensorGateway(value: SensorGateway?) = apply { sensorGateway = value }
-            fun setKeepExpression(value: Boolean) = apply { keepExpression = value }
-
-            fun build() =
-                Compat(unevaluatedData, listener, stateStore, sensorGateway, keepExpression)
-        }
-
-        /**
-         * @see ComplicationDataExpressionEvaluator.init, [executor] is used in place of
-         *   `coroutineScope`, and defaults to an immediate main-thread [Executor].
-         */
-        @JvmOverloads
-        fun init(executor: Executor = CoroutineScope(Dispatchers.Main.immediate).asExecutor()) {
-            evaluator.init(CoroutineScope(executor.asCoroutineDispatcher()))
-            evaluator.data
-                .filterNotNull()
-                .onEach(listener::accept)
-                .launchIn(CoroutineScope(executor.asCoroutineDispatcher()))
-        }
-
-        /** @see ComplicationDataExpressionEvaluator.close */
-        override fun close() {
-            evaluator.close()
-        }
-    }
-
     private val _data = MutableStateFlow<WireComplicationData?>(null)
 
     /**
