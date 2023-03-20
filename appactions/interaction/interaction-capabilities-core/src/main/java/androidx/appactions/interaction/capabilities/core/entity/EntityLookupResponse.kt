@@ -23,7 +23,7 @@ import androidx.appactions.interaction.protobuf.ByteString
 class EntityLookupResponse<T> internal constructor(
     val candidateList: List<EntityLookupCandidate<T>>,
     @property:EntityLookupStatus val status: Int,
-    val nextPageToken: ByteString,
+    val nextPageToken: ByteString?,
 ) {
     override fun toString(): String {
         return "EntityLookupResponse(" +
@@ -52,16 +52,17 @@ class EntityLookupResponse<T> internal constructor(
     }
 
     /** Builder class for [Entity]. */
-    class Builder<T>(
-        private var candidateList: List<EntityLookupCandidate<T>>,
-        @property:EntityLookupStatus private var status: Int,
-        private var nextPageToken: ByteString
-    ) {
+    class Builder<T> {
+        private var candidateList: List<EntityLookupCandidate<T>> = listOf()
+
+        @property:EntityLookupStatus
+        private var status: Int = EntityLookupResponse.SUCCESS
+        private var nextPageToken: ByteString? = null
         fun setCandidateList(candidateList: List<EntityLookupCandidate<T>>): Builder<T> = apply {
             this.candidateList = candidateList
         }
 
-        fun setStatus(status: Int): Builder<T> =
+        fun setStatus(status: @EntityLookupStatus Int): Builder<T> =
             apply {
                 this.status = status
             }
@@ -74,6 +75,7 @@ class EntityLookupResponse<T> internal constructor(
     }
 
     companion object {
+
         const val SUCCESS: Int = 0
         const val CANCELED: Int = 1
         const val INVALID_PAGE_TOKEN: Int = 2
@@ -82,6 +84,12 @@ class EntityLookupResponse<T> internal constructor(
     }
 
     // IntDef enum for lookup status.
+    @Target(
+        AnnotationTarget.PROPERTY,
+        AnnotationTarget.LOCAL_VARIABLE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.TYPE
+    )
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
         value = [

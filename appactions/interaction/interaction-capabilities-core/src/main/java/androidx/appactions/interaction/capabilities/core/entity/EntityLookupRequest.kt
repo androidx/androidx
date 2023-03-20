@@ -22,8 +22,8 @@ import androidx.appactions.interaction.protobuf.ByteString
 /** The class for the request of the entity lookup. */
 class EntityLookupRequest<T> internal constructor(
     val searchAction: SearchAction<T>,
-    val pageSize: Int,
-    val pageToken: ByteString,
+    val pageSize: Int?,
+    val pageToken: ByteString?,
 ) {
     override fun toString(): String {
         return "EntityLookupRequest(" +
@@ -52,11 +52,11 @@ class EntityLookupRequest<T> internal constructor(
     }
 
     /** Builder class for EntityLookupRequest. */
-    class Builder<T>(
-        private var searchAction: SearchAction<T>,
-        private var pageSize: Int,
-        private var pageToken: ByteString
-    ) {
+    class Builder<T> {
+        private var searchAction: SearchAction<T>? = null
+        private var pageSize: Int? = null
+        private var pageToken: ByteString? = null
+
         fun setSearchAction(searchAction: SearchAction<T>) =
             apply { this.searchAction = searchAction }
 
@@ -64,6 +64,10 @@ class EntityLookupRequest<T> internal constructor(
 
         fun setPageToken(pageToken: ByteString) = apply { this.pageToken = pageToken }
 
-        fun build() = EntityLookupRequest(searchAction, pageSize, pageToken)
+        fun build() = EntityLookupRequest(
+            requireNotNull(searchAction) { "Search action must be set." },
+            pageSize,
+            pageToken
+        )
     }
 }
