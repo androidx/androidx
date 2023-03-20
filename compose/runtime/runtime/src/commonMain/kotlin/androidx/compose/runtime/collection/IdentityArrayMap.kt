@@ -20,8 +20,11 @@ import androidx.compose.runtime.identityHashCode
 
 internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
     internal var keys = arrayOfNulls<Any?>(capacity)
+        private set
     internal var values = arrayOfNulls<Any?>(capacity)
+        private set
     internal var size = 0
+        private set
 
     fun isEmpty() = size == 0
     fun isNotEmpty() = size > 0
@@ -35,6 +38,10 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
     }
 
     operator fun set(key: Key, value: Value) {
+        val keys = keys
+        val values = values
+        val size = size
+
         val index = find(key)
         if (index >= 0) {
             values[index] = value
@@ -57,7 +64,7 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
                 )
             }
             destKeys[insertIndex] = key
-            keys = destKeys
+            this.keys = destKeys
             val destValues = if (resize) {
                 arrayOfNulls(size * 2)
             } else values
@@ -74,8 +81,8 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
                 )
             }
             destValues[insertIndex] = value
-            values = destValues
-            size++
+            this.values = destValues
+            this.size++
         }
     }
 
@@ -158,6 +165,7 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
         var low = 0
         var high = size - 1
 
+        val keys = keys
         while (low <= high) {
             val mid = (low + high).ushr(1)
             val midKey = keys[mid]
@@ -180,6 +188,9 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
      * be returned, which is always after the last key with the same [identityHashCode].
      */
     private fun findExactIndex(midIndex: Int, key: Any?, keyHash: Int): Int {
+        val keys = keys
+        val size = size
+
         // hunt down first
         for (i in midIndex - 1 downTo 0) {
             val k = keys[i]

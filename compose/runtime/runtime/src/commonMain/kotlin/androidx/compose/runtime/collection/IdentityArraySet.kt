@@ -53,6 +53,9 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      */
     fun add(value: T): Boolean {
         val index: Int
+        val size = size
+        val values = values
+
         if (size > 0) {
             index = find(value)
 
@@ -77,7 +80,7 @@ internal class IdentityArraySet<T : Any> : Set<T> {
                 destination = newSorted,
                 endIndex = insertIndex
             )
-            values = newSorted
+            this.values = newSorted
         } else {
             values.copyInto(
                 destination = values,
@@ -86,8 +89,8 @@ internal class IdentityArraySet<T : Any> : Set<T> {
                 endIndex = size
             )
         }
-        values[insertIndex] = value
-        size++
+        this.values[insertIndex] = value
+        this.size++
         return true
     }
 
@@ -96,7 +99,6 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      */
     fun clear() {
         values.fill(null)
-
         size = 0
     }
 
@@ -144,7 +146,7 @@ internal class IdentityArraySet<T : Any> : Set<T> {
             } else {
                 // slow path, merge this and other values
                 val newArray = if (needsResize) {
-                    arrayOfNulls(combinedSize)
+                    arrayOfNulls(if (thisSize > otherSize) thisSize * 2 else otherSize * 2)
                 } else {
                     thisValues
                 }
@@ -242,6 +244,9 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      */
     fun remove(value: T): Boolean {
         val index = find(value)
+        val values = values
+        val size = size
+
         if (index >= 0) {
             if (index < size - 1) {
                 values.copyInto(
@@ -251,8 +256,8 @@ internal class IdentityArraySet<T : Any> : Set<T> {
                     endIndex = size
                 )
             }
-            size--
-            values[size] = null
+            values[size - 1] = null
+            this.size--
             return true
         }
         return false
@@ -262,6 +267,9 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      * Removes all values that match [predicate].
      */
     inline fun removeValueIf(predicate: (T) -> Boolean) {
+        val values = values
+        val size = size
+
         var destinationIndex = 0
         for (i in 0 until size) {
             @Suppress("UNCHECKED_CAST")
@@ -276,7 +284,7 @@ internal class IdentityArraySet<T : Any> : Set<T> {
         for (i in destinationIndex until size) {
             values[i] = null
         }
-        size = destinationIndex
+        this.size = destinationIndex
     }
 
     /**
@@ -287,10 +295,11 @@ internal class IdentityArraySet<T : Any> : Set<T> {
         var low = 0
         var high = size - 1
         val valueIdentity = identityHashCode(value)
+        val values = values
 
         while (low <= high) {
             val mid = (low + high).ushr(1)
-            val midVal = get(mid)
+            val midVal = values[mid]
             val midIdentity = identityHashCode(midVal)
             when {
                 midIdentity < valueIdentity -> low = mid + 1
@@ -309,7 +318,14 @@ internal class IdentityArraySet<T : Any> : Set<T> {
      * If no match is found, the negative index - 1 of the position in which it would be will
      * be returned, which is always after the last item with the same [identityHashCode].
      */
-    private fun findExactIndex(midIndex: Int, value: Any?, valueHash: Int): Int {
+    private fun findExactIndex(
+        midIndex: Int,
+        value: Any?,
+        valueHash: Int
+    ): Int {
+        val values = values
+        val size = size
+
         // hunt down first
         for (i in midIndex - 1 downTo 0) {
             val v = values[i]
