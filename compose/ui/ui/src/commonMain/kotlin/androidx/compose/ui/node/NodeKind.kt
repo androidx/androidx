@@ -30,7 +30,6 @@ import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode
 import androidx.compose.ui.input.pointer.PointerInputModifier
-import androidx.compose.ui.input.pointer.SuspendPointerInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.layout.IntermediateLayoutModifierNode
 import androidx.compose.ui.layout.LayoutModifier
@@ -41,7 +40,6 @@ import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalNode
 import androidx.compose.ui.modifier.ModifierLocalProvider
-import androidx.compose.ui.node.Nodes.SuspendPointerInput
 import androidx.compose.ui.semantics.SemanticsModifier
 
 @JvmInline
@@ -97,8 +95,6 @@ internal object Nodes {
     @JvmStatic
     inline val CompositionLocalConsumer
         get() = NodeKind<CompositionLocalConsumerModifierNode>(0b1 shl 15)
-    @JvmStatic
-    inline val SuspendPointerInput get() = NodeKind<SuspendPointerInputModifierNode>(0b1 shl 16)
     @JvmStatic
     inline val SoftKeyboardKeyInput
         get() = NodeKind<SoftKeyboardInterceptionModifierNode>(0b1 shl 17)
@@ -193,9 +189,6 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     }
     if (node is CompositionLocalConsumerModifierNode) {
         mask = mask or Nodes.CompositionLocalConsumer
-    }
-    if (node is SuspendPointerInputModifierNode) {
-        mask = mask or SuspendPointerInput
     }
     if (node is SoftKeyboardInterceptionModifierNode) {
         mask = mask or Nodes.SoftKeyboardKeyInput

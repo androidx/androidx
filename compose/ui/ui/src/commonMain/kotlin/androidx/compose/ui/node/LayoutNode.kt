@@ -47,7 +47,7 @@ import androidx.compose.ui.node.LayoutNode.LayoutState.Measuring
 import androidx.compose.ui.node.Nodes.FocusEvent
 import androidx.compose.ui.node.Nodes.FocusProperties
 import androidx.compose.ui.node.Nodes.FocusTarget
-import androidx.compose.ui.node.Nodes.SuspendPointerInput
+import androidx.compose.ui.node.Nodes.PointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -665,7 +665,9 @@ internal class LayoutNode(
                 field = value
                 onDensityOrLayoutDirectionChanged()
 
-                invalidatePointerInputModifiers()
+                nodes.headToTail(type = PointerInput) {
+                    it.onDensityChange()
+                }
             }
         }
 
@@ -684,7 +686,10 @@ internal class LayoutNode(
         set(value) {
             if (field != value) {
                 field = value
-                invalidatePointerInputModifiers()
+
+                nodes.headToTail(type = PointerInput) {
+                    it.onViewConfigurationChange()
+                }
             }
         }
 
@@ -713,14 +718,6 @@ internal class LayoutNode(
         parent?.invalidateLayer()
         // and draw modifiers after graphics layers on the node
         invalidateLayers()
-    }
-
-    // The pointer input's code block (for handling incoming events) needs to be reset if either
-    // the density or view configuration changes (see implementation for more details).
-    private fun invalidatePointerInputModifiers() {
-        nodes.headToTail(type = SuspendPointerInput) {
-            it.resetBlock()
-        }
     }
 
     /**
