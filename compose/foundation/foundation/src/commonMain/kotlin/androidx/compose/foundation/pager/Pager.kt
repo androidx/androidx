@@ -72,6 +72,84 @@ import kotlinx.coroutines.launch
  * Please refer to the sample to learn how to use this API.
  * @sample androidx.compose.foundation.samples.SimpleHorizontalPagerSample
  *
+ * @param state The state to control this pager
+ * @param modifier A modifier instance to be applied to this Pager outer layout
+ * @param contentPadding a padding around the whole content. This will add padding for the
+ * content after it has been clipped, which is not possible via [modifier] param. You can use it
+ * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
+ * between the pages.
+ * @param pageSize Use this to change how the pages will look like inside this pager.
+ * @param beyondBoundsPageCount Pages to load before and after the list of visible
+ * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
+ * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
+ * This should be used as an optimization to pre-load a couple of pages before and after the visible
+ * ones.
+ * @param pageSpacing The amount of space to be used to separate the pages in this Pager
+ * @param verticalAlignment How pages are aligned vertically in this Pager.
+ * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
+ * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
+ * is allowed. You can still scroll programmatically using [PagerState.scroll] even when it is
+ * disabled.
+ * @param reverseLayout reverse the direction of scrolling and layout.
+ * @param key a stable and unique key representing the item. When you specify the key the scroll
+ * position will be maintained based on the key, which means if you add/remove items before the
+ * current visible item the item with the given key will be kept as the first visible one.
+ * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager]
+ * behaves with nested lists. The default behavior will see [Pager] to consume all nested deltas.
+ * @param pageContent This Pager's page Composable.
+ */
+@Composable
+@ExperimentalFoundationApi
+fun HorizontalPager(
+    state: PagerState,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    pageSize: PageSize = PageSize.Fill,
+    beyondBoundsPageCount: Int = 0,
+    pageSpacing: Dp = 0.dp,
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
+    userScrollEnabled: Boolean = true,
+    reverseLayout: Boolean = false,
+    key: ((index: Int) -> Any)? = null,
+    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
+        Orientation.Horizontal
+    ),
+    pageContent: @Composable (page: Int) -> Unit
+) {
+    Pager(
+        state = state,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        pageSize = pageSize,
+        beyondBoundsPageCount = beyondBoundsPageCount,
+        pageSpacing = pageSpacing,
+        orientation = Orientation.Horizontal,
+        verticalAlignment = verticalAlignment,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+        reverseLayout = reverseLayout,
+        key = key,
+        pageNestedScrollConnection = pageNestedScrollConnection,
+        pageContent = pageContent
+    )
+}
+
+/**
+ * A Pager that scrolls horizontally. Pages are lazily placed in accordance to the available
+ * viewport size. By definition, pages in a [Pager] have the same size, defined by [pageSize] and
+ * use a snap animation (provided by [flingBehavior] to scroll pages into a specific position). You
+ * can use [beyondBoundsPageCount] to place more pages before and after the visible pages.
+ *
+ * If you need snapping with pages of different size, you can use a [SnapFlingBehavior] with a
+ * [SnapLayoutInfoProvider] adapted to a LazyList.
+ * @see androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider for the implementation
+ * of a [SnapLayoutInfoProvider] that uses [androidx.compose.foundation.lazy.LazyListState].
+ *
+ * Please refer to the sample to learn how to use this API.
+ * @sample androidx.compose.foundation.samples.SimpleHorizontalPagerSample
+ *
  * @param pageCount The number of pages this Pager will contain
  * @param modifier A modifier instance to be applied to this Pager outer layout
  * @param state The state to control this pager
@@ -99,12 +177,38 @@ import kotlinx.coroutines.launch
  * behaves with nested lists. The default behavior will see [Pager] to consume all nested deltas.
  * @param pageContent This Pager's page Composable.
  */
+@Deprecated(
+    "Please use the overload without pageCount. pageCount should be provided " +
+        "through PagerState.", ReplaceWith(
+        """HorizontalPager(
+            modifier = modifier,
+            state = state,
+            pageSpacing = pageSpacing,
+            horizontalAlignment = horizontalAlignment,
+            userScrollEnabled = userScrollEnabled,
+            reverseLayout = reverseLayout,
+            contentPadding = contentPadding,
+            beyondBoundsPageCount = beyondBoundsPageCount,
+            pageSize = pageSize,
+            flingBehavior = flingBehavior,
+            key = key,
+            pageNestedScrollConnection = pageNestedScrollConnection,
+            pageContent = pageContent
+        )""",
+        imports = arrayOf(
+            "androidx.compose.foundation.gestures.Orientation",
+            "androidx.compose.foundation.layout.PaddingValues",
+            "androidx.compose.foundation.pager.PageSize",
+            "androidx.compose.foundation.pager.PagerDefaults"
+        )
+    )
+)
 @Composable
 @ExperimentalFoundationApi
 fun HorizontalPager(
     pageCount: Int,
     modifier: Modifier = Modifier,
-    state: PagerState = rememberPagerState(),
+    state: PagerState = rememberPagerState { pageCount },
     contentPadding: PaddingValues = PaddingValues(0.dp),
     pageSize: PageSize = PageSize.Fill,
     beyondBoundsPageCount: Int = 0,
@@ -120,22 +224,99 @@ fun HorizontalPager(
     pageContent: @Composable (page: Int) -> Unit
 ) {
     Pager(
-        modifier = modifier,
-        pageCount = pageCount,
         state = state,
+        modifier = modifier,
         contentPadding = contentPadding,
-        reverseLayout = reverseLayout,
-        orientation = Orientation.Horizontal,
-        flingBehavior = flingBehavior,
-        userScrollEnabled = userScrollEnabled,
         pageSize = pageSize,
         beyondBoundsPageCount = beyondBoundsPageCount,
         pageSpacing = pageSpacing,
-        pageContent = pageContent,
-        pageNestedScrollConnection = pageNestedScrollConnection,
+        orientation = Orientation.Horizontal,
         verticalAlignment = verticalAlignment,
         horizontalAlignment = Alignment.CenterHorizontally,
-        key = key
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+        reverseLayout = reverseLayout,
+        key = key,
+        pageNestedScrollConnection = pageNestedScrollConnection,
+        pageContent = pageContent
+    )
+}
+
+/**
+ * A Pager that scrolls vertically. Pages are lazily placed in accordance to the available
+ * viewport size. By definition, pages in a [Pager] have the same size, defined by [pageSize] and
+ * use a snap animation (provided by [flingBehavior] to scroll pages into a specific position). You
+ * can use [beyondBoundsPageCount] to place more pages before and after the visible pages.
+ *
+ * If you need snapping with pages of different size, you can use a [SnapFlingBehavior] with a
+ * [SnapLayoutInfoProvider] adapted to a LazyList.
+ * @see androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider for the implementation
+ * of a [SnapLayoutInfoProvider] that uses [androidx.compose.foundation.lazy.LazyListState].
+ *
+ * Please refer to the sample to learn how to use this API.
+ * @sample androidx.compose.foundation.samples.SimpleVerticalPagerSample
+ *
+ * @param state The state to control this pager
+ * @param modifier A modifier instance to be apply to this Pager outer layout
+ * @param contentPadding a padding around the whole content. This will add padding for the
+ * content after it has been clipped, which is not possible via [modifier] param. You can use it
+ * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
+ * between the pages.
+ * @param pageSize Use this to change how the pages will look like inside this pager.
+ * @param beyondBoundsPageCount Pages to load before and after the list of visible
+ * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
+ * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
+ * This should be used as an optimization to pre-load a couple of pages before and after the visible
+ * ones.
+ * @param pageSpacing The amount of space to be used to separate the pages in this Pager
+ * @param horizontalAlignment How pages are aligned horizontally in this Pager.
+ * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
+ * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
+ * is allowed. You can still scroll programmatically using [PagerState.scroll] even when it is
+ * disabled.
+ * @param reverseLayout reverse the direction of scrolling and layout.
+ * @param key a stable and unique key representing the item. When you specify the key the scroll
+ * position will be maintained based on the key, which means if you add/remove items before the
+ * current visible item the item with the given key will be kept as the first visible one.
+ * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager] behaves
+ * with nested lists. The default behavior will see [Pager] to consume all nested deltas.
+ * @param pageContent This Pager's page Composable.
+ */
+@Composable
+@ExperimentalFoundationApi
+fun VerticalPager(
+    state: PagerState,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    pageSize: PageSize = PageSize.Fill,
+    beyondBoundsPageCount: Int = 0,
+    pageSpacing: Dp = 0.dp,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
+    userScrollEnabled: Boolean = true,
+    reverseLayout: Boolean = false,
+    key: ((index: Int) -> Any)? = null,
+    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
+        Orientation.Vertical
+    ),
+    pageContent: @Composable (page: Int) -> Unit
+) {
+    Pager(
+        state = state,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        pageSize = pageSize,
+        beyondBoundsPageCount = beyondBoundsPageCount,
+        pageSpacing = pageSpacing,
+        orientation = Orientation.Vertical,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalAlignment = horizontalAlignment,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+        reverseLayout = reverseLayout,
+        key = key,
+        pageNestedScrollConnection = pageNestedScrollConnection,
+        pageContent = pageContent
     )
 }
 
@@ -180,12 +361,38 @@ fun HorizontalPager(
  * with nested lists. The default behavior will see [Pager] to consume all nested deltas.
  * @param pageContent This Pager's page Composable.
  */
+@Deprecated(
+    "Please use the overload without pageCount. pageCount should be provided " +
+        "through PagerState.", ReplaceWith(
+        """VerticalPager(
+            modifier = modifier,
+            state = state,
+            pageSpacing = pageSpacing,
+            horizontalAlignment = horizontalAlignment,
+            userScrollEnabled = userScrollEnabled,
+            reverseLayout = reverseLayout,
+            contentPadding = contentPadding,
+            beyondBoundsPageCount = beyondBoundsPageCount,
+            pageSize = pageSize,
+            flingBehavior = flingBehavior,
+            key = key,
+            pageNestedScrollConnection = pageNestedScrollConnection,
+            pageContent = pageContent
+        )""",
+        imports = arrayOf(
+            "androidx.compose.foundation.gestures.Orientation",
+            "androidx.compose.foundation.layout.PaddingValues",
+            "androidx.compose.foundation.pager.PageSize",
+            "androidx.compose.foundation.pager.PagerDefaults"
+        )
+    )
+)
 @Composable
 @ExperimentalFoundationApi
 fun VerticalPager(
     pageCount: Int,
     modifier: Modifier = Modifier,
-    state: PagerState = rememberPagerState(),
+    state: PagerState = rememberPagerState { pageCount },
     contentPadding: PaddingValues = PaddingValues(0.dp),
     pageSize: PageSize = PageSize.Fill,
     beyondBoundsPageCount: Int = 0,
@@ -201,22 +408,21 @@ fun VerticalPager(
     pageContent: @Composable (page: Int) -> Unit
 ) {
     Pager(
-        modifier = modifier,
-        pageCount = pageCount,
         state = state,
+        modifier = modifier,
         contentPadding = contentPadding,
-        reverseLayout = reverseLayout,
-        orientation = Orientation.Vertical,
-        flingBehavior = flingBehavior,
-        userScrollEnabled = userScrollEnabled,
         pageSize = pageSize,
         beyondBoundsPageCount = beyondBoundsPageCount,
         pageSpacing = pageSpacing,
-        pageContent = pageContent,
-        pageNestedScrollConnection = pageNestedScrollConnection,
+        orientation = Orientation.Vertical,
         verticalAlignment = Alignment.CenterVertically,
         horizontalAlignment = horizontalAlignment,
-        key = key
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+        reverseLayout = reverseLayout,
+        key = key,
+        pageNestedScrollConnection = pageNestedScrollConnection,
+        pageContent = pageContent
     )
 }
 
@@ -457,9 +663,11 @@ private fun SnapLayoutInfoProvider(
             val effectivePageSizePx = pagerState.pageSize + pagerState.pageSpacing
             val animationOffsetPx =
                 decayAnimationSpec.calculateTargetValue(0f, initialVelocity)
-            val startPage = pagerState.firstVisiblePageInfo?.let {
-                if (initialVelocity < 0) it.index + 1 else it.index
-            } ?: pagerState.currentPage
+            val startPage = if (initialVelocity < 0) {
+                pagerState.firstVisiblePage + 1
+            } else {
+                pagerState.firstVisiblePage
+            }
 
             val scrollOffset =
                 layoutInfo.visiblePagesInfo.fastFirstOrNull { it.index == startPage }?.offset ?: 0

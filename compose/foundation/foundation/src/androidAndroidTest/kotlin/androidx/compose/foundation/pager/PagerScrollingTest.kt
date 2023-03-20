@@ -41,8 +41,10 @@ class PagerScrollingTest(
     @Test
     fun swipeWithLowVelocity_shouldBounceBack() {
         // Arrange
-        val state = PagerState(5)
-        createPager(state = state, modifier = Modifier.fillMaxSize())
+        createPager(
+            initialPage = 5,
+            modifier = Modifier.fillMaxSize()
+        )
         val delta = pagerSize * 0.4f * scrollForwardSign
 
         // Act - forward
@@ -75,8 +77,11 @@ class PagerScrollingTest(
     @Test
     fun swipeWithHighVelocity_shouldGoToNextPage() {
         // Arrange
-        val state = PagerState(5)
-        createPager(state = state, modifier = Modifier.fillMaxSize())
+        createPager(
+            initialPage = 5,
+
+            modifier = Modifier.fillMaxSize()
+        )
         // make sure the scroll distance is not enough to go to next page
         val delta = pagerSize * 0.4f * scrollForwardSign
 
@@ -110,8 +115,11 @@ class PagerScrollingTest(
     @Test
     fun swipeWithHighVelocity_overHalfPage_shouldGoToNextPage() {
         // Arrange
-        val state = PagerState(5)
-        createPager(state = state, modifier = Modifier.fillMaxSize())
+        createPager(
+            initialPage = 5,
+
+            modifier = Modifier.fillMaxSize()
+        )
         // make sure the scroll distance is not enough to go to next page
         val delta = pagerSize * 0.8f * scrollForwardSign
 
@@ -145,8 +153,11 @@ class PagerScrollingTest(
     @Test
     fun scrollWithoutVelocity_shouldSettlingInClosestPage() {
         // Arrange
-        val state = PagerState(5)
-        createPager(state = state, modifier = Modifier.fillMaxSize())
+        createPager(
+            initialPage = 5,
+
+            modifier = Modifier.fillMaxSize()
+        )
         // This will scroll 1 whole page before flinging
         val delta = pagerSize * 1.4f * scrollForwardSign
 
@@ -157,9 +168,9 @@ class PagerScrollingTest(
         rule.waitForIdle()
 
         // Assert
-        assertThat(state.currentPage).isAtMost(7)
-        rule.onNodeWithTag("${state.currentPage}").assertIsDisplayed()
-        confirmPageIsInCorrectPosition(state.currentPage)
+        assertThat(pagerState.currentPage).isAtMost(7)
+        rule.onNodeWithTag("${pagerState.currentPage}").assertIsDisplayed()
+        confirmPageIsInCorrectPosition(pagerState.currentPage)
 
         // Act - backward
         onPager().performTouchInput {
@@ -168,21 +179,20 @@ class PagerScrollingTest(
         rule.waitForIdle()
 
         // Assert
-        assertThat(state.currentPage).isAtLeast(5)
-        rule.onNodeWithTag("${state.currentPage}").assertIsDisplayed()
-        confirmPageIsInCorrectPosition(state.currentPage)
+        assertThat(pagerState.currentPage).isAtLeast(5)
+        rule.onNodeWithTag("${pagerState.currentPage}").assertIsDisplayed()
+        confirmPageIsInCorrectPosition(pagerState.currentPage)
     }
 
     @Test
     fun scrollWithSameVelocity_shouldYieldSameResult_forward() {
         // Arrange
         var initialPage = 1
-        val state = PagerState(initialPage)
         createPager(
             pageSize = { PageSize.Fixed(200.dp) },
-            state = state,
-            modifier = Modifier.fillMaxSize(),
+            initialPage = initialPage,
             pageCount = { 100 },
+            modifier = Modifier.fillMaxSize(),
             snappingPage = PagerSnapDistance.atMost(3)
         )
         // This will scroll 0.5 page before flinging
@@ -194,13 +204,13 @@ class PagerScrollingTest(
         }
         rule.waitForIdle()
 
-        val pageDisplacement = state.currentPage - initialPage
+        val pageDisplacement = pagerState.currentPage - initialPage
 
         // Repeat starting from different places
         // reset
         initialPage = 10
         rule.runOnIdle {
-            runBlocking { state.scrollToPage(initialPage) }
+            runBlocking { pagerState.scrollToPage(initialPage) }
         }
 
         onPager().performTouchInput {
@@ -208,11 +218,11 @@ class PagerScrollingTest(
         }
         rule.waitForIdle()
 
-        assertThat(state.currentPage - initialPage).isEqualTo(pageDisplacement)
+        assertThat(pagerState.currentPage - initialPage).isEqualTo(pageDisplacement)
 
         initialPage = 50
         rule.runOnIdle {
-            runBlocking { state.scrollToPage(initialPage) }
+            runBlocking { pagerState.scrollToPage(initialPage) }
         }
 
         onPager().performTouchInput {
@@ -220,19 +230,18 @@ class PagerScrollingTest(
         }
         rule.waitForIdle()
 
-        assertThat(state.currentPage - initialPage).isEqualTo(pageDisplacement)
+        assertThat(pagerState.currentPage - initialPage).isEqualTo(pageDisplacement)
     }
 
     @Test
     fun scrollWithSameVelocity_shouldYieldSameResult_backward() {
         // Arrange
         var initialPage = 90
-        val state = PagerState(initialPage)
         createPager(
             pageSize = { PageSize.Fixed(200.dp) },
-            state = state,
-            modifier = Modifier.fillMaxSize(),
+            initialPage = initialPage,
             pageCount = { 100 },
+            modifier = Modifier.fillMaxSize(),
             snappingPage = PagerSnapDistance.atMost(3)
         )
         // This will scroll 0.5 page before flinging
@@ -244,13 +253,13 @@ class PagerScrollingTest(
         }
         rule.waitForIdle()
 
-        val pageDisplacement = state.currentPage - initialPage
+        val pageDisplacement = pagerState.currentPage - initialPage
 
         // Repeat starting from different places
         // reset
         initialPage = 70
         rule.runOnIdle {
-            runBlocking { state.scrollToPage(initialPage) }
+            runBlocking { pagerState.scrollToPage(initialPage) }
         }
 
         onPager().performTouchInput {
@@ -258,11 +267,11 @@ class PagerScrollingTest(
         }
         rule.waitForIdle()
 
-        assertThat(state.currentPage - initialPage).isEqualTo(pageDisplacement)
+        assertThat(pagerState.currentPage - initialPage).isEqualTo(pageDisplacement)
 
         initialPage = 30
         rule.runOnIdle {
-            runBlocking { state.scrollToPage(initialPage) }
+            runBlocking { pagerState.scrollToPage(initialPage) }
         }
 
         onPager().performTouchInput {
@@ -270,7 +279,7 @@ class PagerScrollingTest(
         }
         rule.waitForIdle()
 
-        assertThat(state.currentPage - initialPage).isEqualTo(pageDisplacement)
+        assertThat(pagerState.currentPage - initialPage).isEqualTo(pageDisplacement)
     }
 
     companion object {

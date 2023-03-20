@@ -50,7 +50,7 @@ internal fun rememberPagerMeasurePolicy(
     pageSize: PageSize,
     horizontalAlignment: Alignment.Horizontal?,
     verticalAlignment: Alignment.Vertical?,
-    pageCount: Int,
+    pageCount: () -> Int,
     beyondBoundsInfo: LazyListBeyondBoundsInfo
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     contentPadding,
@@ -156,7 +156,7 @@ internal fun rememberPagerMeasurePolicy(
             beforeContentPadding = beforeContentPadding,
             afterContentPadding = afterContentPadding,
             constraints = contentConstraints,
-            pageCount = pageCount,
+            pageCount = pageCount(),
             spaceBetweenPages = spaceBetweenPages,
             mainAxisAvailableSize = mainAxisAvailableSize,
             visualPageOffset = visualItemOffset,
