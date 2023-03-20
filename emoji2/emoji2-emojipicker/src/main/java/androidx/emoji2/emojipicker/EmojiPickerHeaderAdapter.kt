@@ -58,10 +58,10 @@ internal class EmojiPickerHeaderAdapter(
             R.id.emoji_picker_header_icon
         ).apply {
             setImageDrawable(context.getDrawable(emojiPickerItems.getHeaderIconId(i)))
-            setOnClickListener { onHeaderIconClicked(i) }
             isSelected = isItemSelected
             contentDescription = emojiPickerItems.getHeaderIconDescription(i)
         }
+        viewHolder.itemView.setOnClickListener { onHeaderIconClicked(i) }
         if (isItemSelected) {
             headerIcon.post {
                 headerIcon.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_HOVER_ENTER)
