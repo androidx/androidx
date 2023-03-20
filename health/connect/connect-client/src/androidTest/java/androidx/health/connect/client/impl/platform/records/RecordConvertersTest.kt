@@ -484,12 +484,12 @@ class RecordConvertersTest {
                     endTime = END_TIME,
                     endZoneOffset = END_ZONE_OFFSET,
                     metadata = METADATA,
-                    volume = Volume.liters(333.3),
+                    volume = Volume.liters(90.0),
                 )
                 .toPlatformRecord() as PlatformHydrationRecord
 
         assertPlatformRecord(platformHydration) {
-            assertThat(volume).isEqualTo(PlatformVolume.fromLiters(333.3))
+            assertThat(volume).isEqualTo(PlatformVolume.fromLiters(90.0))
         }
     }
 
@@ -1158,14 +1158,14 @@ class RecordConvertersTest {
                     PLATFORM_METADATA,
                     START_TIME,
                     END_TIME,
-                    PlatformVolume.fromLiters(500.0)
+                    PlatformVolume.fromLiters(90.0)
                 )
                 .setStartZoneOffset(START_ZONE_OFFSET)
                 .setEndZoneOffset(END_ZONE_OFFSET)
                 .build()
                 .toSdkRecord() as HydrationRecord
 
-        assertSdkRecord(sdkHydration) { assertThat(volume).isEqualTo(Volume.liters(500.0)) }
+        assertSdkRecord(sdkHydration) { assertThat(volume).isEqualTo(Volume.liters(90.0)) }
     }
 
     @Test
