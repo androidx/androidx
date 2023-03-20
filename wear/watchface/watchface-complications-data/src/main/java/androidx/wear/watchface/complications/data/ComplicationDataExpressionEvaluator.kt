@@ -178,8 +178,8 @@ class ComplicationDataExpressionEvaluator(
             evaluator =
                 DynamicTypeEvaluator(
                     /* platformDataSourcesInitiallyEnabled = */ true,
-                    sensorGateway,
                     stateStore,
+                    sensorGateway,
                 )
             for (receiver in state.value.pending) receiver.bind()
             for (receiver in state.value.pending) receiver.startEvaluation()

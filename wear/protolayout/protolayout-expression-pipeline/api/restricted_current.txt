@@ -7,8 +7,8 @@ package androidx.wear.protolayout.expression.pipeline {
   }
 
   public class DynamicTypeEvaluator implements java.lang.AutoCloseable {
-    ctor public DynamicTypeEvaluator(boolean, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway?, androidx.wear.protolayout.expression.pipeline.ObservableStateStore);
-    ctor public DynamicTypeEvaluator(boolean, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway?, androidx.wear.protolayout.expression.pipeline.ObservableStateStore, androidx.wear.protolayout.expression.pipeline.QuotaManager);
+    ctor public DynamicTypeEvaluator(boolean, androidx.wear.protolayout.expression.pipeline.ObservableStateStore, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway?);
+    ctor public DynamicTypeEvaluator(boolean, androidx.wear.protolayout.expression.pipeline.ObservableStateStore, androidx.wear.protolayout.expression.pipeline.QuotaManager, androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway?);
     method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString, android.icu.util.ULocale, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.String!>);
     method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
     method public androidx.wear.protolayout.expression.pipeline.BoundDynamicType bind(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Float!>);
