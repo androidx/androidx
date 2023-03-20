@@ -79,7 +79,6 @@ internal class UwbClientSessionScopeImpl(
             .setSessionId(parameters.sessionId)
             .setUwbConfigId(configId)
             .setRangingUpdateRate(updateRate)
-            .setSessionKeyInfo(parameters.sessionKeyInfo)
             .setComplexChannel(
                 parameters.complexChannel?.let {
                     UwbComplexChannel.Builder()
@@ -87,6 +86,9 @@ internal class UwbClientSessionScopeImpl(
                         .setPreambleIndex(it.preambleIndex)
                         .build()
                 })
+        if (parameters.sessionKeyInfo != null) {
+            parametersBuilder.setSessionKeyInfo(parameters.sessionKeyInfo)
+        }
         for (peer in parameters.peerDevices) {
             parametersBuilder.addPeerDevice(UwbDevice.createForAddress(peer.address.address))
         }
