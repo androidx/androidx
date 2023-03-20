@@ -49,6 +49,7 @@ import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.compat.workaround.shouldStopRepeatingBeforeCapture
+import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
@@ -94,6 +95,7 @@ class CapturePipelineImpl @Inject constructor(
     private val torchControl: TorchControl,
     private val threads: UseCaseThreads,
     private val requestListener: ComboRequestListener,
+    private val useTorchAsFlash: UseTorchAsFlash,
     cameraProperties: CameraProperties,
     private val useCaseCameraState: UseCaseCameraState,
     useCaseGraphConfig: UseCaseGraphConfig,
@@ -314,11 +316,10 @@ class CapturePipelineImpl @Inject constructor(
         }
     }.result.await()
 
-    // TODO(b/209383160): Sync TorchAsFlash Quirk
     private fun isTorchAsFlash(@FlashType flashType: Int): Boolean {
         return template == CameraDevice.TEMPLATE_RECORD ||
-            flashType == FLASH_TYPE_USE_TORCH_AS_FLASH /* ||
-            mUseTorchAsFlash.shouldUseTorchAsFlash() */
+            flashType == FLASH_TYPE_USE_TORCH_AS_FLASH ||
+            useTorchAsFlash.shouldUseTorchAsFlash()
     }
 
     @Module

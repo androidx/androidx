@@ -51,8 +51,23 @@ class CameraQuirks @Inject constructor(
         if (CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)) {
             quirks.add(CamcorderProfileResolutionQuirk(streamConfigurationMapCompat))
         }
+        if (CameraNoResponseWhenEnablingFlashQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(CameraNoResponseWhenEnablingFlashQuirk())
+        }
+        if (FlashTooSlowQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(FlashTooSlowQuirk())
+        }
         if (ImageCaptureFailWithAutoFlashQuirk.isEnabled(cameraMetadata)) {
             quirks.add(ImageCaptureFailWithAutoFlashQuirk())
+        }
+        if (ImageCaptureFlashNotFireQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(ImageCaptureFlashNotFireQuirk())
+        }
+        if (ImageCaptureWashedOutImageQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(ImageCaptureWashedOutImageQuirk())
+        }
+        if (ImageCaptureWithFlashUnderexposureQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(ImageCaptureWithFlashUnderexposureQuirk())
         }
         if (JpegHalCorruptImageQuirk.isEnabled()) {
             quirks.add(JpegHalCorruptImageQuirk())
