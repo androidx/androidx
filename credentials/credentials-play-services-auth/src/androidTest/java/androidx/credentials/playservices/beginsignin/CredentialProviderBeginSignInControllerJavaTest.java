@@ -29,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -109,8 +110,6 @@ public class CredentialProviderBeginSignInControllerJavaTest {
 
     @Test
     public void convertRequestToPlayServices_setGoogleIdOptionRequestAndTrueAutoSelect_success() {
-        // TODO(b/270239625) fix pre u test cases for new GoogleIdOption signature
-        /*
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
 
@@ -119,7 +118,8 @@ public class CredentialProviderBeginSignInControllerJavaTest {
                 .setNonce("nonce")
                 .setFilterByAuthorizedAccounts(true)
                 .setRequestVerifiedPhoneNumber(false)
-                .associatedLinkedAccounts("link_service_id", List.of("a", "b", "c"))
+                .associateLinkedAccounts("link_service_id", List.of("a", "b", "c"))
+                .setAutoSelectEnabled(true)
                 .build();
 
         activityScenario.onActivity(activity -> {
@@ -147,6 +147,5 @@ public class CredentialProviderBeginSignInControllerJavaTest {
                     option.getIdTokenDepositionScopes());
 
         });
-        */
     }
 }

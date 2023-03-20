@@ -72,8 +72,7 @@ class BeginSignInControllerUtility {
                 } else if (option is GetGoogleIdOption) {
                     requestBuilder.setGoogleIdTokenRequestOptions(
                         convertToGoogleIdTokenOption(option))
-                    // TODO(b/270239625) add this bit to GID
-                    // autoSelect = autoSelect || option.isAutoSelectEnabled
+                    autoSelect = autoSelect || option.autoSelectEnabled
                 }
             }
             return requestBuilder
