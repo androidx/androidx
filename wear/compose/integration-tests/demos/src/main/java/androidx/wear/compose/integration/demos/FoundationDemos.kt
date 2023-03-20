@@ -96,6 +96,23 @@ val WearFoundationDemos = DemoCategory(
                 ) {
                     ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
                 },
+            ),
+        ),
+        DemoCategory(
+            "Swipe To Reveal",
+            listOf(
+                ComposableDemo("Swipe To Reveal Chip") {
+                    SwipeToRevealChips()
+                },
+                ComposableDemo("Swipe to Reveal Card") {
+                    SwipeToRevealCards()
+                },
+                ComposableDemo("Swipe to Reveal - Custom") {
+                    SwipeToRevealWithSingleAction()
+                },
+                ComposableDemo("Swipe to Reveal - RTL") {
+                    SwipeToRevealInRtl()
+                }
             )
         )
     ),
