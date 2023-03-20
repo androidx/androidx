@@ -21,6 +21,7 @@ package androidx.camera.camera2.pipe.integration.compat
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.workaround.AutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
+import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlash
 import dagger.Module
 
 /** Dependency bindings for adding camera compat related classes (e.g. workarounds, quirks etc.) */
@@ -28,6 +29,7 @@ import dagger.Module
     includes = [
         AutoFlashAEModeDisabler.Bindings::class,
         MeteringRegionCorrection.Bindings::class,
+        UseTorchAsFlash.Bindings::class,
     ],
 )
 abstract class CameraCompatModule
