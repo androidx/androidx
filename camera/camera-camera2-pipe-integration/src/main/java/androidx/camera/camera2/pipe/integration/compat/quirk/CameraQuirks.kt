@@ -47,6 +47,9 @@ class CameraQuirks @Inject constructor(
 
         // Go through all defined camera quirks in lexicographical order,
         // and add them to `quirks` if they should be loaded
+        if (AeFpsRangeLegacyQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(AeFpsRangeLegacyQuirk(cameraMetadata))
+        }
         if (AfRegionFlipHorizontallyQuirk.isEnabled(cameraMetadata)) {
             quirks.add(AfRegionFlipHorizontallyQuirk())
         }
