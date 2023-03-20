@@ -30,8 +30,9 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,19 +49,11 @@ class ComplicationDataExpressionEvaluatorTest {
     }
 
     @Test
-    fun data_notInitialized_setToNull() {
-        ComplicationDataExpressionEvaluator(DATA_WITH_NO_EXPRESSION).use { evaluator ->
-            assertThat(evaluator.data.value).isNull()
-        }
-    }
+    fun evaluate_noExpression_returnsUnevaluated() = runBlocking {
+        val evaluator = ComplicationDataExpressionEvaluator()
 
-    @Test
-    fun data_noExpression_setToUnevaluated() {
-        ComplicationDataExpressionEvaluator(DATA_WITH_NO_EXPRESSION).use { evaluator ->
-            evaluator.init()
-
-            assertThat(evaluator.data.value).isEqualTo(DATA_WITH_NO_EXPRESSION)
-        }
+        assertThat(evaluator.evaluate(DATA_WITH_NO_EXPRESSION).firstOrNull())
+            .isEqualTo(DATA_WITH_NO_EXPRESSION)
     }
 
     /**
@@ -197,36 +190,34 @@ class ComplicationDataExpressionEvaluatorTest {
     }
 
     @Test
-    fun data_withExpression_setToEvaluated() {
+    fun evaluate_withExpression_returnsEvaluated() = runBlocking {
         for (scenario in DataWithExpressionScenario.values()) {
             // Defensive copy due to in-place evaluation.
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
             val stateStore = ObservableStateStore(mapOf())
-            ComplicationDataExpressionEvaluator(expressed, stateStore).use { evaluator ->
-                val allEvaluations =
-                    evaluator.data
-                        .filterNotNull()
-                        .shareIn(
-                            CoroutineScope(Dispatchers.Main.immediate),
-                            SharingStarted.Eagerly,
-                            replay = 10,
-                        )
-                evaluator.init()
+            val evaluator = ComplicationDataExpressionEvaluator(stateStore)
+            val allEvaluations =
+                evaluator
+                    .evaluate(expressed)
+                    .shareIn(
+                        CoroutineScope(Dispatchers.Main.immediate),
+                        SharingStarted.Eagerly,
+                        replay = 10,
+                    )
 
-                for (state in scenario.states) {
-                    stateStore.setStateEntryValues(state)
-                }
-
-                expect
-                    .withMessage(scenario.name)
-                    .that(allEvaluations.replayCache)
-                    .isEqualTo(scenario.evaluated)
+            for (state in scenario.states) {
+                stateStore.setStateEntryValues(state)
             }
+
+            expect
+                .withMessage(scenario.name)
+                .that(allEvaluations.replayCache)
+                .isEqualTo(scenario.evaluated)
         }
     }
 
     @Test
-    fun data_keepExpression_doesNotTrimUnevaluatedExpression() {
+    fun evaluate_keepExpression_doesNotTrimUnevaluatedExpression() = runBlocking {
         val expressed =
             WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
                 .setRangedValueExpression(DynamicFloat.constant(1f))
@@ -236,38 +227,30 @@ class ComplicationDataExpressionEvaluatorTest {
                 .setShortTitle(WireComplicationText(DynamicString.constant("Short Title")))
                 .setContentDescription(WireComplicationText(DynamicString.constant("Description")))
                 .build()
-        ComplicationDataExpressionEvaluator(expressed, keepExpression = true).use { evaluator ->
-            evaluator.init()
+        val evaluator = ComplicationDataExpressionEvaluator(keepExpression = true)
 
-            assertThat(evaluator.data.value)
-                .isEqualTo(
-                    WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
-                        .setRangedValue(1f)
-                        .setRangedValueExpression(DynamicFloat.constant(1f))
-                        .setLongText(
-                            WireComplicationText("Long Text", DynamicString.constant("Long Text"))
-                        )
-                        .setLongTitle(
-                            WireComplicationText("Long Title", DynamicString.constant("Long Title"))
-                        )
-                        .setShortText(
-                            WireComplicationText("Short Text", DynamicString.constant("Short Text"))
-                        )
-                        .setShortTitle(
-                            WireComplicationText(
-                                "Short Title",
-                                DynamicString.constant("Short Title")
-                            )
-                        )
-                        .setContentDescription(
-                            WireComplicationText(
-                                "Description",
-                                DynamicString.constant("Description")
-                            )
-                        )
-                        .build()
-                )
-        }
+        assertThat(evaluator.evaluate(expressed).firstOrNull())
+            .isEqualTo(
+                WireComplicationData.Builder(WireComplicationData.TYPE_NO_DATA)
+                    .setRangedValue(1f)
+                    .setRangedValueExpression(DynamicFloat.constant(1f))
+                    .setLongText(
+                        WireComplicationText("Long Text", DynamicString.constant("Long Text"))
+                    )
+                    .setLongTitle(
+                        WireComplicationText("Long Title", DynamicString.constant("Long Title"))
+                    )
+                    .setShortText(
+                        WireComplicationText("Short Text", DynamicString.constant("Short Text"))
+                    )
+                    .setShortTitle(
+                        WireComplicationText("Short Title", DynamicString.constant("Short Title"))
+                    )
+                    .setContentDescription(
+                        WireComplicationText("Description", DynamicString.constant("Description"))
+                    )
+                    .build()
+            )
     }
 
     enum class HasExpressionDataWithExpressionScenario(val data: WireComplicationData) {
