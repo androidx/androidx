@@ -52,9 +52,11 @@ import kotlinx.coroutines.flow.map
  * @sample androidx.navigation.compose.samples.NavScaffold
  *
  * @param navController the navController for this host
- * @param startDestination the route for the start destination
+ * @param startDestination the route (like "topic/{topicId}") for the start destination. route instances
+ * with filled in arguments are not supported. If your start destination requires an argument, you can
+ * set a default value while creating your graph.
  * @param modifier The modifier to be applied to the layout.
- * @param route the route for the graph
+ * @param route the route for the root level of this graph allowing you to use it with [NavHostController.getBackStackEntry]
  * @param builder the builder used to construct the graph
  */
 @Composable

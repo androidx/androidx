@@ -496,8 +496,8 @@ public open class NavController(
     /**
      * Attempts to pop the controller's back stack back to a specific destination.
      *
-     * @param route The topmost destination to retain. May contain filled in arguments as long as
-     * it is exact match with route used to navigate.
+     * @param route The route of the topmost destination to retain. Both route patterns
+     * and route instances with filled in arguments are supported.
      * @param inclusive Whether the given destination should also be popped.
      * @param saveState Whether the back stack and the state of all destinations between the
      * current destination and the [route] should be saved for later
@@ -581,7 +581,8 @@ public open class NavController(
      * Attempts to pop the controller's back stack back to a specific destination. This does
      * **not** handle calling [dispatchOnDestinationChanged]
      *
-     * @param route The topmost destination with this route to retain
+     * @param route The route of the topmost destination to retain. Both route patterns
+     * and route instances with filled in arguments are supported.
      * @param inclusive Whether the given destination should also be popped.
      * @param saveState Whether the back stack and the state of all destinations between the
      * current destination and the destination with [route] should be saved for later to be
@@ -770,8 +771,8 @@ public open class NavController(
      * via [popBackStack] when using a `saveState` value of `true`.
      *
      * @param route The route of the destination previously used with [popBackStack] with a
-     * `saveState` value of `true`. May contain filled in arguments as long as
-     * it is exact match with route used with [popBackStack].
+     * `saveState` value of `true`. Both route patterns and route instances with filled in
+     * arguments are supported.
      *
      * @return true if the saved state of the stack associated with [route] was cleared.
      */
@@ -2143,7 +2144,7 @@ public open class NavController(
      * Navigate to a route in the current NavGraph. If an invalid route is given, an
      * [IllegalArgumentException] will be thrown.
      *
-     * @param route route for the destination
+     * @param route route instance with filled arguments for the desired destination
      * @param builder DSL for constructing a new [NavOptions]
      *
      * @throws IllegalArgumentException if the given route is invalid
@@ -2157,7 +2158,7 @@ public open class NavController(
      * Navigate to a route in the current NavGraph. If an invalid route is given, an
      * [IllegalArgumentException] will be thrown.
      *
-     * @param route route for the destination
+     * @param route route instance with filled arguments for the desired destination
      * @param navOptions special options for this navigation operation
      * @param navigatorExtras extras to pass to the [Navigator]
      *
@@ -2409,8 +2410,8 @@ public open class NavController(
      * [its parent][NavDestination.parent] or grandparent navigation graphs as these
      * destinations are guaranteed to be on the back stack.
      *
-     * @param route route of a destination that exists on the back stack. May contain filled in
-     * arguments as long as it is exact match with route used to navigate.
+     * @param route route of a destination that exists on the back stack. Both route patterns
+     * and route instances with filled in arguments are supported.
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
     public fun getBackStackEntry(route: String): NavBackStackEntry {
