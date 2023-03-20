@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ComplicationDataExpressionEvaluator(
-    private val stateStore: ObservableStateStore = ObservableStateStore(emptyMap()),
+    private val stateStore: ObservableStateStore? = null,
     private val sensorGateway: SensorGateway? = null,
     private val keepExpression: Boolean = false,
 ) {
@@ -207,9 +207,11 @@ class ComplicationDataExpressionEvaluator(
             require(!this::evaluator.isInitialized) { "initEvaluator must be called exactly once." }
             evaluator =
                 DynamicTypeEvaluator(
-                    /* platformDataSourcesInitiallyEnabled = */ true,
-                    stateStore,
-                    sensorGateway,
+                    DynamicTypeEvaluator.Config.Builder()
+                        .setPlatformDataSourcesInitiallyEnabled(true)
+                        .apply { stateStore?.let { setStateStore(it) } }
+                        .apply { sensorGateway?.let { setSensorGateway(it) } }
+                        .build()
                 )
             try {
                 for (receiver in pendingReceivers) receiver.bind()
