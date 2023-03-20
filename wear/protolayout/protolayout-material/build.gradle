@@ -35,7 +35,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation("androidx.core:core:1.7.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(project(":wear:tiles:tiles-renderer"))
+    androidTestImplementation(project(":wear:protolayout:protolayout-renderer"))
     androidTestRuntimeOnly(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
     androidTestImplementation(libs.protobuf)
 
@@ -56,8 +56,7 @@ android {
     }
 
     sourceSets {
-        // TODO(b/268312818): Update to protolayout location and copy images.
-        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-tiles-material"
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-protolayout-material"
     }
 
     defaultConfig {
