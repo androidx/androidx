@@ -285,7 +285,7 @@ private fun Modifier.modalBottomSheetSwipeable(
     bottomPadding: Float,
     onDragStopped: CoroutineScope.(velocity: Float) -> Unit,
 ) = draggable(
-            state = sheetState.swipeableState.draggableState,
+            state = sheetState.swipeableState.swipeDraggableState,
             orientation = Orientation.Vertical,
             enabled = sheetState.isVisible,
             startDragImmediately = sheetState.swipeableState.isAnimationRunning,
