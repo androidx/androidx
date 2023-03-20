@@ -34,11 +34,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
-
-    constraints {
-        implementation(project(":lifecycle:lifecycle-livedata-core"))
-        implementation(project(":lifecycle:lifecycle-livedata-ktx"))
-    }
 }
 
 androidx {
