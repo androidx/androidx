@@ -37,6 +37,7 @@ import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.toLoadCompatSdkException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import java.util.WeakHashMap
+import java.util.concurrent.Executor
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.jetbrains.annotations.TestOnly
 
@@ -133,6 +134,40 @@ class SdkSandboxManagerCompat private constructor(
     }
 
     /**
+     * Adds a callback which gets registered for SDK sandbox lifecycle events, such as SDK sandbox
+     * death. If the sandbox has not yet been created when this is called, the request will be
+     * stored until a sandbox is created, at which point it is activated for that sandbox. Multiple
+     * callbacks can be added to detect death.
+     *
+     * @param callbackExecutor the [Executor] on which to invoke the callback
+     * @param callback the [SdkSandboxProcessDeathCallbackCompat] which will receive SDK sandbox
+     *  lifecycle events.
+     *
+     * @see [SdkSandboxManager.addSdkSandboxProcessDeathCallback]
+     */
+    fun addSdkSandboxProcessDeathCallback(
+        callbackExecutor: Executor,
+        callback: SdkSandboxProcessDeathCallbackCompat
+    ) {
+        platformApi.addSdkSandboxProcessDeathCallback(callbackExecutor, callback)
+    }
+
+    /**
+     * Removes an [SdkSandboxProcessDeathCallbackCompat] that was previously added using
+     * [SdkSandboxManagerCompat.addSdkSandboxProcessDeathCallback]
+     *
+     * @param callback the [SdkSandboxProcessDeathCallbackCompat] which was previously added using
+     *  [SdkSandboxManagerCompat.addSdkSandboxProcessDeathCallback]
+     *
+     * @see [SdkSandboxManager.removeSdkSandboxProcessDeathCallback]
+     */
+    fun removeSdkSandboxProcessDeathCallback(
+        callback: SdkSandboxProcessDeathCallbackCompat
+    ) {
+        platformApi.removeSdkSandboxProcessDeathCallback(callback)
+    }
+
+    /**
      * Fetches information about Sdks that are loaded in the sandbox or locally.
      *
      * @return List of [SandboxedSdkCompat] containing all currently loaded sdks
@@ -150,6 +185,17 @@ class SdkSandboxManagerCompat private constructor(
         suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat
 
         @DoNotInline
+        fun addSdkSandboxProcessDeathCallback(
+            callbackExecutor: Executor,
+            callback: SdkSandboxProcessDeathCallbackCompat
+        )
+
+        @DoNotInline
+        fun removeSdkSandboxProcessDeathCallback(
+            callback: SdkSandboxProcessDeathCallbackCompat
+        )
+
+        @DoNotInline
         fun getSandboxedSdks(): List<SandboxedSdkCompat> = emptyList()
     }
 
@@ -159,6 +205,9 @@ class SdkSandboxManagerCompat private constructor(
         protected val sdkSandboxManager = context.getSystemService(
             SdkSandboxManager::class.java
         )
+
+        private val sandboxDeathCallbackDelegates:
+            MutableList<SdkSandboxProcessDeathCallbackDelegate> = mutableListOf()
 
         @DoNotInline
         override suspend fun loadSdk(
@@ -173,6 +222,33 @@ class SdkSandboxManagerCompat private constructor(
             }
         }
 
+        @DoNotInline
+        override fun addSdkSandboxProcessDeathCallback(
+            callbackExecutor: Executor,
+            callback: SdkSandboxProcessDeathCallbackCompat
+        ) {
+            synchronized(sandboxDeathCallbackDelegates) {
+                val delegate = SdkSandboxProcessDeathCallbackDelegate(callback)
+                sdkSandboxManager.addSdkSandboxProcessDeathCallback(callbackExecutor, delegate)
+                sandboxDeathCallbackDelegates.add(delegate)
+            }
+        }
+
+        @DoNotInline
+        override fun removeSdkSandboxProcessDeathCallback(
+            callback: SdkSandboxProcessDeathCallbackCompat
+        ) {
+            synchronized(sandboxDeathCallbackDelegates) {
+                for (i in sandboxDeathCallbackDelegates.lastIndex downTo 0) {
+                    val delegate = sandboxDeathCallbackDelegates[i]
+                    if (delegate.callback == callback) {
+                        sdkSandboxManager.removeSdkSandboxProcessDeathCallback(delegate)
+                        sandboxDeathCallbackDelegates.removeAt(i)
+                    }
+                }
+            }
+        }
+
         private suspend fun loadSdkInternal(
             sdkName: String,
             params: Bundle
@@ -184,6 +260,15 @@ class SdkSandboxManagerCompat private constructor(
                     Runnable::run,
                     continuation.asOutcomeReceiver()
                 )
+            }
+        }
+
+        private class SdkSandboxProcessDeathCallbackDelegate(
+            val callback: SdkSandboxProcessDeathCallbackCompat
+        ) : SdkSandboxManager.SdkSandboxProcessDeathCallback {
+            @SuppressLint("Override") // b/273473397
+            override fun onSdkSandboxDied() {
+                callback.onSdkSandboxDied()
             }
         }
     }
@@ -208,6 +293,17 @@ class SdkSandboxManagerCompat private constructor(
             params: Bundle
         ): SandboxedSdkCompat {
             throw LoadSdkCompatException(LOAD_SDK_NOT_FOUND, "$sdkName not bundled with app")
+        }
+
+        override fun addSdkSandboxProcessDeathCallback(
+            callbackExecutor: Executor,
+            callback: SdkSandboxProcessDeathCallbackCompat
+        ) {
+        }
+
+        override fun removeSdkSandboxProcessDeathCallback(
+            callback: SdkSandboxProcessDeathCallbackCompat
+        ) {
         }
     }
 

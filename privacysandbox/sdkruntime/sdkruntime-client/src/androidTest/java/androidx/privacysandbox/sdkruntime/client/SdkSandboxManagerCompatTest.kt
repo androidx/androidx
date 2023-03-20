@@ -159,6 +159,44 @@ class SdkSandboxManagerCompatTest {
     @Test
     // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    fun addSdkSandboxProcessDeathCallback_whenSandboxNotAvailable_dontDelegateToSandbox() {
+        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
+        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
+
+        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        managerCompat.addSdkSandboxProcessDeathCallback(Runnable::run, object :
+            SdkSandboxProcessDeathCallbackCompat {
+            override fun onSdkSandboxDied() {
+            }
+        })
+
+        verify(context, Mockito.never()).getSystemService(any())
+    }
+
+    @Test
+    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    fun removeSdkSandboxProcessDeathCallback_whenSandboxNotAvailable_dontDelegateToSandbox() {
+        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
+        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
+
+        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        managerCompat.removeSdkSandboxProcessDeathCallback(object :
+            SdkSandboxProcessDeathCallbackCompat {
+            override fun onSdkSandboxDied() {
+            }
+        })
+
+        verify(context, Mockito.never()).getSystemService(any())
+    }
+
+    @Test
+    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun getSandboxedSdks_whenSandboxNotAvailable_dontDelegateToSandbox() {
         // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
         assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
