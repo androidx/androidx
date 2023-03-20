@@ -489,5 +489,9 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
                 Map<CaptureResult.Key, Object> result) {
             mCaptureCallback.onCaptureCompleted(timestamp, captureSequenceId, result);
         }
+
+        @Override
+        public void onCaptureProcessProgressed(int progress) {
+        }
     }
 }
