@@ -360,7 +360,7 @@ fun BasicText(
     replaceWith = ReplaceWith(""),
     level = DeprecationLevel.WARNING
 )
-var NewTextRendering1_5: Boolean by mutableStateOf(false)
+var NewTextRendering1_5: Boolean by mutableStateOf(true)
 
 /**
  * A custom saver that won't save if no selection is active.
