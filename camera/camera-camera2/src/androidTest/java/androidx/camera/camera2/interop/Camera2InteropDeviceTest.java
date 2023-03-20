@@ -71,7 +71,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
-@SdkSuppress(minSdkVersion = 22) // b/272066193
+@SdkSuppress(minSdkVersion = 21)
 public final class Camera2InteropDeviceTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraSelector mCameraSelector;
