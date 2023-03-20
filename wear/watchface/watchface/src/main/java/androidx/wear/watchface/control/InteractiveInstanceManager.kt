@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.IndentingPrintWriter
+import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.utility.TraceEvent
 
@@ -53,6 +54,7 @@ internal class InteractiveInstanceManager {
         private var pendingWallpaperInteractiveWatchFaceInstance:
             PendingWallpaperInteractiveWatchFaceInstance? =
             null
+        private var parameterlessEngine: WatchFaceService.EngineWrapper? = null
 
         @VisibleForTesting
         fun getInstances() =
@@ -67,6 +69,54 @@ internal class InteractiveInstanceManager {
                     "Already have an InteractiveWatchFaceImpl with id ${impl.instanceId}"
                 }
                 instances[impl.instanceId] = RefCountedInteractiveWatchFaceInstance(impl, 1)
+            }
+        }
+
+        /**
+         * We either return the pendingWallpaperInteractiveWatchFaceInstance if there is one or
+         * set parameterlessEngine. A parameterless engine, is one that's been created without any
+         * start up params. Typically this can only happen if a WSL watchface is upgraded to an
+         * androidx one, so WallpaperManager knows about it but WearServices/WSL does not.
+         */
+        @SuppressLint("SyntheticAccessor")
+        fun setParameterlessEngineOrTakePendingWallpaperInteractiveWatchFaceInstance(
+            parameterlessEngine: WatchFaceService.EngineWrapper?
+        ): PendingWallpaperInteractiveWatchFaceInstance? {
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                require(this.parameterlessEngine == null || parameterlessEngine == null) {
+                    "Already have a parameterlessEngine registered"
+                }
+
+                if (pendingWallpaperInteractiveWatchFaceInstance == null) {
+                    this.parameterlessEngine = parameterlessEngine
+                    return null
+                } else {
+                    val returnValue = pendingWallpaperInteractiveWatchFaceInstance
+                    pendingWallpaperInteractiveWatchFaceInstance = null
+                    return returnValue
+                }
+            }
+        }
+
+        /**
+         * A parameterless engine, is one that's been created without any start up params. Typically
+         * this can only happen if a WSL watchface is upgraded to an androidx one, so
+         * WallpaperManager knows about it but WearServices/WSL does not.
+         */
+        @SuppressLint("SyntheticAccessor")
+        fun setParameterlessEngine(parameterlessEngine: WatchFaceService.EngineWrapper?) {
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                require(this.parameterlessEngine == null || parameterlessEngine == null) {
+                    "Already have a parameterlessEngine registered"
+                }
+                this.parameterlessEngine = parameterlessEngine
+            }
+        }
+
+        @SuppressLint("SyntheticAccessor")
+        fun getParameterlessEngine(): WatchFaceService.EngineWrapper? {
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                return parameterlessEngine
             }
         }
 
@@ -121,11 +171,21 @@ internal class InteractiveInstanceManager {
             val impl =
                 synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                     val instance = instances[value.params.instanceId]
+
                     if (instance == null) {
+                        parameterlessEngine?.let {
+                            parameterlessEngine = null
+                            it.attachToParameterlessEngine(value)
+                            return null
+                        }
+
                         TraceEvent("Set pendingWallpaperInteractiveWatchFaceInstance").use {
                             pendingWallpaperInteractiveWatchFaceInstance = value
                         }
                         return null
+                    }
+                    if (instance.impl.engine == parameterlessEngine) {
+                        parameterlessEngine = null
                     }
                     instance.impl
                 }
