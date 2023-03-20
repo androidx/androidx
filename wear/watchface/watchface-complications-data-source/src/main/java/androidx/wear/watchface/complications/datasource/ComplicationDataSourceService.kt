@@ -47,8 +47,8 @@ import androidx.wear.watchface.complications.datasource.ComplicationDataSourceSe
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService.ComplicationRequestListener
 import java.util.concurrent.CountDownLatch
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -274,7 +274,7 @@ public annotation class IsForSafeWatchFace
  */
 public abstract class ComplicationDataSourceService : Service() {
     private var wrapper: IComplicationProviderWrapper? = null
-    private var lastExpressionEvaluator: ComplicationDataExpressionEvaluator? = null
+    private var lastExpressionEvaluationJob: Job? = null
     internal val mainThreadHandler by lazy { createMainThreadHandler() }
     internal val mainThreadCoroutineScope by lazy {
         CoroutineScope(mainThreadHandler.asCoroutineDispatcher())
@@ -307,7 +307,7 @@ public abstract class ComplicationDataSourceService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        lastExpressionEvaluator?.close()
+        lastExpressionEvaluationJob?.cancel()
     }
 
     /**
@@ -554,7 +554,8 @@ public abstract class ComplicationDataSourceService : Service() {
                         }
 
                         private fun WireComplicationData?.evaluateAndUpdateManager() {
-                            lastExpressionEvaluator?.close() // Cancelling any previous evaluation.
+                            // Cancelling any previous evaluation.
+                            lastExpressionEvaluationJob?.cancel()
                             if (
                                 // Will be evaluated by the platform.
                                 // TODO(b/257422920): Set this to the exact platform version.
@@ -568,32 +569,19 @@ public abstract class ComplicationDataSourceService : Service() {
                                 )
                                 return
                             }
-                            lastExpressionEvaluator =
-                                ComplicationDataExpressionEvaluator(this).apply {
-                                    listenAndUpdateManager(
-                                        iComplicationManager,
+                            lastExpressionEvaluationJob =
+                                mainThreadCoroutineScope.launch {
+                                    iComplicationManager.updateComplicationData(
                                         complicationInstanceId,
+                                        // Doing one-off evaluation, the service will be re-invoked.
+                                        ComplicationDataExpressionEvaluator()
+                                            .evaluate(this@evaluateAndUpdateManager)
+                                            .first(),
                                     )
                                 }
                         }
                     }
                 )
-            }
-        }
-
-        private fun ComplicationDataExpressionEvaluator.listenAndUpdateManager(
-            iComplicationManager: IComplicationManager,
-            complicationInstanceId: Int,
-        ) {
-            mainThreadCoroutineScope.launch {
-                use {
-                    init()
-                    // Doing one-off evaluation, the service will be re-invoked.
-                    iComplicationManager.updateComplicationData(
-                        complicationInstanceId,
-                        data.filterNotNull().first()
-                    )
-                }
             }
         }
 
