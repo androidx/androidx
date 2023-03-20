@@ -233,7 +233,7 @@ package androidx.compose.ui.test {
   @kotlin.RequiresOptIn(message="This is internal API for Compose modules that may change frequently and without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface InternalTestApi {
   }
 
-  @androidx.compose.ui.test.ExperimentalTestApi @kotlin.jvm.JvmDefaultWithCompatibility public interface KeyInjectionScope extends androidx.compose.ui.test.InjectionScope {
+  @kotlin.jvm.JvmDefaultWithCompatibility public interface KeyInjectionScope extends androidx.compose.ui.test.InjectionScope {
     method public boolean isCapsLockOn();
     method public boolean isKeyDown(long key);
     method public boolean isNumLockOn();
@@ -246,16 +246,16 @@ package androidx.compose.ui.test {
   }
 
   public final class KeyInjectionScopeKt {
-    method @androidx.compose.ui.test.ExperimentalTestApi public static boolean isAltDown(androidx.compose.ui.test.KeyInjectionScope);
-    method @androidx.compose.ui.test.ExperimentalTestApi public static boolean isCtrlDown(androidx.compose.ui.test.KeyInjectionScope);
-    method @androidx.compose.ui.test.ExperimentalTestApi public static boolean isFnDown(androidx.compose.ui.test.KeyInjectionScope);
-    method @androidx.compose.ui.test.ExperimentalTestApi public static boolean isMetaDown(androidx.compose.ui.test.KeyInjectionScope);
-    method @androidx.compose.ui.test.ExperimentalTestApi public static boolean isShiftDown(androidx.compose.ui.test.KeyInjectionScope);
-    method @androidx.compose.ui.test.ExperimentalTestApi public static void pressKey(androidx.compose.ui.test.KeyInjectionScope, long key, optional long pressDurationMillis);
-    method @androidx.compose.ui.test.ExperimentalTestApi public static void withKeyDown(androidx.compose.ui.test.KeyInjectionScope, long key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
-    method @androidx.compose.ui.test.ExperimentalTestApi public static void withKeyToggled(androidx.compose.ui.test.KeyInjectionScope, long key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
-    method @androidx.compose.ui.test.ExperimentalTestApi public static void withKeysDown(androidx.compose.ui.test.KeyInjectionScope, java.util.List<androidx.compose.ui.input.key.Key> keys, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
-    method @androidx.compose.ui.test.ExperimentalTestApi public static void withKeysToggled(androidx.compose.ui.test.KeyInjectionScope, java.util.List<androidx.compose.ui.input.key.Key> keys, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    method public static boolean isAltDown(androidx.compose.ui.test.KeyInjectionScope);
+    method public static boolean isCtrlDown(androidx.compose.ui.test.KeyInjectionScope);
+    method public static boolean isFnDown(androidx.compose.ui.test.KeyInjectionScope);
+    method public static boolean isMetaDown(androidx.compose.ui.test.KeyInjectionScope);
+    method public static boolean isShiftDown(androidx.compose.ui.test.KeyInjectionScope);
+    method public static void pressKey(androidx.compose.ui.test.KeyInjectionScope, long key, optional long pressDurationMillis);
+    method public static void withKeyDown(androidx.compose.ui.test.KeyInjectionScope, long key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    method public static void withKeyToggled(androidx.compose.ui.test.KeyInjectionScope, long key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    method public static void withKeysDown(androidx.compose.ui.test.KeyInjectionScope, java.util.List<androidx.compose.ui.input.key.Key> keys, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
+    method public static void withKeysToggled(androidx.compose.ui.test.KeyInjectionScope, java.util.List<androidx.compose.ui.input.key.Key> keys, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
   }
 
   public final class KeyInputHelpersKt {
