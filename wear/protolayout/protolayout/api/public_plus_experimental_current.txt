@@ -1243,13 +1243,27 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.TypeBuilders.Int32Prop.Builder setValue(int);
   }
 
+  public static final class TypeBuilders.StringLayoutConstraint {
+    method public int getAlignment();
+    method public String getPatternForLayout();
+  }
+
+  public static final class TypeBuilders.StringLayoutConstraint.Builder {
+    ctor public TypeBuilders.StringLayoutConstraint.Builder(String);
+    method public androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint build();
+    method public androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint.Builder setAlignment(int);
+  }
+
   public static final class TypeBuilders.StringProp {
+    method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString? getDynamicValue();
     method public String getValue();
   }
 
   public static final class TypeBuilders.StringProp.Builder {
-    ctor public TypeBuilders.StringProp.Builder();
+    ctor @Deprecated public TypeBuilders.StringProp.Builder();
+    ctor public TypeBuilders.StringProp.Builder(String);
     method public androidx.wear.protolayout.TypeBuilders.StringProp build();
+    method public androidx.wear.protolayout.TypeBuilders.StringProp.Builder setDynamicValue(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString);
     method public androidx.wear.protolayout.TypeBuilders.StringProp.Builder setValue(String);
   }
 
