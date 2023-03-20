@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,36 @@
 
 package androidx.camera.extensions.impl.advanced;
 
-import android.util.Size;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
- * Surface will be created by constructing a ImageReader.
+ * For specifying the output surface configurations for the extension.
  *
- * @since 1.2
+ * @since 1.4
  */
-public interface ImageReaderOutputConfigImpl extends Camera2OutputConfigImpl {
+public interface OutputSurfaceConfigurationImpl {
     /**
-     * Returns the size of the surface.
+     * gets the preview {@link OutputSurfaceImpl}.
      */
     @NonNull
-    Size getSize();
+    OutputSurfaceImpl getPreviewOutputSurface();
 
     /**
-     * Gets the image format of the surface.
+     * gets the still capture {@link OutputSurfaceImpl}.
      */
-    int getImageFormat();
+    @NonNull
+    OutputSurfaceImpl getImageCaptureOutputSurface();
 
     /**
-     * Gets the capacity for TYPE_IMAGEREADER.
+     * gets the image analysis {@link OutputSurfaceImpl}.
      */
-    int getMaxImages();
+    @Nullable
+    OutputSurfaceImpl getImageAnalysisOutputSurface();
+
+    /**
+     * gets the postview {@link OutputSurfaceImpl}.
+     */
+    @Nullable
+    OutputSurfaceImpl getPostviewOutputSurface();
 }
