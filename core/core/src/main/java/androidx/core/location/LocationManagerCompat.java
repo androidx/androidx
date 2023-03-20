@@ -400,14 +400,7 @@ public final class LocationManagerCompat {
                     callback);
         } else {
             synchronized (GnssListenersHolder.sGnssMeasurementListeners) {
-                GnssMeasurementsEvent.Callback oldTransport =
-                        GnssListenersHolder.sGnssMeasurementListeners.remove(callback);
-                if (oldTransport != null) {
-                    if (oldTransport instanceof GnssMeasurementsTransport) {
-                        ((GnssMeasurementsTransport) oldTransport).unregister();
-                    }
-                    Api24Impl.unregisterGnssMeasurementsCallback(locationManager, oldTransport);
-                }
+                unregisterGnssMeasurementsCallback(locationManager, callback);
                 if (Api24Impl.registerGnssMeasurementsCallback(locationManager, callback,
                         handler)) {
                     GnssListenersHolder.sGnssMeasurementListeners.put(callback, callback);
@@ -443,14 +436,7 @@ public final class LocationManagerCompat {
             synchronized (GnssListenersHolder.sGnssMeasurementListeners) {
                 GnssMeasurementsTransport newTransport = new GnssMeasurementsTransport(callback,
                         executor);
-                GnssMeasurementsEvent.Callback oldTransport =
-                        GnssListenersHolder.sGnssMeasurementListeners.remove(callback);
-                if (oldTransport != null) {
-                    if (oldTransport instanceof GnssMeasurementsTransport) {
-                        ((GnssMeasurementsTransport) oldTransport).unregister();
-                    }
-                    Api24Impl.unregisterGnssMeasurementsCallback(locationManager, oldTransport);
-                }
+                unregisterGnssMeasurementsCallback(locationManager, callback);
                 if (Api24Impl.registerGnssMeasurementsCallback(locationManager, newTransport)) {
                     GnssListenersHolder.sGnssMeasurementListeners.put(callback, newTransport);
                     return true;
@@ -468,7 +454,20 @@ public final class LocationManagerCompat {
     @RequiresApi(VERSION_CODES.N)
     public static void unregisterGnssMeasurementsCallback(@NonNull LocationManager locationManager,
             @NonNull GnssMeasurementsEvent.Callback callback) {
-        Api24Impl.unregisterGnssMeasurementsCallback(locationManager, callback);
+        if (VERSION.SDK_INT >= VERSION_CODES.R) {
+            Api24Impl.unregisterGnssMeasurementsCallback(locationManager, callback);
+        } else {
+            synchronized (GnssListenersHolder.sGnssMeasurementListeners) {
+                GnssMeasurementsEvent.Callback transport =
+                        GnssListenersHolder.sGnssMeasurementListeners.remove(callback);
+                if (transport != null) {
+                    if (transport instanceof GnssMeasurementsTransport) {
+                        ((GnssMeasurementsTransport) transport).unregister();
+                    }
+                    Api24Impl.unregisterGnssMeasurementsCallback(locationManager, transport);
+                }
+            }
+        }
     }
 
     // Android R without QPR1 has a bug where the default version of this method will always
