@@ -52,7 +52,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.layout.boundsInParent
-import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.HitTestResult
 import androidx.compose.ui.node.LayoutNode
@@ -83,6 +82,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.platform.URLSpanCache
 import androidx.compose.ui.text.platform.toAccessibilitySpannableString
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
@@ -190,6 +190,7 @@ private fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean):
     return null
 }
 
+@OptIn(InternalTextApi::class)
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
     AccessibilityDelegateCompat() {
     companion object {
@@ -392,6 +393,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL"
     private val EXTRA_DATA_TEST_TRAVERSALAFTER_VAL =
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALAFTER_VAL"
+
+    private val urlSpanCache = URLSpanCache()
 
     /**
      * A snapshot of the semantics node. The children here is fixed and are taken from the time
@@ -1290,7 +1293,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
-    @OptIn(InternalTextApi::class)
     private fun setText(
         node: SemanticsNode,
         info: AccessibilityNodeInfoCompat,
@@ -1298,13 +1300,21 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val fontFamilyResolver: FontFamily.Resolver = view.fontFamilyResolver
         val editableTextToAssign = trimToSize(
             node.unmergedConfig.getTextForTextField()
-                ?.toAccessibilitySpannableString(density = view.density, fontFamilyResolver),
+                ?.toAccessibilitySpannableString(
+                    density = view.density,
+                    fontFamilyResolver,
+                    urlSpanCache
+                ),
             ParcelSafeTextLength
         )
 
         val textToAssign = trimToSize(
             node.unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull()
-                ?.toAccessibilitySpannableString(density = view.density, fontFamilyResolver),
+                ?.toAccessibilitySpannableString(
+                    density = view.density,
+                    fontFamilyResolver,
+                    urlSpanCache
+                ),
             ParcelSafeTextLength
         )
 
