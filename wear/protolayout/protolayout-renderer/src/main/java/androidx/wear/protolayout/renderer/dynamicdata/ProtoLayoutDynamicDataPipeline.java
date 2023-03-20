@@ -141,10 +141,10 @@ public class ProtoLayoutDynamicDataPipeline {
         if (enableAnimations) {
             this.mEvaluator =
                     new DynamicTypeEvaluator(
-                            canUpdateGateways, sensorGateway, stateStore, animationQuotaManager);
+                            canUpdateGateways, stateStore, animationQuotaManager, sensorGateway);
         } else {
             this.mEvaluator =
-                    new DynamicTypeEvaluator(canUpdateGateways, sensorGateway, stateStore);
+                    new DynamicTypeEvaluator(canUpdateGateways, stateStore, sensorGateway);
         }
     }
 
