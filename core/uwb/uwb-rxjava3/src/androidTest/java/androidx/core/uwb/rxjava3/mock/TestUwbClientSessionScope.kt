@@ -63,7 +63,6 @@ class TestUwbClientSessionScope(
             .setSessionId(defaultRangingParameters.sessionId)
             .setUwbConfigId(configId)
             .setRangingUpdateRate(updateRate)
-            .setSessionKeyInfo(defaultRangingParameters.sessionKeyInfo)
         parametersBuilder.addPeerDevice(UwbDevice.createForAddress(uwbDevice.address.address))
         val callback =
             object : RangingSessionCallback {
