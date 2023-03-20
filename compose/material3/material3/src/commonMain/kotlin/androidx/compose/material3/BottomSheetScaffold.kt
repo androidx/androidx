@@ -112,33 +112,34 @@ fun BottomSheetScaffold(
     contentColor: Color = contentColorFor(containerColor),
     content: @Composable (PaddingValues) -> Unit
 ) {
-    Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
-        BottomSheetScaffoldLayout(
-            topBar = topBar,
-            body = content,
-            snackbarHost = {
-                snackbarHost(scaffoldState.snackbarHostState)
-            },
-            sheetPeekHeight = sheetPeekHeight,
-            sheetOffset = { scaffoldState.bottomSheetState.requireOffset() },
-            sheetState = scaffoldState.bottomSheetState,
-            bottomSheet = { layoutHeight ->
-                StandardBottomSheet(
-                    state = scaffoldState.bottomSheetState,
-                    peekHeight = sheetPeekHeight,
-                    sheetSwipeEnabled = sheetSwipeEnabled,
-                    layoutHeight = layoutHeight.toFloat(),
-                    shape = sheetShape,
-                    containerColor = sheetContainerColor,
-                    contentColor = sheetContentColor,
-                    tonalElevation = sheetTonalElevation,
-                    shadowElevation = sheetShadowElevation,
-                    dragHandle = sheetDragHandle,
-                    content = sheetContent
-                )
-            }
-        )
-    }
+    BottomSheetScaffoldLayout(
+        modifier = modifier,
+        topBar = topBar,
+        body = content,
+        snackbarHost = {
+            snackbarHost(scaffoldState.snackbarHostState)
+        },
+        sheetPeekHeight = sheetPeekHeight,
+        sheetOffset = { scaffoldState.bottomSheetState.requireOffset() },
+        sheetState = scaffoldState.bottomSheetState,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        bottomSheet = { layoutHeight ->
+            StandardBottomSheet(
+                state = scaffoldState.bottomSheetState,
+                peekHeight = sheetPeekHeight,
+                sheetSwipeEnabled = sheetSwipeEnabled,
+                layoutHeight = layoutHeight.toFloat(),
+                shape = sheetShape,
+                containerColor = sheetContainerColor,
+                contentColor = sheetContentColor,
+                tonalElevation = sheetTonalElevation,
+                shadowElevation = sheetShadowElevation,
+                dragHandle = sheetDragHandle,
+                content = sheetContent
+            )
+        }
+    )
 }
 
 /**
@@ -236,7 +237,7 @@ private fun StandardBottomSheet(
                     ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                         sheetState = state,
                         orientation = orientation,
-                        onFling = {}
+                        onFling = { scope.launch { state.settle(it) } }
                     )
                 }
             )
@@ -314,6 +315,7 @@ private fun StandardBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BottomSheetScaffoldLayout(
+    modifier: Modifier,
     topBar: @Composable (() -> Unit)?,
     body: @Composable (innerPadding: PaddingValues) -> Unit,
     bottomSheet: @Composable (layoutHeight: Int) -> Unit,
@@ -321,6 +323,8 @@ private fun BottomSheetScaffoldLayout(
     sheetPeekHeight: Dp,
     sheetOffset: () -> Float,
     sheetState: SheetState,
+    containerColor: Color,
+    contentColor: Color,
 ) {
     SubcomposeLayout { constraints ->
         val layoutWidth = constraints.maxWidth
@@ -341,7 +345,11 @@ private fun BottomSheetScaffoldLayout(
 
         val bodyConstraints = looseConstraints.copy(maxHeight = layoutHeight - topBarHeight)
         val bodyPlaceable = subcompose(BottomSheetScaffoldLayoutSlot.Body) {
-            body(PaddingValues(bottom = sheetPeekHeight))
+            Surface(
+                modifier = modifier,
+                color = containerColor,
+                contentColor = contentColor,
+            ) { body(PaddingValues(bottom = sheetPeekHeight)) }
         }[0].measure(bodyConstraints)
 
         val snackbarPlaceable = subcompose(BottomSheetScaffoldLayoutSlot.Snackbar, snackbarHost)[0]
