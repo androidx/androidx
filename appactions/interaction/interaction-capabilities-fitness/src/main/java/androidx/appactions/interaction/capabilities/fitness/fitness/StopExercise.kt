@@ -22,7 +22,8 @@ import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import java.util.Optional
 
@@ -49,7 +50,7 @@ class StopExercise private constructor() {
             CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
             >(ACTION_SPEC) {
         private var propertyBuilder: Property.Builder = Property.Builder()
-        fun setNameProperty(name: StringProperty): CapabilityBuilder =
+        fun setNameProperty(name: TypeProperty<StringValue>): CapabilityBuilder =
             apply {
                 propertyBuilder.setName(name)
             }
@@ -63,7 +64,7 @@ class StopExercise private constructor() {
 
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor(
-        val name: StringProperty?,
+        val name: TypeProperty<StringValue>?,
     ) {
         override fun toString(): String {
             return "Property(name=$name)"
@@ -85,9 +86,9 @@ class StopExercise private constructor() {
         }
 
         class Builder {
-            private var name: StringProperty? = null
+            private var name: TypeProperty<StringValue>? = null
 
-            fun setName(name: StringProperty): Builder =
+            fun setName(name: TypeProperty<StringValue>): Builder =
                 apply { this.name = name }
 
             fun build(): Property = Property(name)

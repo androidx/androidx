@@ -24,7 +24,8 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import java.time.Duration
 import java.util.Optional
@@ -62,7 +63,7 @@ class StartExercise private constructor() {
                 Property.Builder().setDuration(duration).build()
             }
 
-        fun setNameProperty(name: StringProperty): CapabilityBuilder =
+        fun setNameProperty(name: TypeProperty<StringValue>): CapabilityBuilder =
             apply {
                 Property.Builder().setName(name).build()
             }
@@ -77,7 +78,7 @@ class StartExercise private constructor() {
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor(
         val duration: SimpleProperty?,
-        val name: StringProperty?
+        val name: TypeProperty<StringValue>?
     ) {
         override fun toString(): String {
             return "Property(duration=$duration, name=$name)"
@@ -103,12 +104,12 @@ class StartExercise private constructor() {
 
         class Builder {
             private var duration: SimpleProperty? = null
-            private var name: StringProperty? = null
+            private var name: TypeProperty<StringValue>? = null
 
             fun setDuration(duration: SimpleProperty): Builder =
                 apply { this.duration = duration }
 
-            fun setName(name: StringProperty): Builder =
+            fun setName(name: TypeProperty<StringValue>): Builder =
                 apply { this.name = name }
 
             fun build(): Property = Property(duration, name)

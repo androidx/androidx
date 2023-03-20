@@ -20,7 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
+import androidx.appactions.interaction.capabilities.core.properties.StringValue;
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 
 import com.google.auto.value.AutoValue;
 
@@ -75,19 +76,19 @@ public final class CapabilityTwoStrings {
             return new AutoValue_CapabilityTwoStrings_Property.Builder();
         }
 
-        public abstract Optional<StringProperty> stringSlotA();
+        public abstract Optional<TypeProperty<StringValue>> stringSlotA();
 
-        public abstract Optional<StringProperty> stringSlotB();
+        public abstract Optional<TypeProperty<StringValue>> stringSlotB();
 
         /** Builder for {@link Property} */
         @AutoValue.Builder
         public abstract static class Builder {
 
             @NonNull
-            public abstract Builder setStringSlotA(@NonNull StringProperty value);
+            public abstract Builder setStringSlotA(@NonNull TypeProperty<StringValue> value);
 
             @NonNull
-            public abstract Builder setStringSlotB(@NonNull StringProperty value);
+            public abstract Builder setStringSlotB(@NonNull TypeProperty<StringValue> value);
 
             @NonNull
             public abstract Property build();

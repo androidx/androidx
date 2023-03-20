@@ -26,7 +26,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTyp
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ParamBinding.ArgumentSetter;
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty;
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
+import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
@@ -437,15 +437,17 @@ public final class ActionSpecBuilder<
      * Binds an optional string parameter.
      *
      * @param paramName the BII slot name of this parameter.
-     * @param propertyGetter a function that returns a {@code Optional<StringProperty>} given a
-     *     {@code PropertyT} instance
+     * @param propertyGetter a function that returns a {@code
+     *     Optional<TypeProperty<PossibleStringValue>>} given a {@code PropertyT} instance
      * @param paramConsumer a function that accepts a String into the argument builder.
      */
     @NonNull
     public ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
             bindOptionalStringParameter(
                     @NonNull String paramName,
-                    @NonNull Function<? super PropertyT, Optional<StringProperty>> propertyGetter,
+                    @NonNull
+                            Function<? super PropertyT, Optional<TypeProperty<StringValue>>>
+                                    propertyGetter,
                     @NonNull BiConsumer<? super ArgumentBuilderT, String> paramConsumer) {
         return bindParameter(
                 paramName,
@@ -455,7 +457,9 @@ public final class ActionSpecBuilder<
                                 .map(
                                         stringProperty ->
                                                 PropertyConverter.getIntentParameter(
-                                                        paramName, stringProperty)),
+                                                        paramName,
+                                                        stringProperty,
+                                                        PropertyConverter::stringValueToProto)),
                 (argBuilder, paramList) -> {
                     if (!paramList.isEmpty()) {
                         paramConsumer.accept(
@@ -470,15 +474,15 @@ public final class ActionSpecBuilder<
      * Binds an required string parameter.
      *
      * @param paramName the BII slot name of this parameter.
-     * @param propertyGetter a function that returns a {@code StringProperty} given a {@code
-     *     PropertyT} instance
+     * @param propertyGetter a function that returns a {@code TypeProperty<PossibleStringValue>}
+     *     given a {@code PropertyT} instance
      * @param paramConsumer a function that accepts a String into the argument builder.
      */
     @NonNull
     public ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
             bindRequiredStringParameter(
                     @NonNull String paramName,
-                    @NonNull Function<? super PropertyT, StringProperty> propertyGetter,
+                    @NonNull Function<? super PropertyT, TypeProperty<StringValue>> propertyGetter,
                     @NonNull BiConsumer<? super ArgumentBuilderT, String> paramConsumer) {
         return bindOptionalStringParameter(
                 paramName, property -> Optional.of(propertyGetter.apply(property)), paramConsumer);
@@ -488,8 +492,8 @@ public final class ActionSpecBuilder<
      * Binds an repeated string parameter.
      *
      * @param paramName the BII slot name of this parameter.
-     * @param propertyGetter a function that returns a {@code Optional<StringProperty>} given a
-     *     {@code PropertyT} instance
+     * @param propertyGetter a function that returns a {@code
+     *     Optional<TypeProperty<PossibleStringValue>>} given a {@code PropertyT} instance
      * @param paramConsumer a function that accepts a {@code List<String>} into the argument
      *     builder.
      */
@@ -497,7 +501,9 @@ public final class ActionSpecBuilder<
     public ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
             bindRepeatedStringParameter(
                     @NonNull String paramName,
-                    @NonNull Function<? super PropertyT, Optional<StringProperty>> propertyGetter,
+                    @NonNull
+                            Function<? super PropertyT, Optional<TypeProperty<StringValue>>>
+                                    propertyGetter,
                     @NonNull BiConsumer<? super ArgumentBuilderT, List<String>> paramConsumer) {
         return bindParameter(
                 paramName,
@@ -507,7 +513,9 @@ public final class ActionSpecBuilder<
                                 .map(
                                         stringProperty ->
                                                 PropertyConverter.getIntentParameter(
-                                                        paramName, stringProperty)),
+                                                        paramName,
+                                                        stringProperty,
+                                                        PropertyConverter::stringValueToProto)),
                 (argBuilder, paramList) -> {
                     if (!paramList.isEmpty()) {
                         paramConsumer.accept(

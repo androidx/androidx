@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.properties
 
 /**
- * Entities are used when defining ActionCapability for defining possible values for ParamProperty.
+ * Entities are used defining possible values for [ParamProperty].
  */
 class Entity internal constructor(
     val id: String?,
@@ -55,9 +55,9 @@ class Entity internal constructor(
         /** Builds and returns an Entity. */
         fun build() = Entity(
             id,
-            requireNotNull(name, {
+            requireNotNull(name) {
                 "setName must be called before build"
-            }),
+            },
             alternateNames,
         )
     }
