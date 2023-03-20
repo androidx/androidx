@@ -651,7 +651,7 @@ final class Camera2CameraImpl implements CameraInternal {
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " RESET");
             mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
-
+            addOrRemoveMeteringRepeatingUseCase();
             resetCaptureSession(/*abortInFlightCaptures=*/false);
             updateCaptureSessionConfig();
 

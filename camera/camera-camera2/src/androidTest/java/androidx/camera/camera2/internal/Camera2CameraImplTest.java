@@ -80,9 +80,7 @@ import androidx.camera.core.resolutionselector.HighResolution;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
-import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraCoordinator;
-import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.camera.testing.mocks.MockObserver;
@@ -208,6 +206,10 @@ public final class Camera2CameraImplTest {
 
     @After
     public void teardown() throws InterruptedException, ExecutionException {
+        for (FakeUseCase fakeUseCase : mFakeUseCases) {
+            fakeUseCase.unbindFromCamera(mCamera2CameraImpl);
+            fakeUseCase.onUnbind();
+        }
         // Need to release the camera no matter what is done, otherwise the CameraDevice is not
         // closed.
         // When the CameraDevice is not closed, then it can cause problems with interferes with
@@ -219,10 +221,6 @@ public final class Camera2CameraImplTest {
             cameraReleaseFuture.get();
 
             mCamera2CameraImpl = null;
-        }
-
-        for (FakeUseCase fakeUseCase : mFakeUseCases) {
-            fakeUseCase.onUnbind();
         }
     }
 
@@ -563,6 +561,38 @@ public final class Camera2CameraImplTest {
     }
 
     @Test
+    public void onUseCaseReset_toRepeating_meteringRepeatingIsAttached() {
+        TestUseCase useCase = createUseCase(NON_REPEATING);
+
+        mCamera2CameraImpl.attachUseCases(singletonList(useCase));
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isTrue();
+
+        useCase.setSurfaceOption(REPEATING);
+        useCase.notifyResetForTesting();
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
+
+        mCamera2CameraImpl.detachUseCases(singletonList(useCase));
+    }
+
+    @Test
+    public void onUseCaseReset_toNonRepeating_meteringRepeatingIsAttached() {
+        TestUseCase useCase = createUseCase(REPEATING);
+
+        mCamera2CameraImpl.attachUseCases(singletonList(useCase));
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
+
+        useCase.setSurfaceOption(NON_REPEATING);
+        useCase.notifyResetForTesting();
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isTrue();
+
+        mCamera2CameraImpl.detachUseCases(singletonList(useCase));
+    }
+
+    @Test
     public void cameraStateIsClosed_afterInitialization()
             throws ExecutionException, InterruptedException {
         Observable<CameraInternal.State> state = mCamera2CameraImpl.getCameraState();
@@ -734,22 +764,22 @@ public final class Camera2CameraImplTest {
     }
 
     @NonNull
-    private UseCase createUseCase() {
+    private TestUseCase createUseCase() {
         return createUseCase(DEFAULT_TEMPLATE_TYPE);
     }
 
     @NonNull
-    private UseCase createUseCase(int template) {
+    private TestUseCase createUseCase(int template) {
         return createUseCase(template, DEFAULT_SURFACE_OPTION);
     }
 
     @NonNull
-    private UseCase createUseCase(@NonNull SurfaceOption surfaceOption) {
+    private TestUseCase createUseCase(@NonNull SurfaceOption surfaceOption) {
         return createUseCase(DEFAULT_TEMPLATE_TYPE, surfaceOption);
     }
 
     @NonNull
-    private UseCase createUseCase(int template, @NonNull SurfaceOption surfaceOption) {
+    private TestUseCase createUseCase(int template, @NonNull SurfaceOption surfaceOption) {
         boolean isZslDisabled = getDefaultZslDisabled(template);
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
@@ -760,10 +790,16 @@ public final class Camera2CameraImplTest {
     }
 
     @NonNull
-    private UseCase createUseCase(@NonNull FakeUseCaseConfig config, int template,
+    private TestUseCase createUseCase(@NonNull FakeUseCaseConfig config, int template,
             @NonNull SurfaceOption surfaceOption) {
-        TestUseCase testUseCase = new TestUseCase(template, config, DEFAULT_BACK_CAMERA,
-                mMockOnImageAvailableListener, mMockRepeatingCaptureCallback, surfaceOption);
+        TestUseCase testUseCase = new TestUseCase(
+                template,
+                config,
+                mCamera2CameraImpl,
+                mMockOnImageAvailableListener,
+                mMockRepeatingCaptureCallback,
+                surfaceOption
+        );
 
         testUseCase.updateSuggestedStreamSpec(StreamSpec.builder(new Size(640, 480)).build());
         mFakeUseCases.add(testUseCase);
@@ -1135,7 +1171,7 @@ public final class Camera2CameraImplTest {
         Handler mHandler;
         FakeUseCaseConfig mConfig;
         private DeferrableSurface mDeferrableSurface;
-        private final SurfaceOption mSurfaceOption;
+        private SurfaceOption mSurfaceOption;
         private final CameraCaptureCallback mRepeatingCaptureCallback;
         private final int mTemplate;
         private SessionConfig.Builder mSessionConfigBuilder;
@@ -1153,7 +1189,7 @@ public final class Camera2CameraImplTest {
         TestUseCase(
                 int template,
                 @NonNull FakeUseCaseConfig config,
-                @NonNull CameraSelector cameraSelector,
+                @NonNull CameraInternal camera,
                 @NonNull ImageReader.OnImageAvailableListener listener,
                 @NonNull CameraCaptureCallback repeatingCaptureCallback,
                 @NonNull SurfaceOption surfaceOption) {
@@ -1167,15 +1203,7 @@ public final class Camera2CameraImplTest {
             mRepeatingCaptureCallback = repeatingCaptureCallback;
             mHandlerThread.start();
             mHandler = new Handler(mHandlerThread.getLooper());
-            int lensFacing =
-                    cameraSelector.getLensFacing() == null ? CameraSelector.LENS_FACING_BACK :
-                            cameraSelector.getLensFacing();
-            String cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing);
-            if (cameraId == null) {
-                cameraId = "FakeId";
-            }
-            bindToCamera(new FakeCamera(cameraId, null,
-                    new FakeCameraInfoInternal(cameraId, 0, lensFacing)), null, null);
+            bindToCamera(camera, null, null);
             updateSuggestedStreamSpec(StreamSpec.builder(new Size(640, 480)).build());
         }
 
@@ -1209,6 +1237,14 @@ public final class Camera2CameraImplTest {
             updateSessionBuilderBySurfaceOption();
             updateSessionConfig(mSessionConfigBuilder.build());
             return suggestedStreamSpec;
+        }
+
+        public void setSurfaceOption(@NonNull SurfaceOption surfaceOption) {
+            if (mSurfaceOption != surfaceOption) {
+                mSurfaceOption = surfaceOption;
+                updateSessionBuilderBySurfaceOption();
+                updateSessionConfig(mSessionConfigBuilder.build());
+            }
         }
 
         private void updateSessionBuilderBySurfaceOption() {
