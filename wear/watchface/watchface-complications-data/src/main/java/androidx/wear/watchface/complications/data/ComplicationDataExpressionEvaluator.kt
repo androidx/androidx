@@ -65,10 +65,10 @@ class ComplicationDataExpressionEvaluator(
                         .mapNotNull {
                             when {
                                 // Emitting INVALID_DATA if there's an invalid receiver.
-                                it.invalid.isNotEmpty() -> INVALID_DATA
+                                it.invalidReceivers.isNotEmpty() -> INVALID_DATA
                                 // Emitting the data if all pending receivers are done and all
                                 // pre-updates are satisfied.
-                                it.pending.isEmpty() && it.preUpdateCount == 0 -> it.data
+                                it.pendingReceivers.isEmpty() && it.preUpdateCount == 0 -> it.data
                                 // Skipping states that are not ready for be emitted.
                                 else -> null
                             }
@@ -108,7 +108,7 @@ class ComplicationDataExpressionEvaluator(
         expression ?: return
         val executor = currentCoroutineContext().asExecutor()
         update { state ->
-            state.withPending(
+            state.withPendingReceiver(
                 ComplicationEvaluationResultReceiver<Float>(
                     this,
                     setter = { value ->
@@ -128,7 +128,7 @@ class ComplicationDataExpressionEvaluator(
         val expression = text?.expression ?: return
         val executor = currentCoroutineContext().asExecutor()
         update {
-            it.withPending(
+            it.withPendingReceiver(
                 ComplicationEvaluationResultReceiver<String>(
                     this,
                     setter = { value ->
@@ -154,9 +154,9 @@ class ComplicationDataExpressionEvaluator(
      */
     private inner class State(
         val data: WireComplicationData,
-        val pending: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
-        val invalid: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
-        val complete: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
+        val pendingReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
+        val invalidReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
+        val completeReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> = setOf(),
         val preUpdateCount: Int = 0,
     ) : AutoCloseable {
         lateinit var evaluator: DynamicTypeEvaluator
@@ -167,43 +167,29 @@ class ComplicationDataExpressionEvaluator(
             }
         }
 
-        fun withPending(receiver: ComplicationEvaluationResultReceiver<out Any>) =
-            State(
-                data,
-                pending = pending + receiver,
-                invalid = invalid,
-                complete = complete,
-                preUpdateCount = preUpdateCount,
+        fun withPendingReceiver(receiver: ComplicationEvaluationResultReceiver<out Any>) =
+            copy(pendingReceivers = pendingReceivers + receiver)
+
+        fun withPreUpdate() = copy(preUpdateCount = preUpdateCount + 1)
+
+        fun withInvalidReceiver(receiver: ComplicationEvaluationResultReceiver<out Any>) =
+            copy(
+                pendingReceivers = pendingReceivers - receiver,
+                invalidReceivers = invalidReceivers + receiver,
+                completeReceivers = completeReceivers - receiver,
+                preUpdateCount = preUpdateCount - 1,
             )
 
-        fun withPreUpdate() =
-            State(
-                data,
-                pending = pending,
-                invalid = invalid,
-                complete = complete,
-                preUpdateCount + 1,
-            )
-
-        fun withInvalid(receiver: ComplicationEvaluationResultReceiver<out Any>) =
-            State(
-                data,
-                pending = pending - receiver,
-                invalid = invalid + receiver,
-                complete = complete - receiver,
-                preUpdateCount - 1,
-            )
-
-        fun withUpdated(
+        fun withUpdatedData(
             data: WireComplicationData,
             receiver: ComplicationEvaluationResultReceiver<out Any>,
         ) =
-            State(
+            copy(
                 data,
-                pending = pending - receiver,
-                invalid = invalid - receiver,
-                complete = complete + receiver,
-                preUpdateCount - 1,
+                pendingReceivers = pendingReceivers - receiver,
+                invalidReceivers = invalidReceivers - receiver,
+                completeReceivers = completeReceivers + receiver,
+                preUpdateCount = preUpdateCount - 1,
             )
 
         /**
@@ -212,7 +198,7 @@ class ComplicationDataExpressionEvaluator(
          * Should be called after all receivers were added.
          */
         fun initEvaluation() {
-            if (pending.isEmpty()) return
+            if (pendingReceivers.isEmpty()) return
             require(!this::evaluator.isInitialized) { "initEvaluator must be called exactly once." }
             evaluator =
                 DynamicTypeEvaluator(
@@ -220,17 +206,35 @@ class ComplicationDataExpressionEvaluator(
                     stateStore,
                     sensorGateway,
                 )
-            for (receiver in pending) receiver.bind()
-            for (receiver in pending) receiver.startEvaluation()
+            for (receiver in pendingReceivers) receiver.bind()
+            for (receiver in pendingReceivers) receiver.startEvaluation()
             evaluator.enablePlatformDataSources()
         }
 
         override fun close() {
-            for (receiver in pending + invalid + complete) {
+            for (receiver in pendingReceivers + invalidReceivers + completeReceivers) {
                 receiver.close()
             }
             if (this::evaluator.isInitialized) evaluator.close()
         }
+
+        private fun copy(
+            data: WireComplicationData = this.data,
+            pendingReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> =
+                this.pendingReceivers,
+            invalidReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> =
+                this.invalidReceivers,
+            completeReceivers: Set<ComplicationEvaluationResultReceiver<out Any>> =
+                this.completeReceivers,
+            preUpdateCount: Int = this.preUpdateCount,
+        ) =
+            State(
+                data = data,
+                pendingReceivers = pendingReceivers,
+                invalidReceivers = invalidReceivers,
+                completeReceivers = completeReceivers,
+                preUpdateCount = preUpdateCount,
+            )
     }
 
     private inner class ComplicationEvaluationResultReceiver<T : Any>(
@@ -259,12 +263,15 @@ class ComplicationDataExpressionEvaluator(
 
         override fun onData(newData: T) {
             state.update {
-                it.withUpdated(setter(WireComplicationData.Builder(it.data), newData).build(), this)
+                it.withUpdatedData(
+                    setter(WireComplicationData.Builder(it.data), newData).build(),
+                    this
+                )
             }
         }
 
         override fun onInvalidated() {
-            state.update { it.withInvalid(this) }
+            state.update { it.withInvalidReceiver(this) }
         }
     }
 
