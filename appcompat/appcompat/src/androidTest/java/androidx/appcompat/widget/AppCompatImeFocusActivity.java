@@ -16,18 +16,23 @@
 
 package androidx.appcompat.widget;
 
+import android.text.InputType;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
 
-public class AppCompatEditTextImeFocusActivity extends BaseTestActivity {
+public class AppCompatImeFocusActivity extends BaseTestActivity {
+
+    public static final int TEST_COMPAT_EDIT_TEXT = 1;
+    public static final int TEST_COMPAT_TEXT_VIEW = 2;
 
     ViewGroup mLayout;
-    AppCompatEditText mEditText1;
-    AppCompatEditText mEditText2;
+    TextView mEditText1;
+    TextView mEditText2;
     InputMethodManager mInputMethodManager;
 
     @Override
@@ -36,10 +41,17 @@ public class AppCompatEditTextImeFocusActivity extends BaseTestActivity {
     }
 
     @RequiresApi(23)
-    public void initActivity() {
+    public void initActivity(int targetWidget) {
         mLayout = findViewById(R.id.ime_layout);
-        mEditText1 = new AppCompatEditText(this);
-        mEditText2 = new AppCompatEditText(this);
+        if (targetWidget == TEST_COMPAT_EDIT_TEXT) {
+            mEditText1 = new AppCompatEditText(this);
+            mEditText2 = new AppCompatEditText(this);
+        } else if (targetWidget == TEST_COMPAT_TEXT_VIEW) {
+            mEditText1 = initEditableCompatTextView();
+            mEditText2 = initEditableCompatTextView();
+        } else {
+            throw new RuntimeException("initActivity with an invalid target");
+        }
         mInputMethodManager = getSystemService(InputMethodManager.class);
     }
 
@@ -72,5 +84,15 @@ public class AppCompatEditTextImeFocusActivity extends BaseTestActivity {
 
     public void removeSecondEditor() {
         mLayout.removeView(mEditText2);
+    }
+
+    private AppCompatTextView initEditableCompatTextView() {
+        AppCompatTextView editText = new AppCompatTextView(this);
+        editText.setInputType(InputType.TYPE_CLASS_TEXT);
+        editText.setFocusable(true);
+        editText.setCursorVisible(true);
+        editText.setEnabled(true);
+        editText.setFocusableInTouchMode(true);
+        return editText;
     }
 }
