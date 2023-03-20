@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text2.service
 
+import android.view.KeyEvent
 import androidx.compose.foundation.text2.input.CommitTextCommand
 import androidx.compose.foundation.text2.input.DeleteSurroundingTextCommand
 import androidx.compose.foundation.text2.input.DeleteSurroundingTextInCodePointsCommand
@@ -51,6 +52,7 @@ class StatelessInputConnectionTest {
     private var value: TextFieldValue = TextFieldValue()
     private var imeOptions: ImeOptions = ImeOptions.Default
     private var onRequestEdits: ((List<EditCommand>) -> Unit)? = null
+    private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null
 
     private val activeSessionProvider: () -> EditableTextInputSession? = { activeSession }
 
@@ -69,6 +71,10 @@ class StatelessInputConnectionTest {
 
             override fun requestEdits(editCommands: List<EditCommand>) {
                 onRequestEdits?.invoke(editCommands)
+            }
+
+            override fun sendKeyEvent(keyEvent: KeyEvent) {
+                onSendKeyEvent?.invoke(keyEvent)
             }
 
             override fun dispose() {
@@ -539,5 +545,37 @@ class StatelessInputConnectionTest {
         ic.getSelectedText(1)
         ic.endBatchEdit()
         assertThat(requestEditsCalled).isEqualTo(0)
+    }
+
+    @Test
+    fun sendKeyEvent_whenIMERequests() {
+        val keyEvents = mutableListOf<KeyEvent>()
+        onSendKeyEvent = {
+            keyEvents += it
+        }
+        val keyEvent1 = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_0)
+        val keyEvent2 = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_0)
+        ic.sendKeyEvent(keyEvent1)
+        ic.sendKeyEvent(keyEvent2)
+
+        assertThat(keyEvents.size).isEqualTo(2)
+        assertThat(keyEvents.first()).isEqualTo(keyEvent1)
+        assertThat(keyEvents.last()).isEqualTo(keyEvent2)
+    }
+
+    @Test
+    fun sendKeyEvent_noActiveSession() {
+        val keyEvents = mutableListOf<KeyEvent>()
+        onSendKeyEvent = {
+            keyEvents += it
+        }
+        val keyEvent1 = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_0)
+        val keyEvent2 = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_0)
+        activeSession = null
+
+        ic.sendKeyEvent(keyEvent1)
+        ic.sendKeyEvent(keyEvent2)
+
+        assertThat(keyEvents.size).isEqualTo(0)
     }
 }

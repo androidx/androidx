@@ -28,6 +28,8 @@ import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusRequesterModifierNode
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.requestFocus
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToDown
@@ -106,14 +108,25 @@ internal class TextFieldDecoratorModifierNode(
     var readOnly: Boolean,
     var keyboardOptions: KeyboardOptions,
     var singleLine: Boolean
-) : Modifier.Node(), SemanticsModifierNode, FocusRequesterModifierNode, FocusEventModifierNode,
-    GlobalPositionAwareModifierNode, PointerInputModifierNode {
+) : Modifier.Node(),
+    SemanticsModifierNode,
+    FocusRequesterModifierNode,
+    FocusEventModifierNode,
+    GlobalPositionAwareModifierNode,
+    PointerInputModifierNode,
+    KeyInputModifierNode {
 
     private var lastText: AnnotatedString? = null
     private var lastSelection: TextRange? = null
     private var isFocused: Boolean = false
     private var semanticsConfigurationCache: SemanticsConfiguration? = null
     private var textInputSession: TextInputSession? = null
+
+    /**
+     * Manages key events. These events often are sourced by a hardware keyboard but it's also
+     * possible that IME or some other platform system simulates a KeyEvent.
+     */
+    private val textFieldKeyEventHandler = TextFieldKeyEventHandler()
 
     /**
      * Updates all the related properties and invalidates internal state based on the changes.
@@ -216,6 +229,24 @@ internal class TextFieldDecoratorModifierNode(
 
     override fun onCancelPointerInput() {
         // Nothing to do yet, since onPointerEvent isn't handling any gestures.
+    }
+
+    override fun onPreKeyEvent(event: KeyEvent): Boolean {
+        // TextField does not handle pre key events.
+        return false
+    }
+
+    override fun onKeyEvent(event: KeyEvent): Boolean {
+        return textFieldKeyEventHandler.onKeyEvent(
+            event = event,
+            state = textFieldState,
+            textLayoutState = textLayoutState,
+            editable = enabled && !readOnly,
+            singleLine = singleLine,
+            onSubmit = {
+                // TODO(halilibo): finalize the wiring when KeyboardActions or equivalent is added.
+            }
+        )
     }
 
     private fun generateSemantics(

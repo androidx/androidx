@@ -203,8 +203,7 @@ internal class StatelessInputConnection(
 
     override fun sendKeyEvent(event: KeyEvent): Boolean = ensureActive {
         logDebug("sendKeyEvent($event)")
-        // TODO(halilibo): Delegate BaseInputConnection to adapter
-        // eventCallback.onKeyEvent(event)
+        activeSessionProvider()?.sendKeyEvent(event)
         return true
     }
 

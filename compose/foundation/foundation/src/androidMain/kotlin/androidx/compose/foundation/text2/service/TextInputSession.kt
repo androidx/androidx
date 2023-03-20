@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text2.service
 
+import android.view.KeyEvent
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.text2.TextFieldState
 import androidx.compose.foundation.text2.input.EditCommand
@@ -61,6 +62,11 @@ internal interface EditableTextInputSession : TextInputSession {
      * Callback to execute for InputConnection to communicate the changes requested by the IME.
      */
     fun requestEdits(editCommands: List<EditCommand>)
+
+    /**
+     * Delegates IME requested KeyEvents.
+     */
+    fun sendKeyEvent(keyEvent: KeyEvent)
 
     /**
      * IME configuration to use when creating new [InputConnection]s while this session is active.

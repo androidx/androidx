@@ -23,6 +23,7 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.composed
@@ -58,9 +59,12 @@ internal fun Modifier.cursor(
         }
         drawWithContent {
             this.drawContent()
+            // re-read from state value to make sure that we have the latest snapshot state that
+            // should be in line with the layout in textLayoutState
+            val selectionStart = Snapshot.withoutReadObservation { state.value.selection.start }
             val cursorAlphaValue = cursorAlpha.value.coerceIn(0f, 1f)
             if (cursorAlphaValue != 0f) {
-                val cursorRect = textLayoutState.layoutResult?.getCursorRect(value.selection.start)
+                val cursorRect = textLayoutState.layoutResult?.getCursorRect(selectionStart)
                     ?: Rect(0f, 0f, 0f, 0f)
                 val cursorWidth = DefaultCursorThickness.toPx()
                 val cursorX = (cursorRect.left + cursorWidth / 2)
