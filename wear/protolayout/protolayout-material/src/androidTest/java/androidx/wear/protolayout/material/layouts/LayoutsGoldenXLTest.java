@@ -61,7 +61,7 @@ public class LayoutsGoldenXLTest {
 
     @Rule
     public AndroidXScreenshotTestRule mScreenshotRule =
-            new AndroidXScreenshotTestRule("wear/wear-tiles-material");
+            new AndroidXScreenshotTestRule("wear/wear-protolayout-material");
 
     public LayoutsGoldenXLTest(String expected, LayoutElement layoutElement) {
         mLayoutElement = layoutElement;

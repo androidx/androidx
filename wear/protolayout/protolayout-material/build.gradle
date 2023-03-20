@@ -56,8 +56,7 @@ android {
     }
 
     sourceSets {
-        // TODO(b/268312818): Update to protolayout location and copy images.
-        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-tiles-material"
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-protolayout-material"
     }
 
     defaultConfig {

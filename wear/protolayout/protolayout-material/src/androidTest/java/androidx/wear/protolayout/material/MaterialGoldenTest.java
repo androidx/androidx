@@ -50,7 +50,7 @@ public class MaterialGoldenTest {
 
     @Rule
     public AndroidXScreenshotTestRule mScreenshotRule =
-            new AndroidXScreenshotTestRule("wear/wear-tiles-material");
+            new AndroidXScreenshotTestRule("wear/wear-protolayout-material");
 
     public MaterialGoldenTest(String expected, LayoutElement layoutElement) {
         mLayoutElement = layoutElement;
