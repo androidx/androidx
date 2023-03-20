@@ -28,6 +28,7 @@ import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.input.key.KeyInputModifierNode
+import androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode
 import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.pointer.SuspendPointerInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
@@ -55,7 +56,6 @@ internal inline infix fun Int.or(other: NodeKind<*>): Int = this or other.mask
 // its own measureNode if the measureNode happens to implement LayoutAware. If the measureNode
 // implements any other node interfaces, such as draw, those should be visited by the coordinator
 // below them.
-@OptIn(ExperimentalComposeUiApi::class)
 internal val NodeKind<*>.includeSelfInTraversal: Boolean
     get() = mask and Nodes.LayoutAware.mask != 0
 
@@ -99,10 +99,12 @@ internal object Nodes {
         get() = NodeKind<CompositionLocalConsumerModifierNode>(0b1 shl 15)
     @JvmStatic
     inline val SuspendPointerInput get() = NodeKind<SuspendPointerInputModifierNode>(0b1 shl 16)
+    @JvmStatic
+    inline val SoftKeyboardKeyInput
+        get() = NodeKind<SoftKeyboardInterceptionModifierNode>(0b1 shl 17)
     // ...
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun calculateNodeKindSetFrom(element: Modifier.Element): Int {
     var mask = Nodes.Any.mask
     if (element is LayoutModifier) {
@@ -195,7 +197,9 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     if (node is SuspendPointerInputModifierNode) {
         mask = mask or SuspendPointerInput
     }
-
+    if (node is SoftKeyboardInterceptionModifierNode) {
+        mask = mask or Nodes.SoftKeyboardKeyInput
+    }
     return mask
 }
 
@@ -203,16 +207,12 @@ private const val Updated = 0
 private const val Inserted = 1
 private const val Removed = 2
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun autoInvalidateRemovedNode(node: Modifier.Node) = autoInvalidateNode(node, Removed)
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun autoInvalidateInsertedNode(node: Modifier.Node) = autoInvalidateNode(node, Inserted)
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun autoInvalidateUpdatedNode(node: Modifier.Node) = autoInvalidateNode(node, Updated)
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun autoInvalidateNode(node: Modifier.Node, phase: Int) {
     check(node.isAttached)
     if (node.isKind(Nodes.Layout) && node is LayoutModifierNode) {
