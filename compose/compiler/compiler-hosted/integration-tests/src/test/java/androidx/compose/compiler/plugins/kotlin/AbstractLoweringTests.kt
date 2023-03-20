@@ -22,7 +22,7 @@ import org.intellij.lang.annotations.Language
 import org.robolectric.RuntimeEnvironment
 import java.net.URLClassLoader
 
-abstract class AbstractLoweringTests : AbstractCodegenTest() {
+abstract class AbstractLoweringTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
 
     fun codegen(text: String, dumpClasses: Boolean = false) {
         codegenNoImports(

@@ -43,7 +43,6 @@ import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.util.IrMessageLogger
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.AnalyzingUtils
-import org.jetbrains.kotlin.resolve.BindingContext
 
 class SourceFile(
     val name: String,
@@ -81,14 +80,13 @@ class SourceFile(
 }
 
 interface AnalysisResult {
-    data class Diagnostic(
+    class Diagnostic(
         val factoryName: String,
         val textRanges: List<TextRange>
     )
 
     val files: List<KtFile>
     val diagnostics: List<Diagnostic>
-    val bindingContext: BindingContext?
 }
 
 abstract class KotlinCompilerFacade(val environment: KotlinCoreEnvironment) {
@@ -123,7 +121,7 @@ abstract class KotlinCompilerFacade(val environment: KotlinCoreEnvironment) {
             environment.project.registerExtensions(configuration)
 
             return if (configuration.getBoolean(CommonConfigurationKeys.USE_FIR)) {
-                error("FIR unsupported")
+                K2CompilerFacade(environment)
             } else {
                 K1CompilerFacade(environment)
             }
