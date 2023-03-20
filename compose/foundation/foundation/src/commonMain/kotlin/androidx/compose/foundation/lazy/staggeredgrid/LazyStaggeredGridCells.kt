@@ -46,7 +46,7 @@ interface StaggeredGridCells {
      * @param spacing cross axis spacing, e.g. horizontal spacing for [LazyVerticalStaggeredGrid].
      * The spacing is passed from the corresponding [Arrangement] param of the lazy grid.
      */
-    fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List<Int>
+    fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): IntArray
 
     /**
      * Defines a grid with fixed number of rows or columns.
@@ -62,7 +62,7 @@ interface StaggeredGridCells {
         override fun Density.calculateCrossAxisCellSizes(
             availableSize: Int,
             spacing: Int
-        ): List<Int> {
+        ): IntArray {
             return calculateCellsCrossAxisSizeImpl(availableSize, count, spacing)
         }
 
@@ -92,7 +92,7 @@ interface StaggeredGridCells {
         override fun Density.calculateCrossAxisCellSizes(
             availableSize: Int,
             spacing: Int
-        ): List<Int> {
+        ): IntArray {
             val count = maxOf((availableSize + spacing) / (minSize.roundToPx() + spacing), 1)
             return calculateCellsCrossAxisSizeImpl(availableSize, count, spacing)
         }
@@ -105,17 +105,51 @@ interface StaggeredGridCells {
             return other is Adaptive && minSize == other.minSize
         }
     }
+
+    /**
+     * Defines a grid with as many rows or columns as possible on the condition that
+     * every cell takes exactly [size] space. The remaining space will be arranged through
+     * [LazyStaggeredGrid] arrangements on corresponding axis. If [size] is larger than
+     * container size, the cell will be size to match the container.
+     *
+     * For example, for the vertical [LazyVerticalStaggeredGrid] FixedSize(20.dp) would mean that
+     * there will be as many columns as possible and every column will be exactly 20.dp.
+     * If the screen is 88.dp wide tne there will be 4 columns 20.dp each with remaining 8.dp
+     * distributed through [Arrangement.Horizontal].
+     */
+    class FixedSize(private val size: Dp) : StaggeredGridCells {
+        override fun Density.calculateCrossAxisCellSizes(
+            availableSize: Int,
+            spacing: Int
+        ): IntArray {
+            val cellSize = size.roundToPx()
+            return if (cellSize + spacing < availableSize) {
+                val cellCount = availableSize / (cellSize + spacing)
+                IntArray(cellCount) { cellSize }
+            } else {
+                IntArray(1) { availableSize }
+            }
+        }
+
+        override fun hashCode(): Int {
+            return size.hashCode()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return other is FixedSize && size == other.size
+        }
+    }
 }
 
 private fun calculateCellsCrossAxisSizeImpl(
     gridSize: Int,
     slotCount: Int,
     spacing: Int
-): List<Int> {
+): IntArray {
     val gridSizeWithoutSpacing = gridSize - spacing * (slotCount - 1)
     val slotSize = gridSizeWithoutSpacing / slotCount
     val remainingPixels = gridSizeWithoutSpacing % slotCount
-    return List(slotCount) {
+    return IntArray(slotCount) {
         slotSize + if (it < remainingPixels) 1 else 0
     }
 }

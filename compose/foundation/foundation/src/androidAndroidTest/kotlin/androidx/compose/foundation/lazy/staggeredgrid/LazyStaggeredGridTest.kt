@@ -1888,4 +1888,27 @@ class LazyStaggeredGridTest(
             assertThat(state.firstVisibleItemIndex).isEqualTo(10)
         }
     }
+
+    @Test
+    fun fixedSizeCell_forcesFixedSize() {
+        val state = LazyStaggeredGridState()
+        rule.setContent {
+            LazyStaggeredGrid(
+                cells = StaggeredGridCells.FixedSize(itemSizeDp * 2),
+                modifier = Modifier.axisSize(crossAxis = itemSizeDp * 5, mainAxis = itemSizeDp * 5),
+                state = state
+            ) {
+                items(10) { index ->
+                    Box(Modifier.size(itemSizeDp).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
+        rule.onNodeWithTag("1")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 2f)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
+    }
 }
