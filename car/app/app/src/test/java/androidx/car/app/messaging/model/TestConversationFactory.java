@@ -98,7 +98,6 @@ public final class TestConversationFactory {
      */
     public static CarMessage.Builder createMinimalMessageBuilder() {
         return new CarMessage.Builder()
-                .setSender(createMinimalPerson())
                 .setBody(CarText.create("Message body"));
     }
 
@@ -118,6 +117,7 @@ public final class TestConversationFactory {
      */
     public static CarMessage.Builder createFullyPopulatedMessageBuilder() {
         return createMinimalMessageBuilder()
+                .setSender(createFullyPopulatedPerson())
                 .setRead(true)
                 .setReceivedTimeEpochMillis(12345);
     }
@@ -146,6 +146,7 @@ public final class TestConversationFactory {
         return new ConversationItem.Builder()
                 .setId("conversation_id")
                 .setTitle(CarText.create("Conversation Title"))
+                .setSelf(createMinimalPerson())
                 .setMessages(messages)
                 .setConversationCallback(EMPTY_CONVERSATION_CALLBACK);
     }

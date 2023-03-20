@@ -866,7 +866,7 @@ package androidx.car.app.messaging.model {
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(6) public class CarMessage {
     method public androidx.car.app.model.CarText getBody();
     method public long getReceivedTimeEpochMillis();
-    method public androidx.core.app.Person getSender();
+    method public androidx.core.app.Person? getSender();
     method public boolean isRead();
   }
 
@@ -876,7 +876,7 @@ package androidx.car.app.messaging.model {
     method public androidx.car.app.messaging.model.CarMessage.Builder setBody(androidx.car.app.model.CarText);
     method public androidx.car.app.messaging.model.CarMessage.Builder setRead(boolean);
     method public androidx.car.app.messaging.model.CarMessage.Builder setReceivedTimeEpochMillis(long);
-    method public androidx.car.app.messaging.model.CarMessage.Builder setSender(androidx.core.app.Person);
+    method public androidx.car.app.messaging.model.CarMessage.Builder setSender(androidx.core.app.Person?);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public interface ConversationCallback {
@@ -894,6 +894,7 @@ package androidx.car.app.messaging.model {
     method public androidx.car.app.model.CarIcon? getIcon();
     method public String getId();
     method public java.util.List<androidx.car.app.messaging.model.CarMessage!> getMessages();
+    method public androidx.core.app.Person getSelf();
     method public androidx.car.app.model.CarText getTitle();
     method public boolean isGroupConversation();
   }
@@ -906,6 +907,7 @@ package androidx.car.app.messaging.model {
     method public androidx.car.app.messaging.model.ConversationItem.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.messaging.model.ConversationItem.Builder setId(String);
     method public androidx.car.app.messaging.model.ConversationItem.Builder setMessages(java.util.List<androidx.car.app.messaging.model.CarMessage!>);
+    method public androidx.car.app.messaging.model.ConversationItem.Builder setSelf(androidx.core.app.Person);
     method public androidx.car.app.messaging.model.ConversationItem.Builder setTitle(androidx.car.app.model.CarText);
   }
 
