@@ -1078,6 +1078,9 @@ public abstract class WatchFaceService : WallpaperService() {
 
             iWatchFaceService = IWatchFaceService.Stub.asInterface(binder)
 
+            // A ParameterlessEngine doesn't exist in WSL flow.
+            InteractiveInstanceManager.setParameterlessEngine(null)
+
             try {
                 // Note if the implementation doesn't support getVersion this will return zero
                 // rather than throwing an exception.
@@ -1346,7 +1349,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     return
                 }
 
-                val pendingWallpaperInstance =
+                var pendingWallpaperInstance =
                     InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
                 // In a direct boot scenario attempt to load the previously serialized parameters.
@@ -1376,14 +1379,30 @@ public abstract class WatchFaceService : WallpaperService() {
                                 ?.let {
                                     Log.e(
                                         TAG,
-                                        "takePendingWallpaperInteractiveWatchFaceInstance failed"
+                                        "takePendingWallpaperInteractiveWatchFaceInstance failed",
+                                        e
                                     )
                                     it.callback.onInteractiveWatchFaceCrashed(CrashInfoParcel(e))
                                 }
                         } finally {
                             asyncTraceEvent.close()
                         }
+
+                        return
                     }
+                }
+
+                if (pendingWallpaperInstance == null) {
+                    // In this case we don't have any watchface parameters, probably because a WSL
+                    // watchface has been upgraded to an AndroidX one. The system has either just
+                    // racily attempted to connect (in which case we should carry on normally) or it
+                    // probably will connect at a later time. In the latter case we should
+                    // register a parameterless engine to allow the subsequent connection to
+                    // succeed.
+                    pendingWallpaperInstance = InteractiveInstanceManager
+                        .setParameterlessEngineOrTakePendingWallpaperInteractiveWatchFaceInstance(
+                            this
+                        )
                 }
 
                 // If there's a pending WallpaperInteractiveWatchFaceInstance then create it.
@@ -1402,7 +1421,7 @@ public abstract class WatchFaceService : WallpaperService() {
                             )
                             instance
                         } catch (e: Exception) {
-                            Log.e(TAG, "createInteractiveInstance failed")
+                            Log.e(TAG, "createInteractiveInstance failed", e)
                             pendingWallpaperInstance.callback.onInteractiveWatchFaceCrashed(
                                 CrashInfoParcel(e)
                             )
@@ -1433,6 +1452,29 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 }
             }
+
+        /** Attaches to a parameterlessEngine if we're completely uninitialized. */
+        @SuppressWarnings("NewApi")
+        internal fun attachToParameterlessEngine(
+            pendingWallpaperInstance:
+            InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance
+        ) {
+            uiThreadCoroutineScope.launch {
+                try {
+                    pendingWallpaperInstance.callback.onInteractiveWatchFaceCreated(
+                        createInteractiveInstance(
+                            pendingWallpaperInstance.params,
+                            "attachToParameterlessEngine"
+                        )
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "attachToParameterlessEngine failed", e)
+                    pendingWallpaperInstance.callback.onInteractiveWatchFaceCrashed(
+                        CrashInfoParcel(e)
+                    )
+                }
+            }
+        }
 
         @UiThread
         internal fun ambientTickUpdate(): Unit =
