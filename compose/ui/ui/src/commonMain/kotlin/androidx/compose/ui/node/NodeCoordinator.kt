@@ -281,12 +281,10 @@ internal abstract class NodeCoordinator(
 
     protected inline fun performingMeasure(
         constraints: Constraints,
-        block: () -> Placeable
+        crossinline block: () -> Placeable
     ): Placeable {
         measurementConstraints = constraints
-        val result = block()
-        layer?.resize(measuredSize)
-        return result
+        return block()
     }
 
     fun onMeasured() {
