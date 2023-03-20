@@ -48,15 +48,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Opinionated Tiles layout, row like style with horizontally aligned and spaced slots (for icons or
- * other small content). Should be used as a content passed in to the {@link PrimaryLayout}.
+ * Opinionated ProtoLayout layout, row like style with horizontally aligned and spaced slots (for
+ * icons or other small content). Should be used as a content passed in to the
+ * {@link PrimaryLayout}.
  *
  * <p>Recommended number of added slots is 1 to 3. Their width will be the width of an element
  * passed in, with the {@link LayoutDefaults#MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH} space
  * between.
- *
- * <p>For additional examples and suggested layouts see <a
- * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
  *
  * <p>When accessing the contents of a container for testing, note that this element can't be simply
  * casted back to the original type, i.e.:
@@ -77,6 +75,7 @@ import java.util.List;
  * MultiSlotLayout myMsl = MultiSlotLayout.fromLayoutElement(box.getContents().get(0));
  * }</pre>
  */
+// TODO(b/274916652): Link visuals once they are available.
 public class MultiSlotLayout implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Row is actually a MultiSlotLayout. */
     static final String METADATA_TAG = "MSL";

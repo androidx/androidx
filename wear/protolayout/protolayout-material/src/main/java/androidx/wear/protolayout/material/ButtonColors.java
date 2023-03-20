@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
 
 /**
- * Represents the background and content colors used in a button Tiles component.
+ * Represents the background and content colors used in {@link Button}.
  *
  * <p>See {@link ButtonDefaults#PRIMARY_COLORS} for the default colors used in a primary styled
  * {@link Button}. See {@link ButtonDefaults#SECONDARY_COLORS} for the default colors used in a
@@ -36,10 +36,10 @@ public class ButtonColors {
     /**
      * Constructor for {@link ButtonColors} object.
      *
-     * @param backgroundColor The background color to be used for a button Tiles component. Should
-     *     be in ARGB format.
-     * @param contentColor The content color or tint color to be used for a button Tiles component.
+     * @param backgroundColor The background color to be used for {@link Button}.
      *     Should be in ARGB format.
+     * @param contentColor The content color or tint color to be used for {@link Button}. Should
+     *     be in ARGB format.
      */
     public ButtonColors(@ColorInt int backgroundColor, @ColorInt int contentColor) {
         mBackgroundColor = argb(backgroundColor);
@@ -75,13 +75,13 @@ public class ButtonColors {
         return new ButtonColors(colors.getSurface(), colors.getOnSurface());
     }
 
-    /** The background color to be used on a button Tiles components. */
+    /** The background color to be used on {@link Button}. */
     @NonNull
     public ColorProp getBackgroundColor() {
         return mBackgroundColor;
     }
 
-    /** The content or tint color to be used on a button Tiles components. */
+    /** The content or tint color to be used on {@link Button}. */
     @NonNull
     public ColorProp getContentColor() {
         return mContentColor;

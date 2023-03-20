@@ -23,7 +23,7 @@ import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 
-/** Contains the default values used by button Tiles components. */
+/** Contains the default values used by {@link Button}. */
 public class ButtonDefaults {
     private ButtonDefaults() {}
 

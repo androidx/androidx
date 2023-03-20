@@ -61,7 +61,7 @@ public class Colors {
     @ColorInt
     public static final int ON_SURFACE = 0xFFFFFFFF;
 
-    /** The default color scheme to be used in Tiles Material components. */
+    /** The default color scheme to be used in ProtoLayout Material components. */
     @NonNull
     public static final Colors DEFAULT = new Colors(PRIMARY, ON_PRIMARY, SURFACE, ON_SURFACE);
 
