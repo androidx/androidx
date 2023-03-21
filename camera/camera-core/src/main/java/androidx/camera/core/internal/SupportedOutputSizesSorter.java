@@ -74,16 +74,27 @@ class SupportedOutputSizesSorter {
     private final boolean mIsSensorLandscapeResolution;
     private final SupportedOutputSizesSorterLegacy mSupportedOutputSizesSorterLegacy;
 
-    SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal) {
+    SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal,
+            @Nullable Size activeArraySize) {
         mCameraInfoInternal = cameraInfoInternal;
         mSensorOrientation = mCameraInfoInternal.getSensorRotationDegrees();
         mLensFacing = mCameraInfoInternal.getLensFacing();
-        mFullFovRatio = calculateFullFovRatio(mCameraInfoInternal);
+        mFullFovRatio = activeArraySize != null ? calculateFullFovRatioFromActiveArraySize(
+                activeArraySize) : calculateFullFovRatioFromSupportedOutputSizes(
+                mCameraInfoInternal);
         // Determines the sensor resolution orientation info by the full FOV ratio.
         mIsSensorLandscapeResolution = mFullFovRatio != null ? mFullFovRatio.getNumerator()
                 >= mFullFovRatio.getDenominator() : true;
         mSupportedOutputSizesSorterLegacy =
                 new SupportedOutputSizesSorterLegacy(cameraInfoInternal, mFullFovRatio);
+    }
+
+    /**
+     * Calculates the full FOV ratio by the active array size.
+     */
+    @NonNull
+    private Rational calculateFullFovRatioFromActiveArraySize(@NonNull Size activeArraySize) {
+        return new Rational(activeArraySize.getWidth(), activeArraySize.getHeight());
     }
 
     /**
@@ -94,7 +105,8 @@ class SupportedOutputSizesSorter {
      * test to fail if it is not set in the test environment.
      */
     @Nullable
-    private Rational calculateFullFovRatio(@NonNull CameraInfoInternal cameraInfoInternal) {
+    private Rational calculateFullFovRatioFromSupportedOutputSizes(
+            @NonNull CameraInfoInternal cameraInfoInternal) {
         List<Size> jpegOutputSizes = cameraInfoInternal.getSupportedResolutions(ImageFormat.JPEG);
         if (jpegOutputSizes.isEmpty()) {
             return null;

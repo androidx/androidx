@@ -80,6 +80,8 @@ private val PORTRAIT_SUPPORTED_SIZES = listOf(
     Size(640, 480),
     Size(360, 480)
 )
+private val LANDSCAPE_ACTIVE_ARRAY_SIZE = Size(4032, 3024)
+private val PORTRAIT_ACTIVE_ARRAY_SIZE = Size(1440, 1920)
 
 /**
  * Unit tests for [SupportedOutputSizesSorter].
@@ -92,7 +94,8 @@ class SupportedOutputSizesSorterTest {
         setSupportedResolutions(ImageFormat.JPEG, DEFAULT_SUPPORTED_SIZES)
         setSupportedHighResolutions(ImageFormat.JPEG, HIGH_RESOLUTION_SUPPORTED_SIZES)
     }
-    private val supportedOutputSizesSorter = SupportedOutputSizesSorter(cameraInfoInternal)
+    private val supportedOutputSizesSorter =
+        SupportedOutputSizesSorter(cameraInfoInternal, LANDSCAPE_ACTIVE_ARRAY_SIZE)
 
     @Test
     fun canSelectCustomOrderedResolutions() {
@@ -101,7 +104,8 @@ class SupportedOutputSizesSorterTest {
         val cameraInfoInternal = FakeCameraInfoInternal().apply {
             setSupportedResolutions(imageFormat, DEFAULT_SUPPORTED_SIZES)
         }
-        val supportedOutputSizesSorter = SupportedOutputSizesSorter(cameraInfoInternal)
+        val supportedOutputSizesSorter =
+            SupportedOutputSizesSorter(cameraInfoInternal, LANDSCAPE_ACTIVE_ARRAY_SIZE)
         // Sets up the custom ordered resolutions
         val useCaseConfig =
             FakeUseCaseConfig.Builder(CaptureType.IMAGE_CAPTURE, imageFormat).apply {
@@ -122,7 +126,8 @@ class SupportedOutputSizesSorterTest {
         val cameraInfoInternal = FakeCameraInfoInternal().apply {
             setSupportedResolutions(imageFormat, DEFAULT_SUPPORTED_SIZES)
         }
-        val supportedOutputSizesSorter = SupportedOutputSizesSorter(cameraInfoInternal)
+        val supportedOutputSizesSorter =
+            SupportedOutputSizesSorter(cameraInfoInternal, LANDSCAPE_ACTIVE_ARRAY_SIZE)
         // Sets up the custom supported resolutions
         val useCaseConfig =
             FakeUseCaseConfig.Builder(CaptureType.IMAGE_CAPTURE, imageFormat).apply {
@@ -367,7 +372,8 @@ class SupportedOutputSizesSorterTest {
         val cameraInfoInternal = FakeCameraInfoInternal().apply {
             setSupportedResolutions(ImageFormat.JPEG, PORTRAIT_SUPPORTED_SIZES)
         }
-        val supportedOutputSizesSorter = SupportedOutputSizesSorter(cameraInfoInternal)
+        val supportedOutputSizesSorter =
+            SupportedOutputSizesSorter(cameraInfoInternal, PORTRAIT_ACTIVE_ARRAY_SIZE)
         verifySupportedOutputSizesWithResolutionSelectorSettings(
             outputSizesSorter = supportedOutputSizesSorter,
             preferredAspectRatio = AspectRatio.RATIO_16_9,

@@ -18,6 +18,7 @@ package androidx.camera.core.internal;
 
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
+import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.camera.core.processing.TargetUtils.getNumberOfTargets;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
@@ -554,8 +555,17 @@ public final class CameraUseCaseAdapter implements Camera {
         if (!newUseCases.isEmpty()) {
             Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
             Map<UseCaseConfig<?>, List<Size>> configToSupportedSizesMap = new HashMap<>();
+            Rect sensorRect;
+            try {
+                sensorRect = ((CameraControlInternal) getCameraControl()).getSensorRect();
+            } catch (NullPointerException e) {
+                // TODO(b/274531208): Remove the unnecessary SENSOR_INFO_ACTIVE_ARRAY_SIZE NPE
+                //  check related code only which is used for robolectric tests
+                sensorRect = null;
+            }
             SupportedOutputSizesSorter supportedOutputSizesSorter = new SupportedOutputSizesSorter(
-                    (CameraInfoInternal) getCameraInfo());
+                    (CameraInfoInternal) getCameraInfo(),
+                    sensorRect != null ? rectToSize(sensorRect) : null);
             for (UseCase useCase : newUseCases) {
                 ConfigPair configPair = configPairMap.get(useCase);
                 // Combine with default configuration.
