@@ -22,8 +22,8 @@ import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.InitArg
 import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ArgumentsWrapper
-import androidx.appactions.interaction.capabilities.core.impl.FulfillmentResult
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
+import androidx.appactions.interaction.capabilities.core.impl.FulfillmentResult
 import androidx.appactions.interaction.capabilities.core.impl.TouchEventCallback
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
@@ -39,7 +39,6 @@ import androidx.appactions.interaction.proto.FulfillmentRequest
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.proto.TouchEventMetadata
-import androidx.concurrent.futures.await
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -155,7 +154,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     ) {
         val argumentsWrapper = assistantUpdateRequest.argumentsWrapper
         val callback = assistantUpdateRequest.callbackInternal
-        var fulfillmentResult: FulfillmentResult
+        val fulfillmentResult: FulfillmentResult
         if (argumentsWrapper.requestMetadata == null) {
             fulfillmentResult = FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST_TYPE)
         } else {
@@ -164,6 +163,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
                 FulfillmentRequest.Fulfillment.Type.UNKNOWN_TYPE,
                 ->
                     FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST_TYPE)
+
                 FulfillmentRequest.Fulfillment.Type.SYNC -> handleSync(argumentsWrapper)
                 FulfillmentRequest.Fulfillment.Type.CONFIRM -> handleConfirm()
                 FulfillmentRequest.Fulfillment.Type.CANCEL,
@@ -276,14 +276,14 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     private suspend fun handleSync(argumentsWrapper: ArgumentsWrapper): FulfillmentResult {
         maybeInitializeTask()
         clearMissingArgs(argumentsWrapper)
-        try {
+        return try {
             processFulfillmentValues(argumentsWrapper.paramValues)
             val fulfillmentResponse = maybeConfirmOrFinish()
             LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task sync success")
-            return FulfillmentResult(fulfillmentResponse)
+            FulfillmentResult(fulfillmentResponse)
         } catch (t: Throwable) {
             LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG, "Task sync fail", t)
-            return FulfillmentResult(ErrorStatusInternal.SYNC_REQUEST_FAILURE)
+            FulfillmentResult(ErrorStatusInternal.SYNC_REQUEST_FAILURE)
         }
     }
 
@@ -293,13 +293,13 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
      */
     private suspend fun handleConfirm(): FulfillmentResult {
         val finalArguments = getCurrentAcceptedArguments()
-        try {
+        return try {
             val fulfillmentResponse = getFulfillmentResponseForExecution(finalArguments)
             LoggerInternal.log(CapabilityLogger.LogLevel.INFO, LOG_TAG, "Task confirm success")
-            return FulfillmentResult(fulfillmentResponse)
+            FulfillmentResult(fulfillmentResponse)
         } catch (t: Throwable) {
             LoggerInternal.log(CapabilityLogger.LogLevel.ERROR, LOG_TAG, "Task confirm fail")
-            return FulfillmentResult(ErrorStatusInternal.CONFIRMATION_REQUEST_FAILURE)
+            FulfillmentResult(ErrorStatusInternal.CONFIRMATION_REQUEST_FAILURE)
         }
     }
 
@@ -428,7 +428,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     private suspend fun getFulfillmentResponseForConfirmation(
         finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
-        val result = taskHandler.onReadyToConfirmListener!!.onReadyToConfirm(finalArguments).await()
+        val result = taskHandler.onReadyToConfirmListener!!.onReadyToConfirm(finalArguments)
         val fulfillmentResponse = FulfillmentResponse.newBuilder()
         convertToConfirmationOutput(result)?.let { fulfillmentResponse.confirmationData = it }
         return fulfillmentResponse.build()
@@ -438,7 +438,7 @@ internal class TaskOrchestrator<ArgumentT, OutputT, ConfirmationT>(
     private suspend fun getFulfillmentResponseForExecution(
         finalArguments: Map<String, List<ParamValue>>,
     ): FulfillmentResponse {
-        val result = externalSession.onFinishAsync(actionSpec.buildArgument(finalArguments)).await()
+        val result = externalSession.onFinish(actionSpec.buildArgument(finalArguments))
         status = ActionCapabilitySession.Status.COMPLETED
         val fulfillmentResponse = FulfillmentResponse.newBuilder()
         convertToExecutionOutput(result)?.let { fulfillmentResponse.executionOutput = it }
