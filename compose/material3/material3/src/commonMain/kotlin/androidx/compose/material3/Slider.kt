@@ -88,6 +88,7 @@ import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.lerp
 import kotlin.math.abs
 import kotlin.math.floor
@@ -588,15 +589,12 @@ private fun SliderImpl(
             it.layoutId == SliderComponents.THUMB
         }.measure(constraints)
 
-        val maxTrackWidth = constraints.maxWidth - thumbPlaceable.width
         val trackPlaceable = measurables.first {
             it.layoutId == SliderComponents.TRACK
         }.measure(
-            constraints.copy(
-                minWidth = 0,
-                maxWidth = maxTrackWidth,
-                minHeight = 0
-            )
+            constraints.offset(
+                horizontal = - thumbPlaceable.width
+            ).copy(minHeight = 0)
         )
 
         val sliderWidth = thumbPlaceable.width + trackPlaceable.width
@@ -792,16 +790,12 @@ private fun RangeSliderImpl(
             constraints
         )
 
-        val maxTrackWidth =
-            constraints.maxWidth - (startThumbPlaceable.width + endThumbPlaceable.width) / 2
         val trackPlaceable = measurables.first {
             it.layoutId == RangeSliderComponents.TRACK
         }.measure(
-            constraints.copy(
-                minWidth = 0,
-                maxWidth = maxTrackWidth,
-                minHeight = 0
-            )
+            constraints.offset(
+                horizontal = - (startThumbPlaceable.width + endThumbPlaceable.width) / 2
+            ).copy(minHeight = 0)
         )
 
         val sliderWidth = trackPlaceable.width +
