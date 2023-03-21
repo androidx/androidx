@@ -256,7 +256,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * {@code true}, they are not limited by the binder
      * transaction limit but are bound by
      * {@link IsolateStartupParameters#setMaxEvaluationReturnSizeBytes(int)} with a default size
-     * of {@link IsolateStartupParameters#DEFAULT_MAX_EVALUATION_RETURN_SIZE}.
+     * of {@link IsolateStartupParameters#DEFAULT_MAX_EVALUATION_RETURN_SIZE_BYTES}.
      *
      * @param code JavaScript code that is evaluated, it should return a JavaScript String or a
      *             Promise of a String in case {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN}
@@ -319,9 +319,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
      *             {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN} is supported
      * @return Future that evaluates to the result String of the evaluation or exceptions (see
      * {@link JavaScriptException} and subclasses) if there is an error
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressWarnings("NullAway")
     @NonNull
     @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT,
