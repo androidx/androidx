@@ -25,10 +25,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -102,6 +104,14 @@ public interface CameraInfoInternal extends CameraInfo {
      */
     @NonNull
     List<Size> getSupportedHighResolutions(int format);
+
+    /**
+     * Returns the supported dynamic ranges of this camera.
+     *
+     * @return a set of supported dynamic range, or an empty set if no dynamic range is supported.
+     */
+    @NonNull
+    Set<DynamicRange> getSupportedDynamicRanges();
 
     /** {@inheritDoc} */
     @NonNull
