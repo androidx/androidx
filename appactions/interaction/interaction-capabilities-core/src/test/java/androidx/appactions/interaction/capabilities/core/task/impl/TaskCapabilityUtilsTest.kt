@@ -16,7 +16,8 @@
 package androidx.appactions.interaction.capabilities.core.task.impl
 
 import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.FulfillmentRequest
@@ -36,7 +37,8 @@ class TaskCapabilityUtilsTest {
         intentParameters.add(
             PropertyConverter.getIntentParameter(
                 "required",
-                StringProperty.Builder().setRequired(true).build()
+                TypeProperty.Builder<StringValue>().setRequired(true).build(),
+                PropertyConverter::stringValueToProto
             )
         )
         assertThat(TaskCapabilityUtils.isSlotFillingComplete(args, intentParameters)).isTrue()
@@ -48,7 +50,8 @@ class TaskCapabilityUtilsTest {
         intentParameters.add(
             PropertyConverter.getIntentParameter(
                 "required",
-                StringProperty.Builder().setRequired(true).build()
+                TypeProperty.Builder<StringValue>().setRequired(true).build(),
+                PropertyConverter::stringValueToProto
             )
         )
         assertThat(TaskCapabilityUtils.isSlotFillingComplete(emptyMap(), intentParameters))

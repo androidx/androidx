@@ -23,7 +23,7 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
+import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.capabilities.core.testing.spec.Output;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
@@ -185,7 +185,7 @@ public final class ActionSpecTest {
                                                 .build())
                                 .setValueMatchRequired(true)
                                 .build(),
-                        new StringProperty.Builder().build());
+                        new TypeProperty.Builder<StringValue>().build());
 
         assertThat(ACTION_SPEC.convertPropertyToProto(property))
                 .isEqualTo(
@@ -246,14 +246,17 @@ public final class ActionSpecTest {
                                                         .build())
                                         .setRequired(true)
                                         .build()),
-                        new StringProperty.Builder().build(),
+                        new TypeProperty.Builder<StringValue>().build(),
                         Optional.of(
-                                new StringProperty.Builder()
-                                        .addPossibleValue("value1")
+                                new TypeProperty.Builder<StringValue>()
+                                        .addPossibleEntities(StringValue.of("value1"))
                                         .setValueMatchRequired(true)
                                         .setRequired(true)
                                         .build()),
-                        Optional.of(new StringProperty.Builder().setProhibited(true).build()));
+                        Optional.of(
+                                new TypeProperty.Builder<StringValue>()
+                                        .setProhibited(true)
+                                        .build()));
 
         assertThat(ACTION_SPEC.convertPropertyToProto(property))
                 .isEqualTo(
@@ -435,9 +438,9 @@ public final class ActionSpecTest {
                 Optional<TypeProperty<Entity>> optionalEntityField,
                 Optional<TypeProperty<TestEnum>> optionalEnumField,
                 Optional<TypeProperty<Entity>> repeatedEntityField,
-                StringProperty requiredStringField,
-                Optional<StringProperty> optionalStringField,
-                Optional<StringProperty> repeatedStringField) {
+                TypeProperty<StringValue> requiredStringField,
+                Optional<TypeProperty<StringValue>> optionalStringField,
+                Optional<TypeProperty<StringValue>> repeatedStringField) {
             return new AutoValue_ActionSpecTest_Property(
                     requiredEntityField,
                     optionalEntityField,
@@ -449,7 +452,8 @@ public final class ActionSpecTest {
         }
 
         static Property create(
-                TypeProperty<Entity> requiredEntityField, StringProperty requiredStringField) {
+                TypeProperty<Entity> requiredEntityField,
+                TypeProperty<StringValue> requiredStringField) {
             return create(
                     requiredEntityField,
                     Optional.empty(),
@@ -468,11 +472,11 @@ public final class ActionSpecTest {
 
         abstract Optional<TypeProperty<Entity>> repeatedEntityField();
 
-        abstract StringProperty requiredStringField();
+        abstract TypeProperty<StringValue> requiredStringField();
 
-        abstract Optional<StringProperty> optionalStringField();
+        abstract Optional<TypeProperty<StringValue>> optionalStringField();
 
-        abstract Optional<StringProperty> repeatedStringField();
+        abstract Optional<TypeProperty<StringValue>> repeatedStringField();
     }
 
     @AutoValue

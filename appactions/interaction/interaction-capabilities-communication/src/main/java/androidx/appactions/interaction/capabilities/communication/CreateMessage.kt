@@ -24,7 +24,8 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.Message
@@ -70,7 +71,7 @@ class CreateMessage private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
             CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
-            >(ACTION_SPEC) {
+        >(ACTION_SPEC) {
         override fun build(): ActionCapability {
             super.setProperty(Property.Builder().build())
             // TODO(b/268369632): No-op remove empty property builder after Property is removed.
@@ -80,9 +81,10 @@ class CreateMessage private constructor() {
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor(
+    class Property
+    internal constructor(
         val recipient: SimpleProperty?,
-        val messageText: StringProperty?
+        val messageText: TypeProperty<StringValue>?
     ) {
         override fun toString(): String {
             return "Property(recipient=$recipient, messageText=$messageText)"
@@ -108,22 +110,22 @@ class CreateMessage private constructor() {
 
         class Builder {
             private var recipient: SimpleProperty? = null
-            private var messageText: StringProperty? = null
+            private var messageText: TypeProperty<StringValue>? = null
 
-            fun setRecipient(recipient: SimpleProperty): Builder =
-                apply { this.recipient = recipient }
+            fun setRecipient(recipient: SimpleProperty): Builder = apply {
+                this.recipient = recipient
+            }
 
-            fun setMessageText(messageText: StringProperty): Builder =
-                apply { this.messageText = messageText }
+            fun setMessageText(messageText: TypeProperty<StringValue>): Builder = apply {
+                this.messageText = messageText
+            }
 
             fun build(): Property = Property(recipient, messageText)
         }
     }
 
-    class Argument internal constructor(
-        val recipientList: List<Recipient>,
-        val messageText: String?
-    ) {
+    class Argument
+    internal constructor(val recipientList: List<Recipient>, val messageText: String?) {
         override fun toString(): String {
             return "Argument(recipient=$recipientList, messageTextList=$messageText)"
         }
@@ -150,20 +152,20 @@ class CreateMessage private constructor() {
             private var recipientList: List<Recipient> = mutableListOf()
             private var messageText: String? = null
 
-            fun setRecipientList(recipientList: List<Recipient>): Builder =
-                apply { this.recipientList = recipientList }
+            fun setRecipientList(recipientList: List<Recipient>): Builder = apply {
+                this.recipientList = recipientList
+            }
 
-            fun setMessageText(messageTextList: String): Builder =
-                apply { this.messageText = messageTextList }
+            fun setMessageText(messageTextList: String): Builder = apply {
+                this.messageText = messageTextList
+            }
 
             override fun build(): Argument = Argument(recipientList, messageText)
         }
     }
 
-    class Output internal constructor(
-        val message: Message?,
-        val executionStatus: ExecutionStatus?
-    ) {
+    class Output
+    internal constructor(val message: Message?, val executionStatus: ExecutionStatus?) {
         override fun toString(): String {
             return "Output(call=$message, executionStatus=$executionStatus)"
         }
@@ -190,9 +192,7 @@ class CreateMessage private constructor() {
             private var message: Message? = null
             private var executionStatus: ExecutionStatus? = null
 
-            fun setMessage(message: Message): Builder = apply {
-                this.message = message
-            }
+            fun setMessage(message: Message): Builder = apply { this.message = message }
 
             fun setExecutionStatus(executionStatus: ExecutionStatus): Builder = apply {
                 this.executionStatus = executionStatus
@@ -225,9 +225,7 @@ class CreateMessage private constructor() {
             val value: Value = Value.newBuilder().setStringValue(status).build()
             return ParamValue.newBuilder()
                 .setStructValue(
-                    Struct.newBuilder()
-                        .putFields(TypeConverters.FIELD_NAME_TYPE, value)
-                        .build()
+                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build()
                 )
                 .build()
         }

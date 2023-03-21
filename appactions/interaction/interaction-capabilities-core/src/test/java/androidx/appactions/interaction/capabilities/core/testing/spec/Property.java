@@ -19,7 +19,7 @@ package androidx.appactions.interaction.capabilities.core.testing.spec;
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
+import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 
 import com.google.auto.value.AutoValue;
@@ -36,11 +36,11 @@ public abstract class Property {
 
     public abstract TypeProperty<Entity> requiredEntityField();
 
-    public abstract Optional<StringProperty> optionalStringField();
+    public abstract Optional<TypeProperty<StringValue>> optionalStringField();
 
     public abstract Optional<TypeProperty<TestEnum>> enumField();
 
-    public abstract Optional<StringProperty> repeatedStringField();
+    public abstract Optional<TypeProperty<StringValue>> repeatedStringField();
 
     /** Builder for the testing Property. */
     @AutoValue.Builder
@@ -48,11 +48,11 @@ public abstract class Property {
 
         public abstract Builder setRequiredEntityField(TypeProperty<Entity> property);
 
-        public abstract Builder setOptionalStringField(StringProperty property);
+        public abstract Builder setOptionalStringField(TypeProperty<StringValue> property);
 
         public abstract Builder setEnumField(TypeProperty<TestEnum> property);
 
-        public abstract Builder setRepeatedStringField(StringProperty property);
+        public abstract Builder setRepeatedStringField(TypeProperty<StringValue> property);
 
         @NonNull
         @Override
