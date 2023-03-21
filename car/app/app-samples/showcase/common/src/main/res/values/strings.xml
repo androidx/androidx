@@ -381,7 +381,7 @@
 
   <!-- TaskRestrictionDemoScreen -->
   <string name="task_restriction_demo_title">Task Restriction Demo</string>
-  <string name="task_limit_reached_msg">Task limit reached\nGoing forward will force stop the app</string>
+  <string name="task_limit_reached_msg">This will overflow the step count, and lead you to a new screen. </string>
   <string name="task_step_of_title">Task step %1$d of %2$d</string>
   <string name="task_step_of_text">Click to go forward</string>
   <string name="task_content_allowed">Please visit the different templates and ensure the car is in driving mode</string>
