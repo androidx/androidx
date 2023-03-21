@@ -22,6 +22,7 @@ import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
+import static androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.processing.TargetUtils.isSuperset;
 import static androidx.core.util.Preconditions.checkArgument;
@@ -30,6 +31,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.ImageReader;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 
@@ -350,6 +352,17 @@ public abstract class UseCase {
     @ImageOutputConfig.RotationValue
     protected int getTargetRotationInternal() {
         return ((ImageOutputConfig) mCurrentConfig).getTargetRotation(Surface.ROTATION_0);
+    }
+
+    /**
+     * Returns the target frame rate range for the associated VideoCapture use case.
+     *
+     * @return The target frame rate.
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected Range<Integer> getTargetFramerateInternal() {
+        return mCurrentConfig.getTargetFramerate(FRAME_RATE_RANGE_UNSPECIFIED);
     }
 
     /**
