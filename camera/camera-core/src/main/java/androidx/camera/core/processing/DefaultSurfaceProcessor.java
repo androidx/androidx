@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
@@ -42,6 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -53,13 +55,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RequiresApi(21)
 public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         SurfaceTexture.OnFrameAvailableListener {
+    private static final String TAG = "DefaultSurfaceProcessor";
     private final OpenGlRenderer mGlRenderer;
     @VisibleForTesting
     final HandlerThread mGlThread;
     private final Executor mGlExecutor;
     @VisibleForTesting
     final Handler mGlHandler;
-    private final AtomicBoolean mIsReleased = new AtomicBoolean(false);
+    private final AtomicBoolean mIsReleaseRequested = new AtomicBoolean(false);
     private final float[] mTextureMatrix = new float[16];
     private final float[] mSurfaceOutputMatrix = new float[16];
     // Map of current set of available outputs. Only access this on GL thread.
@@ -68,6 +71,8 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
 
     // Only access this on GL thread.
     private int mInputSurfaceCount = 0;
+    // Only access this on GL thread.
+    private boolean mIsReleased = false;
 
     /** Constructs {@link DefaultSurfaceProcessor} with default shaders. */
     DefaultSurfaceProcessor() {
@@ -99,11 +104,11 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
      */
     @Override
     public void onInputSurface(@NonNull SurfaceRequest surfaceRequest) {
-        if (mIsReleased.get()) {
+        if (mIsReleaseRequested.get()) {
             surfaceRequest.willNotProvideSurface();
             return;
         }
-        mGlExecutor.execute(() -> {
+        executeSafely(() -> {
             mInputSurfaceCount++;
             SurfaceTexture surfaceTexture = new SurfaceTexture(mGlRenderer.getTextureName());
             surfaceTexture.setDefaultBufferSize(surfaceRequest.getResolution().getWidth(),
@@ -117,7 +122,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
                 checkReadyToRelease();
             });
             surfaceTexture.setOnFrameAvailableListener(this, mGlHandler);
-        });
+        }, surfaceRequest::willNotProvideSurface);
     }
 
     /**
@@ -125,11 +130,11 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
      */
     @Override
     public void onOutputSurface(@NonNull SurfaceOutput surfaceOutput) {
-        if (mIsReleased.get()) {
+        if (mIsReleaseRequested.get()) {
             surfaceOutput.close();
             return;
         }
-        mGlExecutor.execute(() -> {
+        executeSafely(() -> {
             Surface surface = surfaceOutput.getSurface(mGlExecutor, event -> {
                 surfaceOutput.close();
                 Surface removedSurface = mOutputSurfaces.remove(surfaceOutput);
@@ -139,7 +144,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             });
             mGlRenderer.registerOutputSurface(surface);
             mOutputSurfaces.put(surfaceOutput, surface);
-        });
+        }, surfaceOutput::close);
     }
 
     /**
@@ -147,10 +152,13 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
      */
     @Override
     public void release() {
-        if (mIsReleased.getAndSet(true)) {
+        if (mIsReleaseRequested.getAndSet(true)) {
             return;
         }
-        mGlExecutor.execute(this::checkReadyToRelease);
+        executeSafely(() -> {
+            mIsReleased = true;
+            checkReadyToRelease();
+        });
     }
 
     /**
@@ -158,7 +166,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
      */
     @Override
     public void onFrameAvailable(@NonNull SurfaceTexture surfaceTexture) {
-        if (mIsReleased.get()) {
+        if (mIsReleaseRequested.get()) {
             // Ignore frame update if released.
             return;
         }
@@ -183,7 +191,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
 
     @WorkerThread
     private void checkReadyToRelease() {
-        if (mIsReleased.get() && mInputSurfaceCount == 0) {
+        if (mIsReleased && mInputSurfaceCount == 0) {
             // Once release is called, we can stop sending frame to output surfaces.
             for (SurfaceOutput surfaceOutput : mOutputSurfaces.keySet()) {
                 surfaceOutput.close();
@@ -196,7 +204,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
 
     private void initGlRenderer(@NonNull ShaderProvider shaderProvider) {
         ListenableFuture<Void> initFuture = CallbackToFutureAdapter.getFuture(completer -> {
-            mGlExecutor.execute(() -> {
+            executeSafely(() -> {
                 try {
                     mGlRenderer.init(shaderProvider);
                     completer.set(null);
@@ -217,6 +225,27 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             } else {
                 throw new IllegalStateException("Failed to create DefaultSurfaceProcessor", cause);
             }
+        }
+    }
+
+    private void executeSafely(@NonNull Runnable runnable) {
+        executeSafely(runnable, () -> {
+            // Do nothing.
+        });
+    }
+
+    private void executeSafely(@NonNull Runnable runnable, @NonNull Runnable onFailure) {
+        try {
+            mGlExecutor.execute(() -> {
+                if (mIsReleased) {
+                    onFailure.run();
+                } else {
+                    runnable.run();
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            Logger.w(TAG, "Unable to executor runnable", e);
+            onFailure.run();
         }
     }
 
