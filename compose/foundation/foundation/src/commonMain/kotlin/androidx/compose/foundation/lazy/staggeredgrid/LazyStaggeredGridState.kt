@@ -186,7 +186,7 @@ class LazyStaggeredGridState private constructor(
 
     /** transient information from measure required for prefetching **/
     internal var isVertical = false
-    internal var laneWidthsPrefixSum: IntArray = IntArray(0)
+    internal var slots: LazyStaggeredGridSlots? = null
     internal var spanProvider: LazyStaggeredGridSpanProvider? = null
     /** prefetch state **/
     private var prefetchBaseIndex: Int = -1
@@ -194,7 +194,7 @@ class LazyStaggeredGridState private constructor(
 
     /** state required for implementing [animateScrollScope] **/
     internal var density: Density = Density(1f, 1f)
-    internal val laneCount get() = laneWidthsPrefixSum.size
+    internal val laneCount get() = slots?.sizes?.size ?: 0
 
     /**
      * [InteractionSource] that will be used to dispatch drag events when this
@@ -345,7 +345,7 @@ class LazyStaggeredGridState private constructor(
 
             val prefetchHandlesUsed = mutableSetOf<Int>()
             var targetIndex = prefetchIndex
-            for (lane in laneWidthsPrefixSum.indices) {
+            for (lane in 0 until laneCount) {
                 val previousIndex = targetIndex
 
                 // find the next item for each line and prefetch if it is valid
@@ -370,8 +370,17 @@ class LazyStaggeredGridState private constructor(
                 val slot = if (isFullSpan) 0 else lane
                 val span = if (isFullSpan) laneCount else 1
 
-                val crossAxisSize = laneWidthsPrefixSum[slot + span - 1] -
-                    if (slot == 0) 0 else laneWidthsPrefixSum[slot - 1]
+                val slots = slots
+                val crossAxisSize = when {
+                    slots == null -> 0
+                    span == 1 -> slots.sizes[slot]
+                    else -> {
+                        val start = slots.positions[slot]
+                        val endSlot = slot + span - 1
+                        val end = slots.positions[endSlot] + slots.sizes[endSlot]
+                        end - start
+                    }
+                }
 
                 val constraints = if (isVertical) {
                     Constraints.fixedWidth(crossAxisSize)

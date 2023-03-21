@@ -55,6 +55,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
@@ -247,5 +248,61 @@ class LazyStaggeredGridArrangementsTest(
             Truth.assertThat(state.firstVisibleItemIndex).isEqualTo(0)
             Truth.assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
         }
+    }
+
+    @Test
+    fun nonStartCrossAxisArrangement() {
+        val state = LazyStaggeredGridState()
+        rule.setContent {
+            LazyStaggeredGrid(
+                cells = StaggeredGridCells.FixedSize(itemSizeDp * 2),
+                modifier = Modifier.axisSize(crossAxis = itemSizeDp * 5, mainAxis = itemSizeDp * 5),
+                crossAxisArrangement = Arrangement.Center,
+                state = state
+            ) {
+                items(10) { index ->
+                    Box(Modifier.size(itemSizeDp).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 0.5f)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
+        rule.onNodeWithTag("1")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 2.5f)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
+    }
+
+    @Test
+    fun spacedByWithAlignment() {
+        val state = LazyStaggeredGridState()
+        rule.setContent {
+            LazyStaggeredGrid(
+                cells = StaggeredGridCells.FixedSize(itemSizeDp * 2),
+                modifier = Modifier.axisSize(crossAxis = itemSizeDp * 5, mainAxis = itemSizeDp * 5),
+                crossAxisArrangement = object : Arrangement.HorizontalOrVertical,
+                    Arrangement.Horizontal by Arrangement.spacedBy(
+                        itemSizeDp * 0.5f, Alignment.End
+                    ),
+                    Arrangement.Vertical by Arrangement.spacedBy(
+                        itemSizeDp * 0.5f, Alignment.Bottom
+                    ) {
+                        override val spacing: Dp = itemSizeDp * 0.5f
+                    },
+                state = state
+            ) {
+                items(10) { index ->
+                    Box(Modifier.size(itemSizeDp).testTag(index.toString()))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 0.5f)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
+        rule.onNodeWithTag("1")
+            .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 3f)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
     }
 }

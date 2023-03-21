@@ -78,24 +78,24 @@ fun LazyVerticalStaggeredGrid(
         crossAxisSpacing = horizontalArrangement.spacing,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        slotSizesSums = rememberColumnWidthSums(columns, horizontalArrangement, contentPadding),
+        slots = rememberColumnSlots(columns, horizontalArrangement, contentPadding),
         content = content
     )
 }
 
-/** calculates prefix sums for columns used in staggered grid measure */
+/** calculates sizes for columns used in staggered grid measure */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun rememberColumnWidthSums(
+private fun rememberColumnSlots(
     columns: StaggeredGridCells,
     horizontalArrangement: Arrangement.Horizontal,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> IntArray>(
+) = remember<Density.(Constraints) -> LazyStaggeredGridSlots>(
     columns,
     horizontalArrangement,
     contentPadding,
 ) {
-    { constraints ->
+    LazyStaggeredGridSlotCache { constraints ->
         require(constraints.maxWidth != Constraints.Infinity) {
             "LazyVerticalStaggeredGrid's width should be bound by parent."
         }
@@ -107,12 +107,13 @@ private fun rememberColumnWidthSums(
             calculateCrossAxisCellSizes(
                 gridWidth,
                 horizontalArrangement.spacing.roundToPx()
-            ).run {
-                val result = IntArray(size) { this[it] }
-                for (i in 1 until size) {
-                    result[i] += result[i - 1]
+            ).let { sizes ->
+                val positions = IntArray(sizes.size)
+                with(horizontalArrangement) {
+                    // Arrange with Ltr here, as placement will reverse positions if needed
+                    arrange(gridWidth, sizes, LayoutDirection.Ltr, positions)
                 }
-                result
+                LazyStaggeredGridSlots(positions, sizes)
             }
         }
     }
@@ -163,24 +164,24 @@ fun LazyHorizontalStaggeredGrid(
         crossAxisSpacing = verticalArrangement.spacing,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        slotSizesSums = rememberRowHeightSums(rows, verticalArrangement, contentPadding),
+        slots = rememberRowSlots(rows, verticalArrangement, contentPadding),
         content = content
     )
 }
 
-/** calculates prefix sums for rows used in staggered grid measure */
+/** calculates sizes for rows used in staggered grid measure */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun rememberRowHeightSums(
+private fun rememberRowSlots(
     rows: StaggeredGridCells,
     verticalArrangement: Arrangement.Vertical,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> IntArray>(
+) = remember<Density.(Constraints) -> LazyStaggeredGridSlots>(
     rows,
     verticalArrangement,
     contentPadding,
 ) {
-    { constraints ->
+    LazyStaggeredGridSlotCache { constraints ->
         require(constraints.maxHeight != Constraints.Infinity) {
             "LazyHorizontalStaggeredGrid's height should be bound by parent."
         }
@@ -191,12 +192,39 @@ private fun rememberRowHeightSums(
             calculateCrossAxisCellSizes(
                 gridHeight,
                 verticalArrangement.spacing.roundToPx()
-            ).run {
-                val result = IntArray(size) { this[it] }
-                for (i in 1 until size) {
-                    result[i] += result[i - 1]
+            ).let { sizes ->
+                val positions = IntArray(sizes.size)
+                with(verticalArrangement) {
+                    arrange(gridHeight, sizes, positions)
                 }
-                result
+                LazyStaggeredGridSlots(positions, sizes)
+            }
+        }
+    }
+}
+
+/** measurement cache to avoid recalculating row/column sizes on each scroll. */
+private class LazyStaggeredGridSlotCache(
+    private val calculation: Density.(Constraints) -> LazyStaggeredGridSlots
+) : (Density, Constraints) -> LazyStaggeredGridSlots {
+    private var cachedConstraints = Constraints()
+    private var cachedDensity: Float = 0f
+    private var cachedSizes: LazyStaggeredGridSlots? = null
+
+    override fun invoke(density: Density, constraints: Constraints): LazyStaggeredGridSlots {
+        with(density) {
+            if (
+                cachedSizes != null &&
+                cachedConstraints == constraints &&
+                cachedDensity == this.density
+            ) {
+                return cachedSizes!!
+            }
+
+            cachedConstraints = constraints
+            cachedDensity = this.density
+            return calculation(constraints).also {
+                cachedSizes = it
             }
         }
     }
