@@ -16,24 +16,22 @@
 
 package androidx.privacysandbox.tools.apigenerator
 
-import java.io.File
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class ValuesApiGeneratorTest : BaseApiGeneratorTest() {
-    override val inputDirectory = File("src/test/test-data/values/input")
-    override val outputDirectory = File("src/test/test-data/values/output")
+class InterfaceApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
+    override val subdirectoryName = "interfaces"
     override val relativePathsToExpectedAidlClasses = listOf(
-        "com/sdkwithvalues/IMyInterface.java",
-        "com/sdkwithvalues/ISdkInterface.java",
-        "com/sdkwithvalues/ISdkResponseTransactionCallback.java",
-        "com/sdkwithvalues/IListSdkResponseTransactionCallback.java",
-        "com/sdkwithvalues/ParcelableInnerSdkValue.java",
-        "com/sdkwithvalues/ParcelableSdkRequest.java",
-        "com/sdkwithvalues/ParcelableSdkResponse.java",
-        "com/sdkwithvalues/ICancellationSignal.java",
-        "com/sdkwithvalues/ParcelableStackFrame.java",
-        "com/sdkwithvalues/PrivacySandboxThrowableParcel.java",
+        "com/sdk/IMySdk.java",
+        "com/sdk/IMyInterface.java",
+        "com/sdk/IMySecondInterface.java",
+        "com/sdk/IMyInterfaceTransactionCallback.java",
+        "com/sdk/IMySecondInterfaceTransactionCallback.java",
+        "com/sdk/IMySecondInterfaceCoreLibInfoAndBinderWrapper.java",
+        "com/sdk/IIntTransactionCallback.java",
+        "com/sdk/ICancellationSignal.java",
+        "com/sdk/ParcelableStackFrame.java",
+        "com/sdk/PrivacySandboxThrowableParcel.java",
     )
 }

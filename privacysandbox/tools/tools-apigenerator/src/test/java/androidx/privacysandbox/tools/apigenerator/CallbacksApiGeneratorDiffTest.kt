@@ -16,14 +16,12 @@
 
 package androidx.privacysandbox.tools.apigenerator
 
-import java.io.File
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class CallbacksApiGeneratorTest : BaseApiGeneratorTest() {
-    override val inputDirectory = File("src/test/test-data/callbacks/input")
-    override val outputDirectory = File("src/test/test-data/callbacks/output")
+class CallbacksApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
+    override val subdirectoryName = "callbacks"
     override val relativePathsToExpectedAidlClasses = listOf(
         "com/sdkwithcallbacks/IMyInterface.java",
         "com/sdkwithcallbacks/ISdkCallback.java",
