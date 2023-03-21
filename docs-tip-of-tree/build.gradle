@@ -131,6 +131,7 @@ dependencies {
     docs(project(":core:core-remoteviews"))
     docs(project(":core:core-splashscreen"))
     docs(project(":core:core-role"))
+    docs(project(":core:core-testing"))
     docs(project(":core:uwb:uwb"))
     docs(project(":core:uwb:uwb-rxjava3"))
     docs(project(":credentials:credentials"))
