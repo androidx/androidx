@@ -288,7 +288,7 @@ internal class TextAnnotatedStringNode(
             baselineCache!!
         ) {
             // this is basically a graphicsLayer
-            placeable.placeWithLayer(0, 0)
+            placeable.place(0, 0)
         }
     }
 

@@ -36,7 +36,6 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
-import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.invalidateLayer
 import androidx.compose.ui.node.invalidateMeasurements
 import androidx.compose.ui.node.invalidateSemantics
@@ -170,7 +169,7 @@ internal class TextStringSimpleNode(
                 minLines = minLines
             )
             invalidateMeasurements()
-            invalidateDraw()
+            invalidateLayer()
         }
     }
 
@@ -245,7 +244,7 @@ internal class TextStringSimpleNode(
             baselineCache!!
         ) {
             // this is basically a graphicsLayer
-            placeable.placeWithLayer(0, 0)
+            placeable.place(0, 0)
         }
     }
 
