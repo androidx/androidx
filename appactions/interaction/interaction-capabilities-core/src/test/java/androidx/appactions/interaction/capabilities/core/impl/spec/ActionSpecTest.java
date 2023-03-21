@@ -125,17 +125,17 @@ public final class ActionSpecTest {
                 GenericEntityProperty.create(
                         new TypeProperty.Builder<String>()
                                 .setRequired(true)
-                                .addPossibleEntities("one")
+                                .setPossibleValues("one")
                                 .build(),
                         Optional.of(
                                 new TypeProperty.Builder<String>()
                                         .setRequired(true)
-                                        .addPossibleEntities("two")
+                                        .setPossibleValues("two")
                                         .build()),
                         Optional.of(
                                 new TypeProperty.Builder<String>()
                                         .setRequired(true)
-                                        .addPossibleEntities("three")
+                                        .setPossibleValues("three")
                                         .build()));
 
         assertThat(GENERIC_TYPES_ACTION_SPEC.convertPropertyToProto(property))
@@ -177,7 +177,7 @@ public final class ActionSpecTest {
         Property property =
                 Property.create(
                         new TypeProperty.Builder<Entity>()
-                                .addPossibleEntities(
+                                .setPossibleValues(
                                         new Entity.Builder()
                                                 .setId("contact_2")
                                                 .setName("Donald")
@@ -212,7 +212,7 @@ public final class ActionSpecTest {
         Property property =
                 Property.create(
                         new TypeProperty.Builder<Entity>()
-                                .addPossibleEntities(
+                                .setPossibleValues(
                                         new Entity.Builder()
                                                 .setId("contact_2")
                                                 .setName("Donald")
@@ -221,7 +221,7 @@ public final class ActionSpecTest {
                                 .build(),
                         Optional.of(
                                 new TypeProperty.Builder<Entity>()
-                                        .addPossibleEntities(
+                                        .setPossibleValues(
                                                 new Entity.Builder()
                                                         .setId("entity1")
                                                         .setName("optional possible entity")
@@ -230,12 +230,12 @@ public final class ActionSpecTest {
                                         .build()),
                         Optional.of(
                                 new TypeProperty.Builder<TestEnum>()
-                                        .addPossibleEntities(TestEnum.VALUE_1)
+                                        .setPossibleValues(TestEnum.VALUE_1)
                                         .setRequired(true)
                                         .build()),
                         Optional.of(
                                 new TypeProperty.Builder<Entity>()
-                                        .addPossibleEntities(
+                                        .setPossibleValues(
                                                 new Entity.Builder()
                                                         .setId("entity1")
                                                         .setName("repeated entity1")
@@ -249,7 +249,7 @@ public final class ActionSpecTest {
                         new TypeProperty.Builder<StringValue>().build(),
                         Optional.of(
                                 new TypeProperty.Builder<StringValue>()
-                                        .addPossibleEntities(StringValue.of("value1"))
+                                        .setPossibleValues(StringValue.of("value1"))
                                         .setValueMatchRequired(true)
                                         .setRequired(true)
                                         .build()),

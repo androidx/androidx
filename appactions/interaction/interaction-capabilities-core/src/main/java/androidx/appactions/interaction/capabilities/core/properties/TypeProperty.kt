@@ -18,26 +18,37 @@ package androidx.appactions.interaction.capabilities.core.properties
 
 /** The property which describes a complex type. */
 class TypeProperty<T> internal constructor(
-    override val possibleValues: List<T>,
+    private val possibleValueSupplier: () -> List<T>,
     override val isRequired: Boolean,
     override val isValueMatchRequired: Boolean,
     override val isProhibited: Boolean,
 ) : ParamProperty<T> {
-    /** Builder for {@link EntityProperty}. */
-    class Builder<T> {
+    override val possibleValues: List<T>
+        get() = possibleValueSupplier()
 
-        private val possibleEntities = mutableListOf<T>()
+    /** Builder for {@link TypeProperty}. */
+    class Builder<T> {
+        private var possibleValueSupplier: () -> List<T> = { emptyList<T>() }
         private var isRequired = false
         private var isValueMatchRequired = false
         private var isProhibited = false
 
         /**
-         * Adds one or more possible entities for this entity parameter.
+         * Sets one or more possible values for this parameter.
          *
-         * @param entities the possible entities.
+         * @param values the possible values.
          */
-        fun addPossibleEntities(vararg entities: T) = apply {
-            this.possibleEntities.addAll(entities)
+        fun setPossibleValues(vararg values: T) = apply {
+            this.possibleValueSupplier = { values.asList() }
+        }
+
+        /**
+         * Sets a supplier of possible values for this parameter.
+         *
+         * @param supplier the supplier of possible values.
+         */
+        fun setPossibleValueSupplier(supplier: () -> List<T>) = apply {
+            this.possibleValueSupplier = supplier
         }
 
         /** Sets whether or not this property requires a value for fulfillment. */
@@ -65,7 +76,7 @@ class TypeProperty<T> internal constructor(
 
         /** Builds the property for this entity parameter. */
         fun build() = TypeProperty(
-            this.possibleEntities.toList(),
+            this.possibleValueSupplier,
             this.isRequired,
             this.isValueMatchRequired,
             this.isProhibited,

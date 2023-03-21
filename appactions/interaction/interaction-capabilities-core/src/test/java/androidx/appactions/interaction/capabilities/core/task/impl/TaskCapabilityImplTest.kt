@@ -457,7 +457,7 @@ class TaskCapabilityImplTest {
                 )
                 .setEnumField(
                     TypeProperty.Builder<TestEnum>()
-                        .addPossibleEntities(TestEnum.VALUE_1, TestEnum.VALUE_2)
+                        .setPossibleValues(TestEnum.VALUE_1, TestEnum.VALUE_2)
                         .setRequired(true)
                         .build(),
                 )
