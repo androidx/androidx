@@ -20,6 +20,7 @@ package androidx.activity {
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method @CallSuper public void initializeViewTreeOwners();
     method public void invalidateMenu();
     method @Deprecated @CallSuper protected void onActivityResult(int, int, android.content.Intent?);
     method @CallSuper public void onMultiWindowModeChanged(boolean);
@@ -49,6 +50,7 @@ package androidx.activity {
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    method @CallSuper public void initializeViewTreeOwners();
     method @CallSuper public void onBackPressed();
     property public androidx.lifecycle.Lifecycle lifecycle;
     property public final androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
