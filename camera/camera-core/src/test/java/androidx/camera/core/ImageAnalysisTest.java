@@ -16,8 +16,8 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -187,7 +187,7 @@ public class ImageAnalysisTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void setMirrorMode_throwException() {
-        new ImageAnalysis.Builder().setMirrorMode(MIRROR_MODE_FRONT_ON);
+        new ImageAnalysis.Builder().setMirrorMode(MIRROR_MODE_ON_FRONT_ONLY);
     }
 
     @Test

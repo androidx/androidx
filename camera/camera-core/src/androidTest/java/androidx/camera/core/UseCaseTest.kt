@@ -22,9 +22,9 @@ import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
-import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
-import androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
+import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
+import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ImageOutputConfig
@@ -286,8 +286,8 @@ class UseCaseTest {
     }
 
     @Test
-    fun setMirrorModeFrontOn_isMirroringRequiredDependsOnCamera() {
-        val fakeUseCase = createFakeUseCase(mirrorMode = MIRROR_MODE_FRONT_ON)
+    fun setMirrorModeOnFrontOnly_isMirroringRequiredDependsOnCamera() {
+        val fakeUseCase = createFakeUseCase(mirrorMode = MIRROR_MODE_ON_FRONT_ONLY)
         assertThat(fakeUseCase.isMirroringRequired(fakeCamera)).isFalse()
         assertThat(fakeUseCase.isMirroringRequired(fakeFrontCamera)).isTrue()
     }

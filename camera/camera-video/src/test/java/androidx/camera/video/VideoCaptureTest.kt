@@ -43,7 +43,7 @@ import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.MirrorMode.MIRROR_MODE_FRONT_ON
+import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.SurfaceRequest
@@ -796,8 +796,8 @@ class VideoCaptureTest {
 
     @Test
     fun canGetSetMirrorMode() {
-        val videoCapture = createVideoCapture(mirrorMode = MIRROR_MODE_FRONT_ON)
-        assertThat(videoCapture.mirrorMode).isEqualTo(MIRROR_MODE_FRONT_ON)
+        val videoCapture = createVideoCapture(mirrorMode = MIRROR_MODE_ON_FRONT_ONLY)
+        assertThat(videoCapture.mirrorMode).isEqualTo(MIRROR_MODE_ON_FRONT_ONLY)
     }
 
     @Test

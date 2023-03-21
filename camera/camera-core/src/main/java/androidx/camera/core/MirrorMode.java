@@ -23,13 +23,12 @@ import androidx.annotation.RestrictTo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-// TODO: to public API
 /**
  * The mirror mode.
  *
+ * <p>Constants describing image mirroring transforms.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MirrorMode {
     /** No mirror effect will be applied. */
     public static final int MIRROR_MODE_OFF = 0;
@@ -38,17 +37,17 @@ public class MirrorMode {
     public static final int MIRROR_MODE_ON = 1;
 
     /**
-     * The mirroring effect is applied only when the lens facing of the associated camera is
+     * The mirror effect is applied only when the lens facing of the associated camera is
      * {@link CameraSelector#LENS_FACING_FRONT}.
      */
-    public static final int MIRROR_MODE_FRONT_ON = 2;
+    public static final int MIRROR_MODE_ON_FRONT_ONLY = 2;
 
     private MirrorMode() {
     }
 
     /**
      */
-    @IntDef({MIRROR_MODE_OFF, MIRROR_MODE_ON, MIRROR_MODE_FRONT_ON})
+    @IntDef({MIRROR_MODE_OFF, MIRROR_MODE_ON, MIRROR_MODE_ON_FRONT_ONLY})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface Mirror {
