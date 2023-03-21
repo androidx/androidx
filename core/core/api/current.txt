@@ -118,9 +118,9 @@ package androidx.core.app {
     field public static final int MODE_IGNORED = 1; // 0x1
   }
 
-  public final class BundleCompat {
-    method public static android.os.IBinder? getBinder(android.os.Bundle, String?);
-    method public static void putBinder(android.os.Bundle, String?, android.os.IBinder?);
+  @Deprecated public final class BundleCompat {
+    method @Deprecated public static android.os.IBinder? getBinder(android.os.Bundle, String?);
+    method @Deprecated public static void putBinder(android.os.Bundle, String?, android.os.IBinder?);
   }
 
   public class DialogCompat {
@@ -1822,10 +1822,12 @@ package androidx.core.os {
   }
 
   public final class BundleCompat {
+    method public static android.os.IBinder? getBinder(android.os.Bundle, String?);
     method public static <T> T? getParcelable(android.os.Bundle, String?, Class<T!>);
     method public static android.os.Parcelable![]? getParcelableArray(android.os.Bundle, String?, Class<? extends android.os.Parcelable>);
     method public static <T> java.util.ArrayList<T!>? getParcelableArrayList(android.os.Bundle, String?, Class<? extends T>);
     method public static <T> android.util.SparseArray<T!>? getSparseParcelableArray(android.os.Bundle, String?, Class<? extends T>);
+    method public static void putBinder(android.os.Bundle, String?, android.os.IBinder?);
   }
 
   public final class CancellationSignal {
