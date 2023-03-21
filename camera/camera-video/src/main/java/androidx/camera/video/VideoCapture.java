@@ -32,6 +32,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CON
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.isMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToString;
@@ -253,6 +254,21 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
+     * Returns the target frame rate range for the associated VideoCapture use case.
+     *
+     * <p>The rotation can be set prior to constructing a VideoCapture using
+     * {@link VideoCapture.Builder#setTargetFramerate(Range)}
+     * If not set, the target frame rate defaults to the value of
+     * {@link StreamSpec#FRAME_RATE_RANGE_UNSPECIFIED}
+     *
+     * @return The rotation of the intended target.
+     */
+    @NonNull
+    public Range<Integer> getTargetFramerate() {
+        return getTargetFramerateInternal();
+    }
+
+    /**
      * Sets the desired rotation of the output video.
      *
      * <p>Valid values include: {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
@@ -367,6 +383,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     // TODO: to public API
+
     /**
      * Returns the mirror mode.
      *
@@ -384,6 +401,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
+     *
      */
     @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -409,6 +427,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
+     *
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -419,6 +438,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
+     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -445,6 +465,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
+     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -465,6 +486,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
+     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -479,6 +501,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     /**
      * {@inheritDoc}
+     *
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -682,6 +705,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     /**
+     *
      */
     @Nullable
     @RestrictTo(Scope.TESTS)
@@ -694,6 +718,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
+     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<VideoCaptureConfig<?>> {
@@ -1309,6 +1334,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         /**
          * {@inheritDoc}
+         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1319,6 +1345,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         /**
          * {@inheritDoc}
+         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1390,6 +1417,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * setTargetAspectRatio is not supported on VideoCapture
          *
          * <p>To set aspect ratio, see {@link Recorder.Builder#setAspectRatio(int)}.
+         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1433,6 +1461,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
 
         // TODO: to public API
+
         /**
          * Sets the mirror mode.
          *
@@ -1456,6 +1485,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * setTargetResolution is not supported on VideoCapture
          *
          * <p>To set resolution, see {@link Recorder.Builder#setQualitySelector(QualitySelector)}.
+         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1604,6 +1634,23 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @Override
         public Builder<T> setHighResolutionDisabled(boolean disabled) {
             getMutableConfig().insertOption(OPTION_HIGH_RESOLUTION_DISABLED, disabled);
+            return this;
+        }
+
+        /**
+         * Sets the target frame rate range for the associated VideoCapture use case.
+         *
+         * <p>This target will be used as a part of the heuristics for the algorithm that determines
+         * the final frame rate range and resolution of all concurrently bound use cases.
+         * <p>It is not guaranteed that this target frame rate will be the final range,
+         * as other use cases as well as frame rate restrictions of the device may affect the
+         * outcome of the algorithm that chooses the actual frame rate.
+         *
+         * @param targetFrameRate the target frame rate range.
+         */
+        @NonNull
+        public Builder<T> setTargetFramerate(@NonNull Range<Integer> targetFrameRate) {
+            getMutableConfig().insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate);
             return this;
         }
     }
