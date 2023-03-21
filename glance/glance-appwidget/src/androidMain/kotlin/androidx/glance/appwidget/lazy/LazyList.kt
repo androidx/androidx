@@ -33,7 +33,8 @@ import androidx.glance.layout.wrapContentHeight
  * @param modifier the modifier to apply to this layout
  * @param horizontalAlignment the horizontal alignment applied to the items.
  * @param content a block which describes the content. Inside this block you can use methods like
- * [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
+ * [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items. If the
+ * item has more than one top-level child, they will be automatically wrapped in a Box.
  */
 // TODO(b/198618359): interaction handling
 @Composable

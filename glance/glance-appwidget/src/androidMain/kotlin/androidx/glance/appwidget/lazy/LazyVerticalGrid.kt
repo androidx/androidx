@@ -34,8 +34,9 @@ import androidx.glance.Emittable
  * @param modifier the modifier to apply to this layout
  * @param horizontalAlignment the horizontal alignment applied to the items.
  * @param content a block which describes the content. Inside this block you can use methods like
- * [LazyVerticalGridScope.item] to add a single item or
- * [LazyVerticalGridScope.items] to add a list of items.
+ * [LazyVerticalGridScope.item] to add a single item or [LazyVerticalGridScope.items] to add a list
+ * of items. If the item has more than one top-level child, they will be automatically wrapped in a
+ * Box.
  */
 @Composable
 fun LazyVerticalGrid(
