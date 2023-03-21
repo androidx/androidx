@@ -8431,6 +8431,217 @@ public class NotificationCompat {
     }
 
     /**
+     * <p>Helper class to add Android TV extensions to notifications. To create a notification
+     * with a TV extension:
+     *
+     * <ol>
+     *  <li>Create an {@link NotificationCompat.Builder}, setting any desired properties.
+     *  <li>Create a {@link TvExtender}.
+     *  <li>Set TV-specific properties using the {@code set} methods of
+     *  {@link TvExtender}.
+     *  <li>Call {@link NotificationCompat.Builder#extend(NotificationCompat.Extender)}
+     *  to apply the extension to a notification.
+     * </ol>
+     *
+     * <pre class="prettyprint">
+     * Notification notification = new NotificationCompat.Builder(context)
+     *         ...
+     *         .extend(new TvExtender()
+     *                 .set*(...))
+     *         .build();
+     * </pre>
+     *
+     * <p>TV extensions can be accessed on an existing notification by using the
+     * {@code TvExtender(Notification)} constructor, and then using the {@code get} methods
+     * to access values.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public static final class TvExtender implements Extender {
+        private static final String TAG = "TvExtender";
+
+        /** @hide **/
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        static final String EXTRA_TV_EXTENDER = "android.tv.EXTENSIONS";
+
+        /** @hide **/
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        private static final String EXTRA_FLAGS = "flags";
+        /** @hide **/
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        static final String EXTRA_CONTENT_INTENT = "content_intent";
+        /** @hide **/
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        static final String EXTRA_DELETE_INTENT = "delete_intent";
+        /** @hide **/
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        static final String EXTRA_CHANNEL_ID = "channel_id";
+        /** @hide **/
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        static final String EXTRA_SUPPRESS_SHOW_OVER_APPS = "suppressShowOverApps";
+
+        // Flags bitwise-ored to mFlags
+        private static final int FLAG_AVAILABLE_ON_TV = 0x1;
+
+        private int mFlags;
+        private String mChannelId;
+        private PendingIntent mContentIntent;
+        private PendingIntent mDeleteIntent;
+        private boolean mSuppressShowOverApps;
+
+        /**
+         * Create a {@link TvExtender} with default options.
+         */
+        public TvExtender() {
+            mFlags = FLAG_AVAILABLE_ON_TV;
+        }
+
+        /**
+         * Create a {@link TvExtender} from the TvExtender options of an existing Notification.
+         *
+         * @param notif The notification from which to copy options.
+         */
+        public TvExtender(@NonNull Notification notif) {
+            // TvExtender was introduced in API level 26; note that before API level 26, the extras
+            // added by TvExtender are not expected to be used; thus, we avoid setting them to save
+            // memory.
+            if (Build.VERSION.SDK_INT < 26) {
+                return;
+            }
+
+            Bundle tvBundle = notif.extras == null
+                    ? null : notif.extras.getBundle(EXTRA_TV_EXTENDER);
+            if (tvBundle != null) {
+                mFlags = tvBundle.getInt(EXTRA_FLAGS);
+                mChannelId = tvBundle.getString(EXTRA_CHANNEL_ID);
+                mSuppressShowOverApps = tvBundle.getBoolean(EXTRA_SUPPRESS_SHOW_OVER_APPS);
+                mContentIntent = (PendingIntent) tvBundle.getParcelable(EXTRA_CONTENT_INTENT);
+                mDeleteIntent = (PendingIntent) tvBundle.getParcelable(EXTRA_DELETE_INTENT);
+            }
+        }
+
+        /**
+         * Apply a TV extension to a notification that is being built. This is typically called by
+         * the
+         * {@link androidx.core.app.NotificationCompat.Builder#extend(NotificationCompat.Extender)}
+         * method of {@link NotificationCompat.Builder}.
+         */
+        @Override
+        @NonNull
+        public NotificationCompat.Builder extend(@NonNull NotificationCompat.Builder builder) {
+            // TvExtender was introduced in API level 26; note that before API level 26, the extras
+            // added by TvExtender are not expected to be used; thus, we avoid setting them to save
+            // memory.
+            if (Build.VERSION.SDK_INT < 26) {
+                return builder;
+            }
+
+            Bundle tvExtensions = new Bundle();
+
+            tvExtensions.putInt(EXTRA_FLAGS, mFlags);
+            tvExtensions.putString(EXTRA_CHANNEL_ID, mChannelId);
+            tvExtensions.putBoolean(EXTRA_SUPPRESS_SHOW_OVER_APPS, mSuppressShowOverApps);
+            if (mContentIntent != null) {
+                tvExtensions.putParcelable(EXTRA_CONTENT_INTENT, mContentIntent);
+            }
+
+            if (mDeleteIntent != null) {
+                tvExtensions.putParcelable(EXTRA_DELETE_INTENT, mDeleteIntent);
+            }
+
+            // Extras was added in API level 19.
+            builder.getExtras().putBundle(EXTRA_TV_EXTENDER, tvExtensions);
+            return builder;
+        }
+
+        /**
+         * Returns true if this notification should be shown on TV. This method return true
+         * if the notification was extended with a TvExtender.
+         */
+        public boolean isAvailableOnTv() {
+            return (mFlags & FLAG_AVAILABLE_ON_TV) != 0;
+        }
+
+        /**
+         * Specifies the channel the notification should be delivered on when shown on TV.
+         * It can be different from the channel that the notification is delivered to when
+         * posting on a non-TV device.
+         *
+         * @param channelId The channelId to use in the tv notification.
+         * @return The object for method chaining.
+         */
+        public @NonNull TvExtender setChannelId(@Nullable String channelId) {
+            mChannelId = channelId;
+            return this;
+        }
+
+        /**
+         * Returns the id of the channel this notification posts to on TV.
+         */
+        public @Nullable String getChannelId() {
+            return mChannelId;
+        }
+
+        /**
+         * Supplies a {@link PendingIntent} to be sent when the notification is selected on TV.
+         * If provided, it is used instead of the content intent specified
+         * at the level of Notification.
+         */
+        public @NonNull TvExtender setContentIntent(@Nullable PendingIntent intent) {
+            mContentIntent = intent;
+            return this;
+        }
+
+        /**
+         * Returns the TV-specific content intent.  If this method returns null, the
+         * main content intent on the notification should be used.
+         *
+         * @see {@link Notification#contentIntent}
+         */
+        public @Nullable PendingIntent getContentIntent() {
+            return mContentIntent;
+        }
+
+        /**
+         * Supplies a {@link PendingIntent} to send when the notification is cleared explicitly
+         * by the user on TV.  If provided, it is used instead of the delete intent specified
+         * at the level of Notification.
+         */
+        public @NonNull TvExtender setDeleteIntent(@Nullable PendingIntent intent) {
+            mDeleteIntent = intent;
+            return this;
+        }
+
+        /**
+         * Returns the TV-specific delete intent.  If this method returns null, the
+         * main delete intent on the notification should be used.
+         *
+         * @see {@link Notification#deleteIntent}
+         */
+        public @Nullable PendingIntent getDeleteIntent() {
+            return mDeleteIntent;
+        }
+
+        /**
+         * Specifies whether this notification should suppress showing a message over top of apps
+         * outside of the launcher.
+         */
+        public @NonNull TvExtender setSuppressShowOverApps(boolean suppress) {
+            mSuppressShowOverApps = suppress;
+            return this;
+        }
+
+        /**
+         * Returns true if this notification should not show messages over top of apps
+         * outside of the launcher.
+         */
+        public boolean getSuppressShowOverApps() {
+            return mSuppressShowOverApps;
+        }
+    }
+
+    /**
      * Encapsulates the information needed to display a notification as a bubble.
      *
      * <p>A bubble is used to display app content in a floating window over the existing
