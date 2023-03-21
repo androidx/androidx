@@ -199,6 +199,29 @@ public annotation class IsForSafeWatchFace
  * <meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
  * android:value="RANGED_VALUE,SHORT_TEXT,ICON"/>
  * ```
+ *
+ * - A provider can choose to trust one or more watch faces by including the following in its
+ * manifest entry:
+ * ```
+ * <meta-data android:name="android.support.wearable.complications.SAFE_WATCH_FACES
+ * android:value="com.pkg1/com.trusted.wf1,com.pkg2/com.trusted.wf2"/>
+ * ```
+ * The listed watch faces will not need
+ * 'com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA' in order to receive
+ * complications from this provider. Also the provider may choose to serve different types to
+ * safe watch faces by including the following in its manifest:
+ *
+ * ```
+ * <meta-data android:name=
+ *     "androidx.wear.watchface.complications.datasource.SAFE_WATCH_FACE_SUPPORTED_TYPES"
+ *      android:value="ICON"/>
+ * ```
+ *
+ * In addition the provider can learn if a request is for a safe watchface by examining
+ * [ComplicationRequest.isForSafeWatchFace]. Note SAFE_WATCH_FACE_SUPPORTED_TYPES and
+ * isForSafeWatchFace are gated behind the privileged permission
+ * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE`.
+ *
  * - A ComplicationDataSourceService should include a `meta-data` tag with
  *   android.support.wearable.complications.UPDATE_PERIOD_SECONDS its manifest entry. The value of
  *   this tag is the number of seconds the complication data source would like to elapse between
@@ -780,6 +803,20 @@ public abstract class ComplicationDataSourceService : Service() {
         // TODO(b/192233205): Migrate value to androidx.
         public const val METADATA_KEY_SUPPORTED_TYPES: String =
             "android.support.wearable.complications.SUPPORTED_TYPES"
+
+        /**
+         * Metadata key used to declare supported complication types for safe watch faces.
+         *
+         * Gated behind the privileged permission
+         * `com.google.wear.permission.GET_IS_FOR_SAFE_WATCH_FACE', this overrides the
+         * [METADATA_KEY_SUPPORTED_TYPES] list for 'safe' watch faces. I.e.
+         * watch faces in the [METADATA_KEY_SAFE_WATCH_FACES] metadata list.
+         *
+         * This means for example trusted watch faces could receive [ComplicationType.SHORT_TEXT]
+         * and untrusted ones [ComplicationType.MONOCHROMATIC_IMAGE].
+         */
+        public const val METADATA_KEY_SAFE_WATCH_FACE_SUPPORTED_TYPES: String =
+            "androidx.wear.watchface.complications.datasource.SAFE_WATCH_FACE_SUPPORTED_TYPES"
 
         /**
          * Metadata key used to declare the requested frequency of update requests.
