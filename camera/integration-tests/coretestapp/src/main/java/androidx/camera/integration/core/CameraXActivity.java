@@ -24,6 +24,7 @@ import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
@@ -1514,7 +1515,9 @@ public class CameraXActivity extends AppCompatActivity {
             if (mVideoQuality != QUALITY_AUTO) {
                 builder.setQualitySelector(QualitySelector.from(mVideoQuality));
             }
-            VideoCapture<Recorder> videoCapture = VideoCapture.withOutput(builder.build());
+            VideoCapture<Recorder> videoCapture = new VideoCapture.Builder<>(builder.build())
+                    .setMirrorMode(MIRROR_MODE_ON_FRONT_ONLY)
+                    .build();
             useCases.add(videoCapture);
         }
         return useCases;
