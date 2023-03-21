@@ -32,18 +32,39 @@ import androidx.compose.runtime.RememberObserver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.style.TextOverflow
 
-internal data class StaticTextSelectionParams(
+internal open class StaticTextSelectionParams(
     val layoutCoordinates: LayoutCoordinates?,
     val textLayoutResult: TextLayoutResult?
 ) {
     companion object {
         val Empty = StaticTextSelectionParams(null, null)
+    }
+
+    open fun getPathForRange(start: Int, end: Int): Path? {
+        return textLayoutResult?.getPathForRange(start, end)
+    }
+
+    open val shouldClip: Boolean
+        get() = textLayoutResult?.layoutInput?.overflow == TextOverflow.Visible
+
+    // if this copy shows up in traces, this class may become mutable
+    fun copy(
+        layoutCoordinates: LayoutCoordinates? = this.layoutCoordinates,
+        textLayoutResult: TextLayoutResult? = this.textLayoutResult
+    ): StaticTextSelectionParams {
+        return StaticTextSelectionParams(
+            layoutCoordinates,
+            textLayoutResult
+        )
     }
 }
 
@@ -53,12 +74,12 @@ internal data class StaticTextSelectionParams(
 // This is _basically_ a Modifier.Node but moved into remember because we need to do pointerInput
 internal class SelectionController(
     private val selectionRegistrar: SelectionRegistrar,
-    private val backgroundSelectionColor: Color
+    private val backgroundSelectionColor: Color,
+    // TODO: Move these into Modifer.element eventually
+    private var params: StaticTextSelectionParams = StaticTextSelectionParams.Empty
 ) : RememberObserver {
     private var selectable: Selectable? = null
     private val selectableId = selectionRegistrar.nextSelectableId()
-    // TODO: Move these into Modifer.element eventually
-    private var params: StaticTextSelectionParams = StaticTextSelectionParams.Empty
 
     val modifier: Modifier = selectionRegistrar.makeSelectionModifier(
         selectableId = selectableId,
@@ -101,27 +122,35 @@ internal class SelectionController(
         params = params.copy(layoutCoordinates = coordinates)
     }
 
-    fun draw(contentDrawScope: ContentDrawScope) {
-        val layoutResult = params.textLayoutResult ?: return
-        val selection = selectionRegistrar.subselections[selectableId]
+    fun draw(drawScope: DrawScope) {
+        val selection = selectionRegistrar.subselections[selectableId] ?: return
 
-        if (selection != null) {
-            val start = if (!selection.handlesCrossed) {
-                selection.start.offset
-            } else {
-                selection.end.offset
-            }
-            val end = if (!selection.handlesCrossed) {
-                selection.end.offset
-            } else {
-                selection.start.offset
-            }
+        val start = if (!selection.handlesCrossed) {
+            selection.start.offset
+        } else {
+            selection.end.offset
+        }
+        val end = if (!selection.handlesCrossed) {
+            selection.end.offset
+        } else {
+            selection.start.offset
+        }
 
-            if (start != end) {
-                val selectionPath = layoutResult.multiParagraph.getPathForRange(start, end)
-                with(contentDrawScope) {
+        if (start == end) return
+
+        val lastOffset = selectable?.getLastVisibleOffset() ?: 0
+        val clippedStart = start.coerceAtMost(lastOffset)
+        val clippedEnd = end.coerceAtMost(lastOffset)
+
+        val selectionPath = params.getPathForRange(clippedStart, clippedEnd) ?: return
+
+        with(drawScope) {
+            if (params.shouldClip) {
+                clipRect {
                     drawPath(selectionPath, backgroundSelectionColor)
                 }
+            } else {
+                drawPath(selectionPath, backgroundSelectionColor)
             }
         }
     }
