@@ -485,7 +485,10 @@ internal class LayoutNodeSubcompositionsState(
                     val nodeState = nodeToNodeState[node]!!
                     val slotId = nodeState.slotId
                     if (reusableSlotIdsSet.contains(slotId)) {
-                        node.measuredByParent = UsageByParent.NotUsed
+                        node.measurePassDelegate.measuredByParent = UsageByParent.NotUsed
+                        node.lookaheadPassDelegate?.let {
+                            it.measuredByParent = UsageByParent.NotUsed
+                        }
                         reusableCount++
                         if (nodeState.active) {
                             nodeState.active = false
