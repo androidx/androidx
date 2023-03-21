@@ -42,10 +42,13 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
 import org.mockito.Mockito.doAnswer
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyZeroInteractions
 import org.mockito.Mockito.`when`
@@ -133,6 +136,63 @@ class SdkSandboxManagerCompatSandboxedTest {
     }
 
     @Test
+    fun addSdkSandboxProcessDeathCallback_whenSandboxAvailable_delegateToPlatform() {
+        val sdkSandboxManager = mockSandboxManager(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+
+        val callback = mock(SdkSandboxProcessDeathCallbackCompat::class.java)
+
+        managerCompat.addSdkSandboxProcessDeathCallback(Runnable::run, callback)
+        val argumentCaptor = ArgumentCaptor.forClass(
+            SdkSandboxManager.SdkSandboxProcessDeathCallback::class.java
+        )
+        verify(sdkSandboxManager)
+            .addSdkSandboxProcessDeathCallback(any(), argumentCaptor.capture())
+        val platformCallback = argumentCaptor.value
+
+        platformCallback.onSdkSandboxDied()
+        verify(callback).onSdkSandboxDied()
+    }
+
+    @Test
+    fun removeSdkSandboxProcessDeathCallback_whenSandboxAvailable_removeAddedCallback() {
+        val sdkSandboxManager = mockSandboxManager(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+
+        val callback = mock(SdkSandboxProcessDeathCallbackCompat::class.java)
+
+        managerCompat.addSdkSandboxProcessDeathCallback(Runnable::run, callback)
+        val addArgumentCaptor = ArgumentCaptor.forClass(
+            SdkSandboxManager.SdkSandboxProcessDeathCallback::class.java
+        )
+        verify(sdkSandboxManager)
+            .addSdkSandboxProcessDeathCallback(any(), addArgumentCaptor.capture())
+        val addedPlatformCallback = addArgumentCaptor.value
+
+        managerCompat.removeSdkSandboxProcessDeathCallback(callback)
+        val removeArgumentCaptor = ArgumentCaptor.forClass(
+            SdkSandboxManager.SdkSandboxProcessDeathCallback::class.java
+        )
+        verify(sdkSandboxManager)
+            .removeSdkSandboxProcessDeathCallback(removeArgumentCaptor.capture())
+        val removedPlatformCallback = removeArgumentCaptor.value
+
+        assertThat(removedPlatformCallback).isSameInstanceAs(addedPlatformCallback)
+    }
+
+    @Test
+    fun removeSdkSandboxProcessDeathCallback_whenNoCallbackAdded_doNothing() {
+        val sdkSandboxManager = mockSandboxManager(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+
+        val callback = mock(SdkSandboxProcessDeathCallbackCompat::class.java)
+        managerCompat.removeSdkSandboxProcessDeathCallback(callback)
+
+        verify(sdkSandboxManager, never())
+            .removeSdkSandboxProcessDeathCallback(any())
+    }
+
+    @Test
     fun getSandboxedSdks_whenLoadedSdkListNotAvailable_dontDelegateToSandbox() {
         assumeFalse("Requires getSandboxedSdks API not available", isAtLeastV5())
 
@@ -217,7 +277,7 @@ class SdkSandboxManagerCompatSandboxedTest {
             AdServicesInfo.isAtLeastV5()
 
         private fun mockSandboxManager(spyContext: Context): SdkSandboxManager {
-            val sdkSandboxManager = Mockito.mock(SdkSandboxManager::class.java)
+            val sdkSandboxManager = mock(SdkSandboxManager::class.java)
             `when`(spyContext.getSystemService(SdkSandboxManager::class.java))
                 .thenReturn(sdkSandboxManager)
             return sdkSandboxManager
