@@ -16,6 +16,8 @@
 
 package androidx.fragment.app
 
+import androidx.annotation.MainThread
+
 /**
  * Run [body] in a [FragmentTransaction] which is automatically committed if it completes without
  * exception.
@@ -44,6 +46,7 @@ public inline fun FragmentManager.commit(
  * [allowStateLoss] is set to `true` in which case [FragmentTransaction.commitNowAllowingStateLoss]
  * will be used.
  */
+@MainThread
 public inline fun FragmentManager.commitNow(
     allowStateLoss: Boolean = false,
     body: FragmentTransaction.() -> Unit

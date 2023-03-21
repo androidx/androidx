@@ -10,7 +10,7 @@ package androidx.fragment.app {
 
   public final class FragmentManagerKt {
     method public static inline void commit(androidx.fragment.app.FragmentManager, optional boolean allowStateLoss, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
-    method public static inline void commitNow(androidx.fragment.app.FragmentManager, optional boolean allowStateLoss, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method @MainThread public static inline void commitNow(androidx.fragment.app.FragmentManager, optional boolean allowStateLoss, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
     method @Deprecated public static inline void transaction(androidx.fragment.app.FragmentManager, optional boolean now, optional boolean allowStateLoss, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
   }
 
