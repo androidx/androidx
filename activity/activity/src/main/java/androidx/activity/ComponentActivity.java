@@ -459,14 +459,14 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(layoutResID);
     }
 
     @Override
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(view);
     }
@@ -475,7 +475,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.setContentView(view, params);
     }
@@ -484,14 +484,17 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void addContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        initViewTreeOwners();
+        initializeViewTreeOwners();
         mReportFullyDrawnExecutor.viewCreated(getWindow().getDecorView());
         super.addContentView(view, params);
     }
 
-    private void initViewTreeOwners() {
-        // Set the view tree owners before setting the content view so that the inflation process
-        // and attach listeners will see them already present
+    /**
+     * Sets the view tree owners before setting the content view so that the
+     * inflation process and attach listeners will see them already present.
+     */
+    @CallSuper
+    public void initializeViewTreeOwners() {
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
