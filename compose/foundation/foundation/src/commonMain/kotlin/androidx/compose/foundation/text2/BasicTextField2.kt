@@ -211,7 +211,7 @@ fun BasicTextField2(
     val isFocused = interactionSource.collectIsFocusedAsState().value
 
     Box(decorationModifiers, propagateMinConstraints = true) {
-        decorationBox(innerTextField = {
+        decorationBox {
             val minLines: Int
             val maxLines: Int
             if (lineLimits is MultiLine) {
@@ -262,7 +262,7 @@ fun BasicTextField2(
                     )
                 }
             }
-        })
+        }
     }
 }
 

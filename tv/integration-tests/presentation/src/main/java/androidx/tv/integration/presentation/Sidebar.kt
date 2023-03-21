@@ -117,23 +117,23 @@ fun Sidebar(
     ) {
         key(0) {
             drawIcon(
-                imageVector = Icons.Outlined.Home,
-                index = 0,
-                modifier = focusRestorerModifiers.childModifier,
+                Icons.Outlined.Home,
+                0,
+                focusRestorerModifiers.childModifier,
             )
         }
         key(1) {
             drawIcon(
-                imageVector = Icons.Outlined.Movie,
-                index = 1,
-                modifier = Modifier,
+                Icons.Outlined.Movie,
+                1,
+                Modifier,
             )
         }
         key(2) {
             drawIcon(
-                imageVector = Icons.Outlined.Tv,
-                index = 2,
-                modifier = Modifier,
+                Icons.Outlined.Tv,
+                2,
+                Modifier,
             )
         }
     }
