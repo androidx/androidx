@@ -30,7 +30,7 @@ import kotlin.math.roundToInt
  *
  * Results are cached with the assumption that there is typically N=1 style being coerced at once.
  */
-internal class MinMaxLinesCoercer private constructor(
+internal class MinLinesConstrainer private constructor(
     val layoutDirection: LayoutDirection,
     val inputTextStyle: TextStyle,
     val density: Density,
@@ -43,18 +43,18 @@ internal class MinMaxLinesCoercer private constructor(
     companion object {
         // LRU cache of one since this tends to be used for similar styles
         // ... it may be useful to increase this cache if requested by some dev use case
-        private var last: MinMaxLinesCoercer? = null
+        private var last: MinLinesConstrainer? = null
 
         /**
          * Returns a coercer (possibly cached) with these parameters
          */
         fun from(
-            minMaxUtil: MinMaxLinesCoercer?,
+            minMaxUtil: MinLinesConstrainer?,
             layoutDirection: LayoutDirection,
             paramStyle: TextStyle,
             density: Density,
             fontFamilyResolver: FontFamily.Resolver
-        ): MinMaxLinesCoercer {
+        ): MinLinesConstrainer {
             minMaxUtil?.let {
                 if (layoutDirection == it.layoutDirection &&
                     paramStyle == it.inputTextStyle &&
@@ -71,7 +71,7 @@ internal class MinMaxLinesCoercer private constructor(
                     return it
                 }
             }
-            return MinMaxLinesCoercer(
+            return MinLinesConstrainer(
                 layoutDirection,
                 resolveDefaults(paramStyle, layoutDirection),
                 density,
@@ -87,10 +87,9 @@ internal class MinMaxLinesCoercer private constructor(
      *
      * On first invocation this will cause (2) Paragraph measurements.
      */
-    internal fun coerceMaxMinLines(
+    internal fun coerceMinLines(
         inConstraints: Constraints,
-        minLines: Int,
-        maxLines: Int,
+        minLines: Int
     ): Constraints {
         var oneLineHeight = oneLineHeightCache
         var lineHeight = lineHeightCache
@@ -119,24 +118,17 @@ internal class MinMaxLinesCoercer private constructor(
             oneLineHeightCache = oneLineHeight
             lineHeightCache = lineHeight
         }
-        val maxHeight = if (maxLines != Int.MAX_VALUE) {
-            (oneLineHeight + (lineHeight * (maxLines - 1)))
-                .roundToInt()
-                .coerceAtLeast(0)
-        } else {
-            inConstraints.maxHeight
-        }
         val minHeight = if (minLines != 1) {
             (oneLineHeight + (lineHeight * (minLines - 1)))
                 .roundToInt()
                 .coerceAtLeast(0)
-                .coerceAtMost(maxHeight)
+                .coerceAtMost(inConstraints.maxHeight)
         } else {
             inConstraints.minHeight
         }
         return Constraints(
             minHeight = minHeight,
-            maxHeight = maxHeight,
+            maxHeight = inConstraints.maxHeight,
             minWidth = inConstraints.minWidth,
             maxWidth = inConstraints.maxWidth,
         )
