@@ -130,7 +130,7 @@ open class Polygon {
         perVertexRounding: List<CornerRounding>? = null,
         center: PointF? = null
     ) {
-        this.center = center ?: calculateCenter(vertices)
+        this.center = center?.copy() ?: calculateCenter(vertices)
         setupPolygon(vertices, rounding, perVertexRounding)
     }
 
@@ -181,9 +181,9 @@ open class Polygon {
         val tempFeatures = mutableListOf<Feature>()
         for (feature in source.features) {
             if (feature is Edge) {
-                tempFeatures.add(Edge(this, feature))
+                tempFeatures.add(Edge(feature))
             } else {
-                tempFeatures.add(Corner(this, feature as Corner))
+                tempFeatures.add(Corner(feature as Corner))
             }
         }
         features = tempFeatures
@@ -263,9 +263,14 @@ open class Polygon {
                 cornerIndices.add(cubics.size)
                 cubics.add(cubic)
             }
-            // TODO: determine and pass convexity flag
-            tempFeatures.add(Corner(this, cornerIndices, roundedCorners[i].center, vertices[i]))
-            tempFeatures.add(Edge(this, listOf(cubics.size)))
+            // Determine whether corner at this vertex is concave or convex, based on the
+            // relationship of the prev->curr/curr->next vectors
+            val prevVertex = vertices[(i + vertices.size - 1) % vertices.size]
+            val nextVertex = vertices[(i + 1) % vertices.size]
+            val convex = (vertices[i] - prevVertex).clockwise(nextVertex - vertices[i])
+            tempFeatures.add(Corner(cornerIndices, roundedCorners[i].center, vertices[i],
+                    convex))
+            tempFeatures.add(Edge(listOf(cubics.size)))
             cubics.add(Cubic.straightLine(corners[i].last().p3, corners[(i + 1) % n].first().p0))
         }
         features = tempFeatures
@@ -329,6 +334,60 @@ open class Polygon {
             cumulativeY += vertex.y
         }
         return PointF(cumulativeX / vertices.size, cumulativeY / vertices.size)
+    }
+
+    /**
+     * This class holds information about a corner (rounded or not) or an edge of a given
+     * polygon. The features of a Polygon can be used to manipulate the shape with more context
+     * of what the shape actually is, rather than simply manipulating the raw curves and lines
+     * which describe it.
+     */
+    internal open inner class Feature(protected val cubicIndices: List<Int>) {
+        val cubics: List<Cubic>
+            get() = cubicIndices.map { toCubicShape().cubics[it] }
+
+        open fun transform(matrix: Matrix) {}
+    }
+    /**
+     * Edges have only a list of the cubic curves which make up the edge. Edges lie between
+     * corners and have no vertex or concavity; the curves are simply straight lines (represented
+     * by Cubic curves).
+     */
+    internal inner class Edge(indices: List<Int>) : Feature(indices) {
+        constructor(source: Edge) : this(source.cubicIndices)
+    }
+
+    /**
+     * Corners contain the list of cubic curves which describe how the corner is rounded (or
+     * not), plus the vertex at the corner (which the cubics may or may not pass through, depending
+     * on whether the corner is rounded) and a flag indicating whether the corner is convex.
+     * A regular polygon has all convex corners, while a star polygon generally (but not
+     * necessarily) has both convex (outer) and concave (inner) corners.
+     */
+    internal inner class Corner(
+        cubicIndices: List<Int>,
+        // TODO: parameters here should be immutable
+        val vertex: PointF,
+        val roundedCenter: PointF,
+        val convex: Boolean = true
+    ) : Feature(cubicIndices) {
+        constructor(source: Corner) : this(
+            source.cubicIndices,
+            source.vertex,
+            source.roundedCenter,
+            source.convex
+        )
+
+        override fun transform(matrix: Matrix) {
+            val tempPoints = floatArrayOf(vertex.x, vertex.y, roundedCenter.x, roundedCenter.y)
+            matrix.mapPoints(tempPoints)
+            vertex.set(tempPoints[0], tempPoints[1])
+            roundedCenter.set(tempPoints[2], tempPoints[3])
+        }
+
+        override fun toString(): String {
+            return "Corner: vtx, center, convex = $vertex, $roundedCenter, $convex"
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -415,66 +474,6 @@ class RoundedPolygon : Polygon {
         perVertexRounding: List<CornerRounding>? = null,
         center: PointF = PointF(0f, 0f)
     ) : super(numVertices, radius, rounding, perVertexRounding, center)
-}
-
-/**
- * This class holds information about a corner (rounded or not) or an edge of a given
- * polygon. The features of a Polygon can be used to manipulate the shape with more context
- * of what the shape actually is, rather than simply manipulating the raw curves and lines
- * which describe it.
- */
-internal sealed class Feature(private val polygon: Polygon, protected val cubicIndices: List<Int>) {
-    val cubics: MutableList<Cubic>
-        get() {
-            val featureCubics = mutableListOf<Cubic>()
-            val cubics = polygon.toCubicShape().cubics
-            for (index in cubicIndices) {
-                featureCubics.add(cubics[index])
-            }
-            return featureCubics
-        }
-
-    open fun transform(matrix: Matrix) {}
-}
-
-/**
- * Edges have only a list of the cubic curves which make up the edge. Edges lie between
- * corners and have no vertex or concavity; the curves are simply straight lines (represented
- * by Cubic curves).
- */
-internal class Edge(polygon: Polygon, indices: List<Int>) : Feature(polygon, indices) {
-    constructor(polygon: Polygon, source: Edge) : this(polygon, source.cubicIndices)
-}
-
-/**
- * Corners contain the list of cubic curves which describe how the corner is rounded (or
- * not), plus the vertex at the corner (which the cubics may or may not pass through, depending
- * on whether the corner is rounded) and a flag indicating whether the corner is convex. A regular
- * polygon has all convex corners, while a star polygon generally (but not necessarily) has both
- * convex (outer) and concave (inner) corners.
- */
-internal class Corner(
-    polygon: Polygon,
-    cubicIndices: List<Int>,
-    // TODO: parameters here should be immutable
-    val vertex: PointF,
-    val roundedCenter: PointF,
-    val convex: Boolean = true
-) : Feature(polygon, cubicIndices) {
-    constructor(polygon: Polygon, source: Corner) : this(
-        polygon,
-        source.cubicIndices,
-        source.vertex,
-        source.roundedCenter,
-        source.convex
-    )
-
-    override fun transform(matrix: Matrix) {
-        val tempPoints = floatArrayOf(vertex.x, vertex.y, roundedCenter.x, roundedCenter.y)
-        matrix.mapPoints(tempPoints)
-        vertex.set(tempPoints[0], tempPoints[1])
-        roundedCenter.set(tempPoints[2], tempPoints[3])
-    }
 }
 
 /**
@@ -666,3 +665,5 @@ fun Canvas.drawPolygon(polygon: Polygon, paint: Paint) {
 }
 
 private val scratchTransformPoint = floatArrayOf(0f, 0f)
+
+private val LOG_TAG = "Polygon"

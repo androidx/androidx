@@ -141,7 +141,7 @@ class PolygonTest {
         val preTransformVertices = mutableListOf<PointF>()
         val preTransformCenters = mutableListOf<PointF>()
         for (feature in features) {
-            if (feature is Corner) {
+            if (feature is Polygon.Corner) {
                 // Copy into new Point objects since the ones in the feature should transform
                 preTransformVertices.add(PointF(feature.vertex.x, feature.vertex.y))
                 preTransformCenters.add(PointF(feature.roundedCenter.x, feature.roundedCenter.y))
@@ -151,7 +151,7 @@ class PolygonTest {
         val postTransformVertices = mutableListOf<PointF>()
         val postTransformCenters = mutableListOf<PointF>()
         for (feature in features) {
-            if (feature is Corner) {
+            if (feature is Polygon.Corner) {
                 postTransformVertices.add(feature.vertex)
                 postTransformCenters.add(feature.roundedCenter)
             }
