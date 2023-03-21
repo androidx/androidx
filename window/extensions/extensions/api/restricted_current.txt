@@ -27,14 +27,14 @@ package androidx.window.extensions.area {
   }
 
   public interface WindowAreaComponent {
-    method public void addRearDisplayPresentationStatusListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.area.ExtensionWindowAreaStatus!>);
+    method public default void addRearDisplayPresentationStatusListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.area.ExtensionWindowAreaStatus!>);
     method public void addRearDisplayStatusListener(androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
-    method public void endRearDisplayPresentationSession();
+    method public default void endRearDisplayPresentationSession();
     method public void endRearDisplaySession();
-    method public androidx.window.extensions.area.ExtensionWindowAreaPresentation? getRearDisplayPresentation();
-    method public void removeRearDisplayPresentationStatusListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.area.ExtensionWindowAreaStatus!>);
+    method public default androidx.window.extensions.area.ExtensionWindowAreaPresentation? getRearDisplayPresentation();
+    method public default void removeRearDisplayPresentationStatusListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.area.ExtensionWindowAreaStatus!>);
     method public void removeRearDisplayStatusListener(androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
-    method public void startRearDisplayPresentationSession(android.app.Activity, androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
+    method public default void startRearDisplayPresentationSession(android.app.Activity, androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
     method public void startRearDisplaySession(android.app.Activity, androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
     field public static final int SESSION_STATE_ACTIVE = 1; // 0x1
     field public static final int SESSION_STATE_INACTIVE = 0; // 0x0
@@ -52,15 +52,15 @@ package androidx.window.extensions.embedding {
   public interface ActivityEmbeddingComponent {
     method public void clearSplitAttributesCalculator();
     method public void clearSplitInfoCallback();
-    method public void finishActivityStacks(java.util.Set<android.os.IBinder!>);
-    method public void invalidateTopVisibleSplitAttributes();
+    method public default void finishActivityStacks(java.util.Set<android.os.IBinder!>);
+    method public default void invalidateTopVisibleSplitAttributes();
     method public boolean isActivityEmbedded(android.app.Activity);
     method public void setEmbeddingRules(java.util.Set<androidx.window.extensions.embedding.EmbeddingRule!>);
-    method public android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.os.IBinder);
+    method public default android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.os.IBinder);
     method public void setSplitAttributesCalculator(androidx.window.extensions.core.util.function.Function<androidx.window.extensions.embedding.SplitAttributesCalculatorParams!,androidx.window.extensions.embedding.SplitAttributes!>);
     method @Deprecated public void setSplitInfoCallback(java.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
     method public default void setSplitInfoCallback(androidx.window.extensions.core.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
-    method public void updateSplitAttributes(android.os.IBinder, androidx.window.extensions.embedding.SplitAttributes);
+    method public default void updateSplitAttributes(android.os.IBinder, androidx.window.extensions.embedding.SplitAttributes);
   }
 
   public class ActivityRule extends androidx.window.extensions.embedding.EmbeddingRule {
