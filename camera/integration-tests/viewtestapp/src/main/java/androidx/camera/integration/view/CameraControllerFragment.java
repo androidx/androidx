@@ -378,7 +378,7 @@ public class CameraControllerFragment extends Fragment {
             mCameraController.setEffects(
                     new HashSet<>(asList(mToneMappingSurfaceEffect, mToneMappingImageEffect)));
         } else {
-            mCameraController.setEffects(null);
+            mCameraController.clearEffects();
         }
     }
 
