@@ -39,6 +39,7 @@ import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraPipeConfigTestRule
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.LabTestRule.Companion.isLensFacingEnabledInLabTest
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -309,6 +310,85 @@ class FocusMeteringDeviceTest(
         val future = camera.cameraControl.startFocusAndMetering(action)
 
         assertFutureCompletes(future)
+    }
+
+    /**
+     * The following tests check if a device can complete 3A convergence, by setting an auto
+     * cancellation with [FocusMeteringAction.Builder.setAutoCancelDuration] which ensures throwing
+     * an exception in case of a timeout.
+     *
+     * Since some devices may require a long time to complete convergence, we are setting a long
+     * [FocusMeteringAction.mAutoCancelDurationInMillis] in these tests.
+     */
+
+    @Test
+    fun futureCompletes_whenFocusMeteringStartedWithLongCancelDuration() = runBlocking {
+        Assume.assumeTrue(
+            "Not CameraX lab environment," +
+                " or lensFacing:${cameraSelector.lensFacing!!} camera is not enabled",
+            isLensFacingEnabledInLabTest(lensFacing = cameraSelector.lensFacing!!)
+        )
+
+        Assume.assumeTrue(
+            "No AF/AE/AWB region available on this device!",
+            hasMeteringRegion(cameraSelector)
+        )
+
+        val focusMeteringAction = FocusMeteringAction.Builder(validMeteringPoint)
+            .setAutoCancelDuration(5_000, TimeUnit.MILLISECONDS)
+            .build()
+
+        val resultFuture = camera.cameraControl.startFocusAndMetering(focusMeteringAction)
+
+        assertFutureCompletes(resultFuture)
+    }
+
+    @Test
+    fun futureCompletes_whenOnlyAfFocusMeteringStartedWithLongCancelDuration() = runBlocking {
+        Assume.assumeTrue(
+            "Not CameraX lab environment," +
+                " or lensFacing:${cameraSelector.lensFacing!!} camera is not enabled",
+            isLensFacingEnabledInLabTest(lensFacing = cameraSelector.lensFacing!!)
+        )
+
+        Assume.assumeTrue(
+            "No AF region available on this device!",
+            hasMeteringRegion(cameraSelector, FLAG_AF)
+        )
+
+        val focusMeteringAction = FocusMeteringAction.Builder(
+            validMeteringPoint,
+            FLAG_AF
+        ).setAutoCancelDuration(5_000, TimeUnit.MILLISECONDS)
+            .build()
+
+        val resultFuture = camera.cameraControl.startFocusAndMetering(focusMeteringAction)
+
+        assertFutureCompletes(resultFuture)
+    }
+
+    @Test
+    fun futureCompletes_whenAeAwbFocusMeteringStartedWithLongCancelDuration() = runBlocking {
+        Assume.assumeTrue(
+            "Not CameraX lab environment," +
+                " or lensFacing:${cameraSelector.lensFacing!!} camera is not enabled",
+            isLensFacingEnabledInLabTest(lensFacing = cameraSelector.lensFacing!!)
+        )
+
+        Assume.assumeTrue(
+            "No AE/AWB region available on this device!",
+            hasMeteringRegion(cameraSelector, FLAG_AE or FLAG_AWB)
+        )
+
+        val focusMeteringAction = FocusMeteringAction.Builder(
+            validMeteringPoint,
+            FLAG_AE or FLAG_AWB
+        ).setAutoCancelDuration(5_000, TimeUnit.MILLISECONDS)
+            .build()
+
+        val resultFuture = camera.cameraControl.startFocusAndMetering(focusMeteringAction)
+
+        assertFutureCompletes(resultFuture)
     }
 
     private fun hasMeteringRegion(
