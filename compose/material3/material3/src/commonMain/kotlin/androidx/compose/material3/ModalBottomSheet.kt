@@ -183,7 +183,8 @@ fun ModalBottomSheet(
             ) {
                 Column(Modifier.fillMaxWidth()) {
                     if (dragHandle != null) {
-                        val collapseActionLabel = getString(Strings.BottomSheetCollapseDescription)
+                        val collapseActionLabel =
+                            getString(Strings.BottomSheetPartialExpandDescription)
                         val dismissActionLabel = getString(Strings.BottomSheetDismissDescription)
                         val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
                         Box(Modifier

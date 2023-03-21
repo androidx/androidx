@@ -39,6 +39,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.collapse
+import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -178,15 +179,17 @@ fun rememberBottomSheetScaffoldState(
  * Create and [remember] a [SheetState] for [BottomSheetScaffold].
  *
  * @param initialValue the initial value of the state. Should be either [PartiallyExpanded] or
- * [Expanded]
+ * [Expanded] if [skipHiddenState] is true
  * @param confirmValueChange optional callback invoked to confirm or veto a pending state change
+ * @param [skipHiddenState] whether Hidden state is skipped for [BottomSheetScaffold]
  */
 @Composable
 @ExperimentalMaterial3Api
 fun rememberStandardBottomSheetState(
     initialValue: SheetValue = PartiallyExpanded,
     confirmValueChange: (SheetValue) -> Boolean = { true },
-) = rememberSheetState(false, confirmValueChange, initialValue)
+    skipHiddenState: Boolean = true,
+) = rememberSheetState(false, confirmValueChange, initialValue, skipHiddenState)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -248,14 +251,14 @@ private fun StandardBottomSheet(
                 anchorChangeHandler = anchorChangeHandler
             ) { value, sheetSize ->
                 when (value) {
-                    PartiallyExpanded -> layoutHeight - peekHeightPx
+                    PartiallyExpanded -> if (state.skipPartiallyExpanded)
+                        null else layoutHeight - peekHeightPx
                     Expanded -> if (sheetSize.height == peekHeightPx.roundToInt()) {
                         null
                     } else {
                         max(0f, layoutHeight - sheetSize.height)
                     }
-
-                    Hidden -> null
+                    Hidden -> if (state.skipHiddenState) null else layoutHeight
                 }
             },
         shape = shape,
@@ -266,7 +269,9 @@ private fun StandardBottomSheet(
     ) {
         Column(Modifier.fillMaxWidth()) {
             if (dragHandle != null) {
-                val collapseActionLabel = getString(Strings.BottomSheetCollapseDescription)
+                val partialExpandActionLabel =
+                    getString(Strings.BottomSheetPartialExpandDescription)
+                val dismissActionLabel = getString(Strings.BottomSheetDismissDescription)
                 val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
                 Box(Modifier
                     .align(CenterHorizontally)
@@ -283,9 +288,15 @@ private fun StandardBottomSheet(
                                     }
                                 } else {
                                     if (swipeableState.confirmValueChange(PartiallyExpanded)) {
-                                        collapse(collapseActionLabel) {
+                                        collapse(partialExpandActionLabel) {
                                             scope.launch { partialExpand() }; true
                                         }
+                                    }
+                                }
+                                if (!state.skipHiddenState) {
+                                    dismiss(dismissActionLabel) {
+                                        scope.launch { hide() }
+                                        true
                                     }
                                 }
                             }
