@@ -817,7 +817,7 @@ public class WebViewJavaScriptSandboxTest {
     @Test
     @LargeTest
     public void testLargeScriptByteArrayJsEvaluation() throws Throwable {
-        String longString = "a".repeat(2000000);
+        final String longString = "a".repeat(2000000);
         final String codeString = ""
                 + "let " + longString + " = 0;"
                 + "\"PASS\"";
@@ -839,4 +839,101 @@ public class WebViewJavaScriptSandboxTest {
         }
     }
 
+    @Test
+    @LargeTest
+    public void testLargeReturn() throws Throwable {
+        final String longString = "a".repeat(2000000);
+        final String code = "'a'.repeat(2000000);";
+        final String expected = longString;
+        Context context = ApplicationProvider.getApplicationContext();
+
+        ListenableFuture<JavaScriptSandbox> jsSandboxFuture =
+                JavaScriptSandbox.createConnectedInstanceAsync(context);
+        try (JavaScriptSandbox jsSandbox = jsSandboxFuture.get(5, TimeUnit.SECONDS)) {
+            Assume.assumeTrue(jsSandbox.isFeatureSupported(
+                    JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT));
+            try (JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
+                ListenableFuture<String> resultFuture = jsIsolate.evaluateJavaScriptAsync(code);
+                String result = resultFuture.get(60, TimeUnit.SECONDS);
+
+                Assert.assertEquals(expected, result);
+            }
+        }
+    }
+
+    @Test
+    @LargeTest
+    public void testLargeError() throws Throwable {
+        final String longString = "a".repeat(2000000);
+        final String code = "throw \"" + longString + "\");";
+        Context context = ApplicationProvider.getApplicationContext();
+
+        ListenableFuture<JavaScriptSandbox> jsSandboxFuture =
+                JavaScriptSandbox.createConnectedInstanceAsync(context);
+        try (JavaScriptSandbox jsSandbox = jsSandboxFuture.get(5, TimeUnit.SECONDS)) {
+            Assume.assumeTrue(jsSandbox.isFeatureSupported(
+                    JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT));
+            try (JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
+                ListenableFuture<String> resultFuture = jsIsolate.evaluateJavaScriptAsync(code);
+                try {
+                    resultFuture.get(5, TimeUnit.SECONDS);
+                    Assert.fail("Should have thrown.");
+                } catch (ExecutionException e) {
+                    Assert.assertTrue(e.getCause().getClass().equals(
+                            EvaluationFailedException.class));
+                    Assert.assertTrue(e.getCause().getMessage().contains(longString));
+                }
+            }
+        }
+    }
+
+    @Test
+    @MediumTest
+    public void testResultSizeEnforced() throws Throwable {
+        final int maxSize = 100;
+        Context context = ApplicationProvider.getApplicationContext();
+
+        ListenableFuture<JavaScriptSandbox> jsSandboxFuture =
+                JavaScriptSandbox.createConnectedInstanceAsync(context);
+        try (JavaScriptSandbox jsSandbox = jsSandboxFuture.get(5, TimeUnit.SECONDS)) {
+            Assume.assumeTrue(jsSandbox.isFeatureSupported(
+                    JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT));
+            IsolateStartupParameters settings = new IsolateStartupParameters();
+            settings.setMaxEvaluationReturnSizeBytes(maxSize);
+            try (JavaScriptIsolate jsIsolate = jsSandbox.createIsolate(settings)) {
+                // Running code that returns greater than `maxSize` number of bytes should throw.
+                final String greaterThanMaxSizeCode = ""
+                        + "'a'.repeat(" + (maxSize + 1) + ");";
+                ListenableFuture<String> greaterThanMaxSizeResultFuture =
+                        jsIsolate.evaluateJavaScriptAsync(greaterThanMaxSizeCode);
+                try {
+                    greaterThanMaxSizeResultFuture.get(5, TimeUnit.SECONDS);
+                    Assert.fail("Should have thrown.");
+                } catch (ExecutionException e) {
+                    if (!(e.getCause() instanceof EvaluationResultSizeLimitExceededException)) {
+                        throw e;
+                    }
+                }
+
+                // Running code that returns `maxSize` number of bytes should not throw.
+                final String maxSizeCode = ""
+                        + "'a'.repeat(" + maxSize + ");";
+                final String maxSizeExpected = "a".repeat(maxSize);
+                ListenableFuture<String> maxSizeResultFuture =
+                        jsIsolate.evaluateJavaScriptAsync(maxSizeCode);
+                String maxSizeResult = maxSizeResultFuture.get(5, TimeUnit.SECONDS);
+                Assert.assertEquals(maxSizeExpected, maxSizeResult);
+
+                // Running code that returns less than `maxSize` number of bytes should not throw.
+                final String lessThanMaxSizeCode = ""
+                        + "'a'.repeat(" + (maxSize - 1) + ");";
+                final String lessThanMaxSizeExpected = "a".repeat(maxSize - 1);
+                ListenableFuture<String> lessThanMaxSizeResultFuture =
+                        jsIsolate.evaluateJavaScriptAsync(lessThanMaxSizeCode);
+                String lessThanMaxSizeResult = lessThanMaxSizeResultFuture.get(5,
+                        TimeUnit.SECONDS);
+                Assert.assertEquals(lessThanMaxSizeExpected, lessThanMaxSizeResult);
+            }
+        }
+    }
 }

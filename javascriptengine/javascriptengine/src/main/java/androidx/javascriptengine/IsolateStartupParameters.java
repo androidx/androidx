@@ -18,14 +18,20 @@ package androidx.javascriptengine;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
 
 /**
  * Class used to set startup parameters for {@link JavaScriptIsolate}.
  */
 public final class IsolateStartupParameters {
     private long mMaxHeapSizeBytes;
+    private int mMaxEvalutationReturnSizeBytes = DEFAULT_MAX_EVALUATION_RETURN_SIZE;
     public static final long DEFAULT_ISOLATE_HEAP_SIZE = 0;
-    public IsolateStartupParameters(){};
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final int DEFAULT_MAX_EVALUATION_RETURN_SIZE = 20 * 1024 * 1024;
+
+    public IsolateStartupParameters() {
+    }
 
     /**
      * Sets the max heap size used by the {@link JavaScriptIsolate}.
@@ -52,6 +58,28 @@ public final class IsolateStartupParameters {
     }
 
     /**
+     * Sets the max size for evaluation return values and errors in the {@link JavaScriptIsolate}.
+     *
+     * The default value is {@link IsolateStartupParameters#DEFAULT_MAX_EVALUATION_RETURN_SIZE}.
+     *
+     * If an evaluation exceeds this limit, {@link EvaluationResultSizeLimitExceededException}
+     * is thrown. Errors will be truncated to adhere to this limit.
+     *
+     * @param size max size in bytes
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresFeature(name = JavaScriptSandbox.JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT,
+            enforcement = "androidx.javascriptengine.JavaScriptSandbox#isFeatureSupported")
+    public void setMaxEvaluationReturnSizeBytes(
+            @IntRange(from = 0) int size) {
+        if (size < 0) {
+            throw new IllegalArgumentException("maxEvaluationReturnSizeBytes must be >= 0");
+        }
+        mMaxEvalutationReturnSizeBytes = size;
+    }
+
+    /**
      * Gets the max heap size used by the {@link JavaScriptIsolate}.
      *
      * If not set using {@link IsolateStartupParameters#setMaxHeapSizeBytes(long)}, the default
@@ -62,5 +90,19 @@ public final class IsolateStartupParameters {
      */
     public @IntRange(from = 0) long getMaxHeapSizeBytes() {
         return mMaxHeapSizeBytes;
+    }
+
+    /**
+     * Gets the max size for evaluation return values and errors in the {@link JavaScriptIsolate}.
+     *
+     * If not set using {@link IsolateStartupParameters#setMaxEvaluationReturnSizeBytes(int)}, the
+     * default value is {@link IsolateStartupParameters#DEFAULT_MAX_EVALUATION_RETURN_SIZE}.
+     *
+     * @return max size in bytes
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public @IntRange(from = 0) int getMaxEvaluationReturnSizeBytes() {
+        return mMaxEvalutationReturnSizeBytes;
     }
 }

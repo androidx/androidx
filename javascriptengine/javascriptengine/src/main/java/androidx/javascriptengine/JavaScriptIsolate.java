@@ -17,7 +17,6 @@
 package androidx.javascriptengine;
 
 import android.content.res.AssetFileDescriptor;
-import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -26,22 +25,18 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.javascriptengine.common.Utils;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateCallback;
+import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateSyncCallback;
 
-import java.io.Closeable;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -73,16 +68,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
     @Nullable
     private IJsSandboxIsolate mJsIsolateStub;
     private CloseGuardHelper mGuard = CloseGuardHelper.create();
-    private final ExecutorService mThreadPoolTaskExecutor =
-            Executors.newCachedThreadPool(new ThreadFactory() {
-                private final AtomicInteger mCount = new AtomicInteger(1);
-
-                @Override
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "JavaScriptIsolate Thread #" + mCount.getAndIncrement());
-                }
-            });
-    private final JavaScriptSandbox mJsSandbox;
+    final JavaScriptSandbox mJsSandbox;
 
     @Nullable
     @GuardedBy("mSetLock")
@@ -96,6 +82,66 @@ public final class JavaScriptIsolate implements AutoCloseable {
     @Nullable
     private Exception mExceptionForNewEvaluations;
     private AtomicBoolean mSandboxClosed = new AtomicBoolean(false);
+    IsolateStartupParameters mStartupParameters;
+
+    private class IJsSandboxIsolateSyncCallbackStubWrapper extends
+            IJsSandboxIsolateSyncCallback.Stub {
+        private CallbackToFutureAdapter.Completer<String> mCompleter;
+
+        IJsSandboxIsolateSyncCallbackStubWrapper(
+                CallbackToFutureAdapter.Completer<String> completer) {
+            mCompleter = completer;
+        }
+
+        @Override
+        public void reportResultWithFd(AssetFileDescriptor afd) {
+            mJsSandbox.mThreadPoolTaskExecutor.execute(
+                    () -> {
+                        String result;
+                        try {
+                            result = Utils.readToString(afd,
+                                    mStartupParameters.getMaxEvaluationReturnSizeBytes(), false);
+                        } catch (IOException | UnsupportedOperationException ex) {
+                            mCompleter.setException(
+                                    new JavaScriptException(
+                                            "Retrieving result failed: " + ex.getMessage()));
+                            removePending(mCompleter);
+                            return;
+                        } catch (IllegalArgumentException ex) {
+                            if (ex.getMessage() != null) {
+                                mCompleter.setException(
+                                        new EvaluationResultSizeLimitExceededException(
+                                                ex.getMessage()));
+                            } else {
+                                mCompleter.setException(
+                                        new EvaluationResultSizeLimitExceededException());
+                            }
+                            removePending(mCompleter);
+                            return;
+                        }
+                        handleEvaluationResult(mCompleter, result);
+                    });
+        }
+
+        @Override
+        public void reportErrorWithFd(@ExecutionErrorTypes int type, AssetFileDescriptor afd) {
+            mJsSandbox.mThreadPoolTaskExecutor.execute(
+                    () -> {
+                        String error;
+                        try {
+                            error = Utils.readToString(afd,
+                                    mStartupParameters.getMaxEvaluationReturnSizeBytes(), true);
+                        } catch (IOException | UnsupportedOperationException ex) {
+                            mCompleter.setException(
+                                    new JavaScriptException(
+                                            "Retrieving error failed: " + ex.getMessage()));
+                            removePending(mCompleter);
+                            return;
+                        }
+                        handleEvaluationError(mCompleter, type, error);
+                    });
+        }
+    }
 
     private class IJsSandboxIsolateCallbackStubWrapper extends IJsSandboxIsolateCallback.Stub {
         private CallbackToFutureAdapter.Completer<String> mCompleter;
@@ -106,37 +152,20 @@ public final class JavaScriptIsolate implements AutoCloseable {
 
         @Override
         public void reportResult(String result) {
-            mCompleter.set(result);
-            removePending(mCompleter);
+            handleEvaluationResult(mCompleter, result);
         }
 
         @Override
         public void reportError(@ExecutionErrorTypes int type, String error) {
-            boolean crashing = false;
-            switch (type) {
-                case IJsSandboxIsolateCallback.JS_EVALUATION_ERROR:
-                    mCompleter.setException(new EvaluationFailedException(error));
-                    break;
-                case IJsSandboxIsolateCallback.MEMORY_LIMIT_EXCEEDED:
-                    mCompleter.setException(new MemoryLimitExceededException(error));
-                    crashing = true;
-                    break;
-                default:
-                    mCompleter.setException(new JavaScriptException(
-                            "Crashing due to unknown JavaScriptException: " + error));
-                    // Assume the worst
-                    crashing = true;
-            }
-            removePending(mCompleter);
-            if (crashing) {
-                handleCrash();
-            }
+            handleEvaluationError(mCompleter, type, error);
         }
     }
 
-    JavaScriptIsolate(IJsSandboxIsolate jsIsolateStub, JavaScriptSandbox sandbox) {
+    JavaScriptIsolate(IJsSandboxIsolate jsIsolateStub, JavaScriptSandbox sandbox,
+            IsolateStartupParameters settings) {
         mJsSandbox = sandbox;
         mJsIsolateStub = jsIsolateStub;
+        mStartupParameters = settings;
         mGuard.open("close");
         // This should be at the end of the constructor.
     }
@@ -167,11 +196,12 @@ public final class JavaScriptIsolate implements AutoCloseable {
      * If {@link JavaScriptSandbox#isFeatureSupported(String)} for
      * {@link JavaScriptSandbox#JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT} returns {@code
      * false},
-     * the size of the expression to be evaluated is limited by the binder
-     * transaction limit. If it returns {@code true}, it is not limited by the binder
-     * transaction limit. The result of the evaluation is always bound by the binder
-     * transaction limit. Refer to
-     * {@link android.os.TransactionTooLargeException} for more details.
+     * the size of the expression to be evaluated and the return/error value is limited by the
+     * binder transaction limit ({@link android.os.TransactionTooLargeException}). If it returns
+     * {@code true}, they are not limited by the binder
+     * transaction limit but are bound by
+     * {@link IsolateStartupParameters#setMaxEvaluationReturnSizeBytes(int)} with a default size
+     * of {@link IsolateStartupParameters#DEFAULT_MAX_EVALUATION_RETURN_SIZE}.
      *
      * @param code JavaScript code that is evaluated, it should return a JavaScript String or a
      *             Promise of a String in case {@link JavaScriptSandbox#JS_FEATURE_PROMISE_RETURN}
@@ -248,7 +278,7 @@ public final class JavaScriptIsolate implements AutoCloseable {
         }
         return CallbackToFutureAdapter.getFuture(completer -> {
             final String futureDebugMessage = "evaluateJavascript Future";
-            IJsSandboxIsolateCallbackStubWrapper callbackStub;
+            IJsSandboxIsolateSyncCallbackStubWrapper callbackStub;
             synchronized (mSetLock) {
                 if (mPendingCompleterSet == null) {
                     completer.setException(mExceptionForNewEvaluations);
@@ -256,17 +286,16 @@ public final class JavaScriptIsolate implements AutoCloseable {
                 }
                 mPendingCompleterSet.add(completer);
             }
-            callbackStub = new IJsSandboxIsolateCallbackStubWrapper(completer);
+            callbackStub = new IJsSandboxIsolateSyncCallbackStubWrapper(completer);
             try {
-                ParcelFileDescriptor readSide = writeBytesIntoPipeAsync(code);
+                AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(code,
+                        mJsSandbox.mThreadPoolTaskExecutor);
                 try {
-                    AssetFileDescriptor asd = new AssetFileDescriptor(readSide, /*offset=*/ 0,
-                            /*length=*/ code.length);
-                    mJsIsolateStub.evaluateJavascriptWithFd(asd, callbackStub);
+                    mJsIsolateStub.evaluateJavascriptWithFd(codeAfd, callbackStub);
                 } finally {
-                    // We pass the readSide to the separate sandbox process but we still need to
+                    // We pass the codeAfd to the separate sandbox process but we still need to
                     // close it on our end to avoid file descriptor leaks.
-                    readSide.close();
+                    codeAfd.close();
                 }
             } catch (RemoteException | IOException e) {
                 completer.setException(new RuntimeException(e));
@@ -367,15 +396,14 @@ public final class JavaScriptIsolate implements AutoCloseable {
             throw new NullPointerException("name parameter cannot be null");
         }
         try {
-            ParcelFileDescriptor readSide = writeBytesIntoPipeAsync(inputBytes);
+            AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(inputBytes,
+                    mJsSandbox.mThreadPoolTaskExecutor);
             try {
-                AssetFileDescriptor asd = new AssetFileDescriptor(readSide, /*offset=*/ 0,
-                        /*length=*/ inputBytes.length);
-                return mJsIsolateStub.provideNamedData(name, asd);
+                return mJsIsolateStub.provideNamedData(name, codeAfd);
             } finally {
-                // We pass the readSide to the separate sandbox process but we still need to close
+                // We pass the codeAfd to the separate sandbox process but we still need to close
                 // it on our end to avoid file descriptor leaks.
-                readSide.close();
+                codeAfd.close();
             }
         } catch (RemoteException e) {
             Log.e(TAG, "RemoteException was thrown during provideNamedData()", e);
@@ -385,18 +413,33 @@ public final class JavaScriptIsolate implements AutoCloseable {
         return false;
     }
 
-    // Creates a pipe, writes the given bytes into one end and returns the other end.
-    ParcelFileDescriptor writeBytesIntoPipeAsync(byte[] inputBytes) throws IOException {
-        ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
-        ParcelFileDescriptor readSide = pipe[0];
-        ParcelFileDescriptor writeSide = pipe[1];
-        OutputStream outputStream =
-                new ParcelFileDescriptor.AutoCloseOutputStream(writeSide);
-        mThreadPoolTaskExecutor.execute(
-                () -> {
-                    writeByteArrayToStream(inputBytes, outputStream);
-                });
-        return readSide;
+    void handleEvaluationError(CallbackToFutureAdapter.Completer<String> completer,
+            int type, String error) {
+        boolean crashing = false;
+        switch (type) {
+            case IJsSandboxIsolateSyncCallback.JS_EVALUATION_ERROR:
+                completer.setException(new EvaluationFailedException(error));
+                break;
+            case IJsSandboxIsolateSyncCallback.MEMORY_LIMIT_EXCEEDED:
+                completer.setException(new MemoryLimitExceededException(error));
+                crashing = true;
+                break;
+            default:
+                completer.setException(new JavaScriptException(
+                        "Crashing due to unknown JavaScriptException: " + error));
+                // Assume the worst
+                crashing = true;
+        }
+        removePending(completer);
+        if (crashing) {
+            handleCrash();
+        }
+    }
+
+    void handleEvaluationResult(CallbackToFutureAdapter.Completer<String> completer,
+            String result) {
+        completer.set(result);
+        removePending(completer);
     }
 
     void notifySandboxClosed() {
@@ -417,11 +460,6 @@ public final class JavaScriptIsolate implements AutoCloseable {
         for (CallbackToFutureAdapter.Completer<String> ele : pendingSet) {
             ele.setException(e);
         }
-        // This is the closest thing to a .close() method for ExecutorServices. This doesn't force
-        // the threads or their Runnables to immediately terminate, but will ensure that once the
-        // worker threads finish their current runnable (if any) that the thread pool terminates
-        // them, preventing a leak of threads.
-        mThreadPoolTaskExecutor.shutdownNow();
     }
 
     void removePending(CallbackToFutureAdapter.Completer<String> completer) {
@@ -434,26 +472,6 @@ public final class JavaScriptIsolate implements AutoCloseable {
 
     void handleCrash() {
         cancelAllPendingEvaluations(new IsolateTerminatedException());
-    }
-
-    static void writeByteArrayToStream(byte[] inputBytes, OutputStream outputStream) {
-        try {
-            outputStream.write(inputBytes);
-            outputStream.flush();
-        } catch (IOException e) {
-            Log.e(TAG, "Writing to outputStream failed", e);
-        } finally {
-            closeQuietly(outputStream);
-        }
-    }
-
-    private static void closeQuietly(Closeable closeable) {
-        if (closeable == null) return;
-        try {
-            closeable.close();
-        } catch (IOException ex) {
-            // Ignore the exception on close.
-        }
     }
 
     @Override
