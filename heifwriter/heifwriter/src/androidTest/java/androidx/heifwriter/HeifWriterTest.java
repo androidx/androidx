@@ -80,10 +80,6 @@ public class HeifWriterTest extends TestBase {
     };
     private static final String OUTPUT_FILENAME = "output.heic";
 
-    private EglWindowSurface mInputEglSurface;
-    private Handler mHandler;
-    private int mInputIndex;
-
     @Before
     public void setUp() throws Exception {
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
@@ -288,14 +284,6 @@ public class HeifWriterTest extends TestBase {
             .build();
 
         heifWriter.close();
-    }
-
-    private void drawFrame(int width, int height) {
-        mInputEglSurface.makeCurrent();
-        generateSurfaceFrame(mInputIndex, width, height);
-        mInputEglSurface.setPresentationTime(1000 * computePresentationTime(mInputIndex));
-        mInputEglSurface.swapBuffers();
-        mInputIndex++;
     }
 
     private void doTestForVariousNumberImages(TestConfig.Builder builder) throws Exception {

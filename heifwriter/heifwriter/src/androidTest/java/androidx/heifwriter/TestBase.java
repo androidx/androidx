@@ -31,6 +31,8 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.opengl.GLES20;
+import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -59,6 +61,12 @@ public class TestBase {
         {(byte) 255, (byte) 255, (byte) 255},
         {(byte) 255, (byte) 255, (byte) 0},
     };
+    private static final byte[][] TEST_YUV_10BIT_COLORS = {
+        {(byte) 1023, (byte) 0, (byte) 0},
+        {(byte) 1023, (byte) 0, (byte) 1023},
+        {(byte) 1023, (byte) 1023, (byte) 1023},
+        {(byte) 1023, (byte) 1023, (byte) 0},
+    };
     private static final Color COLOR_BLOCK =
         Color.valueOf(1.0f, 1.0f, 1.0f);
     private static final Color[] COLOR_BARS = {
@@ -73,6 +81,11 @@ public class TestBase {
     private static final float MAX_DELTA = 0.025f;
     private static final int BORDER_WIDTH = 16;
 
+    protected EglWindowSurface mInputEglSurface;
+    protected Handler mHandler;
+    protected int mInputIndex;
+    protected boolean mHighBitDepthEnabled = false;
+
     protected long computePresentationTime(int frameIndex) {
         return 132 + (long)frameIndex * 1000000;
     }
@@ -82,11 +95,20 @@ public class TestBase {
         if (inputStream != null) {
             inputStream.read(data);
         } else {
-            byte[] color = TEST_YUV_COLORS[frameIndex % TEST_YUV_COLORS.length];
+            byte[] color;
             int sizeY = width * height;
-            Arrays.fill(data, 0, sizeY, color[0]);
-            Arrays.fill(data, sizeY, sizeY * 5 / 4, color[1]);
-            Arrays.fill(data, sizeY * 5 / 4, sizeY * 3 / 2, color[2]);
+            if (!mHighBitDepthEnabled) {
+                color = TEST_YUV_COLORS[frameIndex % TEST_YUV_COLORS.length];
+                Arrays.fill(data, 0, sizeY, color[0]);
+                Arrays.fill(data, sizeY, sizeY * 5 / 4, color[1]);
+                Arrays.fill(data, sizeY * 5 / 4, sizeY * 3 / 2, color[2]);
+
+            } else {
+                color = TEST_YUV_10BIT_COLORS[frameIndex % TEST_YUV_10BIT_COLORS.length];
+                Arrays.fill(data, 0, sizeY, color[0]);
+                Arrays.fill(data, sizeY, sizeY * 2, color[1]);
+                Arrays.fill(data, sizeY * 2, sizeY * 3, color[2]);
+            }
         }
     }
 
@@ -236,10 +258,19 @@ public class TestBase {
         return false;
     }
 
+    protected void drawFrame(int width, int height) {
+        mInputEglSurface.makeCurrent();
+        generateSurfaceFrame(mInputIndex, width, height);
+        mInputEglSurface.setPresentationTime(1000 * computePresentationTime(mInputIndex));
+        mInputEglSurface.swapBuffers();
+        mInputIndex++;
+    }
+
     protected static class TestConfig {
         final int mInputMode;
         final boolean mUseGrid;
         final boolean mUseHandler;
+        final boolean mUseHighBitDepth;
         final int mMaxNumImages;
         final int mActualNumImages;
         final int mWidth;
@@ -250,13 +281,13 @@ public class TestBase {
         final String mOutputPath;
         final Bitmap[] mBitmaps;
 
-        TestConfig(int inputMode, boolean useGrid, boolean useHandler,
-            int maxNumImages, int actualNumImages, int width, int height,
-            int rotation, int quality,
-            String inputPath, String outputPath, Bitmap[] bitmaps) {
+        TestConfig(int inputMode, boolean useGrid, boolean useHandler, boolean useHighBitDepth,
+            int maxNumImages, int actualNumImages, int width, int height, int rotation,
+            int quality, String inputPath, String outputPath, Bitmap[] bitmaps) {
             mInputMode = inputMode;
             mUseGrid = useGrid;
             mUseHandler = useHandler;
+            mUseHighBitDepth = useHighBitDepth;
             mMaxNumImages = maxNumImages;
             mActualNumImages = actualNumImages;
             mWidth = width;
@@ -272,6 +303,7 @@ public class TestBase {
             final int mInputMode;
             final boolean mUseGrid;
             final boolean mUseHandler;
+            boolean mUseHighBitDepth;
             int mMaxNumImages;
             int mNumImages;
             int mWidth;
@@ -288,6 +320,7 @@ public class TestBase {
                 mInputMode = inputMode;
                 mUseGrid = useGrids;
                 mUseHandler = useHandler;
+                mUseHighBitDepth = false;
                 mMaxNumImages = mNumImages = 4;
                 mWidth = 1920;
                 mHeight = 1080;
@@ -313,32 +346,43 @@ public class TestBase {
                 return this;
             }
 
+            Builder setHighBitDepthEnabled(boolean useHighBitDepth) {
+                mUseHighBitDepth = useHighBitDepth;
+                return this;
+            }
+
             private void loadBitmapInputs() {
                 if (mInputMode != INPUT_MODE_BITMAP) {
                     return;
                 }
-                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-                retriever.setDataSource(mInputPath);
-                String hasImage = retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_HAS_IMAGE);
-                if (!"yes".equals(hasImage)) {
-                    throw new IllegalArgumentException("no bitmap found!");
-                }
-                mMaxNumImages = Math.min(mMaxNumImages, Integer.parseInt(retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_IMAGE_COUNT)));
-                if (!mNumImagesSetExplicitly) {
-                    mNumImages = mMaxNumImages;
-                }
-                mBitmaps = new Bitmap[mMaxNumImages];
-                for (int i = 0; i < mBitmaps.length; i++) {
-                    mBitmaps[i] = retriever.getImageAtIndex(i);
-                }
-                mWidth = mBitmaps[0].getWidth();
-                mHeight = mBitmaps[0].getHeight();
-                try {
-                    retriever.release();
-                } catch (IOException e) {
-                    // Nothing we can  do about it.
+                if (!mUseHighBitDepth) {
+                    MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                    retriever.setDataSource(mInputPath);
+                    String hasImage = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_HAS_IMAGE);
+                    if (!"yes".equals(hasImage)) {
+                        throw new IllegalArgumentException("no bitmap found!");
+                    }
+                    mMaxNumImages = Math.min(mMaxNumImages,
+                        Integer.parseInt(retriever.extractMetadata(
+                            MediaMetadataRetriever.METADATA_KEY_IMAGE_COUNT)));
+                    if (!mNumImagesSetExplicitly) {
+                        mNumImages = mMaxNumImages;
+                    }
+                    mBitmaps = new Bitmap[mMaxNumImages];
+                    for (int i = 0; i < mBitmaps.length; i++) {
+                        mBitmaps[i] = retriever.getImageAtIndex(i);
+                    }
+                    mWidth = mBitmaps[0].getWidth();
+                    mHeight = mBitmaps[0].getHeight();
+                    try {
+                        retriever.release();
+                    } catch (IOException e) {
+                        // Nothing we can  do about it.
+                    }
+                } else {
+                    mMaxNumImages = 1;
+                    mNumImages = 1;
                 }
             }
 
@@ -353,8 +397,9 @@ public class TestBase {
                 cleanupStaleOutputs();
                 loadBitmapInputs();
 
-                return new TestConfig(mInputMode, mUseGrid, mUseHandler, mMaxNumImages, mNumImages,
-                    mWidth, mHeight, mRotation, mQuality, mInputPath, mOutputPath, mBitmaps);
+                return new TestConfig(mInputMode, mUseGrid, mUseHandler, mUseHighBitDepth,
+                    mMaxNumImages, mNumImages, mWidth, mHeight, mRotation, mQuality, mInputPath,
+                    mOutputPath, mBitmaps);
             }
         }
 

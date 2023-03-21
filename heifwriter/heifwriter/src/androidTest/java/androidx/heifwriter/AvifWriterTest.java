@@ -21,8 +21,11 @@ import static androidx.heifwriter.AvifWriter.INPUT_MODE_BUFFER;
 import static androidx.heifwriter.AvifWriter.INPUT_MODE_SURFACE;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
+import static org.junit.Assert.assertNotNull;
+
 import android.Manifest;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.media.MediaFormat;
 import android.os.Handler;
@@ -78,10 +81,6 @@ public class AvifWriterTest extends TestBase {
         AVIFWRITER_INPUT
     };
     private static final String OUTPUT_FILENAME = "output.avif";
-
-    private EglWindowSurface mInputEglSurface;
-    private Handler mHandler;
-    private int mInputIndex;
 
     @Before
     public void setUp() throws Exception {
@@ -284,16 +283,18 @@ public class AvifWriterTest extends TestBase {
         avifWriter.close();
     }
 
-    private void drawFrame(int width, int height) {
-        mInputEglSurface.makeCurrent();
-        generateSurfaceFrame(mInputIndex, width, height);
-        mInputEglSurface.setPresentationTime(1000 * computePresentationTime(mInputIndex));
-        mInputEglSurface.swapBuffers();
-        mInputIndex++;
-    }
-
     private void doTestForVariousNumberImages(TestConfig.Builder builder) throws Exception {
+        builder.setHighBitDepthEnabled(false);
         builder.setNumImages(4);
+        doTest(builder.setRotation(270).build());
+        doTest(builder.setRotation(180).build());
+        doTest(builder.setRotation(90).build());
+        doTest(builder.setRotation(0).build());
+        doTest(builder.setNumImages(1).build());
+        doTest(builder.setNumImages(8).build());
+
+        builder.setHighBitDepthEnabled(true);
+        builder.setNumImages(1);
         doTest(builder.setRotation(270).build());
         doTest(builder.setRotation(180).build());
         doTest(builder.setRotation(90).build());
@@ -316,20 +317,35 @@ public class AvifWriterTest extends TestBase {
         AvifWriter avifWriter = null;
         FileInputStream inputStream = null;
         FileOutputStream outputStream = null;
+        String outputFileName;
         try {
             if (DEBUG)
                 Log.d(TAG, "started: " + config);
+            outputFileName = new File(getApplicationContext().getExternalFilesDir(null),
+                    OUTPUT_FILENAME).getAbsolutePath();
 
-            avifWriter = new AvifWriter.Builder(
-                new File(getApplicationContext().getExternalFilesDir(null),
-                    OUTPUT_FILENAME).getAbsolutePath(), width, height, config.mInputMode)
-                .setRotation(config.mRotation)
-                .setGridEnabled(config.mUseGrid)
-                .setMaxImages(config.mMaxNumImages)
-                .setQuality(config.mQuality)
-                .setPrimaryIndex(config.mMaxNumImages - 1)
-                .setHandler(config.mUseHandler ? mHandler : null)
-                .build();
+            if(!config.mUseHighBitDepth){
+                avifWriter =
+                    new AvifWriter.Builder(outputFileName, width, height, config.mInputMode)
+                        .setRotation(config.mRotation)
+                        .setGridEnabled(config.mUseGrid)
+                        .setMaxImages(config.mMaxNumImages)
+                        .setQuality(config.mQuality)
+                        .setPrimaryIndex(config.mMaxNumImages - 1)
+                        .setHandler(config.mUseHandler ? mHandler : null)
+                        .build();
+            } else {
+                avifWriter =
+                    new AvifWriter.Builder(outputFileName, width, height, config.mInputMode)
+                        .setRotation(config.mRotation)
+                        .setGridEnabled(config.mUseGrid)
+                        .setMaxImages(config.mMaxNumImages)
+                        .setQuality(config.mQuality)
+                        .setPrimaryIndex(config.mMaxNumImages - 1)
+                        .setHandler(config.mUseHandler ? mHandler : null)
+                        .setHighBitDepthEnabled(true)
+                        .build();
+            }
 
             if (config.mInputMode == INPUT_MODE_SURFACE) {
                 mInputEglSurface = new EglWindowSurface(avifWriter.getInputSurface());
@@ -338,8 +354,14 @@ public class AvifWriterTest extends TestBase {
             avifWriter.start();
 
             if (config.mInputMode == INPUT_MODE_BUFFER) {
-                if (mYuvData == null || mYuvData.length != width * height * 3 / 2) {
-                    mYuvData = new byte[width * height * 3 / 2];
+                if (!config.mUseHighBitDepth) {
+                    if (mYuvData == null || mYuvData.length != width * height * 3 / 2) {
+                        mYuvData = new byte[width * height * 3 / 2];
+                    }
+                } else {
+                    if (mYuvData == null || mYuvData.length != width * height * 3) {
+                        mYuvData = new byte[width * height * 3];
+                    }
                 }
 
                 if (config.mInputPath != null) {
@@ -360,7 +382,11 @@ public class AvifWriterTest extends TestBase {
                         Log.d(TAG, "@@@ dumping input YUV");
                         outputStream.write(mYuvData);
                     }
-                    avifWriter.addYuvBuffer(ImageFormat.YUV_420_888, mYuvData);
+                    if (!config.mUseHighBitDepth) {
+                        avifWriter.addYuvBuffer(ImageFormat.YUV_420_888, mYuvData);
+                    } else {
+                        avifWriter.addYuvBuffer(ImageFormat.YCBCR_P010, mYuvData);
+                    }
                 }
             } else if (config.mInputMode == INPUT_MODE_SURFACE) {
                 // The input surface is a surface texture using single buffer mode, draws will be
@@ -376,12 +402,24 @@ public class AvifWriterTest extends TestBase {
                 avifWriter.setInputEndOfStreamTimestamp(
                     1000 * computePresentationTime(actualNumImages - 1));
             } else if (config.mInputMode == INPUT_MODE_BITMAP) {
-                Bitmap[] bitmaps = config.mBitmaps;
-                for (int i = 0; i < Math.min(bitmaps.length, actualNumImages); i++) {
-                    if (DEBUG)
-                        Log.d(TAG, "addBitmap: " + i);
-                    avifWriter.addBitmap(bitmaps[i]);
-                    bitmaps[i].recycle();
+                if(!config.mUseHighBitDepth) {
+                    Bitmap[] bitmaps = config.mBitmaps;
+                    for (int i = 0; i < Math.min(bitmaps.length, actualNumImages); i++) {
+                        if (DEBUG) {
+                            Log.d(TAG, "addBitmap: " + i);
+                        }
+                        avifWriter.addBitmap(bitmaps[i]);
+                        bitmaps[i].recycle();
+                    }
+                } else {
+                    BitmapFactory.Options opt = new BitmapFactory.Options();
+                    opt.inPreferredConfig = Bitmap.Config.RGBA_F16;
+                    InputStream inputStream10Bit = getApplicationContext().getResources()
+                        .openRawResource(R.raw.heifwriter_input10);
+                    Bitmap bm = BitmapFactory.decodeStream(inputStream10Bit, null, opt);
+                    assertNotNull(bm);
+                    avifWriter.addBitmap(bm);
+                    bm.recycle();
                 }
             }
 
