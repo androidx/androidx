@@ -26,8 +26,7 @@ import androidx.compose.ui.unit.Constraints
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridMeasuredLineProvider(
     private val isVertical: Boolean,
-    private val slotSizesSums: List<Int>,
-    private val crossAxisSpacing: Int,
+    private val slots: LazyGridSlots,
     private val gridItemsCount: Int,
     private val spaceBetweenLines: Int,
     private val measuredItemProvider: LazyGridMeasuredItemProvider,
@@ -36,10 +35,12 @@ internal class LazyGridMeasuredLineProvider(
 ) {
     // The constraints for cross axis size. The main axis is not restricted.
     internal fun childConstraints(startSlot: Int, span: Int): Constraints {
-        val lastSlotSum = slotSizesSums[startSlot + span - 1]
-        val prevSlotSum = if (startSlot == 0) 0 else slotSizesSums[startSlot - 1]
-        val slotsSize = lastSlotSum - prevSlotSum
-        val crossAxisSize = (slotsSize + crossAxisSpacing * (span - 1)).coerceAtLeast(0)
+        val crossAxisSize = if (span == 1) {
+            slots.sizes[startSlot]
+        } else {
+            val endSlot = startSlot + span - 1
+            slots.positions[endSlot] + slots.sizes[endSlot] - slots.positions[startSlot]
+        }.coerceAtLeast(0)
         return if (isVertical) {
             Constraints.fixedWidth(crossAxisSize)
         } else {
