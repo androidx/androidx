@@ -666,6 +666,24 @@ package androidx.glance.template {
 
 package androidx.glance.text {
 
+  public final class FontFamily {
+    ctor public FontFamily(String family);
+    method public String getFamily();
+    property public final String family;
+    field public static final androidx.glance.text.FontFamily.Companion Companion;
+  }
+
+  public static final class FontFamily.Companion {
+    method public androidx.glance.text.FontFamily getCursive();
+    method public androidx.glance.text.FontFamily getMonospace();
+    method public androidx.glance.text.FontFamily getSansSerif();
+    method public androidx.glance.text.FontFamily getSerif();
+    property public final androidx.glance.text.FontFamily Cursive;
+    property public final androidx.glance.text.FontFamily Monospace;
+    property public final androidx.glance.text.FontFamily SansSerif;
+    property public final androidx.glance.text.FontFamily Serif;
+  }
+
   @kotlin.jvm.JvmInline public final value class FontStyle {
     field public static final androidx.glance.text.FontStyle.Companion Companion;
   }
@@ -739,15 +757,17 @@ package androidx.glance.text {
   }
 
   @androidx.compose.runtime.Immutable public final class TextStyle {
-    ctor public TextStyle(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
-    method public androidx.glance.text.TextStyle copy(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration);
+    ctor public TextStyle(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration, optional androidx.glance.text.FontFamily? fontFamily);
+    method public androidx.glance.text.TextStyle copy(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration, optional androidx.glance.text.FontFamily? fontFamily);
     method public androidx.glance.unit.ColorProvider getColor();
+    method public androidx.glance.text.FontFamily? getFontFamily();
     method public androidx.compose.ui.unit.TextUnit? getFontSize();
     method public androidx.glance.text.FontStyle? getFontStyle();
     method public androidx.glance.text.FontWeight? getFontWeight();
     method public androidx.glance.text.TextAlign? getTextAlign();
     method public androidx.glance.text.TextDecoration? getTextDecoration();
     property public final androidx.glance.unit.ColorProvider color;
+    property public final androidx.glance.text.FontFamily? fontFamily;
     property public final androidx.compose.ui.unit.TextUnit? fontSize;
     property public final androidx.glance.text.FontStyle? fontStyle;
     property public final androidx.glance.text.FontWeight? fontWeight;
