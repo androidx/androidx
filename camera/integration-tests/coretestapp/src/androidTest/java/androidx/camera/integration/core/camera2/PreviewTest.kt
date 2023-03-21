@@ -108,6 +108,8 @@ class PreviewTest(
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
+
         context = ApplicationProvider.getApplicationContext()
         CameraXUtil.initialize(context!!, cameraConfig).get()
 
@@ -424,6 +426,8 @@ class PreviewTest(
     @Test
     @Throws(InterruptedException::class)
     fun useCaseCanBeReusedInDifferentCamera() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
+
         val preview = defaultBuilder!!.build()
         instrumentation.runOnMainSync { preview.setSurfaceProvider(getSurfaceProvider(null)) }
 
