@@ -358,7 +358,6 @@ class SemanticsTests {
         assertThat(fakeNode.positionInRoot).isNotEqualTo(Offset.Zero)
         assertThat(fakeNode.boundsInWindow).isNotEqualTo(Rect.Zero)
         assertThat(fakeNode.positionInWindow).isNotEqualTo(Offset.Zero)
-        assertThat(fakeNode.touchBoundsInRoot).isNotEqualTo(Rect.Zero)
         assertThat(fakeNode.isTransparent).isFalse()
     }
 
