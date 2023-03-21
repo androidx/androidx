@@ -463,7 +463,8 @@ internal fun Flow<List<WorkSpec.WorkInfoPojo>>.dedup(
     .flowOn(dispatcher)
 
 private const val WORK_INFO_COLUMNS = "id, state, output, run_attempt_count, generation" +
-    ", $CONSTRAINTS_COLUMNS, initial_delay, interval_duration, flex_duration"
+    ", $CONSTRAINTS_COLUMNS, initial_delay, interval_duration, flex_duration, backoff_policy" +
+    ", backoff_delay_duration, last_enqueue_time, period_count"
 
 @Language("sql")
 private const val WORK_INFO_BY_IDS = "SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN (:ids)"
