@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.wear.protolayout.LayoutElementBuilders;
+import androidx.wear.protolayout.expression.pipeline.ObservableStateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.ResourceProto;
 import androidx.wear.protolayout.proto.StateProto;
@@ -34,6 +35,7 @@ import androidx.wear.tiles.ResourceBuilders;
 import androidx.wear.tiles.StateBuilders;
 import androidx.wear.tiles.TileService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -115,6 +117,9 @@ public final class TileRenderer {
         ProtoLayoutViewInstance.Config.Builder config =
                 new ProtoLayoutViewInstance.Config.Builder(uiContext, mUiExecutor, mUiExecutor,
                         TileService.EXTRA_CLICKABLE_ID)
+                        .setAnimationEnabled(true)
+                        .setIsViewFullyVisible(true)
+                        .setStateStore(new ObservableStateStore(ImmutableMap.of()))
                         .setLoadActionListener(instanceListener);
         this.mInstance = new ProtoLayoutViewInstance(config.build());
     }
