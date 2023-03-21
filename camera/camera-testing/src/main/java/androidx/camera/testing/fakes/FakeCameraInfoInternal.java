@@ -16,6 +16,8 @@
 
 package androidx.camera.testing.fakes;
 
+import static androidx.camera.core.DynamicRange.SDR;
+
 import android.util.Range;
 import android.util.Rational;
 import android.util.Size;
@@ -26,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.TorchState;
@@ -47,8 +50,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -64,6 +69,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
                     new Range<>(30, 30),
                     new Range<>(60, 60))
     );
+    private static final Set<DynamicRange> DEFAULT_DYNAMIC_RANGES = Collections.singleton(SDR);
     private final String mCameraId;
     private final int mSensorRotation;
     @CameraSelector.LensFacing
@@ -73,6 +79,8 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final Map<Integer, List<Size>> mSupportedResolutionMap = new HashMap<>();
     private final Map<Integer, List<Size>> mSupportedHighResolutionMap = new HashMap<>();
     private MutableLiveData<CameraState> mCameraStateLiveData;
+
+    private final Set<DynamicRange> mSupportedDynamicRanges = new HashSet<>(DEFAULT_DYNAMIC_RANGES);
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
 
     // Leave uninitialized to support camera-core:1.0.0 dependencies.
@@ -206,6 +214,12 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return resolutions != null ? resolutions : Collections.emptyList();
     }
 
+    @NonNull
+    @Override
+    public Set<DynamicRange> getSupportedDynamicRanges() {
+        return mSupportedDynamicRanges;
+    }
+
     @Override
     public void addSessionCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback callback) {
@@ -292,6 +306,12 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     /** Adds a available view angle for testing. */
     public void setIntrinsicZoomRatio(float zoomRatio) {
         mIntrinsicZoomRatio = zoomRatio;
+    }
+
+    /** Set the supported dynamic ranges for testing */
+    public void setSupportedDynamicRanges(@NonNull Set<DynamicRange> dynamicRanges) {
+        mSupportedDynamicRanges.clear();
+        mSupportedDynamicRanges.addAll(dynamicRanges);
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

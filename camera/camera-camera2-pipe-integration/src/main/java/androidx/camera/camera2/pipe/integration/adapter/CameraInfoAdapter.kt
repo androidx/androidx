@@ -21,6 +21,8 @@ package androidx.camera.camera2.pipe.integration.adapter
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.params.DynamicRangeProfiles
+import android.os.Build
 import android.util.Range
 import android.util.Size
 import android.view.Surface
@@ -39,6 +41,13 @@ import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
+import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
+import androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT
+import androidx.camera.core.DynamicRange.FORMAT_DOLBY_VISION
+import androidx.camera.core.DynamicRange.FORMAT_HDR10
+import androidx.camera.core.DynamicRange.FORMAT_HDR10_PLUS
+import androidx.camera.core.DynamicRange.FORMAT_HLG
 import androidx.camera.core.ExposureState
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
@@ -176,5 +185,48 @@ class CameraInfoAdapter @Inject constructor(
     override fun isPrivateReprocessingSupported(): Boolean {
         Log.warn { "TODO: isPrivateReprocessingSupported are not yet supported." }
         return false
+    }
+
+    @SuppressLint("ClassVerificationFailure")
+    override fun getSupportedDynamicRanges(): Set<DynamicRange> {
+        // TODO: use DynamicRangesCompat instead after it is migrates from camera-camera2.
+        if (Build.VERSION.SDK_INT >= 33) {
+            val availableProfiles = cameraProperties.metadata[
+                CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES]!!
+            return profileSetToDynamicRangeSet(availableProfiles.supportedProfiles)
+        }
+        return setOf(DynamicRange.SDR)
+    }
+
+    private fun profileSetToDynamicRangeSet(profileSet: Set<Long>): Set<DynamicRange> {
+        return profileSet.map { profileToDynamicRange(it) }.toSet()
+    }
+
+    private fun profileToDynamicRange(profile: Long): DynamicRange {
+        return checkNotNull(PROFILE_TO_DR_MAP[profile]) {
+            "Dynamic range profile cannot be converted to a DynamicRange object: $profile"
+        }
+    }
+
+    companion object {
+        private val DR_HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
+        private val DR_HDR10 = DynamicRange(FORMAT_HDR10, BIT_DEPTH_10_BIT)
+        private val DR_HDR10_PLUS = DynamicRange(FORMAT_HDR10_PLUS, BIT_DEPTH_10_BIT)
+        private val DR_DOLBY_VISION_10_BIT = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_10_BIT)
+        private val DR_DOLBY_VISION_8_BIT = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_8_BIT)
+        private val PROFILE_TO_DR_MAP: Map<Long, DynamicRange> = mapOf(
+            DynamicRangeProfiles.STANDARD to DynamicRange.SDR,
+            DynamicRangeProfiles.HLG10 to DR_HLG10,
+            DynamicRangeProfiles.HDR10 to DR_HDR10,
+            DynamicRangeProfiles.HDR10_PLUS to DR_HDR10_PLUS,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM to DR_DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM_PO to DR_DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF to DR_DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO to DR_DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM to DR_DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM_PO to DR_DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF to DR_DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO to DR_DOLBY_VISION_8_BIT,
+        )
     }
 }

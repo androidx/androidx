@@ -85,6 +85,9 @@ public interface EncoderProfilesProxy {
         /** Constant representing bit depth 8. */
         public static final int BIT_DEPTH_8 = 8;
 
+        /** Constant representing bit depth 10. */
+        public static final int BIT_DEPTH_10 = 10;
+
         @Retention(RetentionPolicy.SOURCE)
         @IntDef({H263, H264, HEVC, VP8, MPEG_4_SP, VP9, DOLBY_VISION, AV1,
                 MediaRecorder.VideoEncoder.DEFAULT})
