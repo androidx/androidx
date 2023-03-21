@@ -986,11 +986,11 @@ private fun LazyStaggeredGridDemo() {
         val layoutDirection = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
             LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Fixed(3),
+                columns = StaggeredGridCells.FixedSize(100.dp),
                 modifier = Modifier.fillMaxSize(),
                 state = state,
                 contentPadding = PaddingValues(vertical = 30.dp, horizontal = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.End,
                 verticalItemSpacing = 10.dp,
                 reverseLayout = reverseLayout,
                 content = {

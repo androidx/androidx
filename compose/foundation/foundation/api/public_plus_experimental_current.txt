@@ -920,17 +920,22 @@ package androidx.compose.foundation.lazy.staggeredgrid {
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public interface StaggeredGridCells {
-    method public java.util.List<java.lang.Integer> calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
+    method public int[] calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
   }
 
   public static final class StaggeredGridCells.Adaptive implements androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells {
     ctor public StaggeredGridCells.Adaptive(float minSize);
-    method public java.util.List<java.lang.Integer> calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
+    method public int[] calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
   }
 
   public static final class StaggeredGridCells.Fixed implements androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells {
     ctor public StaggeredGridCells.Fixed(int count);
-    method public java.util.List<java.lang.Integer> calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
+    method public int[] calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
+  }
+
+  public static final class StaggeredGridCells.FixedSize implements androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells {
+    ctor public StaggeredGridCells.FixedSize(float size);
+    method public int[] calculateCrossAxisCellSizes(androidx.compose.ui.unit.Density, int availableSize, int spacing);
   }
 
   @androidx.compose.foundation.ExperimentalFoundationApi public final class StaggeredGridItemSpan {
