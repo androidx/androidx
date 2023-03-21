@@ -1012,3 +1012,18 @@ import static androidx\.wear\.tiles\.material\.Typography\.TYPOGRAPHY_BODY[0-9]+
 # > Configure project :androidx-demos
 WARNING: The option setting 'android\.experimental\.disableCompileSdkChecks=true' is experimental\.
 The current default is 'false'\.
+# > Task :camera:camera-video:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/camera/camera\-video/src/androidTest/java/androidx/camera/video/internal/audio/AudioStreamImplTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+# > Task :benchmark:benchmark-macro:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/benchmark/benchmark\-macro/src/androidTest/java/androidx/benchmark/macro/MacrobenchmarkScopeTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+# > Task :graphics:graphics-core:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/graphics/graphics\-core/src/androidTest/java/androidx/graphics/surface/SurfaceControlCompatTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/graphics/graphics\-core/src/androidTest/java/androidx/graphics/surface/SurfaceControlWrapperTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+# > Task :compose:foundation:foundation:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/CoreTextFieldKeyboardScrollableInteractionTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/AbstractSelectionMagnifierTests\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/SelectionContainerMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/SelectionHandlePopupPositionTest\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
+w: file://\$SUPPORT/compose/foundation/foundation/src/androidAndroidTest/kotlin/androidx/compose/foundation/text/selection/TextFieldVisualTransformationMagnifierTest\.kt:[0-9]+:[0-9]+ 'RequiresDevice' is deprecated\. Deprecated in Java
+# > Task :compose:ui:ui:compileDebugAndroidTestKotlin
+w: file://\$SUPPORT/compose/ui/ui/src/androidAndroidTest/kotlin/androidx/compose/ui/window/PopupTestUtils\.kt:[0-9]+:[0-9]+ 'getter for windowLayoutParams: EspressoOptional<WindowManager\.LayoutParams!>!' is deprecated\. Deprecated in Java
