@@ -140,6 +140,8 @@ internal class ImageAnalysisTest(
 
     @Test
     fun exceedMaxImagesWithoutClosing_doNotCrash() = runBlocking {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
+
         // Arrange.
         val queueDepth = 3
         val semaphore = Semaphore(0)
