@@ -23,7 +23,8 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty;
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
+import androidx.appactions.interaction.capabilities.core.properties.StringValue;
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver;
 import androidx.appactions.interaction.capabilities.core.values.ListItem;
 
@@ -85,7 +86,7 @@ public final class CapabilityStructFill {
 
         public abstract Optional<SimpleProperty> listItem();
 
-        public abstract Optional<StringProperty> anyString();
+        public abstract Optional<TypeProperty<StringValue>> anyString();
 
         /** Builder for {@link Property} */
         @AutoValue.Builder
@@ -95,7 +96,7 @@ public final class CapabilityStructFill {
             public abstract Builder setListItem(@NonNull SimpleProperty value);
 
             @NonNull
-            public abstract Builder setAnyString(@NonNull StringProperty value);
+            public abstract Builder setAnyString(@NonNull TypeProperty<StringValue> value);
 
             @NonNull
             public abstract Property build();

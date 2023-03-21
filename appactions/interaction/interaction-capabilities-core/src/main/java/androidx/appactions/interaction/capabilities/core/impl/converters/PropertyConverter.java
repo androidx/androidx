@@ -21,8 +21,7 @@ import static androidx.appactions.interaction.capabilities.core.impl.utils.Immut
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty;
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty;
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty.PossibleValue;
+import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
 import androidx.appactions.interaction.proto.Entity;
@@ -34,16 +33,6 @@ import java.util.function.Function;
 public final class PropertyConverter {
 
     private PropertyConverter() {}
-
-    /** Create IntentParameter proto from a StringProperty. */
-    @NonNull
-    public static IntentParameter getIntentParameter(
-            @NonNull String paramName, @NonNull StringProperty property) {
-        IntentParameter.Builder builder = newIntentParameterBuilder(paramName, property);
-        extractPossibleValues(property, PropertyConverter::possibleValueToProto).stream()
-                .forEach(builder::addPossibleEntities);
-        return builder.build();
-    }
 
     /** Create IntentParameter proto from a SimpleProperty. */
     @NonNull
@@ -93,11 +82,11 @@ public final class PropertyConverter {
     }
 
     /**
-     * Converts a capabilities library StringProperty.PossibleValue to a appactions Entity proto .
+     * Converts a capabilities library [PossibleStringValue] to a appactions Entity proto .
      */
     @NonNull
-    public static Entity possibleValueToProto(@NonNull PossibleValue possibleValue) {
-        return androidx.appactions.interaction.proto.Entity.newBuilder()
+    public static Entity stringValueToProto(@NonNull StringValue possibleValue) {
+        return Entity.newBuilder()
                 .setIdentifier(possibleValue.getName())
                 .setName(possibleValue.getName())
                 .addAllAlternateNames(possibleValue.getAlternateNames())

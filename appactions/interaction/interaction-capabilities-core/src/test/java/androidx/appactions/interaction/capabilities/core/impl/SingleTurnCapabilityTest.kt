@@ -27,7 +27,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.Entity
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.testing.ArgumentUtils
 import androidx.appactions.interaction.capabilities.core.testing.FakeCallbackInternal
@@ -69,7 +69,7 @@ class SingleTurnCapabilityTest {
                             TypeProperty.Builder<Entity>().build(),
                         )
                         .setOptionalStringField(
-                            StringProperty.Builder().setProhibited(true).build(),
+                            TypeProperty.Builder<StringValue>().setProhibited(true).build(),
                         )
                         .build(),
                 actionExecutorAsync = actionExecutor.toActionExecutorAsync(),
@@ -122,7 +122,7 @@ class SingleTurnCapabilityTest {
                             TypeProperty.Builder<Entity>().build(),
                         )
                         .setOptionalStringField(
-                            StringProperty.Builder().setProhibited(true).build(),
+                            TypeProperty.Builder<StringValue>().setProhibited(true).build(),
                         )
                         .build(),
                 actionExecutorAsync = actionExecutor.toActionExecutorAsync(),

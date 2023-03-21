@@ -23,8 +23,9 @@ import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
-import androidx.appactions.interaction.capabilities.core.properties.StringProperty
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
@@ -96,8 +97,8 @@ class StartTimer private constructor() {
 
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor(
-        val identifier: StringProperty?,
-        val name: StringProperty?,
+        val identifier: TypeProperty<StringValue>?,
+        val name: TypeProperty<StringValue>?,
         val duration: SimpleProperty?
     ) {
         override fun toString(): String {
@@ -125,14 +126,14 @@ class StartTimer private constructor() {
         }
 
         class Builder {
-            private var identifier: StringProperty? = null
-            private var name: StringProperty? = null
+            private var identifier: TypeProperty<StringValue>? = null
+            private var name: TypeProperty<StringValue>? = null
             private var duration: SimpleProperty? = null
 
-            fun setIdentifier(identifier: StringProperty): Builder =
+            fun setIdentifier(identifier: TypeProperty<StringValue>): Builder =
                 apply { this.identifier = identifier }
 
-            fun setName(name: StringProperty): Builder =
+            fun setName(name: TypeProperty<StringValue>): Builder =
                 apply { this.name = name }
 
             fun setDuration(duration: SimpleProperty): Builder =
