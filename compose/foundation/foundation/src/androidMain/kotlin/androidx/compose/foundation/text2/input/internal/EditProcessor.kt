@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextEditFilter
+import androidx.compose.foundation.text2.input.TextFieldState.TextEditFilter
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +43,7 @@ internal class EditProcessor(
         TextRange.Zero,
         null
     ),
-    private val filter: TextEditFilter = TextEditFilter { _, new -> new }
+    private val filter: TextEditFilter = TextEditFilter.Default
 ) {
 
     /**
