@@ -129,9 +129,11 @@ fun TabRow(
     containerColor: Color = TabRowDefaults.containerColor,
     contentColor: Color = TabRowDefaults.contentColor,
     indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
-        TabRowDefaults.Indicator(
-            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
-        )
+        if (selectedTabIndex < tabPositions.size) {
+            TabRowDefaults.Indicator(
+                Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
+            )
+        }
     },
     divider: @Composable () -> Unit = @Composable {
         Divider()
@@ -147,7 +149,10 @@ fun TabRow(
             val tabRowWidth = constraints.maxWidth
             val tabMeasurables = subcompose(TabSlots.Tabs, tabs)
             val tabCount = tabMeasurables.size
-            val tabWidth = (tabRowWidth / tabCount)
+            var tabWidth = 0
+            if (tabCount > 0) {
+                tabWidth = (tabRowWidth / tabCount)
+            }
             val tabRowHeight = tabMeasurables.fold(initial = 0) { max, curr ->
                 maxOf(curr.maxIntrinsicHeight(tabWidth), max)
             }
