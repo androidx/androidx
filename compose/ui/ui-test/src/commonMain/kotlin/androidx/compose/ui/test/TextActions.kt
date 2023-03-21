@@ -106,6 +106,7 @@ private fun SemanticsNodeInteraction.getNodeAndFocus(
     errorOnFail: String = "Failed to perform text input."
 ): SemanticsNode {
     val node = fetchSemanticsNode(errorOnFail)
+    assert(isEnabled()) { errorOnFail }
     assert(hasSetTextAction()) { errorOnFail }
     assert(hasRequestFocusAction()) { errorOnFail }
     assert(hasInsertTextAtCursorAction()) { errorOnFail }

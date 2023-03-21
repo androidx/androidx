@@ -56,6 +56,8 @@ class TextActionsTest {
     fun TextFieldUi(
         imeAction: ImeAction = ImeAction.Default,
         keyboardActions: KeyboardActions = KeyboardActions.Default,
+        enabled: Boolean = true,
+        readOnly: Boolean = false,
         textCallback: (String) -> Unit = {}
     ) {
         val state = remember { mutableStateOf("") }
@@ -66,6 +68,8 @@ class TextActionsTest {
             value = state.value,
             keyboardOptions = KeyboardOptions(imeAction = imeAction),
             keyboardActions = keyboardActions,
+            enabled = enabled,
+            readOnly = readOnly,
             onValueChange = {
                 state.value = it
                 textCallback(it)
@@ -172,6 +176,36 @@ class TextActionsTest {
 
         rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello world!")
+        }
+    }
+
+    @Test
+    fun sendText_whenDisabled_shouldFail() {
+        rule.setContent {
+            TextFieldUi(enabled = false)
+        }
+
+        expectErrorMessageStartsWith(
+            "Failed to perform text input.\n" +
+                "Failed to assert the following: (is enabled)\n" +
+                "Semantics of the node:"
+        ) {
+            rule.onNodeWithTag(fieldTag).performTextInput("hi")
+        }
+    }
+
+    @Test
+    fun sendText_whenReadOnly_isAllowed() {
+        var lastSeenText = ""
+        rule.setContent {
+            TextFieldUi(readOnly = true) {
+                lastSeenText = it
+            }
+        }
+
+        rule.onNodeWithTag(fieldTag).performTextInput("hi")
+        rule.runOnIdle {
+            assertThat(lastSeenText).isEqualTo("hi")
         }
     }
 
@@ -285,12 +319,47 @@ class TextActionsTest {
         }
 
         expectErrorMessageStartsWith(
-                "Failed to perform IME action.\n" +
+            "Failed to perform IME action.\n" +
                 "Failed to assert the following: (RequestFocus is defined)\n" +
                 "Semantics of the node:"
         ) {
             rule.onNodeWithTag("node")
                 .performImeAction()
+        }
+    }
+
+    @Test
+    fun performImeAction_whenDisabled_shouldFail() {
+        rule.setContent {
+            TextFieldUi(
+                imeAction = ImeAction.Done,
+                enabled = false
+            )
+        }
+
+        expectErrorMessageStartsWith(
+            "Failed to perform IME action.\n" +
+                "Failed to assert the following: (is enabled)\n" +
+                "Semantics of the node:"
+        ) {
+            rule.onNodeWithTag(fieldTag).performImeAction()
+        }
+    }
+
+    @Test
+    fun performImeAction_whenReadOnly_isAllowed() {
+        var actionPerformed = false
+        rule.setContent {
+            TextFieldUi(
+                imeAction = ImeAction.Done,
+                readOnly = true,
+                keyboardActions = KeyboardActions { actionPerformed = true }
+            )
+        }
+
+        rule.onNodeWithTag(fieldTag).performImeAction()
+        rule.runOnIdle {
+            assertThat(actionPerformed).isTrue()
         }
     }
 }
