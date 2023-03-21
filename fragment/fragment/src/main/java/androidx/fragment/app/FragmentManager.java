@@ -635,6 +635,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * @return Returns true if there were any pending transactions to be
      * executed.
      */
+    @MainThread
     public boolean executePendingTransactions() {
         boolean updates = execPendingActions(true);
         forcePostponedTransactions();
@@ -790,6 +791,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * afterwards without forcing the start of postponed Transactions.
      * @return Returns true if there was something popped, else false.
      */
+    @MainThread
     public boolean popBackStackImmediate() {
         return popBackStackImmediate(null, -1, 0);
     }
@@ -817,6 +819,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * afterwards without forcing the start of postponed Transactions.
      * @return Returns true if there was something popped, else false.
      */
+    @MainThread
     public boolean popBackStackImmediate(@Nullable String name, int flags) {
         return popBackStackImmediate(name, -1, flags);
     }
