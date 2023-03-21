@@ -41,6 +41,8 @@ dependencies {
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementationAarAsJar(project(":privacysandbox:ui:ui-core"))
     testImplementationAarAsJar(project(":privacysandbox:ui:ui-client"))
+    testImplementationAarAsJar(project(":privacysandbox:sdkruntime:sdkruntime-client"))
+    testImplementationAarAsJar(project(":privacysandbox:sdkruntime:sdkruntime-core"))
     testImplementation(libs.kotlinCoroutinesCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)

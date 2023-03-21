@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.tools.apicompiler
 
-import androidx.privacysandbox.tools.testing.allTestLibraryStubs
 import androidx.privacysandbox.tools.testing.CompilationTestHelper
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationResult
@@ -29,7 +28,6 @@ import androidx.room.compiler.processing.util.compiler.TestCompilationResult
  */
 fun compileWithPrivacySandboxKspCompiler(
     sources: List<Source>,
-    addLibraryStubs: Boolean = true,
     extraProcessorOptions: Map<String, String> = mapOf(),
 ): TestCompilationResult {
     val provider = PrivacySandboxKspCompiler.Provider()
@@ -46,8 +44,7 @@ fun compileWithPrivacySandboxKspCompiler(
     }
 
     return CompilationTestHelper.compileAll(
-        if (addLibraryStubs) sources + allTestLibraryStubs
-        else sources,
+        sources,
         symbolProcessorProviders = listOf(provider),
         processorOptions = processorOptions,
     )
