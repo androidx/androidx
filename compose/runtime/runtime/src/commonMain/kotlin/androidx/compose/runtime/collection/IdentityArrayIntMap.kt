@@ -17,18 +17,14 @@
 package androidx.compose.runtime.collection
 
 import androidx.compose.runtime.identityHashCode
-import kotlin.contracts.ExperimentalContracts
 
-@OptIn(ExperimentalContracts::class)
 internal class IdentityArrayIntMap {
-    @PublishedApi
     internal var size = 0
-
-    @PublishedApi
+        private set
     internal var keys: Array<Any?> = arrayOfNulls(4)
-
-    @PublishedApi
+        private set
     internal var values: IntArray = IntArray(4)
+        private set
 
     operator fun get(key: Any): Int {
         val index = find(key)
@@ -38,6 +34,8 @@ internal class IdentityArrayIntMap {
      * Add [value] to the map and return `-1` if it was added or previous value if it already existed.
      */
     fun add(key: Any, value: Int): Int {
+        val values = values
+
         val index: Int
         if (size > 0) {
             index = find(key)
@@ -52,6 +50,8 @@ internal class IdentityArrayIntMap {
 
         val insertIndex = -(index + 1)
 
+        val keys = keys
+        val size = size
         if (size == keys.size) {
             val newKeys = arrayOfNulls<Any>(keys.size * 2)
             val newValues = IntArray(keys.size * 2)
@@ -75,8 +75,8 @@ internal class IdentityArrayIntMap {
                 destination = newValues,
                 endIndex = insertIndex
             )
-            keys = newKeys
-            values = newValues
+            this.keys = newKeys
+            this.values = newValues
         } else {
             keys.copyInto(
                 destination = keys,
@@ -91,9 +91,9 @@ internal class IdentityArrayIntMap {
                 endIndex = size
             )
         }
-        keys[insertIndex] = key
-        values[insertIndex] = value
-        size++
+        this.keys[insertIndex] = key
+        this.values[insertIndex] = value
+        this.size++
 
         return -1
     }
@@ -103,6 +103,10 @@ internal class IdentityArrayIntMap {
      */
     fun remove(key: Any): Boolean {
         val index = find(key)
+
+        val keys = keys
+        val values = values
+        val size = size
         if (index >= 0) {
             if (index < size - 1) {
                 keys.copyInto(
@@ -118,8 +122,9 @@ internal class IdentityArrayIntMap {
                     endIndex = size
                 )
             }
-            size--
-            keys[size] = null
+            val newSize = size - 1
+            keys[newSize] = null
+            this.size = newSize
             return true
         }
         return false
@@ -129,6 +134,10 @@ internal class IdentityArrayIntMap {
      * Removes all values that match [predicate].
      */
     inline fun removeValueIf(predicate: (Any, Int) -> Boolean) {
+        val keys = keys
+        val values = values
+        val size = size
+
         var destinationIndex = 0
         for (i in 0 until size) {
             @Suppress("UNCHECKED_CAST")
@@ -145,10 +154,14 @@ internal class IdentityArrayIntMap {
         for (i in destinationIndex until size) {
             keys[i] = null
         }
-        size = destinationIndex
+        this.size = destinationIndex
     }
 
     inline fun any(predicate: (Any, Int) -> Boolean): Boolean {
+        val keys = keys
+        val values = values
+        val size = size
+
         for (i in 0 until size) {
             if (predicate(keys[i] as Any, values[i])) return true
         }
@@ -156,6 +169,10 @@ internal class IdentityArrayIntMap {
     }
 
     inline fun forEach(block: (Any, Int) -> Unit) {
+        val keys = keys
+        val values = values
+        val size = size
+
         for (i in 0 until size) {
             block(keys[i] as Any, values[i])
         }
@@ -170,6 +187,7 @@ internal class IdentityArrayIntMap {
         var high = size - 1
         val valueIdentity = identityHashCode(key)
 
+        val keys = keys
         while (low <= high) {
             val mid = (low + high).ushr(1)
             val midVal = keys[mid]
@@ -192,6 +210,9 @@ internal class IdentityArrayIntMap {
      * be returned, which is always after the last item with the same [identityHashCode].
      */
     private fun findExactIndex(midIndex: Int, value: Any?, valueHash: Int): Int {
+        val keys = keys
+        val size = size
+
         // hunt down first
         for (i in midIndex - 1 downTo 0) {
             val v = keys[i]
