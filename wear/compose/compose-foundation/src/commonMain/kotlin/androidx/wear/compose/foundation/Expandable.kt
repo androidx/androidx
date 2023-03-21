@@ -149,9 +149,13 @@ public fun ScalingLazyListScope.expandableItem(
             val width = lerp(placeables[0].width, placeables[1].width, progress)
             val height = lerp(placeables[0].height, placeables[1].height, progress)
 
+            // Keep the items horizontally centered.
+            val off0 = (width - placeables[0].width) / 2
+            val off1 = (width - placeables[1].width) / 2
+
             layout(width, height) {
-                placeables[0].placeWithLayer(0, 0) { alpha = 1 - progress }
-                placeables[1].placeWithLayer(0, 0) { alpha = progress }
+                placeables[0].placeWithLayer(off0, 0) { alpha = 1 - progress }
+                placeables[1].placeWithLayer(off1, 0) { alpha = progress }
             }
         }
     }

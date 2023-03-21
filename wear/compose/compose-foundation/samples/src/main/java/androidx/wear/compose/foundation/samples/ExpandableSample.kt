@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -29,11 +30,13 @@ import androidx.wear.compose.foundation.ExpandableItemsDefaults
 import androidx.wear.compose.foundation.expandableItem
 import androidx.wear.compose.foundation.expandableItems
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.rememberExpandableItemsState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.OutlinedChip
+import androidx.wear.compose.material.OutlinedCompactChip
 import androidx.wear.compose.material.Text
+import kotlinx.coroutines.launch
 
 @Sampled
 @Composable
@@ -52,8 +55,11 @@ fun ExpandableWithItemsSample() {
     val top = items.take(3)
     val rest = items.drop(3)
 
+    val state = rememberScalingLazyListState()
+    val scope = rememberCoroutineScope()
     ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        state = state
     ) {
         items(top.size) {
             sampleItem(top[it])
@@ -63,10 +69,10 @@ fun ExpandableWithItemsSample() {
         }
 
         item {
-            OutlinedChip(
+            OutlinedCompactChip(
                 label = {
                     Text(if (expandableState.expanded) "Show Less" else "Show More")
-                    Spacer(Modifier.size(10.dp))
+                    Spacer(Modifier.size(6.dp))
                     ExpandableItemsDefaults.Chevron(
                         expandableState.expandProgress,
                         color = MaterialTheme.colors.primary,
@@ -75,7 +81,12 @@ fun ExpandableWithItemsSample() {
                             .align(Alignment.CenterVertically)
                     )
                 },
-                onClick = { expandableState.toggle() }
+                onClick = {
+                    if (expandableState.expanded) {
+                        scope.launch { state.animateScrollToItem(top.size) }
+                    }
+                    expandableState.toggle()
+                }
             )
         }
     }
@@ -103,10 +114,10 @@ fun ExpandableTextSample() {
         }
 
         item {
-            OutlinedChip(
+            OutlinedCompactChip(
                 label = {
                     Text(if (expandableState.expanded) "Show Less" else "Show More")
-                    Spacer(Modifier.size(10.dp))
+                    Spacer(Modifier.size(6.dp))
                     ExpandableItemsDefaults.Chevron(
                         expandableState.expandProgress,
                         color = MaterialTheme.colors.primary,
