@@ -16,13 +16,18 @@
 
 package androidx.credentials.provider.utils
 
-import android.service.credentials.BeginCreateCredentialRequest
+import android.annotation.SuppressLint
+import androidx.credentials.provider.BeginCreateCredentialRequest
 import androidx.annotation.RequiresApi
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
+import androidx.credentials.provider.BeginCreateCredentialResponse
+import androidx.credentials.provider.BeginCreateCustomCredentialRequest
 import androidx.credentials.provider.BeginCreatePasswordCredentialRequest
 import androidx.credentials.provider.BeginCreatePublicKeyCredentialRequest
+import androidx.credentials.provider.CreateEntry
+import androidx.credentials.provider.RemoteEntry
 
 /**
  * @hide
@@ -31,25 +36,75 @@ import androidx.credentials.provider.BeginCreatePublicKeyCredentialRequest
 class BeginCreateCredentialUtil {
     companion object {
         @JvmStatic
-        internal fun convertToStructuredRequest(request: BeginCreateCredentialRequest):
+        internal fun convertToStructuredRequest(
+            request: android.service.credentials.BeginCreateCredentialRequest
+        ):
             BeginCreateCredentialRequest {
             return try {
                 when (request.type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {
                         BeginCreatePasswordCredentialRequest.createFrom(
-                            request.data, request.callingAppInfo)
+                            request.data, request.callingAppInfo
+                        )
                     }
+
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {
                         BeginCreatePublicKeyCredentialRequest.createFrom(
-                            request.data, request.callingAppInfo)
+                            request.data, request.callingAppInfo
+                        )
                     }
+
                     else -> {
-                        BeginCreateCredentialRequest(request.type, request.data,
-                            request.callingAppInfo)
+                        BeginCreateCustomCredentialRequest(
+                            request.type, request.data,
+                            request.callingAppInfo
+                        )
                     }
                 }
             } catch (e: FrameworkClassParsingException) {
-                BeginCreateCredentialRequest(request.type, request.data, request.callingAppInfo)
+                BeginCreateCustomCredentialRequest(
+                    request.type,
+                    request.data,
+                    request.callingAppInfo
+                )
+            }
+        }
+
+        fun convertJetpackResponseToFrameworkResponse(
+            response: BeginCreateCredentialResponse
+        ): android.service.credentials.BeginCreateCredentialResponse {
+            val frameworkBuilder = android.service.credentials.BeginCreateCredentialResponse
+                .Builder()
+            populateCreateEntries(frameworkBuilder, response.createEntries)
+            populateRemoteEntry(frameworkBuilder, response.remoteEntry)
+            return frameworkBuilder.build()
+        }
+
+        @SuppressLint("MissingPermission")
+        private fun populateRemoteEntry(
+            frameworkBuilder: android.service.credentials.BeginCreateCredentialResponse.Builder,
+            remoteEntry: RemoteEntry?
+        ) {
+            if (remoteEntry == null) {
+                return
+            }
+            frameworkBuilder.setRemoteCreateEntry(
+                android.service.credentials.RemoteEntry(
+                    RemoteEntry.toSlice(remoteEntry)
+                )
+            )
+        }
+
+        private fun populateCreateEntries(
+            frameworkBuilder: android.service.credentials.BeginCreateCredentialResponse.Builder,
+            createEntries: List<CreateEntry>
+        ) {
+            createEntries.forEach {
+                frameworkBuilder.addCreateEntry(
+                    android.service.credentials.CreateEntry(
+                        CreateEntry.toSlice(it)
+                    )
+                )
             }
         }
     }

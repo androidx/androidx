@@ -16,19 +16,17 @@
 
 package androidx.credentials.provider
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
-import android.credentials.CreateCredentialResponse
-import android.service.credentials.BeginGetCredentialRequest
+import android.service.credentials.BeginCreateCredentialResponse
 import android.service.credentials.CreateCredentialRequest
+import android.service.credentials.CredentialEntry
 import android.service.credentials.CredentialProviderService
 import android.util.Log
-import android.service.credentials.CredentialEntry
-import android.service.credentials.BeginGetCredentialResponse
-import android.service.credentials.BeginCreateCredentialResponse
 import androidx.annotation.RequiresApi
+import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.GetCredentialResponse
-import android.app.Activity
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
@@ -61,8 +59,8 @@ class PendingIntentHandler {
             ProviderCreateCredentialRequest? {
             val frameworkReq: CreateCredentialRequest? =
                 intent.getParcelableExtra(
-                CredentialProviderService
-                    .EXTRA_CREATE_CREDENTIAL_REQUEST, CreateCredentialRequest::class.java
+                    CredentialProviderService
+                        .EXTRA_CREATE_CREDENTIAL_REQUEST, CreateCredentialRequest::class.java
                 )
             if (frameworkReq == null) {
                 Log.i(TAG, "Request not found in pendingIntent")
@@ -75,8 +73,10 @@ class PendingIntentHandler {
                         frameworkReq.data,
                         frameworkReq.data,
                         requireSystemProvider = false,
-                        frameworkReq.callingAppInfo.origin) ?: return null,
-                frameworkReq.callingAppInfo)
+                        frameworkReq.callingAppInfo.origin
+                    ) ?: return null,
+                frameworkReq.callingAppInfo
+            )
         }
 
         /**
@@ -93,9 +93,9 @@ class PendingIntentHandler {
         fun retrieveBeginGetCredentialRequest(intent: Intent): BeginGetCredentialRequest? {
             val request = intent.getParcelableExtra(
                 "android.service.credentials.extra.BEGIN_GET_CREDENTIAL_REQUEST",
-                BeginGetCredentialRequest::class.java
+                android.service.credentials.BeginGetCredentialRequest::class.java
             )
-            return request?.let { BeginGetCredentialUtil.convertToStructuredRequest(it) }
+            return request?.let { BeginGetCredentialUtil.convertToJetpackRequest(it) }
         }
 
         /**
@@ -112,11 +112,12 @@ class PendingIntentHandler {
         @JvmStatic
         fun setCreateCredentialResponse(
             intent: Intent,
-            response: androidx.credentials.CreateCredentialResponse
+            response: CreateCredentialResponse
         ) {
             intent.putExtra(
                 CredentialProviderService.EXTRA_CREATE_CREDENTIAL_RESPONSE,
-                CreateCredentialResponse(response.data))
+                android.credentials.CreateCredentialResponse(response.data)
+            )
         }
 
         /**
@@ -161,8 +162,11 @@ class PendingIntentHandler {
             intent.putExtra(
                 CredentialProviderService.EXTRA_GET_CREDENTIAL_RESPONSE,
                 android.credentials.GetCredentialResponse(
-                    android.credentials.Credential(response.credential.type,
-                        response.credential.data))
+                    android.credentials.Credential(
+                        response.credential.type,
+                        response.credential.data
+                    )
+                )
             )
         }
 
@@ -183,7 +187,7 @@ class PendingIntentHandler {
         ) {
             intent.putExtra(
                 CredentialProviderService.EXTRA_BEGIN_GET_CREDENTIAL_RESPONSE,
-                response
+                BeginGetCredentialUtil.convertJetpackResponseToFrameworkResponse(response)
             )
         }
 

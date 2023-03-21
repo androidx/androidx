@@ -20,10 +20,7 @@ import android.app.PendingIntent
 import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.net.Uri
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.Log
-import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import java.util.Collections
@@ -45,20 +42,11 @@ import java.util.Collections
  *
  * See [android.service.credentials.BeginGetCredentialResponse] for usage details.
  */
-@RequiresApi(34)
 class RemoteEntry constructor(
     val pendingIntent: PendingIntent
-    ) : android.service.credentials.RemoteEntry(
-    toSlice(pendingIntent)
-    ) {
+) {
 
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-    }
+    /** @hide **/
     @Suppress("AcronymName")
     companion object {
         private const val TAG = "RemoteEntry"
@@ -66,21 +54,22 @@ class RemoteEntry constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.remoteEntry.SLICE_HINT_PENDING_INTENT"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal const val SLICE_HINT_OPTION_ID =
-            "androidx.credentials.provider.remoteEntry.SLICE_HINT_OPTION_ID"
 
         /** @hide */
+        @RequiresApi(28)
         @JvmStatic
-        internal fun toSlice(
-            pendingIntent: PendingIntent
+        fun toSlice(
+            remoteEntry: RemoteEntry
         ): Slice {
+            val pendingIntent = remoteEntry.pendingIntent
             // TODO("Put the right spec and version value")
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec("type", 1))
-            sliceBuilder.addAction(pendingIntent,
+            sliceBuilder.addAction(
+                pendingIntent,
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
-                    .build(), /*subType=*/null)
+                    .build(), /*subType=*/null
+            )
             return sliceBuilder.build()
         }
 
@@ -91,6 +80,7 @@ class RemoteEntry constructor(
          *
          * @hide
          */
+        @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): RemoteEntry? {
@@ -105,20 +95,6 @@ class RemoteEntry constructor(
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
-            }
-        }
-
-        @JvmField val CREATOR: Parcelable.Creator<RemoteEntry> = object :
-            Parcelable.Creator<RemoteEntry> {
-            override fun createFromParcel(p0: Parcel?): RemoteEntry? {
-                val baseEntry =
-                    android.service.credentials.CredentialEntry.CREATOR.createFromParcel(p0)
-                return fromSlice(baseEntry.slice)
-            }
-
-            @Suppress("ArrayReturn")
-            override fun newArray(size: Int): Array<RemoteEntry?> {
-                return arrayOfNulls(size)
             }
         }
     }

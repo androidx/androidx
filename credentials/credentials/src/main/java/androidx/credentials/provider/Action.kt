@@ -20,10 +20,7 @@ import android.app.PendingIntent
 import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.net.Uri
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.Log
-import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import java.util.Collections
@@ -60,24 +57,14 @@ import java.util.Collections
  * @throws IllegalArgumentException If [title] is empty
  * @throws NullPointerException If [title] or [pendingIntent] is null
  */
-@RequiresApi(34)
 class Action constructor(
     val title: CharSequence,
     val pendingIntent: PendingIntent,
     val subtitle: CharSequence? = null,
-    ) : android.service.credentials.Action(
-    toSlice(title, subtitle, pendingIntent)) {
+) {
 
     init {
         require(title.isNotEmpty()) { "title must not be empty" }
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
     }
 
     /**
@@ -109,6 +96,7 @@ class Action constructor(
         }
     }
 
+    /** @hide **/
     @Suppress("AcronymName")
     companion object {
         private const val TAG = "Action"
@@ -118,30 +106,47 @@ class Action constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_TITLE =
             "androidx.credentials.provider.action.HINT_ACTION_TITLE"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_SUBTITLE =
             "androidx.credentials.provider.action.HINT_ACTION_SUBTEXT"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.action.SLICE_HINT_PENDING_INTENT"
 
+        /**
+         * Converts to slice
+         * @hide
+         */
         @JvmStatic
-        internal fun toSlice(
-            title: CharSequence,
-            subtitle: CharSequence?,
-            pendingIntent: PendingIntent
+        @RequiresApi(28)
+        fun toSlice(
+            action: Action
         ): Slice {
-            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(
-                SLICE_SPEC_TYPE, SLICE_SPEC_REVISION))
-                .addText(title, /*subType=*/null,
-                    listOf(SLICE_HINT_TITLE))
-                .addText(subtitle, /*subType=*/null,
-                    listOf(SLICE_HINT_SUBTITLE))
-            sliceBuilder.addAction(pendingIntent,
+            val title = action.title
+            val subtitle = action.subtitle
+            val pendingIntent = action.pendingIntent
+            val sliceBuilder = Slice.Builder(
+                Uri.EMPTY, SliceSpec(
+                    SLICE_SPEC_TYPE, SLICE_SPEC_REVISION
+                )
+            )
+                .addText(
+                    title, /*subType=*/null,
+                    listOf(SLICE_HINT_TITLE)
+                )
+                .addText(
+                    subtitle, /*subType=*/null,
+                    listOf(SLICE_HINT_SUBTITLE)
+                )
+            sliceBuilder.addAction(
+                pendingIntent,
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
-                /*subType=*/null)
+                /*subType=*/null
+            )
             return sliceBuilder.build()
         }
 
@@ -152,6 +157,7 @@ class Action constructor(
          *
          * @hide
          */
+        @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): Action? {
@@ -174,24 +180,6 @@ class Action constructor(
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
-            }
-        }
-
-        @JvmField val CREATOR: Parcelable.Creator<Action> = object :
-            Parcelable.Creator<Action> {
-            /**
-             * This will not be used in any of the credMan flows as Action is constructed
-             * in the jetpack library and sent to the framework. UI app will receive the
-             * slice and use [fromSlice] to get back the object.
-             */
-            override fun createFromParcel(p0: Parcel?): Action? {
-                val action = android.service.credentials.Action.CREATOR.createFromParcel(p0)
-                return fromSlice(action.slice)
-            }
-
-            @Suppress("ArrayReturn")
-            override fun newArray(size: Int): Array<Action?> {
-                return arrayOfNulls<Action>(size)
             }
         }
     }

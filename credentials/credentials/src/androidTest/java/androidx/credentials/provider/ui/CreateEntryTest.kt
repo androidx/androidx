@@ -54,7 +54,6 @@ class CreateEntryTest {
         val entry = constructEntryWithRequiredParams()
 
         assertNotNull(entry)
-        assertNotNull(entry.slice)
         assertEntryWithRequiredParams(entry)
         assertNull(entry.icon)
         assertNull(entry.lastUsedTime)
@@ -71,7 +70,6 @@ class CreateEntryTest {
         val entry = constructEntryWithAllParams()
 
         assertNotNull(entry)
-        assertNotNull(entry.slice)
         assertEntryWithAllParams(entry)
     }
 
@@ -97,7 +95,7 @@ class CreateEntryTest {
         }
         val originalEntry = constructEntryWithRequiredParams()
 
-        val entry = fromSlice(originalEntry.slice)
+        val entry = fromSlice(CreateEntry.toSlice(originalEntry))
 
         assertNotNull(entry)
         entry?.let {
@@ -112,7 +110,7 @@ class CreateEntryTest {
         }
         val originalEntry = constructEntryWithAllParams()
 
-        val entry = fromSlice(originalEntry.slice)
+        val entry = fromSlice(CreateEntry.toSlice(originalEntry))
 
         assertNotNull(entry)
         entry?.let {
@@ -179,6 +177,5 @@ class CreateEntryTest {
                 100, 100, Bitmap.Config.ARGB_8888
             )
         )
-        private const val IS_AUTO_SELECT_ALLOWED = true
     }
 }

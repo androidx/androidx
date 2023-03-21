@@ -16,24 +16,20 @@
 
 package androidx.credentials.provider
 
+import android.app.Activity
+import android.app.PendingIntent
 import android.credentials.ClearCredentialStateException
 import android.credentials.GetCredentialException
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
-import android.service.credentials.BeginCreateCredentialRequest
-import android.service.credentials.BeginCreateCredentialResponse
-import android.service.credentials.BeginGetCredentialRequest
-import android.service.credentials.BeginGetCredentialResponse
 import android.service.credentials.ClearCredentialStateRequest
+import android.service.credentials.CredentialEntry
 import android.service.credentials.CredentialProviderService
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.provider.utils.BeginCreateCredentialUtil
-import android.app.PendingIntent
-import android.service.credentials.CredentialEntry
-import android.app.Activity
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
 
 /**
@@ -94,23 +90,31 @@ abstract class CredentialProviderService : CredentialProviderService() {
 
     /** @hide **/
     final override fun onBeginGetCredential(
-        request: BeginGetCredentialRequest,
+        request: android.service.credentials.BeginGetCredentialRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<BeginGetCredentialResponse, GetCredentialException>
+        callback: OutcomeReceiver<
+            android.service.credentials.BeginGetCredentialResponse, GetCredentialException>
     ) {
-        val structuredRequest = BeginGetCredentialUtil.convertToStructuredRequest(request)
+        val structuredRequest = BeginGetCredentialUtil.convertToJetpackRequest(request)
         val outcome = object : OutcomeReceiver<BeginGetCredentialResponse,
             androidx.credentials.exceptions.GetCredentialException> {
-            override fun onResult(response: BeginGetCredentialResponse?) {
-                Log.i(TAG, "onGetCredentials response returned from provider " +
-                    "to jetpack library")
-                callback.onResult(response)
+            override fun onResult(response: BeginGetCredentialResponse) {
+                Log.i(
+                    TAG, "onGetCredentials response returned from provider " +
+                        "to jetpack library"
+                )
+                callback.onResult(
+                    BeginGetCredentialUtil
+                        .convertJetpackResponseToFrameworkResponse(response)
+                )
             }
 
             override fun onError(error: androidx.credentials.exceptions.GetCredentialException) {
                 super.onError(error)
-                Log.i(TAG, "onGetCredentials error returned from provider " +
-                    "to jetpack library")
+                Log.i(
+                    TAG, "onGetCredentials error returned from provider " +
+                        "to jetpack library"
+                )
                 // TODO("Change error code to provider error when ready on framework")
                 callback.onError(GetCredentialException(error.type, error.message))
             }
@@ -120,31 +124,41 @@ abstract class CredentialProviderService : CredentialProviderService() {
 
     /** @hide **/
     final override fun onBeginCreateCredential(
-        request: BeginCreateCredentialRequest,
+        request: android.service.credentials.BeginCreateCredentialRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<BeginCreateCredentialResponse,
+        callback: OutcomeReceiver<android.service.credentials.BeginCreateCredentialResponse,
             android.credentials.CreateCredentialException>
     ) {
         val outcome = object : OutcomeReceiver<
             BeginCreateCredentialResponse, CreateCredentialException> {
-            override fun onResult(response: BeginCreateCredentialResponse?) {
+            override fun onResult(response: BeginCreateCredentialResponse) {
                 Log.i(
                     TAG, "onCreateCredential result returned from provider to jetpack " +
-                        "library with credential entries size: " + response?.createEntries?.size)
-                callback.onResult(response)
+                        "library with credential entries size: " + response.createEntries.size
+                )
+                callback.onResult(
+                    BeginCreateCredentialUtil
+                        .convertJetpackResponseToFrameworkResponse(response)
+                )
             }
+
             override fun onError(error: CreateCredentialException) {
                 Log.i(
-                    TAG, "onCreateCredential result returned from provider to jetpack")
+                    TAG, "onCreateCredential result returned from provider to jetpack"
+                )
                 super.onError(error)
                 // TODO("Change error code to provider error when ready on framework")
-                callback.onError(android.credentials.CreateCredentialException(
-                    error.type, error.message))
+                callback.onError(
+                    android.credentials.CreateCredentialException(
+                        error.type, error.message
+                    )
+                )
             }
         }
         onBeginCreateCredentialRequest(
             BeginCreateCredentialUtil.convertToStructuredRequest(request),
-            cancellationSignal, outcome)
+            cancellationSignal, outcome
+        )
     }
 
     final override fun onClearCredentialState(
@@ -155,12 +169,15 @@ abstract class CredentialProviderService : CredentialProviderService() {
         val outcome = object : OutcomeReceiver<Void?, ClearCredentialException> {
             override fun onResult(response: Void?) {
                 Log.i(
-                    TAG, "onClearCredentialState result returned from provider to jetpack ")
+                    TAG, "onClearCredentialState result returned from provider to jetpack "
+                )
                 callback.onResult(response)
             }
+
             override fun onError(error: ClearCredentialException) {
                 Log.i(
-                    TAG, "onClearCredentialState result returned from provider to jetpack")
+                    TAG, "onClearCredentialState result returned from provider to jetpack"
+                )
                 super.onError(error)
                 // TODO("Change error code to provider error when ready on framework")
                 callback.onError(ClearCredentialStateException(error.type, error.message))

@@ -18,7 +18,6 @@ package androidx.credentials.provider
 
 import android.os.Bundle
 import android.service.credentials.BeginGetCredentialResponse
-import androidx.credentials.PasswordCredential
 
 /**
  * A request to a password provider to begin the flow of retrieving the user's saved passwords.
@@ -30,12 +29,13 @@ import androidx.credentials.PasswordCredential
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-class BeginGetPasswordOption constructor(
-    candidateQueryData: Bundle,
-    id: String
+class BeginGetCustomCredentialOption constructor(
+    override val id: String,
+    override val type: String,
+    override val candidateQueryData: Bundle,
 ) : BeginGetCredentialOption(
     id,
-    PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+    type,
     candidateQueryData
 ) {
 
@@ -44,14 +44,22 @@ class BeginGetPasswordOption constructor(
     companion object {
         /** @hide */
         @JvmStatic
-        internal fun createFrom(data: Bundle, id: String): BeginGetPasswordOption {
-            return BeginGetPasswordOption(data, id)
+        internal fun createFrom(
+            data: Bundle,
+            id: String,
+            type: String
+        ): BeginGetCustomCredentialOption {
+            return BeginGetCustomCredentialOption(id, type, data)
         }
 
         /** @hide */
         @JvmStatic
-        internal fun createFromEntrySlice(data: Bundle, id: String): BeginGetPasswordOption {
-            return BeginGetPasswordOption(data, id)
+        internal fun createFromEntrySlice(
+            data: Bundle,
+            id: String,
+            type: String
+        ): BeginGetCustomCredentialOption {
+            return BeginGetCustomCredentialOption(id, type, data)
         }
     }
 }

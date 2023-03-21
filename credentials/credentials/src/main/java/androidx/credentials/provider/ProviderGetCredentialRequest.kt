@@ -20,15 +20,14 @@ import android.service.credentials.CallingAppInfo
 import androidx.annotation.RequiresApi
 import androidx.credentials.CredentialOption
 import java.util.stream.Collectors
-import kotlin.streams.toList
 
 /**
  * Request received by the provider after the query phase of the get flow is complete i.e. the user
  * was presented with a list of credentials, and the user has now made a selection from the list of
- * [android.service.credentials.CredentialEntry] presented on the selector UI.
+ * [CredentialEntry] presented on the selector UI.
  *
  * This request will be added to the intent extras of the activity invoked by the [PendingIntent]
- * set on the [android.service.credentials.CredentialEntry] that the user selected. The request
+ * set on the [CredentialEntry] that the user selected. The request
  * must be extracted using the [PendingIntentHandler.retrieveProviderGetCredentialRequest] helper
  * API.
  *
@@ -54,20 +53,22 @@ import kotlin.streams.toList
 class ProviderGetCredentialRequest constructor(
     val credentialOptions: List<CredentialOption>,
     val callingAppInfo: CallingAppInfo
-    ) {
+) {
 
     /** @hide */
     companion object {
         internal fun createFrom(request: android.service.credentials.GetCredentialRequest):
-        ProviderGetCredentialRequest {
+            ProviderGetCredentialRequest {
             return ProviderGetCredentialRequest(
                 request.credentialOptions.stream()
-                    .map { option -> CredentialOption.createFrom(
+                    .map { option ->
+                        CredentialOption.createFrom(
                             option.type,
                             option.credentialRetrievalData,
                             option.candidateQueryData,
                             option.isSystemProviderRequired
-                        ) }
+                        )
+                    }
                     .collect(Collectors.toList()),
                 request.callingAppInfo)
         }

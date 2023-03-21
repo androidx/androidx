@@ -46,9 +46,10 @@ class ActionTest {
             return
         }
         val action = Action(TITLE, mPendingIntent, SUBTITLE)
+        val slice = Action.toSlice(action)
 
         assertNotNull(action)
-        assertNotNull(action.slice)
+        assertNotNull(slice)
         assertThat(TITLE == action.title)
         assertThat(SUBTITLE == action.subtitle)
         assertThat(mPendingIntent === action.pendingIntent)
@@ -71,8 +72,9 @@ class ActionTest {
             return
         }
         val originalAction = Action(TITLE, mPendingIntent, SUBTITLE)
+        val slice = Action.toSlice(originalAction)
 
-        val fromSlice = fromSlice(originalAction.slice)
+        val fromSlice = fromSlice(slice)
 
         assertNotNull(fromSlice)
         fromSlice?.let {

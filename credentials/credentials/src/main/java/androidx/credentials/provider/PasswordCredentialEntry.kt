@@ -24,11 +24,7 @@ import android.content.Context
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
-import android.service.credentials.CredentialEntry
 import android.util.Log
-import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.CredentialOption
@@ -63,7 +59,7 @@ import java.util.Collections
  *
  * @see CustomCredentialEntry
  */
-@RequiresApi(34)
+@RequiresApi(28)
 class PasswordCredentialEntry internal constructor(
     val username: CharSequence,
     val displayName: CharSequence?,
@@ -77,7 +73,8 @@ class PasswordCredentialEntry internal constructor(
     val autoSelectAllowedFromOption: Boolean = false,
     /** @hide */
     val isDefaultIcon: Boolean = false
-    ) : CredentialEntry(
+) : CredentialEntry(
+    PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     beginGetPasswordOption,
     toSlice(
         PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
@@ -94,6 +91,7 @@ class PasswordCredentialEntry internal constructor(
     init {
         require(username.isNotEmpty()) { "username must not be empty" }
     }
+
     constructor(
         context: Context,
         username: CharSequence,
@@ -106,7 +104,8 @@ class PasswordCredentialEntry internal constructor(
         username,
         displayName,
         typeDisplayName = context.getString(
-            R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL),
+            R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL
+        ),
         pendingIntent,
         lastUsedTime,
         icon,
@@ -114,14 +113,7 @@ class PasswordCredentialEntry internal constructor(
         beginGetPasswordOption,
     )
 
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(@NonNull dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-    }
-
+    /** @hide **/
     @Suppress("AcronymName")
     companion object {
         private const val TAG = "PasswordCredentialEntry"
@@ -137,9 +129,11 @@ class PasswordCredentialEntry internal constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_SUBTITLE =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_DEFAULT_ICON_RES_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
@@ -151,15 +145,19 @@ class PasswordCredentialEntry internal constructor(
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_OPTION_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_AUTO_ALLOWED =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
+
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal const val AUTO_SELECT_TRUE_STRING = "true"
 
@@ -168,7 +166,7 @@ class PasswordCredentialEntry internal constructor(
 
         /** @hide */
         @JvmStatic
-        internal fun toSlice(
+        fun toSlice(
             type: String,
             title: CharSequence,
             subTitle: CharSequence?,
@@ -223,10 +221,13 @@ class PasswordCredentialEntry internal constructor(
                         listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
                     )
                 }
-            } catch (_: IllegalStateException) {}
+            } catch (_: IllegalStateException) {
+            }
 
             if (CredentialOption.extractAutoSelectValue(
-                    beginGetPasswordCredentialOption.candidateQueryData)) {
+                    beginGetPasswordCredentialOption.candidateQueryData
+                )
+            ) {
                 sliceBuilder.addInt(
                     /*true=*/1,
                     /*subType=*/null,
@@ -319,27 +320,15 @@ class PasswordCredentialEntry internal constructor(
                 null
             }
         }
-
-        @JvmField val CREATOR: Parcelable.Creator<PasswordCredentialEntry> = object :
-            Parcelable.Creator<PasswordCredentialEntry> {
-            override fun createFromParcel(p0: Parcel?): PasswordCredentialEntry? {
-                val credentialEntry = CredentialEntry.CREATOR.createFromParcel(p0)
-                return fromSlice(credentialEntry.slice)
-            }
-
-            @Suppress("ArrayReturn")
-            override fun newArray(size: Int): Array<PasswordCredentialEntry?> {
-                return arrayOfNulls(size)
-            }
-        }
     }
+
     /** Builder for [PasswordCredentialEntry] */
     class Builder(
         private val context: Context,
         private val username: CharSequence,
         private val pendingIntent: PendingIntent,
         private val beginGetPasswordOption: BeginGetPasswordOption
-        ) {
+    ) {
         private var displayName: CharSequence? = null
         private var lastUsedTime: Instant? = null
         private var icon: Icon? = null
@@ -372,7 +361,8 @@ class PasswordCredentialEntry internal constructor(
                 icon = Icon.createWithResource(context, R.drawable.ic_password)
             }
             val typeDisplayName = context.getString(
-                R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL)
+                R.string.android_credentials_TYPE_PASSWORD_CREDENTIAL
+            )
             return PasswordCredentialEntry(
                 username,
                 displayName,
