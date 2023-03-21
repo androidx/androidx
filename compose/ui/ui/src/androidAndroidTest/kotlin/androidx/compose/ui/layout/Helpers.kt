@@ -292,7 +292,7 @@ internal fun node(block: LayoutNode.() -> Unit = {}): LayoutNode {
     }
 }
 
-internal fun LayoutNode.add(child: LayoutNode) = insertAt(children.count(), child)
+internal fun LayoutNode.add(child: LayoutNode) = insertAt(foldedChildren.count(), child)
 
 internal fun LayoutNode.measureInLayoutBlock() {
     measurePolicy = MeasureInLayoutBlock()

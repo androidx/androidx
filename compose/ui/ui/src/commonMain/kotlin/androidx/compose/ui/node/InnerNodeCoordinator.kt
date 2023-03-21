@@ -54,7 +54,8 @@ internal class InnerNodeCoordinator(
             performingMeasure(constraints) {
                 // before rerunning the user's measure block reset previous measuredByParent for children
                 layoutNode.forEachChild {
-                    it.measuredByParentInLookahead = LayoutNode.UsageByParent.NotUsed
+                    it.lookaheadPassDelegate!!.measuredByParent =
+                        LayoutNode.UsageByParent.NotUsed
                 }
                 val measureResult = with(layoutNode.measurePolicy) {
                     measure(
@@ -73,8 +74,7 @@ internal class InnerNodeCoordinator(
         }
 
         override fun placeChildren() {
-            layoutNode.layoutDelegate.lookaheadPassDelegate!!.onPlaced()
-            alignmentLinesOwner.layoutChildren()
+            layoutNode.lookaheadPassDelegate!!.onNodePlaced()
         }
 
         override fun minIntrinsicWidth(height: Int) =
@@ -99,7 +99,7 @@ internal class InnerNodeCoordinator(
     override fun measure(constraints: Constraints): Placeable = performingMeasure(constraints) {
         // before rerunning the user's measure block reset previous measuredByParent for children
         layoutNode.forEachChild {
-            it.measuredByParent = LayoutNode.UsageByParent.NotUsed
+            it.measurePassDelegate.measuredByParent = LayoutNode.UsageByParent.NotUsed
         }
 
         measureResult = with(layoutNode.measurePolicy) {
@@ -137,7 +137,7 @@ internal class InnerNodeCoordinator(
 
         onPlaced()
 
-        layoutNode.onNodePlaced()
+        layoutNode.measurePassDelegate.onNodePlaced()
     }
 
     override fun calculateAlignmentLine(alignmentLine: AlignmentLine): Int {

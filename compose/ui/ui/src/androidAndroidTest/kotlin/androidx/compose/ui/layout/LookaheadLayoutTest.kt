@@ -74,12 +74,16 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastMap
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import java.lang.Integer.max
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlin.math.roundToInt
+import kotlin.random.Random
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
@@ -95,6 +99,58 @@ class LookaheadLayoutTest {
 
     @get:Rule
     val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
+
+    @Test
+    fun randomLookaheadPlacementOrder() {
+        val nodeList = List(10) { node() }
+        val placementOrder = (0..9).toMutableList()
+        fun generateRandomPlaceOrder() {
+            repeat(9) {
+                val swapId = Random.nextInt(it, 10)
+                val tmp = placementOrder[it]
+                placementOrder[it] = placementOrder[swapId]
+                placementOrder[swapId] = tmp
+            }
+        }
+
+        val root = node {
+            generateRandomPlaceOrder()
+            add(LayoutNode(isVirtual = true).apply {
+                isVirtualLookaheadRoot = true
+                add(nodeList[0])
+                add(LayoutNode(isVirtual = true).apply {
+                    repeat(4) {
+                        add(nodeList[it + 1])
+                    }
+                })
+                add(LayoutNode(isVirtual = true).apply {
+                    repeat(5) {
+                        add(nodeList[5 + it])
+                    }
+                })
+            })
+            measurePolicy = MeasurePolicy { measurables, constraints ->
+                assertEquals(10, measurables.size)
+                val placeables = measurables.fastMap { it.measure(constraints) }
+                assertEquals(10, placeables.size)
+                layout(100, 100) {
+                    placementOrder.fastForEach { id ->
+                        placeables[id].place(0, 0)
+                    }
+                }
+            }
+        }
+        val delegate = createDelegate(root)
+        repeat(5) {
+            placementOrder.fastForEachIndexed { placeOrder, nodeId ->
+                assertEquals(placeOrder, nodeList[nodeId].lookaheadPassDelegate!!.placeOrder)
+                assertEquals(placeOrder, nodeList[nodeId].measurePassDelegate.placeOrder)
+            }
+            generateRandomPlaceOrder()
+            root.requestLookaheadRemeasure()
+            delegate.measureAndLayout()
+        }
+    }
 
     @Test
     fun lookaheadLayoutAnimation() {
@@ -1014,8 +1070,8 @@ class LookaheadLayoutTest {
                         Text(
                             text =
                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec" +
-                            " non felis euismod nunc commodo pharetra a nec eros. Sed varius," +
-                            " metus sed facilisis condimentum, orci orci aliquet arcu",
+                                " non felis euismod nunc commodo pharetra a nec eros. Sed varius," +
+                                " metus sed facilisis condimentum, orci orci aliquet arcu",
                             Modifier.fillMaxWidth(),
                         )
                     }

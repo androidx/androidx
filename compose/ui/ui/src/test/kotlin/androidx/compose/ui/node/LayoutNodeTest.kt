@@ -2796,3 +2796,5 @@ fun DelegatableNode.toModifier(): Modifier.Element {
         ?: error("Incorrectly assumed Modifier.Node was a BackwardsCompatNode")
     return node.element
 }
+
+private fun LayoutNode.onNodePlaced() = measurePassDelegate.onNodePlaced()
