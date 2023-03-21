@@ -30,8 +30,10 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter.Companion.toCamera2ImplConfig
+import androidx.camera.camera2.pipe.integration.compat.workaround.CapturePipelineTorchCorrection
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
+import androidx.camera.camera2.pipe.integration.impl.CapturePipeline
 import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
@@ -52,14 +54,27 @@ annotation class UseCaseCameraScope
 /** Dependency bindings for building a [UseCaseCamera] */
 @Module(
     includes = [
-        CapturePipelineImpl.Bindings::class,
         UseCaseCameraImpl.Bindings::class,
         UseCaseCameraRequestControlImpl.Bindings::class,
     ]
 )
 abstract class UseCaseCameraModule {
     // Used for dagger provider methods that are static.
-    companion object
+    companion object {
+
+        @UseCaseCameraScope
+        @Provides
+        fun provideCapturePipeline(
+            capturePipelineImpl: CapturePipelineImpl,
+            capturePipelineTorchCorrection: CapturePipelineTorchCorrection
+        ): CapturePipeline {
+            if (CapturePipelineTorchCorrection.isEnabled) {
+                return capturePipelineTorchCorrection
+            }
+
+            return capturePipelineImpl
+        }
+    }
 }
 
 /** Dagger module for binding the [UseCase]'s to the [UseCaseCamera]. */

@@ -76,6 +76,9 @@ object DeviceQuirksLoader {
         if (StillCaptureFlashStopRepeatingQuirk.isEnabled()) {
             quirks.add(StillCaptureFlashStopRepeatingQuirk())
         }
+        if (TorchIsClosedAfterImageCapturingQuirk.isEnabled()) {
+            quirks.add(TorchIsClosedAfterImageCapturingQuirk())
+        }
 
         return quirks
     }
