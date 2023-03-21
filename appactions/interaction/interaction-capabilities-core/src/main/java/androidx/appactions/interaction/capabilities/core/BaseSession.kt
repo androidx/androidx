@@ -16,6 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.core
 
+import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.ListenableFuture
 
@@ -45,7 +46,7 @@ interface BaseSession<ArgumentT, OutputT> {
      * @return a [ListenableFuture] containing an [ExecutionResult] instance.
      */
     fun onFinishAsync(argument: ArgumentT): ListenableFuture<ExecutionResult<OutputT>> {
-        throw NotImplementedError()
+        return Futures.immediateFuture(ExecutionResult.getDefaultInstance())
     }
 
     /** Implement any cleanup logic. This method is called some time after the session finishes. */
