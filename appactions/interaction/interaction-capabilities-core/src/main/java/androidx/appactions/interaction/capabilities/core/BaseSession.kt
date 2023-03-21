@@ -16,7 +16,7 @@
 
 package androidx.appactions.interaction.capabilities.core
 
-import androidx.appactions.interaction.capabilities.core.impl.concurrent.convertToListenableFuture
+import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.ListenableFuture
 
 /** Base interface for Session of all verticals. */
@@ -31,21 +31,21 @@ interface BaseSession<ArgumentT, OutputT> {
     /**
      * Called when all arguments are finalized.
      *
-     * @param argument the Argument instance containing data for fulfillment.
-     * @return an ExecutionResult instance.
+     * @param argument the [ArgumentT] instance containing data for fulfillment.
+     * @return an [ExecutionResult] instance.
      */
     suspend fun onFinish(argument: ArgumentT): ExecutionResult<OutputT> {
-        throw NotImplementedError()
+        return onFinishAsync(argument).await()
     }
 
     /**
      * Called when all arguments are finalized.
      *
      * @param argument the Argument instance containing data for fulfillment.
-     * @return a ListenableFuture containing an ExecutionResult instance.
+     * @return a [ListenableFuture] containing an [ExecutionResult] instance.
      */
     fun onFinishAsync(argument: ArgumentT): ListenableFuture<ExecutionResult<OutputT>> {
-        return convertToListenableFuture("onFinish") { onFinish(argument) }
+        throw NotImplementedError()
     }
 
     /** Implement any cleanup logic. This method is called some time after the session finishes. */

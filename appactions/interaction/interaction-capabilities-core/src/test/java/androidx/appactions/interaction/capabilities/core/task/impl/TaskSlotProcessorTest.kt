@@ -55,7 +55,7 @@ class TaskSlotProcessorTest {
                     return Futures.immediateFuture(validationResult)
                 }
 
-                override fun renderChoices(entityIDs: List<String>): ListenableFuture<Void> {
+                override fun renderChoicesAsync(entityIDs: List<String>): ListenableFuture<Void> {
                     renderConsumer.invoke(entityIDs)
                     return Futures.immediateVoidFuture()
                 }
@@ -110,7 +110,7 @@ class TaskSlotProcessorTest {
                     return Futures.immediateFuture(validationResult)
                 }
 
-                override fun lookupAndRender(
+                override fun lookupAndRenderAsync(
                     searchAction: SearchAction<T>
                 ): ListenableFuture<EntitySearchResult<T>> {
                     appSearchConsumer.invoke(searchAction)
