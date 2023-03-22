@@ -24,7 +24,7 @@ package androidx.appactions.interaction.capabilities.core.properties
  */
 sealed interface ParamProperty<V> {
 
-    /** The list of added possible values for this parameter. */
+    /** The current list of possible values for this parameter, can change over time. */
     val possibleValues: List<V>
 
     /** Indicates that a value for this property is required to be present for fulfillment. */
