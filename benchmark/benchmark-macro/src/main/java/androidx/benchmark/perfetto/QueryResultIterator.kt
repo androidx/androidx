@@ -21,7 +21,7 @@ import perfetto.protos.QueryResult
 /**
  * Iterator for results from a [PerfettoTraceProcessor] query.
  */
-internal class QueryResultIterator internal constructor(queryResult: QueryResult) : Iterator<Row> {
+internal class QueryResultIterator constructor(queryResult: QueryResult) : Iterator<Row> {
     private val dataLists = object {
         val stringBatches = mutableListOf<String>()
         val varIntBatches = mutableListOf<Long>()

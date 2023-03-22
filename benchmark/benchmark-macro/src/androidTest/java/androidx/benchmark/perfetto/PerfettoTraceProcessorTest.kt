@@ -25,8 +25,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -125,6 +127,18 @@ class PerfettoTraceProcessorTest {
     }
 
     @Test
+    fun query_syntaxError() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            val error = assertFailsWith<IllegalStateException> {
+                query("SYNTAX ERROR, PLEASE!")
+            }
+            assertContains(error.message!!, "syntax error")
+        }
+    }
+
+    @Test
     fun query() {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
@@ -141,17 +155,6 @@ class PerfettoTraceProcessorTest {
                     "SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\""
                 ).toList(),
             )
-            query("""
-                    |SELECT
-                    |    slice.name,slice.ts,slice.dur
-                    |FROM slice
-                    |    INNER JOIN thread_track on slice.track_id = thread_track.id
-                    |    INNER JOIN thread USING(utid)
-                    |    INNER JOIN process USING(upid)
-                    |WHERE
-                    |    slice.name LIKE \"activityStart\"
-                """.trimMargin()
-            ).forEach { println(it) }
 
             // list of lists
             assertEquals(
@@ -190,17 +193,19 @@ class PerfettoTraceProcessorTest {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
         PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            val bytes = queryBytes(
-                "SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\""
-            )
+            val query = "SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\""
+            val bytes = rawQuery(query)
+            val queryResult = perfetto.protos.QueryResult.ADAPTER.decode(bytes)
+            assertNull(queryResult.error, "no error expected")
             assertEquals(
                 expected = listOf(
                     rowOf(
                         "name" to "activityStart",
                         "ts" to 186975009436431L,
-                        "dur" to 29580628L)
+                        "dur" to 29580628L
+                    )
                 ),
-                actual = QueryResultIterator(perfetto.protos.QueryResult.ADAPTER.decode(bytes))
+                actual = QueryResultIterator(queryResult)
                     .asSequence()
                     .toList(),
             )

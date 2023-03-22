@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.benchmark.macro.perfetto.server.PerfettoHttpServer
 import androidx.benchmark.userspaceTrace
 import java.io.File
+import java.io.InputStream
 import org.intellij.lang.annotations.Language
 import perfetto.protos.QueryResult
 import perfetto.protos.TraceMetrics
@@ -130,6 +131,11 @@ class PerfettoTraceProcessor {
         return block.invoke(Session(this))
     }
 
+    /**
+     * Handle to query sql data from a [PerfettoTrace].
+     *
+     * @see query
+     */
     class Session internal constructor(
         private val traceProcessor: PerfettoTraceProcessor
     ) {
@@ -174,16 +180,30 @@ class PerfettoTraceProcessor {
          *     }
          * }
          * ```
+         *
+         * @see PerfettoTraceProcessor
+         * @see PerfettoTraceProcessor.Session
          */
         fun query(@Language("sql") query: String): Sequence<Row> {
             userspaceTrace("PerfettoTraceProcessor#query $query".take(127)) {
                 require(traceProcessor.perfettoHttpServer.isRunning()) {
                     "Perfetto trace_shell_process is not running."
                 }
-                val queryResult = traceProcessor.perfettoHttpServer.query(query) {
-                    QueryResult.ADAPTER.decode(it)
+                val queryResult = traceProcessor.perfettoHttpServer.rawQuery(query) {
+                    // Note: check for errors as part of decode, so it's immediate
+                    // instead of lazily in QueryResultIterator
+                    QueryResult.decodeAndCheckError(query, it)
                 }
                 return Sequence { QueryResultIterator(queryResult) }
+            }
+        }
+
+        private fun QueryResult.Companion.decodeAndCheckError(
+            query: String,
+            inputStream: InputStream
+        ) = ADAPTER.decode(inputStream).also {
+            check(it.error == null) {
+                throw IllegalStateException("Error with query: --$query--, error=${it.error}")
             }
         }
 
@@ -197,14 +217,17 @@ class PerfettoTraceProcessor {
          * [in the Perfetto project](https://github.com/google/perfetto/blob/master/protos/perfetto/trace_processor/trace_processor.proto),
          * which can be used to decode the result returned here with a protobuf parsing library.
          *
+         * Note that this method does not check for errors in the protobuf, that is the caller's
+         * responsibility.
+         *
          * @see Session.query
          */
-        fun queryBytes(@Language("sql") query: String): ByteArray {
+        fun rawQuery(@Language("sql") query: String): ByteArray {
             userspaceTrace("PerfettoTraceProcessor#query $query".take(127)) {
                 require(traceProcessor.perfettoHttpServer.isRunning()) {
                     "Perfetto trace_shell_process is not running."
                 }
-                return traceProcessor.perfettoHttpServer.query(query) { it.readBytes() }
+                return traceProcessor.perfettoHttpServer.rawQuery(query) { it.readBytes() }
             }
         }
 
@@ -224,15 +247,13 @@ class PerfettoTraceProcessor {
                     "slice.name LIKE \"$it\""
                 }
 
-            val queryResultIterator = query(
+            return query(
                 query = """
-                SELECT slice.name,ts,dur
-                FROM slice
-                WHERE $whereClause
-            """.trimMargin()
-            )
-
-            return queryResultIterator.toSlices()
+                    SELECT slice.name,ts,dur
+                    FROM slice
+                    WHERE $whereClause
+                    """.trimMargin()
+            ).toSlices()
         }
     }
 
