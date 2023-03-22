@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.pager.lazy
+package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
@@ -34,7 +34,7 @@ internal class PagerMeasureResult(
     override val reverseLayout: Boolean,
     val consumedScroll: Float,
     val firstVisiblePage: MeasuredPage?,
-    val closestPageToSnapPosition: PageInfo?,
+    override val closestPageToSnapPosition: PageInfo?,
     val firstVisiblePageOffset: Int,
     val canScrollForward: Boolean,
     measureResult: MeasureResult,

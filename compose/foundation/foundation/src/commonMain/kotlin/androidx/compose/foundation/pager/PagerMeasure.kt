@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.pager.lazy
+package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.fastFilter
@@ -637,7 +637,7 @@ private fun LazyLayoutMeasureScope.calculatePagesOffsets(
     return positionedPages
 }
 
-private const val DEBUG = true
+private const val DEBUG = false
 private inline fun debugLog(generateMsg: () -> String) {
     if (DEBUG) {
         println("PagerMeasure: ${generateMsg()}")

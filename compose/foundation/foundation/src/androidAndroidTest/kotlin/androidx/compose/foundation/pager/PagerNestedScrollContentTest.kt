@@ -46,7 +46,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PagerNestedScrollContentTest(
+class PagerNestedScrollContentTest(
     config: ParamConfig
 ) : BasePagerTest(config = config) {
 
@@ -60,7 +60,7 @@ internal class PagerNestedScrollContentTest(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(0.dp),
                 flingBehavior = ScrollableDefaults.flingBehavior(),
-                isVertical = isVertical, // scrollable content on the same direction as pager
+                isVertical = vertical, // scrollable content on the same direction as pager
                 reverseLayout = false,
                 state = rememberLazyListState(),
                 userScrollEnabled = true,
@@ -106,7 +106,7 @@ internal class PagerNestedScrollContentTest(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(0.dp),
                 flingBehavior = ScrollableDefaults.flingBehavior(),
-                isVertical = !isVertical, // scrollable content on the cross direction of pager
+                isVertical = !vertical, // scrollable content on the cross direction of pager
                 reverseLayout = false,
                 state = rememberLazyListState(),
                 userScrollEnabled = true,
@@ -131,8 +131,8 @@ internal class PagerNestedScrollContentTest(
         rule.waitForIdle()
 
         // Assert
-        val mainAxisVelocity = if (isVertical) postFlingVelocity.y else postFlingVelocity.x
-        val crossAxisVelocity = if (isVertical) postFlingVelocity.x else postFlingVelocity.y
+        val mainAxisVelocity = if (vertical) postFlingVelocity.y else postFlingVelocity.x
+        val crossAxisVelocity = if (vertical) postFlingVelocity.x else postFlingVelocity.y
         assertThat(mainAxisVelocity.absoluteValue).isEqualTo(0f)
         assertThat(crossAxisVelocity.absoluteValue).isNotEqualTo(0f)
     }
@@ -148,7 +148,7 @@ internal class PagerNestedScrollContentTest(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(0.dp),
                 flingBehavior = ScrollableDefaults.flingBehavior(),
-                isVertical = isVertical, // scrollable content on the same direction as pager
+                isVertical = vertical, // scrollable content on the same direction as pager
                 reverseLayout = false,
                 state = lazyListState,
                 userScrollEnabled = true,
@@ -198,11 +198,7 @@ internal class PagerNestedScrollContentTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<ParamConfig>().apply {
-            for (orientation in TestOrientation) {
-                add(ParamConfig(orientation = orientation))
-            }
-        }
+        fun params() = AllOrientationsParams
     }
 }
 
