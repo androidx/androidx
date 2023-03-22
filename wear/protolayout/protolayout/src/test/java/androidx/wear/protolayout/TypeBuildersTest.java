@@ -50,4 +50,18 @@ public class TypeBuildersTest {
     public void stringProp_withoutStaticValue_throws() {
         assertThrows(IllegalStateException.class, STRING_PROP_BUILDER_WITHOUT_STATIC_VALUE::build);
     }
+
+    @Test
+    public void spanSetText_throwsWhenSetToDynamicValue() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new LayoutElementBuilders.SpanText.Builder().setText(STRING_PROP));
+    }
+
+    @Test
+    public void arcTextSetText_throwsWhenSetToDynamicValue() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new LayoutElementBuilders.ArcText.Builder().setText(STRING_PROP));
+    }
 }

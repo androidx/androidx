@@ -29,9 +29,11 @@ message StringProp {
   // The dynamic value.
   androidx.wear.protolayout.expression.proto.DynamicString dynamic_value = 2;
 
-  // When used as a layout-changing data bind, the string to measure, when
-  // considering how wide the element should be in the layout.
-  string value_for_layout = 3;
+  oneof optional_value_for_layout {
+    // When used as a layout-changing data bind, the string to measure, when
+    // considering how wide the element should be in the layout.
+    string value_for_layout = 3;
+  }
 
   // Alignment alignment of the actual text within the space reserved by
   // value_for_layout. If not specified, defaults to center alignment.

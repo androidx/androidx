@@ -28,22 +28,27 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
+import androidx.wear.protolayout.DimensionBuilders.AngularLayoutConstraint;
 import androidx.wear.protolayout.DimensionBuilders.ContainerDimension;
 import androidx.wear.protolayout.DimensionBuilders.DegreesProp;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.DimensionBuilders.EmProp;
+import androidx.wear.protolayout.DimensionBuilders.HorizontalLayoutConstraint;
 import androidx.wear.protolayout.DimensionBuilders.ImageDimension;
 import androidx.wear.protolayout.DimensionBuilders.SpProp;
 import androidx.wear.protolayout.DimensionBuilders.SpacerDimension;
+import androidx.wear.protolayout.DimensionBuilders.VerticalLayoutConstraint;
 import androidx.wear.protolayout.ModifiersBuilders.ArcModifiers;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.ModifiersBuilders.SpanModifiers;
 import androidx.wear.protolayout.TypeBuilders.BoolProp;
 import androidx.wear.protolayout.TypeBuilders.Int32Prop;
+import androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.AlignmentProto;
+import androidx.wear.protolayout.proto.DimensionProto;
 import androidx.wear.protolayout.proto.FingerprintProto;
 import androidx.wear.protolayout.proto.FingerprintProto.TreeFingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
@@ -549,7 +554,15 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the text color. If not defined, defaults to white. */
+            /**
+             * Sets the text color. If not defined, defaults to white.
+             *
+             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
+             * set). Older renderers will still consider this field as non-bindable and will use the
+             * static value.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setColor(@NonNull ColorProp color) {
                 mImpl.setColor(color.toProto());
@@ -705,6 +718,21 @@ public final class LayoutElementBuilders {
         }
 
         /**
+         * Gets the bounding constraints for the layout affected by the dynamic value from {@link
+         * #getText()}.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public StringLayoutConstraint getLayoutConstraintsForDynamicText() {
+            if (mImpl.hasText()) {
+                return StringLayoutConstraint.fromProto(mImpl.getText());
+            } else {
+                return null;
+            }
+        }
+
+        /**
          * Gets the style of font to use (size, bold etc). If not specified, defaults to the
          * platform's default body font. Intended for testing purposes only.
          */
@@ -822,15 +850,50 @@ public final class LayoutElementBuilders {
 
             public Builder() {}
 
-            /** Sets the text to render. */
+            /**
+             * Sets the text to render.
+             *
+             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
+             * set). Older renderers will still consider this field as non-bindable and will use the
+             * static value.
+             *
+             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
+             * affected layout element through {@link
+             * #setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise {@link
+             * #build()} fails.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setText(@NonNull StringProp text) {
-                mImpl.setText(text.toProto());
+                mImpl.mergeText(text.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(text.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
-            /** Sets the text to render. */
+
+            /**
+             * Sets the bounding constraints for the layout affected by the dynamic value from
+             * {@link #setText(StringProp)}}.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setLayoutConstraintsForDynamicText(
+                    @NonNull StringLayoutConstraint stringLayoutConstraint) {
+                mImpl.mergeText(stringLayoutConstraint.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1,
+                        checkNotNull(stringLayoutConstraint.getFingerprint())
+                                .aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the static text to render.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setText(@NonNull String text) {
                 mImpl.setText(TypesProto.StringProp.newBuilder().setValue(text));
@@ -955,6 +1018,12 @@ public final class LayoutElementBuilders {
             @Override
             @NonNull
             public Text build() {
+                TypesProto.StringProp text = mImpl.getText();
+                if (text.hasDynamicValue() && !text.hasValueForLayout()) {
+                    throw new IllegalStateException(
+                            "text with dynamic value requires "
+                                    + "layoutConstraintsForDynamicText to be present.");
+                }
                 return new Text(mImpl.build(), mFingerprint);
             }
         }
@@ -1078,6 +1147,10 @@ public final class LayoutElementBuilders {
              *
              * <p>Note that only Android image resources can be tinted; Inline images will not be
              * tinted, and this property will have no effect.
+             *
+             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
+             * set). Older renderers will still consider this field as non-bindable and will use the
+             * static value.
              */
             @NonNull
             public Builder setTint(@NonNull ColorProp tint) {
@@ -1327,7 +1400,7 @@ public final class LayoutElementBuilders {
         /**
          * Gets the width of this {@link Spacer}. When this is added as the direct child of an
          * {@link Arc}, this must be specified as an angular dimension, otherwise a linear dimension
-         * must be used. If not defined, defaults to 0. Intended for testing purposes only.
+         * must be used. If not defined, defaults to 0.
          */
         @Nullable
         public SpacerDimension getWidth() {
@@ -1339,13 +1412,40 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets the height of this spacer. If not defined, defaults to 0. Intended for testing
-         * purposes only.
+         * Gets the bounding constraints for the layout affected by the dynamic value from {@link
+         * #getWidth()}.
+         *
+         * @since 1.2
          */
+        @Nullable
+        public HorizontalLayoutConstraint getLayoutConstraintsForDynamicWidth() {
+            if (mImpl.getWidth().hasLinearDimension()) {
+                return HorizontalLayoutConstraint.fromProto(mImpl.getWidth().getLinearDimension());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets the height of this spacer. If not defined, defaults to 0. */
         @Nullable
         public SpacerDimension getHeight() {
             if (mImpl.hasHeight()) {
                 return DimensionBuilders.spacerDimensionFromProto(mImpl.getHeight());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the bounding constraints for the layout affected by the dynamic value from {@link
+         * #getHeight()}.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public VerticalLayoutConstraint getLayoutConstraintsForDynamicHeight() {
+            if (mImpl.getHeight().hasLinearDimension()) {
+                return VerticalLayoutConstraint.fromProto(mImpl.getHeight().getLinearDimension());
             } else {
                 return null;
             }
@@ -1400,21 +1500,91 @@ public final class LayoutElementBuilders {
              * Sets the width of this {@link Spacer}. When this is added as the direct child of an
              * {@link Arc}, this must be specified as an angular dimension, otherwise a linear
              * dimension must be used. If not defined, defaults to 0.
+             *
+             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
+             * set). Older renderers will still consider this field as non-bindable and will use the
+             * static value.
+             *
+             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
+             * affected layout element through {@link
+             * #setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@link
+             * #build()} fails.
              */
             @NonNull
             public Builder setWidth(@NonNull SpacerDimension width) {
-                mImpl.setWidth(width.toSpacerDimensionProto());
+                mImpl.mergeWidth(width.toSpacerDimensionProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(width.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
-            /** Sets the height of this spacer. If not defined, defaults to 0. */
+            /**
+             * Sets the bounding constraints for the layout affected by the dynamic value from
+             * {@link #setWidth(SpacerDimension)}. If the {@link SpacerDimension} does not have a
+             * dynamic value, this will be ignored.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setLayoutConstraintsForDynamicWidth(
+                    @NonNull HorizontalLayoutConstraint horizontalLayoutConstraint) {
+                switch (mImpl.getWidth().getInnerCase()) {
+                    case INNER_NOT_SET:
+                    case LINEAR_DIMENSION:
+                        mImpl.mergeWidth(horizontalLayoutConstraint.toSpacerDimensionProto());
+                        mFingerprint.recordPropertyUpdate(
+                                1,
+                                checkNotNull(horizontalLayoutConstraint.getFingerprint())
+                                        .aggregateValueAsInt());
+                        break;
+                    default:
+                }
+                return this;
+            }
+
+            /**
+             * Sets the height of this spacer. If not defined, defaults to 0.
+             *
+             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
+             * set). Older renderers will still consider this field as non-bindable and will use the
+             * static value.
+             *
+             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
+             * affected layout element through {@link
+             * #setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@link
+             * #build()} fails.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setHeight(@NonNull SpacerDimension height) {
                 mImpl.setHeight(height.toSpacerDimensionProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(height.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the bounding constraints for the layout affected by the dynamic value from
+             * {@link #setHeight(SpacerDimension)}. If the {@link SpacerDimension} does not have a
+             * dynamic value, this will be ignored.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setLayoutConstraintsForDynamicHeight(
+                    @NonNull VerticalLayoutConstraint verticalLayoutConstraint) {
+                switch (mImpl.getHeight().getInnerCase()) {
+                    case INNER_NOT_SET:
+                    case LINEAR_DIMENSION:
+                        mImpl.mergeHeight(verticalLayoutConstraint.toSpacerDimensionProto());
+                        mFingerprint.recordPropertyUpdate(
+                                2,
+                                checkNotNull(verticalLayoutConstraint.getFingerprint())
+                                        .aggregateValueAsInt());
+                        break;
+                    default:
+                }
                 return this;
             }
 
@@ -1430,6 +1600,18 @@ public final class LayoutElementBuilders {
             @Override
             @NonNull
             public Spacer build() {
+                DimensionProto.DpProp width = mImpl.getWidth().getLinearDimension();
+                if (width.hasDynamicValue() && !width.hasValueForLayout()) {
+                    throw new IllegalStateException(
+                            "width with dynamic value requires "
+                                    + "layoutConstraintsForDynamicWidth to be present.");
+                }
+                DimensionProto.DpProp height = mImpl.getHeight().getLinearDimension();
+                if (height.hasDynamicValue() && !height.hasValueForLayout()) {
+                    throw new IllegalStateException(
+                            "height with dynamic value requires "
+                                    + "layoutConstraintsForDynamicHeight to be present.");
+                }
                 return new Spacer(mImpl.build(), mFingerprint);
             }
         }
@@ -1739,9 +1921,19 @@ public final class LayoutElementBuilders {
 
             public Builder() {}
 
-            /** Sets the text to render. */
+            /**
+             * Sets the text to render.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setText(@NonNull StringProp text) {
+                if (text.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "SpanText.Builder.setText doesn't support dynamic values.");
+                }
                 mImpl.setText(text.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(text.getFingerprint()).aggregateValueAsInt());
@@ -2696,6 +2888,21 @@ public final class LayoutElementBuilders {
         }
 
         /**
+         * Gets the bounding constraints for the layout affected by the dynamic value from {@link
+         * #getAnchorAngle()}.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public AngularLayoutConstraint getLayoutConstraintsForDynamicAnchorAngle() {
+            if (mImpl.hasAnchorAngle()) {
+                return AngularLayoutConstraint.fromProto(mImpl.getAnchorAngle());
+            } else {
+                return null;
+            }
+        }
+
+        /**
          * Gets how to align the contents of this container relative to anchor_angle. If not
          * defined, defaults to ARC_ANCHOR_CENTER. Intended for testing purposes only.
          */
@@ -2784,12 +2991,40 @@ public final class LayoutElementBuilders {
              * <p>Values do not have to be clamped to the range 0-360; values less than 0 degrees
              * will sweep anti-clockwise (i.e. -90 degrees is equivalent to 270 degrees), and values
              * >360 will be be placed at X mod 360 degrees.
+             *
+             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
+             * set). Older renderers will still consider this field as non-bindable and will use the
+             * static value.
+             *
+             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
+             * affected layout element through {@link
+             * #setLayoutConstraintsForDynamicAnchorAngle(AngularLayoutConstraint)} otherwise {@link
+             * #build()} fails.
+             *
+             * @since 1.0
              */
             @NonNull
             public Builder setAnchorAngle(@NonNull DegreesProp anchorAngle) {
                 mImpl.setAnchorAngle(anchorAngle.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(anchorAngle.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the bounding constraints for the layout affected by the dynamic value from
+             * {@link #setAnchorAngle(DegreesProp)}}.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setLayoutConstraintsForDynamicAnchorAngle(
+                    @NonNull DimensionBuilders.AngularLayoutConstraint angularLayoutConstraint) {
+                mImpl.mergeAnchorAngle(angularLayoutConstraint.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        2,
+                        checkNotNull(angularLayoutConstraint.getFingerprint())
+                                .aggregateValueAsInt());
                 return this;
             }
 
@@ -2857,6 +3092,12 @@ public final class LayoutElementBuilders {
             @Override
             @NonNull
             public Arc build() {
+                DimensionProto.DegreesProp anchorAngle = mImpl.getAnchorAngle();
+                if (anchorAngle.hasDynamicValue() && !anchorAngle.hasValueForLayout()) {
+                    throw new IllegalStateException(
+                            "anchorAngle with dynamic value requires "
+                                    + "layoutConstraintsForDynamicAnchorAngle to be present.");
+                }
                 return new Arc(mImpl.build(), mFingerprint);
             }
         }
@@ -2940,9 +3181,19 @@ public final class LayoutElementBuilders {
 
             public Builder() {}
 
-            /** Sets the text to render. */
+            /**
+             * Sets the text to render.
+             *
+             * <p>Note that this field only supports static values.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setText(@NonNull StringProp text) {
+                if (text.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "ArcText.Builder.setText doesn't support dynamic values.");
+                }
                 mImpl.setText(text.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(text.getFingerprint()).aggregateValueAsInt());
@@ -3003,6 +3254,21 @@ public final class LayoutElementBuilders {
         public DegreesProp getLength() {
             if (mImpl.hasLength()) {
                 return DegreesProp.fromProto(mImpl.getLength());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the bounding constraints for the layout affected by the dynamic value from {@link
+         * #getLength()}.
+         *
+         * @since 1.2
+         */
+        @Nullable
+        public AngularLayoutConstraint getLayoutConstraintsForDynamicLength() {
+            if (mImpl.hasLength()) {
+                return AngularLayoutConstraint.fromProto(mImpl.getLength());
             } else {
                 return null;
             }
@@ -3076,12 +3342,42 @@ public final class LayoutElementBuilders {
 
             public Builder() {}
 
-            /** Sets the length of this line, in degrees. If not defined, defaults to 0. */
+            /**
+             * Sets the length of this line, in degrees. If not defined, defaults to 0.
+             *
+             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
+             * set). Older renderers will still consider this field as non-bindable and will use the
+             * static value.
+             *
+             * <p>When using a dynamic value, make sure to specify the bounding constraints for the
+             * affected layout element through {@link
+             * #setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise {@link
+             * #build()} fails.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setLength(@NonNull DegreesProp length) {
-                mImpl.setLength(length.toProto());
+                mImpl.mergeLength(length.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(length.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the bounding constraints for the layout affected by the dynamic value from
+             * {@link #setLength(DegreesProp)}.
+             *
+             * @since 1.2
+             */
+            @NonNull
+            public Builder setLayoutConstraintsForDynamicLength(
+                    @NonNull DimensionBuilders.AngularLayoutConstraint angularLayoutConstraint) {
+                mImpl.mergeLength(angularLayoutConstraint.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        1,
+                        checkNotNull(angularLayoutConstraint.getFingerprint())
+                                .aggregateValueAsInt());
                 return this;
             }
 
@@ -3094,7 +3390,15 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets the color of this line. */
+            /**
+             * Sets the color of this line.
+             *
+             * <p>This field is made bindable from version 1.2 and will use the dynamic value (if
+             * set). Older renderers will still consider this field as non-bindable and will use the
+             * static value.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setColor(@NonNull ColorProp color) {
                 mImpl.setColor(color.toProto());
@@ -3115,6 +3419,12 @@ public final class LayoutElementBuilders {
             @Override
             @NonNull
             public ArcLine build() {
+                DimensionProto.DegreesProp length = mImpl.getLength();
+                if (length.hasDynamicValue() && !length.hasValueForLayout()) {
+                    throw new IllegalStateException(
+                            "length with dynamic value requires "
+                                    + "layoutConstraintsForDynamicLength to be present.");
+                }
                 return new ArcLine(mImpl.build(), mFingerprint);
             }
         }

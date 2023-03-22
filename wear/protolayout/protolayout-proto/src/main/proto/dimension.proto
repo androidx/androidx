@@ -18,7 +18,9 @@ message DpProp {
   // The dynamic value, in dp.
   androidx.wear.protolayout.expression.proto.DynamicFloat dynamic_value = 2;
 
-  float value_for_layout = 3;
+  oneof optional_value_for_layout {
+    float value_for_layout = 3;
+  }
 
   oneof align {
     // Vertical alignment of the actual content within the space reserved by
@@ -81,7 +83,9 @@ message DegreesProp {
   // The dynamic value, in degrees.
   androidx.wear.protolayout.expression.proto.DynamicFloat dynamic_value = 2;
 
-  float value_for_layout = 3;
+  oneof optional_value_for_layout {
+    float value_for_layout = 3;
+  }
   AngularAlignment angular_alignment_for_layout = 4;
 }
 
