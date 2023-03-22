@@ -159,7 +159,6 @@ public class UiObject2Test extends BaseTest {
                 TIMEOUT_MS));
     }
 
-    @Ignore // b/266617335
     @Test
     @SdkSuppress(minSdkVersion = 24)
     public void testDrag_dest() {
@@ -174,7 +173,6 @@ public class UiObject2Test extends BaseTest {
         assertEquals("drag_received", dragDestination.getText());
     }
 
-    @Ignore // b/270210522
     @Test
     @SdkSuppress(minSdkVersion = 24)
     public void testDrag_destAndSpeed() {
