@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -78,6 +79,9 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import junit.framework.TestCase
+import kotlin.IllegalStateException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -195,6 +199,76 @@ class BottomSheetScaffoldTest {
 
         rule.onNodeWithTag(dragHandleTag)
             .assertTopPositionInRootIsEqualTo(rule.rootHeight() - expectedSheetHeight)
+    }
+
+    @Test
+    fun bottomSheetScaffold_testDismissAction_whenEnabled() {
+        rule.setContent {
+            BottomSheetScaffold(
+                sheetContent = {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .requiredHeight(sheetHeight)
+                            .testTag(sheetTag))
+                },
+                sheetDragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) },
+                sheetPeekHeight = peekHeight,
+                scaffoldState = rememberBottomSheetScaffoldState(
+                    bottomSheetState = rememberStandardBottomSheetState(
+                        skipHiddenState = false
+                    )
+                )
+            ) {
+                Text("Content")
+            }
+        }
+
+        rule.onNodeWithTag(dragHandleTag).onParent()
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Collapse))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Expand))
+            .performSemanticsAction(SemanticsActions.Dismiss)
+
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(dragHandleTag)
+            .assertTopPositionInRootIsEqualTo(rule.rootHeight())
+    }
+
+    @Test
+    fun bottomSheetScaffold_testHideReturnsIllegalStateException() {
+        lateinit var scope: CoroutineScope
+        val bottomSheetState = SheetState(
+            skipPartiallyExpanded = false,
+            skipHiddenState = true,
+            initialValue = SheetValue.PartiallyExpanded,
+        )
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            BottomSheetScaffold(
+                sheetContent = {
+                    Box(Modifier.fillMaxWidth().requiredHeight(sheetHeight))
+                },
+                scaffoldState = rememberBottomSheetScaffoldState(
+                    bottomSheetState = bottomSheetState
+                )
+            ) {
+                Text("Content")
+            }
+        }
+        scope.launch {
+            val exception = kotlin.runCatching { bottomSheetState.hide() }.exceptionOrNull()
+            assertThat(exception).isNotNull()
+            assertThat(exception).isInstanceOf(IllegalStateException::class.java)
+            assertThat(exception).hasMessageThat().containsMatch(
+                "Attempted to animate to hidden when skipHiddenState was enabled. Set " +
+                    "skipHiddenState to false to use this function."
+            )
+        }
     }
 
     @Test

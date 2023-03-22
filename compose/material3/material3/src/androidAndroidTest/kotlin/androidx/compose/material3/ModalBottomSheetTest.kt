@@ -594,7 +594,10 @@ class ModalBottomSheetTest {
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
-                dragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) }
+                dragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) }
             ) {
                 Box(
                     Modifier
@@ -716,11 +719,42 @@ class ModalBottomSheetTest {
     }
 
     @Test
+    fun modalBottomSheet_testParialExpandReturnsIllegalStateException_whenSkipPartialExpanded() {
+        lateinit var scope: CoroutineScope
+        val bottomSheetState = SheetState(
+            skipPartiallyExpanded = true,
+        )
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            ModalBottomSheet(onDismissRequest = {}, sheetState = bottomSheetState) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .testTag(sheetTag)
+                )
+            }
+        }
+        scope.launch {
+            val exception =
+                kotlin.runCatching { bottomSheetState.partialExpand() }.exceptionOrNull()
+            assertThat(exception).isNotNull()
+            assertThat(exception).isInstanceOf(IllegalStateException::class.java)
+            assertThat(exception).hasMessageThat().containsMatch(
+                "Attempted to animate to partial expanded when skipPartiallyExpanded was " +
+                    "enabled. Set skipPartiallyExpanded to false to use this function."
+            )
+        }
+    }
+
+    @Test
     fun modalBottomSheet_testDismissAction_tallBottomSheet_whenPartiallyExpanded() {
         rule.setContent {
             ModalBottomSheet(
                 onDismissRequest = {},
-                dragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) }
+                dragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) }
             ) {
                 Box(
                     Modifier
@@ -745,7 +779,10 @@ class ModalBottomSheetTest {
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
-                dragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) }
+                dragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) }
             ) {
                 Box(
                     Modifier
@@ -786,7 +823,10 @@ class ModalBottomSheetTest {
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
-                dragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) }
+                dragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) }
             ) {
                 Box(
                     Modifier
@@ -831,7 +871,10 @@ class ModalBottomSheetTest {
             ModalBottomSheet(
                 onDismissRequest = {},
                 sheetState = sheetState,
-                dragHandle = { Box(Modifier.testTag(dragHandleTag).size(dragHandleSize)) }
+                dragHandle = { Box(
+                    Modifier
+                        .testTag(dragHandleTag)
+                        .size(dragHandleSize)) }
             ) {
                 Box(
                     Modifier
