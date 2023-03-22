@@ -83,6 +83,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
     private static final String TAG = "JavaScriptSandbox";
     private static final String JS_SANDBOX_SERVICE_NAME =
             "org.chromium.android_webview.js_sandbox.service.JsSandboxService0";
+
     static AtomicBoolean sIsReadyToConnect = new AtomicBoolean(true);
     private final Object mLock = new Object();
     private CloseGuardHelper mGuard = CloseGuardHelper.create();
@@ -117,7 +118,9 @@ public final class JavaScriptSandbox implements AutoCloseable {
                     JS_FEATURE_PROMISE_RETURN,
                     JS_FEATURE_PROVIDE_CONSUME_ARRAY_BUFFER,
                     JS_FEATURE_WASM_COMPILATION,
+                    JS_FEATURE_ISOLATE_MAX_HEAP_SIZE,
                     JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT,
+                    JS_FEATURE_CONSOLE_MESSAGING,
             })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -191,6 +194,15 @@ public final class JavaScriptSandbox implements AutoCloseable {
     public static final String JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT =
             "JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT";
 
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * <p>
+     * When this feature is present, {@link JavaScriptIsolateClient} can be used.
+     * @hide
+     */
+    public static final String JS_FEATURE_CONSOLE_MESSAGING = "JS_FEATURE_CONSOLE_MESSAGING";
+
+    @GuardedBy("mLock")
     @Nullable
     private HashSet<String> mClientSideFeatureSet;
 
@@ -374,7 +386,9 @@ public final class JavaScriptSandbox implements AutoCloseable {
     // Use JavaScriptSandbox.createConnectedInstance().
     JavaScriptSandbox(ConnectionSetup connectionSetup, IJsSandboxService jsSandboxService) {
         mConnection = connectionSetup;
-        mJsSandboxService = jsSandboxService;
+        synchronized (mLock) {
+            mJsSandboxService = jsSandboxService;
+        }
         mGuard.open("close");
         // This should be at the end of the constructor.
     }
@@ -444,6 +458,9 @@ public final class JavaScriptSandbox implements AutoCloseable {
         }
         if (features.contains(IJsSandboxService.EVALUATE_WITHOUT_TRANSACTION_LIMIT)) {
             mClientSideFeatureSet.add(JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT);
+        }
+        if (features.contains(IJsSandboxService.CONSOLE_MESSAGING)) {
+            mClientSideFeatureSet.add(JS_FEATURE_CONSOLE_MESSAGING);
         }
     }
 
@@ -546,5 +563,9 @@ public final class JavaScriptSandbox implements AutoCloseable {
         } finally {
             super.finalize();
         }
+    }
+
+    Executor getMainExecutor() {
+        return ContextCompat.getMainExecutor(mConnection.mContext);
     }
 }

@@ -17,6 +17,7 @@
 package org.chromium.android_webview.js_sandbox.common;
 
 import android.content.res.AssetFileDescriptor;
+import org.chromium.android_webview.js_sandbox.common.IJsSandboxConsoleCallback;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateCallback;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateSyncCallback;
 
@@ -55,4 +56,10 @@ interface IJsSandboxIsolate {
      */
     void evaluateJavascriptWithFd(in AssetFileDescriptor afd, in IJsSandboxIsolateSyncCallback callback)
         = 3;
+
+    /**
+     * Set or unset a console callback to receive console messages from the isolate.
+     * @param callback The callback to receive messages, or null to unset.
+     */
+    void setConsoleCallback(IJsSandboxConsoleCallback callback) = 4;
 }
