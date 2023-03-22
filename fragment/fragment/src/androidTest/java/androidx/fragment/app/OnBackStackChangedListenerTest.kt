@@ -19,9 +19,6 @@ package androidx.fragment.app
 import androidx.fragment.app.FragmentManager.OnBackStackChangedListener
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -314,15 +311,6 @@ class OnBackStackChangedListenerTest {
                 }
             }
             fragmentManager.addOnBackStackChangedListener(listener)
-            withActivity {
-                fragment.lifecycle.addObserver(object : LifecycleEventObserver {
-                    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                        if (event == Lifecycle.Event.ON_START) {
-                            fragmentManager.removeOnBackStackChangedListener(listener)
-                        }
-                    }
-                })
-            }
 
             fragmentManager.beginTransaction()
                 .setReorderingAllowed(true)
@@ -333,6 +321,39 @@ class OnBackStackChangedListenerTest {
 
             assertThat(startedCount).isEqualTo(1)
             assertThat(committedCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun testOnBackChangeNoAddToBackstack() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+
+            val fragment = StrictFragment()
+            var startedCount = 0
+            var committedCount = 0
+            val listener = object : OnBackStackChangedListener {
+                override fun onBackStackChanged() { /* nothing */ }
+
+                override fun onBackStackChangeStarted(fragment: Fragment, pop: Boolean) {
+                    startedCount++
+                }
+
+                override fun onBackStackChangeCommitted(fragment: Fragment, pop: Boolean) {
+                    committedCount++
+                }
+            }
+            fragmentManager.addOnBackStackChangedListener(listener)
+
+            withActivity {
+                fragmentManager.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.content, fragment)
+                    .commitNow()
+            }
+
+            assertThat(startedCount).isEqualTo(0)
+            assertThat(committedCount).isEqualTo(0)
         }
     }
 }
