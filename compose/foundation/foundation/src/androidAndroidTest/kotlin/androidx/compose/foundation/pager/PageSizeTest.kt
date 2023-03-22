@@ -32,7 +32,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
+class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
     @Test
     fun pageSizeFill_onlySnappedItemIsDisplayed() {
         // Arrange
@@ -66,19 +66,19 @@ internal class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
             state = state,
             modifier = Modifier.crossAxisSize(200.dp),
             offscreenPageLimit = 0,
-            pageSize = pagerMode
+            pageSize = { pagerMode }
         )
 
         // Assert
         rule.runOnIdle {
-            val visibleItems = state.layoutInfo.visibleItemsInfo.size
+            val visibleItems = state.layoutInfo.visiblePagesInfo.size
             val pageCount = with(rule.density) {
                 (pagerSize / (pageSize + config.pageSpacing.roundToPx()))
             } + 1
             Truth.assertThat(visibleItems).isEqualTo(pageCount)
         }
 
-        for (pageIndex in 5 until state.layoutInfo.visibleItemsInfo.size + 4) {
+        for (pageIndex in 5 until state.layoutInfo.visiblePagesInfo.size + 4) {
             confirmPageIsInCorrectPosition(5, pageIndex)
         }
     }

@@ -31,7 +31,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class PageLayoutPositionOnScrollingTest(
+class PageLayoutPositionOnScrollingTest(
     val config: ParamConfig
 ) : BasePagerTest(config) {
 

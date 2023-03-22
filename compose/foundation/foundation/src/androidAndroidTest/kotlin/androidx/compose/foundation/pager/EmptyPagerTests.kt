@@ -28,7 +28,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-internal class EmptyPagerTests(val config: ParamConfig) : BasePagerTest(config) {
+class EmptyPagerTests(val config: ParamConfig) : BasePagerTest(config) {
 
     @Test
     fun checkNoPagesArePlaced() {
@@ -45,10 +45,6 @@ internal class EmptyPagerTests(val config: ParamConfig) : BasePagerTest(config) 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<ParamConfig>().apply {
-            for (orientation in TestOrientation) {
-                add(ParamConfig(orientation = orientation))
-            }
-        }
+        fun params() = AllOrientationsParams
     }
 }
