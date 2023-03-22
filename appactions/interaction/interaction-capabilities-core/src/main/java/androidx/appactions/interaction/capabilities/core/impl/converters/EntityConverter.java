@@ -17,17 +17,21 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
-import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.proto.Entity;
 
 /**
- * Converter from {@code ValueTypeT} to the app-driven disambig entity i.e. {@code Entity} proto.
- * The ValueTypeT instance is usually a value object provided by the app.
+ * Converter from any Type to the Entity proto. This converter is usually used in the direction from
+ * app to Assistant. Examples where the converter is needed is the developer
+ * setting possible values in Properties or returning "disambiguation entities" from an inventory
+ * listener.
  *
- * @param <ValueTypeT>
+ * @param <T> The T instance is usually a value object provided by the app, e.g. a Timer
+ * object from the built-in-types library.
  */
 @FunctionalInterface
-public interface DisambigEntityConverter<ValueTypeT> {
+public interface EntityConverter<T> {
+
+    /** Converter to an Entity proto. */
     @NonNull
-    Entity convert(ValueTypeT type) throws StructConversionException;
+    Entity convert(@NonNull T type);
 }

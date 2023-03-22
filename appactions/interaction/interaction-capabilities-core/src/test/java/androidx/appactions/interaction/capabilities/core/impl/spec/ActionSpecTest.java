@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
@@ -41,7 +42,6 @@ import org.junit.runners.JUnit4;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 @RunWith(JUnit4.class)
 public final class ActionSpecTest {
@@ -84,15 +84,14 @@ public final class ActionSpecTest {
                             Output::repeatedStringField,
                             TypeConverters::toParamValue)
                     .build();
-    private static final ParamValueConverter<String> STRING_PARAM_VALUE_CONVERTER = (paramValue) ->
-            "test";
-    private static final Function<String, androidx.appactions.interaction.proto.Entity>
-            STRING_ENTITY_CONVERTER =
-                    (theString) ->
-                            androidx.appactions.interaction.proto.Entity.newBuilder()
-                                    .setIdentifier(theString)
-                                    .setName(theString)
-                                    .build();
+    private static final ParamValueConverter<String> STRING_PARAM_VALUE_CONVERTER =
+            (paramValue) -> "test";
+    private static final EntityConverter<String> STRING_ENTITY_CONVERTER =
+            (theString) ->
+                    androidx.appactions.interaction.proto.Entity.newBuilder()
+                            .setIdentifier(theString)
+                            .setName(theString)
+                            .build();
 
     private static final ActionSpec<GenericEntityProperty, GenericEntityArgument, Output>
             GENERIC_TYPES_ACTION_SPEC =

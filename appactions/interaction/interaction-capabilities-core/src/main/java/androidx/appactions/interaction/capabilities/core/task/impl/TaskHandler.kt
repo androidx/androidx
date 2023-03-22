@@ -17,7 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.task.impl
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.capabilities.core.impl.converters.DisambigEntityConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.task.AppEntityListResolver
@@ -81,7 +81,7 @@ internal constructor(
             paramName: String,
             listener: AppEntityResolver<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
-            entityConverter: DisambigEntityConverter<ValueTypeT>,
+            entityConverter: EntityConverter<ValueTypeT>,
             searchActionConverter: SearchActionConverter<ValueTypeT>,
         ): Builder<ConfirmationT> = apply {
             mutableTaskParamMap[paramName] =
@@ -99,7 +99,7 @@ internal constructor(
             paramName: String,
             listener: AppEntityListResolver<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
-            entityConverter: DisambigEntityConverter<ValueTypeT>,
+            entityConverter: EntityConverter<ValueTypeT>,
             searchActionConverter: SearchActionConverter<ValueTypeT>,
         ): Builder<ConfirmationT> = apply {
             mutableTaskParamMap[paramName] =
