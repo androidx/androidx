@@ -195,7 +195,7 @@ class ResponseConvertersTest {
                         PlatformMass.fromGrams(88.0),
                     PowerRecord.POWER_AVG as AggregateMetric<Any> to PlatformPower.fromWatts(366.0),
                     HydrationRecord.VOLUME_TOTAL as AggregateMetric<Any> to
-                        PlatformVolume.fromLiters(1500.0),
+                        PlatformVolume.fromLiters(1.5),
                     FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL as AggregateMetric<Any> to 10.0,
                     BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL as AggregateMetric<Any> to
                         PlatformEnergy.fromCalories(836_800.0),
@@ -217,7 +217,7 @@ class ResponseConvertersTest {
                 FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL.metricKey,
                 10.0,
                 BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL.metricKey,
-                836.9
+                836.8
             )
     }
 }

@@ -96,7 +96,7 @@ internal fun getDoubleMetricValues(
                 }
                 in ENERGY_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] =
-                        Energy.joules((value as PlatformEnergy).inCalories).inKilocalories
+                        Energy.calories((value as PlatformEnergy).inCalories).inKilocalories
                 }
                 in LENGTH_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformLength).inMeters
