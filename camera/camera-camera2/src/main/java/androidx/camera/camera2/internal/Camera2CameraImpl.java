@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.ApiCompat;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
@@ -650,7 +651,7 @@ final class Camera2CameraImpl implements CameraInternal {
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " RESET");
             mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
-
+            addOrRemoveMeteringRepeatingUseCase();
             resetCaptureSession(/*abortInFlightCaptures=*/false);
             updateCaptureSessionConfig();
 
@@ -687,6 +688,31 @@ final class Camera2CameraImpl implements CameraInternal {
             }).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("Unable to check if use case is attached.", e);
+        }
+    }
+
+    @VisibleForTesting
+    boolean isMeteringRepeatingAttached() {
+        try {
+            return CallbackToFutureAdapter.<Boolean>getFuture(completer -> {
+                try {
+                    mExecutor.execute(() -> {
+                        if (mMeteringRepeatingSession == null) {
+                            completer.set(false);
+                            return;
+                        }
+                        String id = getMeteringRepeatingId(mMeteringRepeatingSession);
+                        completer.set(mUseCaseAttachState.isUseCaseAttached(id));
+                    });
+                } catch (RejectedExecutionException e) {
+                    completer.setException(new RuntimeException(
+                            "Unable to check if MeteringRepeating is attached. Camera executor "
+                                    + "shut down."));
+                }
+                return "isMeteringRepeatingAttached";
+            }).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Unable to check if MeteringRepeating is attached.", e);
         }
     }
 
@@ -977,12 +1003,13 @@ final class Camera2CameraImpl implements CameraInternal {
 
     private void addMeteringRepeating() {
         if (mMeteringRepeatingSession != null) {
+            String id = getMeteringRepeatingId(mMeteringRepeatingSession);
             mUseCaseAttachState.setUseCaseAttached(
-                    mMeteringRepeatingSession.getName() + mMeteringRepeatingSession.hashCode(),
+                    id,
                     mMeteringRepeatingSession.getSessionConfig(),
                     mMeteringRepeatingSession.getUseCaseConfig());
             mUseCaseAttachState.setUseCaseActive(
-                    mMeteringRepeatingSession.getName() + mMeteringRepeatingSession.hashCode(),
+                    id,
                     mMeteringRepeatingSession.getSessionConfig(),
                     mMeteringRepeatingSession.getUseCaseConfig());
         }
@@ -1376,6 +1403,11 @@ final class Camera2CameraImpl implements CameraInternal {
     @NonNull
     static String getUseCaseId(@NonNull UseCase useCase) {
         return useCase.getName() + useCase.hashCode();
+    }
+
+    @NonNull
+    static String getMeteringRepeatingId(@NonNull MeteringRepeatingSession meteringRepeating) {
+        return meteringRepeating.getName() + meteringRepeating.hashCode();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
