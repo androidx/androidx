@@ -30,7 +30,7 @@
     </test>
 
     <test android:id="@+id/second_test">
-        <argument android:name="arg2" app:argType="string" />
+        <argument android:name="arg2" app:argType="string" app:nullable="true" />
         <argument android:name="defaultArg" app:argType="string"
             android:defaultValue="defaultValue" />
         <action android:id="@+id/self" app:destination="@+id/second_test"
@@ -42,6 +42,13 @@
             app:action="test.action" app:mimeType="type/test"/>
         <deepLink app:uri="android-app://androidx.navigation.test/test/{arg1}/{arg2}"
             app:action="" />
+    </test>
+    <test android:id="@+id/nonNullableArg_test">
+        <argument android:name="arg3" app:argType="integer" app:nullable="false" />
+        <deepLink app:uri="test-app://test/{arg3}"
+            app:action="test.action2" app:mimeType="type/test2"/>
+        <deepLink app:uri="test-app://test?arg={arg3}"
+            app:action="test.action3" app:mimeType="type/test3"/>
     </test>
 
     <test android:id="@+id/nullArg_test">
