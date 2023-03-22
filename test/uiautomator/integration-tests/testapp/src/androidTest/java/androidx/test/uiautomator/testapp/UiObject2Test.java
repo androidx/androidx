@@ -508,7 +508,7 @@ public class UiObject2Test extends BaseTest {
 
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
-        pinchArea.pinchClose(1f);
+        pinchArea.pinchClose(0.75f);
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
         float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
         assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
