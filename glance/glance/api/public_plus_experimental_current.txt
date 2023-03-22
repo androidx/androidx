@@ -785,7 +785,6 @@ package androidx.glance.unit {
 
   public final class ColorProviderKt {
     method public static androidx.glance.unit.ColorProvider ColorProvider(long color);
-    method public static androidx.glance.unit.ColorProvider ColorProvider(@ColorRes int resId);
   }
 
 }
