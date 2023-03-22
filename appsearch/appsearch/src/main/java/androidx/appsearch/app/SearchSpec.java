@@ -200,12 +200,12 @@ public final class SearchSpec {
      * Results should be grouped together by package for the purpose of enforcing a limit on the
      * number of results returned per package.
      */
-    public static final int GROUPING_TYPE_PER_PACKAGE = 0b001;
+    public static final int GROUPING_TYPE_PER_PACKAGE = 1 << 0;
     /**
      * Results should be grouped together by namespace for the purpose of enforcing a limit on the
      * number of results returned per namespace.
      */
-    public static final int GROUPING_TYPE_PER_NAMESPACE = 0b010;
+    public static final int GROUPING_TYPE_PER_NAMESPACE = 1 << 1;
     /**
      * Results should be grouped together by schema type for the purpose of enforcing a limit on the
      * number of results returned per schema type.
@@ -215,7 +215,7 @@ public final class SearchSpec {
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA)
     // @exportToFramework:endStrip()
-    public static final int GROUPING_TYPE_PER_SCHEMA = 0b100;
+    public static final int GROUPING_TYPE_PER_SCHEMA = 1 << 2;
 
     private final Bundle mBundle;
 
