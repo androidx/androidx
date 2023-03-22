@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.text2
 
 import android.os.Build
@@ -28,6 +26,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
@@ -41,7 +40,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -65,6 +66,7 @@ import kotlin.math.floor
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 class TextFieldCursorTest {
 
@@ -472,5 +474,41 @@ class TextFieldCursorTest {
                 textFieldBgColor
             }
         }
+    }
+
+    @Test
+    fun textFieldCursor_alwaysReadLatestState_duringDraw() {
+        val state = TextFieldState(TextFieldValue("hello world", TextRange(5)))
+        rule.setContent {
+            Box(Modifier.padding(boxPadding)) {
+                BasicTextField2(
+                    state = state,
+                    textStyle = textStyle,
+                    modifier = textFieldModifier.layout { measurable, constraints ->
+                        // change the state during layout so draw can read the new state
+                        val currValue = Snapshot.withoutReadObservation { state.value }
+                        if (currValue.text.isNotEmpty()) {
+                            val newText = currValue.text.dropLast(1)
+                            val newValue = TextFieldValue(newText, TextRange(newText.length))
+                            state.editProcessor.reset(newValue)
+                        }
+
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            p.place(0, 0)
+                        }
+                    },
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = onTextLayout
+                )
+            }
+        }
+
+        focusAndWait()
+
+        rule.waitForIdle()
+
+        rule.onNode(hasSetTextAction()).assertTextEquals("")
+        // this test just needs to finish without crashing. There is no other assertion
     }
 }

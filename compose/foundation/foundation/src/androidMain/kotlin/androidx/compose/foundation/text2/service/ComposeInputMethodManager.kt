@@ -20,8 +20,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
+import android.view.KeyEvent
 import android.view.View
 import android.view.Window
+import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.ExtractedText
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
@@ -54,6 +56,12 @@ internal interface ComposeInputMethodManager {
         compositionStart: Int,
         compositionEnd: Int
     )
+
+    /**
+     * Sends a [KeyEvent] originated from an InputMethod to the Window. This is a necessary
+     * delegation when the InputConnection itself does not handle the received event.
+     */
+    fun sendKeyEvent(event: KeyEvent)
 }
 
 internal fun ComposeInputMethodManager(view: View): ComposeInputMethodManager {
@@ -67,10 +75,12 @@ private class ComposeInputMethodManagerImpl(private val view: View) : ComposeInp
             as android.view.inputmethod.InputMethodManager
     }
 
-    private val helper = if (Build.VERSION.SDK_INT < 30) {
-        ImmHelper21(view)
-    } else {
+    private val helper = if (Build.VERSION.SDK_INT >= 30) {
         ImmHelper30(view)
+    } else if (Build.VERSION.SDK_INT >= 24) {
+        ImmHelper24(view)
+    } else {
+        ImmHelper21(view)
     }
 
     override fun restartInput() {
@@ -92,6 +102,10 @@ private class ComposeInputMethodManagerImpl(private val view: View) : ComposeInp
         imm.updateExtractedText(view, token, extractedText)
     }
 
+    override fun sendKeyEvent(event: KeyEvent) {
+        helper.sendKeyEvent(imm, event)
+    }
+
     override fun updateSelection(
         selectionStart: Int,
         selectionEnd: Int,
@@ -103,11 +117,23 @@ private class ComposeInputMethodManagerImpl(private val view: View) : ComposeInp
 }
 
 private interface ImmHelper {
+
     fun showSoftInput(imm: android.view.inputmethod.InputMethodManager)
+
     fun hideSoftInput(imm: android.view.inputmethod.InputMethodManager)
+
+    fun sendKeyEvent(imm: android.view.inputmethod.InputMethodManager, event: KeyEvent)
 }
 
 private class ImmHelper21(private val view: View) : ImmHelper {
+
+    /**
+     * Prior to API24, the safest way to delegate IME originated KeyEvents to the window was
+     * through BaseInputConnection.
+     */
+    private val baseInputConnection by lazy(LazyThreadSafetyMode.NONE) {
+        BaseInputConnection(view, false)
+    }
 
     @DoNotInline
     override fun showSoftInput(imm: android.view.inputmethod.InputMethodManager) {
@@ -119,6 +145,32 @@ private class ImmHelper21(private val view: View) : ImmHelper {
     @DoNotInline
     override fun hideSoftInput(imm: android.view.inputmethod.InputMethodManager) {
         imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    @DoNotInline
+    override fun sendKeyEvent(imm: android.view.inputmethod.InputMethodManager, event: KeyEvent) {
+        baseInputConnection.sendKeyEvent(event)
+    }
+}
+
+@RequiresApi(24)
+private class ImmHelper24(private val view: View) : ImmHelper {
+
+    @DoNotInline
+    override fun showSoftInput(imm: android.view.inputmethod.InputMethodManager) {
+        view.post {
+            imm.showSoftInput(view, 0)
+        }
+    }
+
+    @DoNotInline
+    override fun hideSoftInput(imm: android.view.inputmethod.InputMethodManager) {
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    @DoNotInline
+    override fun sendKeyEvent(imm: android.view.inputmethod.InputMethodManager, event: KeyEvent) {
+        imm.dispatchKeyEventFromInputMethod(view, event)
     }
 }
 
@@ -154,6 +206,11 @@ private class ImmHelper30(private val view: View) : ImmHelper {
         insetsControllerCompat?.apply {
             hide(WindowInsetsCompat.Type.ime())
         } ?: immHelper21.hideSoftInput(imm)
+    }
+
+    @DoNotInline
+    override fun sendKeyEvent(imm: android.view.inputmethod.InputMethodManager, event: KeyEvent) {
+        imm.dispatchKeyEventFromInputMethod(view, event)
     }
 
     // TODO(b/221889664) Replace with composition local when available.

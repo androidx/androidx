@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.demos.text2
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -40,6 +38,9 @@ fun BasicTextField2Demos() {
         TagLine(tag = "Plain BasicTextField2")
         PlainBasicTextField2()
 
+        TagLine(tag = "Single Line BasicTextField2")
+        SingleLineBasicTextField2()
+
         TagLine(tag = "State toggling BasicTextField2")
         StateTogglingBasicTextField2()
 
@@ -48,12 +49,26 @@ fun BasicTextField2Demos() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlainBasicTextField2() {
     val state = remember { TextFieldState() }
     BasicTextField2(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun SingleLineBasicTextField2() {
+    val state = remember { TextFieldState() }
+    BasicTextField2(
+        state = state,
+        modifier = demoTextFieldModifiers,
+        textStyle = LocalTextStyle.current,
+        maxLines = 1
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StateTogglingBasicTextField2() {
     var counter by remember { mutableStateOf(0) }
@@ -67,6 +82,7 @@ fun StateTogglingBasicTextField2() {
     BasicTextField2(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DigitsOnlyBasicTextField2() {
     val state = remember {

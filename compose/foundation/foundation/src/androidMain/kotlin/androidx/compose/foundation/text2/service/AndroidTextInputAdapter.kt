@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.text2.service
 
 import android.os.Looper
 import android.text.InputType
 import android.util.Log
 import android.view.Choreographer
+import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -43,6 +42,7 @@ import java.util.concurrent.Executor
 private const val DEBUG = true
 private const val TAG = "BasicTextInputAdapter"
 
+@OptIn(ExperimentalFoundationApi::class)
 internal class AndroidTextInputAdapter constructor(
     view: View,
     private val platformTextInput: PlatformTextInput
@@ -108,6 +108,10 @@ internal class AndroidTextInputAdapter constructor(
 
             override fun requestEdits(editCommands: List<EditCommand>) {
                 state.editProcessor.update(editCommands)
+            }
+
+            override fun sendKeyEvent(keyEvent: KeyEvent) {
+                inputMethodManager.sendKeyEvent(keyEvent)
             }
 
             override val isOpen: Boolean
