@@ -52,7 +52,7 @@ class CaptureNodeTest {
 
     @Before
     fun setUp() {
-        captureNodeIn = CaptureNode.In.of(Size(10, 10), ImageFormat.JPEG)
+        captureNodeIn = CaptureNode.In.of(Size(10, 10), ImageFormat.JPEG, false)
         captureNodeOut = captureNode.transform(captureNodeIn)
         captureNodeOut.imageEdge.setListener {
             imagePropagated.add(it)

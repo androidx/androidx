@@ -247,20 +247,17 @@ public final class ImageCapture extends UseCase {
 
     /**
      * When flash is required for taking a picture, a normal one shot flash will be used.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int FLASH_TYPE_ONE_SHOT_FLASH = 0;
     /**
      * When flash is required for taking a picture, torch will be used as flash.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int FLASH_TYPE_USE_TORCH_AS_FLASH = 1;
 
     /**
      * Provides a static configuration with implementation-agnostic options.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
@@ -506,7 +503,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -527,7 +523,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -538,7 +533,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -611,7 +605,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * Configures flash mode to CameraControlInternal once it is ready.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -905,7 +898,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -1100,7 +1092,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @UiThread
@@ -1567,7 +1558,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -1579,7 +1569,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1599,7 +1588,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @NonNull
     @Override
@@ -1739,7 +1727,8 @@ public final class ImageCapture extends UseCase {
         Size resolution = streamSpec.getResolution();
 
         checkState(mImagePipeline == null);
-        mImagePipeline = new ImagePipeline(config, resolution, getEffect());
+        mImagePipeline = new ImagePipeline(config, resolution, getEffect(),
+                !requireNonNull(getCamera()).getHasTransform());
 
         if (mTakePictureManager == null) {
             // mTakePictureManager is reused when the Surface is reset.
@@ -1907,7 +1896,6 @@ public final class ImageCapture extends UseCase {
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
      * ImageCapture.OnImageSavedCallback#onError(ImageCaptureException)}.
-     *
      */
     @IntDef({ERROR_UNKNOWN, ERROR_FILE_IO, ERROR_CAPTURE_FAILED, ERROR_CAMERA_CLOSED,
             ERROR_INVALID_CAMERA})
@@ -1919,7 +1907,6 @@ public final class ImageCapture extends UseCase {
     /**
      * Capture mode options for ImageCapture. A picture will always be taken regardless of
      * mode, and the mode will be used on devices that support it.
-     *
      */
     @IntDef({CAPTURE_MODE_MAXIMIZE_QUALITY, CAPTURE_MODE_MINIMIZE_LATENCY,
             CAPTURE_MODE_ZERO_SHUTTER_LAG})
@@ -1940,7 +1927,6 @@ public final class ImageCapture extends UseCase {
      * will remain enabled during photo capture regardless of flash mode setting. When
      * the torch is disabled, flash will function as specified by
      * {@link #setFlashMode(int)}.
-     *
      */
     @IntDef({FLASH_MODE_UNKNOWN, FLASH_MODE_AUTO, FLASH_MODE_ON, FLASH_MODE_OFF})
     @Retention(RetentionPolicy.SOURCE)
@@ -1950,7 +1936,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * The flash type options when flash is required for taking a picture.
-     *
      */
     @IntDef({FLASH_TYPE_ONE_SHOT_FLASH, FLASH_TYPE_USE_TORCH_AS_FLASH})
     @Retention(RetentionPolicy.SOURCE)
@@ -2024,7 +2009,6 @@ public final class ImageCapture extends UseCase {
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
@@ -2092,6 +2076,7 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
+         *
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2100,6 +2085,7 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
+         *
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2108,6 +2094,7 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
+         *
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2116,6 +2103,7 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
+         *
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2124,6 +2112,7 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
+         *
          */
         @Nullable
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -2135,7 +2124,6 @@ public final class ImageCapture extends UseCase {
          * Exposed internally so that CameraController can overwrite the flip horizontal flag for
          * front camera. External core API users shouldn't need this because they are the ones who
          * created the {@link Metadata}.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2254,6 +2242,7 @@ public final class ImageCapture extends UseCase {
         private final Uri mSavedUri;
 
         /**
+         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public OutputFileResults(@Nullable Uri savedUri) {
@@ -2316,7 +2305,6 @@ public final class ImageCapture extends UseCase {
          *
          * <p> CameraController's default behavior is mirroring the picture when front camera is
          * used. This method is used to check if reverseHorizontal is set explicitly by the app.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public boolean isReversedHorizontalSet() {
@@ -2576,7 +2564,6 @@ public final class ImageCapture extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -2587,7 +2574,6 @@ public final class ImageCapture extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -2824,7 +2810,6 @@ public final class ImageCapture extends UseCase {
 
         /**
          * setMirrorMode is not supported on ImageCapture.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3072,7 +3057,6 @@ public final class ImageCapture extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -3084,7 +3068,6 @@ public final class ImageCapture extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
