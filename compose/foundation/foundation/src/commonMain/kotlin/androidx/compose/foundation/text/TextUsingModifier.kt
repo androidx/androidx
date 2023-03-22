@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -77,21 +78,26 @@ internal fun TextUsingModifier(
         null
     }
     val finalModifier = if (selectionController != null || onTextLayout != null) {
-        modifier.textModifier(
-            AnnotatedString(text),
-            style = style,
-            onTextLayout = onTextLayout,
-            overflow = overflow,
-            softWrap = softWrap,
-            maxLines = maxLines,
-            minLines = minLines,
-            fontFamilyResolver = LocalFontFamilyResolver.current,
-            placeholders = null,
-            onPlaceholderLayout = null,
-            selectionController = selectionController
-        )
+        modifier
+            // TODO(b/274781644): Remove this graphicsLayer
+            .graphicsLayer()
+            .textModifier(
+                AnnotatedString(text),
+                style = style,
+                onTextLayout = onTextLayout,
+                overflow = overflow,
+                softWrap = softWrap,
+                maxLines = maxLines,
+                minLines = minLines,
+                fontFamilyResolver = LocalFontFamilyResolver.current,
+                placeholders = null,
+                onPlaceholderLayout = null,
+                selectionController = selectionController
+            )
     } else {
-        modifier then TextStringSimpleElement(
+        modifier
+            // TODO(b/274781644): Remove this graphicsLayer
+            .graphicsLayer() then TextStringSimpleElement(
             text,
             style,
             LocalFontFamilyResolver.current,
@@ -138,7 +144,10 @@ internal fun TextUsingModifier(
     if (!text.hasInlineContent()) {
         // this is the same as text: String, use all the early exits
         Layout(
-            modifier = modifier.textModifier(
+            modifier = modifier
+                // TODO(b/274781644): Remove this graphicsLayer
+                .graphicsLayer()
+                .textModifier(
                 text = text,
                 style = style,
                 onTextLayout = onTextLayout,
@@ -161,7 +170,10 @@ internal fun TextUsingModifier(
         }
         Layout(
             content = { InlineChildren(text, inlineComposables) },
-            modifier = modifier.textModifier(
+            modifier = modifier
+                // TODO(b/274781644): Remove this graphicsLayer
+                .graphicsLayer()
+                .textModifier(
                 text = text,
                 style = style,
                 onTextLayout = onTextLayout,
