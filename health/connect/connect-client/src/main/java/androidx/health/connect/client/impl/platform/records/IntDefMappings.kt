@@ -34,6 +34,8 @@ import androidx.health.connect.client.records.Vo2MaxRecord
 
 internal val SDK_TO_PLATFORM_CERVICAL_MUCUS_APPEARANCE: Map<Int, Int> =
     mapOf(
+        CervicalMucusRecord.APPEARANCE_EGG_WHITE to
+            PlatformCervicalMucusAppearance.APPEARANCE_EGG_WHITE,
         CervicalMucusRecord.APPEARANCE_DRY to PlatformCervicalMucusAppearance.APPEARANCE_DRY,
         CervicalMucusRecord.APPEARANCE_STICKY to PlatformCervicalMucusAppearance.APPEARANCE_STICKY,
         CervicalMucusRecord.APPEARANCE_CREAMY to PlatformCervicalMucusAppearance.APPEARANCE_CREAMY,
