@@ -298,7 +298,8 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Testu gehigarri apur bat"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Hauta daitekeen zerrenda baten lagina"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Zereginak mugatzeko demo-bertsioa"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Zereginen mugara iritsi zara\nAurrera eginez gero, aplikazioa gelditzera behartuko duzu"</string>
+    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
+    <skip />
     <string name="task_step_of_title" msgid="2791717962535723839">"Zereginaren %1$d/%2$d urratsa"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Aurrera egiteko, sakatu hau"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Ikusi txantiloiak eta ziurtatu ibilgailua gidatze moduan dagoela"</string>
@@ -327,10 +328,8 @@
     <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Zerrenda 1"</string>
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Zerrenda 2"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Zerrenda bakoitzaren beheko azpitestua"</string>
-    <!-- no translation found for empty_list_demo_title (5989013634820902455) -->
-    <skip />
-    <!-- no translation found for empty_list_message (5331395517560728138) -->
-    <skip />
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Zerrenda huts baten adibidea"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"Zerrenda hutsik dago"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Bestelako txantiloien demo-bertsioak"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Erakutsi demo-bertsioak"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Txantiloi-diseinuen demo-bertsioak"</string>
