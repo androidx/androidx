@@ -33,7 +33,7 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBui
 import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
-import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver
+import androidx.appactions.interaction.capabilities.core.task.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
@@ -522,7 +522,7 @@ class TaskCapabilityImplTest {
                         override suspend fun onFinish(argument: Argument) =
                             ExecutionResult.getDefaultInstance<Output>()
                         override fun getRequiredEntityListener() =
-                            object : AppEntityResolver<EntityValue> {
+                            object : AppEntityListener<EntityValue> {
                                 override fun lookupAndRenderAsync(
                                     searchAction: SearchAction<EntityValue>,
                                 ): ListenableFuture<EntitySearchResult<EntityValue>> {
@@ -547,7 +547,7 @@ class TaskCapabilityImplTest {
                     SessionBridge<Session, Confirmation> { session ->
                         val builder = TaskHandler.Builder<Confirmation>()
                         session.getRequiredEntityListener()?.let {
-                            listener: AppEntityResolver<EntityValue> ->
+                            listener: AppEntityListener<EntityValue> ->
                             builder.registerAppEntityTaskParam(
                                 "required",
                                 listener,
@@ -681,7 +681,7 @@ class TaskCapabilityImplTest {
                     }
 
                     override fun getListItemListener() =
-                        object : AppEntityResolver<ListItem> {
+                        object : AppEntityListener<ListItem> {
                             override fun onReceivedAsync(
                                 value: ListItem,
                             ): ListenableFuture<ValidationResult> {
@@ -907,8 +907,8 @@ class TaskCapabilityImplTest {
                 TypeConverters.toEntity(it)
             }
 
-        private val AUTO_ACCEPT_ENTITY_VALUE: AppEntityResolver<EntityValue> =
-            object : AppEntityResolver<EntityValue> {
+        private val AUTO_ACCEPT_ENTITY_VALUE: AppEntityListener<EntityValue> =
+            object : AppEntityListener<EntityValue> {
                 override fun lookupAndRenderAsync(
                     searchAction: SearchAction<EntityValue>,
                 ): ListenableFuture<EntitySearchResult<EntityValue>> {
@@ -925,8 +925,8 @@ class TaskCapabilityImplTest {
                     return Futures.immediateFuture(ValidationResult.newAccepted())
                 }
             }
-        private val AUTO_REJECT_ENTITY_VALUE: AppEntityResolver<EntityValue> =
-            object : AppEntityResolver<EntityValue> {
+        private val AUTO_REJECT_ENTITY_VALUE: AppEntityListener<EntityValue> =
+            object : AppEntityListener<EntityValue> {
                 override fun lookupAndRenderAsync(
                     searchAction: SearchAction<EntityValue>,
                 ): ListenableFuture<EntitySearchResult<EntityValue>> {
