@@ -2,8 +2,8 @@
 package androidx.glance.appwidget {
 
   public final class AndroidRemoteViewsKt {
-    method @androidx.compose.runtime.Composable public static void AndroidRemoteViews(android.widget.RemoteViews remoteViews);
-    method @androidx.compose.runtime.Composable public static void AndroidRemoteViews(android.widget.RemoteViews remoteViews, @IdRes int containerViewId, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void AndroidRemoteViews(android.widget.RemoteViews remoteViews, optional androidx.glance.GlanceModifier modifier);
+    method @androidx.compose.runtime.Composable public static void AndroidRemoteViews(android.widget.RemoteViews remoteViews, @IdRes int containerViewId, optional androidx.glance.GlanceModifier modifier, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class AppWidgetBackgroundKt {
