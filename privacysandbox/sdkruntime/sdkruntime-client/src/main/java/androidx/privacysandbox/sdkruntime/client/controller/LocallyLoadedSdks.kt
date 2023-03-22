@@ -16,7 +16,9 @@
 
 package androidx.privacysandbox.sdkruntime.client.controller
 
+import androidx.privacysandbox.sdkruntime.client.loader.LocalSdkProvider
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+import org.jetbrains.annotations.TestOnly
 
 /**
  * Represents list of locally loaded SDKs.
@@ -26,17 +28,29 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
  */
 internal class LocallyLoadedSdks {
 
-    private val sdks = HashMap<String, SandboxedSdkCompat>()
+    private val sdks = HashMap<String, Entry>()
 
     fun isLoaded(sdkName: String): Boolean {
         return sdks.containsKey(sdkName)
     }
 
-    fun put(sdkName: String, sandboxedSdk: SandboxedSdkCompat) {
-        sdks[sdkName] = sandboxedSdk
+    fun put(sdkName: String, entry: Entry) {
+        sdks[sdkName] = entry
+    }
+
+    @TestOnly
+    fun get(sdkName: String): Entry? = sdks[sdkName]
+
+    fun remove(sdkName: String): Entry? {
+        return sdks.remove(sdkName)
     }
 
     fun getLoadedSdks(): List<SandboxedSdkCompat> {
-        return sdks.values.toList()
+        return sdks.values.map { it.sdk }
     }
+
+    data class Entry(
+        val sdkProvider: LocalSdkProvider,
+        val sdk: SandboxedSdkCompat
+    )
 }

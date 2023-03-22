@@ -20,6 +20,7 @@ import android.content.ContextWrapper
 import android.os.Build
 import android.os.Bundle
 import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
+import androidx.privacysandbox.sdkruntime.client.loader.extractSdkProviderFieldValue
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_INTERNAL_ERROR
@@ -154,6 +155,69 @@ class SdkSandboxManagerCompatTest {
 
         assertThat(result.loadSdkErrorCode).isEqualTo(LOAD_SDK_INTERNAL_ERROR)
         assertThat(result.message).isEqualTo("Failed to instantiate local SDK")
+    }
+
+    @Test
+    fun loadSdk_afterUnloading_loadSdkAgain() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val sdkName = "androidx.privacysandbox.sdkruntime.test.v1"
+
+        val sdkToUnload = runBlocking {
+            managerCompat.loadSdk(sdkName, Bundle())
+        }
+
+        managerCompat.unloadSdk(sdkName)
+
+        val reloadedSdk = runBlocking {
+            managerCompat.loadSdk(sdkName, Bundle())
+        }
+
+        assertThat(managerCompat.getSandboxedSdks())
+            .containsExactly(reloadedSdk)
+        assertThat(reloadedSdk.getInterface())
+            .isNotEqualTo(sdkToUnload.getInterface())
+    }
+
+    @Test
+    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    fun unloadSdk_whenNoLocalSdkLoadedAndSandboxNotAvailable_dontDelegateToSandbox() {
+        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
+        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
+
+        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        managerCompat.unloadSdk("sdk-not-loaded")
+
+        verify(context, Mockito.never()).getSystemService(any())
+    }
+
+    @Test
+    fun unloadSdk_whenLocalSdkLoaded_unloadLocalSdk() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val sdkName = "androidx.privacysandbox.sdkruntime.test.v1"
+
+        runBlocking {
+            managerCompat.loadSdk(sdkName, Bundle())
+        }
+        val sdkProvider = managerCompat.getLocallyLoadedSdk(sdkName)!!.sdkProvider
+
+        managerCompat.unloadSdk(sdkName)
+
+        val isBeforeUnloadSdkCalled = sdkProvider.extractSdkProviderFieldValue<Boolean>(
+            fieldName = "isBeforeUnloadSdkCalled"
+        )
+
+        assertThat(isBeforeUnloadSdkCalled)
+            .isTrue()
+
+        assertThat(managerCompat.getSandboxedSdks())
+            .isEmpty()
     }
 
     @Test
