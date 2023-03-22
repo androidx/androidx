@@ -930,4 +930,17 @@ class TabTest {
 
         rule.onNodeWithTag("Tabs").assertHeightIsEqualTo(height)
     }
+
+    @Test
+    fun tabRow_noTabsHasHeightZero() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TabRow(
+                modifier = Modifier.testTag("tabRow"),
+                selectedTabIndex = 0
+            ) {}
+        }
+
+        val tabRowBounds = rule.onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
+        tabRowBounds.height.assertIsEqualTo(0.dp)
+    }
 }
