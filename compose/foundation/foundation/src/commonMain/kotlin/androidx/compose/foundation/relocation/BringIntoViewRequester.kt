@@ -17,12 +17,14 @@
 package androidx.compose.foundation.relocation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.toRect
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.toSize
 
 /**
@@ -95,15 +97,29 @@ fun BringIntoViewRequester(): BringIntoViewRequester {
  *     [bringIntoView][BringIntoViewRequester.bringIntoView] requests to parents
  *     of the current composable.
  */
-@Suppress("ModifierInspectorInfo")
 @ExperimentalFoundationApi
 fun Modifier.bringIntoViewRequester(
     bringIntoViewRequester: BringIntoViewRequester
-): Modifier = this.then(BringIntoViewRequesterElement(bringIntoViewRequester))
+): Modifier = composed(debugInspectorInfo {
+    name = "bringIntoViewRequester"
+    properties["bringIntoViewRequester"] = bringIntoViewRequester
+}) {
+    val defaultResponder = rememberDefaultBringIntoViewParent()
+    val modifier = remember(defaultResponder) {
+        BringIntoViewRequesterModifier(defaultResponder)
+    }
+    if (bringIntoViewRequester is BringIntoViewRequesterImpl) {
+        DisposableEffect(bringIntoViewRequester) {
+            bringIntoViewRequester.modifiers += modifier
+            onDispose { bringIntoViewRequester.modifiers -= modifier }
+        }
+    }
+    return@composed modifier
+}
 
 @ExperimentalFoundationApi
 private class BringIntoViewRequesterImpl : BringIntoViewRequester {
-    val modifiers = mutableVectorOf<BringIntoViewRequesterNode>()
+    val modifiers = mutableVectorOf<BringIntoViewRequesterModifier>()
 
     override suspend fun bringIntoView(rect: Rect?) {
         modifiers.forEach {
@@ -112,64 +128,15 @@ private class BringIntoViewRequesterImpl : BringIntoViewRequester {
     }
 }
 
-@ExperimentalFoundationApi
-private class BringIntoViewRequesterElement(
-    private val requester: BringIntoViewRequester
-) : ModifierNodeElement<BringIntoViewRequesterNode>() {
-    override fun create(): BringIntoViewRequesterNode {
-        return BringIntoViewRequesterNode(requester)
-    }
-
-    override fun update(node: BringIntoViewRequesterNode): BringIntoViewRequesterNode =
-        node.also {
-            it.updateRequester(requester)
-        }
-
-    override fun InspectorInfo.inspectableProperties() {
-        name = "bringIntoViewRequester"
-        properties["bringIntoViewRequester"] = requester
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return (this === other) ||
-            (other is BringIntoViewRequesterElement) && (requester == other.requester)
-    }
-
-    override fun hashCode(): Int {
-        return requester.hashCode()
-    }
-}
-
 /**
  * A modifier that holds state and modifier implementations for [bringIntoViewRequester]. It has
- * access to the next [BringIntoViewParent] via [BringIntoViewChildNode], and uses that parent
+ * access to the next [BringIntoViewParent] via [BringIntoViewChildModifier], and uses that parent
  * to respond to requests to [bringIntoView].
  */
 @ExperimentalFoundationApi
-internal class BringIntoViewRequesterNode(
-    private var requester: BringIntoViewRequester
-) : BringIntoViewChildNode() {
-    init {
-        updateRequester(requester)
-    }
-
-    fun updateRequester(requester: BringIntoViewRequester) {
-        disposeRequester()
-        if (requester is BringIntoViewRequesterImpl) {
-            requester.modifiers += this
-        }
-        this.requester = requester
-    }
-
-    private fun disposeRequester() {
-        if (requester is BringIntoViewRequesterImpl) {
-            (requester as BringIntoViewRequesterImpl).modifiers -= this
-        }
-    }
-
-    override fun onDetach() {
-        disposeRequester()
-    }
+private class BringIntoViewRequesterModifier(
+    defaultParent: BringIntoViewParent
+) : BringIntoViewChildModifier(defaultParent) {
 
     /**
      * Requests that [rect] (if non-null) or the entire bounds of this modifier's node (if [rect]
