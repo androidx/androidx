@@ -1897,7 +1897,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // such as push, push, pop, push are correctly considered a push
         boolean isPop = isRecordPop.get(endIndex - 1);
 
-        if (mBackStackChangeListeners != null && !mBackStackChangeListeners.isEmpty()) {
+        if (addToBackStack && mBackStackChangeListeners != null
+                && !mBackStackChangeListeners.isEmpty()) {
             ArrayList<Fragment> fragments = new ArrayList<>();
             // Build a list of fragments based on the records
             for (BackStackRecord record : records) {
