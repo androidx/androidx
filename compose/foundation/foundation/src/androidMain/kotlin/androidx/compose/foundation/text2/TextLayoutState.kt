@@ -37,7 +37,7 @@ internal class TextLayoutState(initialTextDelegate: TextDelegate) {
     /**
      * Set of parameters and an internal cache to compute text layout.
      */
-    var textDelegate: TextDelegate by mutableStateOf(initialTextDelegate)
+    var textDelegate: TextDelegate = initialTextDelegate
         private set
 
     /**
