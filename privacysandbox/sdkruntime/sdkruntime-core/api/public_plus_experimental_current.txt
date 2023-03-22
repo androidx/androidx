@@ -21,14 +21,8 @@ package androidx.privacysandbox.sdkruntime.core {
 
   public final class SandboxedSdkCompat {
     ctor public SandboxedSdkCompat(android.os.IBinder sdkInterface);
-    method public static androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat create(android.os.IBinder binder);
     method public android.os.IBinder? getInterface();
     method public androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo? getSdkInfo();
-    field public static final androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.Companion Companion;
-  }
-
-  public static final class SandboxedSdkCompat.Companion {
-    method public androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat create(android.os.IBinder binder);
   }
 
   public final class SandboxedSdkInfo {
