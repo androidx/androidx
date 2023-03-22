@@ -16,14 +16,23 @@
 
 package androidx.appactions.interaction.capabilities.core.entity
 
+import androidx.annotation.RestrictTo
+import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeSpec
+import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
+import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.capabilities.core.values.Thing
+import androidx.appactions.interaction.proto.Entity
+import androidx.appactions.interaction.proto.GroundingRequest
+import androidx.appactions.interaction.proto.GroundingResponse
 
 /**
  * EntityProvider could provide candidates for assistant's search actions.
  *
  * <p>Use abstract classes within the library to create instances of the {@link EntityProvider}.
  */
-abstract class EntityProvider<T : Thing> {
+abstract class EntityProvider<T : Thing> internal constructor(private val typeSpec: TypeSpec<T>) {
     /**
      * Unique identifier for this EntityFilter. Must match the shortcuts.xml declaration, which allows
      * different filters to be assigned to types on a per-BII basis.
@@ -36,4 +45,63 @@ abstract class EntityProvider<T : Thing> {
      * @param request The request includes e.g. entity, search metadata, etc.
      */
     abstract fun lookup(request: EntityLookupRequest<T>): EntityLookupResponse<T>
+
+    /**
+     * Internal method to lookup untyped entity, which will be used by service library to handle
+     * {@link GroundingRequest}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun lookupInternal(request: GroundingRequest): GroundingResponse {
+        val converter: SearchActionConverter<T> =
+            TypeConverters.createSearchActionConverter(this.typeSpec)
+        val searchAction: SearchAction<T> = try {
+            converter.toSearchAction(request.request.searchAction)
+        } catch (e: StructConversionException) {
+            return createResponse(GroundingResponse.Status.INVALID_ENTITY_ARGUMENT)
+        }
+        val lookupRequest = EntityLookupRequest.Builder<T>()
+            .setSearchAction(searchAction)
+            .setPageSize(request.request.pageSize)
+            .setPageToken(request.request.pageToken)
+            .build()
+        val response = lookup(lookupRequest)
+        @EntityLookupResponse.EntityLookupStatus val status: Int = response.status
+        return if (status == EntityLookupResponse.SUCCESS) {
+            createResponse(response)
+        } else createResponse(convertStatus(status))
+    }
+
+    private fun createResponse(status: GroundingResponse.Status): GroundingResponse {
+        return GroundingResponse.newBuilder()
+            .setResponse(GroundingResponse.Response.newBuilder().setStatus(status))
+            .build()
+    }
+
+    private fun createResponse(response: EntityLookupResponse<T>): GroundingResponse {
+        val builder =
+            GroundingResponse.Response.newBuilder().setStatus(GroundingResponse.Status.SUCCESS)
+        for (candidate in response.candidateList) {
+            builder.addCandidates(
+                GroundingResponse.Candidate.newBuilder()
+                    .setGroundedEntity(
+                        Entity.newBuilder().setValue(typeSpec.toStruct(candidate.candidate))
+                    )
+                    .build()
+            )
+        }
+        return GroundingResponse.newBuilder().setResponse(builder.build()).build()
+    }
+
+    private fun convertStatus(
+        @EntityLookupResponse.EntityLookupStatus status: Int
+    ): GroundingResponse.Status {
+        return when (status) {
+            EntityLookupResponse.CANCELED -> GroundingResponse.Status.CANCELED
+            EntityLookupResponse.INVALID_PAGE_TOKEN -> GroundingResponse.Status.INVALID_PAGE_TOKEN
+            EntityLookupResponse.TIMEOUT -> GroundingResponse.Status.TIMEOUT
+            else -> GroundingResponse.Status.DEFAULT_UNKNOWN
+        }
+    }
 }
