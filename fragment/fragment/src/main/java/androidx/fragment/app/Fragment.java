@@ -379,8 +379,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @NonNull
     public LifecycleOwner getViewLifecycleOwner() {
         if (mViewLifecycleOwner == null) {
-            throw new IllegalStateException("Can't access the Fragment View's LifecycleOwner when "
-                    + "getView() is null i.e., before onCreateView() or after onDestroyView()");
+            throw new IllegalStateException("Can't access the Fragment View's LifecycleOwner "
+                    + "for " + this + " when getView() is null i.e., before onCreateView() or "
+                    + "after onDestroyView()");
         }
         return mViewLifecycleOwner;
     }
