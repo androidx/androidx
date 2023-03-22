@@ -543,6 +543,26 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateViaDeepLinkAction_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val action = "test.action2"
+        val deepLink = NavDeepLinkRequest(null, action, null)
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ action=test.action2 } cannot be " +
+                "found in the navigation graph NavGraph(androidx.navigation.test:id/nav_root) " +
+                "label= startDestination={Destination(androidx.navigation.test:id/start_test)}"
+        )
+        assertThat(navController.currentDestination?.route).isEqualTo(null)
+    }
+
+    @UiThreadTest
+    @Test
     @Suppress("DEPRECATION")
     fun testNavigateViaDeepLinkActionUnusedUri() {
         val navController = createNavController()
@@ -562,6 +582,26 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateViaDeepLinkActionUnusedUri_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val action = "test.action2"
+        val deepLink = NavDeepLinkRequest("http://www.example.com".toUri(), action, null)
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ uri=http://www.example.com action=test.action2 } cannot be " +
+                "found in the navigation graph NavGraph(androidx.navigation.test:id/nav_root) " +
+                "label= startDestination={Destination(androidx.navigation.test:id/start_test)}"
+        )
+        assertThat(navController.currentDestination?.route).isEqualTo(null)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateViaDeepLinkActionDifferentURI() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
@@ -575,6 +615,24 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateViaDeepLinkActionDifferentURI_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val deepLink = NavDeepLinkRequest(Uri.parse("invalidDeepLink.com"), "test.action2", null)
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ uri=invalidDeepLink.com action=test.action2 } cannot be " +
+                "found in the navigation graph NavGraph(androidx.navigation.test:id/nav_root) " +
+                "label= startDestination={Destination(androidx.navigation.test:id/start_test)}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateViaDeepLinkMimeTypeDifferentUri() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
@@ -584,6 +642,45 @@ class NavControllerTest {
         navController.navigate(deepLink)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkMimeTypeDifferentUri_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val deepLink = NavDeepLinkRequest(Uri.parse("invalidDeepLink.com"), null, "type/test2")
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ uri=invalidDeepLink.com mimetype=type/test2 } cannot be " +
+                "found in the navigation graph NavGraph(androidx.navigation.test:id/nav_root) " +
+                "label= startDestination={Destination(androidx.navigation.test:id/start_test)}"
+        )
+        assertThat(navController.currentDestination?.route).isEqualTo(null)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkMimeTypeMissingQueryArg_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        // deeplink with this mime type has a required Query arg
+        val deepLink = NavDeepLinkRequest(null, null, "type/test3")
+
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(deepLink)
+        }
+        assertThat(expected.message).isEqualTo(
+            "Navigation destination that matches request " +
+                "NavDeepLinkRequest{ mimetype=type/test3 } cannot be " +
+                "found in the navigation graph NavGraph(androidx.navigation.test:id/nav_root) " +
+                "label= startDestination={Destination(androidx.navigation.test:id/start_test)}"
+        )
+        assertThat(navController.currentDestination?.route).isEqualTo(null)
     }
 
     @UiThreadTest
@@ -2928,6 +3025,97 @@ class NavControllerTest {
         assertThat(collectedDestinationIds)
             .containsExactly(R.id.start_test, R.id.start_test, R.id.second_test)
             .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testHandleDeepLinkActionMissingURI_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val collectedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            collectedDestinationIds.add(destination.id)
+        }
+
+        val intent = Intent("test.action2").apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
+        assertThat(intent).isNotNull()
+        assertWithMessage("NavController should not match with any deeplink due to missing arg")
+            .that(navController.handleDeepLink(intent))
+            .isFalse()
+        // Verify that we never navigated further than the startDestination
+        assertThat(collectedDestinationIds).containsExactly(R.id.start_test)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testHandleDeepLinkActionDifferentURI_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val collectedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            collectedDestinationIds.add(destination.id)
+        }
+
+        val intent = Intent(
+            "test.action2",
+            "invalidDeepLink.com".toUri(),
+            ApplicationProvider.getApplicationContext() as Context,
+            TestActivity::class.java
+        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("NavController should not match with any deeplink due to missing arg")
+            .that(navController.handleDeepLink(intent))
+            .isFalse()
+        // Verify that we never navigated further than the startDestination
+        assertThat(collectedDestinationIds).containsExactly(R.id.start_test)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testHandleDeepLinkActionWrongArgType_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val collectedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            collectedDestinationIds.add(destination.id)
+        }
+
+        val intent = Intent(
+            "test.action2",
+            // deeplink with matching action has Int NavType
+            "test-app://test/abc".toUri(),
+            ApplicationProvider.getApplicationContext() as Context,
+            TestActivity::class.java
+        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("NavController should not match with any deeplink due to wrong arg type")
+            .that(navController.handleDeepLink(intent))
+            .isFalse()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testHandleDeepLinkActionMissingQueryArg_nonNullableArg() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val collectedDestinationIds = mutableListOf<Int>()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            collectedDestinationIds.add(destination.id)
+        }
+
+        val intent = Intent(
+            "test.action3",
+            // deeplink with this action type has a required Query arg
+            "test-app://test".toUri(),
+            ApplicationProvider.getApplicationContext() as Context,
+            TestActivity::class.java
+        )
+        assertThat(intent).isNotNull()
+        assertWithMessage("NavController should not match with any deeplink due to wrong arg type")
+            .that(navController.handleDeepLink(intent))
+            .isFalse()
     }
 
     @UiThreadTest
