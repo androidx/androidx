@@ -56,35 +56,9 @@ data class Artifact(
 // See https://github.com/gradle/gradle/commit/7e5c5bc9b2c23d872e1c45c855f07ca223f6c270#diff-ce55b0f0cdcf2174eb47d333d348ff6fbd9dbe5cd8c3beeeaf633ea23b74ed9eR38
 open class GMavenZipTask : Zip() {
 
-    /**
-     * Whether this build adds automatic constraints between projects in the same group
-     */
-    @get:Input
-    val shouldAddGroupConstraints: Provider<Boolean>
-
     init {
         // multiple artifacts in the same group might have the same maven-metadata.xml
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-        shouldAddGroupConstraints = project.shouldAddGroupConstraints()
-
-        val zipTask = this
-
-        zipTask.doFirst {
-            if (!zipTask.shouldAddGroupConstraints.get() && !isSnapshotBuild()) {
-                throw GradleException(
-                    """
-                    Cannot publish artifacts without setting -P$ADD_GROUP_CONSTRAINTS=true
-
-                    This property is required when building artifacts to publish
-
-                    (but this property can reduce remote cache usage so it is disabled by default)
-
-                    See AndroidXGradleProperties.kt for more information about this property
-                    """.trimIndent()
-                )
-            }
-        }
     }
 
     /**
@@ -424,8 +398,15 @@ open class VerifyGMavenZipTask : DefaultTask() {
     @Input
     val filesToVerify = mutableListOf<File>()
 
+    /**
+     * Whether this build adds automatic constraints between projects in the same group
+     */
+    @get:Input
+    val shouldAddGroupConstraints: Provider<Boolean>
+
     init {
         cacheEvenIfNoOutputs()
+        shouldAddGroupConstraints = project.shouldAddGroupConstraints()
     }
 
     fun addFile(file: File) {
@@ -442,6 +423,27 @@ open class VerifyGMavenZipTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
+        verifySettings()
+        verifyFiles()
+    }
+
+    fun verifySettings() {
+        if (!shouldAddGroupConstraints.get() && !isSnapshotBuild()) {
+            throw GradleException(
+                """
+                Cannot publish artifacts without setting -P$ADD_GROUP_CONSTRAINTS=true
+
+                This property is required when building artifacts to publish
+
+                (but this property can reduce remote cache usage so it is disabled by default)
+
+                See AndroidXGradleProperties.kt for more information about this property
+                """.trimIndent()
+            )
+        }
+    }
+
+    fun verifyFiles() {
         val missingFiles = mutableListOf<String>()
         val emptyDirs = mutableListOf<String>()
         filesToVerify.forEach { file ->
