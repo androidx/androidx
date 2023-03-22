@@ -40,9 +40,10 @@ class EntityLookupCandidate<T> internal constructor(
     }
 
     /** Builder class for [EntityLookupCandidate]. */
-    class Builder<T>(private var candidate: T) {
-
+    class Builder<T> {
+        private var candidate: T? = null
         fun setCandidate(candidate: T): Builder<T> = apply { this.candidate = candidate }
-        fun build(): EntityLookupCandidate<T> = EntityLookupCandidate(candidate)
+        fun build(): EntityLookupCandidate<T> = EntityLookupCandidate(
+            requireNotNull(candidate) { "Entity lookup candidate must be set." })
     }
 }
