@@ -28,17 +28,23 @@ import java.lang.annotation.RetentionPolicy;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class DynamicRange {
+    /**
+     * An unspecified dynamic range format which allows the device to determine the underlying
+     * dynamic range format.
+     */
+    public static final int FORMAT_UNSPECIFIED = 0;
+
     /** Standard Dynamic Range (SDR) format. */
-    public static final int FORMAT_SDR = 0;
+    public static final int FORMAT_SDR = 1;
 
     //------------------------------------------------------------------------------//
     //                            HDR Formats                                       //
     //------------------------------------------------------------------------------//
     /**
-     * An unspecified High Dynamic Range (HDR) format which allows the device to determine the
-     * underlying dynamic range format.
+     * An unspecified dynamic range format which allows the device to determine the
+     * underlying dynamic range format, limited to High Dynamic Range (HDR) encodings.
      */
-    public static final int FORMAT_HDR_UNSPECIFIED = 1;
+    public static final int FORMAT_HDR_UNSPECIFIED = 2;
     /** Hybrid Log Gamma (HLG) dynamic range format. */
     public static final int FORMAT_HLG = FORMAT_HDR_UNSPECIFIED + 1;
     /** HDR10 dynamic range format. */
@@ -57,8 +63,8 @@ public final class DynamicRange {
     public static final int BIT_DEPTH_10_BIT = 10;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({FORMAT_SDR, FORMAT_HDR_UNSPECIFIED, FORMAT_HLG, FORMAT_HDR10, FORMAT_HDR10_PLUS,
-            FORMAT_DOLBY_VISION})
+    @IntDef({FORMAT_UNSPECIFIED, FORMAT_SDR, FORMAT_HDR_UNSPECIFIED, FORMAT_HLG, FORMAT_HDR10,
+            FORMAT_HDR10_PLUS, FORMAT_DOLBY_VISION})
     @Retention(RetentionPolicy.SOURCE)
     public @interface DynamicRangeFormat {
     }
@@ -69,6 +75,16 @@ public final class DynamicRange {
     public @interface BitDepth {
     }
 
+    /**
+     * A dynamic range with unspecified format and bit depth
+     *
+     * <p>The dynamic range is unspecified and may defer to device defaults when used to select a
+     * dynamic range.
+     */
+    @NonNull
+    public static final DynamicRange UNSPECIFIED = new DynamicRange(FORMAT_UNSPECIFIED,
+            BIT_DEPTH_UNSPECIFIED);
+
     /** A dynamic range representing 8-bit standard dynamic range (SDR). */
     @NonNull
     public static final DynamicRange SDR = new DynamicRange(FORMAT_SDR, BIT_DEPTH_8_BIT);
@@ -77,7 +93,8 @@ public final class DynamicRange {
      * A dynamic range representing 10-bit high dynamic range (HDR) with unspecified format.
      *
      * <p>The HDR format is unspecified, and may defer to device defaults
-     * when used to select a dynamic range.
+     * when used to select a dynamic range. In this case, the dynamic range will be limited to
+     * 10-bit high dynamic ranges.
      */
     @NonNull
     public static final DynamicRange HDR_UNSPECIFIED_10_BIT =
@@ -163,6 +180,7 @@ public final class DynamicRange {
     @NonNull
     private static String getFormatLabel(@DynamicRangeFormat int format) {
         switch (format) {
+            case FORMAT_UNSPECIFIED: return "FORMAT_UNSPECIFIED";
             case FORMAT_SDR: return "FORMAT_SDR";
             case FORMAT_HDR_UNSPECIFIED: return "FORMAT_HDR_UNSPECIFIED";
             case FORMAT_HLG: return "FORMAT_HLG";

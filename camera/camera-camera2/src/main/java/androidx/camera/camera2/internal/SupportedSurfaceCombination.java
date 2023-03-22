@@ -89,7 +89,6 @@ final class SupportedSurfaceCombination {
     private final Map<FeatureSettings, List<SurfaceCombination>>
             mFeatureSettingsToSupportedCombinationsMap = new HashMap<>();
     private final List<SurfaceCombination> mSurfaceCombinations10Bit = new ArrayList<>();
-    boolean mIs10BitSupported = false;
     private final String mCameraId;
     private final CamcorderProfileHelper mCamcorderProfileHelper;
     private final CameraCharacteristicsCompat mCharacteristics;
@@ -106,6 +105,7 @@ final class SupportedSurfaceCombination {
     @NonNull
     private final DisplayInfoManager mDisplayInfoManager;
     private final ResolutionCorrector mResolutionCorrector = new ResolutionCorrector();
+    private final DynamicRangeResolver mDynamicRangeResolver;
 
     @IntDef({DynamicRange.BIT_DEPTH_8_BIT, DynamicRange.BIT_DEPTH_10_BIT})
     @Retention(RetentionPolicy.SOURCE)
@@ -145,14 +145,11 @@ final class SupportedSurfaceCombination {
                         == CameraCharacteristics
                         .REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR) {
                     mIsUltraHighResolutionSensorSupported = true;
-                } else if (capability
-                        == CameraCharacteristics
-                        .REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT) {
-                    mIs10BitSupported = true;
                 }
             }
         }
 
+        mDynamicRangeResolver = new DynamicRangeResolver(mCharacteristics);
         generateSupportedCombinationList();
 
         if (mIsUltraHighResolutionSensorSupported) {
@@ -165,7 +162,7 @@ final class SupportedSurfaceCombination {
             generateConcurrentSupportedCombinationList();
         }
 
-        if (mIs10BitSupported) {
+        if (mDynamicRangeResolver.is10BitDynamicRangeSupported()) {
             generate10BitSupportedCombinationList();
         }
 
@@ -491,7 +488,8 @@ final class SupportedSurfaceCombination {
      * suggested stream specification.
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
      *                                  found. This may be due to no available output size, no
-     *                                  available surface combination, or requiring an
+     *                                  available surface combination, unsupported combinations
+     *                                  of {@link DynamicRange}, or requiring an
      *                                  unsupported combination of camera features.
      */
     @NonNull
@@ -509,19 +507,22 @@ final class SupportedSurfaceCombination {
         List<UseCaseConfig<?>> newUseCaseConfigs = new ArrayList<>(
                 newUseCaseConfigsSupportedSizeMap.keySet());
 
-        int requiredMaxBitDepth = getRequiredMaxBitDepth(attachedSurfaces,
-                newUseCaseConfigsSupportedSizeMap);
+        // Get the index order list by the use case priority for finding stream configuration
+        List<Integer> useCasesPriorityOrder = getUseCasesPriorityOrder(newUseCaseConfigs);
+        Map<UseCaseConfig<?>, DynamicRange> resolvedDynamicRanges =
+                mDynamicRangeResolver.resolveAndValidateDynamicRanges(attachedSurfaces,
+                        newUseCaseConfigs, useCasesPriorityOrder);
+        int requiredMaxBitDepth = getRequiredMaxBitDepth(resolvedDynamicRanges);
         FeatureSettings featureSettings = FeatureSettings.of(cameraMode, requiredMaxBitDepth);
-        // TODO(b/267200298): Resolve and verify all dynamic ranges
         if (cameraMode != CameraMode.DEFAULT
                 && requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
             throw new IllegalArgumentException(String.format("No supported surface combination is "
-                    + "found for camera device - Id : %s. Ten bit dynamic range is not currently "
-                    + "supported in %s camera mode.", mCameraId,
+                            + "found for camera device - Id : %s. Ten bit dynamic range is not "
+                            + "currently supported in %s camera mode.", mCameraId,
                     CameraMode.toLabelString(cameraMode)));
         }
 
-            // Use the small size (640x480) for new use cases to check whether there is any possible
+        // Use the small size (640x480) for new use cases to check whether there is any possible
         // supported combination first
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
             int imageFormat = useCaseConfig.getInputFormat();
@@ -555,8 +556,6 @@ final class SupportedSurfaceCombination {
                     attachedSurfaceInfo.getImageFormat(), attachedSurfaceInfo.getSize());
         }
 
-        // Get the index order list by the use case priority for finding stream configuration
-        List<Integer> useCasesPriorityOrder = getUseCasesPriorityOrder(newUseCaseConfigs);
         List<List<Size>> supportedOutputSizesList = new ArrayList<>();
 
         // Collect supported output sizes for all use cases
@@ -661,11 +660,11 @@ final class SupportedSurfaceCombination {
             }
             suggestedStreamSpecMap = new HashMap<>();
             for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
-                DynamicRange dynamicRange = useCaseConfig.getDynamicRange(null);
                 Size resolutionForUseCase = savedSizes.get(
                         useCasesPriorityOrder.indexOf(newUseCaseConfigs.indexOf(useCaseConfig)));
                 StreamSpec.Builder streamSpecBuilder = StreamSpec.builder(resolutionForUseCase)
-                        .setDynamicRange(dynamicRange == null ? DynamicRange.SDR : dynamicRange);
+                        .setDynamicRange(Preconditions.checkNotNull(
+                                resolvedDynamicRanges.get(useCaseConfig)));
                 if (targetFramerateForDevice != null) {
                     streamSpecBuilder.setExpectedFrameRateRange(targetFramerateForDevice);
                 }
@@ -684,18 +683,9 @@ final class SupportedSurfaceCombination {
 
     @RequiredMaxBitDepth
     private static int getRequiredMaxBitDepth(
-            @NonNull List<AttachedSurfaceInfo> attachedSurfaces,
-            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
-        for (AttachedSurfaceInfo attachedSurfaceInfo : attachedSurfaces) {
-            if (attachedSurfaceInfo.getDynamicRange().getBitDepth()
-                    == DynamicRange.BIT_DEPTH_10_BIT) {
-                return DynamicRange.BIT_DEPTH_10_BIT;
-            }
-        }
-        for (UseCaseConfig<?> config : newUseCaseConfigsSupportedSizeMap.keySet()) {
-            DynamicRange dynamicRange = config.getDynamicRange(null);
-            if (dynamicRange != null && dynamicRange.getBitDepth()
-                    == DynamicRange.BIT_DEPTH_10_BIT) {
+            @NonNull Map<UseCaseConfig<?>, DynamicRange> resolvedDynamicRanges) {
+        for (DynamicRange dynamicRange : resolvedDynamicRanges.values()) {
+            if (dynamicRange.getBitDepth() == DynamicRange.BIT_DEPTH_10_BIT) {
                 return DynamicRange.BIT_DEPTH_10_BIT;
             }
         }
