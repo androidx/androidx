@@ -24,7 +24,6 @@ import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
 import androidx.benchmark.ShellScript
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
-import androidx.benchmark.perfetto.QueryResultIterator
 import androidx.benchmark.userspaceTrace
 import java.io.IOException
 import java.io.InputStream
@@ -36,7 +35,6 @@ import perfetto.protos.AppendTraceDataResult
 import perfetto.protos.ComputeMetricArgs
 import perfetto.protos.ComputeMetricResult
 import perfetto.protos.QueryArgs
-import perfetto.protos.QueryResult
 import perfetto.protos.StatusResult
 
 /**
@@ -187,22 +185,17 @@ internal class PerfettoHttpServer {
 
     /**
      * Executes the given [sqlQuery] on a previously parsed trace with custom decoding.
+     *
+     * Note that this does not decode the query result, so it's the caller's responsibility to check
+     * for errors in the result.
      */
-    fun <T> query(sqlQuery: String, decodeBlock: (InputStream) -> T): T =
+    fun <T> rawQuery(sqlQuery: String, decodeBlock: (InputStream) -> T): T =
         httpRequest(
             method = METHOD_POST,
             url = PATH_QUERY,
             encodeBlock = { QueryArgs.ADAPTER.encode(it, QueryArgs(sqlQuery)) },
             decodeBlock = decodeBlock
         )
-
-    /**
-     * Executes the given [sqlQuery] on a previously parsed trace and returns the result as a
-     * [QueryResultIterator]
-     */
-    fun query(sqlQuery: String): QueryResultIterator = query(sqlQuery) {
-        QueryResultIterator(QueryResult.ADAPTER.decode(it))
-    }
 
     /**
      * Computes the given metrics on a previously parsed trace.
