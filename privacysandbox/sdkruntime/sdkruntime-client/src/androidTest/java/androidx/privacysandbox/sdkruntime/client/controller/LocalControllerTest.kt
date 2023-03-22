@@ -17,6 +17,8 @@
 package androidx.privacysandbox.sdkruntime.client.controller
 
 import android.os.Binder
+import android.os.Bundle
+import androidx.privacysandbox.sdkruntime.client.loader.LocalSdkProvider
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -41,9 +43,24 @@ class LocalControllerTest {
     @Test
     fun getSandboxedSdks_returnsResultsFromLocallyLoadedSdks() {
         val sandboxedSdk = SandboxedSdkCompat(Binder())
-        locallyLoadedSdks.put("sdk", sandboxedSdk)
+        locallyLoadedSdks.put(
+            "sdk", LocallyLoadedSdks.Entry(
+                sdkProvider = NoOpSdkProvider(),
+                sdk = sandboxedSdk
+            )
+        )
 
         val result = controller.getSandboxedSdks()
         assertThat(result).containsExactly(sandboxedSdk)
+    }
+
+    private class NoOpSdkProvider : LocalSdkProvider(Any()) {
+        override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
+            throw IllegalStateException("Unexpected call")
+        }
+
+        override fun beforeUnloadSdk() {
+            throw IllegalStateException("Unexpected call")
+        }
     }
 }

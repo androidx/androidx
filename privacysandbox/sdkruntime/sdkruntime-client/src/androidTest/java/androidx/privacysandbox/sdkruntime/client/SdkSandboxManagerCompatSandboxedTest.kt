@@ -136,6 +136,20 @@ class SdkSandboxManagerCompatSandboxedTest {
     }
 
     @Test
+    fun unloadSdk_whenNoLocalSdkLoadedAndSandboxAvailable_delegateToPlatform() {
+        val sdkSandboxManager = mockSandboxManager(mContext)
+
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+        val sdkName = "test"
+
+        managerCompat.unloadSdk(sdkName)
+
+        verify(sdkSandboxManager).unloadSdk(
+            eq(sdkName)
+        )
+    }
+
+    @Test
     fun addSdkSandboxProcessDeathCallback_whenSandboxAvailable_delegateToPlatform() {
         val sdkSandboxManager = mockSandboxManager(mContext)
         val managerCompat = SdkSandboxManagerCompat.from(mContext)

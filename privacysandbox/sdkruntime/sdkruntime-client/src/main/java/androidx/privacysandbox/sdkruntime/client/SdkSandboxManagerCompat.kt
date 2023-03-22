@@ -124,13 +124,36 @@ class SdkSandboxManagerCompat private constructor(
 
         val sdkConfig = configHolder.getSdkConfig(sdkName)
         if (sdkConfig != null) {
-            val sdkHolder = sdkLoader.loadSdk(sdkConfig)
-            val sandboxedSdkCompat = sdkHolder.onLoadSdk(params)
-            localLocallyLoadedSdks.put(sdkName, sandboxedSdkCompat)
+            val sdkProvider = sdkLoader.loadSdk(sdkConfig)
+            val sandboxedSdkCompat = sdkProvider.onLoadSdk(params)
+            localLocallyLoadedSdks.put(
+                sdkName, LocallyLoadedSdks.Entry(
+                    sdkProvider = sdkProvider,
+                    sdk = sandboxedSdkCompat
+                )
+            )
             return sandboxedSdkCompat
         }
 
         return platformApi.loadSdk(sdkName, params)
+    }
+
+    /**
+     * Unloads an SDK that has been previously loaded by the caller.
+     *
+     * It is not guaranteed that the memory allocated for this SDK will be freed immediately.
+     *
+     * @param sdkName name of the SDK to be unloaded.
+     *
+     * @see [SdkSandboxManager.unloadSdk]
+     */
+    fun unloadSdk(sdkName: String) {
+        val localEntry = localLocallyLoadedSdks.remove(sdkName)
+        if (localEntry == null) {
+            platformApi.unloadSdk(sdkName)
+        } else {
+            localEntry.sdkProvider.beforeUnloadSdk()
+        }
     }
 
     /**
@@ -180,9 +203,16 @@ class SdkSandboxManagerCompat private constructor(
         return platformResult + localResult
     }
 
+    @TestOnly
+    internal fun getLocallyLoadedSdk(sdkName: String): LocallyLoadedSdks.Entry? =
+        localLocallyLoadedSdks.get(sdkName)
+
     private interface PlatformApi {
         @DoNotInline
         suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat
+
+        @DoNotInline
+        fun unloadSdk(sdkName: String)
 
         @DoNotInline
         fun addSdkSandboxProcessDeathCallback(
@@ -220,6 +250,10 @@ class SdkSandboxManagerCompat private constructor(
             } catch (ex: LoadSdkException) {
                 throw toLoadCompatSdkException(ex)
             }
+        }
+
+        override fun unloadSdk(sdkName: String) {
+            sdkSandboxManager.unloadSdk(sdkName)
         }
 
         @DoNotInline
@@ -293,6 +327,9 @@ class SdkSandboxManagerCompat private constructor(
             params: Bundle
         ): SandboxedSdkCompat {
             throw LoadSdkCompatException(LOAD_SDK_NOT_FOUND, "$sdkName not bundled with app")
+        }
+
+        override fun unloadSdk(sdkName: String) {
         }
 
         override fun addSdkSandboxProcessDeathCallback(
