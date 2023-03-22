@@ -61,11 +61,8 @@ dependencies {
         testImplementation(libs.truth)
 
         androidTestImplementation(project(":compose:material3:material3:material3-samples"))
-        androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.4.0-beta02")
-        androidTestImplementation("androidx.compose.ui:ui-test:1.4.0-beta02")
-        androidTestImplementation(project(":compose:test-utils")){
-            transitive = false
-        }
+        androidTestImplementation(project(":compose:foundation:foundation-layout"))
+        androidTestImplementation(project(":compose:test-utils"))
         androidTestImplementation(project(":test:screenshot:screenshot"))
         androidTestImplementation(project(":core:core"))
         androidTestImplementation(libs.testRules)
