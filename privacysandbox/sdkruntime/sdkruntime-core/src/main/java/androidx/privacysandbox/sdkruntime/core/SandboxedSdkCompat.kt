@@ -189,14 +189,4 @@ class SandboxedSdkCompat private constructor(
             return ApiAdServicesV4Impl.createSandboxedSdk(sdkInterface)
         }
     }
-
-    companion object {
-        /**
-         *  Deprecated and will be removed in next release.
-         *  Use [SandboxedSdkCompat] constructor instead.
-         *  TODO(b/261013990) Remove method after Shim generator migration and release
-         */
-        @JvmStatic
-        fun create(binder: IBinder): SandboxedSdkCompat = SandboxedSdkCompat(binder)
-    }
 }
