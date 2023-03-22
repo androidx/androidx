@@ -27,10 +27,10 @@ import androidx.compose.ui.inspection.util.AnchorMap
 import androidx.compose.ui.inspection.util.NO_ANCHOR_ID
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.layout.LayoutInfo
+import androidx.compose.ui.node.InteroperableComposeUiNode
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.ViewRootForInspector
-import androidx.compose.ui.semantics.SemanticsModifier
 import androidx.compose.ui.semantics.getAllSemanticsNodes
 import androidx.compose.ui.tooling.data.ContextCache
 import androidx.compose.ui.tooling.data.ParameterInformation
@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.node.InteroperableComposeUiNode
 import java.util.ArrayDeque
 import java.util.Collections
 import java.util.IdentityHashMap
@@ -98,6 +97,8 @@ class LayoutInspectorTree {
     private val ownerMap = IdentityHashMap<InspectorNode, MutableList<MutableInspectorNode>>()
     /** Map from semantics id to a list of merged semantics information */
     private val semanticsMap = mutableMapOf<Int, List<RawParameter>>()
+    /* Map of seemantics id to a list of unmerged semantics information */
+    private val unmergedSemanticsMap = mutableMapOf<Int, List<RawParameter>>()
     /** Set of tree nodes that were stitched into another tree */
     private val stitched =
         Collections.newSetFromMap(IdentityHashMap<MutableInspectorNode, Boolean>())
@@ -154,8 +155,12 @@ class LayoutInspectorTree {
     private fun collectSemantics(view: View) {
         val root = view as? RootForTest ?: return
         val nodes = root.semanticsOwner.getAllSemanticsNodes(mergingEnabled = true)
+        val unmergedNodes = root.semanticsOwner.getAllSemanticsNodes(mergingEnabled = false)
         nodes.forEach { node ->
             semanticsMap[node.id] = node.config.map { RawParameter(it.key.name, it.value) }
+        }
+        unmergedNodes.forEach { node ->
+            unmergedSemanticsMap[node.id] = node.config.map { RawParameter(it.key.name, it.value) }
         }
     }
 
@@ -236,6 +241,7 @@ class LayoutInspectorTree {
         treeMap.clear()
         ownerMap.clear()
         semanticsMap.clear()
+        unmergedSemanticsMap.clear()
         stitched.clear()
         subCompositions.clear()
         foundNode = null
@@ -526,15 +532,13 @@ class LayoutInspectorTree {
         node.bounds = bounds
         node.layoutNodes.add(layoutInfo)
         val modifierInfo = layoutInfo.getModifierInfo()
-        node.unmergedSemantics.addAll(
-            modifierInfo.asSequence()
-                .map { it.modifier }
-                .filterIsInstance<SemanticsModifier>()
-                .map { it.semanticsConfiguration }
-                .flatMap { config -> config.map { RawParameter(it.key.name, it.value) } }
-        )
 
-        val mergedSemantics = semanticsMap.get(layoutInfo.semanticsId)
+        val unmergedSemantics = unmergedSemanticsMap[layoutInfo.semanticsId]
+        if (unmergedSemantics != null) {
+            node.unmergedSemantics.addAll(unmergedSemantics)
+        }
+
+        val mergedSemantics = semanticsMap[layoutInfo.semanticsId]
         if (mergedSemantics != null) {
             node.mergedSemantics.addAll(mergedSemantics)
         }
