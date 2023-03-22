@@ -698,7 +698,7 @@ public final class HintConstants {
      *
      * <p>Can be used with either {@link android.view.View#setAutofillHints(String[])} or <a
      * href="#attr_android:autofillHint">{@code android:autofillHint}</a> (in which case the value
-     * should be <code>{@value #AUTOFILL_HINT_GIFT_CARD_CODE}</code>).
+     * should be <code>{@value #AUTOFILL_HINT_GIFT_CARD_NUMBER}</code>).
      *
      * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
      * hints.
