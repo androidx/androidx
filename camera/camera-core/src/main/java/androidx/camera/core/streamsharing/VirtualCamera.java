@@ -87,6 +87,8 @@ class VirtualCamera implements CameraInternal {
     // The callback that receives the parent camera's metadata.
     @NonNull
     private final CameraCaptureCallback mParentMetadataCallback = createCameraCaptureCallback();
+    @NonNull
+    private final VirtualCameraControl mVirtualCameraControl;
 
     /**
      * @param parentCamera         the parent {@link CameraInternal} instance. For example, the
@@ -96,10 +98,13 @@ class VirtualCamera implements CameraInternal {
      */
     VirtualCamera(@NonNull CameraInternal parentCamera,
             @NonNull Set<UseCase> children,
-            @NonNull UseCaseConfigFactory useCaseConfigFactory) {
+            @NonNull UseCaseConfigFactory useCaseConfigFactory,
+            @NonNull StreamSharing.Control streamSharingControl) {
         mParentCamera = parentCamera;
         mUseCaseConfigFactory = useCaseConfigFactory;
         mChildren = children;
+        mVirtualCameraControl = new VirtualCameraControl(parentCamera.getCameraControlInternal(),
+                streamSharingControl);
         // Set children state to inactive by default.
         for (UseCase child : children) {
             mChildrenActiveState.put(child, false);
@@ -279,7 +284,7 @@ class VirtualCamera implements CameraInternal {
     @NonNull
     @Override
     public CameraControlInternal getCameraControlInternal() {
-        return mParentCamera.getCameraControlInternal();
+        return mVirtualCameraControl;
     }
 
     @NonNull
