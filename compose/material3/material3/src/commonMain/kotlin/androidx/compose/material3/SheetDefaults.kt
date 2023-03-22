@@ -47,24 +47,34 @@ import kotlinx.coroutines.CancellationException
  *
  * Contains states relating to it's swipe position as well as animations between state values.
  *
- * @param skipPartiallyExpanded Whether the partially expanded state state, if the sheet is large
+ * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is large
  * enough, should be skipped. If true, the sheet will always expand to the [Expanded] state and move
- * to the [Hidden] state when hiding the sheet, either programmatically or by user interaction.
+ * to the [Hidden] state if available when hiding the sheet, either programmatically or by user
+ * interaction.
  * @param initialValue The initial value of the state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
+ * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always
+ * expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
+ * programmatically or by user interaction.
  */
 @Stable
 @ExperimentalMaterial3Api
 class SheetState(
     internal val skipPartiallyExpanded: Boolean,
     initialValue: SheetValue = Hidden,
-    confirmValueChange: (SheetValue) -> Boolean = { true }
+    confirmValueChange: (SheetValue) -> Boolean = { true },
+    internal val skipHiddenState: Boolean = false,
 ) {
     init {
         if (skipPartiallyExpanded) {
             require(initialValue != PartiallyExpanded) {
-                "The initial value must not be set to HalfExpanded if skipHalfExpanded is set to" +
-                    " true."
+                "The initial value must not be set to PartiallyExpanded if skipPartiallyExpanded " +
+                    "is set to true."
+            }
+        }
+        if (skipHiddenState) {
+            require(initialValue != Hidden) {
+                "The initial value must not be set to Hidden if skipHiddenState is set to true."
             }
         }
     }
@@ -97,10 +107,21 @@ class SheetState(
     /**
      * Require the current offset (in pixels) of the bottom sheet.
      *
+     * The offset will be initialized during the first measurement phase of the provided sheet
+     * content.
+     *
+     * These are the phases:
+     * Composition { -> Effects } -> Layout { Measurement -> Placement } -> Drawing
+     *
+     * During the first composition, an [IllegalStateException] is thrown. In subsequent
+     * compositions, the offset will be derived from the anchors of the previous pass. Always prefer
+     * accessing the offset from a LaunchedEffect as it will be scheduled to be executed the next
+     * frame, after layout.
+     *
      * @throws IllegalStateException If the offset has not been initialized yet
      */
-
     fun requireOffset(): Float = swipeableState.requireOffset()
+
     /**
      * Whether the sheet has an expanded state defined.
      */
@@ -131,13 +152,11 @@ class SheetState(
      * @throws [IllegalStateException] if [skipPartiallyExpanded] is set to true
      */
     suspend fun partialExpand() {
-        if (skipPartiallyExpanded) {
-            check(skipPartiallyExpanded) {
-                "Attempted to animate to partial expanded when skipPartiallyExpanded was enabled." +
-                    " Set skipPartiallyExpanded to false to use this function."
-            }
+        check(!skipPartiallyExpanded) {
+            "Attempted to animate to partial expanded when skipPartiallyExpanded was enabled. Set" +
+                " skipPartiallyExpanded to false to use this function."
         }
-        swipeableState.animateTo(PartiallyExpanded)
+        animateTo(PartiallyExpanded)
     }
 
     /**
@@ -150,7 +169,7 @@ class SheetState(
             hasPartiallyExpandedState -> PartiallyExpanded
             else -> Expanded
         }
-        swipeableState.animateTo(targetValue)
+        animateTo(targetValue)
     }
 
     /**
@@ -159,6 +178,10 @@ class SheetState(
      * @throws [CancellationException] if the animation is interrupted
      */
     suspend fun hide() {
+        check(!skipHiddenState) {
+            "Attempted to animate to hidden when skipHiddenState was enabled. Set skipHiddenState" +
+                " to false to use this function."
+        }
         animateTo(Hidden)
     }
 
@@ -250,7 +273,7 @@ enum class SheetValue {
 @ExperimentalMaterial3Api
 object BottomSheetDefaults {
     /** The default shape for bottom sheets in a [Hidden] state. */
-    val MinimizedShape: Shape
+    val HiddenShape: Shape
         @Composable get() =
         SheetBottomTokens.DockedMinimizedContainerShape.toShape()
 
@@ -369,7 +392,8 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
 internal fun rememberSheetState(
     skipPartiallyExpanded: Boolean = false,
     confirmValueChange: (SheetValue) -> Boolean = { true },
-    initialValue: SheetValue
+    initialValue: SheetValue = Hidden,
+    skipHiddenState: Boolean = false,
 ): SheetState {
     return rememberSaveable(
         skipPartiallyExpanded, confirmValueChange,
@@ -378,7 +402,7 @@ internal fun rememberSheetState(
             confirmValueChange = confirmValueChange
         )
     ) {
-        SheetState(skipPartiallyExpanded, initialValue, confirmValueChange)
+        SheetState(skipPartiallyExpanded, initialValue, confirmValueChange, skipHiddenState)
     }
 }
 

@@ -156,7 +156,7 @@ internal actual fun getString(string: Strings): String {
         Strings.BottomSheetDragHandleDescription -> resources.getString(
             androidx.compose.material3.R.string.bottom_sheet_drag_handle_description
         )
-        Strings.BottomSheetCollapseDescription -> resources.getString(
+        Strings.BottomSheetPartialExpandDescription -> resources.getString(
             androidx.compose.material3.R.string.bottom_sheet_collapse_description
         )
         Strings.BottomSheetDismissDescription -> resources.getString(

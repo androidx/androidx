@@ -70,7 +70,7 @@ internal actual fun getString(string: Strings): String {
         Strings.DateRangeInputTitle -> "Enter dates"
         Strings.DateRangeInputInvalidRangeInput -> "Invalid date range input"
         Strings.BottomSheetDragHandleDescription -> "Drag Handle"
-        Strings.BottomSheetCollapseDescription -> "Collapse bottom sheet"
+        Strings.BottomSheetPartialExpandDescription -> "Collapse bottom sheet"
         Strings.BottomSheetDismissDescription -> "Dismiss bottom sheet"
         Strings.BottomSheetExpandDescription -> "Expand bottom sheet"
         Strings.TooltipLongPressLabel -> "Show tooltip"
