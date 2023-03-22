@@ -48,6 +48,8 @@ private const val ENABLE_FLAG_NAME = VERIFY_UP_TO_DATE
 val ALLOW_RERUNNING_TASKS = setOf(
     "buildOnServer",
     "checkExternalLicenses",
+    // caching disabled for now while we look for a fix for b/273294710
+    "createAllArchives",
     // https://youtrack.jetbrains.com/issue/KT-52632
     "commonizeNativeDistribution",
     "createDiffArchiveForAll",

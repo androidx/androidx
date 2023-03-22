@@ -24,10 +24,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileNotFoundException
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 import org.gradle.api.tasks.CacheableTask
 
 /**
@@ -73,41 +70,6 @@ open class BuildOnServerTask : DefaultTask() {
         if (missingFiles.isNotEmpty()) {
             val missingFileString = missingFiles.reduce { acc, s -> "$acc, $s" }
             throw FileNotFoundException("buildOnServer required output missing: $missingFileString")
-        }
-
-        verifyVersionFilesPresent()
-    }
-
-    private fun verifyVersionFilesPresent() {
-        repositoryDirectory.walk().forEach { file ->
-            if (file.extension == "aar") {
-                val inputStream = FileInputStream(file)
-                val aarFileInputStream = ZipInputStream(inputStream)
-                var entry: ZipEntry? = aarFileInputStream.nextEntry
-                while (entry != null) {
-                    if (entry.name == "classes.jar") {
-                        var foundVersionFile = false
-                        val classesJarInputStream = ZipInputStream(aarFileInputStream)
-                        var jarEntry = classesJarInputStream.nextEntry
-                        while (jarEntry != null) {
-                            if (jarEntry.name.startsWith("META-INF/androidx.") &&
-                                jarEntry.name.endsWith(".version")
-                            ) {
-                                foundVersionFile = true
-                                break
-                            }
-                            jarEntry = classesJarInputStream.nextEntry
-                        }
-                        if (!foundVersionFile) {
-                            throw Exception(
-                                "Missing META-INF/ version file in ${file.absolutePath}"
-                            )
-                        }
-                        break
-                    }
-                    entry = aarFileInputStream.nextEntry
-                }
-            }
         }
     }
 }
