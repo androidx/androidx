@@ -94,9 +94,9 @@ public open class FragmentNavigator(
         fragmentManager.addFragmentOnAttachListener { _, fragment ->
             val entry = state.backStack.value.lastOrNull { it.id == fragment.tag }
             if (entry != null) {
-                fragment.viewLifecycleOwnerLiveData.observe(fragment) {
+                fragment.viewLifecycleOwnerLiveData.observe(fragment) { owner ->
                     // attach observer unless it was already popped at this point
-                    if (!entriesToPop.contains(fragment.tag)) {
+                    if (owner != null && !entriesToPop.contains(fragment.tag)) {
                         attachObserver(entry, fragment)
                     }
                 }
