@@ -70,8 +70,6 @@
     <string name="time_picker_minute_suffix" msgid="3206486707779478173">"%1$d min"</string>
     <string name="time_picker_minute" msgid="6116528647594005945">"Minuta"</string>
     <string name="time_picker_hour" msgid="7241191970823415723">"Sat"</string>
-    <!-- no translation found for time_picker_minute_text_field (994099543833979061) -->
-    <skip />
-    <!-- no translation found for time_picker_hour_text_field (5298761125390275834) -->
-    <skip />
+    <string name="time_picker_minute_text_field" msgid="994099543833979061">"za minute"</string>
+    <string name="time_picker_hour_text_field" msgid="5298761125390275834">"za sat"</string>
 </resources>
