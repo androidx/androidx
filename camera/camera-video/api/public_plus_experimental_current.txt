@@ -136,7 +136,7 @@ package androidx.camera.video {
   @RequiresApi(21) public final class VideoCapture<T extends androidx.camera.video.VideoOutput> extends androidx.camera.core.UseCase {
     method public int getMirrorMode();
     method public T getOutput();
-    method public android.util.Range<java.lang.Integer!> getTargetFramerate();
+    method public android.util.Range<java.lang.Integer!> getTargetFrameRate();
     method public int getTargetRotation();
     method public void setTargetRotation(int);
     method public void setTargetRotationDegrees(int);
@@ -147,7 +147,7 @@ package androidx.camera.video {
     ctor public VideoCapture.Builder(T);
     method public androidx.camera.video.VideoCapture<T!> build();
     method public androidx.camera.video.VideoCapture.Builder<T!> setMirrorMode(int);
-    method public androidx.camera.video.VideoCapture.Builder<T!> setTargetFramerate(android.util.Range<java.lang.Integer!>);
+    method public androidx.camera.video.VideoCapture.Builder<T!> setTargetFrameRate(android.util.Range<java.lang.Integer!>);
     method public androidx.camera.video.VideoCapture.Builder<T!> setTargetRotation(int);
   }
 
