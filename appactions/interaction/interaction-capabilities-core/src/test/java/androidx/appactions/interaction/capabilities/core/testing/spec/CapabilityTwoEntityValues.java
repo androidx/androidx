@@ -19,6 +19,8 @@ package androidx.appactions.interaction.capabilities.core.testing.spec;
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.BaseSession;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
+import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter;
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
 import androidx.appactions.interaction.capabilities.core.properties.Entity;
@@ -36,10 +38,18 @@ public final class CapabilityTwoEntityValues {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                     .setDescriptor(Property.class)
                     .setArgument(Argument.class, Argument::newBuilder)
-                    .bindOptionalEntityParameter(
-                            "slotA", Property::slotA, Argument.Builder::setSlotA)
-                    .bindOptionalEntityParameter(
-                            "slotB", Property::slotB, Argument.Builder::setSlotB)
+                    .bindOptionalGenericParameter(
+                            "slotA",
+                            Property::slotA,
+                            Argument.Builder::setSlotA,
+                            TypeConverters::toEntityValue,
+                            PropertyConverter::entityToProto)
+                    .bindOptionalGenericParameter(
+                            "slotB",
+                            Property::slotB,
+                            Argument.Builder::setSlotB,
+                            TypeConverters::toEntityValue,
+                            PropertyConverter::entityToProto)
                     .build();
 
     private CapabilityTwoEntityValues() {}

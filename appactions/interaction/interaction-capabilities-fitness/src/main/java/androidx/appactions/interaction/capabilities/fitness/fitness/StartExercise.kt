@@ -21,6 +21,7 @@ import androidx.appactions.interaction.capabilities.core.ActionCapability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
+import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
@@ -45,10 +46,12 @@ private val ACTION_SPEC =
             TypeConverters::toDuration,
             TypeConverters::toEntity
         )
-        .bindOptionalStringParameter(
+        .bindOptionalGenericParameter(
             "exercise.name",
             { property -> Optional.ofNullable(property.name) },
-            StartExercise.Argument.Builder::setName
+            StartExercise.Argument.Builder::setName,
+            TypeConverters::toStringValue,
+            PropertyConverter::stringValueToProto
         )
         .build()
 

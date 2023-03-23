@@ -21,6 +21,8 @@ import androidx.appactions.interaction.capabilities.core.ActionCapability
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
+import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
@@ -36,10 +38,12 @@ private val ACTION_SPEC =
         .setDescriptor(PauseExercise.Property::class.java)
         .setArgument(PauseExercise.Argument::class.java, PauseExercise.Argument::Builder)
         .setOutput(PauseExercise.Output::class.java)
-        .bindOptionalStringParameter(
+        .bindOptionalGenericParameter(
             "exercise.name",
             { property -> Optional.ofNullable(property.name) },
-            PauseExercise.Argument.Builder::setName
+            PauseExercise.Argument.Builder::setName,
+            TypeConverters::toStringValue,
+            PropertyConverter::stringValueToProto
         )
         .build()
 

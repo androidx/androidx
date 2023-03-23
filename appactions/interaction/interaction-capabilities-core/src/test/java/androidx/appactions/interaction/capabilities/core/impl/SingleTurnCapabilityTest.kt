@@ -23,6 +23,7 @@ import androidx.appactions.interaction.capabilities.core.ActionExecutorAsync.Com
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
+import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
@@ -195,10 +196,12 @@ class SingleTurnCapabilityTest {
                 .setDescriptor(Property::class.java)
                 .setArgument(Argument::class.java, Argument::newBuilder)
                 .setOutput(Output::class.java)
-                .bindOptionalStringParameter(
+                .bindOptionalGenericParameter(
                     "optionalString",
                     Property::optionalStringField,
                     Argument.Builder::setOptionalStringField,
+                    TypeConverters::toStringValue,
+                    PropertyConverter::stringValueToProto
                 )
                 .bindOptionalOutput(
                     "optionalStringOutput",
