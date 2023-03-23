@@ -53,7 +53,7 @@ interface IJsSandboxService {
      * by the Binder transaction limit size.
      */
     const String EVALUATE_WITHOUT_TRANSACTION_LIMIT =
-      "EVALUATE_WITHOUT_TRANSACTION_LIMIT:DEV";
+      "EVALUATE_WITHOUT_TRANSACTION_LIMIT";
 
     /**
      * Feature flag indicating that an embedder can subscribe to console messages generated from the
