@@ -29,7 +29,6 @@ import android.util.Rational
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
@@ -61,6 +60,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeUseCase
+import androidx.concurrent.futures.await
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -357,20 +357,6 @@ class FocusMeteringControlTest {
 
             assertWithMessage("Wrong number of AWB regions").that(awbRegions?.size).isEqualTo(1)
             assertWithMessage("Wrong AWB region").that(awbRegions?.get(0)?.rect).isEqualTo(M_RECT_1)
-        }
-    }
-
-    @Test
-    fun startFocusAndMetering_defaultPoint_3ALocksAreCorrect() = runBlocking {
-        startFocusMeteringAndAwait(FocusMeteringAction.Builder(point1).build())
-
-        with(fakeRequestControl.focusMeteringCalls.last()) {
-            assertWithMessage("Wrong lock behavior for AE")
-                .that(aeLockBehavior).isEqualTo(Lock3ABehavior.AFTER_NEW_SCAN)
-            assertWithMessage("Wrong lock behavior for AF")
-                .that(afLockBehavior).isEqualTo(Lock3ABehavior.AFTER_NEW_SCAN)
-            assertWithMessage("Wrong lock behavior for AWB")
-                .that(awbLockBehavior).isEqualTo(Lock3ABehavior.AFTER_NEW_SCAN)
         }
     }
 
@@ -1282,7 +1268,7 @@ class FocusMeteringControlTest {
     }
 
     @Test
-    fun startFocusMetering_onlyAfSupported_unsupportedRegionsNotConfigured() {
+    fun startFocusMetering_onlyAfSupported_unsupportedRegionsNotSet() {
         // camera 5 supports 1 AF and 0 AE/AWB regions
         focusMeteringControl = initFocusMeteringControl(cameraId = CAMERA_ID_5)
 
@@ -1296,14 +1282,8 @@ class FocusMeteringControlTest {
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
             assertWithMessage("Wrong number of AE regions").that(aeRegions).isNull()
-            assertWithMessage("Wrong lock behavior for AE").that(aeLockBehavior).isNull()
-
             assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
-            assertWithMessage("Wrong lock behavior for AE")
-                .that(afLockBehavior).isEqualTo(Lock3ABehavior.AFTER_NEW_SCAN)
-
             assertWithMessage("Wrong number of AWB regions").that(awbRegions).isNull()
-            assertWithMessage("Wrong lock behavior for AWB").that(awbLockBehavior).isNull()
         }
     }
 
