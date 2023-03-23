@@ -21,6 +21,7 @@ import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
+import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
@@ -38,33 +39,38 @@ import java.util.Optional
 /** StartTimer.kt in interaction-capabilities-productivity */
 private const val CAPABILITY_NAME = "actions.intent.START_TIMER"
 
-private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-    .setDescriptor(StartTimer.Property::class.java)
-    .setArgument(StartTimer.Argument::class.java, StartTimer.Argument::Builder)
-    .setOutput(StartTimer.Output::class.java)
-    .bindOptionalStringParameter(
-        "timer.identifier",
-        { property -> Optional.ofNullable(property.identifier) },
-        StartTimer.Argument.Builder::setIdentifier
-    )
-    .bindOptionalStringParameter(
-        "timer.name",
-        { property -> Optional.ofNullable(property.name) },
-        StartTimer.Argument.Builder::setName
-    )
-    .bindOptionalGenericParameter(
-        "timer.duration",
-        { property -> Optional.ofNullable(property.duration) },
-        StartTimer.Argument.Builder::setDuration,
-        TypeConverters::toDuration,
-        TypeConverters::toEntity
-    )
-    .bindOptionalOutput(
-        "executionStatus",
-        { output -> Optional.ofNullable(output.executionStatus) },
-        StartTimer.ExecutionStatus::toParamValue
-    )
-    .build()
+private val ACTION_SPEC =
+    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+        .setDescriptor(StartTimer.Property::class.java)
+        .setArgument(StartTimer.Argument::class.java, StartTimer.Argument::Builder)
+        .setOutput(StartTimer.Output::class.java)
+        .bindOptionalGenericParameter(
+            "timer.identifier",
+            { property -> Optional.ofNullable(property.identifier) },
+            StartTimer.Argument.Builder::setIdentifier,
+            TypeConverters::toStringValue,
+            PropertyConverter::stringValueToProto
+        )
+        .bindOptionalGenericParameter(
+            "timer.name",
+            { property -> Optional.ofNullable(property.name) },
+            StartTimer.Argument.Builder::setName,
+            TypeConverters::toStringValue,
+            PropertyConverter::stringValueToProto
+        )
+        .bindOptionalGenericParameter(
+            "timer.duration",
+            { property -> Optional.ofNullable(property.duration) },
+            StartTimer.Argument.Builder::setDuration,
+            TypeConverters::toDuration,
+            TypeConverters::toEntity
+        )
+        .bindOptionalOutput(
+            "executionStatus",
+            { output -> Optional.ofNullable(output.executionStatus) },
+            StartTimer.ExecutionStatus::toParamValue
+        )
+        .build()
 
 // TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
 class StartTimer private constructor() {
@@ -72,7 +78,7 @@ class StartTimer private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
             CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
-            >(ACTION_SPEC) {
+        >(ACTION_SPEC) {
 
         fun setSessionFactory(): CapabilityBuilder {
             return this
@@ -96,7 +102,8 @@ class StartTimer private constructor() {
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor(
+    class Property
+    internal constructor(
         val identifier: TypeProperty<StringValue>?,
         val name: TypeProperty<StringValue>?,
         val duration: TypeProperty<Duration>?
@@ -130,24 +137,22 @@ class StartTimer private constructor() {
             private var name: TypeProperty<StringValue>? = null
             private var duration: TypeProperty<Duration>? = null
 
-            fun setIdentifier(identifier: TypeProperty<StringValue>): Builder =
-                apply { this.identifier = identifier }
+            fun setIdentifier(identifier: TypeProperty<StringValue>): Builder = apply {
+                this.identifier = identifier
+            }
 
-            fun setName(name: TypeProperty<StringValue>): Builder =
-                apply { this.name = name }
+            fun setName(name: TypeProperty<StringValue>): Builder = apply { this.name = name }
 
-            fun setDuration(duration: TypeProperty<Duration>): Builder =
-                apply { this.duration = duration }
+            fun setDuration(duration: TypeProperty<Duration>): Builder = apply {
+                this.duration = duration
+            }
 
             fun build(): Property = Property(identifier, name, duration)
         }
     }
 
-    class Argument internal constructor(
-        val identifier: String?,
-        val name: String?,
-        val duration: Duration?
-    ) {
+    class Argument
+    internal constructor(val identifier: String?, val name: String?, val duration: Duration?) {
         override fun toString(): String {
             return "Argument(identifier=$identifier,name=$name,duration=$duration)"
         }
@@ -177,14 +182,11 @@ class StartTimer private constructor() {
             private var name: String? = null
             private var duration: Duration? = null
 
-            fun setIdentifier(identifier: String): Builder =
-                apply { this.identifier = identifier }
+            fun setIdentifier(identifier: String): Builder = apply { this.identifier = identifier }
 
-            fun setName(name: String): Builder =
-                apply { this.name = name }
+            fun setName(name: String): Builder = apply { this.name = name }
 
-            fun setDuration(duration: Duration): Builder =
-                apply { this.duration = duration }
+            fun setDuration(duration: Duration): Builder = apply { this.duration = duration }
 
             override fun build(): Argument = Argument(identifier, name, duration)
         }
@@ -213,8 +215,9 @@ class StartTimer private constructor() {
         class Builder {
             private var executionStatus: ExecutionStatus? = null
 
-            fun setExecutionStatus(executionStatus: ExecutionStatus): Builder =
-                apply { this.executionStatus = executionStatus }
+            fun setExecutionStatus(executionStatus: ExecutionStatus): Builder = apply {
+                this.executionStatus = executionStatus
+            }
 
             fun build(): Output = Output(executionStatus)
         }
@@ -241,9 +244,11 @@ class StartTimer private constructor() {
                 status = genericErrorStatus.toString()
             }
             val value: Value = Value.newBuilder().setStringValue(status).build()
-            return ParamValue.newBuilder().setStructValue(
-                Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build(),
-            ).build()
+            return ParamValue.newBuilder()
+                .setStructValue(
+                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build(),
+                )
+                .build()
         }
     }
 

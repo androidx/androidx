@@ -25,6 +25,7 @@ import androidx.appactions.interaction.capabilities.core.SessionFactory
 import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
+import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
@@ -950,15 +951,19 @@ class TaskCapabilityImplTest {
                 .setDescriptor(Property::class.java)
                 .setArgument(Argument::class.java, Argument::newBuilder)
                 .setOutput(Output::class.java)
-                .bindRequiredEntityParameter(
+                .bindRequiredGenericParameter(
                     "required",
                     Property::requiredEntityField,
                     Argument.Builder::setRequiredEntityField,
+                    TypeConverters::toEntityValue,
+                    PropertyConverter::entityToProto
                 )
-                .bindOptionalStringParameter(
+                .bindOptionalGenericParameter(
                     "optional",
                     Property::optionalStringField,
                     Argument.Builder::setOptionalStringField,
+                    TypeConverters::toStringValue,
+                    PropertyConverter::stringValueToProto
                 )
                 .bindOptionalGenericParameter(
                     "optionalEnum",
@@ -967,10 +972,12 @@ class TaskCapabilityImplTest {
                     { TestEnum.VALUE_1 },
                     { Entity.newBuilder().setIdentifier(it.toString()).build() }
                 )
-                .bindRepeatedStringParameter(
+                .bindRepeatedGenericParameter(
                     "repeated",
                     Property::repeatedStringField,
                     Argument.Builder::setRepeatedStringField,
+                    TypeConverters::toStringValue,
+                    PropertyConverter::stringValueToProto
                 )
                 .bindOptionalOutput(
                     "optionalStringOutput",

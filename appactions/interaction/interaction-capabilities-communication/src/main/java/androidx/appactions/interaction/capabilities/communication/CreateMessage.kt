@@ -21,6 +21,7 @@ import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
+import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
@@ -49,10 +50,12 @@ private val ACTION_SPEC =
             TypeConverters::toRecipient,
             TypeConverters::toEntity
         )
-        .bindOptionalStringParameter(
+        .bindOptionalGenericParameter(
             "message.text",
             { property -> Optional.ofNullable(property.messageText) },
-            CreateMessage.Argument.Builder::setMessageText
+            CreateMessage.Argument.Builder::setMessageText,
+            TypeConverters::toStringValue,
+            PropertyConverter::stringValueToProto
         )
         .bindOptionalOutput(
             "message",
