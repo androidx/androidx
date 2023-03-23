@@ -19,7 +19,9 @@ package androidx.compose.foundation.text2
 import android.os.Build
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -28,7 +30,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertPixels
@@ -44,12 +45,16 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.text.TextLayoutResult
@@ -464,6 +469,51 @@ class TextFieldCursorTest {
             .assertDoesNotContainColor(cursorColor)
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun focusLost_cursorHidesImmediately() {
+        state = TextFieldState(TextFieldValue("test"))
+        rule.setContent {
+            // The padding helps if the test is run accidentally in landscape. Landscape makes
+            // the cursor to be next to the navigation bar which affects the red color to be a bit
+            // different - possibly anti-aliasing.
+            Column(Modifier.padding(boxPadding)) {
+                BasicTextField2(
+                    state = state,
+                    // make sure that background is not obstructing selection
+                    textStyle = textStyle,
+                    modifier = textFieldModifier,
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = onTextLayout
+                )
+                Box(modifier = Modifier.focusable(true).testTag("box"))
+            }
+        }
+
+        focusAndWait()
+
+        rule.mainClock.advanceTimeBy(100)
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(2.dp, cursorRect)
+
+        rule.onNodeWithTag("box").performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.mainClock.advanceTimeByFrame()
+
+        // cursor should hide immediately.
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = RectangleShape,
+                shapeColor = contentColor,
+                backgroundColor = contentColor,
+                shapeOverlapPixelCount = 0.0f
+            )
+    }
+
     private fun focusAndWait() {
         rule.onNode(hasSetTextAction()).performClick()
         rule.mainClock.advanceTimeUntil { isFocused }
@@ -522,7 +572,7 @@ class TextFieldCursorTest {
                     textStyle = textStyle,
                     modifier = textFieldModifier.layout { measurable, constraints ->
                         // change the state during layout so draw can read the new state
-                        val currValue = Snapshot.withoutReadObservation { state.value }
+                        val currValue = state.value
                         if (currValue.text.isNotEmpty()) {
                             val newText = currValue.text.dropLast(1)
                             val newValue = TextFieldValue(newText, TextRange(newText.length))
@@ -539,8 +589,6 @@ class TextFieldCursorTest {
                 )
             }
         }
-
-        focusAndWait()
 
         rule.waitForIdle()
 

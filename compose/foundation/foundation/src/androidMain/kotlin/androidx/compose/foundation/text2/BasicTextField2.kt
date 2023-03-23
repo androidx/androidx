@@ -17,31 +17,36 @@
 package androidx.compose.foundation.text2
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.heightInLines
-import androidx.compose.foundation.text.selection.SimpleLayout
 import androidx.compose.foundation.text.textFieldMinSize
 import androidx.compose.foundation.text2.service.AndroidTextInputPlugin
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalPlatformTextInputPluginRegistry
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -73,6 +78,9 @@ import kotlin.math.roundToInt
  * that 1 <= [minLines] <= [maxLines].
  * @param maxLines The maximum height in terms of maximum number of visible lines. It is required
  * that 1 <= [minLines] <= [maxLines].
+ * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
+ * If [maxLines] is 1, this TextField is treated as single line which activates horizontal scroll
+ * behavior. In other cases TextField becomes vertically scrollable.
  * @param keyboardOptions software keyboard options that contains configuration such as
  * [KeyboardType] and [ImeAction].
  * @param onTextLayout Callback that is executed when a new text layout is calculated. A
@@ -100,6 +108,7 @@ fun BasicTextField2(
     cursorBrush: Brush = SolidColor(Color.Black),
     minLines: Int = DefaultMinLines,
     maxLines: Int = Int.MAX_VALUE,
+    scrollState: ScrollState = rememberScrollState(),
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onTextLayout: Density.(TextLayoutResult) -> Unit = {},
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
@@ -111,10 +120,13 @@ fun BasicTextField2(
 
     val fontFamilyResolver = LocalFontFamilyResolver.current
     val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
     val singleLine = minLines == 1 && maxLines == 1
     // We're using this to communicate focus state to cursor for now.
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+
+    val orientation = if (singleLine) Orientation.Horizontal else Orientation.Vertical
 
     val textLayoutState = remember {
         TextLayoutState(
@@ -132,7 +144,7 @@ fun BasicTextField2(
     val decorationModifiers = modifier
         .then(
             // semantics + some focus + input session + touch to focus
-            TextFieldDecoratorModifierElement(
+            TextFieldDecoratorModifier(
                 textFieldState = state,
                 textLayoutState = textLayoutState,
                 textInputAdapter = textInputAdapter,
@@ -143,6 +155,17 @@ fun BasicTextField2(
             )
         )
         .focusable(interactionSource = interactionSource, enabled = enabled)
+        .scrollable(
+            orientation = orientation,
+            reverseDirection = ScrollableDefaults.reverseDirection(
+                layoutDirection = layoutDirection,
+                orientation = orientation,
+                reverseScrolling = false
+            ),
+            state = scrollState,
+            interactionSource = interactionSource,
+            enabled = enabled && scrollState.maxValue > 0
+        )
 
     Box(decorationModifiers) {
         decorationBox(innerTextField = {
@@ -153,44 +176,40 @@ fun BasicTextField2(
                     maxLines = maxLines
                 )
                 .textFieldMinSize(textStyle)
-                .then(TextFieldCoreModifierElement(
+                .clipToBounds()
+                .then(TextFieldCoreModifier(
                     isFocused = interactionSource.collectIsFocusedAsState().value,
                     textLayoutState = textLayoutState,
                     textFieldState = state,
                     cursorBrush = cursorBrush,
-                    writeable = enabled && !readOnly
+                    writeable = enabled && !readOnly,
+                    scrollState = scrollState,
+                    orientation = orientation
                 ))
-                .onGloballyPositioned {
-                    textLayoutState.proxy?.innerTextFieldCoordinates = it
-                }
 
-            // A custom layout that hosts TextLayout, Selection and Cursor Handles.
-            SimpleLayout(coreModifiers) {
-                // Text Layout
-                Layout { _, constraints ->
-                    val result = with(textLayoutState) {
-                        layout(
-                            text = state.value.annotatedString,
-                            textStyle = textStyle,
-                            softWrap = true,
-                            density = density,
-                            fontFamilyResolver = fontFamilyResolver,
-                            constraints = constraints,
-                            onTextLayout = onTextLayout
-                        )
-                    }
-
-                    // TODO: min height
-
+            Layout(modifier = coreModifiers) { _, constraints ->
+                val result = with(textLayoutState) {
                     layout(
-                        width = result.size.width,
-                        height = result.size.height,
-                        alignmentLines = mapOf(
-                            FirstBaseline to result.firstBaseline.roundToInt(),
-                            LastBaseline to result.lastBaseline.roundToInt()
-                        )
-                    ) {}
+                        text = state.value.annotatedString,
+                        textStyle = textStyle,
+                        softWrap = !singleLine,
+                        density = density,
+                        fontFamilyResolver = fontFamilyResolver,
+                        constraints = constraints,
+                        onTextLayout = onTextLayout
+                    )
                 }
+
+                // TODO: min height
+
+                layout(
+                    width = result.size.width,
+                    height = result.size.height,
+                    alignmentLines = mapOf(
+                        FirstBaseline to result.firstBaseline.roundToInt(),
+                        LastBaseline to result.lastBaseline.roundToInt()
+                    )
+                ) {}
             }
         })
     }
