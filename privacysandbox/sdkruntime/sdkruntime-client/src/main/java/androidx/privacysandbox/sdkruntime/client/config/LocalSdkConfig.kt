@@ -21,6 +21,7 @@ package androidx.privacysandbox.sdkruntime.client.config
  */
 internal data class LocalSdkConfig(
     val packageName: String,
+    val versionMajor: Int? = null,
     val dexPaths: List<String>,
     val entryPoint: String,
     val javaResourcesRoot: String? = null,

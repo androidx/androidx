@@ -86,7 +86,7 @@ internal class SdkLoader internal constructor(
         sdkClassLoader: ClassLoader,
         sdkConfig: LocalSdkConfig
     ): LocalSdkProvider {
-        return SdkProviderV1.create(sdkClassLoader, sdkConfig.entryPoint, appContext)
+        return SdkProviderV1.create(sdkClassLoader, sdkConfig, appContext)
     }
 
     private fun createSdkProviderV2(
@@ -94,7 +94,7 @@ internal class SdkLoader internal constructor(
         sdkConfig: LocalSdkConfig
     ): LocalSdkProvider {
         SandboxControllerInjector.inject(sdkClassLoader, controller)
-        return SdkProviderV1.create(sdkClassLoader, sdkConfig.entryPoint, appContext)
+        return SdkProviderV1.create(sdkClassLoader, sdkConfig, appContext)
     }
 
     companion object {
