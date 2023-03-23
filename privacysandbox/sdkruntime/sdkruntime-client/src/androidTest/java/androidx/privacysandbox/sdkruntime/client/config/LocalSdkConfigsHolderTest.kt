@@ -50,6 +50,7 @@ class LocalSdkConfigsHolderTest {
             .isEqualTo(
                 LocalSdkConfig(
                     packageName = "androidx.privacysandbox.sdkruntime.test.v1",
+                    versionMajor = 42,
                     dexPaths = listOf("RuntimeEnabledSdks/V1/classes.dex"),
                     entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
                     javaResourcesRoot = "RuntimeEnabledSdks/V1/javaresources"

@@ -49,12 +49,13 @@ class LocalSdkConfigParserTest {
             </compat-config>
         """.trimIndent()
 
-        val result = tryParse(xml, packageName = "com.test.sdk.package")
+        val result = tryParse(xml, packageName = "com.test.sdk.package", versionMajor = 1)
 
         assertThat(result)
             .isEqualTo(
                 LocalSdkConfig(
                     packageName = "com.test.sdk.package",
+                    versionMajor = 1,
                     dexPaths = listOf("1.dex", "2.dex"),
                     entryPoint = "compat.sdk.provider",
                     javaResourcesRoot = "javaResPath/",
@@ -81,6 +82,7 @@ class LocalSdkConfigParserTest {
             .isEqualTo(
                 LocalSdkConfig(
                     packageName = "com.test.sdk.package",
+                    versionMajor = null,
                     dexPaths = listOf("1.dex"),
                     entryPoint = "compat.sdk.provider",
                     javaResourcesRoot = null,
@@ -239,9 +241,13 @@ class LocalSdkConfigParserTest {
         )
     }
 
-    private fun tryParse(xml: String, packageName: String = "sdkPackageName"): LocalSdkConfig {
+    private fun tryParse(
+        xml: String,
+        packageName: String = "sdkPackageName",
+        versionMajor: Int? = null
+    ): LocalSdkConfig {
         ByteArrayInputStream(xml.toByteArray()).use { inputStream ->
-            return parse(inputStream, packageName)
+            return parse(inputStream, packageName, versionMajor)
         }
     }
 }
