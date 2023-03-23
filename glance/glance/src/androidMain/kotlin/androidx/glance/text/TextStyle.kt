@@ -22,6 +22,20 @@ import androidx.glance.unit.ColorProvider
 
 /**
  * Description of a text style for the [androidx.glance.text.Text] composable.
+ *
+ * @param color optionally specifies which font family to use for the text, defaults to
+ *         [TextDefaults.defaultTextColor].
+ * @param fontSize optionally specifies the size to use for the text, defaults to system when null.
+ * @param fontWeight optionally specifies the weight to use for the text, defaults to system
+ *         when null.
+ * @param fontStyle optionally specifies style (such as italics) to use for the text, defaults to
+ *         system when null.
+ * @param textAlign optionally specifies the alignment to use for the text, defaults to start when.
+ *         null.
+ * @param textDecoration optionally specifies decorations (e.g. underline) to use for the text,
+ *         defaults to none when null
+ * @param fontFamily optionally specifies which font family to use for the text, defaults to system
+ *         when null.
  */
 @Immutable
 class TextStyle(
