@@ -979,7 +979,6 @@ OpenJDK 64\-Bit Server VM warning:
 # > Task :concurrent:concurrent-futures:compileTestJava b/242311027
 \$SUPPORT/concurrent/concurrent\-futures/src/test/java/androidx/concurrent/futures/AbstractResolvableFutureTest\.java:[0-9]+: warning: \[removal\] (resume|suspend)\(\) in Thread has been deprecated and marked for removal
 thread\.(resume|suspend)\(\);
-2 warnings
 # AGP warning that will go away soon
 WARNING:Software Components will not be created automatically for Maven publishing from Android Gradle Plugin 8\.0\. To opt\-in to the future behavior, set the Gradle property android\.disableAutomaticComponentCreation=true in the `gradle\.properties` file or use the new publishing DSL\.
 # > Task :graphics:graphics-path:compileDebugKotlin
