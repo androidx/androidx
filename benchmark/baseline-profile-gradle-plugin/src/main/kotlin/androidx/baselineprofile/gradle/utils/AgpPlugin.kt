@@ -36,6 +36,7 @@ import com.android.build.api.variant.VariantBuilder
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.TaskProvider
 
 /**
@@ -58,6 +59,9 @@ internal abstract class AgpPlugin(
             )
         }
     }
+
+    protected val logger: Logger
+        get() = project.logger
 
     private val afterVariantBlocks = mutableListOf<() -> (Unit)>()
 
@@ -171,9 +175,13 @@ internal abstract class AgpPlugin(
         }
     }
 
-    protected fun afterVariants(block: () -> (Unit)) {
-        afterVariantBlocks.add(block)
+    protected fun isGradleSyncRunning() = gradleSyncProps.any {
+        it in project.properties && project.properties[it].toString().toBoolean()
     }
+
+    protected fun afterVariants(block: () -> (Unit)) = afterVariantBlocks.add(block)
+
+    protected fun agpVersion() = project.agpVersion()
 
     private fun checkAgpVersion(min: AndroidPluginVersion, max: AndroidPluginVersion) {
         val agpVersion = project.agpVersion()
@@ -188,9 +196,7 @@ internal abstract class AgpPlugin(
         }
     }
 
-    internal fun isGradleSyncRunning() = gradleSyncProps.any {
-        it in project.properties && project.properties[it].toString().toBoolean()
-    }
+    protected fun supportsFeature(feature: AgpFeature) = agpVersion() >= feature.version
 
     protected fun isTestModule() = testAndroidComponentExtension() != null
     protected fun isLibraryModule() = libraryAndroidComponentsExtension() != null
