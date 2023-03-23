@@ -19,6 +19,7 @@ package androidx.wear.watchface.complications.data
 import android.icu.util.ULocale
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
+import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType
@@ -30,6 +31,8 @@ import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,6 +41,8 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.invoke
+import kotlinx.coroutines.launch
 
 /**
  * Evaluates a [WireComplicationData] with
@@ -197,7 +202,7 @@ class ComplicationDataExpressionEvaluator(
          *
          * Should be called after all receivers were added.
          */
-        fun initEvaluation() {
+        suspend fun initEvaluation() {
             if (pendingReceivers.isEmpty()) return
             require(!this::evaluator.isInitialized) { "initEvaluator must be called exactly once." }
             evaluator =
@@ -206,16 +211,30 @@ class ComplicationDataExpressionEvaluator(
                     stateStore,
                     sensorGateway,
                 )
-            for (receiver in pendingReceivers) receiver.bind()
-            for (receiver in pendingReceivers) receiver.startEvaluation()
-            evaluator.enablePlatformDataSources()
+            try {
+                for (receiver in pendingReceivers) receiver.bind()
+                // TODO(b/270697243): Remove this invoke once DynamicTypeEvaluator is thread safe.
+                Dispatchers.Main.immediate.invoke {
+                    // These need to be called on the main thread.
+                    for (receiver in pendingReceivers) receiver.startEvaluation()
+                    evaluator.enablePlatformDataSources()
+                }
+            } catch (e: Throwable) {
+                // Cleanup on failure.
+                evaluator.close()
+                throw e
+            }
         }
 
         override fun close() {
-            for (receiver in pendingReceivers + invalidReceivers + completeReceivers) {
-                receiver.close()
+            // TODO(b/270697243): Remove this launch once DynamicTypeEvaluator is thread safe.
+            CoroutineScope(Dispatchers.Main.immediate).launch {
+                // These need to be called on the main thread.
+                for (receiver in pendingReceivers + invalidReceivers + completeReceivers) {
+                    receiver.close()
+                }
+                if (this@State::evaluator.isInitialized) evaluator.close()
             }
-            if (this::evaluator.isInitialized) evaluator.close()
         }
 
         private fun copy(
@@ -249,10 +268,14 @@ class ComplicationDataExpressionEvaluator(
             boundDynamicType = binder(this)
         }
 
+        // TODO(b/270697243): Remove this annotation once DynamicTypeEvaluator is thread safe.
+        @MainThread
         fun startEvaluation() {
             boundDynamicType.startEvaluation()
         }
 
+        // TODO(b/270697243): Remove this annotation once DynamicTypeEvaluator is thread safe.
+        @MainThread
         override fun close() {
             boundDynamicType.close()
         }
