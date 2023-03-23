@@ -672,7 +672,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         pool.close()
     }
 
-    companion object {
+    internal companion object {
 
         internal const val TAG = "GLFrontBufferedRenderer"
     }
