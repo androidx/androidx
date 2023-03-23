@@ -44,6 +44,7 @@ import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Provide simple controls of windows that generate insets.
@@ -660,6 +661,24 @@ public final class WindowInsetsControllerCompat {
 
         @Override
         void hide(@InsetsType int types) {
+            if (mWindow != null && (types & WindowInsetsCompat.Type.IME) != 0 && SDK_INT <= 33) {
+                final AtomicBoolean isImeInsetsControllable = new AtomicBoolean(false);
+                final WindowInsetsController.OnControllableInsetsChangedListener listener =
+                        (windowInsetsController, typeMask) -> isImeInsetsControllable.set(
+                                (typeMask & WindowInsetsCompat.Type.IME) != 0);
+                // Register the OnControllableInsetsChangedListener would synchronously callback
+                // current controllable insets. Adding the listener here to check if ime inset is
+                // controllable.
+                mInsetsController.addOnControllableInsetsChangedListener(listener);
+                if (!isImeInsetsControllable.get()) {
+                    final InputMethodManager imm = (InputMethodManager) mWindow.getContext()
+                                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+                    // This is a backport when the app is in multi-windowing mode, it cannot control
+                    // the ime insets. Use the InputMethodManager instead.
+                    imm.hideSoftInputFromWindow(mWindow.getDecorView().getWindowToken(), 0);
+                }
+                mInsetsController.removeOnControllableInsetsChangedListener(listener);
+            }
             mInsetsController.hide(types);
         }
 
