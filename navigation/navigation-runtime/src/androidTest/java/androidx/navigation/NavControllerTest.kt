@@ -108,11 +108,11 @@ class NavControllerTest {
     private val NESTED_NAV_GRAPH_2 =
         navController.createGraph(route = "graph", startDestination = "dest1") {
             test("dest1")
-            navigation(route = "nested", startDestination = "dest2") {
+            navigation(route = "nested/{longArg}", startDestination = "dest2/{longArg}") {
                 argument("longArg") {
                     type = NavType.LongType
                 }
-                test("dest2") {
+                test("dest2/{longArg}") {
                     argument("longArg") {
                         type = NavType.LongType
                     }
@@ -313,6 +313,148 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_nested_start_destination)
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.nested_test)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGraphRootMissingRequiredArgumentPlaceholder() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.createGraph(route = "graph", startDestination = "dest1") {
+                argument("intArg") {
+                    type = NavType.IntType
+                    nullable = false
+                }
+                test("dest1")
+            }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/graph can't be used to open destination " +
+                "NavGraph(0xa22391e1) startDestination=0x0.\n" +
+                "Following required arguments are missing: [intArg]"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGraphRootMissingPartialRequiredArgumentPlaceholders() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.createGraph(route = "graph/{intArg}", startDestination = "dest1") {
+                argument("intArg") {
+                    type = NavType.IntType
+                    nullable = false
+                }
+                argument("longArg") {
+                    type = NavType.LongType
+                    nullable = false
+                }
+                test("dest1")
+            }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/graph/{intArg} can't be used to " +
+                "open destination NavGraph(0xf9423909) startDestination=0x0.\n" +
+                "Following required arguments are missing: [longArg]"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGraphRootMissingAllRequiredArgumentPlaceholders() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.createGraph(route = "graph", startDestination = "dest1") {
+                argument("intArg") {
+                    type = NavType.IntType
+                    nullable = false
+                }
+                argument("longArg") {
+                    type = NavType.LongType
+                    nullable = false
+                }
+                test("dest1")
+            }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/graph can't be used to open " +
+                "destination NavGraph(0xa22391e1) startDestination=0x0.\n" +
+                "Following required arguments are missing: [intArg, longArg]"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGraphDestMissingRequiredArgumentPlaceholder() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.graph =
+                navController.createGraph(route = "graph", startDestination = "dest1") {
+                    test("dest1") {
+                        argument("intArg") {
+                            type = NavType.IntType
+                            nullable = false
+                        }
+                    }
+                }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/dest1 can't be used to open " +
+                "destination Destination(0xa1f3a662).\n" +
+                "Following required arguments are missing: [intArg]"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGraphDestMissingPartialRequiredArgumentPlaceholder() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.graph =
+                navController.createGraph(route = "graph", startDestination = "dest1/{intArg}") {
+                    test("dest1/{intArg}") {
+                        argument("intArg") {
+                            type = NavType.IntType
+                            nullable = false
+                        }
+                        argument("longArg") {
+                            type = NavType.LongType
+                            nullable = false
+                        }
+                    }
+                }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/dest1/{intArg} can't be used to " +
+                "open destination Destination(0x994aa5a8).\n" +
+                "Following required arguments are missing: [longArg]"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGraphDestMissingAllRequiredArgumentPlaceholders() {
+        val navController = createNavController()
+        val expected = assertFailsWith<IllegalArgumentException> {
+            navController.graph =
+                navController.createGraph(route = "graph", startDestination = "dest1") {
+                    test("dest") {
+                        argument("intArg") {
+                            type = NavType.IntType
+                            nullable = false
+                        }
+                        argument("longArg") {
+                            type = NavType.LongType
+                            nullable = false
+                        }
+                    }
+                }
+        }
+        assertThat(expected.message).isEqualTo(
+            "Deep link android-app://androidx.navigation/dest can't be used to open " +
+                "destination Destination(0x78d64faf).\n" +
+                "Following required arguments are missing: [intArg, longArg]"
+        )
     }
 
     @UiThreadTest
@@ -1772,7 +1914,7 @@ class NavControllerTest {
         navController.graph = NESTED_NAV_GRAPH_2
         assertThat(navController.currentDestination?.route).isEqualTo("dest1")
 
-        val nestedId = ("android-app://androidx.navigation/nested").hashCode()
+        val nestedId = ("android-app://androidx.navigation/nested/{longArg}").hashCode()
 
         val expected = assertFailsWith<NullPointerException> {
             navController.navigate(nestedId)
@@ -1806,14 +1948,16 @@ class NavControllerTest {
         navController.graph = NESTED_NAV_GRAPH_2
         assertThat(navController.currentDestination?.route).isEqualTo("dest1")
 
-        val nestedId1 = ("android-app://androidx.navigation/nested").hashCode()
+        val nestedId1 = ("android-app://androidx.navigation/nested/{longArg}").hashCode()
 
         // navigate to nested graph first destination, provide non-nullable arg
         navController.navigate(
             nestedId1,
             bundleOf("longArg" to 123L)
         )
-        assertThat(navController.currentDestination?.route).isEqualTo("dest2")
+        assertThat(navController.currentDestination?.route).isEqualTo("dest2/{longArg}")
+        assertThat(navController.currentBackStackEntry?.arguments?.getLong("longArg"))
+            .isEqualTo(123L)
 
         val nestedId2 = ("android-app://androidx.navigation/dest3").hashCode()
         // navigate to nested graph second destination after popping up to graph (inclusive)
@@ -1821,7 +1965,7 @@ class NavControllerTest {
         navController.navigate(
             nestedId2,
             Bundle(),
-            NavOptions.Builder().setPopUpTo("nested", inclusive = true).build()
+            NavOptions.Builder().setPopUpTo("nested/{longArg}", inclusive = true).build()
         )
         // [graph, dest1, nested, dest3]
         assertThat(navController.currentBackStack.value.size).isEqualTo(4)
