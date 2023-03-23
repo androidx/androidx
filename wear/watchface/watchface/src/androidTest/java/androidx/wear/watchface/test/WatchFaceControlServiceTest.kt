@@ -538,4 +538,15 @@ public class WatchFaceControlServiceTest {
 
         assertThat(instance.userStyleSchema.mSchema).isEmpty()
     }
+
+    @Test
+    public fun createWatchFaceService_throwsOnInvalidClass() {
+        assertThat(WatchFaceControlService()
+            .createWatchFaceService(
+                ComponentName(
+                    ApplicationProvider.getApplicationContext(),
+                    WatchFaceControlServiceTest::class.java
+                )
+            )).isNull()
+    }
 }
