@@ -20,12 +20,9 @@ import static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.robolectric.Shadows.shadowOf;
-
 import static java.lang.Integer.MAX_VALUE;
 
 import android.icu.util.ULocale;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
@@ -362,7 +359,6 @@ public class DynamicTypeEvaluatorTest {
                     };
 
             this.mExpressionEvaluator.accept(evaluator, callback);
-            shadowOf(Looper.getMainLooper()).idle();
 
             assertThat(results).hasSize(1);
             assertThat(results).containsExactly(mExpectedValue);
