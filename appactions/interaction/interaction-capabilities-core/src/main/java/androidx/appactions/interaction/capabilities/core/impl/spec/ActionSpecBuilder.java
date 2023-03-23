@@ -20,6 +20,7 @@ import static androidx.appactions.interaction.capabilities.core.impl.utils.Immut
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.PropertyConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter;
@@ -30,7 +31,6 @@ import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
-import androidx.appactions.interaction.proto.Entity;
 import androidx.appactions.interaction.proto.ParamValue;
 
 import java.util.ArrayList;
@@ -155,7 +155,7 @@ public final class ActionSpecBuilder<
 
     /**
      * Binds the parameter name, getter, and setter for a {@link
-     *  androidx.appactions.interaction.capabilities .core.properties.Entity} property.
+     * androidx.appactions.interaction.capabilities .core.properties.Entity} property.
      *
      * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
      * If the Property Optional is not set, this parameter will not exist in the parameter
@@ -277,7 +277,7 @@ public final class ActionSpecBuilder<
                                             propertyGetter,
                             @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
                             @NonNull ParamValueConverter<T> paramValueConverter,
-                            @NonNull Function<PossibleValueT, Entity> entityConverter) {
+                            @NonNull EntityConverter<PossibleValueT> entityConverter) {
         return bindGenericParameter(
                 paramName,
                 property ->
@@ -318,7 +318,7 @@ public final class ActionSpecBuilder<
                                             optionalPropertyGetter,
                             @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
                             @NonNull ParamValueConverter<T> paramValueConverter,
-                            @NonNull Function<PossibleValueT, Entity> entityConverter) {
+                            @NonNull EntityConverter<PossibleValueT> entityConverter) {
         return bindGenericParameter(
                 paramName,
                 property ->
@@ -352,7 +352,7 @@ public final class ActionSpecBuilder<
                                             optionalPropertyGetter,
                             @NonNull BiConsumer<? super ArgumentBuilderT, List<T>> paramConsumer,
                             @NonNull ParamValueConverter<T> paramValueConverter,
-                            @NonNull Function<PossibleValueT, Entity> entityConverter) {
+                            @NonNull EntityConverter<PossibleValueT> entityConverter) {
         return bindParameter(
                 paramName,
                 property ->

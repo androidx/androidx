@@ -15,7 +15,7 @@
  */
 package androidx.appactions.interaction.capabilities.core.task.impl
 
-import androidx.appactions.interaction.capabilities.core.impl.converters.DisambigEntityConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.proto.ParamValue
@@ -31,6 +31,6 @@ constructor(
     val groundingPredicate: (ParamValue) -> Boolean,
     val resolver: GenericResolverInternal<ValueTypeT>,
     val converter: ParamValueConverter<ValueTypeT>,
-    val entityConverter: DisambigEntityConverter<ValueTypeT>?,
+    val entityConverter: EntityConverter<ValueTypeT>?,
     val searchActionConverter: SearchActionConverter<ValueTypeT>?,
 )

@@ -25,7 +25,6 @@ import androidx.appactions.interaction.capabilities.core.SessionFactory
 import androidx.appactions.interaction.capabilities.core.impl.ActionCapabilitySession
 import androidx.appactions.interaction.capabilities.core.impl.ErrorStatusInternal
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
-import androidx.appactions.interaction.capabilities.core.impl.converters.DisambigEntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
@@ -902,10 +901,6 @@ class TaskCapabilityImplTest {
     }
 
     companion object {
-        private val DISAMBIG_ENTITY_CONVERTER: DisambigEntityConverter<EntityValue> =
-            DisambigEntityConverter {
-                TypeConverters.toEntity(it)
-            }
 
         private val AUTO_ACCEPT_ENTITY_VALUE: AppEntityResolver<EntityValue> =
             object : AppEntityResolver<EntityValue> {
