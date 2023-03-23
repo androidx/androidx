@@ -184,13 +184,10 @@ public final class JavaScriptSandbox implements AutoCloseable {
      * Feature for {@link #isFeatureSupported(String)}.
      * <p>
      * When this feature is present, the script passed into
-     * {@link JavaScriptIsolate#evaluateJavaScriptAsync(String)} is not limited by the Binder
-     * transaction buffer size.
-     *
-     * @hide
+     * {@link JavaScriptIsolate#evaluateJavaScriptAsync(String)} as well as the result/error is
+     * not limited by the Binder transaction buffer size.
      */
     @SuppressWarnings("IntentName")
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT =
             "JS_FEATURE_EVALUATE_WITHOUT_TRANSACTION_LIMIT";
 
