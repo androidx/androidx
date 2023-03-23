@@ -19,6 +19,7 @@ package androidx.credentials
 import android.app.Activity
 import android.content.Context
 import android.os.CancellationSignal
+import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialException
@@ -133,6 +134,94 @@ class CredentialManager private constructor(private val context: Context) {
     }
 
     /**
+     * Requests a credential from the user.
+     *
+     * Different from the other `getCredential(GetCredentialRequest, Activity)` API, this API
+     * launches the remaining flows to retrieve an app credential from the user, after the
+     * completed prefetch work corresponding to the given `pendingGetCredentialHandle`. Use this
+     * API to complete the full credential retrieval operation after you initiated a request through
+     * the [prepareGetCredential] API.
+     *
+     * The execution can potentially launch UI flows to collect user consent to using a
+     * credential, display a picker when multiple credentials exist, etc.
+     *
+     * @param pendingGetCredentialHandle the handle representing the pending operation to resume
+     * @param activity the activity used to potentially launch any UI needed
+     * @throws GetCredentialException If the request fails
+     */
+    @RequiresApi(34)
+    suspend fun getCredential(
+        pendingGetCredentialHandle: PrepareGetCredentialResponse.PendingGetCredentialHandle,
+        activity: Activity,
+    ): GetCredentialResponse = suspendCancellableCoroutine { continuation ->
+        // Any Android API that supports cancellation should be configured to propagate
+        // coroutine cancellation as follows:
+        val canceller = CancellationSignal()
+        continuation.invokeOnCancellation { canceller.cancel() }
+
+        val callback = object : CredentialManagerCallback<GetCredentialResponse,
+            GetCredentialException> {
+            override fun onResult(result: GetCredentialResponse) {
+                continuation.resume(result)
+            }
+
+            override fun onError(e: GetCredentialException) {
+                continuation.resumeWithException(e)
+            }
+        }
+
+        getCredentialAsync(
+            pendingGetCredentialHandle,
+            activity,
+            canceller,
+            // Use a direct executor to avoid extra dispatch. Resuming the continuation will
+            // handle getting to the right thread or pool via the ContinuationInterceptor.
+            Runnable::run,
+            callback)
+    }
+
+    /**
+     * Prepares for a get-credential operation. Returns a [PrepareGetCredentialResponse]
+     * that can later be used to launch the credential retrieval UI flow to finalize a user
+     * credential for your app.
+     *
+     * This API doesn't invoke any UI. It only performs the preparation work so that you can
+     * later launch the remaining get-credential operation (involves UIs) through the
+     * [getCredential] API which incurs less latency than executing the whole operation in one call.
+     *
+     * @param request the request for getting the credential
+     * @throws GetCredentialException If the request fails
+     */
+    @RequiresApi(34)
+    suspend fun prepareGetCredential(
+        request: GetCredentialRequest,
+    ): PrepareGetCredentialResponse = suspendCancellableCoroutine { continuation ->
+        // Any Android API that supports cancellation should be configured to propagate
+        // coroutine cancellation as follows:
+        val canceller = CancellationSignal()
+        continuation.invokeOnCancellation { canceller.cancel() }
+
+        val callback = object : CredentialManagerCallback<PrepareGetCredentialResponse,
+            GetCredentialException> {
+            override fun onResult(result: PrepareGetCredentialResponse) {
+                continuation.resume(result)
+            }
+
+            override fun onError(e: GetCredentialException) {
+                continuation.resumeWithException(e)
+            }
+        }
+
+        prepareGetCredentialAsync(
+            request,
+            canceller,
+            // Use a direct executor to avoid extra dispatch. Resuming the continuation will
+            // handle getting to the right thread or pool via the ContinuationInterceptor.
+            Runnable::run,
+            callback)
+    }
+
+    /**
      * Registers a user credential that can be used to authenticate the user to
      * the app in the future.
      *
@@ -216,7 +305,9 @@ class CredentialManager private constructor(private val context: Context) {
     }
 
     /**
-     * Java API for requesting a credential from the user.
+     * Requests a credential from the user.
+     *
+     * This API uses callbacks instead of Kotlin coroutines.
      *
      * The execution potentially launches framework UI flows for a user to view available
      * credentials, consent to using one of them, etc.
@@ -249,8 +340,68 @@ class CredentialManager private constructor(private val context: Context) {
     }
 
     /**
-     * Java API for registering a user credential that can be used to authenticate the user to
+     * Requests a credential from the user.
+     *
+     * This API uses callbacks instead of Kotlin coroutines.
+     *
+     * Different from the other `getCredentialAsync(GetCredentialRequest, Activity)` API, this API
+     * launches the remaining flows to retrieve an app credential from the user, after the
+     * completed prefetch work corresponding to the given `pendingGetCredentialHandle`. Use this
+     * API to complete the full credential retrieval operation after you initiated a request through
+     * the [prepareGetCredentialAsync] API.
+     *
+     * The execution can potentially launch UI flows to collect user consent to using a
+     * credential, display a picker when multiple credentials exist, etc.
+     *
+     * @param pendingGetCredentialHandle the handle representing the pending operation to resume
+     * @param activity the activity used to potentially launch any UI needed
+     * @param cancellationSignal an optional signal that allows for cancelling this call
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     */
+    @RequiresApi(34)
+    fun getCredentialAsync(
+        pendingGetCredentialHandle: PrepareGetCredentialResponse.PendingGetCredentialHandle,
+        activity: Activity,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
+    ) {
+        TODO("b/274976698 : Implement")
+    }
+
+    /**
+     * Prepares for a get-credential operation. Returns a [PrepareGetCredentialResponse]
+     * that can later be used to launch the credential retrieval UI flow to finalize a user
+     * credential for your app.
+     *
+     * This API uses callbacks instead of Kotlin coroutines.
+     *
+     * This API doesn't invoke any UI. It only performs the preparation work so that you can
+     * later launch the remaining get-credential operation (involves UIs) through the
+     * [getCredentialAsync] API which incurs less latency than executing the whole operation in one
+     * call.
+     *
+     * @param request the request for getting the credential
+     * @param cancellationSignal an optional signal that allows for cancelling this call
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     */
+    @RequiresApi(34)
+    fun prepareGetCredentialAsync(
+        request: GetCredentialRequest,
+        cancellationSignal: CancellationSignal?,
+        executor: Executor,
+        callback: CredentialManagerCallback<PrepareGetCredentialResponse, GetCredentialException>,
+    ) {
+        TODO("b/274976698: Implement")
+    }
+
+    /**
+     * Registers a user credential that can be used to authenticate the user to
      * the app in the future.
+     *
+     * This API uses callbacks instead of Kotlin coroutines.
      *
      * The execution potentially launches framework UI flows for a user to view their registration
      * options, grant consent, etc.
@@ -282,6 +433,8 @@ class CredentialManager private constructor(private val context: Context) {
 
     /**
      * Clears the current user credential state from all credential providers.
+     *
+     * This API uses callbacks instead of Kotlin coroutines.
      *
      * You should invoked this api after your user signs out of your app to notify all credential
      * providers that any stored credential session for the given app should be cleared.

@@ -20,11 +20,14 @@ import static androidx.credentials.TestUtilsKt.isPostFrameworkApiLevel;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import android.app.Activity;
 import android.content.Context;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.credentials.exceptions.ClearCredentialException;
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException;
 import androidx.credentials.exceptions.CreateCredentialException;
@@ -37,6 +40,8 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+
+import kotlin.NotImplementedError;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -83,7 +88,8 @@ public class CredentialManagerJavaTest {
                         }
 
                         @Override
-                        public void onResult(@NonNull CreateCredentialResponse result) {}
+                        public void onResult(@NonNull CreateCredentialResponse result) {
+                        }
                     });
         });
 
@@ -99,9 +105,9 @@ public class CredentialManagerJavaTest {
         //  - maybe a rule perhaps?")
     }
 
-
     @Test
-    public void testGetCredentialAsyc_successCallbackThrows() throws InterruptedException {
+    public void testGetCredentialAsyc_requestBasedApi_successCallbackThrows()
+            throws InterruptedException {
         if (Looper.myLooper() == null) {
             Looper.prepare();
         }
@@ -116,16 +122,17 @@ public class CredentialManagerJavaTest {
                 null,
                 Runnable::run,
                 new CredentialManagerCallback<GetCredentialResponse,
-                    GetCredentialException>() {
-                @Override
-                public void onError(@NonNull GetCredentialException e) {
-                    loadedResult.set(e);
-                    latch.countDown();
-                }
+                        GetCredentialException>() {
+                    @Override
+                    public void onError(@NonNull GetCredentialException e) {
+                        loadedResult.set(e);
+                        latch.countDown();
+                    }
 
-                @Override
-                public void onResult(@NonNull GetCredentialResponse result) {}
-            });
+                    @Override
+                    public void onResult(@NonNull GetCredentialResponse result) {
+                    }
+                });
 
         latch.await(100L, TimeUnit.MILLISECONDS);
         if (!isPostFrameworkApiLevel()) {
@@ -137,6 +144,48 @@ public class CredentialManagerJavaTest {
         }
         // TODO("Add manifest tests and possibly further separate these tests - maybe a rule
         //  perhaps?")
+    }
+
+    @Test
+    @RequiresApi(34)
+    public void testGetCredentialAsyc_pendingHandleBasedApi_throwsUnimplementedError() {
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
+        assertThrows(NotImplementedError.class,
+                () -> mCredentialManager.getCredentialAsync(
+                        new PrepareGetCredentialResponse.PendingGetCredentialHandle(),
+                        new Activity(),
+                        null,
+                        Runnable::run,
+                        new CredentialManagerCallback<GetCredentialResponse,
+                                GetCredentialException>() {
+                            @Override
+                            public void onError(@NonNull GetCredentialException e) {}
+
+                            @Override
+                            public void onResult(@NonNull GetCredentialResponse result) {}
+                        }));
+    }
+
+    @Test
+    @RequiresApi(34)
+    public void testPrepareGetCredentialAsyc_throwsUnimplementedError() {
+        assertThrows(NotImplementedError.class,
+                () -> mCredentialManager.prepareGetCredentialAsync(
+                        new GetCredentialRequest.Builder()
+                                .addCredentialOption(new GetPasswordOption())
+                                .build(),
+                        null,
+                        Runnable::run,
+                        new CredentialManagerCallback<PrepareGetCredentialResponse,
+                                GetCredentialException>() {
+                            @Override
+                            public void onError(@NonNull GetCredentialException e) {}
+
+                            @Override
+                            public void onResult(@NonNull PrepareGetCredentialResponse result) {}
+                        }));
     }
 
     @Test
@@ -160,7 +209,8 @@ public class CredentialManagerJavaTest {
                     }
 
                     @Override
-                    public void onResult(@NonNull Void result) {}
+                    public void onResult(@NonNull Void result) {
+                    }
                 });
 
         latch.await(100L, TimeUnit.MILLISECONDS);
