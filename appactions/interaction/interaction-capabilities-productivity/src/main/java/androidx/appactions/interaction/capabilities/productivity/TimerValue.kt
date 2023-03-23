@@ -21,6 +21,7 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.TypeCon
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.capabilities.core.values.Timer
+import java.util.Objects
 
 class TimerValue private constructor(
     val asTimer: Timer?,
@@ -30,6 +31,19 @@ class TimerValue private constructor(
 
     // TODO(b/268071906) add TimerFilter type to SearchAction
     constructor(timerFilter: SearchAction<Timer>) : this(null, timerFilter)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TimerValue
+
+        return asTimer == other.asTimer && asTimerFilter == other.asTimerFilter
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(asTimer, asTimerFilter)
+    }
 
     companion object {
         private val TYPE_SPEC = UnionTypeSpec.Builder<TimerValue>()

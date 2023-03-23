@@ -26,7 +26,6 @@ import androidx.appactions.interaction.capabilities.core.properties.SimpleProper
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
-import androidx.appactions.interaction.capabilities.core.values.Timer
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
@@ -42,7 +41,7 @@ private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         "timer",
         { property -> Optional.ofNullable(property.timerList) },
         StopTimer.Argument.Builder::setTimerList,
-        TypeConverters::toTimer
+        TimerValue.FROM_PARAM_VALUE
     ).bindOptionalOutput(
         "executionStatus",
         { output -> Optional.ofNullable(output.executionStatus) },
@@ -96,7 +95,7 @@ class StopTimer private constructor() {
     }
 
     class Argument internal constructor(
-        val timerList: List<Timer>?
+        val timerList: List<TimerValue>?
     ) {
         override fun toString(): String {
             return "Argument(timerList=$timerList)"
@@ -118,9 +117,11 @@ class StopTimer private constructor() {
         }
 
         class Builder : BuilderOf<Argument> {
-            private var timerList: List<Timer>? = null
+            private var timerList: List<TimerValue>? = null
 
-            fun setTimerList(timerList: List<Timer>): Builder = apply { this.timerList = timerList }
+            fun setTimerList(
+                timerList: List<TimerValue>,
+            ): Builder = apply { this.timerList = timerList }
 
             override fun build(): Argument = Argument(timerList)
         }
