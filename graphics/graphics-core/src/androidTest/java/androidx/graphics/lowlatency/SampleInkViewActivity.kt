@@ -19,13 +19,54 @@ package androidx.graphics.lowlatency
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
+import android.view.View
+import android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.LinearLayout.LayoutParams.MATCH_PARENT
+import androidx.annotation.RequiresApi
 
+@RequiresApi(Build.VERSION_CODES.S)
 class SampleInkViewActivity : Activity() {
+
+    private var inkView: View? = null
+    private var toggle: Button? = null
+    private var container: FrameLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        addInkViews()
+    }
+
+    private fun addInkViews() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            setContentView(InkSurfaceView(this))
+            toggle = Button(this).apply {
+                layoutParams = FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                    gravity = Gravity.BOTTOM or Gravity.RIGHT
+                }
+                setOnClickListener {
+                    toggleLowLatencyView()
+                }
+            }
+            container = FrameLayout(this).apply {
+                addView(toggle)
+            }
+            toggleLowLatencyView()
+            setContentView(container)
         }
+    }
+
+    private fun toggleLowLatencyView() {
+        inkView?.let { view -> container?.removeView(view) }
+        if (inkView == null || inkView is InkSurfaceView) {
+            inkView = InkCanvasView(this)
+            toggle?.text = "Canvas"
+        } else if (inkView is InkCanvasView) {
+            inkView = InkSurfaceView(this)
+            toggle?.text = "OpenGL"
+        }
+        container?.addView(inkView, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+        container?.bringChildToFront(toggle)
     }
 }
