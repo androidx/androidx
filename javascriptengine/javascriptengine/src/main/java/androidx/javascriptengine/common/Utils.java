@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.Closeable;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -170,7 +171,12 @@ public class Utils {
                 }
             }
             byte[] bytes = new byte[lengthToRead];
-            try (InputStream inputStream = afd.createInputStream()) {
+            // We can use AssetFileDescriptor.createInputStream() to get the InputStream directly
+            // but this API is currently broken while fixing another issue regarding multiple
+            // AssetFileDescriptor pointing to the same file. (b/263325931)
+            // Using ParcelFileDescriptor to read the file is correct as long as the offset is 0.
+            try (ParcelFileDescriptor pfd = afd.getParcelFileDescriptor()) {
+                InputStream inputStream = new FileInputStream(pfd.getFileDescriptor());
                 if (Utils.readNBytes(inputStream, bytes, 0, lengthToRead) != lengthToRead) {
                     throw new IOException("Couldn't read " + lengthToRead + " bytes from the "
                             + "AssetFileDescriptor");
