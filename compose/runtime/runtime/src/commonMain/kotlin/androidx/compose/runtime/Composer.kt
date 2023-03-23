@@ -2765,7 +2765,7 @@ internal class ComposerImpl(
                         is RememberObserver -> {
                             reader.reposition(group)
                             recordSlotTableOperation { _, slots, rememberManager ->
-                                runtimeCheck(data == slots.slot(group, index)) {
+                                runtimeCheck(data == slots.slot(slots.currentGroup, index)) {
                                     "Slot table is out of sync"
                                 }
                                 rememberManager.forgetting(data)
@@ -2776,7 +2776,7 @@ internal class ComposerImpl(
                             data.release()
                             reader.reposition(group)
                             recordSlotTableOperation { _, slots, _ ->
-                                runtimeCheck(data == slots.slot(group, index)) {
+                                runtimeCheck(data == slots.slot(slots.currentGroup, index)) {
                                     "Slot table is out of sync"
                                 }
                                 slots.set(index, Composer.Empty)
