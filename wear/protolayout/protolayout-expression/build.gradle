@@ -25,10 +25,11 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.2.0")
 
-    implementation("androidx.annotation:annotation-experimental:1.2.0")
+    implementation("androidx.annotation:annotation-experimental:1.3.0")
     implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
 
-    compileOnly(libs.kotlinStdlib) // For annotation-experimental
+    // Upgrade transitive kotlin-stdlib dependency from annotation-experimental.
+    implementation(libs.kotlinStdlib)
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)

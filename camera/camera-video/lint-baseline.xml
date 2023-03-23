@@ -25,7 +25,7 @@
         errorLine1="                Thread.sleep(TimeUnit.NANOSECONDS.toMillis(requiredBlockTimeNs));"
         errorLine2="                       ~~~~~">
         <location
-            file="src/main/java/androidx/camera/video/internal/SilentAudioStream.java"/>
+            file="src/main/java/androidx/camera/video/internal/audio/SilentAudioStream.java"/>
     </issue>
 
     <issue

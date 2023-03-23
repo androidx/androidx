@@ -4,7 +4,7 @@
     <issue
         id="SupportAnnotationUsage"
         message="Did you mean `@get:RestrictTo`? Without `get:` this annotates the constructor parameter itself instead of the associated getter."
-        errorLine1="    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val boundingArc: BoundingArc?"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/watchface/ComplicationSlot.kt"/>
