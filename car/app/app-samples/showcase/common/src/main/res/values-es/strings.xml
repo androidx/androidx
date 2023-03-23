@@ -298,7 +298,8 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Texto adicional"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Ejemplo de lista seleccionable"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demo de restricción de tareas"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Se ha alcanzado el límite de tareas\nSi continuas, se forzará la detención de la aplicación"</string>
+    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
+    <skip />
     <string name="task_step_of_title" msgid="2791717962535723839">"Paso %1$d de %2$d de la tarea"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Haz clic para continuar"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Consulta las diferentes plantillas y comprueba que el coche esté en modo de conducción"</string>
@@ -327,10 +328,8 @@
     <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"Lista 1"</string>
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Lista 2"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtexto debajo de cada lista"</string>
-    <!-- no translation found for empty_list_demo_title (5989013634820902455) -->
-    <skip />
-    <!-- no translation found for empty_list_message (5331395517560728138) -->
-    <skip />
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"Demostración de lista vacía"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"La lista está vacía"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Otras demos de plantillas"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demos de Showcase"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"Demos de diseño de plantillas"</string>

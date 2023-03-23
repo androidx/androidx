@@ -298,7 +298,8 @@
     <string name="some_additional_text" msgid="4009872495806318260">"ਕੁਝ ਵਧੀਕ ਲਿਖਤ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"ਸੈਂਪਲ ਚੁਣਨਯੋਗ ਸੂਚੀ"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"ਕਾਰਜ ਸੰਬੰਧੀ ਪਾਬੰਦੀ ਦਾ ਡੈਮੋ"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"ਕਾਰਜ ਸੀਮਾ ਪੂਰੀ ਹੋ ਗਈ\nਜਾਰੀ ਰੱਖਣ \'ਤੇ ਐਪ ਜ਼ਬਰਦਸਤੀ ਬੰਦ ਹੋ ਜਾਵੇਗੀ"</string>
+    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
+    <skip />
     <string name="task_step_of_title" msgid="2791717962535723839">"%2$d ਵਿੱਚੋਂ %1$d ਕਾਰਜ ਪੜਾਅ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ਅੱਗੇ ਜਾਣ ਲਈ ਕਲਿੱਕ ਕਰੋ"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"ਕਿਰਪਾ ਕਰਕੇ ਵੱਖ-ਵੱਖ ਟੈਮਪਲੇਟਾਂ \'ਤੇ ਜਾਓ ਅਤੇ ਪੱਕਾ ਕਰੋ ਕਿ ਕਾਰ ਡਰਾਈਵਿੰਗ ਮੋਡ ਵਿੱਚ ਹੈ"</string>
@@ -327,10 +328,8 @@
     <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ਸੂਚੀ 1"</string>
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ਸੂਚੀ 2"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ਹਰੇਕ ਸੂਚੀ ਦੇ ਹੇਠਾਂ ਸਬਟੈਕਸਟ"</string>
-    <!-- no translation found for empty_list_demo_title (5989013634820902455) -->
-    <skip />
-    <!-- no translation found for empty_list_message (5331395517560728138) -->
-    <skip />
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"ਖਾਲੀ ਸੂਚੀ ਡੈਮੋ"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"ਇਹ ਸੂਚੀ ਖਾਲੀ ਹੈ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ਫੁਟਕਲ ਟੈਮਪਲੇਟਾਂ ਦੇ ਡੈਮੋ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ਸ਼ੋਅਕੇਸ ਦੇ ਡੈਮੋ"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"ਟੈਮਪਲੇਟ ਖਾਕੇ ਦੇ ਡੈਮੋ"</string>

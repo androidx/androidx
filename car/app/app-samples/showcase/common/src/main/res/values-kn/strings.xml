@@ -298,7 +298,8 @@
     <string name="some_additional_text" msgid="4009872495806318260">"ಕೆಲವು ಹೆಚ್ಚುವರಿ ಪಠ್ಯ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"ಆಯ್ಕೆ ಮಾಡಬಹುದಾದ ಮಾದರಿಯ ಪಟ್ಟಿ"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"ಕಾರ್ಯದ ನಿರ್ಬಂಧಿತ ಡೆಮೋ"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"ಕಾರ್ಯದ ಮಿತಿಯನ್ನು ತಲುಪಿದ್ದೀರಿ\nಮುಂದುವರಿಸಿದರೆ ಆ್ಯಪ್ ಅನ್ನು ಬಲವಂತವಾಗಿ ನಿಲ್ಲಿಸಲಾಗುತ್ತದೆ"</string>
+    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
+    <skip />
     <string name="task_step_of_title" msgid="2791717962535723839">"ಕಾರ್ಯದ ಹಂತ %1$d of %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"ಮುಂದೆ ಹೋಗಲು ಕ್ಲಿಕ್ ಮಾಡಿ"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"ವಿವಿಧ ಟೆಂಪ್ಲೇಟ್‌ಗಳಿಗೆ ಭೇಟಿ ನೀಡಿ ಮತ್ತು ಕಾರು, ಡ್ರೈವಿಂಗ್ ಮೋಡ್‌ನಲ್ಲಿರುವುದನ್ನು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ"</string>
@@ -327,10 +328,8 @@
     <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ಪಟ್ಟಿ 1"</string>
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ಪಟ್ಟಿ 2"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ಪ್ರತಿ ಪಟ್ಟಿಯ ಅಡಿಯಲ್ಲಿ ಉಪಪಠ್ಯ"</string>
-    <!-- no translation found for empty_list_demo_title (5989013634820902455) -->
-    <skip />
-    <!-- no translation found for empty_list_message (5331395517560728138) -->
-    <skip />
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"ಖಾಲಿ ಪಟ್ಟಿಯ ಡೆಮೊ"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"ಪಟ್ಟಿ ಖಾಲಿಯಾಗಿದೆ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ಇತರ ಟೆಂಪ್ಲೇಟ್‌ಗಳ ಡೆಮೋಗಳು"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase ಡೆಮೋಗಳು"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"ಟೆಂಪ್ಲೇಟ್ ಲೇಔಟ್ ಡೆಮೋಗಳು"</string>
