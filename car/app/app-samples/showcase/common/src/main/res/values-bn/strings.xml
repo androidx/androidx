@@ -298,7 +298,8 @@
     <string name="some_additional_text" msgid="4009872495806318260">"অতিরিক্ত টেক্সট"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"বেছে নেওয়া যায় এমন তালিকার নমুনা"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"টাস্কের উপর আরোপ করা বিধিনিষেধ সম্পর্কিত ডেমো"</string>
-    <string name="task_limit_reached_msg" msgid="6038763366777119364">"টাস্কের সীমা পেরিয়ে গেছে\nআরও এগোলে, অ্যাপকে জোর করে বন্ধ করা হবে"</string>
+    <!-- no translation found for task_limit_reached_msg (7162842196382260992) -->
+    <skip />
     <string name="task_step_of_title" msgid="2791717962535723839">"টাস্কের %2$d ধাপের %1$d নম্বর ধাপ"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"এগিয়ে যাওয়ার জন্য ক্লিক করুন"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"বিভিন্ন টেমপ্লেট দেখুন ও নিশ্চিত করুন যে গাড়িটি \'ড্রাইভিং\' মোডে আছে"</string>
@@ -327,10 +328,8 @@
     <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"তালিকা ১"</string>
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"তালিকা ২"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"প্রতিটি তালিকায় থাকা সাবটেক্সট"</string>
-    <!-- no translation found for empty_list_demo_title (5989013634820902455) -->
-    <skip />
-    <!-- no translation found for empty_list_message (5331395517560728138) -->
-    <skip />
+    <string name="empty_list_demo_title" msgid="5989013634820902455">"ডেমোর খালি তালিকা"</string>
+    <string name="empty_list_message" msgid="5331395517560728138">"তালিকায় কিছু নেই"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"অন্যান্য টেমপ্লেটের ডেমো"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ডেমো শোকেস করুন"</string>
     <string name="template_layouts_demo_title" msgid="788249269446087847">"টেমপ্লেট লেআউট সংক্রান্ত ডেমো"</string>
