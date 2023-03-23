@@ -670,17 +670,67 @@ class LayoutInspectorTreeTest {
         builder.hideSystemNodes = false
         val nodes = builder.convert(composeView)
         dumpNodes(nodes, composeView, builder)
-        val androidView = nodes.flatMap { flatten(it) }.single { it.name == "AndroidView" }
+        val androidView = nodes.flatMap { flatten(it) }.first { it.name == "AndroidView" }
         assertThat(androidView.viewId).isEqualTo(0)
 
         validate(listOf(androidView), builder) {
             node(
                 name = "AndroidView",
                 fileName = "LayoutInspectorTreeTest.kt",
+                children = listOf("AndroidView")
+            )
+            node(
+                name = "AndroidView",
+                fileName = "AndroidView.android.kt",
                 children = listOf("ComposeNode")
             )
             node(
                 name = "ComposeNode",
+                fileName = "AndroidView.android.kt",
+                hasViewIdUnder = composeView,
+                inlined = true,
+            )
+        }
+    }
+
+    @Test
+    fun testAndroidViewWithOnResetOverload() {
+        val slotTableRecord = CompositionDataRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                Column {
+                    Text("Compose Text")
+                    AndroidView(
+                        factory = { context ->
+                            TextView(context).apply {
+                                text = "AndroidView"
+                            }
+                        },
+                        onReset = {
+                            // Do nothing, just use the overload.
+                        }
+                    )
+                }
+            }
+        }
+        val composeView = findAndroidComposeView() as ViewGroup
+        composeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
+        val builder = LayoutInspectorTree()
+        builder.hideSystemNodes = false
+        val nodes = builder.convert(composeView)
+        dumpNodes(nodes, composeView, builder)
+        val androidView = nodes.flatMap { flatten(it) }.first { it.name == "AndroidView" }
+        assertThat(androidView.viewId).isEqualTo(0)
+
+        validate(listOf(androidView), builder) {
+            node(
+                name = "AndroidView",
+                fileName = "LayoutInspectorTreeTest.kt",
+                children = listOf("ReusableComposeNode")
+            )
+            node(
+                name = "ReusableComposeNode",
                 fileName = "AndroidView.android.kt",
                 hasViewIdUnder = composeView,
                 inlined = true,
