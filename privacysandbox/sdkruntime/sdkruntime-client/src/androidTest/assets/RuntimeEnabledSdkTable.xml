@@ -17,6 +17,7 @@
     <runtime-enabled-sdk>
         <compat-config-path>RuntimeEnabledSdks/V1/CompatSdkConfig.xml</compat-config-path>
         <package-name>androidx.privacysandbox.sdkruntime.test.v1</package-name>
+        <version-major>42</version-major>
     </runtime-enabled-sdk>
     <runtime-enabled-sdk>
         <compat-config-path>RuntimeEnabledSdks/V2/CompatSdkConfig.xml</compat-config-path>

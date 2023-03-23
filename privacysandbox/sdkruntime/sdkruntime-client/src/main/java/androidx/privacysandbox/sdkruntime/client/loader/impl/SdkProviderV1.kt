@@ -20,9 +20,11 @@ import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
 import androidx.annotation.RestrictTo
+import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.loader.LocalSdkProvider
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
@@ -64,25 +66,38 @@ internal class SdkProviderV1 private constructor(
     }
 
     internal class SandboxedSdkCompatBuilderV1 private constructor(
+        private val sdkInfo: SandboxedSdkInfo?,
         private val getInterfaceMethod: Method
     ) {
 
         @SuppressLint("BanUncheckedReflection") // calling method on SandboxedSdkCompat class
         fun build(rawObject: Any): SandboxedSdkCompat {
             val binder = getInterfaceMethod.invoke(rawObject) as IBinder
-            return SandboxedSdkCompat(binder)
+            return SandboxedSdkCompat(binder, sdkInfo)
         }
 
         companion object {
 
-            fun create(classLoader: ClassLoader?): SandboxedSdkCompatBuilderV1 {
+            fun create(
+                classLoader: ClassLoader,
+                sdkConfig: LocalSdkConfig
+            ): SandboxedSdkCompatBuilderV1 {
                 val sandboxedSdkCompatClass = Class.forName(
                     SandboxedSdkCompat::class.java.name,
                     /* initialize = */ false,
                     classLoader
                 )
                 val getInterfaceMethod = sandboxedSdkCompatClass.getMethod("getInterface")
-                return SandboxedSdkCompatBuilderV1(getInterfaceMethod)
+                val sdkInfo = sdkInfo(sdkConfig)
+                return SandboxedSdkCompatBuilderV1(sdkInfo, getInterfaceMethod)
+            }
+
+            private fun sdkInfo(sdkConfig: LocalSdkConfig): SandboxedSdkInfo? {
+                return if (sdkConfig.versionMajor == null) {
+                    null
+                } else {
+                    SandboxedSdkInfo(sdkConfig.packageName, sdkConfig.versionMajor.toLong())
+                }
             }
         }
     }
@@ -117,7 +132,7 @@ internal class SdkProviderV1 private constructor(
         }
 
         companion object {
-            fun create(classLoader: ClassLoader?): LoadSdkCompatExceptionBuilderV1 {
+            fun create(classLoader: ClassLoader): LoadSdkCompatExceptionBuilderV1 {
                 val loadSdkCompatExceptionClass = Class.forName(
                     LoadSdkCompatException::class.java.name,
                     /* initialize = */ false,
@@ -141,12 +156,12 @@ internal class SdkProviderV1 private constructor(
 
         @SuppressLint("BanUncheckedReflection") // calling method of SandboxedSdkProviderCompat
         fun create(
-            classLoader: ClassLoader?,
-            sdkProviderClassName: String,
+            classLoader: ClassLoader,
+            sdkConfig: LocalSdkConfig,
             appContext: Context
         ): SdkProviderV1 {
             val sdkProviderClass = Class.forName(
-                sdkProviderClassName,
+                sdkConfig.entryPoint,
                 /* initialize = */ false,
                 classLoader
             )
@@ -154,7 +169,8 @@ internal class SdkProviderV1 private constructor(
                 sdkProviderClass.getMethod("attachContext", Context::class.java)
             val onLoadSdkMethod = sdkProviderClass.getMethod("onLoadSdk", Bundle::class.java)
             val beforeUnloadSdkMethod = sdkProviderClass.getMethod("beforeUnloadSdk")
-            val sandboxedSdkCompatBuilder = SandboxedSdkCompatBuilderV1.create(classLoader)
+            val sandboxedSdkCompatBuilder =
+                SandboxedSdkCompatBuilderV1.create(classLoader, sdkConfig)
             val loadSdkCompatExceptionBuilder =
                 LoadSdkCompatExceptionBuilderV1.create(classLoader)
 

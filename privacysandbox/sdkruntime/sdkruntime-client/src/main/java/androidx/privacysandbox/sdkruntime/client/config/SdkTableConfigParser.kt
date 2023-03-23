@@ -30,10 +30,12 @@ import org.xmlpull.v1.XmlPullParserException
  * <runtime-enabled-sdk-table>
  *     <runtime-enabled-sdk>
  *         <package-name>com.sdk1</package-name>
+ *         <version-major>1</version-major>
  *         <compat-config-path>assets/RuntimeEnabledSdk-com.sdk1/CompatSdkConfig.xml</compat-config-path>
  *     </runtime-enabled-sdk>
  *     <runtime-enabled-sdk>
  *         <package-name>com.sdk2</package-name>
+ *         <version-major>42</version-major>
  *         <compat-config-path>assets/RuntimeEnabledSdk-com.sdk2/CompatSdkConfig.xml</compat-config-path>
  *     </runtime-enabled-sdk>
  * </runtime-enabled-sdk-table>
@@ -75,6 +77,7 @@ internal class SdkTableConfigParser private constructor(
 
     private fun readSdkEntry(): SdkTableEntry {
         var packageName: String? = null
+        var versionMajor: Int? = null
         var configPath: String? = null
 
         xmlParser.require(START_TAG, NAMESPACE, SDK_ENTRY_ELEMENT_NAME)
@@ -90,6 +93,15 @@ internal class SdkTableConfigParser private constructor(
                         )
                     }
                     packageName = xmlParser.nextText()
+                }
+
+                VERSION_MAJOR_ELEMENT_NAME -> {
+                    if (versionMajor != null) {
+                        throw XmlPullParserException(
+                            "Duplicate $VERSION_MAJOR_ELEMENT_NAME tag found"
+                        )
+                    }
+                    versionMajor = xmlParser.nextText().toInt()
                 }
 
                 COMPAT_CONFIG_PATH_ELEMENT_NAME -> {
@@ -117,11 +129,12 @@ internal class SdkTableConfigParser private constructor(
             )
         }
 
-        return SdkTableEntry(packageName, configPath)
+        return SdkTableEntry(packageName, versionMajor, configPath)
     }
 
     internal data class SdkTableEntry(
         val packageName: String,
+        val versionMajor: Int?,
         val compatConfigPath: String,
     )
 
@@ -130,6 +143,7 @@ internal class SdkTableConfigParser private constructor(
         private const val SDK_TABLE_ELEMENT_NAME = "runtime-enabled-sdk-table"
         private const val SDK_ENTRY_ELEMENT_NAME = "runtime-enabled-sdk"
         private const val SDK_PACKAGE_NAME_ELEMENT_NAME = "package-name"
+        private const val VERSION_MAJOR_ELEMENT_NAME = "version-major"
         private const val COMPAT_CONFIG_PATH_ELEMENT_NAME = "compat-config-path"
 
         fun parse(inputStream: InputStream): Set<SdkTableEntry> {

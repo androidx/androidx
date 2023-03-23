@@ -25,6 +25,7 @@ import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_INTERNAL_ERROR
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_SDK_DEFINED_ERROR
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -119,6 +120,14 @@ class SdkSandboxManagerCompatTest {
 
         assertThat(result.getInterface()!!.javaClass.classLoader)
             .isNotSameInstanceAs(managerCompat.javaClass.classLoader)
+
+        assertThat(result.getSdkInfo())
+            .isEqualTo(
+                SandboxedSdkInfo(
+                    name = "androidx.privacysandbox.sdkruntime.test.v1",
+                    version = 42
+                )
+            )
     }
 
     @Test

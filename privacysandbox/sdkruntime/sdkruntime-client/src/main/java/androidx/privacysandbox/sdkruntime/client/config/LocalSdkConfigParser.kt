@@ -41,7 +41,10 @@ internal class LocalSdkConfigParser private constructor(
     private val xmlParser: XmlPullParser
 ) {
 
-    private fun readConfig(packageName: String): LocalSdkConfig {
+    private fun readConfig(
+        packageName: String,
+        versionMajor: Int?
+    ): LocalSdkConfig {
         xmlParser.require(XmlPullParser.START_DOCUMENT, NAMESPACE, null)
         xmlParser.nextTag()
 
@@ -102,6 +105,7 @@ internal class LocalSdkConfigParser private constructor(
 
         return LocalSdkConfig(
             packageName,
+            versionMajor,
             dexPaths,
             entryPoint,
             javaResourcesRoot,
@@ -166,12 +170,16 @@ internal class LocalSdkConfigParser private constructor(
         private const val RESOURCE_REMAPPING_CLASS_ELEMENT_NAME = "r-package-class"
         private const val RESOURCE_REMAPPING_ID_ELEMENT_NAME = "resources-package-id"
 
-        fun parse(inputStream: InputStream, packageName: String): LocalSdkConfig {
+        fun parse(
+            inputStream: InputStream,
+            packageName: String,
+            versionMajor: Int?
+        ): LocalSdkConfig {
             val parser = Xml.newPullParser()
             try {
                 parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
                 parser.setInput(inputStream, null)
-                return LocalSdkConfigParser(parser).readConfig(packageName)
+                return LocalSdkConfigParser(parser).readConfig(packageName, versionMajor)
             } finally {
                 parser.setInput(null)
             }

@@ -45,6 +45,7 @@ class SdkTableConfigParserTest {
                 <runtime-enabled-sdk>
                     <unknown-tag2>new parameter from future library version</unknown-tag2>
                     <package-name>sdk2</package-name>
+                    <version-major>42</version-major>
                     <compat-config-path>config2.xml</compat-config-path>
                 </runtime-enabled-sdk>
             </runtime-enabled-sdk-table>
@@ -54,8 +55,16 @@ class SdkTableConfigParserTest {
 
         assertThat(result)
             .containsExactly(
-                SdkTableEntry("sdk1", "config1.xml"),
-                SdkTableEntry("sdk2", "config2.xml")
+                SdkTableEntry(
+                    packageName = "sdk1",
+                    versionMajor = null,
+                    compatConfigPath = "config1.xml"
+                ),
+                SdkTableEntry(
+                    packageName = "sdk2",
+                    versionMajor = 42,
+                    compatConfigPath = "config2.xml"
+                )
             )
     }
 
@@ -104,6 +113,26 @@ class SdkTableConfigParserTest {
             tryParse(xml)
         }.hasMessageThat().isEqualTo(
             "Duplicate package-name tag found"
+        )
+    }
+
+    @Test
+    fun parse_whenMultipleVersionMajor_throwsException() {
+        val xml = """
+            <runtime-enabled-sdk-table>
+                <runtime-enabled-sdk>
+                    <package-name>sdk1</package-name>
+                    <version-major>1</version-major>
+                    <version-major>2</version-major>
+                    <compat-config-path>config1.xml</compat-config-path>
+                </runtime-enabled-sdk>
+            </runtime-enabled-sdk-table>
+        """.trimIndent()
+
+        assertThrows<XmlPullParserException> {
+            tryParse(xml)
+        }.hasMessageThat().isEqualTo(
+            "Duplicate version-major tag found"
         )
     }
 
