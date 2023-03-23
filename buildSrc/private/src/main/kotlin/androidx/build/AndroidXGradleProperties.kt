@@ -152,6 +152,11 @@ const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri
  */
 const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
 
+/**
+ * If false, disable the CheckAarMetadata task. Default value is true.
+ */
+const val CHECK_AAR_METADATA = "androidx.checkAarMetadata"
+
 val ALL_ANDROIDX_PROPERTIES = setOf(
     ADD_GROUP_CONSTRAINTS,
     ALTERNATIVE_PROJECT_URL,
@@ -179,7 +184,8 @@ val ALL_ANDROIDX_PROPERTIES = setOf(
     ENABLED_KMP_TARGET_PLATFORMS,
     ALLOW_MISSING_LINT_CHECKS_PROJECT,
     XCODEGEN_DOWNLOAD_URI,
-    ALLOW_CUSTOM_COMPILE_SDK
+    ALLOW_CUSTOM_COMPILE_SDK,
+    CHECK_AAR_METADATA,
 )
 
 /**
@@ -286,3 +292,9 @@ fun Project.booleanPropertyProvider(propName: String): Provider<Boolean> {
         s.toBoolean()
     }.orElse(false)
 }
+
+/**
+ * Returns whether the `CheckAarMetadata` task should be enabled.
+ */
+fun Project.isCheckAarMetadataEnabled() =
+    findBooleanProperty(CHECK_AAR_METADATA) ?: true

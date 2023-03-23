@@ -139,6 +139,13 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 task -> configureJvmTestTask(project, task)
         }
 
+        // Disable AAR verification in the platform branch until b/271291033 is fixed.
+        if (!project.isCheckAarMetadataEnabled()) {
+            project.tasks.withType(CheckAarMetadataTask::class.java).configureEach { task ->
+                task.enabled = false
+            }
+        }
+
         project.configureTaskTimeouts()
         project.configureMavenArtifactUpload(extension, componentFactory)
         project.configureExternalDependencyLicenseCheck()
