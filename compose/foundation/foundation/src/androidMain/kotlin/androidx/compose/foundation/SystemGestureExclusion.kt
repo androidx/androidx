@@ -22,15 +22,15 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.debugInspectorInfo
 import kotlin.math.roundToInt
 
 /**
@@ -66,29 +66,41 @@ fun Modifier.systemGestureExclusion(exclusion: (LayoutCoordinates) -> Rect) =
 @RequiresApi(Build.VERSION_CODES.Q)
 private inline fun excludeFromSystemGestureQ(
     noinline exclusion: ((LayoutCoordinates) -> Rect)?
-): Modifier = ExcludeFromSystemGestureElement(exclusion)
+): Modifier = Modifier.composed(
+    debugInspectorInfo {
+        name = "systemGestureExclusion"
+        if (exclusion != null) {
+            properties["exclusion"] = exclusion
+        }
+    }
+) {
+    val view = LocalView.current
+    ExcludeFromSystemGestureElement(exclusion, view)
+}
 
 @RequiresApi(Build.VERSION_CODES.Q)
 private class ExcludeFromSystemGestureElement(
-    val exclusion: ((LayoutCoordinates) -> Rect)?
+    val exclusion: ((LayoutCoordinates) -> Rect)?,
+    val view: View
 ) : ModifierNodeElement<ExcludeFromSystemGestureNode>() {
     @SuppressLint("NewApi")
     override fun create(): ExcludeFromSystemGestureNode {
-        return ExcludeFromSystemGestureNode(exclusion)
+        return ExcludeFromSystemGestureNode(exclusion, view)
     }
 
     override fun update(node: ExcludeFromSystemGestureNode): ExcludeFromSystemGestureNode =
         node.also {
             it.exclusion = exclusion
+            it.view = view
         }
 
     override fun hashCode(): Int {
-        return exclusion.hashCode()
+        return exclusion.hashCode() + view.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
         if (other !is ExcludeFromSystemGestureElement) return false
-        return exclusion == other.exclusion
+        return exclusion == other.exclusion && view == other.view
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -101,12 +113,10 @@ private class ExcludeFromSystemGestureElement(
 
 @RequiresApi(Build.VERSION_CODES.Q)
 private class ExcludeFromSystemGestureNode(
-    var exclusion: ((LayoutCoordinates) -> Rect)?
-) : Modifier.Node(), GlobalPositionAwareModifierNode, CompositionLocalConsumerModifierNode {
+    var exclusion: ((LayoutCoordinates) -> Rect)?,
+    var view: View
+) : Modifier.Node(), GlobalPositionAwareModifierNode {
     var rect: android.graphics.Rect? = null
-
-    private val view: View
-        get() = currentValueOf(LocalView)
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         val newRect = if (exclusion == null) {
