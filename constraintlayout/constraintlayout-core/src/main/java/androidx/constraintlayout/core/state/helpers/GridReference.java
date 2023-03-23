@@ -48,14 +48,14 @@ public class GridReference extends HelperReference {
     private GridCore mGrid;
 
     /**
-     * padding left
+     * padding start
      */
-    private int mPaddingLeft = 0;
+    private int mPaddingStart = 0;
 
     /**
-     * padding right
+     * padding end
      */
-    private int mPaddingRight = 0;
+    private int mPaddingEnd = 0;
 
     /**
      * padding top
@@ -121,32 +121,32 @@ public class GridReference extends HelperReference {
      * get padding left
      * @return padding left
      */
-    public int getPaddingLeft() {
-        return mPaddingLeft;
+    public int getPaddingStart() {
+        return mPaddingStart;
     }
 
     /**
      * set padding left
-     * @param paddingLeft padding left to be set
+     * @param paddingStart padding left to be set
      */
-    public void setPaddingLeft(int paddingLeft) {
-        mPaddingLeft = paddingLeft;
+    public void setPaddingStart(int paddingStart) {
+        mPaddingStart = paddingStart;
     }
 
     /**
      * get padding right
      * @return padding right
      */
-    public int getPaddingRight() {
-        return mPaddingRight;
+    public int getPaddingEnd() {
+        return mPaddingEnd;
     }
 
     /**
      * set padding right
-     * @param paddingRight padding right to be set
+     * @param paddingEnd padding right to be set
      */
-    public void setPaddingRight(int paddingRight) {
-        mPaddingRight = paddingRight;
+    public void setPaddingEnd(int paddingEnd) {
+        mPaddingEnd = paddingEnd;
     }
 
     /**

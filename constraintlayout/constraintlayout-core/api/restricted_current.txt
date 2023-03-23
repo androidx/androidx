@@ -2604,8 +2604,8 @@ package androidx.constraintlayout.core.state.helpers {
     method public float getHorizontalGaps();
     method public int getOrientation();
     method public int getPaddingBottom();
-    method public int getPaddingLeft();
-    method public int getPaddingRight();
+    method public int getPaddingEnd();
+    method public int getPaddingStart();
     method public int getPaddingTop();
     method public String? getRowWeights();
     method public int getRowsSet();
@@ -2619,8 +2619,8 @@ package androidx.constraintlayout.core.state.helpers {
     method public void setHorizontalGaps(float);
     method public void setOrientation(int);
     method public void setPaddingBottom(int);
-    method public void setPaddingLeft(int);
-    method public void setPaddingRight(int);
+    method public void setPaddingEnd(int);
+    method public void setPaddingStart(int);
     method public void setPaddingTop(int);
     method public void setRowWeights(String);
     method public void setRowsSet(int);
