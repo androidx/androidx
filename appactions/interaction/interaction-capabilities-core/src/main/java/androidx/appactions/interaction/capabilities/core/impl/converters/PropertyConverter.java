@@ -20,7 +20,6 @@ import static androidx.appactions.interaction.capabilities.core.impl.utils.Immut
 
 import androidx.annotation.NonNull;
 import androidx.appactions.interaction.capabilities.core.properties.ParamProperty;
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
@@ -32,13 +31,6 @@ import java.util.List;
 public final class PropertyConverter {
 
     private PropertyConverter() {}
-
-    /** Create IntentParameter proto from a SimpleProperty. */
-    @NonNull
-    public static IntentParameter getIntentParameter(
-            @NonNull String paramName, @NonNull SimpleProperty property) {
-        return newIntentParameterBuilder(paramName, property).build();
-    }
 
     /** Create IntentParameter proto from a TypeProperty. */
     @NonNull

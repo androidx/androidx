@@ -22,7 +22,7 @@ import androidx.appactions.interaction.capabilities.core.CapabilityBuilderBase
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
@@ -34,19 +34,24 @@ import java.util.Optional
 /** StopTimer.kt in interaction-capabilities-productivity */
 private const val CAPABILITY_NAME = "actions.intent.STOP_TIMER"
 
-private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-    .setDescriptor(StopTimer.Property::class.java)
-    .setArgument(StopTimer.Argument::class.java, StopTimer.Argument::Builder)
-    .setOutput(StopTimer.Output::class.java).bindRepeatedStructParameter(
-        "timer",
-        { property -> Optional.ofNullable(property.timerList) },
-        StopTimer.Argument.Builder::setTimerList,
-        TimerValue.FROM_PARAM_VALUE
-    ).bindOptionalOutput(
-        "executionStatus",
-        { output -> Optional.ofNullable(output.executionStatus) },
-        StopTimer.ExecutionStatus::toParamValue
-    ).build()
+private val ACTION_SPEC =
+    ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
+        .setDescriptor(StopTimer.Property::class.java)
+        .setArgument(StopTimer.Argument::class.java, StopTimer.Argument::Builder)
+        .setOutput(StopTimer.Output::class.java)
+        .bindRepeatedGenericParameter(
+            "timer",
+            { property -> Optional.ofNullable(property.timerList) },
+            StopTimer.Argument.Builder::setTimerList,
+            TimerValue.FROM_PARAM_VALUE,
+            TimerValue.TO_ENTITY_VALUE
+        )
+        .bindOptionalOutput(
+            "executionStatus",
+            { output -> Optional.ofNullable(output.executionStatus) },
+            StopTimer.ExecutionStatus::toParamValue
+        )
+        .build()
 
 // TODO(b/267806701): Add capability factory annotation once the testing library is fully migrated.
 class StopTimer private constructor() {
@@ -54,7 +59,7 @@ class StopTimer private constructor() {
     class CapabilityBuilder :
         CapabilityBuilderBase<
             CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
-            >(ACTION_SPEC) {
+        >(ACTION_SPEC) {
         override fun build(): ActionCapability {
             super.setProperty(Property.Builder().build())
             return super.build()
@@ -62,9 +67,7 @@ class StopTimer private constructor() {
     }
 
     // TODO(b/268369632): Remove Property from public capability APIs.
-    class Property internal constructor(
-        val timerList: SimpleProperty?
-    ) {
+    class Property internal constructor(val timerList: TypeProperty<TimerValue>?) {
         override fun toString(): String {
             return "Property(timerList=$timerList}"
         }
@@ -85,18 +88,17 @@ class StopTimer private constructor() {
         }
 
         class Builder {
-            private var timerList: SimpleProperty? = null
+            private var timerList: TypeProperty<TimerValue>? = null
 
-            fun setTimerList(timerList: SimpleProperty): Builder =
-                apply { this.timerList = timerList }
+            fun setTimerList(timerList: TypeProperty<TimerValue>): Builder = apply {
+                this.timerList = timerList
+            }
 
             fun build(): Property = Property(timerList)
         }
     }
 
-    class Argument internal constructor(
-        val timerList: List<TimerValue>?
-    ) {
+    class Argument internal constructor(val timerList: List<TimerValue>?) {
         override fun toString(): String {
             return "Argument(timerList=$timerList)"
         }
@@ -150,8 +152,9 @@ class StopTimer private constructor() {
         class Builder {
             private var executionStatus: ExecutionStatus? = null
 
-            fun setExecutionStatus(executionStatus: ExecutionStatus): Builder =
-                apply { this.executionStatus = executionStatus }
+            fun setExecutionStatus(executionStatus: ExecutionStatus): Builder = apply {
+                this.executionStatus = executionStatus
+            }
 
             fun build(): Output = Output(executionStatus)
         }
@@ -178,9 +181,11 @@ class StopTimer private constructor() {
                 status = genericErrorStatus.toString()
             }
             val value: Value = Value.newBuilder().setStringValue(status).build()
-            return ParamValue.newBuilder().setStructValue(
-                Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build(),
-            ).build()
+            return ParamValue.newBuilder()
+                .setStructValue(
+                    Struct.newBuilder().putFields(TypeConverters.FIELD_NAME_TYPE, value).build(),
+                )
+                .build()
         }
     }
 

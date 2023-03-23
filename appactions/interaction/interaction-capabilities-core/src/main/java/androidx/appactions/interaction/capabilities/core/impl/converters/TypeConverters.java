@@ -360,6 +360,82 @@ public final class TypeConverters {
     }
 
     /**
+     * Converts a Timer object to an Entity proto message.
+     *
+     * @param timer
+     * @return
+     */
+    @NonNull
+    public static Entity toEntity(@NonNull Timer timer) {
+        Entity.Builder builder = Entity.newBuilder().setValue(TIMER_TYPE_SPEC.toStruct(timer));
+        timer.getId().ifPresent(builder::setIdentifier);
+        return builder.build();
+    }
+
+    /**
+     * @param zonedDateTime
+     * @return
+     */
+    @NonNull
+    public static Entity toEntity(@NonNull ZonedDateTime zonedDateTime) {
+        // TODO(b/274838299): Do not set "name" field after protos are checked in.
+        return Entity.newBuilder().setName(zonedDateTime.toOffsetDateTime().toString()).build();
+    }
+
+    /**
+     * @param localTime
+     * @return
+     */
+    @NonNull
+    public static Entity toEntity(@NonNull LocalTime localTime) {
+        // TODO(b/274838299): Do not set "name" field after protos are checked in.
+        return Entity.newBuilder().setName(localTime.toString()).build();
+    }
+
+    /**
+     * @param duration
+     * @return
+     */
+    @NonNull
+    public static Entity toEntity(@NonNull Duration duration) {
+        // TODO(b/274838299): Do not set "name" field after protos are checked in.
+        return Entity.newBuilder().setName(duration.toString()).build();
+    }
+
+    /**
+     * @param callFormat
+     * @return
+     */
+    @NonNull
+    public static Entity toEntity(@NonNull Call.CallFormat callFormat) {
+        return Entity.newBuilder().setIdentifier(callFormat.toString()).build();
+    }
+
+    /**
+     * @param participant
+     * @return
+     */
+    @NonNull
+    public static Entity toEntity(@NonNull Participant participant) {
+        ParticipantTypeSpec typeSpec = new ParticipantTypeSpec();
+        Entity.Builder builder = Entity.newBuilder().setValue(typeSpec.toStruct(participant));
+        typeSpec.getId(participant).ifPresent(builder::setIdentifier);
+        return builder.build();
+    }
+
+    /**
+     * @param recipient
+     * @return
+     */
+    @NonNull
+    public static Entity toEntity(@NonNull Recipient recipient) {
+        RecipientTypeSpec typeSpec = new RecipientTypeSpec();
+        Entity.Builder builder = Entity.newBuilder().setValue(typeSpec.toStruct(recipient));
+        typeSpec.getId(recipient).ifPresent(builder::setIdentifier);
+        return builder.build();
+    }
+
+    /**
      * Converts a ParamValue to a single ItemList object.
      *
      * @param paramValue

@@ -23,7 +23,6 @@ import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
@@ -43,11 +42,12 @@ private val ACTION_SPEC =
         .setDescriptor(CreateMessage.Property::class.java)
         .setArgument(CreateMessage.Argument::class.java, CreateMessage.Argument::Builder)
         .setOutput(CreateMessage.Output::class.java)
-        .bindRepeatedStructParameter(
+        .bindRepeatedGenericParameter(
             "message.recipient",
             { property -> Optional.ofNullable(property.recipient) },
             CreateMessage.Argument.Builder::setRecipientList,
-            TypeConverters::toRecipient
+            TypeConverters::toRecipient,
+            TypeConverters::toEntity
         )
         .bindOptionalStringParameter(
             "message.text",
@@ -83,7 +83,7 @@ class CreateMessage private constructor() {
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property
     internal constructor(
-        val recipient: SimpleProperty?,
+        val recipient: TypeProperty<Recipient>?,
         val messageText: TypeProperty<StringValue>?
     ) {
         override fun toString(): String {
@@ -109,10 +109,10 @@ class CreateMessage private constructor() {
         }
 
         class Builder {
-            private var recipient: SimpleProperty? = null
+            private var recipient: TypeProperty<Recipient>? = null
             private var messageText: TypeProperty<StringValue>? = null
 
-            fun setRecipient(recipient: SimpleProperty): Builder = apply {
+            fun setRecipient(recipient: TypeProperty<Recipient>): Builder = apply {
                 this.recipient = recipient
             }
 

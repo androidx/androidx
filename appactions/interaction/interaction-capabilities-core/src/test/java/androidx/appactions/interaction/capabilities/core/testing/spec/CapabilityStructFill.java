@@ -22,7 +22,6 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver;
@@ -40,11 +39,12 @@ public final class CapabilityStructFill {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                     .setDescriptor(Property.class)
                     .setArgument(Argument.class, Argument::newBuilder)
-                    .bindStructParameter(
+                    .bindOptionalGenericParameter(
                             "listItem",
                             Property::listItem,
                             Argument.Builder::setListItem,
-                            TypeConverters::toListItem)
+                            TypeConverters::toListItem,
+                            TypeConverters::toEntity)
                     .bindOptionalStringParameter(
                             "string", Property::anyString, Argument.Builder::setAnyString)
                     .build();
@@ -84,7 +84,7 @@ public final class CapabilityStructFill {
             return new AutoValue_CapabilityStructFill_Property.Builder();
         }
 
-        public abstract Optional<SimpleProperty> listItem();
+        public abstract Optional<TypeProperty<ListItem>> listItem();
 
         public abstract Optional<TypeProperty<StringValue>> anyString();
 
@@ -93,7 +93,7 @@ public final class CapabilityStructFill {
         public abstract static class Builder {
 
             @NonNull
-            public abstract Builder setListItem(@NonNull SimpleProperty value);
+            public abstract Builder setListItem(@NonNull TypeProperty<ListItem> value);
 
             @NonNull
             public abstract Builder setAnyString(@NonNull TypeProperty<StringValue> value);

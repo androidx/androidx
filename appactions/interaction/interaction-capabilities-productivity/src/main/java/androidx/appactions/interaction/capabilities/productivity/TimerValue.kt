@@ -16,14 +16,17 @@
 
 package androidx.appactions.interaction.capabilities.productivity
 
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.converters.UnionTypeSpec
 import androidx.appactions.interaction.capabilities.core.values.SearchAction
 import androidx.appactions.interaction.capabilities.core.values.Timer
+import androidx.appactions.interaction.proto.Entity
 import java.util.Objects
 
-class TimerValue private constructor(
+class TimerValue
+private constructor(
     val asTimer: Timer?,
     val asTimerFilter: SearchAction<Timer>?,
 ) {
@@ -46,23 +49,32 @@ class TimerValue private constructor(
     }
 
     companion object {
-        private val TYPE_SPEC = UnionTypeSpec.Builder<TimerValue>()
-            .bindMemberType(
-                memberGetter = TimerValue::asTimer,
-                ctor = { TimerValue(it) },
-                typeSpec = TypeConverters.TIMER_TYPE_SPEC,
-            )
-            .bindMemberType(
-                memberGetter = TimerValue::asTimerFilter,
-                ctor = { TimerValue(it) },
-                typeSpec = TypeConverters.createSearchActionTypeSpec(
-                    TypeConverters.TIMER_TYPE_SPEC,
-                ),
-            )
-            .build()
+        private val TYPE_SPEC =
+            UnionTypeSpec.Builder<TimerValue>()
+                .bindMemberType(
+                    memberGetter = TimerValue::asTimer,
+                    ctor = { TimerValue(it) },
+                    typeSpec = TypeConverters.TIMER_TYPE_SPEC,
+                )
+                .bindMemberType(
+                    memberGetter = TimerValue::asTimerFilter,
+                    ctor = { TimerValue(it) },
+                    typeSpec =
+                        TypeConverters.createSearchActionTypeSpec(
+                            TypeConverters.TIMER_TYPE_SPEC,
+                        ),
+                )
+                .build()
 
         internal val FROM_PARAM_VALUE = ParamValueConverter {
-            TYPE_SPEC.fromStruct(it.getStructValue())
+            TYPE_SPEC.fromStruct(it.structValue)
         }
+
+        internal val TO_ENTITY_VALUE =
+            EntityConverter<TimerValue> { it ->
+                val builder = Entity.newBuilder().setValue(TYPE_SPEC.toStruct(it))
+                it.asTimer?.id?.ifPresent { builder.identifier = it }
+                builder.build()
+            }
     }
 }
