@@ -38,6 +38,7 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
@@ -221,6 +222,25 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mHostRule.startHost()
 
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "textColor_dark")
+    }
+
+    @Test
+    fun checkButtonRoundedCorners_light() {
+        TestGlanceAppWidget.uiDefinition = { RoundedButtonScreenshotTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "roundedButton_light")
+    }
+
+    @Test
+    @WithNightMode
+    fun checkButtonRoundedCorners_dark() {
+        TestGlanceAppWidget.uiDefinition = { RoundedButtonScreenshotTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "roundedButton_dark")
     }
 
     @Test
@@ -619,6 +639,49 @@ private fun TextColorTest() {
         Text(
             "Resource (inverse of background color)",
             style = TextStyle(color = ColorProvider(R.color.text_color))
+        )
+    }
+}
+
+@Composable
+private fun RoundedButtonScreenshotTest() {
+    val columnColors = listOf(Color(0xffffdbcd), Color(0xff7d2d00))
+    val buttonBgColors = listOf(Color(0xffa33e00), Color(0xffffb596))
+    val buttonTextColors = listOf(Color(0xffffffff), Color(0xff581e00))
+
+    Column(
+        modifier = GlanceModifier.padding(10.dp)
+            .background(day = columnColors[0], night = columnColors[1])
+    ) {
+        Button(
+            "Button with textAlign = Start",
+            onClick = actionStartActivity<Activity>(),
+            colors = ButtonColors(
+                backgroundColor = ColorProvider(day = buttonBgColors[0], night = buttonBgColors[1]),
+                contentColor = ColorProvider(day = buttonTextColors[0], night = buttonTextColors[1])
+            ),
+            style = TextStyle(textAlign = TextAlign.Start)
+        )
+        Spacer(modifier = GlanceModifier.height(5.dp).fillMaxWidth())
+        Button(
+            "Button with textAlign = Center and padding (30dp, 30dp)",
+            onClick = actionStartActivity<Activity>(),
+            modifier = GlanceModifier.padding(horizontal = 30.dp, vertical = 30.dp),
+            colors = ButtonColors(
+                backgroundColor = ColorProvider(day = buttonBgColors[0], night = buttonBgColors[1]),
+                contentColor = ColorProvider(day = buttonTextColors[0], night = buttonTextColors[1])
+            ),
+            style = TextStyle(textAlign = TextAlign.Center)
+        )
+        Spacer(modifier = GlanceModifier.height(5.dp).fillMaxWidth())
+        Button(
+            "Button with textAlign = End",
+            onClick = actionStartActivity<Activity>(),
+            colors = ButtonColors(
+                backgroundColor = ColorProvider(day = buttonBgColors[0], night = buttonBgColors[1]),
+                contentColor = ColorProvider(day = buttonTextColors[0], night = buttonTextColors[1])
+            ),
+            style = TextStyle(textAlign = TextAlign.End)
         )
     }
 }

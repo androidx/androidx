@@ -29,6 +29,7 @@ import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -437,7 +438,35 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 31)
     fun createButton() {
+        TestGlanceAppWidget.uiDefinition = {
+            Button(
+                text = "Button",
+                onClick = actionStartActivity<Activity>(),
+                colors = ButtonColors(
+                    backgroundColor = ColorProvider(Color.Transparent),
+                    contentColor = ColorProvider(Color.DarkGray)
+                ),
+                enabled = false
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<Button> { button ->
+            checkNotNull(button.text.toString() == "Button") {
+                "Couldn't find 'Button'"
+            }
+
+            assertThat(button.isEnabled).isFalse()
+            assertThat(button.hasOnClickListeners()).isFalse()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 30)
+    fun createButtonBackport() {
         TestGlanceAppWidget.uiDefinition = {
             Button(
                 text = "Button",
@@ -909,7 +938,36 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 31)
     fun lambdaActionCallback() = runTest {
+        TestGlanceAppWidget.uiDefinition = {
+            val text = remember { mutableStateOf("initial") }
+            Button(
+                text = text.value,
+                onClick = {
+                    text.value = "clicked"
+                }
+            )
+        }
+
+        mHostRule.startHost()
+        var button: View? = null
+        mHostRule.onUnboxedHostView<Button> { buttonView ->
+            assertThat(buttonView.text.toString()).isEqualTo("initial")
+            button = buttonView
+        }
+        mHostRule.runAndWaitForUpdate {
+            button!!.performClick()
+        }
+
+        mHostRule.onUnboxedHostView<Button> { buttonView ->
+            assertThat(buttonView.text.toString()).isEqualTo("clicked")
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 30)
+    fun lambdaActionCallback_backportButton() = runTest {
         TestGlanceAppWidget.uiDefinition = {
             val text = remember { mutableStateOf("initial") }
             Button(

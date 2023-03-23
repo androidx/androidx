@@ -14,9 +14,18 @@
   limitations under the License.
   -->
 
+<!--
+Setting stateListAnimator to null to remove default shadows on the button and make it look
+similar to the custom emulated button in backport implementation. The corner radius of the ripple
+matches the one that is applied to the button later.
+ -->
 <Button xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:glance_isTopLevelLayout="true"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:foreground="@drawable/glance_button_ripple"
+    android:minHeight="0dp"
+    android:minWidth="0dp"
+    android:stateListAnimator="@null"
     style="@style/Glance.AppWidget.Button"/>
