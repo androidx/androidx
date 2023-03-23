@@ -16,6 +16,10 @@
 
 package androidx.window.extensions.core.util.function;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+
+import androidx.annotation.RestrictTo;
+
 /**
  * Represents a predicate boolean-valued function of one argument.
  * It is used internally to avoid using Java 8 functional interface that leads to desugaring and
@@ -25,6 +29,7 @@ package androidx.window.extensions.core.util.function;
  *
  * @see java.util.function.Predicate
  */
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @FunctionalInterface
 public interface Predicate<T> {
     /**
