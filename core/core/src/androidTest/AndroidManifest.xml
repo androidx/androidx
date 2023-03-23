@@ -14,7 +14,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator, androidx.test.uiautomator" />
 
     <application
         android:name="androidx.multidex.MultiDexApplication"
@@ -121,6 +124,14 @@
 
         <activity
             android:name="androidx.core.app.GetSystemLocalesActivity"
+            android:exported="true" />
+
+        <activity
+            android:name="androidx.core.view.inputmethod.ImeBaseSplitTestActivity"
+            android:exported="true" />
+
+        <activity
+            android:name="androidx.core.view.inputmethod.ImeSecondarySplitTestActivity"
             android:exported="true" />
 
         <activity-alias
