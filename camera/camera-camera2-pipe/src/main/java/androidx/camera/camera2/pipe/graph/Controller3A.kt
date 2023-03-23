@@ -318,7 +318,9 @@ internal class Controller3A(
     suspend fun unlock3A(
         ae: Boolean? = null,
         af: Boolean? = null,
-        awb: Boolean? = null
+        awb: Boolean? = null,
+        frameLimit: Int = DEFAULT_FRAME_LIMIT,
+        timeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
         var afSanitized = af
         if (!metadata.supportsAutoFocusTrigger) {
@@ -340,7 +342,7 @@ internal class Controller3A(
         // As needed unlock ae, awb and wait for ae, af and awb to converge.
         val unlocked3AExitConditions =
             createUnLocked3AExitConditions(ae == true, afSanitized == true, awb == true)
-        val listener = Result3AStateListenerImpl(unlocked3AExitConditions)
+        val listener = Result3AStateListenerImpl(unlocked3AExitConditions, frameLimit, timeLimitNs)
         graphListener3A.addListener(listener)
 
         // Update the 3A state of the camera graph and invalidate the repeating request with the
