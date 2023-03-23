@@ -16,8 +16,10 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
+import android.graphics.ImageFormat
 import android.graphics.Point
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
@@ -25,6 +27,7 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.hardware.display.DisplayManager
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
+import android.os.Build
 import android.util.Size
 import android.view.Display
 import androidx.annotation.RequiresApi
@@ -43,8 +46,11 @@ import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceSizeDefinition
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.CompareSizesByArea
+import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P
+import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1440P
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_480P
+import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_720P
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA
 import java.util.Arrays
 import java.util.Collections
@@ -75,6 +81,12 @@ class SupportedSurfaceCombination(
     private val outputSizesCache: MutableMap<Int, Array<Size>> = HashMap()
     private var isRawSupported = false
     private var isBurstCaptureSupported = false
+    private var isConcurrentCameraModeSupported = false
+    private var isUltraHighResolutionSensorSupported = false
+    private val sizeDefinitionFormats = mutableListOf(
+        ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, ImageFormat.JPEG,
+        ImageFormat.YUV_420_888
+    )
     internal lateinit var surfaceSizeDefinition: SurfaceSizeDefinition
     private val displayManager: DisplayManager =
         (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager)
@@ -87,8 +99,17 @@ class SupportedSurfaceCombination(
     init {
         checkCapabilities()
         generateSupportedCombinationList()
-        if (context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
+        isConcurrentCameraModeSupported =
+            context.packageManager.hasSystemFeature(FEATURE_CAMERA_CONCURRENT)
+        if (isConcurrentCameraModeSupported) {
             generateConcurrentSupportedCombinationList()
+        }
+        if (isRawSupported) {
+            // In CameraDevice's javadoc, RAW refers to the ImageFormat.RAW_SENSOR format. But
+            // a test in ImageCaptureTest using RAW10 to do the test. Adding the RAW10 format to
+            // make sure this is compatible with the original users.
+            sizeDefinitionFormats.add(ImageFormat.RAW_SENSOR)
+            sizeDefinitionFormats.add(ImageFormat.RAW10)
         }
         generateSurfaceSizeDefinition()
     }
@@ -129,12 +150,8 @@ class SupportedSurfaceCombination(
         imageFormat: Int,
         size: Size
     ): SurfaceConfig {
-        val maxOutputSizeForConcurrentMode = if (isConcurrentCameraModeOn)
-            getMaxOutputSizeByFormat(imageFormat) else null
-        return SurfaceConfig.transformSurfaceConfig(
-            isConcurrentCameraModeOn,
-            imageFormat, size, surfaceSizeDefinition, maxOutputSizeForConcurrentMode
-        )
+        return SurfaceConfig.transformSurfaceConfig(isConcurrentCameraModeOn,
+            imageFormat, size, surfaceSizeDefinition)
     }
 
     /**
@@ -163,15 +180,12 @@ class SupportedSurfaceCombination(
         // Use the small size (640x480) for new use cases to check whether there is any possible
         // supported combination first
         for (useCaseConfig in newUseCaseConfigs) {
-            val maxOutputSizeForConcurrentMode = if (isConcurrentCameraModeOn)
-                getMaxOutputSizeByFormat(useCaseConfig.inputFormat) else null
             surfaceConfigs.add(
                 SurfaceConfig.transformSurfaceConfig(
                     isConcurrentCameraModeOn,
                     useCaseConfig.inputFormat,
                     RESOLUTION_VGA,
-                    surfaceSizeDefinition,
-                    maxOutputSizeForConcurrentMode
+                    surfaceSizeDefinition
                 )
             )
         }
@@ -217,15 +231,12 @@ class SupportedSurfaceCombination(
             for (i in possibleSizeList.indices) {
                 val size = possibleSizeList[i]
                 val newUseCase = newUseCaseConfigs[useCasesPriorityOrder[i]]
-                val maxOutputSizeForConcurrentMode = if (isConcurrentCameraModeOn)
-                    getMaxOutputSizeByFormat(newUseCase.inputFormat) else null
                 surfaceConfigList.add(
                     SurfaceConfig.transformSurfaceConfig(
                         isConcurrentCameraModeOn,
                         newUseCase.inputFormat,
                         size,
-                        surfaceSizeDefinition,
-                        maxOutputSizeForConcurrentMode
+                        surfaceSizeDefinition
                     )
                 )
             }
@@ -272,10 +283,12 @@ class SupportedSurfaceCombination(
             val previewSize: Size = displayInfoManager.getPreviewSize()
             surfaceSizeDefinition = SurfaceSizeDefinition.create(
                 surfaceSizeDefinition.analysisSize,
-                surfaceSizeDefinition.s720pSize,
+                surfaceSizeDefinition.s720pSizeMap,
                 previewSize,
-                surfaceSizeDefinition.s1440pSize,
-                surfaceSizeDefinition.recordSize
+                surfaceSizeDefinition.s1440pSizeMap,
+                surfaceSizeDefinition.recordSize,
+                surfaceSizeDefinition.maximumSizeMap,
+                surfaceSizeDefinition.ultraMaximumSizeMap
             )
         }
     }
@@ -291,6 +304,10 @@ class SupportedSurfaceCombination(
             isRawSupported = contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
             isBurstCaptureSupported =
                 contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE)
+            isUltraHighResolutionSensorSupported = contains(
+                CameraCharacteristics
+                    .REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR
+            )
         }
     }
 
@@ -316,22 +333,89 @@ class SupportedSurfaceCombination(
     }
 
     /**
-     * Generation the size definition for VGA, s720p, PREVIEW, s1440p, and RECORD.
+     * Generation the size definition for VGA, s720p, PREVIEW, s1440p, RECORD, MAXIMUM and
+     * ULTRA_MAXIMUM.
      */
     private fun generateSurfaceSizeDefinition() {
-        val vgaSize = Size(640, 480)
-        // s720p is not a fixed size, it refers to 720p (1280 x 720) or the maximum supported
-        // resolution for the particular format returned by
-        // {@link StreamConfigurationMap#getOutputSizes(int)}, whichever is smaller.
-        // Same for s1440p.
-        val s720pSize = Size(1280, 720)
-        val s1440pSize = Size(1920, 1440)
         val previewSize: Size = displayInfoManager.getPreviewSize()
         val recordSize: Size = getRecordSize()
         surfaceSizeDefinition = SurfaceSizeDefinition.create(
-            vgaSize, s720pSize, previewSize,
-            s1440pSize, recordSize
+            RESOLUTION_VGA,
+            createS720pOrS1440pSizeMap(RESOLUTION_720P),
+            previewSize,
+            createS720pOrS1440pSizeMap(RESOLUTION_1440P),
+            recordSize,
+            createMaximumSizeMap(),
+            createUltraMaximumSizeMap()
         )
+    }
+
+    /**
+     * Creates the format to s720p or s720p size map.
+     *
+     * <p>s720p refers to the 720p (1280 x 720) or the maximum supported resolution for the
+     * particular format returned by {@link StreamConfigurationMap#getOutputSizes(int)},
+     * whichever is smaller.
+     *
+     * <p>s1440p refers to the 1440p (1920 x 1440) or the maximum supported resolution for the
+     * particular format returned by {@link StreamConfigurationMap#getOutputSizes(int)},
+     * whichever is smaller.
+     *
+     * @param targetSize the target size to create the map.
+     * @return the format to s720p or s720p size map.
+     */
+    private fun createS720pOrS1440pSizeMap(targetSize: Size): Map<Int, Size> {
+        val resultMap: MutableMap<Int, Size> = mutableMapOf()
+        if (!isConcurrentCameraModeSupported) {
+            return resultMap
+        }
+
+        val compareSizesByArea = CompareSizesByArea()
+        val originalMap = streamConfigurationMapCompat.toStreamConfigurationMap()
+        for (format in sizeDefinitionFormats) {
+            val maxOutputSize = getMaxOutputSizeByFormat(originalMap, format, false)
+            resultMap[format] = if (maxOutputSize == null) {
+                targetSize
+            } else {
+                Collections.min(
+                    listOf(
+                        targetSize,
+                        maxOutputSize
+                    ), compareSizesByArea
+                )
+            }
+        }
+        return resultMap
+    }
+
+    private fun createMaximumSizeMap(): Map<Int, Size> {
+        val resultMap: MutableMap<Int, Size> = mutableMapOf()
+        val originalMap = streamConfigurationMapCompat.toStreamConfigurationMap()
+        for (format in sizeDefinitionFormats) {
+            getMaxOutputSizeByFormat(originalMap, format, true)?.let {
+                resultMap[format] = it
+            }
+        }
+        return resultMap
+    }
+
+    private fun createUltraMaximumSizeMap(): Map<Int, Size> {
+        val resultMap: MutableMap<Int, Size> = mutableMapOf()
+        // Maximum resolution mode is supported since API level 31
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+            !isUltraHighResolutionSensorSupported
+        ) {
+            return resultMap
+        }
+        val maximumResolutionMap =
+            cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION]
+                ?: return resultMap
+        for (format in sizeDefinitionFormats) {
+            getMaxOutputSizeByFormat(maximumResolutionMap, format, true)?.let {
+                resultMap[format] = it
+            }
+        }
+        return resultMap
     }
 
     /**
@@ -479,15 +563,18 @@ class SupportedSurfaceCombination(
     /**
      * Get max supported output size for specific image format
      *
+     * @param map the original stream configuration map without quirks applied.
      * @param imageFormat the image format info
+     * @param highResolutionIncluded whether high resolution output sizes are included
      * @return the max supported output size for the image format
      */
-    internal fun getMaxOutputSizeByFormat(imageFormat: Int): Size {
-        // Needs to retrieve the output size from the original stream configuration map without
-        // quirks applied.
-        val map: StreamConfigurationMap =
-            streamConfigurationMapCompat.toStreamConfigurationMap()
-        val outputSizes: Array<Size> =
+    @SuppressLint("ClassVerificationFailure")
+    internal fun getMaxOutputSizeByFormat(
+        map: StreamConfigurationMap,
+        imageFormat: Int,
+        highResolutionIncluded: Boolean
+    ): Size? {
+        val outputSizes: Array<Size>? =
             if (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
                 // This is a little tricky that 0x22 that is internal defined in
                 // StreamConfigurationMap.java to be equal to ImageFormat.PRIVATE that is public
@@ -498,7 +585,22 @@ class SupportedSurfaceCombination(
             } else {
                 map.getOutputSizes(imageFormat)
             }
-        return Collections.max(outputSizes.asList(), CompareSizesByArea())
+        if (outputSizes.isNullOrEmpty()) {
+            return null
+        }
+        val compareSizesByArea = CompareSizesByArea()
+        val maxSize = Collections.max(outputSizes.asList(), compareSizesByArea)
+        var maxHighResolutionSize = SizeUtil.RESOLUTION_ZERO
+
+        if (Build.VERSION.SDK_INT >= 23 && highResolutionIncluded) {
+            val highResolutionOutputSizes = map.getHighResolutionOutputSizes(imageFormat)
+            if (highResolutionOutputSizes != null && highResolutionOutputSizes.isNotEmpty()) {
+                maxHighResolutionSize =
+                    Collections.max(highResolutionOutputSizes.asList(), compareSizesByArea)
+            }
+        }
+
+        return Collections.max(Arrays.asList(maxSize, maxHighResolutionSize), compareSizesByArea)
     }
 
     /**

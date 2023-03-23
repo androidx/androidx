@@ -21,16 +21,21 @@ import static android.hardware.camera2.CameraCharacteristics.CONTROL_AE_AVAILABL
 
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_480P;
+import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
 
 import android.content.Context;
+import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.util.Range;
 import android.util.Size;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
@@ -49,6 +54,7 @@ import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceSizeDefinition;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
+import androidx.camera.core.internal.utils.SizeUtil;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -61,7 +67,7 @@ import java.util.Map;
 /**
  * Camera device supported surface configuration combinations
  *
- * <p>{@link android.hardware.camera2.CameraDevice#createCaptureSession} defines the default
+ * <p>{@link CameraDevice#createCaptureSession} defines the default
  * guaranteed stream combinations for different hardware level devices. It defines what combination
  * of surface configuration type and size pairs can be supported for different hardware level camera
  * devices. This structure is used to store a list of surface combinations that are guaranteed to
@@ -80,6 +86,11 @@ final class SupportedSurfaceCombination {
     private final int mHardwareLevel;
     private boolean mIsRawSupported = false;
     private boolean mIsBurstCaptureSupported = false;
+    private boolean mIsConcurrentCameraModeSupported = false;
+    private boolean mIsUltraHighResolutionSensorSupported = false;
+    private final List<Integer> mSizeDefinitionFormats = new ArrayList<>(Arrays.asList(
+            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE, ImageFormat.JPEG,
+            ImageFormat.YUV_420_888));
     @VisibleForTesting
     SurfaceSizeDefinition mSurfaceSizeDefinition;
     @NonNull
@@ -116,14 +127,30 @@ final class SupportedSurfaceCombination {
                 } else if (capability
                         == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE) {
                     mIsBurstCaptureSupported = true;
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && capability
+                        == CameraCharacteristics
+                        .REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR) {
+                    mIsUltraHighResolutionSensorSupported = true;
                 }
             }
         }
 
         generateSupportedCombinationList();
-        if (context.getPackageManager().hasSystemFeature(FEATURE_CAMERA_CONCURRENT)) {
+
+        mIsConcurrentCameraModeSupported =
+                context.getPackageManager().hasSystemFeature(FEATURE_CAMERA_CONCURRENT);
+        if (mIsConcurrentCameraModeSupported) {
             generateConcurrentSupportedCombinationList();
         }
+
+        if (mIsRawSupported) {
+            // In CameraDevice's javadoc, RAW refers to the ImageFormat.RAW_SENSOR format. But
+            // a test in ImageCaptureTest using RAW10 to do the test. Adding the RAW10 format to
+            // make sure this is compatible with the original users.
+            mSizeDefinitionFormats.add(ImageFormat.RAW_SENSOR);
+            mSizeDefinitionFormats.add(ImageFormat.RAW10);
+        }
+
         generateSurfaceSizeDefinition();
         checkCustomization();
     }
@@ -178,14 +205,11 @@ final class SupportedSurfaceCombination {
             boolean isConcurrentCameraModeOn,
             int imageFormat,
             Size size) {
-        Size maxOutputSizeForConcurrentMode = isConcurrentCameraModeOn
-                ? getMaxOutputSizeByFormat(imageFormat) : null;
         return SurfaceConfig.transformSurfaceConfig(
                 isConcurrentCameraModeOn,
                 imageFormat,
                 size,
-                mSurfaceSizeDefinition,
-                maxOutputSizeForConcurrentMode);
+                mSurfaceSizeDefinition);
     }
 
     static int getMaxFramerate(CameraCharacteristicsCompat characteristics, int imageFormat,
@@ -431,15 +455,12 @@ final class SupportedSurfaceCombination {
         // Use the small size (640x480) for new use cases to check whether there is any possible
         // supported combination first
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
-            Size maxOutputSizeForConcurrentMode = isConcurrentCameraModeOn
-                    ? getMaxOutputSizeByFormat(useCaseConfig.getInputFormat()) : null;
             surfaceConfigs.add(
                     SurfaceConfig.transformSurfaceConfig(
                             isConcurrentCameraModeOn,
                             useCaseConfig.getInputFormat(),
                             new Size(640, 480),
-                            mSurfaceSizeDefinition,
-                            maxOutputSizeForConcurrentMode));
+                            mSurfaceSizeDefinition));
         }
 
         if (!checkSupported(isConcurrentCameraModeOn, surfaceConfigs)) {
@@ -512,15 +533,12 @@ final class SupportedSurfaceCombination {
                 UseCaseConfig<?> newUseCase =
                         newUseCaseConfigs.get(useCasesPriorityOrder.get(i));
                 // add new use case/size config to list of surfaces
-                Size maxOutputSizeForConcurrentMode = isConcurrentCameraModeOn
-                        ? getMaxOutputSizeByFormat(newUseCase.getInputFormat()) : null;
                 surfaceConfigList.add(
                         SurfaceConfig.transformSurfaceConfig(
                                 isConcurrentCameraModeOn,
                                 newUseCase.getInputFormat(),
                                 size,
-                                mSurfaceSizeDefinition,
-                                maxOutputSizeForConcurrentMode));
+                                mSurfaceSizeDefinition));
 
                 // get the maximum fps of the new surface and update the maximum fps of the
                 // proposed configuration
@@ -682,14 +700,13 @@ final class SupportedSurfaceCombination {
     /**
      * Get max supported output size for specific image format
      *
+     * @param map the original stream configuration map without quirks applied.
      * @param imageFormat the image format info
+     * @param highResolutionIncluded whether high resolution output sizes are included
      * @return the max supported output size for the image format
      */
-    Size getMaxOutputSizeByFormat(int imageFormat) {
-        // Needs to retrieve the output size from the original stream configuration map without
-        // quirks applied.
-        StreamConfigurationMap map =
-                mCharacteristics.getStreamConfigurationMapCompat().toStreamConfigurationMap();
+    private Size getMaxOutputSizeByFormat(StreamConfigurationMap map, int imageFormat,
+            boolean highResolutionIncluded) {
         Size[] outputSizes;
         if (imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
             // This is a little tricky that 0x22 that is internal defined in
@@ -701,7 +718,27 @@ final class SupportedSurfaceCombination {
         } else {
             outputSizes = map.getOutputSizes(imageFormat);
         }
-        return Collections.max(Arrays.asList(outputSizes), new CompareSizesByArea());
+
+        if (outputSizes == null || outputSizes.length == 0) {
+            return null;
+        }
+
+        CompareSizesByArea compareSizesByArea = new CompareSizesByArea();
+        Size maxSize = Collections.max(Arrays.asList(outputSizes), compareSizesByArea);
+
+        // Checks high resolution output sizes
+        Size maxHighResolutionSize = SizeUtil.RESOLUTION_ZERO;
+        if (Build.VERSION.SDK_INT >= 23 && highResolutionIncluded) {
+            Size[] highResolutionOutputSizes = Api23Impl.getHighResolutionOutputSizes(map,
+                    imageFormat);
+
+            if (highResolutionOutputSizes != null && highResolutionOutputSizes.length > 0) {
+                maxHighResolutionSize = Collections.max(Arrays.asList(highResolutionOutputSizes),
+                        compareSizesByArea);
+            }
+        }
+
+        return Collections.max(Arrays.asList(maxSize, maxHighResolutionSize), compareSizesByArea);
     }
 
     private void generateSupportedCombinationList() {
@@ -726,13 +763,81 @@ final class SupportedSurfaceCombination {
     // *********************************************************************************************
 
     private void generateSurfaceSizeDefinition() {
-        Size analysisSize = new Size(640, 480);
-        Size s720p = new Size(1280, 720);
         Size previewSize = mDisplayInfoManager.getPreviewSize();
-        Size s1440p = new Size(1920, 1440);
         Size recordSize = getRecordSize();
-        mSurfaceSizeDefinition =
-                SurfaceSizeDefinition.create(analysisSize, s720p, previewSize, s1440p, recordSize);
+        mSurfaceSizeDefinition = SurfaceSizeDefinition.create(RESOLUTION_VGA,
+                createS720pOrS1440pSizeMap(SizeUtil.RESOLUTION_720P), previewSize,
+                createS720pOrS1440pSizeMap(SizeUtil.RESOLUTION_1440P), recordSize,
+                createMaximumSizeMap(), createUltraMaximumSizeMap());
+    }
+
+    /**
+     * Creates the format to s720p or s720p size map.
+     *
+     * <p>s720p refers to the 720p (1280 x 720) or the maximum supported resolution for the
+     * particular format returned by {@link StreamConfigurationMap#getOutputSizes(int)},
+     * whichever is smaller.
+     *
+     * <p>s1440p refers to the 1440p (1920 x 1440) or the maximum supported resolution for the
+     * particular format returned by {@link StreamConfigurationMap#getOutputSizes(int)},
+     * whichever is smaller.
+     *
+     * @param targetSize the target size to create the map.
+     * @return the format to s720p or s720p size map.
+     */
+    @NonNull
+    private Map<Integer, Size> createS720pOrS1440pSizeMap(@NonNull Size targetSize) {
+        Map<Integer, Size> resultMap = new HashMap<>();
+        if (!mIsConcurrentCameraModeSupported) {
+            return resultMap;
+        }
+        CompareSizesByArea compareSizesByArea = new CompareSizesByArea();
+        StreamConfigurationMap originalMap =
+                mCharacteristics.getStreamConfigurationMapCompat().toStreamConfigurationMap();
+        for (int format : mSizeDefinitionFormats) {
+            Size maxOutputSize = getMaxOutputSizeByFormat(originalMap, format, false);
+            resultMap.put(format, maxOutputSize == null ? targetSize
+                    : Collections.min(Arrays.asList(targetSize, maxOutputSize),
+                            compareSizesByArea));
+        }
+
+        return resultMap;
+    }
+
+    @NonNull
+    private Map<Integer, Size> createMaximumSizeMap() {
+        Map<Integer, Size> resultMap = new HashMap<>();
+        StreamConfigurationMap originalMap =
+                mCharacteristics.getStreamConfigurationMapCompat().toStreamConfigurationMap();
+        for (int format : mSizeDefinitionFormats) {
+            Size maxOutputSize = getMaxOutputSizeByFormat(originalMap, format, true);
+            if (maxOutputSize != null) {
+                resultMap.put(format, maxOutputSize);
+            }
+        }
+
+        return resultMap;
+    }
+
+    @NonNull
+    private Map<Integer, Size> createUltraMaximumSizeMap() {
+        Map<Integer, Size> resultMap = new HashMap<>();
+        // Maximum resolution mode is supported since API level 31
+        if (Build.VERSION.SDK_INT < 31 || !mIsUltraHighResolutionSensorSupported) {
+            return resultMap;
+        }
+
+        StreamConfigurationMap maximumResolutionMap = mCharacteristics.get(
+                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION);
+
+        if (maximumResolutionMap == null) {
+            return resultMap;
+        }
+        for (int format : mSizeDefinitionFormats) {
+            resultMap.put(format, getMaxOutputSizeByFormat(maximumResolutionMap, format, true));
+        }
+
+        return resultMap;
     }
 
     private void refreshPreviewSize() {
@@ -743,10 +848,12 @@ final class SupportedSurfaceCombination {
             Size previewSize = mDisplayInfoManager.getPreviewSize();
             mSurfaceSizeDefinition = SurfaceSizeDefinition.create(
                     mSurfaceSizeDefinition.getAnalysisSize(),
-                    mSurfaceSizeDefinition.getS720pSize(),
+                    mSurfaceSizeDefinition.getS720pSizeMap(),
                     previewSize,
-                    mSurfaceSizeDefinition.getS1440pSize(),
-                    mSurfaceSizeDefinition.getRecordSize());
+                    mSurfaceSizeDefinition.getS1440pSizeMap(),
+                    mSurfaceSizeDefinition.getRecordSize(),
+                    mSurfaceSizeDefinition.getMaximumSizeMap(),
+                    mSurfaceSizeDefinition.getUltraMaximumSizeMap());
         }
     }
 
@@ -842,5 +949,19 @@ final class SupportedSurfaceCombination {
         }
 
         return recordSize;
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Size[] getHighResolutionOutputSizes(StreamConfigurationMap streamConfigurationMap,
+                int format) {
+            return streamConfigurationMap.getHighResolutionOutputSizes(format);
+        }
+
     }
 }
