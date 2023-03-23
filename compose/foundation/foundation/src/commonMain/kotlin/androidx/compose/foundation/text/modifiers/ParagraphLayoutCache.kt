@@ -102,7 +102,7 @@ internal class ParagraphLayoutCache(
     /**
      * Convert min max lines into actual constraints
      */
-    private var minMaxLinesCoercer: MinMaxLinesCoercer? = null
+    private var mMinLinesConstrainer: MinLinesConstrainer? = null
 
     /**
      * [ParagraphIntrinsics] will be initialized lazily
@@ -138,20 +138,19 @@ internal class ParagraphLayoutCache(
         constraints: Constraints,
         layoutDirection: LayoutDirection
     ): Boolean {
-        val finalConstraints = if (maxLines != Int.MAX_VALUE || minLines > 1) {
-            val localMinMax = MinMaxLinesCoercer.from(
-                minMaxLinesCoercer,
+        val finalConstraints = if (minLines > 1) {
+            val localMin = MinLinesConstrainer.from(
+                mMinLinesConstrainer,
                 layoutDirection,
                 style,
                 density!!,
                 fontFamilyResolver
             ).also {
-                minMaxLinesCoercer = it
+                mMinLinesConstrainer = it
             }
-            localMinMax.coerceMaxMinLines(
+            localMin.coerceMinLines(
                 inConstraints = constraints,
-                minLines = minLines,
-                maxLines = maxLines
+                minLines = minLines
             )
         } else {
             constraints
