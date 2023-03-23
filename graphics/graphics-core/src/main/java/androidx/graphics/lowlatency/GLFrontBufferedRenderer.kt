@@ -40,16 +40,16 @@ import java.util.concurrent.Executors
 
 /**
  * Class responsible for supporting a "front buffered" rendering system. This allows for lower
- * latency graphics by leveraging a combination of front buffered and double buffered content
+ * latency graphics by leveraging a combination of front buffered and multi buffered content
  * layers.
  * Active content is rendered first into the front buffered layer which is simultaneously being
- * presented to the display. Periodically content is rendered into the double buffered layer which
+ * presented to the display. Periodically content is rendered into the multi buffered layer which
  * will have more traditional latency guarantees, however, minimize the impact of visual artifacts
  * due to graphical tearing.
  *
- * @param surfaceView Target SurfaceView to act as the parent rendering layer for double buffered
+ * @param surfaceView Target SurfaceView to act as the parent rendering layer for multi buffered
  *  content
- * @param callback Callbacks used to render into front and double buffered layers as well as
+ * @param callback Callbacks used to render into front and multi buffered layers as well as
  *  configuring [SurfaceControlCompat.Transaction]s for controlling these layers in addition to
  *  other [SurfaceControlCompat] instances that must be updated atomically within the user
  *  interface. These callbacks are invoked on the backing GL Thread.
@@ -69,19 +69,19 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     glRenderer: GLRenderer? = null,
 ) {
     /**
-     * [ParentRenderLayer] used to contain both the front and double buffered layers
+     * [ParentRenderLayer] used to contain both the front and multi buffered layers
      */
     private val mParentRenderLayer: ParentRenderLayer<T> = SurfaceViewRenderLayer(surfaceView)
 
     /**
-     * Callbacks invoked to render into the front and double buffered layers in addition to
+     * Callbacks invoked to render into the front and multi buffered layers in addition to
      * providing consumers an opportunity to specify any potential additional interactions that must
      * be synchronized with the [SurfaceControlCompat.Transaction] to show/hide visibility of the
-     * front buffered layer as well as updating double buffered layers
+     * front buffered layer as well as updating multi buffered layers
      */
     private val mCallback = object : Callback<T> by callback {
         @WorkerThread
-        override fun onDoubleBufferedLayerRenderComplete(
+        override fun onMultiBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction
         ) {
@@ -91,7 +91,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 clearFrontBuffer()
             }
             mFrontBufferSyncStrategy.isVisible = false
-            callback.onDoubleBufferedLayerRenderComplete(
+            callback.onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl,
                 transaction
             )
@@ -160,7 +160,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             detachTargets(true)
         }
 
-        override fun obtainDoubleBufferedLayerParams(): MutableCollection<T>? =
+        override fun obtainMultiBufferedLayerParams(): MutableCollection<T>? =
             mSegments.poll()
 
         override fun getFrontBufferedLayerSurfaceControl(): SurfaceControlCompat? =
@@ -190,9 +190,9 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     private val mActiveSegment = ParamQueue<T>()
 
     /**
-     * Collection of parameters to be consumed in [Callback.onDoubleBufferedLayerRenderComplete]
+     * Collection of parameters to be consumed in [Callback.onMultiBufferedLayerRenderComplete]
      * with the parameters defined in consecutive calls to [renderFrontBufferedLayer].
-     * Once the corresponding [Callback.onDoubleBufferedLayerRenderComplete] callback is invoked,
+     * Once the corresponding [Callback.onMultiBufferedLayerRenderComplete] callback is invoked,
      * this collection is cleared and new parameters are added to it with consecutive calls to
      * [renderFrontBufferedLayer].
      */
@@ -243,7 +243,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     private var mHeight = -1
 
     /**
-     * [GLRenderer] used to issue requests to render into front/double buffered layers
+     * [GLRenderer] used to issue requests to render into front/multi buffered layers
      */
     private val mGLRenderer: GLRenderer
 
@@ -253,7 +253,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      * If the former, then the [GLFrontBufferedRenderer] is responsible for stopping/releasing this
      * [GLRenderer] in the [release] method. If this is being provided, then we should not be
      * releasing this [GLRenderer] as it maybe used by other consumers.
-     * In this case, only the front/double buffered [GLRenderer.RenderTarget]s are detached.
+     * In this case, only the front/multi buffered [GLRenderer.RenderTarget]s are detached.
      */
     private val mIsManagingGLRenderer: Boolean
 
@@ -263,9 +263,9 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     private var mFrontBufferedRenderTarget: GLRenderer.RenderTarget? = null
 
     /**
-     * [GLRenderer.RenderTarget] used to issue requests to render into the double buffered layer
+     * [GLRenderer.RenderTarget] used to issue requests to render into the multi buffered layer
      */
-    private var mDoubleBufferedLayerRenderTarget: GLRenderer.RenderTarget? = null
+    private var mMultiBufferedLayerRenderTarget: GLRenderer.RenderTarget? = null
 
     /**
      * Flag to determine if the [GLFrontBufferedRenderer] has previously been released. If this flag
@@ -302,8 +302,8 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     internal fun update(width: Int, height: Int) {
         if (mWidth != width || mHeight != height && isValid()) {
 
-            mDoubleBufferedLayerRenderTarget?.detach(true)
-            val doubleBufferTarget = mParentRenderLayer.createRenderTarget(mGLRenderer, mCallback)
+            mMultiBufferedLayerRenderTarget?.detach(true)
+            val multiBufferTarget = mParentRenderLayer.createRenderTarget(mGLRenderer, mCallback)
 
             mFrontBufferedLayerSurfaceControl?.release()
 
@@ -350,7 +350,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
             mFrontBufferedLayerRenderer = frontBufferedLayerRenderer
             mFrontBufferedLayerSurfaceControl = frontBufferedSurfaceControl
-            mDoubleBufferedLayerRenderTarget = doubleBufferTarget
+            mMultiBufferedLayerRenderTarget = multiBufferTarget
             mBufferPool = bufferPool
             mWidth = width
             mHeight = height
@@ -371,7 +371,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      * Render content to the front buffered layer providing optional parameters to be consumed in
      * [Callback.onDrawFrontBufferedLayer].
      * Additionally the parameter provided here will also be consumed in
-     * [Callback.onDrawDoubleBufferedLayer]
+     * [Callback.onDrawMultiBufferedLayer]
      * when the corresponding [commit] method is invoked, which will include all [param]s in each
      * call made to this method up to the corresponding [commit] call.
      *
@@ -393,24 +393,24 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     /**
-     * Requests to render to the double buffered layer. This schedules a call to
-     * [Callback.onDrawDoubleBufferedLayer] with the parameters provided. If the front buffered
-     * layer is visible, this will hide this layer after rendering to the double buffered layer
+     * Requests to render to the multi buffered layer. This schedules a call to
+     * [Callback.onDrawMultiBufferedLayer] with the parameters provided. If the front buffered
+     * layer is visible, this will hide this layer after rendering to the multi buffered layer
      * is complete. This is equivalent to calling [GLFrontBufferedRenderer.renderFrontBufferedLayer]
      * for each parameter provided in the collection followed by a single call to
-     * [GLFrontBufferedRenderer.commit]. This is useful for re-rendering the double buffered
+     * [GLFrontBufferedRenderer.commit]. This is useful for re-rendering the multi buffered
      * scene when the corresponding Activity is being resumed from the background in which the
      * contents should be re-drawn. Additionally this allows for applications to decide to
-     * dynamically render to either front or double buffered layers.
+     * dynamically render to either front or multi buffered layers.
      *
      * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns 'false',
      * this call is ignored.
      *
-     * @param params Parameters that to be consumed when rendering to the double buffered layer.
+     * @param params Parameters that to be consumed when rendering to the multi buffered layer.
      * These parameters will be provided in the corresponding call to
-     * [Callback.onDrawDoubleBufferedLayer]
+     * [Callback.onDrawMultiBufferedLayer]
      */
-    fun renderDoubleBufferedLayer(params: Collection<T>) {
+    fun renderMultiBufferedLayer(params: Collection<T>) {
         if (isValid()) {
             val segment = if (params is MutableCollection<T>) {
                 params
@@ -418,18 +418,18 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 ArrayList<T>().apply { addAll(params) }
             }
             mSegments.add(segment)
-            mDoubleBufferedLayerRenderTarget?.requestRender()
+            mMultiBufferedLayerRenderTarget?.requestRender()
         } else {
             Log.w(
-                TAG, "Attempt to render to the double buffered layer when " +
+                TAG, "Attempt to render to the multi buffered layer when " +
                     "GLFrontBufferedRenderer has been released"
             )
         }
     }
 
     /**
-     * Clears the contents of both the front and double buffered layers. This triggers a call to
-     * [Callback.onDoubleBufferedLayerRenderComplete] and hides the front buffered layer.
+     * Clears the contents of both the front and multi buffered layers. This triggers a call to
+     * [Callback.onMultiBufferedLayerRenderComplete] and hides the front buffered layer.
      */
     fun clear() {
         clearParamQueues()
@@ -438,9 +438,9 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     /**
-     * Requests to render the entire scene to the double buffered layer and schedules a call to
-     * [Callback.onDrawDoubleBufferedLayer]. The parameters provided to
-     * [Callback.onDrawDoubleBufferedLayer] will include each argument provided to every
+     * Requests to render the entire scene to the multi buffered layer and schedules a call to
+     * [Callback.onDrawMultiBufferedLayer]. The parameters provided to
+     * [Callback.onDrawMultiBufferedLayer] will include each argument provided to every
      * [renderFrontBufferedLayer] call since the last call to [commit] has been made.
      *
      * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns `false`,
@@ -449,10 +449,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     fun commit() {
         if (isValid()) {
             mSegments.add(mActiveSegment.release())
-            mDoubleBufferedLayerRenderTarget?.requestRender()
+            mMultiBufferedLayerRenderTarget?.requestRender()
         } else {
             Log.w(
-                TAG, "Attempt to render to the double buffered layer when " +
+                TAG, "Attempt to render to the multi buffered layer when " +
                     "GLFrontBufferedRenderer has been released"
             )
         }
@@ -460,7 +460,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     /**
      * Requests to cancel rendering and hides the front buffered layer.
-     * Unlike [commit], this does not schedule a call to render into the double buffered layer.
+     * Unlike [commit], this does not schedule a call to render into the multi buffered layer.
      *
      * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns `false`,
      * this call is ignored.
@@ -497,14 +497,14 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     internal fun detachTargets(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
         // Wrap the callback into a separate lambda to ensure it is invoked only after
-        // both the front and double buffered layer target renderers are detached
+        // both the front and multi buffered layer target renderers are detached
         var callbackCount = 0
         var expectedCount = 0
         if (mFrontBufferedRenderTarget?.isAttached() == true) {
             expectedCount++
         }
 
-        if (mDoubleBufferedLayerRenderTarget?.isAttached() == true) {
+        if (mMultiBufferedLayerRenderTarget?.isAttached() == true) {
             expectedCount++
         }
         val frontBufferedLayerSurfaceControl = mFrontBufferedLayerSurfaceControl
@@ -527,9 +527,9 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         }
         mFrontBufferedLayerSurfaceControl = null
         mFrontBufferedRenderTarget?.detach(cancelPending, wrappedCallback)
-        mDoubleBufferedLayerRenderTarget?.detach(cancelPending, wrappedCallback)
+        mMultiBufferedLayerRenderTarget?.detach(cancelPending, wrappedCallback)
         mFrontBufferedRenderTarget = null
-        mDoubleBufferedLayerRenderTarget = null
+        mMultiBufferedLayerRenderTarget = null
         mWidth = -1
         mHeight = -1
     }
@@ -537,7 +537,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     /**
      * Releases the [GLFrontBufferedRenderer] and provides an optional callback that is invoked when
      * the [GLFrontBufferedRenderer] is fully torn down. If the [cancelPending] flag is true, all
-     * pending requests to render into the front or double buffered layers will be processed before
+     * pending requests to render into the front or multi buffered layers will be processed before
      * the [GLFrontBufferedRenderer] is torn down. Otherwise all in process requests are ignored.
      * If the [GLFrontBufferedRenderer] is already released, that is [isValid] returns `false`, this
      * method does nothing.
@@ -560,7 +560,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
             // If we are managing the GLRenderer that we created ourselves
             // do not cancel pending operations as we will miss callbacks that we are
             // expecting above to properly teardown resources
-            // Instead rely on the cancel pending flags for detaching the front/double buffered
+            // Instead rely on the cancel pending flags for detaching the front/multi buffered
             // render targets instead
             mGLRenderer.stop(false)
         }
@@ -679,7 +679,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     @JvmDefaultWithCompatibility
     /**
-     * Provides callbacks for consumers to draw into the front and double buffered layers as well as
+     * Provides callbacks for consumers to draw into the front and multi buffered layers as well as
      * provide opportunities to synchronize [SurfaceControlCompat.Transaction]s to submit the layers
      * to the hardware compositor.
      */
@@ -734,10 +734,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         )
 
         /**
-         * Callback invoked to render content into the doubled buffered layer with the specified
+         * Callback invoked to render content into the multid buffered layer with the specified
          * parameters.
          * @param eglManager [EGLManager] useful in configuring EGL objects to be used when issuing
-         * OpenGL commands to render into the double buffered layer
+         * OpenGL commands to render into the multi buffered layer
          * @param bufferInfo [BufferInfo] about the buffer that is being rendered into. This
          * includes the width and height of the buffer which can be different than the corresponding
          * dimensions of the [SurfaceView] provided to the [GLFrontBufferedRenderer] as pre-rotation
@@ -769,7 +769,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          * val result = FloatArray(16)
          * Matrix.multiplyMM(result, 0, myMatrix, 0, transform, 0)
          * ```
-         * @param params optional parameter provided to render the entire scene into the double
+         * @param params optional parameter provided to render the entire scene into the multi
          * buffered layer.
          * This is a collection of all parameters provided in consecutive invocations to
          * [GLFrontBufferedRenderer.renderFrontBufferedLayer] since the last call to
@@ -799,7 +799,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          * is being rendered into taking into account pre-rotation transformations
          */
         @WorkerThread
-        fun onDrawDoubleBufferedLayer(
+        fun onDrawMultiBufferedLayer(
             eglManager: EGLManager,
             bufferInfo: BufferInfo,
             transform: FloatArray,
@@ -828,7 +828,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
         }
 
         /**
-         * Optional callback invoked when rendering to the double buffered layer is complete but
+         * Optional callback invoked when rendering to the multi buffered layer is complete but
          * before the buffers are submitted to the hardware compositor.
          * This provides consumers a mechanism for synchronizing the transaction with other
          * [SurfaceControlCompat] objects that maybe rendered within the scene.
@@ -838,10 +838,10 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
          * of the [SurfaceControlCompat] like z-ordering or visibility with the corresponding
          * [SurfaceControlCompat.Transaction].
          * @param transaction Current [SurfaceControlCompat.Transaction] to apply updated buffered
-         * content to the double buffered layer.
+         * content to the multi buffered layer.
          */
         @WorkerThread
-        fun onDoubleBufferedLayerRenderComplete(
+        fun onMultiBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             transaction: SurfaceControlCompat.Transaction
         ) {
