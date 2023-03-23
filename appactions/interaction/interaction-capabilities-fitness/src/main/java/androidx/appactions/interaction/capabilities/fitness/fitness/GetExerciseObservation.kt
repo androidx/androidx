@@ -23,7 +23,7 @@ import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import java.time.LocalTime
 import java.util.Optional
@@ -40,17 +40,19 @@ private val ACTION_SPEC =
             GetExerciseObservation.Argument::Builder
         )
         .setOutput(GetExerciseObservation.Output::class.java)
-        .bindStructParameter(
+        .bindOptionalGenericParameter(
             "healthObservation.startTime",
             { property -> Optional.ofNullable(property.startTime) },
             GetExerciseObservation.Argument.Builder::setStartTime,
-            TypeConverters::toLocalTime
+            TypeConverters::toLocalTime,
+            TypeConverters::toEntity
         )
-        .bindStructParameter(
+        .bindOptionalGenericParameter(
             "healthObservation.endTime",
             { property -> Optional.ofNullable(property.endTime) },
             GetExerciseObservation.Argument.Builder::setEndTime,
-            TypeConverters::toLocalTime
+            TypeConverters::toLocalTime,
+            TypeConverters::toEntity
         )
         .build()
 
@@ -61,11 +63,11 @@ class GetExerciseObservation private constructor() {
             CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
             >(ACTION_SPEC) {
         private var propertyBuilder: Property.Builder = Property.Builder()
-        fun setStartTimeProperty(startTime: SimpleProperty): CapabilityBuilder = apply {
+        fun setStartTimeProperty(startTime: TypeProperty<LocalTime>): CapabilityBuilder = apply {
             propertyBuilder.setEndTime(startTime)
         }
 
-        fun setEndTimeProperty(endTime: SimpleProperty): CapabilityBuilder = apply {
+        fun setEndTimeProperty(endTime: TypeProperty<LocalTime>): CapabilityBuilder = apply {
             propertyBuilder.setEndTime(endTime)
         }
 
@@ -78,8 +80,8 @@ class GetExerciseObservation private constructor() {
 
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor(
-        val startTime: SimpleProperty?,
-        val endTime: SimpleProperty?
+        val startTime: TypeProperty<LocalTime>?,
+        val endTime: TypeProperty<LocalTime>?
     ) {
         override fun toString(): String {
             return "Property(startTime=$startTime, endTime=$endTime)"
@@ -104,13 +106,13 @@ class GetExerciseObservation private constructor() {
         }
 
         class Builder {
-            private var startTime: SimpleProperty? = null
-            private var endTime: SimpleProperty? = null
+            private var startTime: TypeProperty<LocalTime>? = null
+            private var endTime: TypeProperty<LocalTime>? = null
 
-            fun setStartTime(startTime: SimpleProperty): Builder =
+            fun setStartTime(startTime: TypeProperty<LocalTime>): Builder =
                 apply { this.startTime = startTime }
 
-            fun setEndTime(endTime: SimpleProperty): Builder =
+            fun setEndTime(endTime: TypeProperty<LocalTime>): Builder =
                 apply { this.endTime = endTime }
 
             fun build(): Property = Property(startTime, endTime)

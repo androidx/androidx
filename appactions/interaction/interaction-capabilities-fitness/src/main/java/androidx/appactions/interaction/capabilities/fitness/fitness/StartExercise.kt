@@ -23,7 +23,6 @@ import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
@@ -39,11 +38,12 @@ private val ACTION_SPEC =
         .setDescriptor(StartExercise.Property::class.java)
         .setArgument(StartExercise.Argument::class.java, StartExercise.Argument::Builder)
         .setOutput(StartExercise.Output::class.java)
-        .bindStructParameter(
+        .bindOptionalGenericParameter(
             "exercise.duration",
             { property -> Optional.ofNullable(property.duration) },
             StartExercise.Argument.Builder::setDuration,
-            TypeConverters::toDuration
+            TypeConverters::toDuration,
+            TypeConverters::toEntity
         )
         .bindOptionalStringParameter(
             "exercise.name",
@@ -58,7 +58,7 @@ class StartExercise private constructor() {
         CapabilityBuilderBase<
             CapabilityBuilder, Property, Argument, Output, Confirmation, TaskUpdater, Session
             >(ACTION_SPEC) {
-        fun setDurationProperty(duration: SimpleProperty): CapabilityBuilder =
+        fun setDurationProperty(duration: TypeProperty<Duration>): CapabilityBuilder =
             apply {
                 Property.Builder().setDuration(duration).build()
             }
@@ -77,7 +77,7 @@ class StartExercise private constructor() {
 
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor(
-        val duration: SimpleProperty?,
+        val duration: TypeProperty<Duration>?,
         val name: TypeProperty<StringValue>?
     ) {
         override fun toString(): String {
@@ -103,10 +103,10 @@ class StartExercise private constructor() {
         }
 
         class Builder {
-            private var duration: SimpleProperty? = null
+            private var duration: TypeProperty<Duration>? = null
             private var name: TypeProperty<StringValue>? = null
 
-            fun setDuration(duration: SimpleProperty): Builder =
+            fun setDuration(duration: TypeProperty<Duration>): Builder =
                 apply { this.duration = duration }
 
             fun setName(name: TypeProperty<StringValue>): Builder =

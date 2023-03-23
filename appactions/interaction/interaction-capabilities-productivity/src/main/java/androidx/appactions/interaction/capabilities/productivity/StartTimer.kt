@@ -24,7 +24,6 @@ import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
@@ -53,11 +52,12 @@ private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
         { property -> Optional.ofNullable(property.name) },
         StartTimer.Argument.Builder::setName
     )
-    .bindStructParameter(
+    .bindOptionalGenericParameter(
         "timer.duration",
         { property -> Optional.ofNullable(property.duration) },
         StartTimer.Argument.Builder::setDuration,
-        TypeConverters::toDuration
+        TypeConverters::toDuration,
+        TypeConverters::toEntity
     )
     .bindOptionalOutput(
         "executionStatus",
@@ -99,7 +99,7 @@ class StartTimer private constructor() {
     class Property internal constructor(
         val identifier: TypeProperty<StringValue>?,
         val name: TypeProperty<StringValue>?,
-        val duration: SimpleProperty?
+        val duration: TypeProperty<Duration>?
     ) {
         override fun toString(): String {
             return "Property(identifier=$identifier,name=$name,duration=$duration}"
@@ -128,7 +128,7 @@ class StartTimer private constructor() {
         class Builder {
             private var identifier: TypeProperty<StringValue>? = null
             private var name: TypeProperty<StringValue>? = null
-            private var duration: SimpleProperty? = null
+            private var duration: TypeProperty<Duration>? = null
 
             fun setIdentifier(identifier: TypeProperty<StringValue>): Builder =
                 apply { this.identifier = identifier }
@@ -136,7 +136,7 @@ class StartTimer private constructor() {
             fun setName(name: TypeProperty<StringValue>): Builder =
                 apply { this.name = name }
 
-            fun setDuration(duration: SimpleProperty): Builder =
+            fun setDuration(duration: TypeProperty<Duration>): Builder =
                 apply { this.duration = duration }
 
             fun build(): Property = Property(identifier, name, duration)

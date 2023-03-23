@@ -23,7 +23,6 @@ import androidx.appactions.interaction.capabilities.core.CapabilityFactory
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.Call
@@ -48,17 +47,14 @@ private val ACTION_SPEC =
             { property -> Optional.ofNullable(property.callFormat) },
             CreateCall.Argument.Builder::setCallFormat,
             TypeConverters::toCallFormat,
-            {
-                androidx.appactions.interaction.proto.Entity.newBuilder()
-                    .setIdentifier(it.toString())
-                    .build()
-            },
+            TypeConverters::toEntity
         )
-        .bindRepeatedStructParameter(
+        .bindRepeatedGenericParameter(
             "call.participant",
             { property -> Optional.ofNullable(property.participant) },
             CreateCall.Argument.Builder::setParticipantList,
-            TypeConverters::toParticipant
+            TypeConverters::toParticipant,
+            TypeConverters::toEntity
         )
         .bindOptionalOutput(
             "call",
@@ -90,7 +86,7 @@ class CreateCall private constructor() {
     class Property
     internal constructor(
         val callFormat: TypeProperty<CallFormat>?,
-        val participant: SimpleProperty?
+        val participant: TypeProperty<Participant>?
     ) {
         override fun toString(): String {
             return "Property(callFormat=$callFormat, participant=$participant)"
@@ -117,7 +113,7 @@ class CreateCall private constructor() {
         class Builder {
             private var callFormat: TypeProperty<CallFormat>? = null
 
-            private var participant: SimpleProperty? = null
+            private var participant: TypeProperty<Participant>? = null
 
             fun setCallFormat(callFormat: TypeProperty<CallFormat>): Builder = apply {
                 this.callFormat = callFormat

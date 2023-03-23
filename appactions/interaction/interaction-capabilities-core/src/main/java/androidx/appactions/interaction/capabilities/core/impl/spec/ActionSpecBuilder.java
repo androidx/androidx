@@ -26,7 +26,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.Propert
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter;
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ParamBinding.ArgumentSetter;
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
 import androidx.appactions.interaction.capabilities.core.values.EntityValue;
@@ -388,51 +387,6 @@ public final class ActionSpecBuilder<
                 });
     }
 
-    @NonNull
-    public <T>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT> bindStructParameter(
-                    @NonNull String paramName,
-                    @NonNull
-                            Function<? super PropertyT, Optional<SimpleProperty>>
-                                    optionalPropertyGetter,
-                    @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
-                    @NonNull ParamValueConverter<T> paramValueConverter) {
-        return bindParameter(
-                paramName,
-                property ->
-                        optionalPropertyGetter
-                                .apply(property)
-                                .map(p -> PropertyConverter.getIntentParameter(paramName, p)),
-                (argBuilder, paramList) ->
-                        paramConsumer.accept(
-                                argBuilder,
-                                SlotTypeConverter.ofSingular(paramValueConverter)
-                                        .convert(paramList)));
-    }
-
-    @NonNull
-    public <T>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
-                    bindRepeatedStructParameter(
-                            @NonNull String paramName,
-                            @NonNull
-                                    Function<? super PropertyT, Optional<SimpleProperty>>
-                                            optionalPropertyGetter,
-                            @NonNull BiConsumer<? super ArgumentBuilderT, List<T>> paramConsumer,
-                            @NonNull ParamValueConverter<T> paramValueConverter) {
-        return bindParameter(
-                paramName,
-                property ->
-                        optionalPropertyGetter
-                                .apply(property)
-                                .map(p -> PropertyConverter.getIntentParameter(paramName, p)),
-                (argBuilder, paramList) ->
-                        paramConsumer.accept(
-                                argBuilder,
-                                SlotTypeConverter.ofRepeated(paramValueConverter)
-                                        .convert(paramList)));
-    }
-
     /**
      * Binds an optional string parameter.
      *
@@ -521,80 +475,6 @@ public final class ActionSpecBuilder<
                         paramConsumer.accept(
                                 argBuilder,
                                 SlotTypeConverter.ofRepeated(TypeConverters::toStringValue)
-                                        .convert(paramList));
-                    }
-                });
-    }
-
-    /**
-     * Binds the integer parameter name and setter.
-     *
-     * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
-     * If the Property Optional is not set, this parameter will not exist in the parameter
-     * definition of the capability.
-     *
-     * @param paramName the name of this action' parameter.
-     * @param optionalPropertyGetter
-     * @param paramConsumer a setter to set the int value in the argument builder.
-     * @return the builder itself.
-     */
-    @NonNull
-    public ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
-            bindOptionalIntegerParameter(
-                    @NonNull String paramName,
-                    @NonNull
-                            Function<? super PropertyT, Optional<SimpleProperty>>
-                                    optionalPropertyGetter,
-                    @NonNull BiConsumer<? super ArgumentBuilderT, Integer> paramConsumer) {
-        return bindParameter(
-                paramName,
-                property ->
-                        optionalPropertyGetter
-                                .apply(property)
-                                .map(e -> PropertyConverter.getIntentParameter(paramName, e)),
-                (argBuilder, paramList) -> {
-                    if (!paramList.isEmpty()) {
-                        paramConsumer.accept(
-                                argBuilder,
-                                SlotTypeConverter.ofSingular(TypeConverters::toIntegerValue)
-                                        .convert(paramList));
-                    }
-                });
-    }
-
-    /**
-     * Binds a Boolean parameter.
-     *
-     * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
-     * If the Property Optional is not set, this parameter will not exist in the parameter
-     * definition of the capability.
-     *
-     * @param paramName the name of this action' parameter.
-     * @param paramConsumer a setter to set the boolean value in the argument builder.
-     * @param optionalPropertyGetter an optional getter of the SimpleProperty from the property,
-     *     which may be able to fetch a non-null {@code SimpleProperty} from {@code PropertyT}, or
-     *     get {@link Optional#empty}.
-     * @return the builder itself.
-     */
-    @NonNull
-    public ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
-            bindOptionalBooleanParameter(
-                    @NonNull String paramName,
-                    @NonNull
-                            Function<? super PropertyT, Optional<SimpleProperty>>
-                                    optionalPropertyGetter,
-                    @NonNull BiConsumer<? super ArgumentBuilderT, Boolean> paramConsumer) {
-        return bindParameter(
-                paramName,
-                property ->
-                        optionalPropertyGetter
-                                .apply(property)
-                                .map(e -> PropertyConverter.getIntentParameter(paramName, e)),
-                (argBuilder, paramList) -> {
-                    if (!paramList.isEmpty()) {
-                        paramConsumer.accept(
-                                argBuilder,
-                                SlotTypeConverter.ofSingular(TypeConverters::toBooleanValue)
                                         .convert(paramList));
                     }
                 });
