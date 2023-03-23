@@ -3109,6 +3109,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             // Tell the fragment's new view about it before we tell anyone listening
             // to mViewLifecycleOwnerLiveData and before onViewCreated, so that calls to
             // ViewTree get() methods return something meaningful
+            if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                Log.d(FragmentManager.TAG, "Setting ViewLifecycleOwner on View " + mView
+                        + " for Fragment " + this);
+            }
             ViewTreeLifecycleOwner.set(mView, mViewLifecycleOwner);
             ViewTreeViewModelStoreOwner.set(mView, mViewLifecycleOwner);
             ViewTreeSavedStateRegistryOwner.set(mView, mViewLifecycleOwner);
