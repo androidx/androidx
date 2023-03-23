@@ -74,7 +74,9 @@ final class ProcessingInput2Packet implements
                 throw new ImageCaptureException(ERROR_FILE_IO, "Failed to extract EXIF data.", e);
             }
         }
-        if (EXIF_ROTATION_AVAILABILITY.shouldUseExifOrientation(image)) {
+        if (EXIF_ROTATION_AVAILABILITY.shouldUseExifOrientation(image)
+                && !inputPacket.isVirtualCamera()) {
+            // Virtual camera doesn't respect the CaptureRequest rotation degrees.
             checkNotNull(exif, "JPEG image must have exif.");
             return createPacketWithHalRotation(request, exif, image);
         }
