@@ -75,6 +75,11 @@ package androidx.benchmark.macro {
     property public final String packageName;
   }
 
+  @androidx.benchmark.macro.ExperimentalMetricApi public final class MemoryCountersMetric extends androidx.benchmark.macro.TraceMetric {
+    ctor public MemoryCountersMetric();
+    method public java.util.List<androidx.benchmark.macro.Metric.Measurement> getResult(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
+  }
+
   public abstract sealed class Metric {
   }
 
