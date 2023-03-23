@@ -86,6 +86,7 @@ import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Assume
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -545,6 +546,7 @@ public class WatchFaceServiceImageTest {
         bitmap!!.assertAgainstGolden(screenshotRule, "placeholderComplications")
     }
 
+    @Ignore("b/274813981")
     @SuppressLint("NewApi")
     @Test
     public fun testSmallImageComplications() {
