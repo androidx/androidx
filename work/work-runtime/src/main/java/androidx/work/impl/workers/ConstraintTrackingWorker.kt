@@ -23,9 +23,13 @@ import androidx.work.ListenableWorker.Result
 import androidx.work.Logger
 import androidx.work.WorkerParameters
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.constraints.WorkConstraintsCallback
-import androidx.work.impl.constraints.WorkConstraintsTrackerImpl
+import androidx.work.impl.constraints.ConstraintsState
+import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
+import androidx.work.impl.constraints.OnConstraintsStateChangedListener
+import androidx.work.impl.constraints.WorkConstraintsTracker
+import androidx.work.impl.constraints.listen
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.util.concurrent.ListenableFuture
 
@@ -38,7 +42,7 @@ import com.google.common.util.concurrent.ListenableFuture
 class ConstraintTrackingWorker(
     appContext: Context,
     private val workerParameters: WorkerParameters
-) : ListenableWorker(appContext, workerParameters), WorkConstraintsCallback {
+) : ListenableWorker(appContext, workerParameters), OnConstraintsStateChangedListener {
 
     private val lock = Any()
 
@@ -86,11 +90,13 @@ class ConstraintTrackingWorker(
             future.setFailed()
             return
         }
-        val workConstraintsTracker = WorkConstraintsTrackerImpl(workManagerImpl.trackers, this)
+        val workConstraintsTracker = WorkConstraintsTracker(workManagerImpl.trackers)
 
         // Start tracking
-        workConstraintsTracker.replace(listOf(workSpec))
-        if (workConstraintsTracker.areAllConstraintsMet(id.toString())) {
+        val dispatcher = workManagerImpl.workTaskExecutor.taskCoroutineDispatcher
+        val job = workConstraintsTracker.listen(workSpec, dispatcher, this)
+        future.addListener({ job.cancel(null) }, SynchronousExecutor())
+        if (workConstraintsTracker.areAllConstraintsMet(workSpec)) {
             logger.debug(TAG, "Constraints met for delegate $className")
 
             // Wrapping the call to mDelegate#doWork() in a try catch, because
@@ -137,15 +143,12 @@ class ConstraintTrackingWorker(
         }
     }
 
-    override fun onAllConstraintsMet(workSpecs: List<WorkSpec>) {
-        // WorkConstraintTracker notifies on the main thread. So we don't want to trampoline
-        // between the background thread and the main thread in this case.
-    }
-
-    override fun onAllConstraintsNotMet(workSpecs: List<WorkSpec>) {
+    override fun onConstraintsStateChanged(workSpec: WorkSpec, state: ConstraintsState) {
         // If at any point, constraints are not met mark it so we can retry the work.
-        Logger.get().debug(TAG, "Constraints changed for $workSpecs")
-        synchronized(lock) { areConstraintsUnmet = true }
+        Logger.get().debug(TAG, "Constraints changed for $workSpec")
+        if (state == ConstraintsNotMet) {
+            synchronized(lock) { areConstraintsUnmet = true }
+        }
     }
 }
 
