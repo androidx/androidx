@@ -21,7 +21,6 @@ import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -286,11 +285,13 @@ object Release {
      * Registers an archive task as a dependency of the anchor task
      */
     private fun Project.addToAnchorTask(task: TaskProvider<GMavenZipTask>) {
-        val archiveAnchorTask = project.rootProject.maybeRegister(
+        val archiveAnchorTask: TaskProvider<VerifyVersionFilesTask> =
+        project.rootProject.maybeRegister(
             name = ALL_ARCHIVES_TASK_NAME,
-            onConfigure = { archiveTask: Task ->
+            onConfigure = { archiveTask: VerifyVersionFilesTask ->
                 archiveTask.group = "Distribution"
                 archiveTask.description = "Builds all archives for publishing"
+                archiveTask.repositoryDirectory = project.rootProject.getRepositoryDirectory()
             },
             onRegister = {
             }
