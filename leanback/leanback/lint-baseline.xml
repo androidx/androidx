@@ -1574,6 +1574,9 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"/>
+        <location
+            file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -1583,6 +1586,9 @@
         errorLine2="                             ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"/>
+        <location
+            file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
+            message="Setter here"/>
     </issue>
 
     <issue

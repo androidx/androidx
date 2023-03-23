@@ -2055,6 +2055,15 @@
 
     <issue
         id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class androidx.core.app.NotificationManagerCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    mContext.checkSelfPermission(Manifest.permission.USE_FULL_SCREEN_INTENT);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationManagerCompat.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
         message="This call references a method added in API level 28; however, the containing class androidx.core.text.PrecomputedTextCompat.Params is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                mWrapped = new PrecomputedText.Params.Builder(paint)"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -3365,6 +3374,9 @@
         errorLine2="                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3374,6 +3386,9 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3383,6 +3398,9 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3392,6 +3410,9 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3401,6 +3422,9 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3419,6 +3443,9 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue
@@ -3428,6 +3455,9 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            message="Setter here"/>
     </issue>
 
     <issue

@@ -73,6 +73,7 @@ public class MaterialGoldenXLTest {
         return (int) ((px - 0.5f) / scale);
     }
 
+    @SuppressWarnings("deprecation")
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();

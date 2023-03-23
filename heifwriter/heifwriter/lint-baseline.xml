@@ -49,6 +49,15 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected static String findAv1Fallback() {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/AvifEncoder.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static FloatBuffer createFloatBuffer(float[] coords) {"
         errorLine2="                  ~~~~~~~~~~~">
         <location
@@ -112,8 +121,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Surface getSurface() {"
-        errorLine2="           ~~~~~~~">
+        errorLine1="    public EglWindowSurface(Surface surface, boolean useHighBitDepth) {"
+        errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/heifwriter/EglWindowSurface.java"/>
     </issue>
@@ -121,8 +130,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        protected static String findHevcFallback() {"
-        errorLine2="               ~~~~~~~">
+        errorLine1="    protected static String findHevcFallback() {"
+        errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/heifwriter/HeifEncoder.java"/>
     </issue>
