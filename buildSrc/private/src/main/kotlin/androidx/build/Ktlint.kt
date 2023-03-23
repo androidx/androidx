@@ -233,6 +233,7 @@ abstract class KtlintFormatTask : BaseKtlintTask() {
             javaExecSpec.mainClass.set(MainClass)
             javaExecSpec.classpath = ktlintClasspath
             javaExecSpec.args = getArgsList(shouldFormat = true)
+            javaExecSpec.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
             overrideDirectory?.let { javaExecSpec.workingDir = it }
         }
     }
