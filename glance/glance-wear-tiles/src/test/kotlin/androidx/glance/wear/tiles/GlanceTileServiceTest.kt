@@ -41,6 +41,7 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.runBlocking
@@ -92,10 +93,11 @@ class GlanceTileServiceTest {
         )
 
         executor = InlineExecutorService()
-        tileServiceWithState = TestGlanceTileServiceWithState()
+        tileServiceWithState = TestGlanceTileServiceWithState(fakeCoroutineScope)
         tileServiceClientWithState = TestTileClient(
             tileServiceWithState,
-            executor
+            fakeCoroutineScope,
+            fakeCoroutineScope.coroutineContext[CoroutineDispatcher]!!
         )
 
         ovalBitmap =
@@ -248,7 +250,9 @@ class GlanceTileServiceTest {
 
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
         val tileFuture = tileServiceClientWithState.requestTile(tileRequest)
+
         shadowOf(Looper.getMainLooper()).idle()
+
         val tile = tileFuture.await()
 
         assertThat(tile.timeline!!.timelineEntries).hasSize(1)
@@ -319,6 +323,7 @@ class GlanceTileServiceTest {
                 testTimelineMode.timeIntervals.elementAt(0) -> {
                     Text("No event")
                 }
+
                 testTimelineMode.timeIntervals.elementAt(1) -> {
                     Text("Coffee")
                     Image(
@@ -328,6 +333,7 @@ class GlanceTileServiceTest {
                         contentScale = ContentScale.FillBounds
                     )
                 }
+
                 testTimelineMode.timeIntervals.elementAt(2) -> {
                     Text("Work")
                     Image(
@@ -336,6 +342,7 @@ class GlanceTileServiceTest {
                         modifier = GlanceModifier.size(40.dp),
                     )
                 }
+
                 testTimelineMode.timeIntervals.elementAt(3) -> {
                     Text("Dinner")
                 }
@@ -343,8 +350,14 @@ class GlanceTileServiceTest {
         }
     }
 
-    private inner class TestGlanceTileServiceWithState : GlanceTileService() {
+    private inner class TestGlanceTileServiceWithState(scope: CoroutineScope) :
+        GlanceTileService() {
         override val stateDefinition = PreferencesGlanceStateDefinition
+
+        init {
+            stateDefinition.setCoroutineScope(scope)
+        }
+
         val prefsNameKey = stringPreferencesKey("user_name")
 
         @Composable
