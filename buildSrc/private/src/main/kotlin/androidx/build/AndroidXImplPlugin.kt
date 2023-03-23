@@ -939,6 +939,35 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                     dependencyConstraint
                 )
             }
+
+            // disallow duplicate constraints
+            project.configurations.all { config ->
+                // find all constraints contributed by this Configuration and its ancestors
+                val configurationConstraints: MutableSet<String> = mutableSetOf()
+                config.hierarchy.forEach { parentConfig ->
+                    parentConfig.dependencyConstraints.configureEach { dependencyConstraint ->
+                        dependencyConstraint.apply {
+                            if (
+                                versionConstraint.requiredVersion != "" &&
+                                versionConstraint.requiredVersion != "unspecified"
+                            ) {
+                                val key =
+                                    "${dependencyConstraint.group}:${dependencyConstraint.name}"
+                                if (configurationConstraints.contains(key)) {
+                                    throw GradleException(
+                                        "Constraint on $key was added multiple times in " +
+                                        "$config (version = " +
+                                        "${versionConstraint.requiredVersion}).\n\n" +
+                                        "This is unnecessary and can also trigger " +
+                                        "https://github.com/gradle/gradle/issues/24037 in " +
+                                        "builds trying to use the resulting artifacts.")
+                                }
+                                configurationConstraints.add(key)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
