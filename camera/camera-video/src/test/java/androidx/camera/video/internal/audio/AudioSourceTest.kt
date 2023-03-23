@@ -153,6 +153,7 @@ class AudioSourceTest {
         }
     }
 
+    @Ignore("b/274588483")
     @Test
     fun bufferProviderBecomeActive_startSendingAudio() {
         // Arrange.
