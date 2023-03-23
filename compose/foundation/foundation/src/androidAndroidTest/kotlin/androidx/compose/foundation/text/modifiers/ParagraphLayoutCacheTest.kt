@@ -18,11 +18,8 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.toIntPx
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -39,7 +36,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class MultiParagraphLayoutCacheTest {
+class ParagraphLayoutCacheTest {
 
     private val fontFamily = TEST_FONT_FAMILY
     private val density = Density(density = 1f)
@@ -51,17 +48,13 @@ class MultiParagraphLayoutCacheTest {
         with(density) {
             val fontSize = 20.sp
             val text = "Hello"
-            val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(text, spanStyle)
-            val textDelegate = MultiParagraphLayoutCache(
-                text = annotatedString,
-                style = TextStyle.Default,
+            val textDelegate = ParagraphLayoutCache(
+                text = text,
+                style = TextStyle(fontSize = fontSize, fontFamily = fontFamily),
                 fontFamilyResolver = fontFamilyResolver,
             ).also {
                 it.density = this
             }
-
-            textDelegate.layoutWithConstraints(Constraints.fixed(0, 0), LayoutDirection.Ltr)
 
             assertThat(textDelegate.minIntrinsicWidth(LayoutDirection.Ltr))
                 .isEqualTo((fontSize.toPx() * text.length).toIntPx())
@@ -73,17 +66,13 @@ class MultiParagraphLayoutCacheTest {
         with(density) {
             val fontSize = 20.sp
             val text = "Hello"
-            val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val annotatedString = AnnotatedString(text, spanStyle)
-            val textDelegate = MultiParagraphLayoutCache(
-                text = annotatedString,
-                style = TextStyle.Default,
+            val textDelegate = ParagraphLayoutCache(
+                text = text,
+                style = TextStyle(fontSize = fontSize, fontFamily = fontFamily),
                 fontFamilyResolver = fontFamilyResolver,
             ).also {
                 it.density = this
             }
-
-            textDelegate.layoutWithConstraints(Constraints.fixed(0, 0), LayoutDirection.Ltr)
 
             assertThat(textDelegate.maxIntrinsicWidth(LayoutDirection.Ltr))
                 .isEqualTo((fontSize.toPx() * text.length).toIntPx())
@@ -92,8 +81,8 @@ class MultiParagraphLayoutCacheTest {
 
     @Test
     fun TextLayoutInput_reLayout_withDifferentHeight() {
-        val textDelegate = MultiParagraphLayoutCache(
-            text = AnnotatedString("Hello World"),
+        val textDelegate = ParagraphLayoutCache(
+            text = "Hello World",
             style = TextStyle.Default,
             fontFamilyResolver = fontFamilyResolver,
         ).also {
@@ -105,22 +94,22 @@ class MultiParagraphLayoutCacheTest {
 
         val constraintsFirstLayout = Constraints.fixed(width, heightFirstLayout)
         textDelegate.layoutWithConstraints(constraintsFirstLayout, LayoutDirection.Ltr)
-        val resultFirstLayout = textDelegate.textLayoutResult
-        assertThat(resultFirstLayout.layoutInput.constraints).isEqualTo(constraintsFirstLayout)
+        val resultFirstLayout = textDelegate.layoutSize
 
         val constraintsSecondLayout = Constraints.fixed(width, heightSecondLayout)
         textDelegate.layoutWithConstraints(
             constraintsSecondLayout,
             LayoutDirection.Ltr
         )
-        val resultSecondLayout = textDelegate.textLayoutResult
-        assertThat(resultSecondLayout.layoutInput.constraints).isEqualTo(constraintsSecondLayout)
+        val resultSecondLayout = textDelegate.layoutSize
+
+        assertThat(resultFirstLayout.height).isLessThan(resultSecondLayout.height)
     }
 
     @Test
     fun TextLayoutResult_reLayout_withDifferentHeight() {
-        val textDelegate = MultiParagraphLayoutCache(
-            text = AnnotatedString("Hello World"),
+        val textDelegate = ParagraphLayoutCache(
+            text = "Hello World",
             style = TextStyle.Default,
             fontFamilyResolver = fontFamilyResolver,
         ).also {
@@ -132,24 +121,23 @@ class MultiParagraphLayoutCacheTest {
 
         val constraintsFirstLayout = Constraints.fixed(width, heightFirstLayout)
         textDelegate.layoutWithConstraints(constraintsFirstLayout, LayoutDirection.Ltr)
-        val resultFirstLayout = textDelegate.textLayoutResult
-        assertThat(resultFirstLayout.size.height).isEqualTo(heightFirstLayout)
+        val resultFirstLayout = textDelegate.layoutSize
+        assertThat(resultFirstLayout.height).isEqualTo(heightFirstLayout)
 
         val constraintsSecondLayout = Constraints.fixed(width, heightSecondLayout)
         textDelegate.layoutWithConstraints(
             constraintsSecondLayout,
             LayoutDirection.Ltr
         )
-        val resultSecondLayout = textDelegate.textLayoutResult
-        assertThat(resultSecondLayout.size.height).isEqualTo(heightSecondLayout)
+        val resultSecondLayout = textDelegate.layoutSize
+        assertThat(resultSecondLayout.height).isEqualTo(heightSecondLayout)
     }
 
     @Test
     fun TextLayoutResult_layout_withEllipsis_withoutSoftWrap() {
         val fontSize = 20f
-        val text = AnnotatedString(text = "Hello World! Hello World! Hello World! Hello World!")
-        val textDelegate = MultiParagraphLayoutCache(
-            text = text,
+        val textDelegate = ParagraphLayoutCache(
+            text = "Hello World! Hello World! Hello World! Hello World!",
             style = TextStyle(fontSize = fontSize.sp),
             fontFamilyResolver = fontFamilyResolver,
             softWrap = false,
@@ -163,7 +151,7 @@ class MultiParagraphLayoutCacheTest {
         val width = textDelegate.maxIntrinsicWidth(LayoutDirection.Ltr) / 2
         val constraints = Constraints(maxWidth = width)
         textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        val layoutResult = textDelegate.textLayoutResult
+        val layoutResult = textDelegate.paragraph!!
 
         assertThat(layoutResult.lineCount).isEqualTo(1)
         assertThat(layoutResult.isLineEllipsized(0)).isTrue()
@@ -172,10 +160,9 @@ class MultiParagraphLayoutCacheTest {
     @Test
     fun TextLayoutResult_layoutWithLimitedHeight_withEllipsis() {
         val fontSize = 20f
-        val text = AnnotatedString(text = "Hello World! Hello World! Hello World! Hello World!")
 
-        val textDelegate = MultiParagraphLayoutCache(
-            text = text,
+        val textDelegate = ParagraphLayoutCache(
+            text = "Hello World! Hello World! Hello World! Hello World!",
             style = TextStyle(fontSize = fontSize.sp),
             fontFamilyResolver = fontFamilyResolver,
             overflow = TextOverflow.Ellipsis,
@@ -188,7 +175,7 @@ class MultiParagraphLayoutCacheTest {
             maxHeight = (fontSize * 2.7).roundToInt() // fully fits at most 2 lines
         )
         textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        val layoutResult = textDelegate.textLayoutResult
+        val layoutResult = textDelegate.paragraph!!
 
         assertThat(layoutResult.lineCount).isEqualTo(2)
         assertThat(layoutResult.isLineEllipsized(1)).isTrue()
@@ -197,10 +184,9 @@ class MultiParagraphLayoutCacheTest {
     @Test
     fun TextLayoutResult_sameWidth_inRtlAndLtr_withLetterSpacing() {
         val fontSize = 20f
-        val text = AnnotatedString(text = "Hello World")
 
-        val textDelegate = MultiParagraphLayoutCache(
-            text = text,
+        val textDelegate = ParagraphLayoutCache(
+            text = "Hello World",
             style = TextStyle(fontSize = fontSize.sp, letterSpacing = 0.5.sp),
             fontFamilyResolver = fontFamilyResolver,
             overflow = TextOverflow.Ellipsis,
@@ -209,24 +195,17 @@ class MultiParagraphLayoutCacheTest {
         }
 
         textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
-        val layoutResultLtr = textDelegate.textLayoutResult
+        val layoutResultLtr = textDelegate.layoutSize
         textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Rtl)
-        val layoutResultRtl = textDelegate.textLayoutResult
+        val layoutResultRtl = textDelegate.layoutSize
 
-        assertThat(layoutResultLtr.size.width).isEqualTo(layoutResultRtl.size.width)
+        assertThat(layoutResultLtr.width).isEqualTo(layoutResultRtl.width)
     }
 
     @Test
     fun maxHeight_hasSameHeight_asParagraph() {
-        val text = buildAnnotatedString {
-            for (i in 1..100 step 10) {
-                pushStyle(SpanStyle(fontSize = i.sp))
-                append("$i.sp\n")
-                pop()
-            }
-        }
-
-        val textDelegate = MultiParagraphLayoutCache(
+        val text = "a\n".repeat(20)
+        val textDelegate = ParagraphLayoutCache(
             text = text,
             style = TextStyle(fontSize = 1.sp),
             fontFamilyResolver = fontFamilyResolver,
@@ -236,15 +215,15 @@ class MultiParagraphLayoutCacheTest {
             it.density = density
         }
         textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
-        val actual = textDelegate.textLayoutResult.multiParagraph
+        val actual = textDelegate.paragraph!!
 
         val expected = Paragraph(
-            text.text,
+            text,
             TextStyle(fontSize = 1.sp),
             Constraints(),
             density,
             fontFamilyResolver,
-            text.spanStyles,
+            emptyList(),
             maxLines = 5,
             ellipsis = true
         )
