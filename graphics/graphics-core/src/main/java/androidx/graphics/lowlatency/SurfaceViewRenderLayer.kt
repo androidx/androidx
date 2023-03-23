@@ -120,7 +120,7 @@ internal class SurfaceViewRenderLayer<T>(
                         this.width = mBufferTransform.glWidth
                         this.height = mBufferTransform.glHeight
                     }
-                    renderLayerCallback.onDrawDoubleBufferedLayer(
+                    renderLayerCallback.onDrawMultiBufferedLayer(
                         eglManager,
                         bufferInfo,
                         mBufferTransform.transform,
@@ -155,7 +155,7 @@ internal class SurfaceViewRenderLayer<T>(
                             transaction.setBufferTransform(sc, inverse)
                         }
 
-                        renderLayerCallback.onDoubleBufferedLayerRenderComplete(
+                        renderLayerCallback.onMultiBufferedLayerRenderComplete(
                             frontBufferedLayerSurfaceControl,
                             transaction
                         )
@@ -169,7 +169,7 @@ internal class SurfaceViewRenderLayer<T>(
                 }
             })
         val parentFrameBufferRenderer = WrapperFrameBufferRenderer<T>(frameBufferRenderer) {
-            params = mLayerCallback?.obtainDoubleBufferedLayerParams()
+            params = mLayerCallback?.obtainMultiBufferedLayerParams()
             params != null
         }
         val renderTarget = renderer.attach(surfaceView, parentFrameBufferRenderer)

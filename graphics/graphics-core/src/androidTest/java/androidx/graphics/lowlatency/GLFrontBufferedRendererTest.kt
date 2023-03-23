@@ -85,7 +85,7 @@ class GLFrontBufferedRendererTest {
                 Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
             }
 
-            override fun onDrawDoubleBufferedLayer(
+            override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
@@ -187,7 +187,7 @@ class GLFrontBufferedRendererTest {
                 Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
             }
 
-            override fun onDrawDoubleBufferedLayer(
+            override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
@@ -208,7 +208,7 @@ class GLFrontBufferedRendererTest {
                 Rectangle().draw(mProjectionMatrix, Color.BLUE, 0f, 0f, 100f, 100f)
             }
 
-            override fun onDoubleBufferedLayerRenderComplete(
+            override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
@@ -300,7 +300,7 @@ class GLFrontBufferedRendererTest {
                 // NO-OP we do not render to the front buffered layer in this test case
             }
 
-            override fun onDrawDoubleBufferedLayer(
+            override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
@@ -331,7 +331,7 @@ class GLFrontBufferedRendererTest {
                 }
             }
 
-            override fun onDoubleBufferedLayerRenderComplete(
+            override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
@@ -360,7 +360,7 @@ class GLFrontBufferedRendererTest {
 
             scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
                 val colors = listOf(Color.RED, Color.BLACK, Color.YELLOW, Color.BLUE)
-                renderer?.renderDoubleBufferedLayer(colors)
+                renderer?.renderMultiBufferedLayer(colors)
             }
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
 
@@ -450,7 +450,7 @@ class GLFrontBufferedRendererTest {
                 }
             }
 
-            override fun onDrawDoubleBufferedLayer(
+            override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
@@ -510,7 +510,7 @@ class GLFrontBufferedRendererTest {
                 // NO-OP
             }
 
-            override fun onDrawDoubleBufferedLayer(
+            override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
@@ -539,7 +539,7 @@ class GLFrontBufferedRendererTest {
                 }
             }
 
-            override fun onDoubleBufferedLayerRenderComplete(
+            override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
@@ -621,7 +621,7 @@ class GLFrontBufferedRendererTest {
                 Rectangle().draw(mProjectionMatrix, param, 0f, 0f, squareSize, squareSize)
             }
 
-            override fun onDrawDoubleBufferedLayer(
+            override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
@@ -645,7 +645,7 @@ class GLFrontBufferedRendererTest {
                 }
             }
 
-            override fun onDoubleBufferedLayerRenderComplete(
+            override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
@@ -715,7 +715,7 @@ class GLFrontBufferedRendererTest {
                 // NO-OP
             }
 
-            override fun onDrawDoubleBufferedLayer(
+            override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
@@ -824,7 +824,7 @@ class GLFrontBufferedRendererTest {
                 blue = tmp
             }
 
-            override fun onDrawDoubleBufferedLayer(
+            override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
@@ -903,7 +903,7 @@ class GLFrontBufferedRendererTest {
                 firstDrawLatch.countDown()
             }
 
-            override fun onDrawDoubleBufferedLayer(
+            override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
@@ -932,7 +932,7 @@ class GLFrontBufferedRendererTest {
                 }
             }
 
-            override fun onDoubleBufferedLayerRenderComplete(
+            override fun onMultiBufferedLayerRenderComplete(
                 frontBufferedLayerSurfaceControl: SurfaceControlCompat,
                 transaction: SurfaceControlCompat.Transaction
             ) {
@@ -1022,7 +1022,7 @@ class GLFrontBufferedRendererTest {
                 Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
             }
 
-            override fun onDrawDoubleBufferedLayer(
+            override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
@@ -1151,7 +1151,7 @@ class GLFrontBufferedRendererTest {
                 getSquare().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
             }
 
-            override fun onDrawDoubleBufferedLayer(
+            override fun onDrawMultiBufferedLayer(
                 eglManager: EGLManager,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
