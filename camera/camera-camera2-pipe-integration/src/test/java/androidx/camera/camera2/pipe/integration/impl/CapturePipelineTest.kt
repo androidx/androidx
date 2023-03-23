@@ -143,7 +143,9 @@ class CapturePipelineTest {
         override suspend fun unlock3A(
             ae: Boolean?,
             af: Boolean?,
-            awb: Boolean?
+            awb: Boolean?,
+            frameLimit: Int,
+            timeLimitNs: Long
         ): Deferred<Result3A> {
             unlock3ASemaphore.release()
             return CompletableDeferred(Result3A(Result3A.Status.OK))

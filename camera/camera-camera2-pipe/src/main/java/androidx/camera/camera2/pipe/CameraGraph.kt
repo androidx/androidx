@@ -297,13 +297,20 @@ interface CameraGraph : AutoCloseable {
          * that component, i.e. if it was locked earlier it will stay locked and if it was already
          * unlocked, it will stay unlocked.
          *
+         * @param frameLimit the maximum number of frames to wait before we give up waiting for this
+         *   operation to complete.
+         * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
+         *   this operation to complete.
+         *
          * @return [Result3A], which will contain the latest frame number at which the auto-focus,
          *   auto-exposure, auto-white balance were unlocked as per the method arguments.
          */
         suspend fun unlock3A(
             ae: Boolean? = null,
             af: Boolean? = null,
-            awb: Boolean? = null
+            awb: Boolean? = null,
+            frameLimit: Int = DEFAULT_FRAME_LIMIT,
+            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>
 
         /**

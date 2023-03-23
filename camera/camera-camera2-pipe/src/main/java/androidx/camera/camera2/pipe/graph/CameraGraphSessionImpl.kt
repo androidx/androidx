@@ -143,9 +143,15 @@ internal class CameraGraphSessionImpl(
         )
     }
 
-    override suspend fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<Result3A> {
+    override suspend fun unlock3A(
+        ae: Boolean?,
+        af: Boolean?,
+        awb: Boolean?,
+        frameLimit: Int,
+        timeLimitNs: Long
+    ): Deferred<Result3A> {
         check(!closed.value) { "Cannot call unlock3A on $this after close." }
-        return controller3A.unlock3A(ae, af, awb)
+        return controller3A.unlock3A(ae, af, awb, frameLimit, timeLimitNs)
     }
 
     override suspend fun lock3AForCapture(frameLimit: Int, timeLimitNs: Long): Deferred<Result3A> {
