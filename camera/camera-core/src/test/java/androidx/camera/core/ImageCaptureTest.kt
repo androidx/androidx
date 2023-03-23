@@ -156,6 +156,20 @@ class ImageCaptureTest {
     }
 
     @Test
+    fun virtualCamera_imagePipelineExpectsNoMetadata() {
+        // Arrange.
+        camera.hasTransform = false
+
+        // Act.
+        val imageCapture = bindImageCapture(
+            bufferFormat = ImageFormat.JPEG,
+        )
+
+        // Assert.
+        assertThat(imageCapture.imagePipeline!!.expectsMetadata()).isFalse()
+    }
+
+    @Test
     fun verifySupportedEffects() {
         val imageCapture = ImageCapture.Builder().build()
         assertThat(imageCapture.isEffectTargetsSupported(IMAGE_CAPTURE)).isTrue()
@@ -270,7 +284,8 @@ class ImageCaptureTest {
     private fun assertTakePictureManagerHasTheSameSurface(imageCapture: ImageCapture) {
         val takePictureManagerSurface =
             imageCapture.takePictureManager.imagePipeline.createSessionConfigBuilder(
-                resolution).build().surfaces.single().surface.get()
+                resolution
+            ).build().surfaces.single().surface.get()
         val useCaseSurface = imageCapture.sessionConfig.surfaces.single().surface.get()
         assertThat(takePictureManagerSurface).isEqualTo(useCaseSurface)
     }
@@ -675,8 +690,7 @@ class ImageCaptureTest {
         }
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
-            ApplicationProvider
-                .getApplicationContext<Context>(),
+            ApplicationProvider.getApplicationContext(),
             CameraSelector.DEFAULT_BACK_CAMERA
         )
 
@@ -719,7 +733,8 @@ class ImageCaptureTest {
             .setFlashMode(ImageCapture.FLASH_MODE_OFF)
             .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
             .setSessionOptionUnpacker { _: Size, _: UseCaseConfig<*>?,
-                _: SessionConfig.Builder? -> }
+                _: SessionConfig.Builder? ->
+            }
 
         builder.setBufferFormat(bufferFormat)
         if (imageReaderProxyProvider != null) {
