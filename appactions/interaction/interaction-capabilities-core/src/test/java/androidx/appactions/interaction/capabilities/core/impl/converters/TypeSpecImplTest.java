@@ -38,6 +38,20 @@ import java.time.ZonedDateTime;
 public final class TypeSpecImplTest {
 
     @Test
+    public void bindIdentifier_success() {
+        TypeSpec<TestEntity> entityTypeSpec =
+                TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)
+                        .bindIdentifier(TestEntity::getId)
+                        .build();
+        assertThat(entityTypeSpec.getIdentifier(
+                TestEntity.newBuilder().setId("identifier1").build()
+        )).isEqualTo("identifier1");
+        assertThat(entityTypeSpec.getIdentifier(
+                TestEntity.newBuilder().build()
+        )).isNull();
+    }
+
+    @Test
     public void bindEnumField_convertsSuccessfully() throws Exception {
         TypeSpec<TestEntity> entityTypeSpec =
                 TypeSpecBuilder.newBuilder("TestEntity", TestEntity::newBuilder)

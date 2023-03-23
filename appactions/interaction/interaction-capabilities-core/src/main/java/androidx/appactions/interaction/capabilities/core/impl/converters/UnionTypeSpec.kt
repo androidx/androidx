@@ -29,15 +29,44 @@ class UnionTypeSpec<T : Any> internal constructor(
         val ctor: (M) -> T,
         val typeSpec: TypeSpec<M>,
     ) {
+        @Throws(StructConversionException::class)
         fun tryDeserialize(struct: Struct): T {
             return ctor(typeSpec.fromStruct(struct))
         }
 
-        fun trySerialize(obj: T): Struct? {
-            return memberGetter(obj)?.let { typeSpec.toStruct(it) }
+        fun serialize(obj: T): Struct {
+            return typeSpec.toStruct(memberGetter(obj)!!)
+        }
+
+        fun getIdentifier(obj: T): String? {
+            return typeSpec.getIdentifier(memberGetter(obj)!!)
+        }
+
+        fun isMemberSet(obj: T): Boolean {
+            return memberGetter(obj) != null
         }
     }
 
+    private fun getApplicableBinding(obj: T): MemberBinding<T, *> {
+        var applicableBindings = bindings.filter { it.isMemberSet(obj) }
+        return when (applicableBindings.size) {
+            0 -> throw IllegalStateException("$obj is invalid, all union members are null.")
+            1 -> applicableBindings[0]
+            else -> throw IllegalStateException(
+                "$obj is invalid, multiple union members are non-null."
+            )
+        }
+    }
+
+    override fun getIdentifier(obj: T): String? {
+        return getApplicableBinding(obj).getIdentifier(obj)
+    }
+
+    override fun toStruct(obj: T): Struct {
+        return getApplicableBinding(obj).serialize(obj)
+    }
+
+    @Throws(StructConversionException::class)
     override fun fromStruct(struct: Struct): T {
         for (binding in bindings) {
             try {
@@ -46,16 +75,7 @@ class UnionTypeSpec<T : Any> internal constructor(
                 continue
             }
         }
-        throw StructConversionException("failed to deserialize union type")
-    }
-
-    override fun toStruct(obj: T): Struct {
-        for (binding in bindings) {
-            binding.trySerialize(obj)?.let {
-                return it
-            }
-        }
-        throw StructConversionException("failed to serialize union type")
+        throw StructConversionException("all member TypeSpecs failed to deserialize input Struct.")
     }
 
     class Builder<T : Any> {

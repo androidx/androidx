@@ -35,13 +35,13 @@ class ParticipantValue private constructor(
             .bindMemberType(
                 memberGetter = ParticipantValue::asParticipant,
                 ctor = { ParticipantValue(it) },
-                typeSpec = TypeConverters.ParticipantTypeSpec(),
+                typeSpec = TypeConverters.PARTICIPANT_TYPE_SPEC,
             )
             .bindMemberType(
                 memberGetter = ParticipantValue::asParticipantFilter,
                 ctor = { ParticipantValue(it) },
                 typeSpec = TypeConverters.createSearchActionTypeSpec(
-                    TypeConverters.ParticipantTypeSpec(),
+                    TypeConverters.PARTICIPANT_TYPE_SPEC,
                 ),
             )
             .build()

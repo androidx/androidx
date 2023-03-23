@@ -36,13 +36,13 @@ class RecipientValue private constructor(
             .bindMemberType(
                 memberGetter = RecipientValue::asRecipient,
                 ctor = { RecipientValue(it) },
-                typeSpec = TypeConverters.RecipientTypeSpec(),
+                typeSpec = TypeConverters.RECIPIENT_TYPE_SPEC,
             )
             .bindMemberType(
                 memberGetter = RecipientValue::asRecipientFilter,
                 ctor = { RecipientValue(it) },
                 typeSpec = TypeConverters.createSearchActionTypeSpec(
-                    TypeConverters.RecipientTypeSpec(),
+                    TypeConverters.RECIPIENT_TYPE_SPEC,
                 ),
             )
             .build()
