@@ -876,6 +876,13 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
             return
         }
         project.afterEvaluate {
+            if (project.hasKotlinNativeTarget().get()) {
+                // KMP plugin cannot handle constraints properly for native targets
+                // b/274786186, YT: KT-57531
+                // It is expected to be fixed in Kotlin 1.9 after which, we should remove this check
+                return@afterEvaluate
+            }
+
             // make sure that the project has a group
             val projectGroup = extension.mavenGroup
             if (projectGroup == null)
