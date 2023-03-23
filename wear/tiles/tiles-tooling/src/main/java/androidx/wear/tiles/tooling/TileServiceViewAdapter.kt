@@ -22,14 +22,13 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import androidx.wear.protolayout.DeviceParametersBuilders
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
-import androidx.wear.tiles.DeviceParametersBuilders
+import androidx.wear.protolayout.StateBuilders
 import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.StateBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
-import androidx.wear.tiles.TimelineBuilders
 import androidx.wear.tiles.renderer.TileRenderer
 import androidx.wear.tiles.timeline.TilesTimelineCache
 import com.google.common.util.concurrent.ListenableFuture
@@ -76,7 +75,7 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
     }
 
     @SuppressLint("BanUncheckedReflection")
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "deprecation") // TODO(b/276343540): Use protolayout types
     internal fun init(tileServiceName: String) {
         val tileServiceClass = Class.forName(tileServiceName)
 
@@ -93,8 +92,8 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
         val deviceParams = context.buildDeviceParameters()
         val tileRequest = RequestBuilders.TileRequest
             .Builder()
-            .setState(StateBuilders.State.Builder().build())
-            .setDeviceParameters(deviceParams)
+            .setCurrentState(StateBuilders.State.Builder().build())
+            .setDeviceConfiguration(deviceParams)
             .build()
 
         // val tile = tileService.onTileRequest(tileRequest)
@@ -109,18 +108,18 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
         val resourceRequest = RequestBuilders.ResourcesRequest
             .Builder()
             .setVersion(tile.resourcesVersion)
-            .setDeviceParameters(deviceParams)
+            .setDeviceConfiguration(deviceParams)
             .build()
 
-        // val resources = tileService.onResourcesRequest(resourceRequest).get(1, TimeUnit.SECONDS)
-        val onResourcesRequestMethod =
+        // val resources = tileService.onTileResourcesRequest(resourceRequest).get(1, TimeUnit.SECONDS)
+        val onTileResourcesRequestMethod =
             tileServiceClass
-                .findMethod("onResourcesRequest", RequestBuilders.ResourcesRequest::class.java)
+                .findMethod("onTileResourcesRequest", RequestBuilders.ResourcesRequest::class.java)
                 .apply { isAccessible = true }
         val resources =
             ResourceBuilders.Resources.fromProto(
-                (onResourcesRequestMethod.invoke(tileService, resourceRequest) as
-                    ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources>)
+                (onTileResourcesRequestMethod.invoke(tileService, resourceRequest) as
+                    ListenableFuture<ResourceBuilders.Resources>)
                     .get(1, TimeUnit.SECONDS).toProto()
             )
 
@@ -137,7 +136,9 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
     }
 }
 
-internal fun TimelineBuilders.Timeline?.getCurrentLayout(): LayoutElementBuilders.Layout? {
+@Suppress("deprecation") // For backwards compatibility.
+internal fun androidx.wear.tiles.TimelineBuilders.Timeline?.getCurrentLayout():
+    LayoutElementBuilders.Layout? {
     val now = System.currentTimeMillis()
     return this?.let {
         val cache = TilesTimelineCache(it)

@@ -20,8 +20,6 @@ import android.app.AlarmManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import androidx.wear.tiles.LayoutElementBuilders;
-import androidx.wear.tiles.TimelineBuilders;
 import androidx.wear.tiles.timeline.internal.TilesTimelineManagerInternal;
 
 import java.util.concurrent.Executor;
@@ -52,7 +50,9 @@ public class TilesTimelineManager implements AutoCloseable {
          * @param token The token originally passed to {@link TilesTimelineManager}.
          * @param layout The new layout to use.
          */
-        void onLayoutUpdate(int token, @NonNull LayoutElementBuilders.Layout layout);
+        @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
+        void onLayoutUpdate(
+                int token, @NonNull androidx.wear.tiles.LayoutElementBuilders.Layout layout);
     }
 
     private final TilesTimelineManagerInternal mManager;
@@ -67,10 +67,11 @@ public class TilesTimelineManager implements AutoCloseable {
      * @param token A token, which will be passed to {@code listener}'s callback.
      * @param listener A listener instance, called when a new timeline entry is available.
      */
+    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public TilesTimelineManager(
             @NonNull AlarmManager alarmManager,
             @NonNull Clock clock,
-            @NonNull TimelineBuilders.Timeline timeline,
+            @NonNull androidx.wear.tiles.TimelineBuilders.Timeline timeline,
             int token,
             @NonNull Executor listenerExecutor,
             @NonNull Listener listener) {
@@ -84,7 +85,8 @@ public class TilesTimelineManager implements AutoCloseable {
                         (t, entry) ->
                                 listener.onLayoutUpdate(
                                         t,
-                                        LayoutElementBuilders.Layout.fromProto(entry.getLayout())));
+                                        androidx.wear.tiles.LayoutElementBuilders.Layout.fromProto(
+                                                entry.getLayout())));
     }
 
     /**
