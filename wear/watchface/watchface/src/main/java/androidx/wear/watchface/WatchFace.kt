@@ -51,6 +51,7 @@ import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
 import androidx.wear.watchface.control.RemoteWatchFaceView
+import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -178,6 +179,57 @@ public class WatchFace(
             return pendingEditorDelegateCB!!
         }
 
+        @UiThread
+        internal fun createWatchFaceServiceOld(
+            componentName: ComponentName
+        ): WatchFaceService {
+            // Attempt to construct the class for the specified watchFaceName, failing if it either
+            // doesn't exist or isn't a [WatchFaceService].
+            val watchFaceServiceClass =
+                Class.forName(componentName.className)
+                    ?: throw IllegalArgumentException("Can't create ${componentName.className}")
+            if (!WatchFaceService::class.java.isAssignableFrom(watchFaceServiceClass)) {
+                throw IllegalArgumentException(
+                    "${componentName.className} is not a WatchFaceService"
+                )
+            } else {
+                return watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
+            }
+        }
+
+        @SuppressLint("NewApi")
+        @Suppress("DEPRECATION") // queryIntentServices
+        @UiThread
+        internal fun createWatchFaceService(
+            componentName: ComponentName,
+            context: Context
+        ): WatchFaceService {
+            // Resolve the WatchFaceControlService and construct WatchFaceService using its API
+            val services = context.packageManager.queryIntentServices(Intent(
+                WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
+                setPackage(context.packageName)
+            }, 0)
+
+            if (services.size != 1)
+                throw IllegalArgumentException(
+                    "WatchFaceControlService cannot be uniquely resolved (${services.size}) for " +
+                        context.packageName
+                )
+
+            val watchFaceControlServiceClass =
+                Class.forName(services[0].serviceInfo.name)
+                    ?: throw IllegalArgumentException(
+                        "Can't find ${services[0].serviceInfo.name}"
+                    )
+
+            val watchFaceControlService =
+                watchFaceControlServiceClass.getConstructor().newInstance()
+                    as WatchFaceControlService
+
+            return watchFaceControlService.createWatchFaceService(componentName)
+                ?: throw IllegalArgumentException("Can't create ${componentName.className}")
+        }
+
         /**
          * For use by on watch face editors.
          *
@@ -191,24 +243,18 @@ public class WatchFace(
             params: HeadlessWatchFaceInstanceParams,
             context: Context
         ): EditorDelegate {
-            // Attempt to construct the class for the specified watchFaceName, failing if it either
-            // doesn't exist or isn't a [WatchFaceService].
-            val watchFaceServiceClass =
-                Class.forName(componentName.className)
-                    ?: throw IllegalArgumentException("Can't create ${componentName.className}")
-            if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
-                throw IllegalArgumentException(
-                    "${componentName.className} is not a WatchFaceService"
-                )
+            val watchFaceService = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                createWatchFaceService(componentName, context)
             } else {
-                val watchFaceService =
-                    watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
-                watchFaceService.setContext(context)
-                val engine =
-                    watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
-                val headlessWatchFaceImpl = engine.createHeadlessInstance(params)
-                return engine.deferredWatchFaceImpl.await().WFEditorDelegate(headlessWatchFaceImpl)
+                createWatchFaceServiceOld(componentName)
+            }.apply {
+                setContext(context)
             }
+
+            val engine =
+                watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            val headlessWatchFaceImpl = engine.createHeadlessInstance(params)
+            return engine.deferredWatchFaceImpl.await().WFEditorDelegate(headlessWatchFaceImpl)
         }
     }
 

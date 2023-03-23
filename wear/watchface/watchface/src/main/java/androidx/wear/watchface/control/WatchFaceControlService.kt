@@ -54,7 +54,6 @@ import kotlinx.coroutines.MainScope
  *
  */
 @RequiresApi(27)
-@VisibleForTesting
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class WatchFaceControlService : Service() {
     private var watchFaceInstanceServiceStub: IWatchFaceInstanceServiceStub? = null
@@ -79,7 +78,7 @@ public open class WatchFaceControlService : Service() {
     open fun createWatchFaceService(watchFaceName: ComponentName): WatchFaceService? {
         return try {
             val watchFaceServiceClass = Class.forName(watchFaceName.className) ?: return null
-            if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
+            if (!WatchFaceService::class.java.isAssignableFrom(watchFaceServiceClass)) {
                 return null
             }
             watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService

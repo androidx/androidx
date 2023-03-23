@@ -39,6 +39,8 @@ import android.os.Parcel
 import android.provider.Settings
 import android.support.wearable.complications.ComplicationData as WireComplicationData
 import android.support.wearable.complications.ComplicationText as WireComplicationText
+import android.content.IntentFilter
+import android.content.pm.ServiceInfo
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
@@ -74,6 +76,7 @@ import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.IWatchfaceListener
 import androidx.wear.watchface.control.InteractiveInstanceManager
+import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
@@ -6544,6 +6547,59 @@ public class WatchFaceServiceTest {
         assertThat(HeadlessWatchFaceImpl.headlessInstances).isEmpty()
     }
 
+    @Config(minSdk = 30)
+    @SuppressLint("NewApi")
+    @Test
+    public fun createHeadlessSessionDelegate_customControlServiceIsUsed() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val componentName = ComponentName("non existing package", "class")
+        lateinit var delegate: WatchFace.EditorDelegate
+
+        val shadowPackageManager = shadowOf(context.packageManager)
+        val controlServiceComponent = ComponentName(
+            context, TestWatchFaceControlService::class.java
+        )
+        shadowPackageManager.addOrUpdateService(ServiceInfo().apply {
+            packageName = controlServiceComponent.packageName
+            name = controlServiceComponent.className
+        })
+        shadowPackageManager.addIntentFilterForService(
+            controlServiceComponent,
+            IntentFilter(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE)
+        )
+        // Remove default WatchFaceControlService
+        shadowPackageManager.removeService(
+            ComponentName(context, WatchFaceControlService::class.java)
+        )
+
+        // Allows us to programmatically control tasks.
+        TestNopCanvasWatchFaceService.handler = this.handler
+
+        CoroutineScope(handler.asCoroutineDispatcher().immediate).launch {
+            delegate =
+                WatchFace.createHeadlessSessionDelegate(
+                    componentName,
+                    HeadlessWatchFaceInstanceParams(
+                        componentName,
+                        DeviceConfig(false, false, 100, 200),
+                        100,
+                        100,
+                        null
+                    ),
+                    context
+                )
+        }
+
+        assertThat(delegate).isNotNull()
+
+        // Run all pending tasks.
+        while (pendingTasks.isNotEmpty()) {
+            pendingTasks.remove().runnable.run()
+        }
+
+        delegate.onDestroy()
+    }
+
     @Test
     public fun attachToExistingParameterlessEngine() {
         // Construct a parameterless engine.
@@ -6604,7 +6660,7 @@ public class WatchFaceServiceTest {
                     ),
                     callback
                 )
-             )
+            )
 
         runBlocking {
             watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
@@ -6698,4 +6754,11 @@ class TestNopCanvasWatchFaceService : WatchFaceService() {
 
             override fun getSystemTimeZoneId() = ZoneId.of("UTC")
         }
+}
+
+@RequiresApi(27)
+class TestWatchFaceControlService : WatchFaceControlService() {
+    override fun createWatchFaceService(watchFaceName: ComponentName): WatchFaceService? {
+        return TestNopCanvasWatchFaceService()
+    }
 }
