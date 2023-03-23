@@ -53,6 +53,7 @@ class ExternalCameraController(
 
     override val cameraId: CameraId
         get() = graphConfig.camera
+    override var isForeground = false
 
     override fun start() {
         if (started.compareAndSet(expect = false, update = true)) {

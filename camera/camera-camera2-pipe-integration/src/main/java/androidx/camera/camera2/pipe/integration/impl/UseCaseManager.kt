@@ -86,6 +86,9 @@ class UseCaseManager @Inject constructor(
     @GuardedBy("lock")
     private val activeUseCases = mutableSetOf<UseCase>()
 
+    @GuardedBy("lock")
+    private var activeResumeEnabled = false
+
     private val meteringRepeating by lazy {
         MeteringRepeating.Builder(
             cameraProperties,
@@ -208,6 +211,11 @@ class UseCaseManager @Inject constructor(
         }
     }
 
+    fun setActiveResumeMode(enabled: Boolean) = synchronized(lock) {
+        activeResumeEnabled = enabled
+        camera?.setActiveResumeMode(enabled)
+    }
+
     suspend fun close() {
         val closingJobs = synchronized(lock) {
             if (attachedUseCases.isNotEmpty()) {
@@ -271,6 +279,7 @@ class UseCaseManager @Inject constructor(
         for (control in allControls) {
             control.useCaseCamera = camera
         }
+        camera?.setActiveResumeMode(activeResumeEnabled)
 
         refreshRunningUseCases()
     }
