@@ -36,6 +36,7 @@ package androidx.car.app {
     method public androidx.car.app.Session onCreateSession();
     method @androidx.car.app.annotations.RequiresCarApi(6) public androidx.car.app.Session onCreateSession(androidx.car.app.SessionInfo);
     method public final boolean onUnbind(android.content.Intent);
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_CALLING_APP = "androidx.car.app.category.CALLING";
     field @Deprecated public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
     field @androidx.car.app.annotations.RequiresCarApi(6) public static final String CATEGORY_FEATURE_CLUSTER = "androidx.car.app.category.FEATURE_CLUSTER";
     field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_IOT_APP = "androidx.car.app.category.IOT";
