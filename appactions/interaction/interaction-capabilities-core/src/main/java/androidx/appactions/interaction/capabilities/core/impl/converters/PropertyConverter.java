@@ -27,7 +27,6 @@ import androidx.appactions.interaction.proto.AppActionsContext.IntentParameter;
 import androidx.appactions.interaction.proto.Entity;
 
 import java.util.List;
-import java.util.function.Function;
 
 /** Contains utility functions that convert properties to IntentParameter proto. */
 public final class PropertyConverter {
@@ -45,7 +44,7 @@ public final class PropertyConverter {
     @NonNull
     public static <T> IntentParameter getIntentParameter(
             @NonNull String paramName, @NonNull TypeProperty<T> property,
-            @NonNull Function<T, Entity> entityConverter) {
+            @NonNull EntityConverter<T> entityConverter) {
         IntentParameter.Builder builder = newIntentParameterBuilder(paramName, property);
         extractPossibleValues(property, entityConverter).stream()
                 .forEach(builder::addPossibleEntities);
@@ -63,8 +62,10 @@ public final class PropertyConverter {
     }
 
     private static <T> List<Entity> extractPossibleValues(
-            ParamProperty<T> property, Function<T, Entity> function) {
-        return property.getPossibleValues().stream().map(function).collect(toImmutableList());
+            ParamProperty<T> property, EntityConverter<T> function) {
+        return property.getPossibleValues().stream()
+                .map(function::convert)
+                .collect(toImmutableList());
     }
 
     /** Converts a properties/Entity to a appactions Entity proto. */

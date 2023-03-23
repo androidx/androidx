@@ -90,6 +90,7 @@ final class ActionSpecImpl<
         return argumentBuilder.build();
     }
 
+    @NonNull
     @Override
     public StructuredOutput convertOutputToProto(OutputT output) {
         StructuredOutput.Builder outputBuilder = StructuredOutput.newBuilder();

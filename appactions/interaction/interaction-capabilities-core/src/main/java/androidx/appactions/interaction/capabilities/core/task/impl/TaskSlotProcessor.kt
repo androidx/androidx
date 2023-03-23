@@ -15,7 +15,7 @@
  */
 package androidx.appactions.interaction.capabilities.core.task.impl
 
-import androidx.appactions.interaction.capabilities.core.impl.converters.DisambigEntityConverter
+import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
 import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult
@@ -249,7 +249,7 @@ internal object TaskSlotProcessor {
     @Throws(StructConversionException::class)
     private fun <T> processEntitySearchResult(
         entitySearchResult: EntitySearchResult<T>,
-        entityConverter: DisambigEntityConverter<T>,
+        entityConverter: EntityConverter<T>,
         ungroundedValue: ParamValue
     ): AppGroundingResult {
         return when (entitySearchResult.possibleValues.size) {
@@ -268,7 +268,7 @@ internal object TaskSlotProcessor {
             }
             else -> {
                 val disambigEntities =
-                    entitySearchResult.possibleValues.map { entityConverter.convert(it) }
+                    entitySearchResult.possibleValues.map { entityConverter.convert(it!!) }
                 AppGroundingResult.ofFailure(
                     TaskCapabilityUtils.getCurrentValueForDisambiguation(
                         ungroundedValue,
