@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.widget.RemoteViewsCompat.setImageViewAdjustViewBounds
 import androidx.core.widget.RemoteViewsCompat.setImageViewColorFilter
 import androidx.core.widget.RemoteViewsCompat.setImageViewColorFilterResource
+import androidx.core.widget.RemoteViewsCompat.setImageViewImageAlpha
 import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BitmapImageProvider
 import androidx.glance.ColorFilterParams
@@ -36,6 +37,7 @@ import androidx.glance.TintColorFilterParams
 import androidx.glance.appwidget.GlanceAppWidgetTag
 import androidx.glance.appwidget.InsertedViewInfo
 import androidx.glance.appwidget.LayoutType
+import androidx.glance.appwidget.TintAndAlphaColorFilterParams
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.UriImageProvider
 import androidx.glance.appwidget.applyModifiers
@@ -106,6 +108,19 @@ private fun applyColorFilter(
             } else {
                 rv.setImageViewColorFilter(
                     viewDef.mainViewId, colorProvider.getColor(translationContext.context).toArgb()
+                )
+            }
+        }
+
+        is TintAndAlphaColorFilterParams -> {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+                val color =
+                    colorFilterParams.colorProvider.getColor(translationContext.context).toArgb()
+                rv.setImageViewColorFilter(viewDef.mainViewId, color)
+                rv.setImageViewImageAlpha(viewDef.mainViewId, android.graphics.Color.alpha(color))
+            } else {
+                throw IllegalStateException(
+                    "The is no use case yet to support this colorFilter in S+ versions."
                 )
             }
         }

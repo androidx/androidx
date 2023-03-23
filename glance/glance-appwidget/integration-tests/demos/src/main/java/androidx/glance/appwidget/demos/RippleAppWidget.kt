@@ -24,8 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
@@ -39,6 +41,7 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
+import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
@@ -84,10 +87,24 @@ class RippleAppWidget : GlanceAppWidget() {
                     }
                 }
         ) {
-            Text(
-                text = "Content Scale: ${type.asString()}, Image / Box click count: $count",
-                modifier = GlanceModifier.padding(5.dp)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Content Scale: ${type.asString()}, Image / Box click count: $count",
+                    modifier = GlanceModifier.padding(5.dp).defaultWeight()
+                )
+                // Demonstrates an icon button with circular ripple.
+                Image(
+                    provider = ImageProvider(R.drawable.ic_color_reset),
+                    contentDescription = "Remove background color",
+                    colorFilter = ColorFilter.tint(GlanceTheme.colors.secondary),
+                    modifier = GlanceModifier
+                        .padding(5.dp)
+                        .cornerRadius(24.dp) // To get a rounded ripple
+                        .clickable {
+                            columnBgColors = listOf(Color.Transparent, Color.Transparent)
+                        }
+                )
+            }
             // A drawable image with rounded corners and a click modifier.
             OutlinedButtonUsingImage(text = "Toggle content scale", onClick = {
                 type = when (type) {
