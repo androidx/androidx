@@ -88,14 +88,16 @@ public class ImagePipeline {
     public ImagePipeline(
             @NonNull ImageCaptureConfig useCaseConfig,
             @NonNull Size cameraSurfaceSize) {
-        this(useCaseConfig, cameraSurfaceSize, /*cameraEffect=*/ null);
+        this(useCaseConfig, cameraSurfaceSize, /*cameraEffect=*/ null,
+                /*isVirtualCamera=*/ false);
     }
 
     @MainThread
     public ImagePipeline(
             @NonNull ImageCaptureConfig useCaseConfig,
             @NonNull Size cameraSurfaceSize,
-            @Nullable CameraEffect cameraEffect) {
+            @Nullable CameraEffect cameraEffect,
+            boolean isVirtualCamera) {
         checkMainThread();
         mUseCaseConfig = useCaseConfig;
         mCaptureConfig = CaptureConfig.Builder.createFrom(useCaseConfig).build();
@@ -108,7 +110,8 @@ public class ImagePipeline {
                 cameraEffect != null ? new InternalImageProcessor(cameraEffect) : null);
 
         // Connect nodes
-        mPipelineIn = CaptureNode.In.of(cameraSurfaceSize, mUseCaseConfig.getInputFormat());
+        mPipelineIn = CaptureNode.In.of(cameraSurfaceSize, mUseCaseConfig.getInputFormat(),
+                isVirtualCamera);
         CaptureNode.Out captureOut = mCaptureNode.transform(mPipelineIn);
         ProcessingNode.In processingIn = mBundlingNode.transform(captureOut);
         mProcessingNode.transform(processingIn);
