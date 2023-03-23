@@ -49,11 +49,48 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 
-@Deprecated(
-    message = "AndroidView now has arguments for onReset and onRelease callbacks. This original " +
-        "overload is retained for binary compatibility only.",
-    level = DeprecationLevel.HIDDEN
-)
+/**
+ * Composes an Android [View] obtained from [factory]. The [factory] block will be called exactly
+ * once to obtain the [View] being composed, and it is also guaranteed to be invoked on the UI
+ * thread. Therefore, in addition to creating the [View], the [factory] block can also be used to
+ * perform one-off initializations and [View] constant properties' setting. The [update] block can
+ * run multiple times (on the UI thread as well) due to recomposition, and it is the right place to
+ * set the new properties. Note that the block will also run once right after the [factory] block
+ * completes.
+ *
+ * [AndroidView] is commonly needed for using Views that are infeasible to be reimplemented in
+ * Compose and there is no corresponding Compose API. Common examples for the moment are
+ * WebView, SurfaceView, AdView, etc.
+ *
+ * This overload of [AndroidView] does not automatically pool or reuse Views. If placed inside of a
+ * reusable container (including inside a [LazyRow][androidx.compose.foundation.lazy.LazyRow] or
+ * [LazyColumn][androidx.compose.foundation.lazy.LazyColumn]), the View instances will always be
+ * discarded and recreated if the composition hierarchy containing the AndroidView changes, even
+ * if its group structure did not change and the View could have conceivably been reused.
+ *
+ * To opt-in for View reuse, call the overload of [AndroidView] that accepts an `onReset` callback,
+ * and provide a non-null implementation for this callback. Since it is expensive to discard and
+ * recreate View instances, reusing Views can lead to noticeable performance improvements —
+ * especially when building a scrolling list of [AndroidViews][AndroidView]. It is highly
+ * recommended to opt-in to View reuse when possible.
+ *
+ * [AndroidView] will not clip its content to the layout bounds. Use [View.setClipToOutline] on
+ * the child View to clip the contents, if desired. Developers will likely want to do this with
+ * all subclasses of SurfaceView to keep its contents contained.
+ *
+ * [AndroidView] has nested scroll interop capabilities if the containing view has nested scroll
+ * enabled. This means this Composable can dispatch scroll deltas if it is placed inside a
+ * container that participates in nested scroll. For more information on how to enable
+ * nested scroll interop:
+ * @sample androidx.compose.ui.samples.ViewInComposeNestedScrollInteropSample
+ *
+ * @sample androidx.compose.ui.samples.AndroidViewSample
+ *
+ * @param factory The block creating the [View] to be composed.
+ * @param modifier The modifier to be applied to the layout.
+ * @param update A callback to be invoked after the layout is inflated and upon recomposition to
+ * update the information and state of the view.
+ */
 @Composable
 @UiComposable
 fun <T : View> AndroidView(
