@@ -27,10 +27,18 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class BadgeTest {
     @Test
-    public void build_withDot() {
-        Badge b = new Badge.Builder().setHasDot(true).build();
+    public void build_withDotAndIcon() {
+        Badge b = new Badge.Builder().setHasDot(true).setIcon(CarIcon.ALERT).build();
 
         assertThat(b.hasDot()).isEqualTo(true);
+        assertThat(b.getIcon()).isEqualTo(CarIcon.ALERT);
+    }
+
+    @Test
+    public void build_withIcon() {
+        Badge b = new Badge.Builder().setIcon(CarIcon.ALERT).build();
+
+        assertThat(b.getIcon()).isEqualTo(CarIcon.ALERT);
     }
 
     public void build_withDotAndBackgroundColor() {
@@ -54,21 +62,29 @@ public class BadgeTest {
     @Test
     public void build_setBackgroundColorWithoutDot_ThrowsException() {
         assertThrows(IllegalStateException.class,
-                () -> new Badge.Builder().setBackgroundColor(CarColor.PRIMARY).build());
+                () -> new Badge.Builder()
+                        .setIcon(CarIcon.ALERT)
+                        .setBackgroundColor(CarColor.PRIMARY).build());
     }
 
     @Test
     public void equals() {
-        Badge b1 = new Badge.Builder().setHasDot(true).setBackgroundColor(CarColor.PRIMARY).build();
-        Badge b2 = new Badge.Builder().setHasDot(true).setBackgroundColor(CarColor.PRIMARY).build();
+        Badge b1 = new Badge.Builder()
+                .setHasDot(true)
+                .setBackgroundColor(CarColor.PRIMARY)
+                .setIcon(CarIcon.ALERT).build();
+        Badge b2 = new Badge.Builder()
+                .setHasDot(true)
+                .setBackgroundColor(CarColor.PRIMARY)
+                .setIcon(CarIcon.ALERT).build();
 
         assertThat(b1.equals(b2)).isTrue();
     }
 
     @Test
-    public void notEquals() {
+    public void notEquals_differentProperty() {
         Badge b1 = new Badge.Builder().setHasDot(true).build();
-        Badge b2 = new Badge.Builder().setHasDot(true).setBackgroundColor(CarColor.PRIMARY).build();
+        Badge b2 = new Badge.Builder().setIcon(CarIcon.ALERT).build();
 
         assertThat(b1.equals(b2)).isFalse();
     }
@@ -82,9 +98,17 @@ public class BadgeTest {
     }
 
     @Test
+    public void notEquals_differentIcons() {
+        Badge b1 = new Badge.Builder().setIcon(CarIcon.ALERT).build();
+        Badge b2 = new Badge.Builder().setIcon(CarIcon.ERROR).build();
+
+        assertThat(b1.equals(b2)).isFalse();
+    }
+
+    @Test
     public void string() {
         Badge b = new Badge.Builder().setHasDot(true).build();
 
-        assertThat(b.toString()).isEqualTo("[hasDot: true, backgroundColor: null]");
+        assertThat(b.toString()).isEqualTo("[hasDot: true, backgroundColor: null, icon: null]");
     }
 }

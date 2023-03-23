@@ -995,6 +995,7 @@ package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public class Badge {
     method public androidx.car.app.model.CarColor? getBackgroundColor();
+    method public androidx.car.app.model.CarIcon? getIcon();
     method public boolean hasDot();
   }
 
@@ -1003,6 +1004,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Badge build();
     method public androidx.car.app.model.Badge.Builder setBackgroundColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.Badge.Builder setHasDot(boolean);
+    method public androidx.car.app.model.Badge.Builder setIcon(androidx.car.app.model.CarIcon);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class CarColor {
