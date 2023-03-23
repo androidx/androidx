@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.task
 
 import java.util.Objects
+
 /**
  * Represents results from searching for ungrounded value(s).
  *

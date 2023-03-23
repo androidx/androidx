@@ -22,7 +22,7 @@ import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
+import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.SafetyCheck
@@ -47,17 +47,19 @@ private val ACTION_SPEC =
         .setDescriptor(StartSafetyCheck.Property::class.java)
         .setArgument(StartSafetyCheck.Argument::class.java, StartSafetyCheck.Argument::Builder)
         .setOutput(StartSafetyCheck.Output::class.java)
-        .bindStructParameter(
+        .bindOptionalGenericParameter(
             "safetyCheck.duration",
             { property -> Optional.ofNullable(property.duration) },
             StartSafetyCheck.Argument.Builder::setDuration,
-            TypeConverters::toDuration
+            TypeConverters::toDuration,
+            TypeConverters::toEntity
         )
-        .bindStructParameter(
+        .bindOptionalGenericParameter(
             "safetyCheck.checkInTime",
             { property -> Optional.ofNullable(property.checkInTime) },
             StartSafetyCheck.Argument.Builder::setCheckInTime,
-            TypeConverters::toZonedDateTime
+            TypeConverters::toZonedDateTime,
+            TypeConverters::toEntity
         )
         .bindOptionalOutput(
             "safetyCheck",
@@ -87,8 +89,8 @@ class StartSafetyCheck private constructor() {
 
     // TODO(b/268369632): Remove Property from public capability APIs.
     class Property internal constructor(
-        val duration: SimpleProperty?,
-        val checkInTime: SimpleProperty?
+        val duration: TypeProperty<Duration>?,
+        val checkInTime: TypeProperty<ZonedDateTime>?
     ) {
         override fun toString(): String {
             return "Property(duration=$duration, checkInTime=$checkInTime)"
@@ -113,14 +115,14 @@ class StartSafetyCheck private constructor() {
         }
 
         class Builder {
-            private var duration: SimpleProperty? = null
+            private var duration: TypeProperty<Duration>? = null
 
-            private var checkInTime: SimpleProperty? = null
+            private var checkInTime: TypeProperty<ZonedDateTime>? = null
 
-            fun setDuration(duration: SimpleProperty): Builder =
+            fun setDuration(duration: TypeProperty<Duration>): Builder =
                 apply { this.duration = duration }
 
-            fun setCheckInTime(checkInTime: SimpleProperty): Builder =
+            fun setCheckInTime(checkInTime: TypeProperty<ZonedDateTime>): Builder =
                 apply { this.checkInTime = checkInTime }
 
             fun build(): Property = Property(duration, checkInTime)

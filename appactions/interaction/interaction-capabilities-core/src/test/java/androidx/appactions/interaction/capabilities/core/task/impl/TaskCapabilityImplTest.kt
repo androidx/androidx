@@ -29,7 +29,6 @@ import androidx.appactions.interaction.capabilities.core.impl.converters.SearchA
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.SimpleProperty
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver
@@ -657,7 +656,7 @@ class TaskCapabilityImplTest {
     fun identifierOnly_refillsStruct() {
         val property: CapabilityStructFill.Property =
             CapabilityStructFill.Property.newBuilder()
-                .setListItem(SimpleProperty.Builder().setRequired(true).build())
+                .setListItem(TypeProperty.Builder<ListItem>().setRequired(true).build())
                 .setAnyString(TypeProperty.Builder<StringValue>().setRequired(true).build())
                 .build()
         val item1: ListItem = ListItem.newBuilder().setName("red apple").setId("item1").build()
