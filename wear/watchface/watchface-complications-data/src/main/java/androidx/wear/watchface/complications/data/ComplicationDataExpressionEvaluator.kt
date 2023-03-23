@@ -220,8 +220,8 @@ class ComplicationDataExpressionEvaluator(
                     evaluator.enablePlatformDataSources()
                 }
             } catch (e: Throwable) {
-                // Cleanup on failure.
-                evaluator.close()
+                // Cleanup on initialization failure.
+                close()
                 throw e
             }
         }
