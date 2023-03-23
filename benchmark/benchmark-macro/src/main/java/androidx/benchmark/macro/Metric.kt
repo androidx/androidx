@@ -28,6 +28,7 @@ import androidx.benchmark.macro.perfetto.AudioUnderrunQuery
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
+import androidx.benchmark.macro.perfetto.MemoryCountersQuery
 import androidx.benchmark.macro.perfetto.PowerQuery
 import androidx.benchmark.macro.perfetto.StartupTimingQuery
 import androidx.benchmark.macro.perfetto.camelCase
@@ -286,9 +287,11 @@ class StartupTimingLegacyMetric : Metric() {
             ?: throw IllegalStateException("No android_startup metric found.")
         val appStartup =
             androidStartup.startup.firstOrNull { it.package_name == captureInfo.targetPackageName }
-                ?: throw IllegalStateException("Didn't find startup for pkg " +
-                    "${captureInfo.targetPackageName}, found startups for pkgs: " +
-                    "${androidStartup.startup.map {it.package_name}}")
+                ?: throw IllegalStateException(
+                    "Didn't find startup for pkg " +
+                        "${captureInfo.targetPackageName}, found startups for pkgs: " +
+                        "${androidStartup.startup.map { it.package_name }}"
+                )
 
         // Extract app startup
         val measurements = mutableListOf<Measurement>()
@@ -669,5 +672,30 @@ class PowerMetric(
                 }
             }
         }.flatten().associate { pair -> Pair(pair.first, pair.second) }
+    }
+}
+
+/**
+ * Captures the number of page faults over time for a target package name.
+ */
+@ExperimentalMetricApi
+class MemoryCountersMetric : TraceMetric() {
+    override fun getResult(
+        captureInfo: CaptureInfo,
+        traceSession: PerfettoTraceProcessor.Session
+    ): List<Measurement> {
+        val metrics = MemoryCountersQuery.getMemoryCounters(
+            session = traceSession,
+            targetPackageName = captureInfo.targetPackageName
+        ) ?: return listOf()
+
+        return listOf(
+            Measurement("minorPageFaults", metrics.minorPageFaults),
+            Measurement("majorPageFaults", metrics.majorPageFaults),
+            Measurement("pageFaultsBackedBySwapCache", metrics.pageFaultsBackedBySwapCache),
+            Measurement("pageFaultsBackedByReadIO", metrics.pageFaultsBackedByReadIO),
+            Measurement("memoryCompactionEvents", metrics.memoryCompactionEvents),
+            Measurement("memoryReclaimEvents", metrics.memoryReclaimEvents),
+        )
     }
 }
