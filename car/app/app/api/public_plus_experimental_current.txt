@@ -994,12 +994,14 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public class Badge {
+    method public androidx.car.app.model.CarColor? getBackgroundColor();
     method public boolean hasDot();
   }
 
   public static final class Badge.Builder {
     ctor public Badge.Builder();
     method public androidx.car.app.model.Badge build();
+    method public androidx.car.app.model.Badge.Builder setBackgroundColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.Badge.Builder setHasDot(boolean);
   }
 
