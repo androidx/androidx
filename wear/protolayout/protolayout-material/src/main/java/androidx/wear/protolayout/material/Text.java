@@ -24,6 +24,7 @@ import static androidx.wear.protolayout.material.Typography.TYPOGRAPHY_DISPLAY1;
 import static androidx.wear.protolayout.material.Typography.getFontStyleBuilder;
 import static androidx.wear.protolayout.material.Typography.getLineHeightForTypography;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.IntRange;
@@ -40,6 +41,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.TextAlignment;
 import androidx.wear.protolayout.LayoutElementBuilders.TextOverflow;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.material.Typography.TypographyName;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
@@ -79,17 +81,19 @@ public class Text implements LayoutElement {
     /** Builder class for {@link Text}. */
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private final Context mContext;
-        @NonNull private String mTextContent = "";
         @NonNull private ColorProp mColor = argb(Colors.DEFAULT.getOnPrimary());
         private @TypographyName int mTypographyName = TYPOGRAPHY_DISPLAY1;
         private boolean mItalic = false;
-        private int mMaxLines = 1;
         private boolean mUnderline = false;
-        @TextAlignment private int mMultilineAlignment = TEXT_ALIGN_CENTER;
-        @NonNull private Modifiers mModifiers = new Modifiers.Builder().build();
-        private @TextOverflow int mOverflow = TEXT_OVERFLOW_ELLIPSIZE_END;
         private boolean mIsScalable = true;
         @Nullable private Integer mCustomWeight = null;
+
+        @NonNull
+        private final LayoutElementBuilders.Text.Builder mElementBuilder =
+                new LayoutElementBuilders.Text.Builder()
+                        .setMaxLines(1)
+                        .setMultilineAlignment(TEXT_ALIGN_CENTER)
+                        .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END);
 
         /**
          * Creates a builder for {@link Text}.
@@ -99,7 +103,7 @@ public class Text implements LayoutElement {
          */
         public Builder(@NonNull Context context, @NonNull String text) {
             mContext = context;
-            mTextContent = text;
+            mElementBuilder.setText(text);
         }
 
         /**
@@ -152,7 +156,7 @@ public class Text implements LayoutElement {
         /** Sets the maximum lines of text. If not set, 1 will be used. */
         @NonNull
         public Builder setMaxLines(@IntRange(from = 1) int maxLines) {
-            this.mMaxLines = maxLines;
+            this.mElementBuilder.setMaxLines(maxLines);
             return this;
         }
 
@@ -164,14 +168,14 @@ public class Text implements LayoutElement {
          */
         @NonNull
         public Builder setMultilineAlignment(@TextAlignment int multilineAlignment) {
-            this.mMultilineAlignment = multilineAlignment;
+            this.mElementBuilder.setMultilineAlignment(multilineAlignment);
             return this;
         }
 
         /** Sets the modifiers of text. */
         @NonNull
         public Builder setModifiers(@NonNull Modifiers modifiers) {
-            this.mModifiers = modifiers;
+            this.mElementBuilder.setModifiers(modifiers);
             return this;
         }
 
@@ -181,7 +185,7 @@ public class Text implements LayoutElement {
          */
         @NonNull
         public Builder setOverflow(@TextOverflow int overflow) {
-            this.mOverflow = overflow;
+            this.mElementBuilder.setOverflow(overflow);
             return this;
         }
 
@@ -192,6 +196,24 @@ public class Text implements LayoutElement {
         @NonNull
         public Builder setWeight(@FontWeight int weight) {
             this.mCustomWeight = weight;
+            return this;
+        }
+
+        /**
+         * Sets whether the {@link Text} excludes extra top and bottom padding above the normal
+         * ascent and descent. The default is false.
+         */
+        // TODO(b/252767963): Coordinate the transition of the default from false->true along with
+        // other impacted UI Libraries - needs care as will have an impact on layout and needs to be
+        // communicated clearly.
+        @NonNull
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @ProtoLayoutExperimental
+        public Builder setExcludeFontPadding(boolean excludeFontPadding) {
+            this.mElementBuilder.setAndroidTextStyle(
+                    new LayoutElementBuilders.AndroidTextStyle.Builder()
+                            .setExcludeFontPadding(excludeFontPadding)
+                            .build());
             return this;
         }
 
@@ -207,17 +229,10 @@ public class Text implements LayoutElement {
             if (mCustomWeight != null) {
                 fontStyleBuilder.setWeight(mCustomWeight);
             }
-
-            LayoutElementBuilders.Text.Builder text =
-                    new LayoutElementBuilders.Text.Builder()
-                            .setText(mTextContent)
-                            .setFontStyle(fontStyleBuilder.build())
-                            .setLineHeight(getLineHeightForTypography(mTypographyName))
-                            .setMaxLines(mMaxLines)
-                            .setMultilineAlignment(mMultilineAlignment)
-                            .setModifiers(mModifiers)
-                            .setOverflow(mOverflow);
-            return new Text(text.build());
+            mElementBuilder
+                    .setFontStyle(fontStyleBuilder.build())
+                    .setLineHeight(getLineHeightForTypography(mTypographyName));
+            return new Text(mElementBuilder.build());
         }
     }
 
@@ -281,6 +296,15 @@ public class Text implements LayoutElement {
     /** Returns whether the Text is underlined. */
     public boolean isUnderline() {
         return checkNotNull(checkNotNull(mText.getFontStyle()).getUnderline()).getValue();
+    }
+
+    /**
+     * Returns whether the Text has extra top and bottom padding above the normal ascent and descent
+     * excluded.
+     */
+    @ProtoLayoutExperimental
+    public boolean getExcludeFontPadding() {
+        return checkNotNull(mText.getAndroidTextStyle()).getExcludeFontPadding();
     }
 
     /**

@@ -32,7 +32,9 @@ import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.LayoutElementBuilders.Row;
+import androidx.wear.protolayout.ModifiersBuilders.Background;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
+import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -181,7 +183,7 @@ public class TestCasesGenerator {
                         .setChipColors(ChipDefaults.SECONDARY_COLORS)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
                         .setCustomContent(
-                                new Row.Builder()
+                                new LayoutElementBuilders.Row.Builder()
                                         .addContent(
                                                 new Text.Builder(context, "text1")
                                                         .setTypography(Typography.TYPOGRAPHY_TITLE3)
@@ -278,6 +280,30 @@ public class TestCasesGenerator {
         testCases.put(
                 "default_text_golden" + goldenSuffix, new Text.Builder(context, "Testing").build());
         testCases.put(
+                "excluded_padding_text_golden" + goldenSuffix,
+                new Row.Builder()
+                        .addContent(
+                                new Box.Builder()
+                                        .setModifiers(buildBackgroundColorModifier(Color.YELLOW))
+                                        .addContent(
+                                                new Text.Builder(context, "Inc padd ")
+                                                        .setExcludeFontPadding(false)
+                                                        .setTypography(
+                                                                Typography.TYPOGRAPHY_CAPTION1)
+                                                        .build())
+                                        .build())
+                        .addContent(
+                                new Box.Builder()
+                                        .setModifiers(buildBackgroundColorModifier(Color.CYAN))
+                                        .addContent(
+                                                new Text.Builder(context, "Excl padd")
+                                                        .setExcludeFontPadding(true)
+                                                        .setTypography(
+                                                                Typography.TYPOGRAPHY_CAPTION1)
+                                                        .build())
+                                        .build())
+                        .build());
+        testCases.put(
                 "custom_text_golden" + goldenSuffix,
                 new Text.Builder(context, "Testing text.")
                         .setItalic(true)
@@ -290,5 +316,11 @@ public class TestCasesGenerator {
                 new Text.Builder(context, "abcdeabcdeabcde").build());
 
         return testCases;
+    }
+
+    private static Modifiers buildBackgroundColorModifier(int color) {
+        return new Modifiers.Builder()
+                .setBackground(new Background.Builder().setColor(argb(color)).build())
+                .build();
     }
 }
