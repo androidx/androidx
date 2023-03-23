@@ -17,7 +17,6 @@
 package androidx.javascriptengine;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * Indicates that a JavaScriptIsolate's evaluation failed due to it returning a oversized result.
@@ -26,10 +25,7 @@ import androidx.annotation.RestrictTo;
  * {@link IsolateStartupParameters}, or the default limit.
  * <p>
  * The isolate may continue to be used after this exception has been thrown.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class EvaluationResultSizeLimitExceededException extends JavaScriptException {
     public EvaluationResultSizeLimitExceededException(@NonNull String error) {
         super(error);
