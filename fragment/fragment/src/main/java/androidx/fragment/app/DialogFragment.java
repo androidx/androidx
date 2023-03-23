@@ -649,6 +649,26 @@ public class DialogFragment extends Fragment
         return dialog;
     }
 
+    /**
+     * Return the {@link ComponentDialog} this fragment is currently controlling.
+     *
+     * @throws IllegalStateException if the Dialog found is not a ComponentDialog or
+     * if Dialog has not yet been created (before {@link #onCreateDialog(Bundle)})
+     * or has been destroyed (after {@link #onDestroyView()}.
+     *
+     * @see #requireDialog()
+     */
+    @NonNull
+    public final ComponentDialog requireComponentDialog() {
+        Dialog dialog = requireDialog();
+        if (!(dialog instanceof ComponentDialog)) {
+            throw new IllegalStateException("DialogFragment " + this
+                    + " did not return a ComponentDialog instance from "
+                    + "requireDialog(). The actual Dialog is " + dialog);
+        }
+        return (ComponentDialog) dialog;
+    }
+
     @StyleRes
     public int getTheme() {
         return mTheme;
