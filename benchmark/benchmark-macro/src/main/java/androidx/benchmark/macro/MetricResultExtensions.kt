@@ -68,7 +68,7 @@ fun assertEqualMeasurements(
         }
     }
 
-    if (!errorString.isBlank()) {
+    if (errorString.isNotBlank()) {
         throw AssertionError(errorString)
     }
 }
@@ -79,7 +79,7 @@ internal fun List<Metric.Measurement>.merge(
     val nameSet = this.map { it.name }.toSet()
     val otherNameSet = other.map { it.name }.toSet()
     val intersectingNames = nameSet.intersect(otherNameSet)
-    if (intersectingNames.isEmpty()) {
+    if (intersectingNames.isNotEmpty()) {
         throw IllegalStateException(
             "Multiple metrics produced " +
                 "measurements with overlapping names: $intersectingNames"
