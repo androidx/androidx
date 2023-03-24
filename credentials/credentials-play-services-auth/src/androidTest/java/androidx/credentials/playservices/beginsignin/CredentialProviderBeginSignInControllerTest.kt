@@ -28,6 +28,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -78,8 +79,6 @@ class CredentialProviderBeginSignInControllerTest {
 
     @Test
     fun convertRequestToPlayServices_setGoogleIdOptionRequest_success() {
-        // TODO(b/270239625) fix pre u test cases for new GoogleIdOption signature
-        /*
         val activityScenario = ActivityScenario.launch(
             TestCredentialsActivity::class.java
         )
@@ -89,7 +88,8 @@ class CredentialProviderBeginSignInControllerTest {
             .setNonce("nonce")
             .setFilterByAuthorizedAccounts(true)
             .setRequestVerifiedPhoneNumber(false)
-            .associatedLinkedAccounts("link_service_id", listOf("a", "b", "c"))
+            .associateLinkedAccounts("link_service_id", listOf("a", "b", "c"))
+            .setAutoSelectEnabled(true)
             .build()
 
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
@@ -116,6 +116,5 @@ class CredentialProviderBeginSignInControllerTest {
             assertThat(actualOption.idTokenDepositionScopes)
                 .isEqualTo(option.idTokenDepositionScopes)
         }
-         */
     }
 }

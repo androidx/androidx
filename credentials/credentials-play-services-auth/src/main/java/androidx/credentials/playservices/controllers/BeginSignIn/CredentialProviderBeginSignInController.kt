@@ -228,7 +228,7 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
         }
 
         if (response.profilePictureUri != null) {
-            cred.setProfilePictureUri(response.profilePictureUri.toString())
+            cred.setProfilePictureUri(response.profilePictureUri)
         }
 
         return cred.build()
