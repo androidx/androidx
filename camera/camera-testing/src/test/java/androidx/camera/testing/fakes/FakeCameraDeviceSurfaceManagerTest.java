@@ -33,6 +33,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
+import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -88,7 +89,7 @@ public class FakeCameraDeviceSurfaceManagerTest {
         UseCaseConfig<?> preview = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         UseCaseConfig<?> analysis = new ImageAnalysis.Builder().getUseCaseConfig();
         mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
-                /* isConcurrentCameraModeOn = */false,
+                CameraMode.DEFAULT,
                 FAKE_CAMERA_ID0,
                 emptyList(),
                 createConfigOutputSizesMap(preview, analysis));
@@ -104,7 +105,7 @@ public class FakeCameraDeviceSurfaceManagerTest {
                         new Size(1, 1),
                         new Range<>(30, 30));
         mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
-                /* isConcurrentCameraModeOn = */false,
+                CameraMode.DEFAULT,
                 FAKE_CAMERA_ID0,
                 singletonList(analysis), createConfigOutputSizesMap(preview, video));
     }
@@ -115,7 +116,7 @@ public class FakeCameraDeviceSurfaceManagerTest {
         UseCaseConfig<?> video = new FakeUseCaseConfig.Builder().getUseCaseConfig();
         UseCaseConfig<?> analysis = new ImageAnalysis.Builder().getUseCaseConfig();
         mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
-                /* isConcurrentCameraModeOn = */false,
+                CameraMode.DEFAULT,
                 FAKE_CAMERA_ID0,
                 Collections.emptyList(), createConfigOutputSizesMap(preview, video, analysis));
     }
@@ -124,12 +125,12 @@ public class FakeCameraDeviceSurfaceManagerTest {
     public void canRetrieveInsertedSuggestedStreamSpecs() {
         Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecsCamera0 =
                 mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
-                        /* isConcurrentCameraModeOn = */false,
+                        CameraMode.DEFAULT,
                         FAKE_CAMERA_ID0,
                         Collections.emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig));
         Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecCamera1 =
                 mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
-                        /* isConcurrentCameraModeOn = */false,
+                        CameraMode.DEFAULT,
                         FAKE_CAMERA_ID1,
                         Collections.emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig));
 
