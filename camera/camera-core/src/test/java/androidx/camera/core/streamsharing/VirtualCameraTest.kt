@@ -20,14 +20,20 @@ import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
+import android.os.Looper.getMainLooper
 import android.util.Size
 import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CameraControlInternal
+import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.defaultEmptySessionConfig
 import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.processing.SurfaceEdge
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeDeferrableSurface
@@ -40,6 +46,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -73,10 +80,16 @@ class VirtualCameraTest {
     )
     private val useCaseConfigFactory = FakeUseCaseConfigFactory()
     private lateinit var virtualCamera: VirtualCamera
+    private var snapshotTriggered = false
 
     @Before
     fun setUp() {
-        virtualCamera = VirtualCamera(parentCamera, setOf(child1, child2), useCaseConfigFactory)
+        virtualCamera = VirtualCamera(
+            parentCamera, setOf(child1, child2), useCaseConfigFactory
+        ) {
+            snapshotTriggered = true
+            Futures.immediateFuture(null)
+        }
     }
 
     @After
@@ -84,6 +97,24 @@ class VirtualCameraTest {
         for (surfaceEdge in surfaceEdgesToClose) {
             surfaceEdge.close()
         }
+    }
+
+    @Test
+    fun submitStillCaptureRequests_triggersSnapshot() {
+        // Arrange.
+        virtualCamera.bindChildren()
+
+        // Act: submit a still capture request from a child.
+        val cameraControl = child1.camera!!.cameraControl as CameraControlInternal
+        cameraControl.submitStillCaptureRequests(
+            listOf(CaptureConfig.Builder().build()),
+            CAPTURE_MODE_MINIMIZE_LATENCY,
+            FLASH_MODE_AUTO
+        )
+        shadowOf(getMainLooper()).idle()
+
+        // The StreamSharing.Control is called to take a snapshot.
+        assertThat(snapshotTriggered).isTrue()
     }
 
     @Test
@@ -151,7 +182,6 @@ class VirtualCameraTest {
     fun virtualCameraInheritsParentProperties() {
         assertThat(virtualCamera.cameraState).isEqualTo(parentCamera.cameraState)
         assertThat(virtualCamera.cameraInfo).isEqualTo(parentCamera.cameraInfo)
-        assertThat(virtualCamera.cameraControl).isEqualTo(parentCamera.cameraControl)
     }
 
     @Test

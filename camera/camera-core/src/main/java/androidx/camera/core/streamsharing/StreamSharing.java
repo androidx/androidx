@@ -52,6 +52,8 @@ import androidx.camera.core.processing.DefaultSurfaceProcessor;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,12 +99,12 @@ public class StreamSharing extends UseCase {
     public StreamSharing(@NonNull CameraInternal parentCamera,
             @NonNull Set<UseCase> children,
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
-        this(new VirtualCamera(parentCamera, children, useCaseConfigFactory));
-    }
-
-    StreamSharing(@NonNull VirtualCamera virtualCamera) {
         super(DEFAULT_CONFIG);
-        mVirtualCamera = virtualCamera;
+        mVirtualCamera = new VirtualCamera(parentCamera, children, useCaseConfigFactory,
+                () -> {
+                    // TODO: Ask the DefaultSurfaceProcessor to take a snapshot.
+                    throw new UnsupportedOperationException();
+                });
     }
 
     @Nullable
@@ -293,6 +295,18 @@ public class StreamSharing extends UseCase {
             return getViewPortCropRect();
         }
         return new Rect(0, 0, surfaceResolution.getWidth(), surfaceResolution.getHeight());
+    }
+
+    /**
+     * Interface for controlling the {@link StreamSharing}.
+     */
+    interface Control {
+
+        /**
+         * Takes a snapshot of the current stream and write it to the children with JPEG Surface.
+         */
+        @NonNull
+        ListenableFuture<Void> jpegSnapshot();
     }
 
     @VisibleForTesting
