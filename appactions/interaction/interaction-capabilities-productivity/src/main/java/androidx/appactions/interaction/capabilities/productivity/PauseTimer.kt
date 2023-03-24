@@ -39,7 +39,7 @@ private val ACTION_SPEC =
         .setDescriptor(PauseTimer.Property::class.java)
         .setArgument(PauseTimer.Argument::class.java, PauseTimer.Argument::Builder)
         .setOutput(PauseTimer.Output::class.java)
-        .bindRepeatedGenericParameter(
+        .bindRepeatedParameter(
             "timer",
             { property -> Optional.ofNullable(property.timerList) },
             PauseTimer.Argument.Builder::setTimerList,

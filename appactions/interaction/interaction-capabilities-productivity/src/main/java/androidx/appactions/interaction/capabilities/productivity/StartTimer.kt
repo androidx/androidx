@@ -44,21 +44,21 @@ private val ACTION_SPEC =
         .setDescriptor(StartTimer.Property::class.java)
         .setArgument(StartTimer.Argument::class.java, StartTimer.Argument::Builder)
         .setOutput(StartTimer.Output::class.java)
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "timer.identifier",
             { property -> Optional.ofNullable(property.identifier) },
             StartTimer.Argument.Builder::setIdentifier,
             TypeConverters::toStringValue,
             PropertyConverter::stringValueToProto
         )
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "timer.name",
             { property -> Optional.ofNullable(property.name) },
             StartTimer.Argument.Builder::setName,
             TypeConverters::toStringValue,
             PropertyConverter::stringValueToProto
         )
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "timer.duration",
             { property -> Optional.ofNullable(property.duration) },
             StartTimer.Argument.Builder::setDuration,

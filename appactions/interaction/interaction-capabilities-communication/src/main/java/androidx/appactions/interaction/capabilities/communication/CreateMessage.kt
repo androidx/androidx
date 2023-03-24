@@ -43,14 +43,14 @@ private val ACTION_SPEC =
         .setDescriptor(CreateMessage.Property::class.java)
         .setArgument(CreateMessage.Argument::class.java, CreateMessage.Argument::Builder)
         .setOutput(CreateMessage.Output::class.java)
-        .bindRepeatedGenericParameter(
+        .bindRepeatedParameter(
             "message.recipient",
             { property -> Optional.ofNullable(property.recipient) },
             CreateMessage.Argument.Builder::setRecipientList,
             TypeConverters::toRecipient,
             TypeConverters::toEntity
         )
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "message.text",
             { property -> Optional.ofNullable(property.messageText) },
             CreateMessage.Argument.Builder::setMessageText,

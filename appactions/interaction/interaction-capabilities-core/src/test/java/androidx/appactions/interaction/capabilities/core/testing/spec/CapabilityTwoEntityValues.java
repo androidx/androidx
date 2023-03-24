@@ -38,13 +38,13 @@ public final class CapabilityTwoEntityValues {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                     .setDescriptor(Property.class)
                     .setArgument(Argument.class, Argument::newBuilder)
-                    .bindOptionalGenericParameter(
+                    .bindOptionalParameter(
                             "slotA",
                             Property::slotA,
                             Argument.Builder::setSlotA,
                             TypeConverters::toEntityValue,
                             PropertyConverter::entityToProto)
-                    .bindOptionalGenericParameter(
+                    .bindOptionalParameter(
                             "slotB",
                             Property::slotB,
                             Argument.Builder::setSlotB,
