@@ -19,12 +19,12 @@ package androidx.appactions.interaction.capabilities.core.testing.spec
 import androidx.appactions.interaction.capabilities.core.BaseSession
 import androidx.appactions.interaction.capabilities.core.ExecutionResult
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
-import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver
+import androidx.appactions.interaction.capabilities.core.task.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.values.EntityValue
 
 interface Session : BaseSession<Argument, Output> {
 
-    fun getRequiredEntityListener(): AppEntityResolver<EntityValue>? = null
+    fun getRequiredEntityListener(): AppEntityListener<EntityValue>? = null
 
     companion object {
         @JvmStatic

@@ -20,10 +20,10 @@ import androidx.annotation.RestrictTo
 import androidx.appactions.interaction.capabilities.core.impl.converters.EntityConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SearchActionConverter
-import androidx.appactions.interaction.capabilities.core.task.AppEntityListResolver
-import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver
-import androidx.appactions.interaction.capabilities.core.task.InventoryListResolver
-import androidx.appactions.interaction.capabilities.core.task.InventoryResolver
+import androidx.appactions.interaction.capabilities.core.task.AppEntityListListener
+import androidx.appactions.interaction.capabilities.core.task.AppEntityListener
+import androidx.appactions.interaction.capabilities.core.task.InventoryListListener
+import androidx.appactions.interaction.capabilities.core.task.InventoryListener
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.proto.ParamValue
 
@@ -47,14 +47,14 @@ internal constructor(
 
         fun <ValueTypeT> registerInventoryTaskParam(
             paramName: String,
-            listener: InventoryResolver<ValueTypeT>,
+            listener: InventoryListener<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
         ): Builder<ConfirmationT> = apply {
             mutableTaskParamMap[paramName] =
                 TaskParamBinding(
                     paramName,
                     GROUND_IF_NO_IDENTIFIER,
-                    GenericResolverInternal.fromInventoryResolver(listener),
+                    GenericResolverInternal.fromInventoryListener(listener),
                     converter,
                     null,
                     null,
@@ -63,14 +63,14 @@ internal constructor(
 
         fun <ValueTypeT> registerInventoryListTaskParam(
             paramName: String,
-            listener: InventoryListResolver<ValueTypeT>,
+            listener: InventoryListListener<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
         ): Builder<ConfirmationT> = apply {
             mutableTaskParamMap[paramName] =
                 TaskParamBinding(
                     paramName,
                     GROUND_IF_NO_IDENTIFIER,
-                    GenericResolverInternal.fromInventoryListResolver(listener),
+                    GenericResolverInternal.fromInventoryListListener(listener),
                     converter,
                     null,
                     null,
@@ -79,7 +79,7 @@ internal constructor(
 
         fun <ValueTypeT> registerAppEntityTaskParam(
             paramName: String,
-            listener: AppEntityResolver<ValueTypeT>,
+            listener: AppEntityListener<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
             entityConverter: EntityConverter<ValueTypeT>,
             searchActionConverter: SearchActionConverter<ValueTypeT>,
@@ -88,7 +88,7 @@ internal constructor(
                 TaskParamBinding(
                     paramName,
                     GROUND_IF_NO_IDENTIFIER,
-                    GenericResolverInternal.fromAppEntityResolver(listener),
+                    GenericResolverInternal.fromAppEntityListener(listener),
                     converter,
                     entityConverter,
                     searchActionConverter,
@@ -97,7 +97,7 @@ internal constructor(
 
         fun <ValueTypeT> registerAppEntityListTaskParam(
             paramName: String,
-            listener: AppEntityListResolver<ValueTypeT>,
+            listener: AppEntityListListener<ValueTypeT>,
             converter: ParamValueConverter<ValueTypeT>,
             entityConverter: EntityConverter<ValueTypeT>,
             searchActionConverter: SearchActionConverter<ValueTypeT>,
@@ -106,7 +106,7 @@ internal constructor(
                 TaskParamBinding(
                     paramName,
                     GROUND_IF_NO_IDENTIFIER,
-                    GenericResolverInternal.fromAppEntityListResolver(listener),
+                    GenericResolverInternal.fromAppEntityListListener(listener),
                     converter,
                     entityConverter,
                     searchActionConverter,

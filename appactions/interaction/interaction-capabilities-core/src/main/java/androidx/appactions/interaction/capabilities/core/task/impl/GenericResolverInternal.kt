@@ -18,11 +18,11 @@ package androidx.appactions.interaction.capabilities.core.task.impl
 import androidx.appactions.interaction.capabilities.core.impl.converters.ParamValueConverter
 import androidx.appactions.interaction.capabilities.core.impl.converters.SlotTypeConverter
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
-import androidx.appactions.interaction.capabilities.core.task.AppEntityListResolver
-import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver
+import androidx.appactions.interaction.capabilities.core.task.AppEntityListListener
+import androidx.appactions.interaction.capabilities.core.task.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
-import androidx.appactions.interaction.capabilities.core.task.InventoryListResolver
-import androidx.appactions.interaction.capabilities.core.task.InventoryResolver
+import androidx.appactions.interaction.capabilities.core.task.InventoryListListener
+import androidx.appactions.interaction.capabilities.core.task.InventoryListener
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult
 import androidx.appactions.interaction.capabilities.core.task.ValueListener
 import androidx.appactions.interaction.capabilities.core.task.impl.exceptions.InvalidResolverException
@@ -41,10 +41,10 @@ internal class GenericResolverInternal<ValueTypeT>
 private constructor(
     val value: ValueListener<ValueTypeT>? = null,
     val valueList: ValueListener<List<ValueTypeT>>? = null,
-    val appEntityResolver: AppEntityResolver<ValueTypeT>? = null,
-    val appEntityListResolver: AppEntityListResolver<ValueTypeT>? = null,
-    val inventoryResolver: InventoryResolver<ValueTypeT>? = null,
-    val inventoryListResolver: InventoryListResolver<ValueTypeT>? = null,
+    val appEntity: AppEntityListener<ValueTypeT>? = null,
+    val appEntityList: AppEntityListListener<ValueTypeT>? = null,
+    val inventory: InventoryListener<ValueTypeT>? = null,
+    val inventoryList: InventoryListListener<ValueTypeT>? = null,
 ) {
 
     /** Wrapper which should invoke the `lookupAndRender` provided by the developer. */
@@ -52,10 +52,10 @@ private constructor(
     suspend fun invokeLookup(
         searchAction: SearchAction<ValueTypeT>
     ): EntitySearchResult<ValueTypeT> {
-        return if (appEntityResolver != null) {
-            appEntityResolver.lookupAndRender(searchAction)
-        } else if (appEntityListResolver != null) {
-            appEntityListResolver.lookupAndRender(searchAction)
+        return if (appEntity != null) {
+            appEntity.lookupAndRender(searchAction)
+        } else if (appEntityList != null) {
+            appEntityList.lookupAndRender(searchAction)
         } else {
             throw InvalidResolverException("invokeLookup is not supported on this resolver")
         }
@@ -67,9 +67,9 @@ private constructor(
      */
     @Throws(InvalidResolverException::class)
     suspend fun invokeEntityRender(entityIds: List<String>) {
-        if (inventoryResolver != null) {
-            inventoryResolver.renderChoices(entityIds)
-        } else if (inventoryListResolver != null) inventoryListResolver.renderChoices(entityIds)
+        if (inventory != null) {
+            inventory.renderChoices(entityIds)
+        } else if (inventoryList != null) inventoryList.renderChoices(entityIds)
         else {
             throw InvalidResolverException("invokeEntityRender is not supported on this resolver")
         }
@@ -89,14 +89,14 @@ private constructor(
         return when {
             value != null -> value.onReceived(singularConverter.convert(paramValues))
             valueList != null -> valueList.onReceived(repeatedConverter.convert(paramValues))
-            appEntityResolver != null ->
-                appEntityResolver.onReceived(singularConverter.convert(paramValues))
-            appEntityListResolver != null ->
-                appEntityListResolver.onReceived(repeatedConverter.convert(paramValues))
-            inventoryResolver != null ->
-                inventoryResolver.onReceived(singularConverter.convert(paramValues))
-            inventoryListResolver != null ->
-                inventoryListResolver.onReceived(repeatedConverter.convert(paramValues))
+            appEntity != null ->
+                appEntity.onReceived(singularConverter.convert(paramValues))
+            appEntityList != null ->
+                appEntityList.onReceived(repeatedConverter.convert(paramValues))
+            inventory != null ->
+                inventory.onReceived(singularConverter.convert(paramValues))
+            inventoryList != null ->
+                inventoryList.onReceived(repeatedConverter.convert(paramValues))
             else -> throw IllegalStateException("unreachable")
         }
     }
@@ -108,18 +108,18 @@ private constructor(
         fun <ValueTypeT> fromValueListListener(valueListListener: ValueListener<List<ValueTypeT>>) =
             GenericResolverInternal(valueList = valueListListener)
 
-        fun <ValueTypeT> fromAppEntityResolver(appEntityResolver: AppEntityResolver<ValueTypeT>) =
-            GenericResolverInternal(appEntityResolver = appEntityResolver)
+        fun <ValueTypeT> fromAppEntityListener(appEntity: AppEntityListener<ValueTypeT>) =
+            GenericResolverInternal(appEntity = appEntity)
 
-        fun <ValueTypeT> fromAppEntityListResolver(
-            appEntityListResolver: AppEntityListResolver<ValueTypeT>
-        ) = GenericResolverInternal(appEntityListResolver = appEntityListResolver)
+        fun <ValueTypeT> fromAppEntityListListener(
+            appEntityList: AppEntityListListener<ValueTypeT>
+        ) = GenericResolverInternal(appEntityList = appEntityList)
 
-        fun <ValueTypeT> fromInventoryResolver(inventoryResolver: InventoryResolver<ValueTypeT>) =
-            GenericResolverInternal(inventoryResolver = inventoryResolver)
+        fun <ValueTypeT> fromInventoryListener(inventory: InventoryListener<ValueTypeT>) =
+            GenericResolverInternal(inventory = inventory)
 
-        fun <ValueTypeT> fromInventoryListResolver(
-            inventoryListResolver: InventoryListResolver<ValueTypeT>
-        ) = GenericResolverInternal(inventoryListResolver = inventoryListResolver)
+        fun <ValueTypeT> fromInventoryListListener(
+            inventoryList: InventoryListListener<ValueTypeT>
+        ) = GenericResolverInternal(inventoryList = inventoryList)
     }
 }
