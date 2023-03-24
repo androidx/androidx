@@ -21,7 +21,6 @@ import androidx.baselineprofile.gradle.consumer.task.MainGenerateBaselineProfile
 import androidx.baselineprofile.gradle.consumer.task.MergeBaselineProfileTask
 import androidx.baselineprofile.gradle.consumer.task.PrintConfigurationForVariantTask
 import androidx.baselineprofile.gradle.consumer.task.maybeCreateGenerateTask
-import androidx.baselineprofile.gradle.utils.R8Utils
 import androidx.baselineprofile.gradle.utils.AgpPlugin
 import androidx.baselineprofile.gradle.utils.AgpPluginId
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
@@ -29,6 +28,7 @@ import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILE
 import androidx.baselineprofile.gradle.utils.INTERMEDIATES_BASE_FOLDER
 import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
+import androidx.baselineprofile.gradle.utils.R8Utils
 import androidx.baselineprofile.gradle.utils.RELEASE
 import androidx.baselineprofile.gradle.utils.camelCase
 import com.android.build.api.dsl.ApplicationExtension
@@ -219,7 +219,8 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             hasDependencies = baselineProfileConfiguration.allDependencies.isNotEmpty(),
             sourceProfilesFileCollection = baselineProfileConfiguration,
             outputDir = mergedTaskOutputDir,
-            filterRules = variantConfiguration.filterRules
+            filterRules = variantConfiguration.filterRules,
+            library = isLibraryModule()
         )
 
         // If `saveInSrc` is true, we create an additional task to copy the output
@@ -242,6 +243,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             val copyTaskProvider = MergeBaselineProfileTask.maybeRegisterForCopy(
                 project = project,
                 variantName = mergeAwareVariantName,
+                library = isLibraryModule(),
                 sourceDir = mergeTaskProvider.flatMap { it.baselineProfileDir },
                 outputDir = project.provider { srcOutputDir },
             )

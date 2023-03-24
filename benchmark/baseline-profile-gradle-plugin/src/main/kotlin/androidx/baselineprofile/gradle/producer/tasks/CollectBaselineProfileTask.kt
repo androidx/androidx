@@ -147,10 +147,14 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
                         .filter {
                             // The label for this artifact is `additionaltestoutput.benchmark.trace`
                             // https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-main:utp/android-test-plugin-host-additional-test-output/src/main/java/com/android/tools/utp/plugins/host/additionaltestoutput/AndroidAdditionalTestOutputPlugin.kt;l=199?q=additionaltestoutput.benchmark.trace
-                            it.label.label == "additionaltestoutput.benchmark.trace" &&
-                                "-baseline-prof-" in it.sourcePath.path
+                            it.label.label == "additionaltestoutput.benchmark.trace"
                         }
                         .map { File(it.sourcePath.path) }
+                        .filter {
+                            it.extension == "txt" &&
+                                ("-baseline-prof-" in it.name || "-startup-prof-" in it.name)
+                        }
+
                     if (baselineProfileFiles.isEmpty()) {
                         continue
                     }
