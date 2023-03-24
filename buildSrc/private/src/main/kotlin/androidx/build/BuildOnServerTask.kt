@@ -17,7 +17,6 @@
 package androidx.build
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.PathSensitive
@@ -44,12 +43,6 @@ open class BuildOnServerTask : DefaultTask() {
 
     @Internal
     lateinit var distributionDirectory: File
-
-    @Internal
-    lateinit var buildId: String
-
-    @InputDirectory @PathSensitive(PathSensitivity.RELATIVE)
-    lateinit var repositoryDirectory: File
 
     @InputFiles @PathSensitive(PathSensitivity.RELATIVE)
     fun getRequiredFiles(): List<File> {
