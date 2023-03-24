@@ -36,10 +36,10 @@ import java.util.Objects
  *                         on a per-call basis
  */
 class CallAttributes constructor(
-    val displayName: String,
+    val displayName: CharSequence,
     val address: Uri,
     @Direction val direction: Int,
-    @CallType val callType: Int = AUDIO_CALL,
+    @CallType val callType: Int = CALL_TYPE_AUDIO_CALL,
     @CallCapability val callCapabilities: Int = SUPPORTS_SET_INACTIVE
 ) {
     override fun toString(): String {
@@ -83,7 +83,7 @@ class CallAttributes constructor(
 
         /** @hide */
         @Retention(AnnotationRetention.SOURCE)
-        @IntDef(AUDIO_CALL, VIDEO_CALL)
+        @IntDef(CALL_TYPE_AUDIO_CALL, CALL_TYPE_VIDEO_CALL)
         @Target(AnnotationTarget.TYPE, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.PROPERTY)
         annotation class CallType
 
@@ -91,12 +91,12 @@ class CallAttributes constructor(
          * Used when answering or dialing a call to indicate that the call does not have a video
          * component
          */
-        const val AUDIO_CALL = 1
+        const val CALL_TYPE_AUDIO_CALL = 1
 
         /**
          * Indicates video transmission is supported
          */
-        const val VIDEO_CALL = 2
+        const val CALL_TYPE_VIDEO_CALL = 2
 
         /** @hide */
         @Retention(AnnotationRetention.SOURCE)
@@ -105,7 +105,7 @@ class CallAttributes constructor(
         annotation class CallCapability
 
         /**
-         * The call being created can be set to inactive (traditionally referred to as hold).  This
+         * This call being created can be set to inactive (traditionally referred to as hold).  This
          * means that once a new call goes active, if the active call needs to be held in order to
          * place or receive an incoming call, the active call will be placed on hold.  otherwise,
          * the active call may be disconnected.
@@ -113,14 +113,14 @@ class CallAttributes constructor(
         const val SUPPORTS_SET_INACTIVE = 1 shl 1
 
         /**
-         * The call can be streamed from a root device to another device to continue the call
+         * This call can be streamed from a root device to another device to continue the call
          * without completely transferring it. The call continues to take place on the source
          * device, however media and control are streamed to another device.
          */
         const val SUPPORTS_STREAM = 1 shl 2
 
         /**
-         * The call can be completely transferred from one endpoint to another.
+         * This call can be completely transferred from one endpoint to another.
          */
         const val SUPPORTS_TRANSFER = 1 shl 3
     }
@@ -156,7 +156,7 @@ class CallAttributes constructor(
         fun toTelecomCallAttributes(
             phoneAccountHandle: PhoneAccountHandle,
             direction: Int,
-            displayName: String,
+            displayName: CharSequence,
             address: Uri,
             callType: Int,
             callCapabilities: Int
@@ -173,7 +173,7 @@ class CallAttributes constructor(
         }
 
         private fun remapCallType(callType: Int): Int {
-            return if (callType == AUDIO_CALL) {
+            return if (callType == CALL_TYPE_AUDIO_CALL) {
                 android.telecom.CallAttributes.AUDIO_CALL
             } else {
                 android.telecom.CallAttributes.VIDEO_CALL
@@ -222,7 +222,7 @@ class CallAttributes constructor(
      * @hide
      */
     private fun callTypeToString(): String {
-        return if (callType == AUDIO_CALL) {
+        return if (callType == CALL_TYPE_AUDIO_CALL) {
             "Audio"
         } else {
             "Video"

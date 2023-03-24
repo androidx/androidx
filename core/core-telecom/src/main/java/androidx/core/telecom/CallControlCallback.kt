@@ -35,38 +35,51 @@ package androidx.core.telecom
  */
 interface CallControlCallback {
     /**
-     * Telecom is informing the client to set the call active.
+     * Telecom is informing your VoIP application to set the call active.  Telecom is requesting
+     * this on behalf of an system service (e.g. Automotive service) or a device (e.g. Wearable).
      *
-     * @return true if your VoIP application can set the call (that corresponds to this
-     * CallControlCallback) to active. Otherwise, return false.
+     * @return true to indicate your VoIP application can set the call (that corresponds to this
+     * CallControlCallback) to active. Otherwise, return false to indicate your application is
+     * unable to process the request and telecom will cancel the external request.
      */
     suspend fun onSetActive(): Boolean
 
     /**
-     * Telecom is informing the client to set the call inactive. This is the same as holding a call
-     * for two endpoints but can be extended to setting a meeting inactive.
+     * Telecom is informing your VoIP application to set the call inactive. This is the same as
+     * holding a call for two endpoints but can be extended to setting a meeting inactive. Telecom
+     * is requesting this on behalf of an system service (e.g. Automotive service) or a device (e.g.
+     * Wearable).
      *
-     * @return true if your app VoIP application has move the call to an inactive state. Your app
-     * must stop using the microphone and playing incoming media when returning.
+     * Note: Your app must stop using the microphone and playing incoming media when returning.
+     *
+     * @return true to indicate your VoIP application can transition the call state to inactive.
+     * Otherwise, return false to indicate your application is  unable to process the request and
+     * telecom will cancel the external request.
      */
     suspend fun onSetInactive(): Boolean
 
     /**
-     * Telecom is informing the client to answer an incoming call and set it to active.
+     * Telecom is informing your VoIP application to answer an incoming call and set it to active.
+     * Telecom is requesting this on behalf of an system service (e.g. Automotive service) or a
+     * device (e.g. Wearable).
      *
      * @param callType that call is requesting to be answered as.
      *
-     * @return true if your VoIP application can set the call (that corresponds to this
-     * CallControlCallback) to active. Otherwise, return false.
+     * @return true to indicate your VoIP application can answer the call with the given
+     * [CallAttributes.Companion.CallType]. Otherwise, return false to indicate your application is
+     * unable to process the request and telecom will cancel the external request.
      */
     suspend fun onAnswer(@CallAttributes.Companion.CallType callType: Int): Boolean
 
     /**
-     * Telecom is informing the client to disconnect the call
+     * Telecom is informing your VoIP application to disconnect the call. Telecom is requesting this
+     * on behalf of an system service (e.g. Automotive service) or a device (e.g. Wearable).
      *
      * @param disconnectCause represents the cause for disconnecting the call.
      *
-     * @return true when your VoIP application has disconnected the call. Otherwise, return false.
+     * @return true when your VoIP application has disconnected the call. Otherwise, return false to
+     * indicate your application is unable to process the request. However, telecom will still
+     * disconnect and untrack the call.
      */
     suspend fun onDisconnect(disconnectCause: android.telecom.DisconnectCause): Boolean
 }
