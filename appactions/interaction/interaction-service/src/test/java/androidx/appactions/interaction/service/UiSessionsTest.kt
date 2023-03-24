@@ -29,8 +29,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.ResourceBuilders
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

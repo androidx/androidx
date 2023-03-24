@@ -28,8 +28,8 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
 import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
 import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
