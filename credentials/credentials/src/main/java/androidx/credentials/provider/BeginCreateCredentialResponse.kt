@@ -16,6 +16,11 @@
 
 package androidx.credentials.provider
 
+import android.os.Bundle
+import androidx.annotation.OptIn
+import androidx.core.os.BuildCompat
+import androidx.credentials.provider.utils.BeginCreateCredentialUtil
+
 /**
  * Response to [BeginCreateCredentialRequest].
  *
@@ -99,6 +104,45 @@ class BeginCreateCredentialResponse constructor(
          */
         fun build(): BeginCreateCredentialResponse {
             return BeginCreateCredentialResponse(createEntries.toList(), remoteEntry)
+        }
+    }
+
+    companion object {
+        private const val REQUEST_KEY =
+            "androidx.credentials.provider.BeginCreateCredentialResponse"
+
+        /**
+         * Helper method to convert the class to a parcelable [Bundle], in case the class
+         * instance needs to be sent across a process. Consumers of this method should use
+         * [readFromBundle] to reconstruct the class instance back from the bundle returned here.
+         */
+        @JvmStatic
+        @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
+        fun writeToBundle(response: BeginCreateCredentialResponse): Bundle {
+            val bundle = Bundle()
+            if (BuildCompat.isAtLeastU()) {
+                bundle.putParcelable(REQUEST_KEY,
+                    BeginCreateCredentialUtil.convertToFrameworkResponse(response))
+            }
+            return bundle
+        }
+
+        /**
+         * Helper method to convert a [Bundle] retrieved through [writeToBundle], back
+         * to an instance of [BeginGetCredentialResponse].
+         */
+        @JvmStatic
+        @OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
+        fun readFromBundle(bundle: Bundle): BeginCreateCredentialResponse? {
+            if (BuildCompat.isAtLeastU()) {
+                val frameworkResponse = bundle.getParcelable(REQUEST_KEY,
+                    android.service.credentials.BeginCreateCredentialResponse::class.java)
+                if (frameworkResponse != null) {
+                    return BeginCreateCredentialUtil.convertToJetpackResponse(frameworkResponse)
+                }
+                return null
+            }
+            return null
         }
     }
 }
