@@ -91,8 +91,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         )
         buildOnServerTask.cacheEvenIfNoOutputs()
         buildOnServerTask.distributionDirectory = getDistributionDirectory()
-        buildOnServerTask.repositoryDirectory = getRepositoryDirectory()
-        buildOnServerTask.buildId = getBuildId()
         buildOnServerTask.dependsOn(
             tasks.register(
                 CREATE_AGGREGATE_BUILD_INFO_FILES_TASK,
