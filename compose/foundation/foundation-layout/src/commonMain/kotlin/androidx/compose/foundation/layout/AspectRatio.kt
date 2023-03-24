@@ -17,15 +17,15 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
@@ -56,7 +56,7 @@ fun Modifier.aspectRatio(
     ratio: Float,
     matchHeightConstraintsFirst: Boolean = false
 ) = this.then(
-    AspectRatioModifier(
+    AspectRatioElement(
         ratio,
         matchHeightConstraintsFirst,
         debugInspectorInfo {
@@ -67,15 +67,45 @@ fun Modifier.aspectRatio(
     )
 )
 
-private class AspectRatioModifier(
+private class AspectRatioElement(
     val aspectRatio: Float,
     val matchHeightConstraintsFirst: Boolean,
-    inspectorInfo: InspectorInfo.() -> Unit
-) : LayoutModifier, InspectorValueInfo(inspectorInfo) {
+    val inspectorInfo: InspectorInfo.() -> Unit
+) : ModifierNodeElement<AspectRatioNode>() {
     init {
         require(aspectRatio > 0) { "aspectRatio $aspectRatio must be > 0" }
     }
 
+    override fun create(): AspectRatioNode {
+        return AspectRatioNode(
+            aspectRatio,
+            matchHeightConstraintsFirst
+        )
+    }
+
+    override fun update(node: AspectRatioNode): AspectRatioNode {
+        node.aspectRatio = aspectRatio
+        node.matchHeightConstraintsFirst = matchHeightConstraintsFirst
+        return node
+    }
+
+    override fun InspectorInfo.inspectableProperties() { inspectorInfo() }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherModifier = other as? AspectRatioElement ?: return false
+        return aspectRatio == otherModifier.aspectRatio &&
+            matchHeightConstraintsFirst == other.matchHeightConstraintsFirst
+    }
+
+    override fun hashCode(): Int =
+        aspectRatio.hashCode() * 31 + matchHeightConstraintsFirst.hashCode()
+}
+
+private class AspectRatioNode(
+    var aspectRatio: Float,
+    var matchHeightConstraintsFirst: Boolean,
+) : LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -202,16 +232,4 @@ private class AspectRatioModifier(
         }
         return IntSize.Zero
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        val otherModifier = other as? AspectRatioModifier ?: return false
-        return aspectRatio == otherModifier.aspectRatio &&
-            matchHeightConstraintsFirst == other.matchHeightConstraintsFirst
-    }
-
-    override fun hashCode(): Int =
-        aspectRatio.hashCode() * 31 + matchHeightConstraintsFirst.hashCode()
-
-    override fun toString(): String = "AspectRatioModifier(aspectRatio=$aspectRatio)"
 }
