@@ -17,10 +17,10 @@ package androidx.appactions.interaction.capabilities.core.task.impl
 
 import androidx.appactions.interaction.capabilities.core.impl.concurrent.Futures
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
-import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver
+import androidx.appactions.interaction.capabilities.core.task.AppEntityListener
 import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult
 import androidx.appactions.interaction.capabilities.core.task.EntitySearchResult.Companion.empty
-import androidx.appactions.interaction.capabilities.core.task.InventoryResolver
+import androidx.appactions.interaction.capabilities.core.task.InventoryListener
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult.Companion.newAccepted
 import androidx.appactions.interaction.capabilities.core.task.ValidationResult.Companion.newRejected
@@ -48,8 +48,8 @@ class TaskSlotProcessorTest {
         valueConsumer: (T) -> Unit,
         renderConsumer: (List<String>) -> Unit,
     ): GenericResolverInternal<T> {
-        return GenericResolverInternal.fromInventoryResolver(
-            object : InventoryResolver<T> {
+        return GenericResolverInternal.fromInventoryListener(
+            object : InventoryListener<T> {
                 override fun onReceivedAsync(value: T): ListenableFuture<ValidationResult> {
                     valueConsumer.invoke(value)
                     return Futures.immediateFuture(validationResult)
@@ -97,14 +97,14 @@ class TaskSlotProcessorTest {
         )
     }
 
-    private fun <T> createAppEntityResolver(
+    private fun <T> createAppEntityListener(
         validationResult: ValidationResult,
         valueConsumer: (T) -> Unit,
         appSearchResult: EntitySearchResult<T>,
         appSearchConsumer: (SearchAction<T>) -> Unit,
     ): GenericResolverInternal<T> {
-        return GenericResolverInternal.fromAppEntityResolver(
-            object : AppEntityResolver<T> {
+        return GenericResolverInternal.fromAppEntityListener(
+            object : AppEntityListener<T> {
                 override fun onReceivedAsync(value: T): ListenableFuture<ValidationResult> {
                     valueConsumer.invoke(value)
                     return Futures.immediateFuture(validationResult)
@@ -336,7 +336,7 @@ class TaskSlotProcessorTest {
         val appSearchCb = SettableFutureWrapper<SearchAction<String>>()
         val entitySearchResult = empty<String>()
         val resolver =
-            createAppEntityResolver(
+            createAppEntityListener(
                 newAccepted(),
                 { result: String -> onReceivedCb.set(result) },
                 entitySearchResult

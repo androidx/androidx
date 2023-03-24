@@ -20,12 +20,12 @@ import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * Similar to ValueListener, but also need to handle entity rendering.
+ * Repeated version of [InventoryListener].
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-interface InventoryResolver<T> : ValueListener<T> {
+interface InventoryListListener<T> : ValueListener<List<T>> {
     /**
      * Renders the provided entities in the app UI for disambiguation.
      *
@@ -43,7 +43,7 @@ interface InventoryResolver<T> : ValueListener<T> {
      *
      * @return a [ListenableFuture] of nothing, which only indicates when the rendering finishes.
      */
-    fun renderChoicesAsync(entityIDs: List<String>): ListenableFuture<Void> {
+    fun renderChoicesAsync(entityIDs: List<String>): ListenableFuture<Unit> {
         throw NotImplementedError()
     }
 }

@@ -26,7 +26,7 @@ import com.google.common.util.concurrent.ListenableFuture
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-interface AppEntityListResolver<T> : ValueListener<List<T>> {
+interface AppEntityListener<T> : ValueListener<T> {
     /**
      * Given a search criteria, looks up the inventory during runtime, renders the search result
      * within the app's own UI and then returns it to the Assistant so that the task can be kept in

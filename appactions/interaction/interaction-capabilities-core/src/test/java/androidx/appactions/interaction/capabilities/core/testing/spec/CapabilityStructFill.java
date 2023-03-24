@@ -25,7 +25,7 @@ import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpec;
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder;
 import androidx.appactions.interaction.capabilities.core.properties.StringValue;
 import androidx.appactions.interaction.capabilities.core.properties.TypeProperty;
-import androidx.appactions.interaction.capabilities.core.task.AppEntityResolver;
+import androidx.appactions.interaction.capabilities.core.task.AppEntityListener;
 import androidx.appactions.interaction.capabilities.core.values.ListItem;
 
 import com.google.auto.value.AutoValue;
@@ -110,6 +110,6 @@ public final class CapabilityStructFill {
 
     public interface Session extends BaseSession<Argument, Void> {
         @NonNull
-        AppEntityResolver<ListItem> getListItemListener();
+        AppEntityListener<ListItem> getListItemListener();
     }
 }
