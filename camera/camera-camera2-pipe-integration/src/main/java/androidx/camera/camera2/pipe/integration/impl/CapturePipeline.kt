@@ -63,8 +63,6 @@ import androidx.camera.core.ImageCapture.FlashMode
 import androidx.camera.core.ImageCapture.FlashType
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.TorchState
-import dagger.Binds
-import dagger.Module
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
@@ -320,13 +318,6 @@ class CapturePipelineImpl @Inject constructor(
         return template == CameraDevice.TEMPLATE_RECORD ||
             flashType == FLASH_TYPE_USE_TORCH_AS_FLASH ||
             useTorchAsFlash.shouldUseTorchAsFlash()
-    }
-
-    @Module
-    abstract class Bindings {
-        @UseCaseCameraScope
-        @Binds
-        abstract fun provideCapturePipeline(capturePipeline: CapturePipelineImpl): CapturePipeline
     }
 }
 

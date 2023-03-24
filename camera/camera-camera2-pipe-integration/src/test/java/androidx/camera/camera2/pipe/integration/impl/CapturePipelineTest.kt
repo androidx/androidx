@@ -37,6 +37,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
+import androidx.camera.camera2.pipe.integration.compat.workaround.CapturePipelineTorchCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlashImpl
@@ -193,7 +194,7 @@ class CapturePipelineTest {
         }
 
     private lateinit var torchControl: TorchControl
-    private lateinit var capturePipeline: CapturePipeline
+    private lateinit var capturePipeline: CapturePipelineImpl
 
     private lateinit var fakeUseCaseCameraState: UseCaseCameraState
 
@@ -226,13 +227,13 @@ class CapturePipelineTest {
         )
 
         capturePipeline = CapturePipelineImpl(
-            torchControl = torchControl,
-            threads = fakeUseCaseThreads,
-            requestListener = comboRequestListener,
             cameraProperties = fakeCameraProperties,
-            useTorchAsFlash = NotUseTorchAsFlash,
+            requestListener = comboRequestListener,
+            threads = fakeUseCaseThreads,
+            torchControl = torchControl,
             useCaseGraphConfig = fakeUseCaseGraphConfig,
-            useCaseCameraState = fakeUseCaseCameraState
+            useCaseCameraState = fakeUseCaseCameraState,
+            useTorchAsFlash = NotUseTorchAsFlash,
         )
     }
 
@@ -343,13 +344,13 @@ class CapturePipelineTest {
     private suspend fun withTorchAsFlashQuirk_shouldOpenTorch(imageCaptureMode: Int) {
         // Arrange.
         capturePipeline = CapturePipelineImpl(
-            torchControl = torchControl,
-            threads = fakeUseCaseThreads,
-            requestListener = comboRequestListener,
-            useTorchAsFlash = UseTorchAsFlashImpl,
             cameraProperties = fakeCameraProperties,
+            requestListener = comboRequestListener,
+            threads = fakeUseCaseThreads,
+            torchControl = torchControl,
             useCaseGraphConfig = fakeUseCaseGraphConfig,
             useCaseCameraState = fakeUseCaseCameraState,
+            useTorchAsFlash = UseTorchAsFlashImpl,
         )
 
         val requestList = mutableListOf<Request>()
@@ -723,6 +724,58 @@ class CapturePipelineTest {
         assertThat(
             fakeCameraGraphSession.repeatingRequestSemaphore.tryAcquire(2, TimeUnit.SECONDS)
         ).isFalse()
+    }
+
+    @Test
+    fun torchAsFlash_torchCorrection_shouldTurnsTorchOffOn(): Unit = runBlocking {
+        torchStateCorrectionTest(ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH)
+    }
+
+    @Test
+    fun defaultCapture_torchCorrection_shouldTurnsTorchOffOn(): Unit = runBlocking {
+        torchStateCorrectionTest(ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH)
+    }
+
+    private suspend fun torchStateCorrectionTest(flashType: Int) {
+        // Arrange.
+        torchControl.setTorchAsync(torch = true).join()
+        verifyTorchState(true)
+
+        val requestList = mutableListOf<Request>()
+        fakeCameraGraphSession.requestHandler = { requests ->
+            requestList.addAll(requests)
+        }
+        val capturePipelineTorchCorrection = CapturePipelineTorchCorrection(
+            capturePipelineImpl = capturePipeline,
+            threads = fakeUseCaseThreads,
+            torchControl = torchControl,
+        )
+
+        // Act.
+        capturePipelineTorchCorrection.submitStillCaptures(
+            requests = listOf(singleRequest),
+            captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            flashMode = ImageCapture.FLASH_MODE_ON,
+            flashType = flashType,
+        )
+
+        assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(fakeRequestControl.setTorchSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isFalse()
+        // Complete the capture request.
+        requestList.complete()
+
+        // Assert, the Torch should be turned off, and then turned on.
+        verifyTorchState(false)
+        verifyTorchState(true)
+        // No more invocation to set Torch mode.
+        assertThat(fakeRequestControl.torchUpdateEventList.size).isEqualTo(0)
+    }
+
+    private fun verifyTorchState(state: Boolean) {
+        assertThat(
+            fakeRequestControl.setTorchSemaphore.tryAcquire(5, TimeUnit.SECONDS)
+        ).isTrue()
+        assertThat(fakeRequestControl.torchUpdateEventList.removeFirst() == state).isTrue()
     }
 
     // TODO(wenhungteng@): Porting overrideAeModeForStillCapture_quirkAbsent_notOverride,
