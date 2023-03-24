@@ -292,6 +292,72 @@ class CompositionReusingTests {
     }
 
     @Test
+    fun reusableContentHost_deactivates_whenRecomposedWithOtherContent() = compositionTest {
+        var reuseKey by mutableStateOf(0)
+        var active by mutableStateOf(true)
+
+        val rememberedState = object : RememberObserver {
+            var currentlyRemembered = false
+
+            override fun toString(): String = "Some text"
+
+            override fun onRemembered() {
+                currentlyRemembered = true
+            }
+
+            override fun onForgotten() {
+                currentlyRemembered = false
+            }
+
+            override fun onAbandoned() {
+                currentlyRemembered = false
+            }
+        }
+
+        compose {
+            if (!active) {
+                Text("Not active")
+            }
+
+            ReusableContentHost(active) {
+                ReusableContent(reuseKey) {
+                    Linear {
+                        val state = remember { rememberedState }
+                        Text(state.toString())
+                    }
+                }
+            }
+        }
+
+        validate {
+            if (!active) {
+                Text("Not active")
+            }
+
+            Linear {
+                Text(rememberedState.toString())
+            }
+        }
+
+        assertTrue(rememberedState.currentlyRemembered)
+
+        active = false
+        expectChanges()
+        revalidate()
+        assertFalse(rememberedState.currentlyRemembered)
+
+        active = true
+        expectChanges()
+        revalidate()
+        assertTrue(rememberedState.currentlyRemembered)
+
+        reuseKey++
+        expectChanges()
+        revalidate()
+        assertTrue(rememberedState.currentlyRemembered)
+    }
+
+    @Test
     fun reusableContentHostCanDisableRecompose() = compositionTest {
         var active by mutableStateOf(true)
         var outer by mutableStateOf("Outer")
