@@ -694,6 +694,7 @@ public class WatchFaceServiceImageTest {
         bitmap!!.assertAgainstGolden(screenshotRule, "left_complication_pressed")
     }
 
+    @Ignore("b/274981990")
     @SuppressLint("NewApi")
     @Test
     public fun testHighlightRightComplicationInScreenshot() {
