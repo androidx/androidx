@@ -31,10 +31,11 @@ public class MyDao_Impl(
 
             public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
                 statement.bindString(1, entity.string)
-                if (entity.nullableString == null) {
+                val _tmpNullableString: String? = entity.nullableString
+                if (_tmpNullableString == null) {
                     statement.bindNull(2)
                 } else {
-                    statement.bindString(2, entity.nullableString)
+                    statement.bindString(2, _tmpNullableString)
                 }
             }
         }
