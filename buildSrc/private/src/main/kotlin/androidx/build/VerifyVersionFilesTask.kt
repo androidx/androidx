@@ -41,7 +41,7 @@ open class VerifyVersionFilesTask : DefaultTask() {
     fun verifyVersionFilesPresent() {
         repositoryDirectory.walk().forEach { file ->
             var expectedGroup = "androidx"
-            if (file.path.contains("/androidx/build/support_repo/libyuv/libyuv/"))
+            if (file.path.contains("/libyuv/"))
                 expectedGroup = "libyuv" // external library that we don't publish
             if (file.extension == "aar") {
                 val inputStream = FileInputStream(file)
