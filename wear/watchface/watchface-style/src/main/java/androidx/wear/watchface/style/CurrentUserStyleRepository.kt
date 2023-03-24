@@ -530,7 +530,7 @@ public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSettin
                     complicationSlotsUserStyleSettingCount++
                 is UserStyleSetting.CustomValueUserStyleSetting ->
                     customValueUserStyleSettingCount++
-                is UserStyleSetting.CustomValueUserStyleSetting2 ->
+                is UserStyleSetting.LargeCustomValueUserStyleSetting ->
                     customValueUserStyleSettingCount++
                 else -> {
                     // Nothing
