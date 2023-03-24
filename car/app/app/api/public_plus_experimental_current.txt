@@ -45,6 +45,7 @@ package androidx.car.app {
     field @Deprecated public static final String CATEGORY_PARKING_APP = "androidx.car.app.category.PARKING";
     field public static final String CATEGORY_POI_APP = "androidx.car.app.category.POI";
     field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_SETTINGS_APP = "androidx.car.app.category.SETTINGS";
+    field @androidx.car.app.annotations.ExperimentalCarApi public static final String CATEGORY_WEATHER_APP = "androidx.car.app.category.WEATHER";
     field public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
   }
 
