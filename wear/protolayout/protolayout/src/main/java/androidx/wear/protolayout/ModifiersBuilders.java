@@ -663,9 +663,8 @@ public final class ModifiersBuilders {
             /**
              * Sets the color of the border.
              *
-             * <p>
-             * This field is made bindable and will use the dynamic value (if set) from version 1.2
-             * Older renderers will still consider this field as non-bindable and will use the
+             * <p>This field is made bindable and will use the dynamic value (if set) from version
+             * 1.2 Older renderers will still consider this field as non-bindable and will use the
              * static value.
              */
             @NonNull
@@ -684,7 +683,7 @@ public final class ModifiersBuilders {
         }
     }
 
-    /** The corner of a {@link androidx.wear.tiles.LayoutElementBuilders.Box} element. */
+    /** The corner of a {@link androidx.wear.protolayout.LayoutElementBuilders.Box} element. */
     public static final class Corner {
         private final ModifiersProto.Corner mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -810,10 +809,10 @@ public final class ModifiersBuilders {
             /**
              * Sets the background color for this element. If not defined, defaults to being
              * transparent.
-             * <p>
-             * This field is made bindable and supports dynamic colors from version 1.2
-             * Older renderers will still consider this field as non-bindable and will use the
-             * static value.
+             *
+             * <p>This field is made bindable and supports dynamic colors from version 1.2 Older
+             * renderers will still consider this field as non-bindable and will use the static
+             * value.
              */
             @NonNull
             public Builder setColor(@NonNull ColorProp color) {
@@ -2312,8 +2311,8 @@ public final class ModifiersBuilders {
 
     /**
      * {@link Modifiers} that can be used with {@link
-     * androidx.wear.tiles.LayoutElementBuilders.Span} elements. These may change the way they are
-     * drawn, or change their behaviour.
+     * androidx.wear.protolayout.LayoutElementBuilders.Span} elements. These may change the way they
+     * are drawn, or change their behaviour.
      */
     public static final class SpanModifiers {
         private final ModifiersProto.SpanModifiers mImpl;

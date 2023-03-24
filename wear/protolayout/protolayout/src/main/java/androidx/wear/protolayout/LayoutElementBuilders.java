@@ -746,8 +746,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -912,7 +912,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -1238,8 +1240,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -1359,7 +1361,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -1452,8 +1456,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -1588,7 +1592,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -1693,8 +1699,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -1822,7 +1828,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -1877,8 +1885,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public SpanModifiers getModifiers() {
@@ -1958,7 +1966,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull SpanModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -2025,8 +2035,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public SpanModifiers getModifiers() {
@@ -2121,7 +2131,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull SpanModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -2229,8 +2241,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -2343,7 +2355,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -2530,8 +2544,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -2636,7 +2650,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -2726,8 +2742,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -2828,7 +2844,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -2931,8 +2949,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public Modifiers getModifiers() {
@@ -3080,7 +3098,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -3137,8 +3157,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public ArcModifiers getModifiers() {
@@ -3219,7 +3239,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -3298,8 +3320,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public ArcModifiers getModifiers() {
@@ -3407,7 +3429,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -3467,8 +3491,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. Intended
-         * for testing purposes only.
+         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+         * Intended for testing purposes only.
          */
         @Nullable
         public ArcModifiers getModifiers() {
@@ -3529,7 +3553,9 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /** Sets {@link androidx.wear.tiles.ModifiersBuilders.Modifiers} for this element. */
+            /**
+             * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
+             */
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -3925,32 +3951,34 @@ public final class LayoutElementBuilders {
     public static final int TEXT_ALIGN_UNDEFINED = 0;
 
     /**
-     * Align to the "start" of the {@link androidx.wear.tiles.LayoutElementBuilders.Text} element
-     * (left in LTR layouts, right in RTL layouts).
+     * Align to the "start" of the {@link androidx.wear.protolayout.LayoutElementBuilders.Text}
+     * element (left in LTR layouts, right in RTL layouts).
      */
     public static final int TEXT_ALIGN_START = 1;
 
     /**
-     * Align to the center of the {@link androidx.wear.tiles.LayoutElementBuilders.Text} element.
+     * Align to the center of the {@link androidx.wear.protolayout.LayoutElementBuilders.Text}
+     * element.
      */
     public static final int TEXT_ALIGN_CENTER = 2;
 
     /**
-     * Align to the "end" of the {@link androidx.wear.tiles.LayoutElementBuilders.Text} element
-     * (right in LTR layouts, left in RTL layouts).
+     * Align to the "end" of the {@link androidx.wear.protolayout.LayoutElementBuilders.Text}
+     * element (right in LTR layouts, left in RTL layouts).
      */
     public static final int TEXT_ALIGN_END = 3;
 
     /**
-     * The anchor position of an {@link androidx.wear.tiles.LayoutElementBuilders.Arc}'s elements.
-     * This is used to specify how elements added to an {@link
-     * androidx.wear.tiles.LayoutElementBuilders.Arc} should be laid out with respect to
+     * The anchor position of an {@link androidx.wear.protolayout.LayoutElementBuilders.Arc}'s
+     * elements. This is used to specify how elements added to an {@link
+     * androidx.wear.protolayout.LayoutElementBuilders.Arc} should be laid out with respect to
      * anchor_angle.
      *
      * <p>As an example, assume that the following diagrams are wrapped to an arc, and each
-     * represents an {@link androidx.wear.tiles.LayoutElementBuilders.Arc} element containing a
-     * single {@link androidx.wear.tiles.LayoutElementBuilders.Text} element. The {@link
-     * androidx.wear.tiles.LayoutElementBuilders.Text} element's anchor_angle is "0" for all cases.
+     * represents an {@link androidx.wear.protolayout.LayoutElementBuilders.Arc} element containing
+     * a single {@link androidx.wear.protolayout.LayoutElementBuilders.Text} element. The {@link
+     * androidx.wear.protolayout.LayoutElementBuilders.Text} element's anchor_angle is "0" for all
+     * cases.
      *
      * <pre>{@code
      * ARC_ANCHOR_START:
