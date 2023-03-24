@@ -21,6 +21,7 @@ import androidx.compose.runtime.mock.Contact
 import androidx.compose.runtime.mock.ContactModel
 import androidx.compose.runtime.mock.Edit
 import androidx.compose.runtime.mock.EmptyApplier
+import androidx.compose.runtime.mock.InlineLinear
 import androidx.compose.runtime.mock.Linear
 import androidx.compose.runtime.mock.MockViewValidator
 import androidx.compose.runtime.mock.Point
@@ -3390,6 +3391,199 @@ class CompositionTests {
         revalidate()
     }
 
+    @Test // regression test for 264467571
+    fun test_returnConditionally_fromNodeLambda_local_initial_return() = compositionTest {
+        var condition by mutableStateOf(true)
+        compose {
+            Text("Before outer")
+            InlineLinear {
+                Text("Before inner")
+                InlineLinear inner@{
+                    Text("Before return")
+                    if (condition) return@inner
+                    Text("After return")
+                }
+                Text("After inner")
+            }
+            Text("Before outer")
+        }
+
+        validate {
+            Text("Before outer")
+            InlineLinear {
+                Text("Before inner")
+                InlineLinear inner@{
+                    Text("Before return")
+                    if (condition) return@inner
+                    Text("After return")
+                }
+                Text("After inner")
+            }
+            Text("Before outer")
+        }
+
+        repeat(4) {
+            condition = !condition
+            expectChanges()
+            revalidate()
+        }
+    }
+
+    @Test // regression test for 264467571
+    fun test_returnConditionally_fromNodeLambda_local_initial_no_return() = compositionTest {
+        var condition by mutableStateOf(true)
+        compose {
+            Text("Before outer")
+            InlineLinear {
+                Text("Before inner")
+                InlineLinear inner@{
+                    Text("Before return")
+                    if (condition) return@inner
+                    Text("After return")
+                }
+                Text("After inner")
+            }
+            Text("Before outer")
+        }
+
+        validate {
+            Text("Before outer")
+            InlineLinear {
+                Text("Before inner")
+                InlineLinear inner@{
+                    Text("Before return")
+                    if (condition) return@inner
+                    Text("After return")
+                }
+                Text("After inner")
+            }
+            Text("Before outer")
+        }
+
+        repeat(4) {
+            condition = !condition
+            expectChanges()
+            revalidate()
+        }
+    }
+
+    @Test // regression test for 264467571
+    fun test_returnConditionally_fromNodeLambda_nonLocal_initial_return() = compositionTest {
+        var condition by mutableStateOf(true)
+        compose {
+            Text("Before outer")
+            InlineLinear outer@{
+                Text("Before inner")
+                InlineLinear {
+                    Text("Before return")
+                    if (condition) return@outer
+                    Text("After return")
+                }
+                Text("After inner")
+            }
+            Text("Before outer")
+        }
+
+        validate {
+            Text("Before outer")
+            InlineLinear outer@{
+                Text("Before inner")
+                InlineLinear {
+                    Text("Before return")
+                    if (condition) return@outer
+                    Text("After return")
+                }
+                Text("After inner")
+            }
+            Text("Before outer")
+        }
+
+        repeat(4) {
+            condition = !condition
+            expectChanges()
+            revalidate()
+        }
+    }
+
+    @Test // regression test for 264467571
+    fun test_returnConditionally_fromNodeLambda_nonLocal_initial_no_return() = compositionTest {
+        var condition by mutableStateOf(true)
+        compose {
+            Text("Before outer")
+            InlineLinear outer@{
+                Text("Before inner")
+                InlineLinear {
+                    Text("Before return")
+                    if (condition) return@outer
+                    Text("After return")
+                }
+                Text("After inner")
+            }
+            Text("Before outer")
+        }
+
+        validate {
+            Text("Before outer")
+            InlineLinear outer@{
+                Text("Before inner")
+                InlineLinear {
+                    Text("Before return")
+                    if (condition) return@outer
+                    Text("After return")
+                }
+                Text("After inner")
+            }
+            Text("Before outer")
+        }
+
+        repeat(4) {
+            condition = !condition
+            expectChanges()
+            revalidate()
+        }
+    }
+
+    @Test
+    fun test_returnConditionally_fromConditionalNodeLambda_nonLocal_initial_no_return() =
+        compositionTest {
+            var condition by mutableStateOf(true)
+            compose {
+                Text("Before outer")
+                InlineLinear outer@{
+                    Text("Before inner")
+                    if (condition) {
+                        InlineLinear {
+                            Text("Before return")
+                            return@outer
+                        }
+                    }
+                    Text("After inner")
+                }
+                Text("Before outer")
+            }
+
+            validate {
+                Text("Before outer")
+                InlineLinear outer@{
+                    Text("Before inner")
+                    if (condition) {
+                        InlineLinear {
+                            Text("Before return")
+                            return@outer
+                        }
+                    }
+                    Text("After inner")
+                }
+                Text("Before outer")
+            }
+
+            repeat(4) {
+                condition = !condition
+                expectChanges()
+                revalidate()
+            }
+        }
+
     @Test
     fun test_returnConditionally_fromFunction_nonLocal() = compositionTest {
         val text = mutableStateOf<String?>(null)
@@ -3408,6 +3602,45 @@ class CompositionTests {
 
         expectChanges()
 
+        revalidate()
+    }
+
+    @Test // regression test for 274889428
+    fun test_returnConditionally_simulatedIf() = compositionTest {
+        val condition1 = mutableStateOf(true)
+        val condition2 = mutableStateOf(true)
+        val condition3 = mutableStateOf(true)
+
+        compose block@{
+            Text("A")
+            simulatedIf(condition1.value) { return@block }
+            Text("B")
+            simulatedIf(condition2.value) { return@block }
+            Text("C")
+            simulatedIf(condition3.value) { return@block }
+            Text("D")
+        }
+
+        validate block@{
+            Text("A")
+            this.simulatedIf(condition1.value) { return@block }
+            Text("B")
+            this.simulatedIf(condition2.value) { return@block }
+            Text("C")
+            this.simulatedIf(condition3.value) { return@block }
+            Text("D")
+        }
+
+        condition1.value = false
+        expectChanges()
+        revalidate()
+
+        condition2.value = false
+        expectChanges()
+        revalidate()
+
+        condition3.value = false
+        expectChanges()
         revalidate()
     }
 
@@ -3694,4 +3927,13 @@ private fun TextWithNonLocalReturn(text: String?) {
         if (text == null) return
         Text(text)
     }
+}
+
+@Composable
+private inline fun simulatedIf(condition: Boolean, block: () -> Unit) {
+    if (condition) block()
+}
+
+private inline fun MockViewValidator.simulatedIf(condition: Boolean, block: () -> Unit) {
+    if (condition) block()
 }
