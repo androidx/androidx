@@ -30,6 +30,7 @@ import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
+import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -113,39 +114,9 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     }
 
     /**
-     * Check whether the input surface configuration list is under the capability of any combination
-     * of this object.
-     *
-     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
-     * @param cameraId          the camera id of the camera device to be compared
-     * @param surfaceConfigList the surface configuration list to be compared
-     * @return the check result that whether it could be supported
-     * @throws IllegalStateException if not initialized
-     */
-    @Override
-    public boolean checkSupported(
-            boolean isConcurrentCameraModeOn,
-            @NonNull String cameraId, @Nullable List<SurfaceConfig> surfaceConfigList) {
-        if (surfaceConfigList == null || surfaceConfigList.isEmpty()) {
-            return true;
-        }
-
-        SupportedSurfaceCombination supportedSurfaceCombination =
-                mCameraSupportedSurfaceCombinationMap.get(cameraId);
-
-        boolean isSupported = false;
-        if (supportedSurfaceCombination != null) {
-            isSupported = supportedSurfaceCombination.checkSupported(isConcurrentCameraModeOn,
-                    surfaceConfigList);
-        }
-
-        return isSupported;
-    }
-
-    /**
      * Transform to a SurfaceConfig object with cameraId, image format and size info
      *
-     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
+     * @param cameraMode  the working camera mode.
      * @param cameraId    the camera id of the camera device to transform the object
      * @param imageFormat the image format info for the surface configuration object
      * @param size        the size info for the surface configuration object
@@ -155,7 +126,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     @Nullable
     @Override
     public SurfaceConfig transformSurfaceConfig(
-            boolean isConcurrentCameraModeOn,
+            @CameraMode.Mode int cameraMode,
             @NonNull String cameraId,
             int imageFormat,
             @NonNull Size size) {
@@ -166,7 +137,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
         if (supportedSurfaceCombination != null) {
             surfaceConfig =
                     supportedSurfaceCombination.transformSurfaceConfig(
-                            isConcurrentCameraModeOn,
+                            cameraMode,
                             imageFormat,
                             size);
         }
@@ -177,8 +148,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     /**
      * Retrieves a map of suggested stream specifications for the given list of use cases.
      *
-     * @param isConcurrentCameraModeOn          true if concurrent camera mode is on, otherwise
-     *                                          false.
+     * @param cameraMode                        the working camera mode.
      * @param cameraId                          the camera id of the camera device used by the
      *                                          use cases
      * @param existingSurfaces                  list of surfaces already configured and used by
@@ -197,7 +167,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     @NonNull
     @Override
     public Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
-            boolean isConcurrentCameraModeOn, @NonNull String cameraId,
+            @CameraMode.Mode int cameraMode, @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
         Preconditions.checkArgument(!newUseCaseConfigsSupportedSizeMap.isEmpty(),
@@ -212,7 +182,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
         }
 
         return supportedSurfaceCombination.getSuggestedStreamSpecifications(
-                isConcurrentCameraModeOn,
+                cameraMode,
                 existingSurfaces,
                 newUseCaseConfigsSupportedSizeMap);
     }

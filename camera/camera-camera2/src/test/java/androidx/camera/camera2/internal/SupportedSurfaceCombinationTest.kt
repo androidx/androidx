@@ -42,6 +42,7 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
+import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceCombination
@@ -186,7 +187,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getLegacySupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isTrue()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -197,7 +198,13 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLegacySupportedCombinationList().also {
-            assertThat(isAllSubConfigListSupported(false, supportedSurfaceCombination, it)).isTrue()
+            assertThat(
+                isAllSubConfigListSupported(
+                    CameraMode.DEFAULT,
+                    supportedSurfaceCombination,
+                    it
+                )
+            ).isTrue()
         }
     }
 
@@ -209,7 +216,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isFalse()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -221,7 +228,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isFalse()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -233,7 +240,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isFalse()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -247,7 +254,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isTrue()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -260,7 +267,13 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().also {
-            assertThat(isAllSubConfigListSupported(false, supportedSurfaceCombination, it)).isTrue()
+            assertThat(
+                isAllSubConfigListSupported(
+                    CameraMode.DEFAULT,
+                    supportedSurfaceCombination,
+                    it
+                )
+            ).isTrue()
         }
     }
 
@@ -274,7 +287,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isFalse()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -288,7 +301,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isFalse()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -302,7 +315,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isTrue()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -315,7 +328,13 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().also {
-            assertThat(isAllSubConfigListSupported(false, supportedSurfaceCombination, it)).isTrue()
+            assertThat(
+                isAllSubConfigListSupported(
+                    CameraMode.DEFAULT,
+                    supportedSurfaceCombination,
+                    it
+                )
+            ).isTrue()
         }
     }
 
@@ -329,7 +348,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isFalse()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isFalse()
         }
     }
 
@@ -344,7 +363,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getLimitedSupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isTrue()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -359,7 +378,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getLegacySupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isTrue()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -374,7 +393,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getFullSupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isTrue()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -389,7 +408,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getRAWSupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isTrue()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -403,7 +422,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                false, it.surfaceConfigList)).isTrue()
+                CameraMode.DEFAULT, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -416,7 +435,13 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         GuaranteedConfigurationsUtil.getLevel3SupportedCombinationList().also {
-            assertThat(isAllSubConfigListSupported(false, supportedSurfaceCombination, it)).isTrue()
+            assertThat(
+                isAllSubConfigListSupported(
+                    CameraMode.DEFAULT,
+                    supportedSurfaceCombination,
+                    it
+                )
+            ).isTrue()
         }
     }
 
@@ -432,7 +457,7 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getConcurrentSupportedCombinationList().forEach {
             assertThat(supportedSurfaceCombination.checkSupported(
-                true, it.surfaceConfigList)).isTrue()
+                CameraMode.CONCURRENT_CAMERA, it.surfaceConfigList)).isTrue()
         }
     }
 
@@ -448,7 +473,47 @@ class SupportedSurfaceCombinationTest {
         )
         GuaranteedConfigurationsUtil.getConcurrentSupportedCombinationList().also {
             assertThat(isAllSubConfigListSupported(
-                true, supportedSurfaceCombination, it)).isTrue()
+                CameraMode.CONCURRENT_CAMERA, supportedSurfaceCombination, it)).isTrue()
+        }
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.S)
+    fun checkUltraHighResolutionSurfaceCombinationSupportedInUltraHighCameraMode() {
+        setupCameraAndInitCameraX(
+            maximumResolutionSupportedSizes = MAXIMUM_RESOLUTION_SUPPORTED_SIZES,
+            maximumResolutionHighResolutionSupportedSizes =
+            MAXIMUM_RESOLUTION_HIGH_RESOLUTION_SUPPORTED_SIZES,
+            capabilities = intArrayOf(
+                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR
+            )
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        GuaranteedConfigurationsUtil.getUltraHighResolutionSupportedCombinationList().forEach {
+            assertThat(supportedSurfaceCombination.checkSupported(
+                CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, it.surfaceConfigList)).isTrue()
+        }
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.S)
+    fun checkUltraHighResolutionSurfaceCombinationSubListSupportedInUltraHighCameraMode() {
+        setupCameraAndInitCameraX(
+            maximumResolutionSupportedSizes = MAXIMUM_RESOLUTION_SUPPORTED_SIZES,
+            maximumResolutionHighResolutionSupportedSizes =
+            MAXIMUM_RESOLUTION_HIGH_RESOLUTION_SUPPORTED_SIZES,
+            capabilities = intArrayOf(
+                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR
+            )
+        )
+        val supportedSurfaceCombination = SupportedSurfaceCombination(
+            context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
+        )
+        GuaranteedConfigurationsUtil.getUltraHighResolutionSupportedCombinationList().also {
+            assertThat(isAllSubConfigListSupported(
+                CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA, supportedSurfaceCombination, it)).isTrue()
         }
     }
 
@@ -465,7 +530,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            false,
+            CameraMode.DEFAULT,
             ImageFormat.YUV_420_888, RESOLUTION_VGA
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.VGA)
@@ -479,7 +544,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            false,
+            CameraMode.DEFAULT,
             ImageFormat.YUV_420_888, PREVIEW_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW)
@@ -493,7 +558,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            false,
+            CameraMode.DEFAULT,
             ImageFormat.YUV_420_888, RECORD_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD)
@@ -507,7 +572,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            false,
+            CameraMode.DEFAULT,
             ImageFormat.YUV_420_888, MAXIMUM_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM)
@@ -521,7 +586,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            false,
+            CameraMode.DEFAULT,
             ImageFormat.JPEG, RESOLUTION_VGA
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.VGA)
@@ -535,7 +600,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            false,
+            CameraMode.DEFAULT,
             ImageFormat.JPEG, PREVIEW_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.PREVIEW)
@@ -549,7 +614,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            false,
+            CameraMode.DEFAULT,
             ImageFormat.JPEG, RECORD_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD)
@@ -563,7 +628,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            false,
+            CameraMode.DEFAULT,
             ImageFormat.JPEG, MAXIMUM_SIZE
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM)
@@ -578,7 +643,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            true,
+            CameraMode.CONCURRENT_CAMERA,
             ImageFormat.PRIVATE, RESOLUTION_720P
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s720p)
@@ -593,7 +658,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            true,
+            CameraMode.CONCURRENT_CAMERA,
             ImageFormat.YUV_420_888, RESOLUTION_720P
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.s720p)
@@ -608,7 +673,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            true,
+            CameraMode.CONCURRENT_CAMERA,
             ImageFormat.JPEG, RESOLUTION_720P
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.s720p)
@@ -623,7 +688,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            true,
+            CameraMode.CONCURRENT_CAMERA,
             ImageFormat.PRIVATE, RESOLUTION_1440P
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.PRIV, ConfigSize.s1440p)
@@ -638,7 +703,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            true,
+            CameraMode.CONCURRENT_CAMERA,
             ImageFormat.YUV_420_888, RESOLUTION_1440P
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.YUV, ConfigSize.s1440p)
@@ -653,7 +718,7 @@ class SupportedSurfaceCombinationTest {
             context, DEFAULT_CAMERA_ID, cameraManagerCompat!!, mockCamcorderProfileHelper
         )
         val surfaceConfig = supportedSurfaceCombination.transformSurfaceConfig(
-            true,
+            CameraMode.CONCURRENT_CAMERA,
             ImageFormat.JPEG, RESOLUTION_1440P
         )
         val expectedSurfaceConfig = SurfaceConfig.create(ConfigType.JPEG, ConfigSize.s1440p)
@@ -676,19 +741,19 @@ class SupportedSurfaceCombinationTest {
         )
         assertThat(
             supportedSurfaceCombination.transformSurfaceConfig(
-                false,
+                CameraMode.DEFAULT,
                 ImageFormat.PRIVATE, ULTRA_HIGH_MAXIMUM_SIZE
             )
         ).isEqualTo(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.ULTRA_MAXIMUM))
         assertThat(
             supportedSurfaceCombination.transformSurfaceConfig(
-                false,
+                CameraMode.DEFAULT,
                 ImageFormat.YUV_420_888, ULTRA_HIGH_MAXIMUM_SIZE
             )
         ).isEqualTo(SurfaceConfig.create(ConfigType.YUV, ConfigSize.ULTRA_MAXIMUM))
         assertThat(
             supportedSurfaceCombination.transformSurfaceConfig(
-                false,
+                CameraMode.DEFAULT,
                 ImageFormat.JPEG, ULTRA_HIGH_MAXIMUM_SIZE
             )
         ).isEqualTo(SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM))
@@ -1397,7 +1462,7 @@ class SupportedSurfaceCombinationTest {
         val useCaseConfigToOutputSizesMap =
             getUseCaseConfigToOutputSizesMap(useCaseConfigMap.values.toList())
         val suggestedStreamSpecs = supportedSurfaceCombination.getSuggestedStreamSpecifications(
-            false,
+            CameraMode.DEFAULT,
             attachedSurfaceInfoList,
             useCaseConfigToOutputSizesMap
         )
@@ -2194,7 +2259,7 @@ class SupportedSurfaceCombinationTest {
     }
 
     private fun isAllSubConfigListSupported(
-        isConcurrentCameraModeOn: Boolean,
+        cameraMode: Int = CameraMode.DEFAULT,
         supportedSurfaceCombination: SupportedSurfaceCombination,
         combinationList: List<SurfaceCombination>
     ): Boolean {
@@ -2210,7 +2275,7 @@ class SupportedSurfaceCombinationTest {
                     removeAt(index)
                 }
                 if (!supportedSurfaceCombination.checkSupported(
-                        isConcurrentCameraModeOn, subConfigurationList
+                        cameraMode, subConfigurationList
                     )
                 ) {
                     return false

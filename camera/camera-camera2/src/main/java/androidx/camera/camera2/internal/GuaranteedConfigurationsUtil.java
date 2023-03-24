@@ -401,6 +401,143 @@ public final class GuaranteedConfigurationsUtil {
     }
 
     /**
+     * Returns the at least supported stream combinations for the ultra high resolution pixel
+     * sensor mode.
+     */
+    @NonNull
+    public static List<SurfaceCombination> getUltraHighResolutionSupportedCombinationList() {
+        List<SurfaceCombination> combinationList = new ArrayList<>();
+
+        // (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (PRIV, RECORD)
+        // Covers (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) in the guaranteed table.
+        SurfaceCombination surfaceCombination1 = new SurfaceCombination();
+        surfaceCombination1.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination1.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination1.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination1);
+
+        // (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (PRIV, RECORD)
+        // Covers (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) in the guaranteed table.
+        SurfaceCombination surfaceCombination2 = new SurfaceCombination();
+        surfaceCombination2.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination2.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination2.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination2);
+
+        // (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (PRIV, RECORD)
+        // Covers (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) in the guaranteed table.
+        SurfaceCombination surfaceCombination3 = new SurfaceCombination();
+        surfaceCombination3.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination3.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination3.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.RECORD));
+        combinationList.add(surfaceCombination3);
+
+        // (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (JPEG, MAXIMUM)
+        SurfaceCombination surfaceCombination4 = new SurfaceCombination();
+        surfaceCombination4.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination4.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination4.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination4);
+
+        // (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (JPEG, MAXIMUM)
+        SurfaceCombination surfaceCombination5 = new SurfaceCombination();
+        surfaceCombination5.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination5.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination5.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination5);
+
+        // (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (JPEG, MAXIMUM)
+        SurfaceCombination surfaceCombination6 = new SurfaceCombination();
+        surfaceCombination6.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination6.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination6.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination6);
+
+        // (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
+        // Covers (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, RECORD) in the guaranteed table.
+        SurfaceCombination surfaceCombination7 = new SurfaceCombination();
+        surfaceCombination7.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination7.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination7.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination7);
+
+        // (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
+        // Covers (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, RECORD) in the guaranteed table.
+        SurfaceCombination surfaceCombination8 = new SurfaceCombination();
+        surfaceCombination8.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination8.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination8.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination8);
+
+        // (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
+        // Covers (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (YUV, RECORD) in the guaranteed table.
+        SurfaceCombination surfaceCombination9 = new SurfaceCombination();
+        surfaceCombination9.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination9.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination9.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination9);
+
+        // (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (RAW, MAXIMUM)
+        SurfaceCombination surfaceCombination10 = new SurfaceCombination();
+        surfaceCombination10.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination10.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination10.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination10);
+
+        // (JPEG, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (RAW, MAXIMUM)
+        SurfaceCombination surfaceCombination11 = new SurfaceCombination();
+        surfaceCombination11.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination11.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination11.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination11);
+
+        // (RAW, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (RAW, MAXIMUM)
+        SurfaceCombination surfaceCombination12 = new SurfaceCombination();
+        surfaceCombination12.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.ULTRA_MAXIMUM));
+        surfaceCombination12.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
+        surfaceCombination12.addSurfaceConfig(
+                SurfaceConfig.create(ConfigType.RAW, ConfigSize.MAXIMUM));
+        combinationList.add(surfaceCombination12);
+
+        return combinationList;
+    }
+
+    /**
      * Returns the at least supported stream combinations for concurrent cameras.
      */
     @NonNull

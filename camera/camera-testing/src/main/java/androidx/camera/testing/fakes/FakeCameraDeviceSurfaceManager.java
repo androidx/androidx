@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
+import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -69,17 +70,9 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
     }
 
     @Override
-    public boolean checkSupported(
-            boolean isConcurrentCameraModeOn,
-            @NonNull String cameraId,
-            @Nullable List<SurfaceConfig> surfaceConfigList) {
-        return false;
-    }
-
-    @Override
     @Nullable
     public SurfaceConfig transformSurfaceConfig(
-            boolean isConcurrentCameraModeOn,
+            @CameraMode.Mode int cameraMode,
             @NonNull String cameraId,
             int imageFormat,
             @NonNull Size size) {
@@ -92,7 +85,7 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
     @NonNull
     @Override
     public Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecs(
-            boolean isConcurrentCameraModeOn, @NonNull String cameraId,
+            @CameraMode.Mode int cameraMode, @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
         List<UseCaseConfig<?>> newUseCaseConfigs =

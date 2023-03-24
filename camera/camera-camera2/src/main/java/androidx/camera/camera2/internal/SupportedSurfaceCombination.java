@@ -47,6 +47,7 @@ import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceC
 import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
+import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -77,7 +78,11 @@ import java.util.Map;
 final class SupportedSurfaceCombination {
     private static final String TAG = "SupportedSurfaceCombination";
     private final List<SurfaceCombination> mSurfaceCombinations = new ArrayList<>();
+    private final List<SurfaceCombination> mUltraHighSurfaceCombinations = new ArrayList<>();
     private final List<SurfaceCombination> mConcurrentSurfaceCombinations = new ArrayList<>();
+
+    private Map<Integer, List<SurfaceCombination>> mCameraModeToSupportedCombinationsMap =
+            new HashMap<>();
     private final String mCameraId;
     private final CamcorderProfileHelper mCamcorderProfileHelper;
     private final CameraCharacteristicsCompat mCharacteristics;
@@ -137,6 +142,10 @@ final class SupportedSurfaceCombination {
 
         generateSupportedCombinationList();
 
+        if (mIsUltraHighResolutionSensorSupported) {
+            generateUltraHighSupportedCombinationList();
+        }
+
         mIsConcurrentCameraModeSupported =
                 context.getPackageManager().hasSystemFeature(FEATURE_CAMERA_CONCURRENT);
         if (mIsConcurrentCameraModeSupported) {
@@ -171,18 +180,17 @@ final class SupportedSurfaceCombination {
      * Check whether the input surface configuration list is under the capability of any combination
      * of this object.
      *
-     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
+     * @param cameraMode        the working camera mode.
      * @param surfaceConfigList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
     boolean checkSupported(
-            boolean isConcurrentCameraModeOn,
+            @CameraMode.Mode int cameraMode,
             List<SurfaceConfig> surfaceConfigList) {
         boolean isSupported = false;
 
-        List<SurfaceCombination> targetSurfaceCombinations = isConcurrentCameraModeOn
-                ? mConcurrentSurfaceCombinations : mSurfaceCombinations;
-        for (SurfaceCombination surfaceCombination : targetSurfaceCombinations) {
+        for (SurfaceCombination surfaceCombination : getSurfaceCombinationsByCameraMode(
+                cameraMode)) {
             isSupported = surfaceCombination.isSupported(surfaceConfigList);
 
             if (isSupported) {
@@ -194,19 +202,48 @@ final class SupportedSurfaceCombination {
     }
 
     /**
+     * Returns the supported surface combinations according to the specified camera mode.
+     */
+    private List<SurfaceCombination> getSurfaceCombinationsByCameraMode(
+            @CameraMode.Mode int cameraMode) {
+        if (mCameraModeToSupportedCombinationsMap.containsKey(cameraMode)) {
+            return mCameraModeToSupportedCombinationsMap.get(cameraMode);
+        }
+
+        List<SurfaceCombination> supportedSurfaceCombinations = new ArrayList<>();
+
+        switch (cameraMode) {
+            case CameraMode.CONCURRENT_CAMERA:
+                supportedSurfaceCombinations = mConcurrentSurfaceCombinations;
+                break;
+            case CameraMode.ULTRA_HIGH_RESOLUTION_CAMERA:
+                supportedSurfaceCombinations.addAll(mUltraHighSurfaceCombinations);
+                supportedSurfaceCombinations.addAll(mSurfaceCombinations);
+                break;
+            default:
+                supportedSurfaceCombinations.addAll(mSurfaceCombinations);
+                break;
+        }
+
+        mCameraModeToSupportedCombinationsMap.put(cameraMode, supportedSurfaceCombinations);
+
+        return supportedSurfaceCombinations;
+    }
+
+    /**
      * Transform to a SurfaceConfig object with image format and size info
      *
-     * @param isConcurrentCameraModeOn true if concurrent camera mode is on, otherwise false.
+     * @param cameraMode  the working camera mode.
      * @param imageFormat the image format info for the surface configuration object
      * @param size        the size info for the surface configuration object
      * @return new {@link SurfaceConfig} object
      */
     SurfaceConfig transformSurfaceConfig(
-            boolean isConcurrentCameraModeOn,
+            @CameraMode.Mode int cameraMode,
             int imageFormat,
             Size size) {
         return SurfaceConfig.transformSurfaceConfig(
-                isConcurrentCameraModeOn,
+                cameraMode,
                 imageFormat,
                 size,
                 mSurfaceSizeDefinition);
@@ -427,8 +464,7 @@ final class SupportedSurfaceCombination {
     /**
      * Finds the suggested stream specifications of the newly added UseCaseConfig.
      *
-     * @param isConcurrentCameraModeOn          true if concurrent camera mode is on, otherwise
-     *                                          false.
+     * @param cameraMode                        the working camera mode.
      * @param attachedSurfaces                  the existing surfaces.
      * @param newUseCaseConfigsSupportedSizeMap newly added UseCaseConfig to supported output
      *                                          sizes map.
@@ -440,7 +476,7 @@ final class SupportedSurfaceCombination {
      */
     @NonNull
     Map<UseCaseConfig<?>, StreamSpec> getSuggestedStreamSpecifications(
-            boolean isConcurrentCameraModeOn,
+            @CameraMode.Mode int cameraMode,
             @NonNull List<AttachedSurfaceInfo> attachedSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
         // Refresh Preview Size based on current display configurations.
@@ -457,13 +493,13 @@ final class SupportedSurfaceCombination {
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
             surfaceConfigs.add(
                     SurfaceConfig.transformSurfaceConfig(
-                            isConcurrentCameraModeOn,
+                            cameraMode,
                             useCaseConfig.getInputFormat(),
                             new Size(640, 480),
                             mSurfaceSizeDefinition));
         }
 
-        if (!checkSupported(isConcurrentCameraModeOn, surfaceConfigs)) {
+        if (!checkSupported(cameraMode, surfaceConfigs)) {
             throw new IllegalArgumentException(
                     "No supported surface combination is found for camera device - Id : "
                             + mCameraId + ".  May be attempting to bind too many use cases. "
@@ -535,7 +571,7 @@ final class SupportedSurfaceCombination {
                 // add new use case/size config to list of surfaces
                 surfaceConfigList.add(
                         SurfaceConfig.transformSurfaceConfig(
-                                isConcurrentCameraModeOn,
+                                cameraMode,
                                 newUseCase.getInputFormat(),
                                 size,
                                 mSurfaceSizeDefinition));
@@ -559,7 +595,7 @@ final class SupportedSurfaceCombination {
             }
 
             // only change the saved config if you get another that has a better max fps
-            if (checkSupported(isConcurrentCameraModeOn, surfaceConfigList)) {
+            if (checkSupported(cameraMode, surfaceConfigList)) {
                 // if the config is supported by the device but doesn't meet the target framerate,
                 // save the config
                 if (savedConfigMaxFps == Integer.MAX_VALUE) {
@@ -748,6 +784,11 @@ final class SupportedSurfaceCombination {
 
         mSurfaceCombinations.addAll(
                 mExtraSupportedSurfaceCombinationsContainer.get(mCameraId, mHardwareLevel));
+    }
+
+    private void generateUltraHighSupportedCombinationList() {
+        mUltraHighSurfaceCombinations.addAll(
+                GuaranteedConfigurationsUtil.getUltraHighResolutionSupportedCombinationList());
     }
 
     private void generateConcurrentSupportedCombinationList() {
