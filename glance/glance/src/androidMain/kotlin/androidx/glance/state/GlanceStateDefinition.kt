@@ -23,6 +23,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -151,12 +152,26 @@ object GlanceState : ConfigManager {
 }
 
 /**
- * Base class helping the creation of a state using DataStore's [Preferences].
+ * Base class helping the creation of a state using DataStore's [Preferences] with an optional
+ * CoroutineScope for [DataStore].
  */
 object PreferencesGlanceStateDefinition : GlanceStateDefinition<Preferences> {
+    private var coroutineScope: CoroutineScope? = null
     override fun getLocation(context: Context, fileKey: String): File =
         context.preferencesDataStoreFile(fileKey)
 
-    override suspend fun getDataStore(context: Context, fileKey: String): DataStore<Preferences> =
-        PreferenceDataStoreFactory.create { context.preferencesDataStoreFile(fileKey) }
+    override suspend fun getDataStore(context: Context, fileKey: String): DataStore<Preferences> {
+        return coroutineScope?.let {
+            PreferenceDataStoreFactory.create(scope = it) {
+                context.preferencesDataStoreFile(
+                    fileKey
+                )
+            }
+        } ?: PreferenceDataStoreFactory.create { context.preferencesDataStoreFile(fileKey) }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun setCoroutineScope(scope: CoroutineScope) {
+        coroutineScope = scope
+    }
 }
