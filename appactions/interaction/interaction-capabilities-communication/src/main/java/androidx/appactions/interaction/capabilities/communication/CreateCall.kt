@@ -42,14 +42,14 @@ private val ACTION_SPEC =
         .setDescriptor(CreateCall.Property::class.java)
         .setArgument(CreateCall.Argument::class.java, CreateCall.Argument::Builder)
         .setOutput(CreateCall.Output::class.java)
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "call.callFormat",
             { property -> Optional.ofNullable(property.callFormat) },
             CreateCall.Argument.Builder::setCallFormat,
             TypeConverters::toCallFormat,
             TypeConverters::toEntity
         )
-        .bindRepeatedGenericParameter(
+        .bindRepeatedParameter(
             "call.participant",
             { property -> Optional.ofNullable(property.participant) },
             CreateCall.Argument.Builder::setParticipantList,

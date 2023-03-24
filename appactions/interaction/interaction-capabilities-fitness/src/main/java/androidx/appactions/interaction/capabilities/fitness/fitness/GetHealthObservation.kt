@@ -40,14 +40,14 @@ private val ACTION_SPEC =
             GetHealthObservation.Argument::Builder
         )
         .setOutput(GetHealthObservation.Output::class.java)
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "exerciseObservation.startTime",
             { property -> Optional.ofNullable(property.startTime) },
             GetHealthObservation.Argument.Builder::setStartTime,
             TypeConverters::toLocalTime,
             TypeConverters::toEntity
         )
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "exerciseObservation.endTime",
             { property -> Optional.ofNullable(property.endTime) },
             GetHealthObservation.Argument.Builder::setEndTime,

@@ -47,14 +47,14 @@ private val ACTION_SPEC =
         .setDescriptor(StartSafetyCheck.Property::class.java)
         .setArgument(StartSafetyCheck.Argument::class.java, StartSafetyCheck.Argument::Builder)
         .setOutput(StartSafetyCheck.Output::class.java)
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "safetyCheck.duration",
             { property -> Optional.ofNullable(property.duration) },
             StartSafetyCheck.Argument.Builder::setDuration,
             TypeConverters::toDuration,
             TypeConverters::toEntity
         )
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "safetyCheck.checkInTime",
             { property -> Optional.ofNullable(property.checkInTime) },
             StartSafetyCheck.Argument.Builder::setCheckInTime,

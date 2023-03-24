@@ -52,37 +52,37 @@ public final class ActionSpecTest {
                     .setDescriptor(Property.class)
                     .setArgument(Argument.class, Argument::newBuilder)
                     .setOutput(Output.class)
-                    .bindRequiredGenericParameter(
+                    .bindParameter(
                             "requiredEntity",
                             Property::requiredEntityField,
                             Argument.Builder::setRequiredEntityField,
                             TypeConverters::toEntityValue,
                             PropertyConverter::entityToProto)
-                    .bindOptionalGenericParameter(
+                    .bindOptionalParameter(
                             "optionalEntity",
                             Property::optionalEntityField,
                             Argument.Builder::setOptionalEntityField,
                             TypeConverters::toEntityValue,
                             PropertyConverter::entityToProto)
-                    .bindRepeatedGenericParameter(
+                    .bindRepeatedParameter(
                             "repeatedEntity",
                             Property::repeatedEntityField,
                             Argument.Builder::setRepeatedEntityField,
                             TypeConverters::toEntityValue,
                             PropertyConverter::entityToProto)
-                    .bindRequiredGenericParameter(
+                    .bindParameter(
                             "requiredString",
                             Property::requiredStringField,
                             Argument.Builder::setRequiredStringField,
                             TypeConverters::toStringValue,
                             PropertyConverter::stringValueToProto)
-                    .bindOptionalGenericParameter(
+                    .bindOptionalParameter(
                             "optionalString",
                             Property::optionalStringField,
                             Argument.Builder::setOptionalStringField,
                             TypeConverters::toStringValue,
                             PropertyConverter::stringValueToProto)
-                    .bindRepeatedGenericParameter(
+                    .bindRepeatedParameter(
                             "repeatedString",
                             Property::repeatedStringField,
                             Argument.Builder::setRepeatedStringField,
@@ -113,18 +113,18 @@ public final class ActionSpecTest {
                             .setArgument(
                                     GenericEntityArgument.class, GenericEntityArgument::newBuilder)
                             .setOutput(Output.class)
-                            .bindRequiredGenericParameter(
+                            .bindParameter(
                                     "requiredEntity",
                                     GenericEntityProperty::singularField,
                                     GenericEntityArgument.Builder::setSingularField,
                                     STRING_PARAM_VALUE_CONVERTER,
                                     STRING_ENTITY_CONVERTER)
-                            .bindOptionalGenericParameter("optionalEntity",
+                            .bindOptionalParameter("optionalEntity",
                                     GenericEntityProperty::optionalField,
                                     GenericEntityArgument.Builder::setOptionalField,
                                     STRING_PARAM_VALUE_CONVERTER,
                                     STRING_ENTITY_CONVERTER)
-                            .bindRepeatedGenericParameter("repeatedEntities",
+                            .bindRepeatedParameter("repeatedEntities",
                                     GenericEntityProperty::repeatedField,
                                     GenericEntityArgument.Builder::setRepeatedField,
                                     STRING_PARAM_VALUE_CONVERTER,

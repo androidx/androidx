@@ -196,7 +196,7 @@ class SingleTurnCapabilityTest {
                 .setDescriptor(Property::class.java)
                 .setArgument(Argument::class.java, Argument::newBuilder)
                 .setOutput(Output::class.java)
-                .bindOptionalGenericParameter(
+                .bindOptionalParameter(
                     "optionalString",
                     Property::optionalStringField,
                     Argument.Builder::setOptionalStringField,
