@@ -363,6 +363,7 @@ includeProject(":appactions:interaction:interaction-capabilities-core", [BuildTy
 includeProject(":appactions:interaction:interaction-capabilities-fitness", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-capabilities-productivity", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-capabilities-safety", [BuildType.MAIN])
+includeProject(":appactions:interaction:interaction-capabilities-testing", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-proto", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-service", [BuildType.MAIN])
 includeProject(":appactions:interaction:interaction-service-proto", [BuildType.MAIN])
