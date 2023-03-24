@@ -11,6 +11,7 @@ dependencies {
     // Atomically versioned.
     constraints {
         implementation(project(":core:core-ktx"))
+        implementation(project(":core:core-testing"))
     }
 
     api("androidx.annotation:annotation:1.6.0")
