@@ -17,6 +17,7 @@ package androidx.wear.compose.material3
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -97,85 +98,85 @@ public class Typography internal constructor(
 ) {
     public constructor (
         defaultFontFamily: FontFamily = FontFamily.Default,
-        displayExtraLarge: TextStyle = TextStyle(
+        displayExtraLarge: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 50.sp,
             lineHeight = 56.sp,
             letterSpacing = 0.5.sp
         ),
-        displayLarge: TextStyle = TextStyle(
+        displayLarge: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 40.sp,
             lineHeight = 46.sp,
             letterSpacing = 0.5.sp
         ),
-        displayMedium: TextStyle = TextStyle(
+        displayMedium: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 34.sp,
             lineHeight = 40.sp,
             letterSpacing = 1.sp
         ),
-        displaySmall: TextStyle = TextStyle(
+        displaySmall: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 30.sp,
             lineHeight = 36.sp,
             letterSpacing = 0.8.sp,
         ),
-        titleLarge: TextStyle = TextStyle(
+        titleLarge: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 24.sp,
             lineHeight = 28.sp,
             letterSpacing = 0.2.sp
         ),
-        titleMedium: TextStyle = TextStyle(
+        titleMedium: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 20.sp,
             lineHeight = 24.sp,
             letterSpacing = 0.2.sp
         ),
-        titleSmall: TextStyle = TextStyle(
+        titleSmall: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 16.sp,
             lineHeight = 20.sp,
             letterSpacing = 0.2.sp
         ),
-        bodyLarge: TextStyle = TextStyle(
+        bodyLarge: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 16.sp,
             lineHeight = 20.sp,
             letterSpacing = 0.18.sp
         ),
-        bodyMedium: TextStyle = TextStyle(
+        bodyMedium: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 16.sp,
             lineHeight = 20.sp,
             letterSpacing = 0.2.sp
         ),
-        bodySmall: TextStyle = TextStyle(
+        bodySmall: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
             lineHeight = 18.sp,
             letterSpacing = 0.2.sp
         ),
-        buttonMedium: TextStyle = TextStyle(
+        buttonMedium: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 15.sp,
             lineHeight = 19.sp,
             letterSpacing = 0.2.sp
         ),
-        captionLarge: TextStyle = TextStyle(
+        captionLarge: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
             lineHeight = 18.sp,
             letterSpacing = 0.3.sp
         ),
-        captionMedium: TextStyle = TextStyle(
+        captionMedium: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 12.sp,
             lineHeight = 16.sp,
             letterSpacing = 0.4.sp
         ),
-        captionSmall: TextStyle = TextStyle(
+        captionSmall: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 10.sp,
             lineHeight = 14.sp,
@@ -291,6 +292,13 @@ public class Typography internal constructor(
 private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
     return if (fontFamily != null) this else copy(fontFamily = default)
 }
+
+/**
+ * Returns theme default [TextStyle] with default [PlatformTextStyle].
+ */
+internal val DefaultTextStyle = TextStyle.Default.copy(
+    platformStyle = defaultPlatformTextStyle()
+)
 
 /**
  * This Ambient holds on to the current definition of typography for this application as described

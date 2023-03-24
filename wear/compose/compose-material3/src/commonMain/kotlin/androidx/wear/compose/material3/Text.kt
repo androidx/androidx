@@ -242,7 +242,7 @@ public fun Text(
  * @see ProvideTextStyle
  */
 public val LocalTextStyle: ProvidableCompositionLocal<TextStyle> =
-    compositionLocalOf(structuralEqualityPolicy()) { TextStyle.Default }
+    compositionLocalOf(structuralEqualityPolicy()) { DefaultTextStyle }
 
 /**
  * This function is used to set the current value of [LocalTextStyle], merging the given style
