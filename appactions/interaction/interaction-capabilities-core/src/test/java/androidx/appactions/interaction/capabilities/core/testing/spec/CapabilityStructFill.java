@@ -40,13 +40,13 @@ public final class CapabilityStructFill {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                     .setDescriptor(Property.class)
                     .setArgument(Argument.class, Argument::newBuilder)
-                    .bindOptionalGenericParameter(
+                    .bindOptionalParameter(
                             "listItem",
                             Property::listItem,
                             Argument.Builder::setListItem,
                             TypeConverters::toListItem,
                             TypeConverters::toEntity)
-                    .bindOptionalGenericParameter(
+                    .bindOptionalParameter(
                             "string",
                             Property::anyString,
                             Argument.Builder::setAnyString,

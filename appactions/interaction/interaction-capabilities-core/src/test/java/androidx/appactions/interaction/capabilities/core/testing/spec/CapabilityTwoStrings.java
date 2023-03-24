@@ -36,13 +36,13 @@ public final class CapabilityTwoStrings {
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
                     .setDescriptor(Property.class)
                     .setArgument(Argument.class, Argument::newBuilder)
-                    .bindOptionalGenericParameter(
+                    .bindOptionalParameter(
                             "stringSlotA",
                             Property::stringSlotA,
                             Argument.Builder::setStringSlotA,
                             TypeConverters::toStringValue,
                             PropertyConverter::stringValueToProto)
-                    .bindOptionalGenericParameter(
+                    .bindOptionalParameter(
                             "stringSlotB",
                             Property::stringSlotB,
                             Argument.Builder::setStringSlotB,

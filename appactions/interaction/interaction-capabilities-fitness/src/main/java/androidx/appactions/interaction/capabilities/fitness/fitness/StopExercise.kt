@@ -38,7 +38,7 @@ private val ACTION_SPEC =
         .setDescriptor(StopExercise.Property::class.java)
         .setArgument(StopExercise.Argument::class.java, StopExercise.Argument::Builder)
         .setOutput(StopExercise.Output::class.java)
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "exercise.name",
             { property -> Optional.ofNullable(property.name) },
             StopExercise.Argument.Builder::setName,

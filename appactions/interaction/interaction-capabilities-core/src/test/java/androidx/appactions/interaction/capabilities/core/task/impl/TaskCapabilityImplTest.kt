@@ -951,28 +951,28 @@ class TaskCapabilityImplTest {
                 .setDescriptor(Property::class.java)
                 .setArgument(Argument::class.java, Argument::newBuilder)
                 .setOutput(Output::class.java)
-                .bindRequiredGenericParameter(
+                .bindParameter(
                     "required",
                     Property::requiredEntityField,
                     Argument.Builder::setRequiredEntityField,
                     TypeConverters::toEntityValue,
                     PropertyConverter::entityToProto
                 )
-                .bindOptionalGenericParameter(
+                .bindOptionalParameter(
                     "optional",
                     Property::optionalStringField,
                     Argument.Builder::setOptionalStringField,
                     TypeConverters::toStringValue,
                     PropertyConverter::stringValueToProto
                 )
-                .bindOptionalGenericParameter(
+                .bindOptionalParameter(
                     "optionalEnum",
                     Property::enumField,
                     Argument.Builder::setEnumField,
                     { TestEnum.VALUE_1 },
                     { Entity.newBuilder().setIdentifier(it.toString()).build() }
                 )
-                .bindRepeatedGenericParameter(
+                .bindRepeatedParameter(
                     "repeated",
                     Property::repeatedStringField,
                     Argument.Builder::setRepeatedStringField,

@@ -39,14 +39,14 @@ private val ACTION_SPEC =
         .setDescriptor(StartExercise.Property::class.java)
         .setArgument(StartExercise.Argument::class.java, StartExercise.Argument::Builder)
         .setOutput(StartExercise.Output::class.java)
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "exercise.duration",
             { property -> Optional.ofNullable(property.duration) },
             StartExercise.Argument.Builder::setDuration,
             TypeConverters::toDuration,
             TypeConverters::toEntity
         )
-        .bindOptionalGenericParameter(
+        .bindOptionalParameter(
             "exercise.name",
             { property -> Optional.ofNullable(property.name) },
             StartExercise.Argument.Builder::setName,

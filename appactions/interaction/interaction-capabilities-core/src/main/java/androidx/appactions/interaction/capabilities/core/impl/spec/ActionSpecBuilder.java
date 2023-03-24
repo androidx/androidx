@@ -130,25 +130,20 @@ public final class ActionSpecBuilder<
      */
     @NonNull
     public <T, PossibleValueT>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
-                    bindRequiredGenericParameter(
-                            @NonNull String paramName,
-                            @NonNull
-                                    Function<? super PropertyT, TypeProperty<PossibleValueT>>
-                                            propertyGetter,
-                            @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
-                            @NonNull ParamValueConverter<T> paramValueConverter,
-                            @NonNull EntityConverter<PossibleValueT> entityConverter) {
-        return bindGenericParameter(
+            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT> bindParameter(
+                    @NonNull String paramName,
+                    @NonNull
+                            Function<? super PropertyT, TypeProperty<PossibleValueT>>
+                                    propertyGetter,
+                    @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
+                    @NonNull ParamValueConverter<T> paramValueConverter,
+                    @NonNull EntityConverter<PossibleValueT> entityConverter) {
+        return bindOptionalParameter(
                 paramName,
-                property ->
-                        Optional.of(
-                                PropertyConverter.getIntentParameter(
-                                        paramName,
-                                        propertyGetter.apply(property),
-                                        entityConverter)),
+                property -> Optional.of(propertyGetter.apply(property)),
                 paramConsumer,
-                paramValueConverter);
+                paramValueConverter,
+                entityConverter);
     }
 
     /**
@@ -170,7 +165,7 @@ public final class ActionSpecBuilder<
     @NonNull
     public <T, PossibleValueT>
             ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
-                    bindOptionalGenericParameter(
+                    bindOptionalParameter(
                             @NonNull String paramName,
                             @NonNull
                                     Function<
@@ -180,7 +175,7 @@ public final class ActionSpecBuilder<
                             @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
                             @NonNull ParamValueConverter<T> paramValueConverter,
                             @NonNull EntityConverter<PossibleValueT> entityConverter) {
-        return bindGenericParameter(
+        return bindParameterInternal(
                 paramName,
                 property ->
                         optionalPropertyGetter
@@ -189,13 +184,19 @@ public final class ActionSpecBuilder<
                                         p ->
                                                 PropertyConverter.getIntentParameter(
                                                         paramName, p, entityConverter)),
-                paramConsumer,
-                paramValueConverter);
+                (argBuilder, paramList) -> {
+                    if (!paramList.isEmpty()) {
+                        paramConsumer.accept(
+                                argBuilder,
+                                SlotTypeConverter.ofSingular(paramValueConverter)
+                                        .convert(paramList));
+                    }
+                });
     }
 
     /**
-     * This is similar to {@link ActionSpecBuilder#bindOptionalGenericParameter} but for setting a
-     * list of entities instead.
+     * This is similar to {@link ActionSpecBuilder#bindOptionalParameter} but for setting a list of
+     * entities instead.
      *
      * <p>This parameter is optional for any capability built from the generated {@link ActionSpec}.
      * If the Property Optional is not set, this parameter will not exist in the parameter
@@ -204,7 +205,7 @@ public final class ActionSpecBuilder<
     @NonNull
     public <T, PossibleValueT>
             ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT>
-                    bindRepeatedGenericParameter(
+                    bindRepeatedParameter(
                             @NonNull String paramName,
                             @NonNull
                                     Function<
@@ -228,25 +229,6 @@ public final class ActionSpecBuilder<
                                 argBuilder,
                                 SlotTypeConverter.ofRepeated(paramValueConverter)
                                         .convert(paramList)));
-    }
-
-    private <T>
-            ActionSpecBuilder<PropertyT, ArgumentT, ArgumentBuilderT, OutputT> bindGenericParameter(
-                    @NonNull String paramName,
-                    @NonNull Function<? super PropertyT, Optional<IntentParameter>> propertyGetter,
-                    @NonNull BiConsumer<? super ArgumentBuilderT, T> paramConsumer,
-                    @NonNull ParamValueConverter<T> paramValueConverter) {
-        return bindParameterInternal(
-                paramName,
-                propertyGetter,
-                (argBuilder, paramList) -> {
-                    if (!paramList.isEmpty()) {
-                        paramConsumer.accept(
-                                argBuilder,
-                                SlotTypeConverter.ofSingular(paramValueConverter)
-                                        .convert(paramList));
-                    }
-                });
     }
 
     /**
