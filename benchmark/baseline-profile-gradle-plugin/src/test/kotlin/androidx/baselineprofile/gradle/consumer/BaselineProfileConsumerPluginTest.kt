@@ -24,7 +24,6 @@ import androidx.baselineprofile.gradle.utils.Fixtures
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
-import androidx.baselineprofile.gradle.utils.buildAndFailAndAssertThatOutput
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import org.junit.Rule
@@ -63,18 +62,12 @@ class BaselineProfileConsumerPluginTest {
             dependencyOnProducerProject = true,
             flavors = false
         )
-        projectSetup.producer.setup(
-            variantProfiles = listOf(
-                VariantProfile(
-                    flavor = null,
-                    buildType = "release",
-                    profileLines = listOf(
-                        Fixtures.CLASS_1_METHOD_1,
-                        Fixtures.CLASS_1,
-                        Fixtures.CLASS_2_METHOD_1,
-                        Fixtures.CLASS_2
-                    )
-                )
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_2_METHOD_1,
+                Fixtures.CLASS_2
             )
         )
 
@@ -479,18 +472,13 @@ class BaselineProfileConsumerPluginTest {
                 filter { include("nothing.**") }
             """.trimIndent()
         )
-        projectSetup.producer.setup(
-            variantProfiles = listOf(
-                VariantProfile(
-                    flavor = null,
-                    buildType = "release",
-                    profileLines = listOf(
-                        Fixtures.CLASS_1_METHOD_1,
-                        Fixtures.CLASS_1
-                    )
-                )
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1
             )
         )
+
         gradleRunner
             .withArguments("generateReleaseBaselineProfile", "--stacktrace")
             .buildAndFail()
@@ -510,17 +498,11 @@ class BaselineProfileConsumerPluginTest {
         projectSetup.consumer.setup(
             androidPlugin = ANDROID_LIBRARY_PLUGIN
         )
-        projectSetup.producer.setup(
-            variantProfiles = listOf(
-                VariantProfile(
-                    flavor = null,
-                    buildType = "release",
-                    profileLines = listOf()
-                )
-            )
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf()
         )
-        gradleRunner.buildAndFailAndAssertThatOutput("generateReleaseBaselineProfile") {
-            contains("No baseline profile found in test outputs.")
+        gradleRunner.buildAndAssertThatOutput("generateReleaseBaselineProfile") {
+            contains("No baseline profile rules were generated")
         }
     }
 
@@ -757,5 +739,97 @@ class BaselineProfileConsumerPluginTest {
                 Fixtures.CLASS_1,
                 Fixtures.CLASS_1_METHOD_1,
             )
+    }
+
+    @Test
+    fun testPartialResults() {
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN
+        )
+
+        // Function to setup the producer, run the generate profile command and assert output
+        val setupProducerGenerateAndAssert: (
+            Boolean,
+            Map<String, List<String>>,
+            List<String>
+        ) -> (Unit) = { partial, mapFileToProfile, finalProfileAssertList ->
+
+            projectSetup.producer.setup(
+                variantProfiles = listOf(
+                    VariantProfile(
+                        flavor = null,
+                        buildType = "release",
+                        profileFileLines = mapFileToProfile
+                    )
+                )
+            )
+
+            val args = mutableListOf("generateBaselineProfile")
+            if (partial) args.add("-Pandroid.testInstrumentationRunnerArguments.class=someClass")
+            projectSetup.consumer.gradleRunner.build(*args.toTypedArray()) { }
+
+            assertThat(readBaselineProfileFileContent("release"))
+                .containsExactly(*finalProfileAssertList.toTypedArray())
+        }
+
+        // Full generation, 2 new tests.
+        setupProducerGenerateAndAssert(
+            false,
+            mapOf(
+                "myTest1" to listOf(Fixtures.CLASS_1, Fixtures.CLASS_1_METHOD_1),
+                "myTest2" to listOf(Fixtures.CLASS_2, Fixtures.CLASS_2_METHOD_1)
+            ),
+            listOf(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1
+            )
+        )
+
+        // Partial generation, modify 1 test.
+        setupProducerGenerateAndAssert(
+            true,
+            mapOf(
+                "myTest1" to listOf(Fixtures.CLASS_3, Fixtures.CLASS_3_METHOD_1)
+            ),
+            listOf(
+                Fixtures.CLASS_3,
+                Fixtures.CLASS_3_METHOD_1,
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1
+            )
+        )
+
+        // Partial generation, add 1 test.
+        setupProducerGenerateAndAssert(
+            true,
+            mapOf(
+                "myTest3" to listOf(Fixtures.CLASS_4, Fixtures.CLASS_4_METHOD_1)
+            ),
+            listOf(
+                Fixtures.CLASS_3,
+                Fixtures.CLASS_3_METHOD_1,
+                Fixtures.CLASS_4,
+                Fixtures.CLASS_4_METHOD_1,
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1
+            )
+        )
+
+        // Full generation, 2 new tests.
+        setupProducerGenerateAndAssert(
+            false,
+            mapOf(
+                "myTest1-new" to listOf(Fixtures.CLASS_1, Fixtures.CLASS_1_METHOD_1),
+                "myTest2-new" to listOf(Fixtures.CLASS_2, Fixtures.CLASS_2_METHOD_1)
+            ),
+            listOf(
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_2,
+                Fixtures.CLASS_2_METHOD_1
+            )
+        )
     }
 }
