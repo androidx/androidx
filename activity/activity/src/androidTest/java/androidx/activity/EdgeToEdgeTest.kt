@@ -33,10 +33,10 @@ import org.junit.runner.RunWith
 class EdgeToEdgeTest {
 
     @Test
-    fun setUpAuto() {
+    fun enableAuto() {
         withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             withActivity {
-                setUpEdgeToEdge()
+                enableEdgeToEdge()
                 val view = window.decorView
                 if (Build.VERSION.SDK_INT >= 29) {
                     assertThat(window.statusBarColor).isEqualTo(Color.TRANSPARENT)
@@ -64,10 +64,10 @@ class EdgeToEdgeTest {
     }
 
     @Test
-    fun setUpDark() {
+    fun enableDark() {
         withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             withActivity {
-                setUpEdgeToEdge(
+                enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.dark(Color.DKGRAY),
                     navigationBarStyle = SystemBarStyle.dark(Color.DKGRAY)
                 )
@@ -91,10 +91,10 @@ class EdgeToEdgeTest {
     }
 
     @Test
-    fun setUpLight() {
+    fun enableLight() {
         withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             withActivity {
-                setUpEdgeToEdge(
+                enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.light(Color.CYAN, Color.DKGRAY),
                     navigationBarStyle = SystemBarStyle.light(Color.CYAN, Color.DKGRAY),
                 )
