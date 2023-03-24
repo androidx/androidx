@@ -20,7 +20,7 @@ package androidx.appactions.builtintypes.types
 import androidx.appactions.builtintypes.properties.EndDate
 import androidx.appactions.builtintypes.properties.Name
 import androidx.appactions.builtintypes.properties.StartDate
-import androidx.appactions.interaction.capabilities.core.values.properties.Attendee
+import androidx.appactions.builtintypes.properties.Attendee
 import java.time.LocalDate
 
 interface CalendarEvent : Thing {
