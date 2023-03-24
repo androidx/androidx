@@ -18,6 +18,7 @@ package androidx.javascriptengine;
 
 import android.content.Context;
 
+import androidx.annotation.GuardedBy;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -938,25 +940,46 @@ public class WebViewJavaScriptSandboxTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testConsoleLogging() throws Throwable {
         final class LoggingJavaScriptConsoleCallback implements JavaScriptConsoleCallback {
-            private StringBuilder mMessages = new StringBuilder();
+            private final Object mLock = new Object();
+            @GuardedBy("mLock")
+            private final StringBuilder mMessages = new StringBuilder();
 
             public static final String CLEAR_MARKER = "(console.clear() called)\n";
+            // This is required for synchronization between the instrumentation thread and the UI
+            // thread.
+            public CountDownLatch latch;
+
+            LoggingJavaScriptConsoleCallback(int numberOfCalls) {
+                latch = new CountDownLatch(numberOfCalls);
+            }
 
             @Override
             public void onConsoleMessage(JavaScriptConsoleCallback.ConsoleMessage message) {
-                mMessages.append(message.toString()).append("\n");
+                synchronized (mLock) {
+                    mMessages.append(message.toString()).append("\n");
+                }
+                latch.countDown();
             }
 
             @Override
             public void onConsoleClear() {
-                mMessages.append(CLEAR_MARKER);
+                synchronized (mLock) {
+                    mMessages.append(CLEAR_MARKER);
+                }
+                latch.countDown();
             }
 
             public String messages() {
-                return mMessages.toString();
+                synchronized (mLock) {
+                    return mMessages.toString();
+                }
+            }
+
+            public void resetLatch(int count) {
+                latch = new CountDownLatch(count);
             }
         }
 
@@ -989,16 +1012,19 @@ public class WebViewJavaScriptSandboxTest {
                 + "D <expression>:12:9: I am counting: 1\n"
                 + "D <expression>:13:9: I am counting: 2\n"
                 + LoggingJavaScriptConsoleCallback.CLEAR_MARKER;
+        final int numOfLogs = 11;
         final Context context = ApplicationProvider.getApplicationContext();
 
         final ListenableFuture<JavaScriptSandbox> jsSandboxFuture =
                 JavaScriptSandbox.createConnectedInstanceAsync(context);
         try (JavaScriptSandbox jsSandbox = jsSandboxFuture.get(5, TimeUnit.SECONDS);
-                JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
+             JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
             Assume.assumeTrue(jsSandbox.isFeatureSupported(
                     JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING));
-            final LoggingJavaScriptConsoleCallback client1 = new LoggingJavaScriptConsoleCallback();
-            final LoggingJavaScriptConsoleCallback client2 = new LoggingJavaScriptConsoleCallback();
+            final LoggingJavaScriptConsoleCallback client1 =
+                    new LoggingJavaScriptConsoleCallback(numOfLogs);
+            final LoggingJavaScriptConsoleCallback client2 =
+                    new LoggingJavaScriptConsoleCallback(numOfLogs);
             // Test logging does not crash when no client attached
             // (There may be no inspector)
             {
@@ -1017,6 +1043,7 @@ public class WebViewJavaScriptSandboxTest {
                 final String result = resultFuture.get(5, TimeUnit.SECONDS);
 
                 Assert.assertEquals(expected, result);
+                Assert.assertTrue(client1.latch.await(2, TimeUnit.SECONDS));
                 Assert.assertEquals(expectedLog, client1.messages());
             }
             // Test client can be replaced
@@ -1028,9 +1055,8 @@ public class WebViewJavaScriptSandboxTest {
                 final String result = resultFuture.get(5, TimeUnit.SECONDS);
 
                 Assert.assertEquals(expected, result);
+                Assert.assertTrue(client2.latch.await(2, TimeUnit.SECONDS));
                 Assert.assertEquals(expectedLog, client2.messages());
-                // Ensure client1 hasn't received anything additional
-                Assert.assertEquals(expectedLog, client1.messages());
             }
             // Test client can be nullified/disabled
             // (This may tear down the inspector)
@@ -1041,21 +1067,24 @@ public class WebViewJavaScriptSandboxTest {
                 final String result = resultFuture.get(5, TimeUnit.SECONDS);
 
                 Assert.assertEquals(expected, result);
-                // Ensure clients haven't received anything additional
-                Assert.assertEquals(expectedLog, client1.messages());
-                Assert.assertEquals(expectedLog, client2.messages());
             }
             // Ensure console messaging can be re-enabled (on an existing client)
             // (This may spin up a new inspector)
             {
+                client1.resetLatch(numOfLogs);
                 jsIsolate.setConsoleCallback(client1);
                 final ListenableFuture<String> resultFuture =
                         jsIsolate.evaluateJavaScriptAsync(code);
                 final String result = resultFuture.get(5, TimeUnit.SECONDS);
 
                 Assert.assertEquals(expected, result);
+                Assert.assertTrue(client1.latch.await(2, TimeUnit.SECONDS));
                 Assert.assertEquals(expectedLog + expectedLog, client1.messages());
-                // Ensure client2 hasn't received anything additional
+            }
+            // Ensure client1 and client2 hasn't received anything additional
+            {
+                Thread.sleep(1000);
+                Assert.assertEquals(expectedLog + expectedLog, client1.messages());
                 Assert.assertEquals(expectedLog, client2.messages());
             }
         }
@@ -1085,26 +1114,28 @@ public class WebViewJavaScriptSandboxTest {
         final ListenableFuture<JavaScriptSandbox> jsSandboxFuture =
                 JavaScriptSandbox.createConnectedInstanceAsync(context);
         try (JavaScriptSandbox jsSandbox = jsSandboxFuture.get(5, TimeUnit.SECONDS);
-                JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
+             JavaScriptIsolate jsIsolate = jsSandbox.createIsolate()) {
             Assume.assumeTrue(jsSandbox.isFeatureSupported(
                     JavaScriptSandbox.JS_FEATURE_CONSOLE_MESSAGING));
             Assume.assumeTrue(
                     jsSandbox.isFeatureSupported(JavaScriptSandbox.JS_FEATURE_PROMISE_RETURN));
 
-            jsIsolate.setConsoleCallback(new JavaScriptConsoleCallback(){
-                    @Override
-                    public void onConsoleMessage(ConsoleMessage message) {}
+            CountDownLatch latch = new CountDownLatch(1);
+            jsIsolate.setConsoleCallback(new JavaScriptConsoleCallback() {
+                @Override
+                public void onConsoleMessage(ConsoleMessage message) {}
 
-                    @Override
-                    public void onConsoleClear() {
-                        jsIsolate.evaluateJavaScriptAsync(callbackCode);
-                    }
-                });
+                @Override
+                public void onConsoleClear() {
+                    jsIsolate.evaluateJavaScriptAsync(callbackCode);
+                    latch.countDown();
+                }
+            });
             final ListenableFuture<String> resultFuture = jsIsolate.evaluateJavaScriptAsync(code);
             // Note: the main executor is on a different thread to the instrumentation thread, so
             // blocking here will not block the console callback.
             final String result = resultFuture.get(5, TimeUnit.SECONDS);
-
+            Assert.assertTrue(latch.await(2, TimeUnit.SECONDS));
             Assert.assertEquals(expected, result);
         }
     }
