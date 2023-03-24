@@ -104,7 +104,7 @@ object SemanticsProperties {
     val IsContainer: SemanticsPropertyKey<Boolean>
         get() = IsTraversalGroup
 
-    /**us
+    /**
      * @see SemanticsPropertyReceiver.isTraversalGroup
      */
     val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
