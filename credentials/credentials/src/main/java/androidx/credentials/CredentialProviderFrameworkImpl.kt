@@ -174,9 +174,9 @@ class CredentialProviderFrameworkImpl(context: Context) : CredentialProvider {
         val builder = android.credentials.GetCredentialRequest.Builder(Bundle())
         request.credentialOptions.forEach {
             builder.addCredentialOption(
-                android.credentials.CredentialOption(
-                    it.type, it.requestData, it.candidateQueryData, it.isSystemProviderRequired
-                )
+                android.credentials.CredentialOption.Builder(
+                    it.type, it.requestData, it.candidateQueryData
+                ).setIsSystemProviderRequired(it.isSystemProviderRequired).build()
             )
         }
         setOriginForGetRequest(request, builder)
