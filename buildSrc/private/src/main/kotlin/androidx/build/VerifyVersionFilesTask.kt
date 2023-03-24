@@ -40,9 +40,9 @@ open class VerifyVersionFilesTask : DefaultTask() {
     @TaskAction
     fun verifyVersionFilesPresent() {
         repositoryDirectory.walk().forEach { file ->
-            var expectedGroup = "androidx"
+            var expectedPrefix = "androidx"
             if (file.path.contains("/libyuv/"))
-                expectedGroup = "libyuv" // external library that we don't publish
+                expectedPrefix = "libyuv_libyuv" // external library that we don't publish
             if (file.extension == "aar") {
                 val inputStream = FileInputStream(file)
                 val aarFileInputStream = ZipInputStream(inputStream)
@@ -53,7 +53,7 @@ open class VerifyVersionFilesTask : DefaultTask() {
                         val classesJarInputStream = ZipInputStream(aarFileInputStream)
                         var jarEntry = classesJarInputStream.nextEntry
                         while (jarEntry != null) {
-                            if (jarEntry.name.startsWith("META-INF/$expectedGroup.") &&
+                            if (jarEntry.name.startsWith("META-INF/$expectedPrefix.") &&
                                 jarEntry.name.endsWith(".version")
                             ) {
                                 foundVersionFile = true
@@ -63,7 +63,7 @@ open class VerifyVersionFilesTask : DefaultTask() {
                         }
                         if (!foundVersionFile) {
                             throw Exception(
-                                "Missing classes.jar/META-INF/$expectedGroup.*version " +
+                                "Missing classes.jar/META-INF/$expectedPrefix.*version " +
                                 "file in ${file.absolutePath}"
                             )
                         }
