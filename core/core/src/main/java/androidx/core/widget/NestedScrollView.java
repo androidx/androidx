@@ -704,21 +704,33 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_DPAD_UP:
-                    if (!event.isAltPressed()) {
-                        handled = arrowScroll(View.FOCUS_UP);
-                    } else {
+                    if (event.isAltPressed()) {
                         handled = fullScroll(View.FOCUS_UP);
+                    } else {
+                        handled = arrowScroll(View.FOCUS_UP);
                     }
                     break;
                 case KeyEvent.KEYCODE_DPAD_DOWN:
-                    if (!event.isAltPressed()) {
-                        handled = arrowScroll(View.FOCUS_DOWN);
-                    } else {
+                    if (event.isAltPressed()) {
                         handled = fullScroll(View.FOCUS_DOWN);
+                    } else {
+                        handled = arrowScroll(View.FOCUS_DOWN);
                     }
+                    break;
+                case KeyEvent.KEYCODE_PAGE_UP:
+                    handled = fullScroll(View.FOCUS_UP);
+                    break;
+                case KeyEvent.KEYCODE_PAGE_DOWN:
+                    handled = fullScroll(View.FOCUS_DOWN);
                     break;
                 case KeyEvent.KEYCODE_SPACE:
                     pageScroll(event.isShiftPressed() ? View.FOCUS_UP : View.FOCUS_DOWN);
+                    break;
+                case KeyEvent.KEYCODE_MOVE_HOME:
+                    pageScroll(View.FOCUS_UP);
+                    break;
+                case KeyEvent.KEYCODE_MOVE_END:
+                    pageScroll(View.FOCUS_DOWN);
                     break;
             }
         }
