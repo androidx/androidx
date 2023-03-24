@@ -59,7 +59,7 @@ interface IJsSandboxService {
      * Feature flag indicating that an embedder can subscribe to console messages generated from the
      * isolate.
      */
-    const String CONSOLE_MESSAGING = "CONSOLE_MESSAGING:DEV";
+    const String CONSOLE_MESSAGING = "CONSOLE_MESSAGING";
 
     /**
      * @return A list of feature names supported by this implementation.
