@@ -92,7 +92,14 @@ data class Version(
          */
         fun parseOrNull(file: File): Version? {
             if (!file.isFile) return null
-            val matcher = VERSION_FILE_REGEX.matcher(file.name)
+            return parseFilenameOrNull(file.name)
+        }
+
+        /**
+         * @return Version or null, if a name of the given file doesn't match
+         */
+        fun parseFilenameOrNull(filename: String): Version? {
+            val matcher = VERSION_FILE_REGEX.matcher(filename)
             return if (matcher.matches()) parseOrNull(matcher.group(2)) else null
         }
 

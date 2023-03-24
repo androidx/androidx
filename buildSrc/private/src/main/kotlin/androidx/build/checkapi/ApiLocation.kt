@@ -84,8 +84,8 @@ data class ApiLocation(
             return fromBaseName(apiFileDir, CURRENT)
         }
 
-        fun isResourceApiFile(apiFile: File): Boolean {
-            return apiFile.name.startsWith(PREFIX_RESOURCE)
+        fun isResourceApiFilename(filename: String): Boolean {
+            return filename.startsWith(PREFIX_RESOURCE)
         }
 
         private fun fromBaseName(apiFileDir: File, baseName: String): ApiLocation {
