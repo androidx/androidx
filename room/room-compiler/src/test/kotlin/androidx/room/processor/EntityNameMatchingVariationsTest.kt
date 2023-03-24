@@ -78,7 +78,7 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
             assertThat(field.setter)
                 .isEqualTo(FieldSetter(field.name, setterName, intType, CallType.METHOD))
             assertThat(field.getter)
-                .isEqualTo(FieldGetter(field.name, getterName, intType, CallType.METHOD, true))
+                .isEqualTo(FieldGetter(field.name, getterName, intType, CallType.METHOD))
         }
     }
 }
