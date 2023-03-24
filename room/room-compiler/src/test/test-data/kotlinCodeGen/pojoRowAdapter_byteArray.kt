@@ -33,10 +33,11 @@ public class MyDao_Impl(
             public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindBlob(2, entity.byteArray)
-                if (entity.nullableByteArray == null) {
+                val _tmpNullableByteArray: ByteArray? = entity.nullableByteArray
+                if (_tmpNullableByteArray == null) {
                     statement.bindNull(3)
                 } else {
-                    statement.bindBlob(3, entity.nullableByteArray)
+                    statement.bindBlob(3, _tmpNullableByteArray)
                 }
             }
         }
