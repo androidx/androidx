@@ -26,4 +26,8 @@ object Fixtures {
     const val CLASS_2_METHOD_3 = "HLcom/sample/Utils;->someOtherMethod()V"
     const val CLASS_2_METHOD_4 = "HSLcom/sample/Utils;->someOtherMethod()V"
     const val CLASS_2_METHOD_5 = "HSPLcom/sample/Utils;->someOtherMethod()V"
+    const val CLASS_3 = "Lcom/sample/Fragment;"
+    const val CLASS_3_METHOD_1 = "HSPLcom/sample/Fragment;-><init>()V"
+    const val CLASS_4 = "Lcom/sample/SomeOtherClass;"
+    const val CLASS_4_METHOD_1 = "HSPLcom/sample/SomeOtherClass;-><init>()V"
 }

@@ -26,9 +26,11 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -44,6 +46,10 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
 
     companion object {
         private const val COLLECT_TASK_NAME = "collect"
+        private const val PROP_KEY_PREFIX_INSTRUMENTATION_RUNNER_ARG =
+            "android.testInstrumentationRunnerArguments."
+        private const val PROP_KEY_INSTRUMENTATION_RUNNER_ARG_CLASS =
+            "${PROP_KEY_PREFIX_INSTRUMENTATION_RUNNER_ARG}class"
 
         internal fun registerForVariant(
             project: Project,
@@ -62,8 +68,7 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
                 var outputDir = project
                     .layout
                     .buildDirectory
-                    .dir("$INTERMEDIATES_BASE_FOLDER/${variant.flavorName}/")
-
+                    .dir("$INTERMEDIATES_BASE_FOLDER/")
                 if (!flavorName.isNullOrBlank()) {
                     outputDir = outputDir.map { d -> d.dir(flavorName) }
                 }
@@ -72,10 +77,16 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
                 }
 
                 // Sets the baseline-prof output path.
-                it.outputFile.set(outputDir.map { d -> d.file("baseline-prof.txt") })
+                it.outputDir.set(outputDir)
 
                 // Sets the test results inputs
                 it.testResultDirs.setFrom(testTaskDependencies.map { t -> t.resultsDir })
+
+                // Sets the project testInstrumentationRunnerArguments
+                it.testInstrumentationRunnerArguments.set(project
+                    .properties
+                    .filterKeys { k -> k.startsWith(PROP_KEY_PREFIX_INSTRUMENTATION_RUNNER_ARG) }
+                )
             }
         }
     }
@@ -89,11 +100,19 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val testResultDirs: ConfigurableFileCollection
 
-    @get:OutputFile
-    abstract val outputFile: RegularFileProperty
+    @get:Input
+    abstract val testInstrumentationRunnerArguments: MapProperty<String, Any>
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
 
     @TaskAction
     fun exec() {
+
+        // Determines if this is a partial result based on whether the property
+        // `android.testInstrumentationRunnerArguments.class` is set
+        val isPartialResult = testInstrumentationRunnerArguments.get()
+            .containsKey(PROP_KEY_INSTRUMENTATION_RUNNER_ARG_CLASS)
 
         // Prepares list with test results to read. Note that these are the output directories
         // from the instrumentation task. We're interested only in `test-result.pb`.
@@ -115,7 +134,7 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
             )
         }
 
-        val profiles = mutableSetOf<String>()
+        val profileFiles = mutableSetOf<File>()
         testResultProtoFiles
             .map { TestSuiteResultProto.TestSuiteResult.parseFrom(it.readBytes()) }
             .forEach { testSuiteResult ->
@@ -139,18 +158,23 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
                     // Merge each baseline profile file from the test results into the aggregated
                     // baseline file, removing duplicate lines.
                     for (baselineProfileFile in baselineProfileFiles) {
-                        profiles.addAll(baselineProfileFile.readLines())
+                        profileFiles.add(baselineProfileFile)
                     }
                 }
             }
 
-        if (profiles.isEmpty()) {
-            throw GradleException("No baseline profile found in test outputs.")
+        // If this is not a partial result delete the content of the output dir.
+        if (!isPartialResult) {
+            outputDir.get().asFile.apply {
+                deleteRecursively()
+                mkdirs()
+            }
         }
 
-        // Saves the merged baseline profile file in the final destination
-        val file = outputFile.get().asFile
-        file.writeText(profiles.joinToString(System.lineSeparator()))
-        logger.info("Aggregated baseline profile generated at ${file.absolutePath}")
+        // Saves the merged baseline profile file in the final destination. Existing tests are
+        // overwritten, in case this is a partial result that needs to update an existing profile.
+        profileFiles.forEach {
+            it.copyTo(outputDir.file(it.name).get().asFile, overwrite = true)
+        }
     }
 }

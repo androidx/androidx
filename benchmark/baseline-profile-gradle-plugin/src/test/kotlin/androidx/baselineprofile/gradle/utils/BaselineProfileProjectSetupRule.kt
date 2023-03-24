@@ -171,7 +171,7 @@ class BaselineProfileProjectSetupRule(
 data class VariantProfile(
     val flavor: String?,
     val buildType: String = "release",
-    val profileLines: List<String> = listOf()
+    val profileFileLines: Map<String, List<String>> = mapOf()
 ) {
     val nonMinifiedVariant = "${flavor ?: ""}NonMinified${buildType.capitalized()}"
 }
@@ -230,13 +230,25 @@ class ProducerModule(
                 VariantProfile(
                     flavor = "free",
                     buildType = "release",
-                    profileLines = freeReleaseProfileLines
+                    profileFileLines = mapOf("myTest" to freeReleaseProfileLines)
                 ),
                 VariantProfile(
                     flavor = "paid",
                     buildType = "release",
-                    profileLines = paidReleaseProfileLines
+                    profileFileLines = mapOf("myTest" to paidReleaseProfileLines)
                 ),
+            )
+        )
+    }
+
+    fun setupWithoutFlavors(releaseProfileLines: List<String>) {
+        setup(
+            variantProfiles = listOf(
+                VariantProfile(
+                    flavor = null,
+                    buildType = "release",
+                    profileFileLines = mapOf("myTest" to releaseProfileLines)
+                )
             )
         )
     }
@@ -246,11 +258,13 @@ class ProducerModule(
             VariantProfile(
                 flavor = null,
                 buildType = "release",
-                profileLines = listOf(
-                    Fixtures.CLASS_1_METHOD_1,
-                    Fixtures.CLASS_2_METHOD_2,
-                    Fixtures.CLASS_2,
-                    Fixtures.CLASS_1
+                profileFileLines = mapOf(
+                    "myTest" to listOf(
+                        Fixtures.CLASS_1_METHOD_1,
+                        Fixtures.CLASS_2_METHOD_2,
+                        Fixtures.CLASS_2,
+                        Fixtures.CLASS_1
+                    )
                 )
             )
         ),
@@ -300,12 +314,17 @@ class ProducerModule(
         val disableConnectedAndroidTestsBlock = variantProfiles.joinToString("\n") {
 
             // Creates a folder to use as results dir
-            val outputDir = File(tempFolder, it.nonMinifiedVariant).apply { mkdirs() }
+            val variantOutputDir = File(tempFolder, it.nonMinifiedVariant)
+            val testResultsOutputDir =
+                File(variantOutputDir, "testResultsOutDir").apply { mkdirs() }
+            val profilesOutputDir =
+                File(variantOutputDir, "profilesOutputDir").apply { mkdirs() }
 
             // Writes the fake test result proto in it, with the given lines
             writeFakeTestResultsProto(
-                outputDir = outputDir,
-                profileLines = it.profileLines
+                testResultsOutputDir = testResultsOutputDir,
+                profilesOutputDir = profilesOutputDir,
+                profileFileLines = it.profileFileLines
             )
 
             // Gradle script to injects a fake and disable the actual task execution for
@@ -313,7 +332,7 @@ class ProducerModule(
             """
             afterEvaluate {
                 project.tasks.named("connected${it.nonMinifiedVariant.capitalized()}AndroidTest") {
-                    it.resultsDir.set(new File("${outputDir.absolutePath}"))
+                    it.resultsDir.set(new File("${testResultsOutputDir.absolutePath}"))
                     onlyIf { false }
                 }
             }
@@ -357,16 +376,19 @@ class ProducerModule(
     }
 
     private fun writeFakeTestResultsProto(
-        outputDir: File,
-        profileLines: List<String>
+        testResultsOutputDir: File,
+        profilesOutputDir: File,
+        profileFileLines: Map<String, List<String>>
     ) {
 
-        val generatedProfileFile = File
-            .createTempFile("fake-baseline-prof-", ".txt")
-            .apply { writeText(profileLines.joinToString(System.lineSeparator())) }
+        val testResultProtoBuilder = TestResultProto.TestResult.newBuilder()
 
-        val testResultProto = TestResultProto.TestResult.newBuilder()
-            .addOutputArtifact(
+        // Writes a fake baseline profile for each item of the given map
+        profileFileLines.forEach {
+            val fakeProfileFile = File(profilesOutputDir, "fake-baseline-prof-${it.key}.txt")
+                .apply { writeText(it.value.joinToString(System.lineSeparator())) }
+
+            testResultProtoBuilder.addOutputArtifact(
                 TestArtifactProto.Artifact.newBuilder()
                     .setLabel(
                         LabelProto.Label.newBuilder()
@@ -375,19 +397,19 @@ class ProducerModule(
                     )
                     .setSourcePath(
                         PathProto.Path.newBuilder()
-                            .setPath(generatedProfileFile.absolutePath)
+                            .setPath(fakeProfileFile.absolutePath)
                             .build()
                     )
                     .build()
             )
-            .build()
+        }
 
         val testSuiteResultProto = TestSuiteResultProto.TestSuiteResult.newBuilder()
             .setTestStatus(TestStatusProto.TestStatus.PASSED)
-            .addTestResult(testResultProto)
+            .addTestResult(testResultProtoBuilder.build())
             .build()
 
-        File(outputDir, "test-result.pb")
+        File(testResultsOutputDir, "test-result.pb")
             .apply { outputStream().use { testSuiteResultProto.writeTo(it) } }
     }
 }

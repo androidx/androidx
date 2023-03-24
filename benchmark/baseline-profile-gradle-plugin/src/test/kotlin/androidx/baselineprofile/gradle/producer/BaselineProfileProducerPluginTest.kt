@@ -34,7 +34,7 @@ class BaselineProfileProducerPluginTest {
     private val emptyReleaseVariantProfile = VariantProfile(
         flavor = null,
         buildType = "release",
-        profileLines = listOf()
+        profileFileLines = mapOf()
     )
 
     @Test
