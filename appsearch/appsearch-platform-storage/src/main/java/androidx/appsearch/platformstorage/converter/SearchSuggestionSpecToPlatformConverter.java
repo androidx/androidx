@@ -17,7 +17,6 @@
 package androidx.appsearch.platformstorage.converter;
 
 import android.annotation.SuppressLint;
-import android.app.appsearch.exceptions.AppSearchException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -63,12 +62,6 @@ public final class SearchSuggestionSpecToPlatformConverter {
             platformBuilder.addFilterDocumentIds(documentIdFilters.getKey(),
                     documentIdFilters.getValue());
         }
-        try {
-            return platformBuilder.build();
-        } catch (AppSearchException e) {
-            // impossible cases, a valid jetpack SearchSuggestionSpec shouldn't be invalid in the
-            // platform
-            throw new IllegalStateException(e);
-        }
+        return platformBuilder.build();
     }
 }
