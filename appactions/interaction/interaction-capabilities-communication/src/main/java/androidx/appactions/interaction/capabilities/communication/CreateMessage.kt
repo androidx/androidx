@@ -29,8 +29,8 @@ import androidx.appactions.interaction.capabilities.core.properties.TypeProperty
 import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskUpdater
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
 import androidx.appactions.interaction.capabilities.core.values.Message
-import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.values.properties.Recipient
+import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
@@ -47,7 +47,7 @@ private val ACTION_SPEC =
             "message.recipient",
             { property -> Optional.ofNullable(property.recipient) },
             CreateMessage.Argument.Builder::setRecipientList,
-            TypeConverters::toRecipient,
+            RecipientValue.FROM_PARAM_VALUE,
             TypeConverters::toEntity
         )
         .bindOptionalParameter(
@@ -128,7 +128,7 @@ class CreateMessage private constructor() {
     }
 
     class Argument
-    internal constructor(val recipientList: List<Recipient>, val messageText: String?) {
+    internal constructor(val recipientList: List<RecipientValue>, val messageText: String?) {
         override fun toString(): String {
             return "Argument(recipient=$recipientList, messageTextList=$messageText)"
         }
@@ -152,10 +152,10 @@ class CreateMessage private constructor() {
         }
 
         class Builder : BuilderOf<Argument> {
-            private var recipientList: List<Recipient> = mutableListOf()
+            private var recipientList: List<RecipientValue> = mutableListOf()
             private var messageText: String? = null
 
-            fun setRecipientList(recipientList: List<Recipient>): Builder = apply {
+            fun setRecipientList(recipientList: List<RecipientValue>): Builder = apply {
                 this.recipientList = recipientList
             }
 

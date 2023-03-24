@@ -28,8 +28,8 @@ import androidx.appactions.interaction.capabilities.core.task.impl.AbstractTaskU
 import androidx.appactions.interaction.capabilities.core.values.Call
 import androidx.appactions.interaction.capabilities.core.values.Call.CallFormat
 import androidx.appactions.interaction.capabilities.core.values.GenericErrorStatus
-import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.capabilities.core.values.properties.Participant
+import androidx.appactions.interaction.capabilities.core.values.SuccessStatus
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.protobuf.Struct
 import androidx.appactions.interaction.protobuf.Value
@@ -53,7 +53,7 @@ private val ACTION_SPEC =
             "call.participant",
             { property -> Optional.ofNullable(property.participant) },
             CreateCall.Argument.Builder::setParticipantList,
-            TypeConverters::toParticipant,
+            ParticipantValue.FROM_PARAM_VALUE,
             TypeConverters::toEntity
         )
         .bindOptionalOutput(
@@ -124,7 +124,10 @@ class CreateCall private constructor() {
     }
 
     class Argument
-    internal constructor(val callFormat: CallFormat?, val participantList: List<Participant>) {
+    internal constructor(
+        val callFormat: CallFormat?,
+        val participantList: List<ParticipantValue>,
+    ) {
         override fun toString(): String {
             return "Argument(callFormat=$callFormat, participantList=$participantList)"
         }
@@ -149,13 +152,13 @@ class CreateCall private constructor() {
 
         class Builder : BuilderOf<Argument> {
             private var callFormat: CallFormat? = null
-            private var participantList: List<Participant> = mutableListOf()
+            private var participantList: List<ParticipantValue> = mutableListOf()
 
             fun setCallFormat(callFormat: CallFormat): Builder = apply {
                 this.callFormat = callFormat
             }
 
-            fun setParticipantList(participantList: List<Participant>): Builder = apply {
+            fun setParticipantList(participantList: List<ParticipantValue>): Builder = apply {
                 this.participantList = participantList
             }
 
