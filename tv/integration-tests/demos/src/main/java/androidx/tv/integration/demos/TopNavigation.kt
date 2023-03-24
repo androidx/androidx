@@ -16,9 +16,7 @@
 
 package androidx.tv.integration.demos
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Tab
 import androidx.tv.material3.TabRow
@@ -35,13 +34,13 @@ import androidx.tv.material3.Text
 import kotlinx.coroutines.delay
 
 enum class Navigation(val displayName: String, val action: @Composable () -> Unit) {
-  Drawer("Drawer", { SampleDrawer() }),
-  ModalDrawer("Modal Drawer", { SampleModalDrawer() }),
+  StandardNavigationDrawer("Standard Navigation Drawer", { StandardNavigationDrawer() }),
+  ModalNavigationDrawer("Modal Navigation Drawer", { ModalNavigationDrawer() }),
   LazyRowsAndColumns("Lazy Rows and Columns", { LazyRowsAndColumns() }),
   FeaturedCarousel("Featured Carousel", { FeaturedCarouselContent() }),
   ImmersiveList("Immersive List", { ImmersiveListContent() }),
-  StickyHeader("Sticky Header", { StickyHeaderContent() }),
   TextField("Text Field", { TextFieldContent() }),
+  StickyHeader("Sticky Header", { StickyHeaderContent() }),
 }
 
 @Composable
@@ -69,27 +68,31 @@ internal fun TopNavigation(
 /**
  * Pill indicator tab row for reference
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalTvFoundationApi::class)
 @Composable
 fun PillIndicatorTabRow(
   tabs: List<String>,
   selectedTabIndex: Int,
   updateSelectedTab: (Int) -> Unit
 ) {
-  TabRow(
-    selectedTabIndex = selectedTabIndex,
-    separator = { Spacer(modifier = Modifier.width(12.dp)) },
-  ) {
-    tabs.forEachIndexed { index, tab ->
-      Tab(
-        selected = index == selectedTabIndex,
-        onFocus = { updateSelectedTab(index) },
-      ) {
-        Text(
-          text = tab,
-          fontSize = 12.sp,
-          modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-        )
+  FocusGroup {
+    TabRow(selectedTabIndex = selectedTabIndex) {
+      tabs.forEachIndexed { index, tab ->
+        Tab(
+          selected = index == selectedTabIndex,
+          onFocus = { updateSelectedTab(index) },
+          modifier =
+          if (tab == Navigation.StandardNavigationDrawer.displayName)
+            Modifier.initiallyFocused()
+          else
+            Modifier.restorableFocus()
+        ) {
+          Text(
+            text = tab,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+          )
+        }
       }
     }
   }

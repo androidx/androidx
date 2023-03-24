@@ -42,8 +42,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
 import androidx.tv.material3.CarouselState
@@ -88,15 +88,9 @@ fun FeaturedCarouselContent() {
     }
 }
 
-@Composable
-fun Modifier.drawBorderOnFocus(borderColor: Color = Color.White, width: Dp = 5.dp): Modifier {
-    var isFocused by remember { mutableStateOf(false) }
-    return this
-        .border(width, borderColor.copy(alpha = if (isFocused) 1f else 0.2f))
-        .onFocusChanged { isFocused = it.isFocused }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class,
+    ExperimentalTvFoundationApi::class
+)
 @Composable
 internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
     val backgrounds = listOf(
@@ -111,35 +105,42 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
     )
 
     val carouselState = remember { CarouselState() }
-    Carousel(
-        itemCount = backgrounds.size,
-        carouselState = carouselState,
-        modifier = modifier
-            .height(300.dp)
-            .fillMaxWidth(),
-        carouselIndicator = {
-            CarouselDefaults.IndicatorRow(
-                itemCount = backgrounds.size,
-                activeItemIndex = carouselState.activeItemIndex,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
-            )
-        }
-    ) { itemIndex ->
-        CarouselItem(
-            background = {
-                Box(
+    FocusGroup {
+        Carousel(
+            itemCount = backgrounds.size,
+            carouselState = carouselState,
+            modifier = modifier
+                .height(300.dp)
+                .fillMaxWidth(),
+            carouselIndicator = {
+                CarouselDefaults.IndicatorRow(
+                    itemCount = backgrounds.size,
+                    activeItemIndex = carouselState.activeItemIndex,
                     modifier = Modifier
-                        .background(backgrounds[itemIndex])
-                        .fillMaxSize()
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
                 )
             }
-        ) {
-            Box(modifier = Modifier) {
-                OverlayButton(
-                    modifier = Modifier
-                )
+        ) { itemIndex ->
+            CarouselItem(
+                background = {
+                    Box(
+                        modifier = Modifier
+                            .background(backgrounds[itemIndex])
+                            .fillMaxSize()
+                    )
+                },
+                modifier =
+                if (itemIndex == 0)
+                    Modifier.initiallyFocused()
+                else
+                    Modifier.restorableFocus()
+            ) {
+                Box(modifier = Modifier) {
+                    OverlayButton(
+                        modifier = Modifier
+                    )
+                }
             }
         }
     }
