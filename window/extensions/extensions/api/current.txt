@@ -40,6 +40,7 @@ package androidx.window.extensions.area {
     field public static final int SESSION_STATE_INACTIVE = 0; // 0x0
     field public static final int SESSION_STATE_INVISIBLE = 3; // 0x3
     field public static final int SESSION_STATE_VISIBLE = 2; // 0x2
+    field public static final int STATUS_ACTIVE = 3; // 0x3
     field public static final int STATUS_AVAILABLE = 2; // 0x2
     field public static final int STATUS_UNAVAILABLE = 1; // 0x1
     field public static final int STATUS_UNSUPPORTED = 0; // 0x0

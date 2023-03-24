@@ -39,6 +39,7 @@ import androidx.window.extensions.area.ExtensionWindowAreaStatus
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_ACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_INACTIVE
+import androidx.window.extensions.area.WindowAreaComponent.STATUS_ACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_AVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNAVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNSUPPORTED
@@ -200,14 +201,27 @@ class WindowAreaControllerImplTest {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @Test
-    public fun testTransferRearDisplayReturnsError(): Unit = testScope.runTest {
+    public fun testTransferRearDisplayReturnsError_statusUnavailable(): Unit = testScope.runTest {
+        testTransferRearDisplayReturnsError(STATUS_UNAVAILABLE)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    @Test
+    public fun testTransferRearDisplayReturnsError_statusActive(): Unit = testScope.runTest {
+        testTransferRearDisplayReturnsError(STATUS_ACTIVE)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun testTransferRearDisplayReturnsError(
+        initialState: @WindowAreaComponent.WindowAreaStatus Int
+    ) {
         assumeAtLeastVendorApiLevel(2)
         val extensions = FakeWindowAreaComponent()
         val controller = WindowAreaControllerImpl(
             windowAreaComponent = extensions,
             vendorApiLevel = 2
         )
-        extensions.currentRearDisplayStatus = STATUS_UNAVAILABLE
+        extensions.currentRearDisplayStatus = initialState
         val callback = TestWindowAreaSessionCallback()
         var windowAreaInfo: WindowAreaInfo? = null
         testScope.launch(Job()) {
@@ -217,7 +231,7 @@ class WindowAreaControllerImplTest {
         assertNotNull(windowAreaInfo)
         assertEquals(
             windowAreaInfo!!.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA)?.status,
-            WINDOW_AREA_STATUS_UNAVAILABLE
+            WindowAreaAdapter.translate(initialState)
         )
 
         activityScenario.scenario.onActivity { testActivity ->

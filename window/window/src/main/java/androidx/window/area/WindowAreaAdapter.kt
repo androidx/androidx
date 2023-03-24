@@ -18,11 +18,13 @@ package androidx.window.area
 
 import android.util.DisplayMetrics
 import androidx.core.view.WindowInsetsCompat
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
 import androidx.window.core.Bounds
 import androidx.window.extensions.area.WindowAreaComponent
+import androidx.window.extensions.area.WindowAreaComponent.STATUS_ACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_AVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNAVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNSUPPORTED
@@ -48,6 +50,7 @@ internal object WindowAreaAdapter {
             STATUS_UNSUPPORTED -> WINDOW_AREA_STATUS_UNSUPPORTED
             STATUS_UNAVAILABLE -> WINDOW_AREA_STATUS_UNAVAILABLE
             STATUS_AVAILABLE -> WINDOW_AREA_STATUS_AVAILABLE
+            STATUS_ACTIVE -> WINDOW_AREA_STATUS_ACTIVE
             else -> WINDOW_AREA_STATUS_UNSUPPORTED
         }
     }
