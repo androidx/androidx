@@ -33,6 +33,8 @@ public abstract class TestEntity {
         return new AutoValue_TestEntity.Builder();
     }
 
+    public abstract Optional<String> getId();
+
     public abstract Optional<String> getName();
 
     public abstract Optional<Duration> getDuration();
@@ -62,6 +64,8 @@ public abstract class TestEntity {
 
     @AutoValue.Builder
     public abstract static class Builder implements BuilderOf<TestEntity> {
+
+        public abstract Builder setId(String id);
 
         public abstract Builder setName(String name);
 

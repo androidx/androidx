@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appactions.interaction.capabilities.core.impl.BuilderOf;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.protobuf.Struct;
@@ -26,10 +27,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /** TypeSpecImpl is used to convert between java objects in capabilities/values and Struct proto. */
 final class TypeSpecImpl<T, BuilderT extends BuilderOf<T>> implements TypeSpec<T> {
+    /* The function to retrieve the identifier. */
+    final Function<T, Optional<String>> mIdentifierGetter;
 
     /** The list of FieldBinding objects. */
     final List<FieldBinding<T, BuilderT>> mBindings;
@@ -41,23 +45,31 @@ final class TypeSpecImpl<T, BuilderT extends BuilderOf<T>> implements TypeSpec<T
     final Supplier<BuilderT> mBuilderSupplier;
 
     TypeSpecImpl(
+            Function<T, Optional<String>> identifierGetter,
             List<FieldBinding<T, BuilderT>> bindings,
             Supplier<BuilderT> builderSupplier,
             Optional<CheckedInterfaces.Consumer<Struct>> structValidator) {
+        this.mIdentifierGetter = identifierGetter;
         this.mBindings = Collections.unmodifiableList(bindings);
         this.mBuilderSupplier = builderSupplier;
         this.mStructValidator = structValidator;
     }
 
+    @Nullable
+    @Override
+    public String getIdentifier(T obj) {
+        return mIdentifierGetter.apply(obj).orElse(null);
+    }
+
     /** Converts a java object into a Struct proto using List of FieldBinding. */
     @NonNull
     @Override
-    public Struct toStruct(@NonNull T object) {
+    public Struct toStruct(@NonNull T obj) {
         Struct.Builder builder = Struct.newBuilder();
         for (FieldBinding<T, BuilderT> binding : mBindings) {
             binding
                     .valueGetter()
-                    .apply(object)
+                    .apply(obj)
                     .ifPresent(value -> builder.putFields(binding.name(), value));
         }
         return builder.build();

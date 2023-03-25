@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package androidx.appactions.interaction.capabilities.core.impl.converters;
+package androidx.appactions.interaction.capabilities.core.impl.converters
 
-import androidx.annotation.NonNull;
-import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
-import androidx.appactions.interaction.protobuf.Struct;
+import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException
+import androidx.appactions.interaction.protobuf.Struct
 
 /**
- * TypeSpec is used to convert between java objects in capabilities/values and Struct proto.
- *
- * @param <T>
+ * TypeSpec is used to convert between native objects in capabilities/values and Struct proto.
  */
-public interface TypeSpec<T> {
+interface TypeSpec<T> {
+    /* Given the object, returns its identifier, which can be null. */
+    fun getIdentifier(obj: T): String?
 
-    /** Converts a java object into a Struct proto. */
-    @NonNull
-    Struct toStruct(@NonNull T object);
+    /** Converts a object into a Struct proto. */
+    fun toStruct(obj: T): Struct
 
     /**
-     * Converts a Struct into java object.
+     * Converts a Struct into object.
      *
      * @throws StructConversionException if the Struct is malformed.
      */
-    @NonNull
-    T fromStruct(@NonNull Struct struct) throws StructConversionException;
+    @Throws(StructConversionException::class)
+    fun fromStruct(struct: Struct): T
 }

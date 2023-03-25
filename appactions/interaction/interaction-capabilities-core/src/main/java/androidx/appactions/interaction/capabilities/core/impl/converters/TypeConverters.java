@@ -17,6 +17,7 @@
 package androidx.appactions.interaction.capabilities.core.impl.converters;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appactions.interaction.capabilities.core.ExecutionResult;
 import androidx.appactions.interaction.capabilities.core.impl.exceptions.StructConversionException;
 import androidx.appactions.interaction.capabilities.core.values.Alarm;
@@ -52,7 +53,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /** Converters for capability argument values. Convert from internal proto types to public types. */
 public final class TypeConverters {
@@ -94,13 +94,14 @@ public final class TypeConverters {
                             ParcelDelivery::getTrackingNumber,
                             ParcelDelivery.Builder::setTrackingNumber)
                     .bindStringField(
-                            "trackingUrl", ParcelDelivery::getTrackingUrl,
+                            "trackingUrl",
+                            ParcelDelivery::getTrackingUrl,
                             ParcelDelivery.Builder::setTrackingUrl)
                     .build();
     public static final TypeSpec<Order> ORDER_TYPE_SPEC =
             TypeSpecBuilder.newBuilderForThing("Order", Order::newBuilder)
-                    .bindZonedDateTimeField("orderDate", Order::getOrderDate,
-                            Order.Builder::setOrderDate)
+                    .bindZonedDateTimeField(
+                            "orderDate", Order::getOrderDate, Order.Builder::setOrderDate)
                     .bindSpecField(
                             "orderDelivery",
                             Order::getOrderDelivery,
@@ -117,24 +118,34 @@ public final class TypeConverters {
                             Order.Builder::setOrderStatus,
                             Order.OrderStatus.class)
                     .bindSpecField(
-                            "seller", Order::getSeller, Order.Builder::setSeller,
+                            "seller",
+                            Order::getSeller,
+                            Order.Builder::setSeller,
                             ORGANIZATION_TYPE_SPEC)
                     .build();
     public static final TypeSpec<Person> PERSON_TYPE_SPEC =
             TypeSpecBuilder.newBuilderForThing("Person", Person::newBuilder)
                     .bindStringField("email", Person::getEmail, Person.Builder::setEmail)
-                    .bindStringField("telephone", Person::getTelephone,
-                            Person.Builder::setTelephone)
+                    .bindStringField(
+                            "telephone", Person::getTelephone, Person.Builder::setTelephone)
                     .bindStringField("name", Person::getName, Person.Builder::setName)
                     .build();
     public static final TypeSpec<Alarm> ALARM_TYPE_SPEC =
             TypeSpecBuilder.newBuilderForThing("Alarm", Alarm::newBuilder).build();
     public static final TypeSpec<Timer> TIMER_TYPE_SPEC =
             TypeSpecBuilder.newBuilderForThing("Timer", Timer::newBuilder).build();
+    public static final TypeSpec<Attendee> ATTENDEE_TYPE_SPEC =
+            new UnionTypeSpec.Builder<Attendee>()
+                    .bindMemberType(
+                            (attendee) -> attendee.asPerson().orElse(null),
+                            (person) -> new Attendee(person),
+                            PERSON_TYPE_SPEC)
+                    .build();
     public static final TypeSpec<CalendarEvent> CALENDAR_EVENT_TYPE_SPEC =
             TypeSpecBuilder.newBuilderForThing("CalendarEvent", CalendarEvent::newBuilder)
                     .bindZonedDateTimeField(
-                            "startDate", CalendarEvent::getStartDate,
+                            "startDate",
+                            CalendarEvent::getStartDate,
                             CalendarEvent.Builder::setStartDate)
                     .bindZonedDateTimeField(
                             "endDate", CalendarEvent::getEndDate, CalendarEvent.Builder::setEndDate)
@@ -142,15 +153,30 @@ public final class TypeConverters {
                             "attendee",
                             CalendarEvent::getAttendeeList,
                             CalendarEvent.Builder::addAllAttendee,
-                            new AttendeeTypeSpec())
+                            ATTENDEE_TYPE_SPEC)
                     .build();
     public static final TypeSpec<SafetyCheck> SAFETY_CHECK_TYPE_SPEC =
             TypeSpecBuilder.newBuilderForThing("SafetyCheck", SafetyCheck::newBuilder)
-                    .bindDurationField("duration", SafetyCheck::getDuration,
-                            SafetyCheck.Builder::setDuration)
+                    .bindDurationField(
+                            "duration", SafetyCheck::getDuration, SafetyCheck.Builder::setDuration)
                     .bindZonedDateTimeField(
-                            "checkinTime", SafetyCheck::getCheckinTime,
+                            "checkinTime",
+                            SafetyCheck::getCheckinTime,
                             SafetyCheck.Builder::setCheckinTime)
+                    .build();
+    public static final TypeSpec<Recipient> RECIPIENT_TYPE_SPEC =
+            new UnionTypeSpec.Builder<Recipient>()
+                    .bindMemberType(
+                            (recipient) -> recipient.asPerson().orElse(null),
+                            (person) -> new Recipient(person),
+                            PERSON_TYPE_SPEC)
+                    .build();
+    public static final TypeSpec<Participant> PARTICIPANT_TYPE_SPEC =
+            new UnionTypeSpec.Builder<Participant>()
+                    .bindMemberType(
+                            (participant) -> participant.asPerson().orElse(null),
+                            (person) -> new Participant(person),
+                            PERSON_TYPE_SPEC)
                     .build();
     private static final String FIELD_NAME_CALL_FORMAT = "callFormat";
     private static final String FIELD_NAME_PARTICIPANT = "participant";
@@ -160,8 +186,7 @@ public final class TypeConverters {
     private static final String FIELD_NAME_RECIPIENT = "recipient";
     private static final String FIELD_NAME_TEXT = "text";
 
-    private TypeConverters() {
-    }
+    private TypeConverters() {}
 
     /**
      * @param paramValue
@@ -201,7 +226,8 @@ public final class TypeConverters {
         return (int) paramValue.getNumberValue();
     }
 
-    /** Converts a ParamValue to a Boolean object.
+    /**
+     * Converts a ParamValue to a Boolean object.
      *
      * @param paramValue
      * @return
@@ -230,8 +256,8 @@ public final class TypeConverters {
             try {
                 return LocalDate.parse(paramValue.getStringValue());
             } catch (DateTimeParseException e) {
-                throw new StructConversionException("Failed to parse ISO 8601 string to LocalDate",
-                        e);
+                throw new StructConversionException(
+                        "Failed to parse ISO 8601 string to LocalDate", e);
             }
         }
         throw new StructConversionException(
@@ -250,8 +276,8 @@ public final class TypeConverters {
             try {
                 return LocalTime.parse(paramValue.getStringValue());
             } catch (DateTimeParseException e) {
-                throw new StructConversionException("Failed to parse ISO 8601 string to LocalTime",
-                        e);
+                throw new StructConversionException(
+                        "Failed to parse ISO 8601 string to LocalTime", e);
             }
         }
         throw new StructConversionException(
@@ -313,8 +339,8 @@ public final class TypeConverters {
      */
     @NonNull
     public static Entity toEntity(@NonNull ItemList itemList) {
-        Entity.Builder builder = Entity.newBuilder().setValue(
-                ITEM_LIST_TYPE_SPEC.toStruct(itemList));
+        Entity.Builder builder =
+                Entity.newBuilder().setValue(ITEM_LIST_TYPE_SPEC.toStruct(itemList));
         itemList.getId().ifPresent(builder::setIdentifier);
         return builder.build();
     }
@@ -327,8 +353,8 @@ public final class TypeConverters {
      */
     @NonNull
     public static Entity toEntity(@NonNull ListItem listItem) {
-        Entity.Builder builder = Entity.newBuilder().setValue(
-                LIST_ITEM_TYPE_SPEC.toStruct(listItem));
+        Entity.Builder builder =
+                Entity.newBuilder().setValue(LIST_ITEM_TYPE_SPEC.toStruct(listItem));
         listItem.getId().ifPresent(builder::setIdentifier);
         return builder.build();
     }
@@ -417,9 +443,12 @@ public final class TypeConverters {
      */
     @NonNull
     public static Entity toEntity(@NonNull Participant participant) {
-        ParticipantTypeSpec typeSpec = new ParticipantTypeSpec();
-        Entity.Builder builder = Entity.newBuilder().setValue(typeSpec.toStruct(participant));
-        typeSpec.getId(participant).ifPresent(builder::setIdentifier);
+        Entity.Builder builder =
+                Entity.newBuilder().setValue(PARTICIPANT_TYPE_SPEC.toStruct(participant));
+        @Nullable String identifier = PARTICIPANT_TYPE_SPEC.getIdentifier(participant);
+        if (identifier != null) {
+            builder.setIdentifier(identifier);
+        }
         return builder.build();
     }
 
@@ -429,9 +458,12 @@ public final class TypeConverters {
      */
     @NonNull
     public static Entity toEntity(@NonNull Recipient recipient) {
-        RecipientTypeSpec typeSpec = new RecipientTypeSpec();
-        Entity.Builder builder = Entity.newBuilder().setValue(typeSpec.toStruct(recipient));
-        typeSpec.getId(recipient).ifPresent(builder::setIdentifier);
+        Entity.Builder builder =
+                Entity.newBuilder().setValue(RECIPIENT_TYPE_SPEC.toStruct(recipient));
+        @Nullable String identifier = RECIPIENT_TYPE_SPEC.getIdentifier(recipient);
+        if (identifier != null) {
+            builder.setIdentifier(identifier);
+        }
         return builder.build();
     }
 
@@ -557,8 +589,8 @@ public final class TypeConverters {
             @NonNull TypeSpec<T> nestedTypeSpec) {
         return TypeSpecBuilder.<SearchAction<T>, SearchAction.Builder<T>>newBuilder(
                         "SearchAction", SearchAction::newBuilder)
-                .bindStringField("query", SearchAction<T>::getQuery,
-                        SearchAction.Builder<T>::setQuery)
+                .bindStringField(
+                        "query", SearchAction<T>::getQuery, SearchAction.Builder<T>::setQuery)
                 .bindSpecField(
                         "object",
                         SearchAction<T>::getObject,
@@ -657,20 +689,24 @@ public final class TypeConverters {
     /** Converts a Participant to a ParamValue. */
     @NonNull
     public static ParamValue toParamValue(@NonNull Participant value) {
-        ParticipantTypeSpec typeSpec = new ParticipantTypeSpec();
-        ParamValue.Builder builder = ParamValue.newBuilder().setStructValue(
-                typeSpec.toStruct(value));
-        typeSpec.getId(value).ifPresent(builder::setIdentifier);
+        ParamValue.Builder builder =
+                ParamValue.newBuilder().setStructValue(PARTICIPANT_TYPE_SPEC.toStruct(value));
+        @Nullable String identifier = PARTICIPANT_TYPE_SPEC.getIdentifier(value);
+        if (identifier != null) {
+            builder.setIdentifier(identifier);
+        }
         return builder.build();
     }
 
     /** Converts a Recipient to a ParamValue. */
     @NonNull
     public static ParamValue toParamValue(@NonNull Recipient value) {
-        RecipientTypeSpec typeSpec = new RecipientTypeSpec();
-        ParamValue.Builder builder = ParamValue.newBuilder().setStructValue(
-                typeSpec.toStruct(value));
-        typeSpec.getId(value).ifPresent(builder::setIdentifier);
+        ParamValue.Builder builder =
+                ParamValue.newBuilder().setStructValue(RECIPIENT_TYPE_SPEC.toStruct(value));
+        @Nullable String identifier = RECIPIENT_TYPE_SPEC.getIdentifier(value);
+        if (identifier != null) {
+            builder.setIdentifier(identifier);
+        }
         return builder.build();
     }
 
@@ -679,13 +715,14 @@ public final class TypeConverters {
     public static ParamValue toParamValue(@NonNull Call value) {
         ParamValue.Builder builder = ParamValue.newBuilder();
         Map<String, Value> fieldsMap = new HashMap<>();
-        fieldsMap.put(FIELD_NAME_TYPE,
-                Value.newBuilder().setStringValue(FIELD_NAME_TYPE_CALL).build());
+        fieldsMap.put(
+                FIELD_NAME_TYPE, Value.newBuilder().setStringValue(FIELD_NAME_TYPE_CALL).build());
         if (value.getCallFormat().isPresent()) {
             fieldsMap.put(
                     FIELD_NAME_CALL_FORMAT,
-                    Value.newBuilder().setStringValue(
-                            value.getCallFormat().get().toString()).build());
+                    Value.newBuilder()
+                            .setStringValue(value.getCallFormat().get().toString())
+                            .build());
         }
         ListValue.Builder participantListBuilder = ListValue.newBuilder();
         for (Participant participant : value.getParticipantList()) {
@@ -745,113 +782,5 @@ public final class TypeConverters {
             throw new StructConversionException("There is no type specified.");
         }
         return fieldsMap.get(FIELD_NAME_TYPE).getStringValue();
-    }
-
-    /** {@link TypeSpec} for {@link Participant}. */
-    public static class ParticipantTypeSpec implements TypeSpec<Participant> {
-        @Override
-        @NonNull
-        public Struct toStruct(@NonNull Participant object) {
-            if (object.asPerson().isPresent()) {
-                return PERSON_TYPE_SPEC.toStruct(object.asPerson().get());
-            }
-            return Struct.getDefaultInstance();
-        }
-
-        @Override
-        @NonNull
-        public Participant fromStruct(@NonNull Struct struct) throws StructConversionException {
-            if (FIELD_NAME_TYPE_PERSON.equals(getStructType(struct))) {
-                return new Participant(PERSON_TYPE_SPEC.fromStruct(struct));
-            }
-            throw new StructConversionException(
-                    String.format(
-                            "Unexpected type, expected type is %s while actual type is %s",
-                            FIELD_NAME_TYPE_PERSON, getStructType(struct)));
-        }
-
-        /**
-         * Retrieves identifier from the object within union value.
-         *
-         * @param object
-         * @return
-         */
-        @NonNull
-        public Optional<String> getId(@NonNull Participant object) {
-            return object.asPerson().isPresent() ? object.asPerson().get().getId()
-                    : Optional.empty();
-        }
-    }
-
-    /** {@link TypeSpec} for {@link Recipient}. */
-    public static class RecipientTypeSpec implements TypeSpec<Recipient> {
-        @NonNull
-        @Override
-        public Struct toStruct(@NonNull Recipient object) {
-            if (object.asPerson().isPresent()) {
-                return PERSON_TYPE_SPEC.toStruct(object.asPerson().get());
-            }
-            return Struct.getDefaultInstance();
-        }
-
-        @Override
-        @NonNull
-        public Recipient fromStruct(@NonNull Struct struct) throws StructConversionException {
-            if (FIELD_NAME_TYPE_PERSON.equals(getStructType(struct))) {
-                return new Recipient(PERSON_TYPE_SPEC.fromStruct(struct));
-            }
-            throw new StructConversionException(
-                    String.format(
-                            "Unexpected type, expected type is %s while actual type is %s",
-                            FIELD_NAME_TYPE_PERSON, getStructType(struct)));
-        }
-
-        /**
-         * Retrieves identifier from the object within union value.
-         *
-         * @param object
-         * @return
-         */
-        @NonNull
-        public Optional<String> getId(@NonNull Recipient object) {
-            return object.asPerson().isPresent() ? object.asPerson().get().getId()
-                    : Optional.empty();
-        }
-    }
-
-    /** {@link TypeSpec} for {@link Attendee}. */
-    public static class AttendeeTypeSpec implements TypeSpec<Attendee> {
-        @Override
-        @NonNull
-        public Struct toStruct(@NonNull Attendee object) {
-            if (object.asPerson().isPresent()) {
-                return PERSON_TYPE_SPEC.toStruct(object.asPerson().get());
-            }
-            return Struct.getDefaultInstance();
-        }
-
-        @NonNull
-        @Override
-        public Attendee fromStruct(@NonNull Struct struct) throws StructConversionException {
-            if (FIELD_NAME_TYPE_PERSON.equals(getStructType(struct))) {
-                return new Attendee(TypeConverters.PERSON_TYPE_SPEC.fromStruct(struct));
-            }
-            throw new StructConversionException(
-                    String.format(
-                            "Unexpected type, expected type is %s while actual type is %s",
-                            FIELD_NAME_TYPE_PERSON, getStructType(struct)));
-        }
-
-        /**
-         * Retrieves identifier from the object within union value.
-         *
-         * @param object
-         * @return
-         */
-        @NonNull
-        public Optional<String> getId(@NonNull Attendee object) {
-            return object.asPerson().isPresent() ? object.asPerson().get().getId()
-                    : Optional.empty();
-        }
     }
 }
